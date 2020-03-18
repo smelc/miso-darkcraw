@@ -7,8 +7,11 @@
 
 
 # Warnings currently triggered by your code
+- ignore: {name: "Move guards forward"}
 - ignore: {name: "Use :"} # Do not suggest to replace [hd] ++ tail by hd : tail
+- ignore: {name: "Use first"}
 - ignore: {name: "Use newtype instead of data"}
+- ignore: {name: "Use second"}
 - ignore: {name: "Reduce duplication"}
 
 

@@ -105,6 +105,10 @@ cellPixelSize = 24
 cps :: Int
 cps = cellPixelSize
 
+-- | The size of smaller individual assets (items, heart, etc.)
+seize :: Int
+seize = 16
+
 -- | The width of the welcome background, in pixels
 welcomePixelWidth :: Int
 welcomePixelWidth = 504

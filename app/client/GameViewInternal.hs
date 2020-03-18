@@ -211,7 +211,7 @@ heartWobble z ae x y =
   sequence
     [ keyframed
         builder
-        (wobblev (animDataName animData) True)
+        (wobblev (animDataName animData) True imgw (imgh * 3))
         animData
       | delay <- delays,
         let animData = createAnimData delay
@@ -221,9 +221,9 @@ heartWobble z ae x y =
     hpLoss = hpc < 0
     delay = 250 -- The delay between each wobbling heart, milliseconds
     delays =
-      [delay * i | i <- if hpLoss then [0 .. (- hpc)] else []]
+      [delay * (i - 1) | i <- if hpLoss then [1 .. (- hpc)] else []]
     sty = pltwh Absolute left top imgw imgh <> Map.singleton "z-index" (ms z)
-    (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
+    (imgw, imgh) :: (Int, Int) = (seize, imgw)
     left = (cardPixelWidth - imgw) `div` 2
     top = 0
     builder x =

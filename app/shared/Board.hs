@@ -293,9 +293,9 @@ exampleBoard cards =
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList
-          [ (Top, humanSpearman),
-            (TopLeft, humanGeneral),
-            (TopRight, humanArcher)
+          [ (TopLeft, humanArcher),
+            (Top, humanSpearman),
+            (TopRight, humanGeneral)
           ]
     (botHand, botStack) = splitAt handSize $ initialDeck cards Human
     botPlayer = PlayerPart botCards botHand botStack []

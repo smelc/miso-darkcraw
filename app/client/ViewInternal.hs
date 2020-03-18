@@ -20,7 +20,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import GHC.Generics (Generic)
 import Miso hiding (at)
-import Miso.String hiding (length)
+import Miso.String hiding (length, map, take, zip)
 import Miso.Util ((=:))
 import Update (Action (..))
 
@@ -151,23 +151,33 @@ keyframed e keyframes animData = do
   return $ e [animDataToStyle animData]
 
 -- | Vertical wobbling
-wobblev :: MisoString -> Bool -> MisoString
-wobblev name upOrDown =
+wobblev ::
+  MisoString ->
+  -- | Whether to wobble up or down
+  Bool ->
+  -- | The maximum x variation
+  Int ->
+  -- | The maximum y variation
+  Int ->
+  MisoString
+wobblev name upOrDown x y =
   keyframes name from steps to
   where
-    from = ms $ translateXY 0 0
+    from = ms $ step 0 0 "1"
     steps =
-      [ (15, translateXY 25 15),
-        (30, translateXY (-25) 30),
-        (45, translateXY 25 45),
-        (60, translateXY (-25) 60),
-        (85, translateXY 25 85)
+      [ (p, step x' (round y') opacity)
+        | let steps = zip [15, 30, 45, 60, 85] [1 ..],
+          let steps' = map (\(p, i) -> (p, if even i then x else - x)) steps,
+          (p :: Int, x') <- steps',
+          let y' :: Float = (fromIntegral p / 100) * fromIntegral y,
+          -- Take first three chars as in .eg. "0.3"
+          let opacity = show (100 / fromIntegral p) & take 3
       ]
-    to = ms $ translateXY 0 100
+    to = ms $ step 0 (if upOrDown then y else - y) "0"
     translateX i = "translateX(" ++ show i ++ "px)"
     translateY i = "translateY(" ++ ysign ++ show i ++ "px)"
-    translateXY x y =
-      "transform: " ++ translateX x ++ " " ++ translateY y ++ ";"
+    step x y o =
+      "transform: " ++ translateX x ++ " " ++ translateY y ++ "; opacity: " ++ o ++ ";"
     ysign = if upOrDown then "-" else ""
 
 noDrag :: Attribute a
