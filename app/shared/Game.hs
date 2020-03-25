@@ -65,8 +65,8 @@ reportEffect pSpot cSpot effect =
       case pSpot of
         PlayerBottom -> (effectfull, effectless)
         PlayerTop -> (effectless, effectfull)
-    pTop :: PlayerPart UI = PlayerPart topInPlace () () ()
-    pBot :: PlayerPart UI = PlayerPart botInPlace () () ()
+    pTop :: PlayerPart UI = PlayerPart topInPlace () () () ()
+    pBot :: PlayerPart UI = PlayerPart botInPlace () () () ()
 
 play :: Board Core -> GamePlayEvent -> Either Text (Board Core, Board UI)
 play board action =
@@ -128,6 +128,7 @@ attack ::
   m (Board Core)
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attackee) of
+    (Nothing, _, _) -> return board -- no attacker
     (_, Just _, _) -> return board -- an ally blocks the way
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
@@ -135,10 +136,16 @@ attack board pSpot cSpot =
           newHittee = applyAttackEffect effect hittee
        in do
             reportEffect pSpot cSpot $ -- attacker bumps
-              createAttackEffect Nothing (Just True) Nothing
+              createAttackEffect Nothing (Just True) Nothing Nothing
             reportEffect (otherPlayerSpot pSpot) hitSpot effect -- hittee
             return (board & pOtherSpotLens . #inPlace . at hitSpot .~ newHittee)
-    _ -> return board -- no attacker or nothing to attack
+    (Just hitter, _, Nothing) -> do
+      -- nothing to attack, contribute to the score!
+      let hit = Card.attack hitter
+      let pScore :: Int = board ^. spotToLens pSpot . #score
+      reportEffect pSpot cSpot $
+        createAttackEffect Nothing (Just True) Nothing (Just hit)
+      return (board & spotToLens pSpot . #score +~ hit)
   where
     pSpotLens = spotToLens pSpot
     pOtherSpotLens :: Lens' (Board Core) (PlayerPart Core)
@@ -168,8 +175,8 @@ applyAttackEffect effect creature@Creature {..} =
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> AttackEffect
 singleAttack attacker defender
-  | hps' <= 0 = createAttackEffect (Just True) Nothing Nothing
-  | otherwise = createAttackEffect Nothing Nothing (Just $ - hit)
+  | hps' <= 0 = createAttackEffect (Just True) Nothing Nothing Nothing
+  | otherwise = createAttackEffect Nothing Nothing (Just $ - hit) Nothing
   where
     hit = Card.attack attacker
     hps' = Card.hp defender - hit

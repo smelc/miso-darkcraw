@@ -43,8 +43,9 @@ viewGameModel model@GameModel {board, interaction} = do
     boardCardsM = boardToInPlaceCells zpp model
     boardDivM = do
       turn <- turnView model zpp
+      let scores = scoreViews model zpp
       boardCards <- boardCardsM
-      return $ div_ [style_ boardStyle] $ turn : boardCards
+      return $ div_ [style_ boardStyle] $ [turn] ++ scores ++ boardCards
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl "forest.png"

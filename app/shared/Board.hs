@@ -99,7 +99,9 @@ data AttackEffect = AttackEffect
     -- | Creature attacked (value used solely for animations)
     attackBump :: Bool,
     -- | Hits points changed
-    hitPointsChange :: Int
+    hitPointsChange :: Int,
+    -- | Score changed
+    scoreChange :: Int
   }
   deriving (Eq, Generic, Show)
 
@@ -111,26 +113,36 @@ createAttackEffect ::
   Maybe Bool ->
   -- | The [hitPointsChange] field
   Maybe Int ->
+  -- | The [scoreChange] field
+  Maybe Int ->
   AttackEffect
-createAttackEffect mDeath mAttackBump mHitPointsChange =
+createAttackEffect mDeath mAttackBump mHitPointsChange mScoreChange =
   AttackEffect
     (fromMaybe (death neutral) mDeath)
     (fromMaybe (attackBump neutral) mAttackBump)
     (fromMaybe (hitPointsChange neutral) mHitPointsChange)
+    (fromMaybe (scoreChange neutral) mScoreChange)
   where
     neutral :: AttackEffect = mempty
 
 instance Semigroup AttackEffect where
-  AttackEffect {death = d1, attackBump = ab1, hitPointsChange = hp1}
-    <> AttackEffect {death = d2, attackBump = ab2, hitPointsChange = hp2} =
+  AttackEffect {death = d1, attackBump = ab1, hitPointsChange = hp1, scoreChange = c1}
+    <> AttackEffect {death = d2, attackBump = ab2, hitPointsChange = hp2, scoreChange = c2} =
       AttackEffect
         { death = d1 || d2,
           attackBump = ab1 || ab2,
-          hitPointsChange = hp1 + hp2
+          hitPointsChange = hp1 + hp2,
+          scoreChange = c1 + c2
         }
 
 instance Monoid AttackEffect where
-  mempty = AttackEffect {death = False, attackBump = False, hitPointsChange = 0}
+  mempty =
+    AttackEffect
+      { death = False,
+        attackBump = False,
+        hitPointsChange = 0,
+        scoreChange = 0
+      }
 
 newtype AttackEffects = AttackEffects {unAttackEffects :: Map.Map CardSpot AttackEffect}
   deriving (Eq, Generic, Show)
@@ -149,6 +161,10 @@ type family InHandType (p :: Phase) where
   InHandType Core = [Card Core]
   InHandType UI = ()
 
+type family ScoreType (p :: Phase) where
+  ScoreType Core = Int
+  ScoreType UI = ()
+
 type family StackType (p :: Phase) where
   StackType Core = [Card Core]
   StackType UI = ()
@@ -160,6 +176,7 @@ type family DiscardedType (p :: Phase) where
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (InPlaceType p),
     c (InHandType p),
+    c (ScoreType p),
     c (StackType p),
     c (DiscardedType p)
   )
@@ -169,6 +186,8 @@ data PlayerPart (p :: Phase) = PlayerPart
     inPlace :: InPlaceType p,
     -- | Cards in hand
     inHand :: InHandType p,
+    -- | The score of this player
+    score :: ScoreType p,
     stack :: StackType p,
     discarded :: DiscardedType p
   }
@@ -179,11 +198,11 @@ deriving instance Board.Forall Eq p => Eq (PlayerPart p)
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
 instance Semigroup (PlayerPart UI) where
-  PlayerPart inPlace1 () () () <> PlayerPart inPlace2 () () () =
-    PlayerPart (inPlace1 <> inPlace2) () () ()
+  PlayerPart inPlace1 () () () () <> PlayerPart inPlace2 () () () () =
+    PlayerPart (inPlace1 <> inPlace2) () () () ()
 
 instance Monoid (PlayerPart UI) where
-  mempty = PlayerPart mempty mempty mempty mempty
+  mempty = PlayerPart mempty mempty mempty mempty mempty
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
@@ -269,8 +288,8 @@ emptyInPlaceBoard cards topHand =
   Board topPlayer botPlayer
   where
     (topCards, topStack) = (Map.empty, [])
-    topPlayer = PlayerPart topCards topHand topStack []
-    botPlayer = PlayerPart Map.empty [] [] []
+    topPlayer = PlayerPart topCards topHand 0 topStack []
+    botPlayer = PlayerPart Map.empty [] 0 [] []
 
 exampleBoard :: [Card UI] -> Board Core
 exampleBoard cards =
@@ -289,16 +308,17 @@ exampleBoard cards =
           (BottomRight, undeadMummy)
         ]
     (topHand, topStack) = splitAt handSize $ initialDeck cards Undead
-    topPlayer = PlayerPart topCards topHand topStack []
+    topPlayer = PlayerPart topCards topHand 0 topStack []
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList
           [ (TopLeft, humanArcher),
             (Top, humanSpearman),
-            (TopRight, humanGeneral)
+            (TopRight, humanGeneral),
+            (BottomLeft, humanArcher)
           ]
     (botHand, botStack) = splitAt handSize $ initialDeck cards Human
-    botPlayer = PlayerPart botCards botHand botStack []
+    botPlayer = PlayerPart botCards botHand 0 botStack []
 
 -- Whether a spot is in the back line
 inTheBack :: CardSpot -> Bool

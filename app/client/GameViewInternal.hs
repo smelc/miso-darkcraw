@@ -20,6 +20,7 @@ module GameViewInternal
     heartWobble,
     keyframes,
     noDrag,
+    scoreViews,
     stackView,
     turnView,
   )
@@ -70,6 +71,56 @@ errView model@GameModel {interaction} z =
         text "Please copy/paste this error in a comment of ",
         a_ [href_ itchURL] [text itchURL]
       ]
+
+scoreViews :: GameModel -> Int -> [View Action]
+scoreViews m@GameModel {board} z =
+  [ scoreView m z PlayerTop,
+    scoreView m z PlayerBottom
+  ]
+    ++ [ scoreLeaderView
+           (if topScore > botScore then PlayerTop else PlayerBottom)
+         | topScore /= botScore
+       ]
+  where
+    topScore = board ^. #playerTop . #score
+    botScore = board ^. #playerBottom . #score
+
+scoreMarginTop :: PlayerSpot -> Int
+scoreMarginTop PlayerTop = cps
+scoreMarginTop PlayerBottom = cps * 24
+
+scoreView :: GameModel -> Int -> PlayerSpot -> View Action
+scoreView GameModel {board} z pSpot =
+  div_
+    [ style_ $
+        Map.fromList textRawStyle
+          <> flexColumnStyle
+          <> "z-index" =: ms z
+          <> "position" =: "absolute"
+          -- Center horizontally
+          <> "margin-left" =: "50%"
+          <> "margin-right" =: "50%"
+          -- And tell the elemnt to center horizontally, not to its left
+          <> "transform" =: "translate(-50%, 0%)"
+          -- Finally shift element down
+          <> "margin-top" =: px (scoreMarginTop pSpot)
+    ]
+    [ div_ [] [text "Score"],
+      div_ [] [text $ ms $ show score]
+    ]
+  where
+    score = board ^. (spotToLens pSpot . #score)
+
+-- Not in scoreView itself, otherwise it mixes up the central alignment
+-- (that uses scoreView's div own width (50%))
+scoreLeaderView :: PlayerSpot -> View Action
+scoreLeaderView pSpot =
+  img_
+    [ src_ (assetsPath assetFilenameCrown),
+      style_ $
+        "margin-top" =: px (scoreMarginTop pSpot + cps `div` 2)
+          <> "margin-left" =: px ((cps * 11) + cps `div` 2)
+    ]
 
 turnView :: GameModel -> Int -> Styled (View Action)
 turnView model@GameModel {turn} z = do

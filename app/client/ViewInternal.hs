@@ -311,14 +311,12 @@ zprbwh ::
   Int ->
   Map.Map MisoString MisoString
 zprbwh z pos right bottom width height =
-  Map.fromList
-    [ ("z-index", ms z),
-      ("position", ms $ show pos),
-      ("right", ms right <> "px"),
-      ("bottom", ms bottom <> "px"),
-      ("width", ms width <> "px"),
-      ("height", ms height <> "px")
-    ]
+  "z-index" =: ms z
+    <> "position" =: ms (show pos)
+    <> "right" =: px right
+    <> "bottom" =: px bottom
+    <> "width" =: px width
+    <> "height" =: px height
 
 -- | A style specifying the z-index, the position, the width (in pixels), and
 -- | the height (in pixels)
