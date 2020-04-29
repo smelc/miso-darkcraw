@@ -1,13 +1,22 @@
 -- | Haskell language pragma
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE CPP #-}
 
 -- | Haskell module declaration
 module Main where
 
 -- | Miso framework import
-import Miso
-import Miso.String
+import           Miso
+import           Miso.String
+
+-- | JSAddle import
+#ifndef __GHCJS__
+import           Language.Javascript.JSaddle.Warp as JSaddle
+import qualified Network.Wai.Handler.Warp         as Warp
+import           Network.WebSockets
+#endif
+import           Control.Monad.IO.Class
 
 -- | Type synonym for an application model
 type Model = Int
@@ -20,9 +29,19 @@ data Action
   | SayHelloWorld
   deriving (Show, Eq)
 
+#ifndef __GHCJS__
+runApp :: JSM () -> IO ()
+runApp f =
+  Warp.runSettings (Warp.setPort 8080 (Warp.setTimeout 3600 Warp.defaultSettings)) =<<
+    JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) JSaddle.jsaddleApp
+#else
+runApp :: IO () -> IO ()
+runApp app = app
+#endif
+
 -- | Entry point for a miso application
 main :: IO ()
-main = startApp App {..}
+main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
     model  = 0                    -- initial model

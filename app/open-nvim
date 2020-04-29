@@ -1,0 +1,4 @@
+#!/bin/bash
+
+FILES=$(git ls-files "*.hs")
+nvim -p $FILES  # -c ":ALEDisable"
