@@ -8,8 +8,14 @@ cabal-version:       >=1.10
 executable app
   main-is:
     Main.hs
+  other-modules:
+    Model
+    Update
+    View
   build-depends:
-    base, miso
+    base,
+    containers,
+    miso
   if !impl(ghcjs)
     build-depends:
        jsaddle, jsaddle-warp, transformers, warp, websockets

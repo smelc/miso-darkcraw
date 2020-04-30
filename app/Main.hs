@@ -6,6 +6,10 @@
 -- | Haskell module declaration
 module Main where
 
+import Model
+import Update
+import View
+
 -- | Miso framework import
 import           Miso
 import           Miso.String
@@ -17,17 +21,6 @@ import qualified Network.Wai.Handler.Warp         as Warp
 import           Network.WebSockets
 #endif
 import           Control.Monad.IO.Class
-
--- | Type synonym for an application model
-type Model = Int
-
--- | Sum type for application events
-data Action
-  = AddOne
-  | SubtractOne
-  | NoOp
-  | SayHelloWorld
-  deriving (Show, Eq)
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
@@ -50,24 +43,3 @@ main = runApp $ startApp App {..}
     events = defaultEvents        -- default delegated events
     subs   = []                   -- empty subscription list
     mountPoint = Nothing          -- mount point for application (Nothing defaults to 'body')
-
--- | Updates model, optionally introduces side effects
-updateModel :: Action -> Model -> Effect Action Model
-updateModel action m =
-  case action of
-    AddOne
-      -> noEff (m + 1)
-    SubtractOne
-      -> noEff (m - 1)
-    NoOp
-      -> noEff m
-    SayHelloWorld
-      -> m <# do consoleLog "Hello World" >> pure NoOp
-
--- | Constructs a virtual DOM from a model
-viewModel :: Model -> View Action
-viewModel x = div_ [] [
-   button_ [ onClick AddOne ] [ text "+" ]
- , text (ms x)
- , button_ [ onClick SubtractOne ] [ text "-" ]
- ]
