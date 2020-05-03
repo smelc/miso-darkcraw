@@ -1,4 +1,4 @@
 #!/bin/bash
 
-FILES=$(git ls-files "*.hs")
+FILES="default.nix shell.nix app.cabal README.md $(git ls-files "*.hs")"
 nvim -p $FILES  # -c ":ALEDisable"
