@@ -25,7 +25,7 @@ cardBgCell :: View Action =
   where asset = cell24 0 2 -- 24x24_0_2.png
 
 cardBgCell2 :: View Action =
-  img_ [width_ "24", height_ "24", src_ "assets/24x24_0_2.png"]
+  img_ [width_ "24", height_ "24", src_ "assets/24x24_0_0.png"]
   where asset = cell24 0 2 -- 24x24_0_2.png
 
 cell24 :: Int -> Int -> Map.Map MisoString MisoString

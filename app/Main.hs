@@ -17,7 +17,9 @@ import           Miso.String
 -- | JSAddle import
 #ifndef __GHCJS__
 import           Language.Javascript.JSaddle.Warp as JSaddle
-import qualified Network.Wai.Handler.Warp         as Warp
+import           Network.Wai.Application.Static
+import qualified Network.Wai as Wai
+import qualified Network.Wai.Handler.Warp as Warp
 import           Network.WebSockets
 #endif
 import           Control.Monad.IO.Class
@@ -26,11 +28,24 @@ import           Control.Monad.IO.Class
 runApp :: JSM () -> IO ()
 runApp f =
   Warp.runSettings (Warp.setPort 8080 (Warp.setTimeout 3600 Warp.defaultSettings)) =<<
-    JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) JSaddle.jsaddleApp
+    JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) app
+  where app req sendResp =
+          case Wai.pathInfo req of
+            ("assets" : _) -> staticApp (defaultWebAppSettings ".") req sendResp
+            _ -> JSaddle.jsaddleApp req sendResp
 #else
 runApp :: IO () -> IO ()
 runApp app = app
 #endif
+
+-- runApp :: JSM () -> IO ()
+-- runApp f =
+--     Warp.runSettings (Warp.setPort 8080 (Warp.setTimeout 3600 Warp.defaultSettings)) =<<
+--         JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) app
+--     where app req sendResp =
+--             case Wai.pathInfo req of
+--               ("imgs" : _) -> staticApp (defaultWebAppSettings "examples/mario") req sendResp
+--               _ -> JSaddle.jsaddleApp req sendResp
 
 -- | Entry point for a miso application
 main :: IO ()

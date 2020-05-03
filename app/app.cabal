@@ -20,6 +20,10 @@ executable app
     miso
   if !impl(ghcjs)
     build-depends:
-       jsaddle, jsaddle-warp, transformers, warp, websockets
+       jsaddle, jsaddle-warp, transformers,
+        wai,
+        wai-app-static,
+        warp,
+        websockets
   default-language:
      Haskell2010
