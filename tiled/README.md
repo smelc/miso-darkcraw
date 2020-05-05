@@ -1,0 +1,1 @@
+File to build assets with [tiled](https://www.mapeditor.org/)

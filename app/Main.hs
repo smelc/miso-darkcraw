@@ -38,15 +38,6 @@ runApp :: IO () -> IO ()
 runApp app = app
 #endif
 
--- runApp :: JSM () -> IO ()
--- runApp f =
---     Warp.runSettings (Warp.setPort 8080 (Warp.setTimeout 3600 Warp.defaultSettings)) =<<
---         JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) app
---     where app req sendResp =
---             case Wai.pathInfo req of
---               ("imgs" : _) -> staticApp (defaultWebAppSettings "examples/mario") req sendResp
---               _ -> JSaddle.jsaddleApp req sendResp
-
 -- | Entry point for a miso application
 main :: IO ()
 main = runApp $ startApp App {..}
