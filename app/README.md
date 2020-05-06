@@ -16,10 +16,14 @@ with my usual configuration, nice!
 
 # Fast feedback
 
-To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal
+* To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal
 and update the webserver automatically:
 
-`nix-shell --run reload`
+  `nix-shell --run reload`
+* To do that AND to refresh the browser automatically
+  (uses [midori](https://www.midori-browser.org/)):
+
+  `./load-n-reload.sh`
 
 # Tips
 
