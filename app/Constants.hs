@@ -19,3 +19,6 @@ boardWidth = 408
 -- | The board's height , in pixels TODO read it from disk.
 boardHeight :: Int
 boardHeight = 624
+
+cellSize :: Int
+cellSize = 24
