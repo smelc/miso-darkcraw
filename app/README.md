@@ -1,6 +1,7 @@
-Result is in `result/bin/app.jsexe/`. To produce it: `nix-build`
+# Build
 
-To see it realtime: `localhost:8080`
+Build release with `rm .ghc.environment.* -Rf; nix-build`. This puts
+the result in `result-2/bin/app.jsexe/`.
 
 # neovim integration
 

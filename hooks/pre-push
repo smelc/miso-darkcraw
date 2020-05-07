@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+
+set -eux
+
+[[ "$USER" == "churlin" ]] || { echo "You should be churlin to do that"; exit 1; }
+
+(cd app && rm -Rf .ghc.environment.* -Rf && nix-build)
+
+declare -r ARCHIVE_NAME="darkcraw.tgz"
+declare -r ARCHIVE_PATH="/tmp/$ARCHIVE_NAME"
+declare -r TMP_PATH="/tmp/app.jsexe"
+rm -Rf "$TMP_PATH"
+cp -R "app/result-2/bin/app.jsexe" "$TMP_PATH"
+# Fix permissions, because everything is readonly in the nix store
+find "$TMP_PATH" -name \* -exec chmod +w {} \;
+(cd "$TMP_PATH" && tar -czf "$ARCHIVE_PATH" *)
+rm -Rf "$TMP_PATH"
+
+declare -r PORT="58241"
+declare -r CLEM="clem"
+declare -r HOST="schplaf.org"
+declare -r FULL="$CLEM@$HOST"
+declare -r GAME_PATH="/home/$CLEM/www/darkcraw"
+ssh -p "$PORT" "$FULL" "rm -Rf $GAME_PATH && mkdir $GAME_PATH"
+scp -P "$PORT" "$ARCHIVE_PATH" "$FULL:$GAME_PATH/$ARCHIVE_NAME"
+ssh -p "$PORT" "$FULL" "cd $GAME_PATH && tar -xzf $ARCHIVE_NAME && rm -Rf $ARCHIVE_NAME"
+
+rm -Rf "$ARCHIVE_PATH"

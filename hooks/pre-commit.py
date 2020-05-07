@@ -106,11 +106,11 @@ def main() -> int:
 
     rc = 0
 
-    relevant_hs_files = _git_diff(staged_or_modified, "hs")
+    relevant_hs_files = _git_diff(staged, "hs")
     # Remove Main.hs that uses CPP
     relevant_hs_files = [x for x in relevant_hs_files if "Main.hs" in x]
     if relevant_hs_files:
-        ormolu_rc = _call_tool(files, staged_or_modified,
+        ormolu_rc = _call_tool(files, staged,
                                ["ormolu", "--inplace"])
         rc = max(rc, ormolu_rc)
     else:
