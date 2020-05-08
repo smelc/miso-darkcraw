@@ -10,6 +10,6 @@ Install the pre-commit hook as follows:
 
 `ln -sr hooks/pre-commit.py .git/hooks/pre-commit`
 
-If you have the rights to do a release, install the post-push hook as follows:
+If you have the rights to do a release, install the pre-push hook as follows:
 
 `ln -sr hooks/pre-push .git/hooks/pre-push`

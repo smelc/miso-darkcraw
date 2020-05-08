@@ -15,9 +15,11 @@ viewModel x =
   div_
     [style_ globalStyle]
     [ div_ [style_ bgStyle] [backgroundCell],
-      div_ [style_ cardStyle] [cardBackground 2]
+      div_ [style_ $ cardStyle 3 3] [cardCreature (z + 1) assetFilenameHumanSpearman],
+      div_ [style_ $ cardStyle 7 7] [cardCreature (z + 1) assetFilenameHumanGeneral]
     ]
   where
+    z = 0
     cellSize = Constants.cellSize
     globalStyle =
       Map.fromList
@@ -30,24 +32,38 @@ viewModel x =
         [ ("width", ms boardWidth <> "px"),
           ("height", ms boardHeight <> "px"),
           ("position", "absolute"),
-          ("z-index", "1")
+          ("z-index", ms z)
         ]
-    cardStyle =
+    cardStyle xCellsOffset yCellsOffset =
       Map.fromList
-        [ ("position", "absolute"),
+        [ ("position", "relative"),
           ("display", "block"),
-          ("z-index", "2"),
-          ("top", ms (3 * cellSize) <> "px"),
-          ("left", ms (3 * cellSize) <> "px")
+          ("top", ms (xCellsOffset * cellSize) <> "px"),
+          ("left", ms (yCellsOffset * cellSize) <> "px")
         ]
 
 backgroundCell :: View action
 backgroundCell =
   img_ [width_ $ ms boardWidth, height_ $ ms boardHeight, src_ $ assetsPath "forest.png"]
 
-cardBgCell :: View Action
-cardBgCell =
-  img_ [src_ $ assetsPath "24x24_0_2.png"]
+imgCell :: MisoString -> View Action
+imgCell filename =
+  img_ [src_ $ assetsPath filename]
+
+cardCreature :: Int -> MisoString -> View Action
+cardCreature z creatureFilename =
+  div_ [style_ divStyle] [div_ [style_ pictureStyle] [pictureCell], cardBackground z]
+  where
+    cellPixelSz = ms cellSize <> "px"
+    divStyle = Map.fromList [("position", "relative"), ("width", cellPixelSz), ("height", cellPixelSz)]
+    pictureStyle =
+      Map.fromList
+        [ ("z-index", ms $ z + 1),
+          ("position", "absolute"),
+          ("top", ms (cellSize `div` 4) <> "px"),
+          ("left", ms ((cardWidth - cellSize) `div` 2) <> "px")
+        ]
+    pictureCell = imgCell creatureFilename
 
 cardBackground :: Int -> View Action
 cardBackground z =
@@ -55,8 +71,8 @@ cardBackground z =
   where
     cellPixelSz = ms cellSize <> "px"
     divStyle =
-      Map.fromList [("position", "relative")]
-    genCell x y = div_ [style_ cardStyle] [cardBgCell]
+      Map.fromList [("position", "absolute")]
+    genCell x y = div_ [style_ cardStyle] [imgCell assetFilenameBeigeBG]
       where
         cardStyle =
           Map.fromList
