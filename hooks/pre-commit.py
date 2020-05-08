@@ -74,7 +74,7 @@ Concerned files:""")
     rc = 0
     for file_ in files:
         cmd = list(cmd)  # Copy to be safe
-        cmd.append(_file)
+        cmd.append(file_)
         print(" ".join(cmd))
         call_result = subprocess.run(cmd,
                                      stdout=subprocess.PIPE,
@@ -110,7 +110,7 @@ def main() -> int:
     # Remove Main.hs that uses CPP
     relevant_hs_files = [x for x in relevant_hs_files if "Main.hs" in x]
     if relevant_hs_files:
-        ormolu_rc = _call_tool(files, staged,
+        ormolu_rc = _call_tool(relevant_hs_files, staged,
                                ["ormolu", "--inplace"])
         rc = max(rc, ormolu_rc)
     else:

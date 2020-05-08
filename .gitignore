@@ -1,4 +1,6 @@
 app/.ghc.environment.x86_64-linux-8.6.5
+app/assets/16x16*
+app/assets/24x24*
 app/assets/forest.png
 app/dist
 app/dist-newstyle
