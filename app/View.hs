@@ -67,21 +67,24 @@ cardCreature z creatureFilename =
 
 cardBackground :: Int -> View Action
 cardBackground z =
-  div_ [style_ divStyle] [genCell x y | x <- [0 .. 2], y <- [0 .. 3]]
+  div_
+    [style_ cardStyle]
+    [ img_
+        [ src_ $ assetsPath assetFilenameBeigeBG,
+          width_ $ ms cardWidth,
+          height_ $ ms cardHeight
+        ]
+    ]
   where
-    cellPixelSz = ms cellSize <> "px"
-    divStyle =
-      Map.fromList [("position", "absolute")]
-    genCell x y = div_ [style_ cardStyle] [imgCell assetFilenameBeigeBG]
-      where
-        cardStyle =
-          Map.fromList
-            [ ("width", cellPixelSz),
-              ("height", cellPixelSz),
-              ("position", "absolute"),
-              ("display", "block"),
-              ("z-index", ms z),
-              ("left", ms (x * cellSize) <> "px"),
-              ("top", ms (y * cellSize) <> "px")
-              -- ("transform", "translateX(-128px) translateY(-128px)")
-            ]
+    divStyle = Map.fromList [("position", "absolute")]
+    cardStyle =
+      Map.fromList
+        [ ("width", ms cardHeight <> "px"),
+          ("height", ms cardHeight <> "px"),
+          ("position", "absolute"),
+          ("display", "block"),
+          ("z-index", ms z),
+          ("left", "0px"),
+          ("top", "0px")
+          -- ("transform", "translateX(-128px) translateY(-128px)")
+        ]
