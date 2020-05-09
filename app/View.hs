@@ -52,18 +52,42 @@ imgCell filename =
 
 cardCreature :: Int -> MisoString -> View Action
 cardCreature z creatureFilename =
-  div_ [style_ divStyle] [div_ [style_ pictureStyle] [pictureCell], cardBackground z]
+  div_
+    [style_ divStyle]
+    [ div_ [style_ pictureStyle] [pictureCell],
+      div_ [style_ statsStyle] [statsCell],
+      cardBackground z
+    ]
   where
     cellPixelSz = ms cellSize <> "px"
     divStyle = Map.fromList [("position", "relative"), ("width", cellPixelSz), ("height", cellPixelSz)]
+    topMargin = cellSize `div` 4
     pictureStyle =
       Map.fromList
         [ ("z-index", ms $ z + 1),
           ("position", "absolute"),
-          ("top", ms (cellSize `div` 4) <> "px"),
+          ("top", ms topMargin <> "px"),
           ("left", ms ((cardWidth - cellSize) `div` 2) <> "px")
         ]
-    pictureCell = imgCell creatureFilename
+    pictureCell :: View Action = imgCell creatureFilename
+    statsStyle =
+      Map.fromList
+        [ ("z-index", ms $ z + 1),
+          ("position", "absolute"),
+          ("align", "center"),
+          ("top", ms (topMargin + cellSize + topMargin) <> "px"),
+          ("left", ms topMargin <> "px"),
+          ("width", ms (cardWidth - (topMargin * 2)) <> "px"),
+          ("height", ms cellSize <> "px")
+        ]
+    statsCell :: View Action =
+      div_
+        []
+        [ imgCell assetFilenameHeart,
+          text "1",
+          imgCell assetFilenameSword,
+          text "1"
+        ]
 
 cardBackground :: Int -> View Action
 cardBackground z =
