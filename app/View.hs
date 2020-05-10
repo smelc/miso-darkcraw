@@ -74,19 +74,24 @@ cardCreature z creatureFilename =
       Map.fromList
         [ ("z-index", ms $ z + 1),
           ("position", "absolute"),
-          ("align", "center"),
           ("top", ms (topMargin + cellSize + topMargin) <> "px"),
           ("left", ms topMargin <> "px"),
           ("width", ms (cardWidth - (topMargin * 2)) <> "px"),
           ("height", ms cellSize <> "px")
         ]
+    inStatsStyle =
+      Map.fromList
+        [ ("font-size", ms (cellSize `div` 2) <> "px"),
+          ("font-family", "serif")
+        ]
+    statImgStyle :: Map MisoString MisoString = Map.fromList []
     statsCell :: View Action =
       div_
-        []
-        [ imgCell assetFilenameHeart,
+        [style_ inStatsStyle]
+        [ text "1",
+          imgCell assetFilenameHeart,
           text "1",
-          imgCell assetFilenameSword,
-          text "1"
+          imgCell assetFilenameSword
         ]
 
 cardBackground :: Int -> View Action
