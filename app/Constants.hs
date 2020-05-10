@@ -13,7 +13,7 @@ assetFilenameBeigeBG :: MisoString
 assetFilenameBeigeBG = "24x24_0_2.png"
 
 assetFilenameHumanGeneral :: MisoString
-assetFilenameHumanGeneral = "24x24_4_0.png"
+assetFilenameHumanGeneral = "24x24_3_0.png"
 
 assetFilenameHumanSpearman :: MisoString
 assetFilenameHumanSpearman = "24x24_0_0.png"
