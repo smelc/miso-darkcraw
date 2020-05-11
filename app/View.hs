@@ -82,7 +82,9 @@ cardCreature z creatureFilename =
     inStatsStyle =
       Map.fromList
         [ ("font-size", ms (cellSize `div` 2) <> "px"),
-          ("font-family", "serif")
+          ("font-family", "serif"),
+          ("display", "flex"),
+          ("align-items", "center")
         ]
     statImgStyle :: Map MisoString MisoString = Map.fromList []
     statsCell :: View Action =
