@@ -3,6 +3,7 @@
 
 module Model where
 
+import Board
 import Card
 
 -- | Sum type for application events
@@ -14,6 +15,9 @@ data Action
   deriving (Show, Eq)
 
 -- | Type synonym for an application model
-newtype Model = Model { uiCards :: [Card UI] }
+data Model = Model {
+  board :: Board,
+  uiCards :: [Card UI]
+}
 
 deriving instance (Eq Model)

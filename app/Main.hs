@@ -7,8 +7,10 @@
 -- | Haskell module declaration
 module Main where
 
+import Board
 import Card
 import Data.ByteString.Lazy
+import qualified Data.Map.Strict as Map
 import Json
 import JsonData
 import Model
@@ -60,8 +62,9 @@ loadJson =
 -- | Entry point for a miso application
 main :: IO ()
 main = do
-  cards <- loadJson
-  let model = Model cards -- initial model
+  cards :: [Card UI] <- loadJson
+  let board = exampleBoard cards
+  let model = Model board cards -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
