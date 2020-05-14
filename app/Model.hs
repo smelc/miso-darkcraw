@@ -1,4 +1,9 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE StandaloneDeriving #-}
+
 module Model where
+
+import Card
 
 -- | Sum type for application events
 data Action
@@ -9,4 +14,6 @@ data Action
   deriving (Show, Eq)
 
 -- | Type synonym for an application model
-type Model = Int
+newtype Model = Model { uiCards :: [Card UI] }
+
+deriving instance (Eq Model)

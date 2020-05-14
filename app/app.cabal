@@ -11,12 +11,20 @@ executable app
   main-is:
     Main.hs
   other-modules:
+    Card
+    Constants
+    Json
+    JsonData
     Model
     Update
     View
   build-depends:
+    aeson,
     base,
+    bytestring,
     containers,
+    extra,
+    file-embed,
     miso
   if !impl(ghcjs)
     build-depends:

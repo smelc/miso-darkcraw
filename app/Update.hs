@@ -11,9 +11,9 @@ updateModel :: Action -> Model -> Effect Action Model
 updateModel action m =
   case action of
     AddOne ->
-      noEff (m + 1)
+      noEff m
     SubtractOne ->
-      noEff (m - 1)
+      noEff m
     NoOp ->
       noEff m
     SayHelloWorld ->

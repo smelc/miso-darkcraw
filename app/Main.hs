@@ -1,12 +1,19 @@
--- | Haskell language pragma
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -- | Haskell module declaration
 module Main where
 
+import Card
+import Data.ByteString.Lazy
+import Json
+import JsonData
 import Model
+import System.Exit
+import System.IO (hPutStrLn, stderr)
 import Update
 import View
 
@@ -38,12 +45,26 @@ runApp :: IO () -> IO ()
 runApp app = app
 #endif
 
+loadJson :: IO [Card UI]
+loadJson =
+  case parseJson bs of
+    Left errMsg -> do
+      hPutStrLn  stderr errMsg
+      exitWith $ ExitFailure 1
+    Right cards -> return cards
+  where
+    bs :: Data.ByteString.Lazy.ByteString
+    bs = Data.ByteString.Lazy.fromStrict jsonData
+
+
 -- | Entry point for a miso application
 main :: IO ()
-main = runApp $ startApp App {..}
+main = do
+  cards <- loadJson
+  let model = Model cards -- initial model
+  runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = 0                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = defaultEvents        -- default delegated events
