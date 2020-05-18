@@ -16,16 +16,15 @@ import Model
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel Model {board, uiCards} =
-  div_
-    [style_ globalStyle]
-    (div_ [style_ bgStyle] [backgroundCell] : boardToCells (z + 1) board)
+  div_ [] [boardDiv, handDiv]
   where
     z :: Int = 0
-    globalStyle =
+    globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
+    boardStyle =
       Map.fromList
         [ ("position", "relative"),
-          ("top", "24px"),
-          ("left", "24px")
+          ("left", ms globalLeftShift <> "px"),
+          ("top", "0px")
         ]
     bgStyle =
       Map.fromList
@@ -33,6 +32,20 @@ viewModel Model {board, uiCards} =
           ("height", ms boardPixelHeight <> "px"),
           ("position", "absolute"),
           ("z-index", ms z)
+        ]
+    boardCards = boardToCells (z + 1) board
+    boardDiv =
+      div_
+        [style_ boardStyle]
+        (div_ [style_ bgStyle] [backgroundCell] : boardCards)
+    handDiv =
+      div_
+        [style_ handStyle]
+        [handCell]
+    handStyle =
+      Map.fromList
+        [ ("position", "relative"),
+          ("top", ms boardPixelHeight <> "px")
         ]
 
 boardToCells :: Int -> Board -> [View Action]
@@ -86,6 +99,10 @@ backgroundCell :: View action
 backgroundCell =
   img_ [width_ $ ms boardPixelWidth, height_ $ ms boardPixelHeight, src_ $ assetsPath "forest.png"]
 
+handCell :: View action
+handCell =
+  img_ [width_ $ ms handPixelWidth, src_ $ assetsPath "hand.png"]
+
 imgCell :: MisoString -> View Action
 imgCell filename =
   img_ [src_ $ assetsPath filename]
@@ -100,7 +117,7 @@ cardCreature z creature =
     ]
   where
     cellPixelSz = ms cellPixelSize <> "px"
-    divStyle = Map.fromList [ ("position", "relative") ]
+    divStyle = Map.fromList [("position", "relative")]
     topMargin = cellPixelSize `div` 4
     pictureStyle =
       Map.fromList

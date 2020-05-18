@@ -27,13 +27,17 @@ assetFilenameSword = "16x16_1_0.png"
 assetsPath :: MisoString -> MisoString
 assetsPath filename = assetsDir <> "/" <> filename
 
--- | The board's width, in pixels. TODO read it from disk.
+-- | The board's width, in pixels
 boardPixelWidth :: Int
 boardPixelWidth = 408
 
--- | The board's height , in pixels TODO read it from disk.
+-- | The board's height , in pixels
 boardPixelHeight :: Int
 boardPixelHeight = 624
+
+-- | The hands's width, in pixels
+handPixelWidth :: Int
+handPixelWidth = 504
 
 -- | A card's height, in cells
 cardCellHeight :: Int
