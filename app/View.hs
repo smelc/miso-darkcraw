@@ -103,7 +103,7 @@ cardCreature z creatureFilename =
     ]
   where
     cellPixelSz = ms cellPixelSize <> "px"
-    divStyle = Map.fromList [("position", "relative"), ("width", cellPixelSz), ("height", cellPixelSz)]
+    divStyle = Map.fromList [ ("position", "relative") ]
     topMargin = cellPixelSize `div` 4
     pictureStyle =
       Map.fromList
