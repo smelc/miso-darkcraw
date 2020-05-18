@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack --resolver lts-15.12 script
+-- stack --resolver lts-14.11 script
 
 import Codec.Picture
 import Codec.Picture.Extra
@@ -21,7 +21,7 @@ openInputFile size = do
   return $ either (error . show) convertRGBA8 errorOrImg
 
 genIndices size img =
-  [ (i, j) 
+  [ (i, j)
   | i <- [0 .. (imageWidth img `div` size) - 1]
   , j <- [0 .. (imageHeight img `div` size) - 1]
   ]
