@@ -9,7 +9,6 @@ import Board
 import Card
 import Constants
 import Data.Map.Strict as Map
-import Debug.Trace
 import Miso
 import Miso.String
 import Model
@@ -36,13 +35,11 @@ viewModel Model {board, uiCards} =
           ("z-index", ms z)
         ]
 
--- div_ [style_ $ cardStyle 3 3] [cardCreature (z + 1) assetFilenameHumanSpearman],
--- div_ [style_ $ cardStyle 7 7] [cardCreature (z + 1) assetFilenameHumanGeneral]
 boardToCells :: Int -> Board -> [View Action]
 boardToCells z board =
-  [ div_ [style_ $ cardStyle x y] [cardCreature z (ms $ filename creature)]
+  [ div_ [style_ $ cardStyle x y] [cardCreature z creature]
     | (pSpot, cSpot, creature) <- board',
-      let (x, y) = trace (show (cellsOffset pSpot cSpot)) (cellsOffset pSpot cSpot)
+      let (x, y) = cellsOffset pSpot cSpot
   ]
   where
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
@@ -93,8 +90,8 @@ imgCell :: MisoString -> View Action
 imgCell filename =
   img_ [src_ $ assetsPath filename]
 
-cardCreature :: Int -> MisoString -> View Action
-cardCreature z creatureFilename =
+cardCreature :: Int -> Creature Core -> View Action
+cardCreature z creature =
   div_
     [style_ divStyle]
     [ div_ [style_ pictureStyle] [pictureCell],
@@ -112,7 +109,7 @@ cardCreature z creatureFilename =
           ("top", ms topMargin <> "px"),
           ("left", ms ((cardPixelWidth - cellPixelSize) `div` 2) <> "px")
         ]
-    pictureCell :: View Action = imgCell creatureFilename
+    pictureCell :: View Action = imgCell $ ms $ filename creature
     statsStyle =
       Map.fromList
         [ ("z-index", ms $ z + 1),
@@ -133,9 +130,9 @@ cardCreature z creatureFilename =
     statsCell :: View Action =
       div_
         [style_ inStatsStyle]
-        [ text "1",
+        [ text $ ms $ hp creature,
           imgCell assetFilenameHeart,
-          text "1",
+          text $ ms $ attack creature,
           imgCell assetFilenameSword
         ]
 
