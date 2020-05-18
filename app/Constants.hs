@@ -28,18 +28,41 @@ assetsPath :: MisoString -> MisoString
 assetsPath filename = assetsDir <> "/" <> filename
 
 -- | The board's width, in pixels. TODO read it from disk.
-boardWidth :: Int
-boardWidth = 408
+boardPixelWidth :: Int
+boardPixelWidth = 408
 
 -- | The board's height , in pixels TODO read it from disk.
-boardHeight :: Int
-boardHeight = 624
+boardPixelHeight :: Int
+boardPixelHeight = 624
 
-cardHeight :: Int
-cardHeight = cellSize * 4
+-- | A card's height, in cells
+cardCellHeight :: Int
+cardCellHeight = 4
 
-cardWidth :: Int
-cardWidth = cellSize * 3
+-- | A card's width, in cells
+cardCellWidth :: Int
+cardCellWidth = 3
 
-cellSize :: Int
-cellSize = 24
+-- | A card's height, in pixels
+cardPixelHeight :: Int
+cardPixelHeight = cellPixelSize * cardCellHeight
+
+-- | A card's width, in pixels
+cardPixelWidth :: Int
+cardPixelWidth = cellPixelSize * cardCellWidth
+
+-- | The horizontal spacing between two cards, in cells
+cardHCellGap :: Int
+cardHCellGap = 1
+
+-- | The vertical spacing between two cards, in cells
+cardVCellGap :: Int
+cardVCellGap = 1
+
+-- | The vertical spacing between the two teams, in cells
+teamsVCellGap :: Int
+teamsVCellGap = 2
+
+-- | The size of a cell, in pixels
+cellPixelSize :: Int
+cellPixelSize = 24

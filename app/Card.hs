@@ -57,7 +57,8 @@ data Creature (p :: Phase)
         victoryPoints :: Int,
         skills :: Maybe [Skill],
         x :: CoordType p,
-        y :: CoordType p
+        y :: CoordType p,
+        filename :: String
       }
   deriving (Generic)
 
@@ -90,8 +91,8 @@ data Card (p :: Phase)
   | ItemCard Item
 
 creatureUI2CreatureCore :: Creature UI -> Creature Core
-creatureUI2CreatureCore Creature {creatureId, hp, attack, moral, victoryPoints, skills, ..} =
-  Creature creatureId hp attack moral victoryPoints skills () ()
+creatureUI2CreatureCore Creature {creatureId, hp, attack, moral, victoryPoints, skills, filename, ..} =
+  Creature creatureId hp attack moral victoryPoints skills () () filename
 
 card2Creature :: Card p -> Maybe (Creature p)
 card2Creature =

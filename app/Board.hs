@@ -4,12 +4,13 @@
 module Board where
 
 import Card
+import Data.Bifunctor
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
 
--- | The spot of a card, as visible from the bottom of the screen. For the
--- | top part, think as if it was in the bottom, turning the board
+-- | The spot of a card, as visible from the top of the screen. For the
+-- | bottom part, think as if it was in the top, turning the board
 -- | 180 degrees clockwise
 data CardSpot
   = TopLeft
@@ -59,6 +60,22 @@ allPlayersSpots = [PlayerBottom ..]
 
 type Board = Map.Map PlayerSpot PlayerPart
 
+_listProduct :: [(a, [b])] -> [[(a, b)]]
+_listProduct [] = []
+_listProduct ((a, bs) : rest) =
+  [(a, b) | b <- bs] : _listProduct rest
+
+boardToVisibleCards :: Board -> [(PlayerSpot, CardSpot, Creature Core)]
+boardToVisibleCards board =
+  [(a, b, c) | (a, (b, c)) <- board''']
+  where
+    board' :: [(PlayerSpot, PlayerPart)] = Map.toList board
+    sndFiddler :: PlayerPart -> [(CardSpot, Creature Core)] =
+      Map.toList . visible
+    board'' :: [(PlayerSpot, [(CardSpot, Creature Core)])] =
+      Prelude.map (Data.Bifunctor.second sndFiddler) board'
+    board''' = concat $ _listProduct board''
+
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
   Map.fromList [(PlayerBottom, botPlayer), (PlayerTop, topPlayer)]
@@ -68,7 +85,6 @@ exampleBoard cards =
     undeadArcher = CreatureID Archer Undead
     undeadMummy = CreatureID Mummy Undead
     undeadVampire = CreatureID Vampire Undead
-
     creatures :: [Creature Core] =
       map creatureUI2CreatureCore $ mapMaybe card2Creature cards
     getCardByID searched =
@@ -78,21 +94,20 @@ exampleBoard cards =
     udArcher = getCardByID undeadArcher
     udMummy = getCardByID undeadMummy
     udVampire = getCardByID undeadVampire
-
     topPlayer = PlayerPart topCards Set.empty
     topCards :: CardsOnTable =
       listToCardsOnTable
-        [ Nothing,
-          Just udArcher,
-          Nothing,
-          Nothing,
-          Just udVampire,
-          Just udMummy
+        [ Just udArcher
+          , Nothing
+          , Nothing
+          , Nothing
+          , Just udVampire
+          , Just udMummy
         ]
     botPlayer = PlayerPart botCards Set.empty
     botCards :: CardsOnTable =
       listToCardsOnTable
-        [ Nothing,
-          Just hGeneral,
-          Just hSpearman
+        [ Nothing -- TopLeft
+          , Just hGeneral -- Top
+          , Just hSpearman -- TopRight
         ]
