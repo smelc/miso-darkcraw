@@ -1,6 +1,8 @@
 #!/usr/bin/env stack
 -- stack --resolver lts-14.11 script
 
+{-# LANGUAGE BlockArguments #-}
+
 import Codec.Picture
 import Codec.Picture.Extra
 import Control.Monad
@@ -36,8 +38,12 @@ genImages size = do
   let indices = genIndices size img
   let tiles = [crop (i*size) (j*size) size size img | (i,j) <- indices]
   let fileNames = map (outputFile size) indices
-  let namedTiles = zip fileNames tiles
-  mapM_ (uncurry writePng) (filter (not . isTransparent . snd) namedTiles)
+  zipWithM_ genFile fileNames tiles
+ where
+  genFile fileName tile = do
+    when (not (isTransparent tile)) do
+      writePng fileName tile
+      putStrLn fileName
 
 main = do
   createDirectoryIfMissing False outputDir
