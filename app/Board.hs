@@ -1,7 +1,15 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Board where
+module Board
+  ( boardToCardsInHand,
+    boardToCardsInPlace,
+    Board,
+    CardSpot (..),
+    exampleBoard,
+    PlayerSpot (..),
+  )
+where
 
 import Card
 import Data.Bifunctor
@@ -43,12 +51,12 @@ listToCardsOnTable maybeCreatures =
               Just creature -> Map.insert (allCardsSpots !! idx) creature acc
        in impl tail (idx + 1) nextAcc
 
-type CardsInHand = Set.Set (Card Core)
-
 data PlayerPart
   = PlayerPart
-      { visible :: CardsOnTable,
-        invisible :: CardsInHand
+      { -- | Cards on the board
+        inPlace :: CardsOnTable,
+        -- | Cards in hand
+        inHand :: [Card Core]
       }
   deriving (Eq)
 
@@ -65,21 +73,32 @@ _listProduct [] = []
 _listProduct ((a, bs) : rest) =
   [(a, b) | b <- bs] : _listProduct rest
 
-boardToVisibleCards :: Board -> [(PlayerSpot, CardSpot, Creature Core)]
-boardToVisibleCards board =
+boardToCardsInPlace :: Board -> [(PlayerSpot, CardSpot, Creature Core)]
+boardToCardsInPlace board =
   [(a, b, c) | (a, (b, c)) <- board''']
   where
     board' :: [(PlayerSpot, PlayerPart)] = Map.toList board
     sndFiddler :: PlayerPart -> [(CardSpot, Creature Core)] =
-      Map.toList . visible
+      Map.toList . inPlace
     board'' :: [(PlayerSpot, [(CardSpot, Creature Core)])] =
       Prelude.map (Data.Bifunctor.second sndFiddler) board'
     board''' = concat $ _listProduct board''
+
+boardToCardsInHand :: Board -> [(PlayerSpot, Card Core)]
+boardToCardsInHand board =
+  concat $ _listProduct board''
+  where
+    board' :: [(PlayerSpot, PlayerPart)] = Map.toList board
+    sndFiddler :: PlayerPart -> [(CardSpot, Creature Core)] =
+      Map.toList . inPlace
+    board'' :: [(PlayerSpot, [Card Core])] =
+      Prelude.map (Data.Bifunctor.second inHand) board'
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
   Map.fromList [(PlayerBottom, botPlayer), (PlayerTop, topPlayer)]
   where
+    humanArcher = CreatureID Archer Human
     humanGeneral = CreatureID General Human
     humanSpearman = CreatureID Spearman Human
     undeadArcher = CreatureID Archer Undead
@@ -89,25 +108,29 @@ exampleBoard cards =
       map creatureUI2CreatureCore $ mapMaybe card2Creature cards
     getCardByID searched =
       head $ filter (\c -> creatureId c == searched) creatures
+    hArcher = getCardByID humanArcher
     hGeneral = getCardByID humanGeneral
     hSpearman = getCardByID humanSpearman
     udArcher = getCardByID undeadArcher
     udMummy = getCardByID undeadMummy
     udVampire = getCardByID undeadVampire
-    topPlayer = PlayerPart topCards Set.empty
+
     topCards :: CardsOnTable =
       listToCardsOnTable
-        [ Just udArcher
-          , Nothing
-          , Nothing
-          , Nothing
-          , Just udVampire
-          , Just udMummy
+        [ Just udArcher,
+          Nothing,
+          Nothing,
+          Nothing,
+          Just udVampire,
+          Just udMummy
         ]
-    botPlayer = PlayerPart botCards Set.empty
+    topPlayer = PlayerPart topCards []
+
+    botHand = [CreatureCard hArcher, CreatureCard hArcher]
     botCards :: CardsOnTable =
       listToCardsOnTable
-        [ Nothing -- TopLeft
-          , Just hGeneral -- Top
-          , Just hSpearman -- TopRight
+        [ Nothing, -- TopLeft
+          Just hGeneral, -- Top
+          Just hSpearman -- TopRight
         ]
+    botPlayer = PlayerPart botCards botHand

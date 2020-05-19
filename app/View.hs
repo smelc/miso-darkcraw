@@ -56,7 +56,7 @@ boardToCells z board =
   ]
   where
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
-      boardToVisibleCards board
+      boardToCardsInPlace board
     cardStyle xCellsOffset yCellsOffset =
       Map.fromList
         [ ("position", "relative"),
