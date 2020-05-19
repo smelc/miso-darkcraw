@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v2
       
     - name: Install json linter
-      run: sudo apt install jsonlint-php
+      run: sudo apt install jsonlint
         
     # Runs a single command using the runners shell
     - name: jsonlint-php app/data.json
