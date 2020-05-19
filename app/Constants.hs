@@ -27,6 +27,10 @@ assetFilenameSword = "16x16_1_0.png"
 assetsPath :: MisoString -> MisoString
 assetsPath filename = assetsDir <> "/" <> filename
 
+-- | The number of cells from the left of the board to leftmost cards
+boardToLeftCardCellsOffset :: Int
+boardToLeftCardCellsOffset = 3
+
 -- | The board's width, in pixels
 boardPixelWidth :: Int
 boardPixelWidth = 408
@@ -34,6 +38,10 @@ boardPixelWidth = 408
 -- | The board's height , in pixels
 boardPixelHeight :: Int
 boardPixelHeight = 624
+
+-- | The hands's height, in pixels
+handPixelHeight :: Int
+handPixelHeight = 192
 
 -- | The hands's width, in pixels
 handPixelWidth :: Int

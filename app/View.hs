@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -9,6 +10,7 @@ import Board
 import Card
 import Constants
 import Data.Map.Strict as Map
+import Data.Maybe (mapMaybe)
 import Miso
 import Miso.String
 import Model
@@ -26,50 +28,84 @@ viewModel Model {board, uiCards} =
           ("left", ms globalLeftShift <> "px"),
           ("top", "0px")
         ]
-    bgStyle =
+    bgStyle pixelWidth pixelHeight =
       Map.fromList
-        [ ("width", ms boardPixelWidth <> "px"),
-          ("height", ms boardPixelHeight <> "px"),
+        [ ("width", ms pixelWidth <> "px"),
+          ("height", ms pixelHeight <> "px"),
           ("position", "absolute"),
           ("z-index", ms z)
         ]
-    boardCards = boardToCells (z + 1) board
+    boardCards = boardToInPlaceCells (z + 1) board
     boardDiv =
       div_
         [style_ boardStyle]
-        (div_ [style_ bgStyle] [backgroundCell] : boardCards)
+        ( div_ [style_ $ bgStyle boardPixelWidth boardPixelHeight] [backgroundCell]
+            : boardCards
+        )
+    handCards = boardToInHandCells (z + 1) board
     handDiv =
       div_
         [style_ handStyle]
-        [handCell]
+        ( div_ [style_ $ bgStyle handPixelWidth handPixelHeight] [handCell]
+            : handCards
+        )
     handStyle =
       Map.fromList
         [ ("position", "relative"),
           ("top", ms boardPixelHeight <> "px")
         ]
 
-boardToCells :: Int -> Board -> [View Action]
-boardToCells z board =
+boardToInPlaceCells :: Int -> Board -> [View Action]
+boardToInPlaceCells z board =
   [ div_ [style_ $ cardStyle x y] [cardCreature z creature]
     | (pSpot, cSpot, creature) <- board',
-      let (x, y) = cellsOffset pSpot cSpot
+      let (x, y) = cardCellsBoardOffset pSpot cSpot
   ]
   where
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
-    cardStyle xCellsOffset yCellsOffset =
-      Map.fromList
-        [ ("position", "relative"),
-          ("display", "block"),
-          ("left", ms (xCellsOffset * cellPixelSize) <> "px"),
-          ("top", ms (yCellsOffset * cellPixelSize) <> "px")
-        ]
 
-cellsOffset :: PlayerSpot -> CardSpot -> (Int, Int)
-cellsOffset PlayerTop cardSpot =
+boardToInHandCells :: Int -> Board -> [View Action]
+boardToInHandCells z board =
+  [ div_ [style_ $ cardStyle x 2] [cardCreature z creature]
+    | (creature, i) <- cardsWithIdxs,
+      let x = cellsXOffset i
+  ]
+  where
+    board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board
+    cards :: [Card Core] = [c | (p, c) <- board', p == PlayerBottom]
+    cards' :: [Creature Core] =
+      let filter = \case
+            CreatureCard c -> Just c
+            NeutralCard _ -> Nothing
+            ItemCard _ -> Nothing
+       in Data.Maybe.mapMaybe filter cards
+    cardsWithIdxs :: [(Creature Core, Int)] =
+      Prelude.zip cards' [0 .. Prelude.length cards' - 1]
+    cellsXOffset i
+      | i == 0 = boardToLeftCardCellsOffset + (cardCellWidth * 2) -- center
+      | i == 1 = cellsXOffset 0 - xshift -- shift to the left compared to the center
+      | i == 2 = cellsXOffset 0 + xshift -- shift to the right compared to the center
+      | i `mod` 2 == 0 = - xshift + cellsXOffset (i - 2) -- iterate
+      | otherwise = xshift + cellsXOffset (i - 2) -- iterate
+      where
+        xshift = cardCellWidth + cardHCellGap
+
+cardStyle :: Int -> Int -> Map MisoString MisoString
+cardStyle xCellsOffset yCellsOffset =
+  Map.fromList
+    [ ("position", "relative"),
+      ("display", "block"),
+      ("left", ms (xCellsOffset * cellPixelSize) <> "px"),
+      ("top", ms (yCellsOffset * cellPixelSize) <> "px")
+    ]
+
+cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
+cardCellsBoardOffset PlayerTop cardSpot =
   (offsetx + x, offsety + y)
   where
-    (offsetx, offsety) = (3, 3) -- offset from background corner
+    (offsetx, offsety) =
+      (boardToLeftCardCellsOffset, 3) -- offset from background corner
     botyShift = cardCellHeight + cardVCellGap -- offset from top to bottom line
     xtop = cardCellWidth + cardHCellGap -- offset from left to middle
     xtopright = xtop * 2 -- offset from left to right
@@ -80,10 +116,13 @@ cellsOffset PlayerTop cardSpot =
       BottomLeft -> (0, botyShift)
       Bottom -> (xtop, botyShift)
       BottomRight -> (xtopright, botyShift)
-cellsOffset PlayerBottom cardSpot =
+cardCellsBoardOffset PlayerBottom cardSpot =
   (offsetx + x, offsety + y)
   where
-    (offsetx, offsety) = (3, 3 + (2 * cardCellHeight) + cardVCellGap + teamsVCellGap) -- offset from background corner
+    (offsetx, offsety) =
+      ( boardToLeftCardCellsOffset,
+        3 + (2 * cardCellHeight) + cardVCellGap + teamsVCellGap -- offset from background corner
+      )
     topyShift = cardCellHeight + cardVCellGap
     xtop = cardCellWidth + cardHCellGap -- offset from left to middle
     xtopright = xtop * 2 -- offset from left to right

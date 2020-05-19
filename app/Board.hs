@@ -129,8 +129,11 @@ exampleBoard cards =
     botHand = [CreatureCard hArcher, CreatureCard hArcher]
     botCards :: CardsOnTable =
       listToCardsOnTable
-        [ Nothing, -- TopLeft
-          Just hGeneral, -- Top
-          Just hSpearman -- TopRight
+        [ Nothing,
+          Nothing,
+          Nothing,
+          Nothing,
+          Just hGeneral,
+          Just hSpearman
         ]
     botPlayer = PlayerPart botCards botHand
