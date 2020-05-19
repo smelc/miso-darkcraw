@@ -101,7 +101,7 @@ backgroundCell =
 
 handCell :: View action
 handCell =
-  img_ [width_ $ ms handPixelWidth, src_ $ assetsPath "hand.png"]
+  img_ [width_ $ ms handPixelWidth, src_ $ assetsPath "forest-hand.png"]
 
 imgCell :: MisoString -> View Action
 imgCell filename =
