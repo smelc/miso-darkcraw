@@ -34,14 +34,14 @@ install entr "sudo apt install entr"
 install midori "sudo snap install midori"
 
 function midori_listen() {
-  git ls-files "*.hs" | entr -s "midori -p -e tab-reload"
+  git ls-files "*.hs" | entr -s "midori -e tab-reload"
 }
 
 # Auto refreshing of midori's tab upon saving a .hs file:
 midori_listen &
 
 # Start midori if not yet there:
-[[ $(pgrep midori) == "0" ]] || (midori "http://localhost:8080" &)
+[[ $(pgrep midori) == "0" ]] || (midori -p "http://localhost:8080" &)
 
 # Regenerate js upon .hs saving:
 nix-shell --run reload
