@@ -68,7 +68,7 @@ boardToInPlaceCells z board =
 boardToInHandCells :: Int -> Board -> [View Action]
 boardToInHandCells z board =
   [ div_ [style_ $ cardStyle x 2] [cardCreature z creature]
-    | (creature, i) <- cardsWithIdxs,
+    | (creature, i) <- Prelude.zip cards' [0 ..],
       let x = cellsXOffset i
   ]
   where
@@ -80,8 +80,6 @@ boardToInHandCells z board =
             NeutralCard _ -> Nothing
             ItemCard _ -> Nothing
        in Data.Maybe.mapMaybe filter cards
-    cardsWithIdxs :: [(Creature Core, Int)] =
-      Prelude.zip cards' [0 .. Prelude.length cards' - 1]
     cellsXOffset i
       | i == 0 = boardToLeftCardCellsOffset + (cardCellWidth * 2) -- center
       | i == 1 = cellsXOffset 0 - xshift -- shift to the left compared to the center
