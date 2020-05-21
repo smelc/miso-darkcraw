@@ -11,13 +11,14 @@ import Card
 import Constants
 import Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
+import Debug.Trace
 import Miso
 import Miso.String
 import Model
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel Model {board, uiCards} =
+viewModel model@Model {board, uiCards} =
   div_ [] [boardDiv, handDiv]
   where
     z :: Int = 0
@@ -42,7 +43,7 @@ viewModel Model {board, uiCards} =
         ( div_ [style_ $ bgStyle boardPixelWidth boardPixelHeight] [backgroundCell]
             : boardCards
         )
-    handCards = boardToInHandCells (z + 1) board
+    handCards = boardToInHandCells (z + 1) model
     handDiv =
       div_
         [style_ handStyle]
@@ -57,7 +58,7 @@ viewModel Model {board, uiCards} =
 
 boardToInPlaceCells :: Int -> Board -> [View Action]
 boardToInPlaceCells z board =
-  [ div_ [style_ $ cardStyle x y] [cardCreature z creature]
+  [ div_ [style_ $ cardStyle x y] [cardCreature z creature False]
     | (pSpot, cSpot, creature) <- board',
       let (x, y) = cardCellsBoardOffset pSpot cSpot
   ]
@@ -65,11 +66,19 @@ boardToInPlaceCells z board =
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
 
-boardToInHandCells :: Int -> Board -> [View Action]
-boardToInHandCells z board =
-  [ div_ [style_ $ cardStyle x 2] [cardCreature z creature]
+boardToInHandCells :: Int -> Model -> [View Action]
+boardToInHandCells z Model {board, handHover} =
+  [ div_
+      [ style_ $ cardStyle x 2,
+        onMouseEnter $ InHandMouseEnter i,
+        onMouseLeave $ InHandMouseLeave i
+      ]
+      [cardCreature z creature beingHovered]
     | (creature, i) <- Prelude.zip cards' [0 ..],
-      let x = cellsXOffset i
+      let x = cellsXOffset i,
+      let beingHovered = case Debug.Trace.trace ("handHover is " ++ show handHover) (handHover, i) of
+            (Just i, _) -> True
+            _ -> False
   ]
   where
     board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board
@@ -144,13 +153,18 @@ imgCell :: MisoString -> View Action
 imgCell filename =
   img_ [src_ $ assetsPath filename]
 
-cardCreature :: Int -> Creature Core -> View Action
-cardCreature z creature =
+cardCreature ::
+  Int ->
+  Creature Core ->
+  -- | Whether this card is being hovered
+  Bool ->
+  View Action
+cardCreature z creature hover =
   div_
     [style_ divStyle]
     [ div_ [style_ pictureStyle] [pictureCell],
       div_ [style_ statsStyle] [statsCell],
-      cardBackground z
+      cardBackground z hover
     ]
   where
     cellPixelSz = ms cellPixelSize <> "px"
@@ -190,21 +204,26 @@ cardCreature z creature =
           imgCell assetFilenameSword
         ]
 
-cardBackground :: Int -> View Action
-cardBackground z =
+cardBackground ::
+  Int ->
+  -- | Whether the card is being hovered
+  Bool ->
+  View Action
+cardBackground z hover =
   div_
     [style_ cardStyle]
-    [ img_
+    [ img_ $
         [ src_ $ assetsPath assetFilenameBeigeBG,
           width_ $ ms cardPixelWidth,
           height_ $ ms cardPixelHeight
         ]
+          ++ [hoverAttr | hover]
     ]
   where
     divStyle = Map.fromList [("position", "absolute")]
     cardStyle =
       Map.fromList
-        [ ("width", ms cardPixelHeight <> "px"),
+        [ ("width", ms cardPixelWidth <> "px"),
           ("height", ms cardPixelHeight <> "px"),
           ("position", "absolute"),
           ("display", "block"),
@@ -213,3 +232,5 @@ cardBackground z =
           ("top", "0px")
           -- ("transform", "translateX(-128px) translateY(-128px)")
         ]
+    hoverAttr :: Attribute Action =
+      style_ $ Map.fromList [("border-style", "3"), ("border-color", "red")]
