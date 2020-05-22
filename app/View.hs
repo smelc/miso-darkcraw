@@ -95,7 +95,12 @@ boardToInHandCells z Model {board, handHover} =
       where
         xshift = cardCellWidth + cardHCellGap
 
-cardStyle :: Int -> Int -> Map MisoString MisoString
+cardStyle ::
+  -- | The horizontal offset from the enclosing container, in number of cells
+  Int ->
+  -- | The vertical offset from the enclosing container, in number of cells
+  Int ->
+  Map MisoString MisoString
 cardStyle xCellsOffset yCellsOffset =
   Map.fromList
     [ ("position", "absolute"),
@@ -140,13 +145,20 @@ cardCellsBoardOffset PlayerBottom cardSpot =
       Bottom -> (xtop, 0) -- Bottom is Top in bottom part
       BottomRight -> (0, 0) -- BottomRight is Top Left in bottom part
 
-backgroundCell :: View action
+backgroundCell :: View Action
 backgroundCell =
-  img_ [width_ $ ms boardPixelWidth, height_ $ ms boardPixelHeight, src_ $ assetsPath "forest.png"]
+  img_
+    [ width_ $ ms boardPixelWidth,
+      height_ $ ms boardPixelHeight,
+      src_ $ assetsPath "forest.png"
+    ]
 
-handCell :: View action
+handCell :: View Action
 handCell =
-  img_ [width_ $ ms handPixelWidth, src_ $ assetsPath "forest-hand.png"]
+  img_
+    [ width_ $ ms handPixelWidth,
+      src_ $ assetsPath "forest-hand.png"
+    ]
 
 imgCell :: MisoString -> View Action
 imgCell filename =
@@ -230,4 +242,4 @@ cardBackground z hover =
           ("top", "0px")
           -- ("transform", "translateX(-128px) translateY(-128px)")
         ]
-        ++ [ ("border", "3px solid red") | hover ]
+          ++ [("border", "3px solid red") | hover]
