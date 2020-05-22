@@ -77,7 +77,7 @@ boardToInHandCells z Model {board, handHover} =
     | (creature, i) <- Prelude.zip cards' [0 ..],
       let x = cellsXOffset i,
       let beingHovered = case Debug.Trace.trace ("handHover is " ++ show handHover) (handHover, i) of
-            (Just i, _) -> True
+            (Just j, _) -> j == i
             _ -> False
   ]
   where
