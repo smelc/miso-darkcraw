@@ -68,9 +68,13 @@ boardToInPlaceCells z board =
 boardToInHandCells :: Int -> Model -> [View Action]
 boardToInHandCells z Model {board, handHover} =
   [ div_
-      [ style_ $ cardStyle x 2,
-        onMouseOver $ InHandMouseEnter i,
-        onMouseLeave $ InHandMouseLeave i
+      [ style_ $ cardStyle x 2
+        -- bubbles
+        , onMouseOver $ InHandMouseEnter i
+        , onMouseOut $ InHandMouseLeave i
+        -- does not bubble
+        -- , onMouseEnter $ InHandMouseEnter i
+        -- , onMouseLeave $ InHandMouseLeave i
       ]
       [cardCreature z creature beingHovered]
     | (creature, i) <- Prelude.zip cards' [0 ..],
@@ -172,14 +176,13 @@ cardCreature ::
   View Action
 cardCreature z creature hover =
   div_
-    [style_ divStyle]
+    []
     [ div_ [style_ pictureStyle] [pictureCell],
       div_ [style_ statsStyle] [statsCell],
       cardBackground z hover
     ]
   where
     cellPixelSz = ms cellPixelSize <> "px"
-    divStyle = Map.fromList [("position", "relative")]
     topMargin = cellPixelSize `div` 4
     pictureStyle =
       Map.fromList
