@@ -2,7 +2,6 @@
 
 module Update where
 
-import Debug.Trace
 import Miso
 import Miso.String
 import Model
@@ -12,7 +11,7 @@ updateModel :: Action -> Model -> Effect Action Model
 updateModel action m =
   case action of
     InHandMouseEnter i ->
-      noEff $ trace "entering" $ m { handHover = Just i }
+      noEff $ m { handHover = Just i }
     InHandMouseLeave i ->
       noEff m { handHover = Nothing }
     NoOp ->

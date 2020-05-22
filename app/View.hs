@@ -11,7 +11,6 @@ import Card
 import Constants
 import Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
-import Debug.Trace
 import Miso
 import Miso.String
 import Model
@@ -73,7 +72,7 @@ boardToInHandCells z Model {board, handHover} =
         onMouseOver $ InHandMouseEnter i,
         onMouseLeave $ InHandMouseLeave i
       ]
-      [cardCreature z creature (traceShowId beingHovered)]
+      [cardCreature z creature beingHovered]
     | (creature, i) <- Prelude.zip cards' [0 ..],
       let x = cellsXOffset i,
       let beingHovered = handHover == Just i
@@ -99,8 +98,10 @@ boardToInHandCells z Model {board, handHover} =
 cardStyle :: Int -> Int -> Map MisoString MisoString
 cardStyle xCellsOffset yCellsOffset =
   Map.fromList
-    [ ("position", "relative"),
+    [ ("position", "absolute"),
       ("display", "block"),
+      ("width", ms cardPixelWidth <> "px"),
+      ("height", ms cardPixelHeight <> "px"),
       ("left", ms (xCellsOffset * cellPixelSize) <> "px"),
       ("top", ms (yCellsOffset * cellPixelSize) <> "px")
     ]
