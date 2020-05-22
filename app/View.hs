@@ -70,15 +70,13 @@ boardToInHandCells :: Int -> Model -> [View Action]
 boardToInHandCells z Model {board, handHover} =
   [ div_
       [ style_ $ cardStyle x 2,
-        onMouseEnter $ InHandMouseEnter i,
+        onMouseOver $ InHandMouseEnter i,
         onMouseLeave $ InHandMouseLeave i
       ]
-      [cardCreature z creature beingHovered]
+      [cardCreature z creature (traceShowId beingHovered)]
     | (creature, i) <- Prelude.zip cards' [0 ..],
       let x = cellsXOffset i,
-      let beingHovered = case Debug.Trace.trace ("handHover is " ++ show handHover) (handHover, i) of
-            (Just j, _) -> j == i
-            _ -> False
+      let beingHovered = handHover == Just i
   ]
   where
     board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board
@@ -217,12 +215,11 @@ cardBackground z hover =
           width_ $ ms cardPixelWidth,
           height_ $ ms cardPixelHeight
         ]
-          ++ [hoverAttr | hover]
     ]
   where
     divStyle = Map.fromList [("position", "absolute")]
     cardStyle =
-      Map.fromList
+      Map.fromList $
         [ ("width", ms cardPixelWidth <> "px"),
           ("height", ms cardPixelHeight <> "px"),
           ("position", "absolute"),
@@ -232,5 +229,4 @@ cardBackground z hover =
           ("top", "0px")
           -- ("transform", "translateX(-128px) translateY(-128px)")
         ]
-    hoverAttr :: Attribute Action =
-      style_ $ Map.fromList [("border-style", "3"), ("border-color", "red")]
+        ++ [ ("border", "3px solid red") | hover ]
