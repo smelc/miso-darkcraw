@@ -210,7 +210,7 @@ cardBackground ::
 cardBackground z hover =
   div_
     [style_ cardStyle]
-    [ img_ $
+    [ img_
         [ src_ $ assetsPath assetFilenameBeigeBG,
           width_ $ ms cardPixelWidth,
           height_ $ ms cardPixelHeight
