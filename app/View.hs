@@ -6,6 +6,7 @@
 
 module View where
 
+import Data.Aeson
 import Board
 import Card
 import Constants
@@ -14,6 +15,7 @@ import Data.Maybe (fromJust, isNothing, mapMaybe)
 import Miso
 import Miso.String
 import Model
+import Update
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
@@ -69,11 +71,20 @@ boardToInPlaceCells z board =
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
 
+clientXDecoder :: Decoder Int
+clientXDecoder = mempty `at` withObject "clientX" (.: "clientX")
+
+-- on :: MisoString -> Decoder r -> (r -> action) -> Attribute action
+onSomeDragEvent :: Attribute Action
+onSomeDragEvent =
+  on "drag" clientXDecoder DragX
+
 boardToInHandCells :: Int -> Model -> [View Action]
 boardToInHandCells z Model {board, handHover} =
   [ div_
       [ style_ $ cardStyle x 2,
-        onDrag $ Drag i,
+        -- onDrag $ Drag i,
+        onSomeDragEvent,
         -- bubbles
         onMouseOver $ InHandMouseEnter i,
         onMouseOut $ InHandMouseLeave i

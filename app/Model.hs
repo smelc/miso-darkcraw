@@ -6,16 +6,6 @@ module Model where
 import Board
 import Card
 
--- | Sum type for application events
-data Action
-  = Drag Int
-  | Drop
-  | InHandMouseEnter Int
-  | InHandMouseLeave Int
-  | NoOp
-  | SayHelloWorld
-  deriving (Show, Eq)
-
 -- | Type synonym for an application model
 data Model
   = Model
