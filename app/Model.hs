@@ -8,7 +8,9 @@ import Card
 
 -- | Sum type for application events
 data Action
-  = InHandMouseEnter Int
+  = Drag Int
+  | Drop
+  | InHandMouseEnter Int
   | InHandMouseLeave Int
   | NoOp
   | SayHelloWorld

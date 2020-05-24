@@ -11,6 +11,8 @@ import Model
 updateModel :: Action -> Model -> Effect Action Model
 updateModel action m =
   case action of
+    Drag _ -> noEff $ trace "Drag" m
+    Drop -> noEff $ trace "Drop" m
     InHandMouseEnter i ->
       noEff $ trace ("entering" ++ show i) $ m { handHover = Just i }
     InHandMouseLeave i ->

@@ -10,7 +10,7 @@ import Board
 import Card
 import Constants
 import Data.Map.Strict as Map
-import Data.Maybe (mapMaybe)
+import Data.Maybe (fromJust, isNothing, mapMaybe)
 import Miso
 import Miso.String
 import Model
@@ -57,7 +57,11 @@ viewModel model@Model {board, uiCards} =
 
 boardToInPlaceCells :: Int -> Board -> [View Action]
 boardToInPlaceCells z board =
-  [ div_ [style_ $ cardStyle x y] [cardCreature z creature False]
+  [ div_
+      [ style_ $ cardStyle x y,
+        onDrop (AllowDrop True) Drop
+      ]
+      [cardCreature z (Just creature) False]
     | (pSpot, cSpot, creature) <- board',
       let (x, y) = cardCellsBoardOffset pSpot cSpot
   ]
@@ -68,15 +72,19 @@ boardToInPlaceCells z board =
 boardToInHandCells :: Int -> Model -> [View Action]
 boardToInHandCells z Model {board, handHover} =
   [ div_
-      [ style_ $ cardStyle x 2
+      [ style_ $ cardStyle x 2,
+        onDrag $ Drag i,
         -- bubbles
-        , onMouseOver $ InHandMouseEnter i
-        , onMouseOut $ InHandMouseLeave i
+        onMouseOver $ InHandMouseEnter i,
+        onMouseOut $ InHandMouseLeave i
         -- does not bubble
         -- , onMouseEnter $ InHandMouseEnter i
         -- , onMouseLeave $ InHandMouseLeave i
+        -- TODO draw transparent placeholders for spots
+        -- without cards that will serve as target of dragging from the
+        -- hand
       ]
-      [cardCreature z creature beingHovered]
+      [cardCreature z (Just creature) beingHovered]
     | (creature, i) <- Prelude.zip cards' [0 ..],
       let x = cellsXOffset i,
       let beingHovered = handHover == Just i
@@ -170,18 +178,19 @@ imgCell filename =
 
 cardCreature ::
   Int ->
-  Creature Core ->
+  -- | Whether a card should be drawn or solely a placeholder for drag target
+  Maybe (Creature Core) ->
   -- | Whether this card is being hovered
   Bool ->
   View Action
 cardCreature z creature hover =
   div_
     []
-    [ div_ [style_ pictureStyle] [pictureCell],
-      div_ [style_ statsStyle] [statsCell],
-      cardBackground z hover
-    ]
+    $ [div_ [style_ pictureStyle] [pictureCell] | not placeholder]
+      ++ [div_ [style_ statsStyle] [statsCell] | not placeholder]
+      ++ [cardBackground z hover]
   where
+    placeholder = isNothing creature
     cellPixelSz = ms cellPixelSize <> "px"
     topMargin = cellPixelSize `div` 4
     pictureStyle =
@@ -191,7 +200,7 @@ cardCreature z creature hover =
           ("top", ms topMargin <> "px"),
           ("left", ms ((cardPixelWidth - cellPixelSize) `div` 2) <> "px")
         ]
-    pictureCell :: View Action = imgCell $ ms $ filename creature
+    pictureCell :: View Action = imgCell $ ms $ filename $ fromJust creature
     statsStyle =
       Map.fromList
         [ ("z-index", ms $ z + 1),
@@ -212,11 +221,12 @@ cardCreature z creature hover =
     statsCell :: View Action =
       div_
         [style_ inStatsStyle]
-        [ text $ ms $ hp creature,
+        [ text $ ms $ hp c,
           imgCell assetFilenameHeart,
-          text $ ms $ attack creature,
+          text $ ms $ attack c,
           imgCell assetFilenameSword
         ]
+      where c = fromJust creature
 
 cardBackground ::
   Int ->
