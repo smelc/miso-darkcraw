@@ -6,10 +6,10 @@
 
 module View where
 
-import Data.Aeson
 import Board
 import Card
 import Constants
+import Data.Aeson
 import Data.Map.Strict as Map
 import Data.Maybe (fromJust, isNothing, mapMaybe)
 import Miso
@@ -71,20 +71,24 @@ boardToInPlaceCells z board =
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
 
-clientXDecoder :: Decoder Int
-clientXDecoder = mempty `at` withObject "clientX" (.: "clientX")
+clientXDecoder :: Decoder (Int, Int)
+clientXDecoder = mempty `at` withObject "xy" parser
+  where
+    parser o = (,) <$> o .: "clientX" <*> o .: "clientY"
 
--- on :: MisoString -> Decoder r -> (r -> action) -> Attribute action
-onSomeDragEvent :: Attribute Action
-onSomeDragEvent =
-  on "drag" clientXDecoder DragX
+onEvent ::
+  -- | The event on which to apply
+  MisoString ->
+  -- | How to build the Action
+  Attribute Action
+onEvent s =
+  on s clientXDecoder $ uncurry DragXY
 
 boardToInHandCells :: Int -> Model -> [View Action]
 boardToInHandCells z Model {board, handHover} =
   [ div_
       [ style_ $ cardStyle x 2,
-        -- onDrag $ Drag i,
-        onSomeDragEvent,
+        onEvent "drag",
         -- bubbles
         onMouseOver $ InHandMouseEnter i,
         onMouseOut $ InHandMouseLeave i
@@ -237,7 +241,8 @@ cardCreature z creature hover =
           text $ ms $ attack c,
           imgCell assetFilenameSword
         ]
-      where c = fromJust creature
+      where
+        c = fromJust creature
 
 cardBackground ::
   Int ->

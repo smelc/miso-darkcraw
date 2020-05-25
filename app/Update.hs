@@ -9,8 +9,7 @@ import Model
 
 -- | Sum type for application events
 data Action
-  = Drag Int
-  | DragX Int
+  = DragXY Int Int
   | Drop
   | InHandMouseEnter Int
   | InHandMouseLeave Int
@@ -22,9 +21,7 @@ data Action
 updateModel :: Action -> Model -> Effect Action Model
 updateModel action m =
   case action of
-    Drag _ ->
-      helper action m
-    DragX _ ->
+    DragXY _ _ ->
       helper action m
     Drop ->
       helper action m
