@@ -90,7 +90,7 @@ boardToInHandCells z Model {board, handHover} =
       [cardCreature z (Just creature) beingHovered]
     | (creature, i) <- Prelude.zip cards' [0 ..],
       let x = cellsXOffset i,
-      let beingHovered = handHover == Just i
+      let beingHovered = handHover == Just (HandIndex i)
   ]
   where
     board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board

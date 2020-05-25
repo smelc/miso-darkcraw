@@ -26,7 +26,7 @@ updateModel action m =
     Drop ->
       helper action m
     InHandMouseEnter i ->
-      helper action m {handHover = Just i}
+      helper action m {handHover = Just $ HandIndex i}
     InHandMouseLeave i ->
       helper action m {handHover = Nothing}
     NoOp ->
