@@ -58,7 +58,11 @@ viewModel model@Model {board, uiCards} =
           ("top", ms boardPixelHeight <> "px")
         ]
 
-boardToInPlaceCells :: Int -> Board -> [View Action]
+boardToInPlaceCells ::
+  -- | The z index
+  Int ->
+  Board ->
+  [View Action]
 boardToInPlaceCells z board =
   [ div_
       [ style_ $ cardStyle x y,
@@ -72,7 +76,11 @@ boardToInPlaceCells z board =
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
 
-boardToInHandCells :: Int -> Model -> [View Action]
+boardToInHandCells ::
+  -- | The z index
+  Int ->
+  Model ->
+  [View Action]
 boardToInHandCells z Model {board, handHover} =
   [ div_
       [ style_ $ cardStyle x 2,
@@ -180,6 +188,7 @@ imgCell filename =
   img_ [src_ $ assetsPath filename]
 
 cardCreature ::
+  -- | The z index
   Int ->
   -- | Whether a card should be drawn or solely a placeholder for drag target
   Maybe (Creature Core) ->
@@ -233,6 +242,7 @@ cardCreature z creature hover =
         c = fromJust creature
 
 cardBackground ::
+  -- | The z index
   Int ->
   -- | Whether the card is being hovered
   Bool ->
