@@ -12,6 +12,7 @@ import Constants
 import Data.Aeson
 import Data.Map.Strict as Map
 import Data.Maybe (fromJust, isNothing, mapMaybe)
+import Event
 import Miso
 import Miso.String
 import Model
@@ -71,19 +72,6 @@ boardToInPlaceCells z board =
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
 
-clientXDecoder :: Decoder (Int, Int)
-clientXDecoder = mempty `at` withObject "xy" parser
-  where
-    parser o = (,) <$> o .: "clientX" <*> o .: "clientY"
-
-onEvent ::
-  -- | The event on which to apply
-  MisoString ->
-  -- | How to build the Action
-  Attribute Action
-onEvent s =
-  on s clientXDecoder $ uncurry DragXY
-
 boardToInHandCells :: Int -> Model -> [View Action]
 boardToInHandCells z Model {board, handHover} =
   [ div_
@@ -92,7 +80,7 @@ boardToInHandCells z Model {board, handHover} =
         -- bubbles
         onMouseOver $ InHandMouseEnter i,
         onMouseOut $ InHandMouseLeave i
-        -- does not bubble
+        -- does not bubble, works on schplaf.org (polux> miso/jsaddle bug?)
         -- , onMouseEnter $ InHandMouseEnter i
         -- , onMouseLeave $ InHandMouseLeave i
         -- TODO draw transparent placeholders for spots

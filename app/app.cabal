@@ -13,9 +13,11 @@ executable app
   other-modules:
     Card
     Constants
+    Event
     Json
     JsonData
     Model
+    Utils
     Update
     View
   build-depends:
