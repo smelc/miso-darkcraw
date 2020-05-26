@@ -70,6 +70,6 @@ main = do
     initialAction = SayHelloWorld -- initial action to be executed on application load
     update = updateModel          -- update function
     view   = viewModel            -- view function
-    events = defaultEvents        -- default delegated events
+    events = Map.fromList [("mouseleave", True), ("mouseenter", True)] <> defaultEvents -- delegated events
     subs   = []                   -- empty subscription list
     mountPoint = Nothing          -- mount point for application (Nothing defaults to 'body')

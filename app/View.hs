@@ -14,9 +14,30 @@ import Data.Map.Strict as Map
 import Data.Maybe (fromJust, isNothing, mapMaybe)
 import Event
 import Miso
+import Miso.Event
 import Miso.String
 import Model
 import Update
+
+-- | Extracts the class name of the target from an event.
+classNameDecoder :: Decoder Value
+classNameDecoder = Decoder {
+  decodeAt = DecodeTarget ["target"],
+  decoder = withObject "target" $ \o -> o .: "className"
+}
+
+-- | Helper function for onMouseEnter' and onMouseLeave'.
+onMouseEvent eventName className action =
+  on eventName classNameDecoder $ \(String name) ->
+    if name == className then action else NoOp
+
+-- | Like onMouseEnter, but restricts event firing to elements with the
+-- provided class name.
+onMouseEnter' = onMouseEvent "mouseenter"
+
+-- | Like onMouseLeave, but restricts event firing to elements with the
+-- provided class name.
+onMouseLeave' = onMouseEvent "mouseleave"
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
@@ -86,14 +107,9 @@ boardToInHandCells z Model {board, handHover} =
       [ style_ $ cardStyle x 2,
         onEvent "drag",
         -- bubbles
-        onMouseOver $ InHandMouseEnter i,
-        onMouseOut $ InHandMouseLeave i
-        -- does not bubble, works on schplaf.org (polux> miso/jsaddle bug?)
-        -- , onMouseEnter $ InHandMouseEnter i
-        -- , onMouseLeave $ InHandMouseLeave i
-        -- TODO draw transparent placeholders for spots
-        -- without cards that will serve as target of dragging from the
-        -- hand
+        class_ "card",
+        onMouseEnter' "card" $ InHandMouseEnter i,
+        onMouseLeave' "card" $ InHandMouseLeave i
       ]
       [cardCreature z (Just creature) beingHovered]
     | (creature, i) <- Prelude.zip cards' [0 ..],
