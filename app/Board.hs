@@ -2,7 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Board
-  ( boardToCardsInHand,
+  ( allCardsSpots,
+    boardToCardsInHand,
     boardToCardsInPlace,
     Board,
     CardSpot (..),

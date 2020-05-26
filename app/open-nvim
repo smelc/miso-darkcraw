@@ -1,4 +1,6 @@
 #!/bin/bash
 
-FILES="default.nix shell.nix app.cabal README.md $(git ls-files "*.hs")"
-nvim -p $FILES  # -c ":ALEDisable"
+[[ ! -z "$IN_NIX_SHELL" ]] || { echo "You should be in a nix shell for LSP to work, hence execute \`nix-shell\` before executing me. Exiting."; exit 1; }
+
+FILES="$(git ls-files "*.hs" | grep -v onData.hs | grep -v Main.hs)"
+nvim -p $FILES -c ":ALEDisable"

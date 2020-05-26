@@ -11,13 +11,14 @@ import Card
 import Constants
 import Data.Aeson
 import Data.Map.Strict as Map
-import Data.Maybe (fromJust, isNothing, mapMaybe)
+import Data.Maybe (fromJust, isJust, isNothing, mapMaybe)
 import Event
 import Miso
 import Miso.Event
 import Miso.String
 import Model
 import Update
+import Utils (style1_)
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
@@ -39,7 +40,7 @@ viewModel model@Model {board, uiCards} =
           ("position", "absolute"),
           ("z-index", ms z)
         ]
-    boardCards = boardToInPlaceCells (z + 1) board
+    boardCards = boardToInPlaceCells (z + 1) model
     boardDiv =
       div_
         [style_ boardStyle]
@@ -62,9 +63,10 @@ viewModel model@Model {board, uiCards} =
 boardToInPlaceCells ::
   -- | The z index
   Int ->
-  Board ->
+  Model ->
   [View Action]
-boardToInPlaceCells z board =
+boardToInPlaceCells z Model {board, handHover} =
+  -- draw cards on table
   [ div_
       [ style_ $ cardStyle x y,
         onDrop (AllowDrop True) Drop
@@ -73,9 +75,23 @@ boardToInPlaceCells z board =
     | (pSpot, cSpot, creature) <- board',
       let (x, y) = cardCellsBoardOffset pSpot cSpot
   ]
+    -- draw border around valid dragging targets if card in hand is being hovered
+    ++ [ div_
+           [ style_ $ cardStyle x y, -- position the div
+             style1_ "border" "3px solid #00FF00" -- draw the border
+           ]
+           [div_ [] []] -- empty divs, the point is that they have a border
+         | cSpot <- emptyBottomSlots, -- on all empty slots
+           isJust handHover, -- if card is being hovered in hand
+           let (x, y) = cardCellsBoardOffset PlayerBottom cSpot
+       ]
   where
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
+    emptyBottomSlots :: [CardSpot]
+    emptyBottomSlots = [c | c <- allCardsSpots, notElem c $ Prelude.map snd board']
+      where
+        snd (_, s, _) = s
 
 boardToInHandCells ::
   -- | The z index
@@ -86,7 +102,6 @@ boardToInHandCells z Model {board, handHover} =
   [ div_
       [ style_ $ cardStyle x 2,
         onEvent "drag",
-        -- bubbles
         class_ "card",
         onMouseEnter' "card" $ InHandMouseEnter i,
         onMouseLeave' "card" $ InHandMouseLeave i
@@ -263,6 +278,5 @@ cardBackground z hover =
           ("z-index", ms z),
           ("left", "0px"),
           ("top", "0px")
-          -- ("transform", "translateX(-128px) translateY(-128px)")
         ]
           ++ [("border", "3px solid red") | hover]
