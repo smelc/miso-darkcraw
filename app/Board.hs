@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -14,7 +15,6 @@ module Board
 where
 
 import Card
-import Control.Lens
 import Data.Bifunctor
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -37,25 +37,20 @@ allCardsSpots = [TopLeft ..]
 
 type CardsOnTable = Map.Map CardSpot (Creature Core)
 
--- | A convenience method for building an instance of CardsOnTable.
--- | First argument if TopLeft, then Top, then TopRight, then
--- | BottomLeft, then Bottom, then BottomRight. Nothing means no card.
-makeCardsOnTable ::
-  Maybe (Creature Core) ->
-  Maybe (Creature Core) ->
-  Maybe (Creature Core) ->
-  Maybe (Creature Core) ->
-  Maybe (Creature Core) ->
-  Maybe (Creature Core) ->
-  CardsOnTable
-makeCardsOnTable c1 c2 c3 c4 c5 c6 =
-  Map.empty
-    & at TopLeft .~ c1
-    & at Top .~ c2
-    & at TopRight .~ c3
-    & at BottomLeft .~ c4
-    & at Bottom .~ c5
-    & at BottomRight .~ c6
+-- | A convenience constructor to create the bottom part of a board
+-- | by using the CardSpot that you see instead of having to consider
+-- | the 180 degrees rotation mentioned in CardSpot
+makeBottomCardsOnTable :: CardsOnTable -> CardsOnTable
+makeBottomCardsOnTable =
+  Map.mapKeys translate
+  where
+    translate = \case
+      TopLeft -> BottomRight
+      Top -> Bottom
+      TopRight -> BottomLeft
+      BottomLeft -> TopRight
+      Bottom -> Top
+      BottomRight -> TopLeft
 
 data PlayerPart
   = PlayerPart
@@ -109,21 +104,17 @@ exampleBoard cards =
     udMummy = getCardByID undeadMummy
     udVampire = getCardByID undeadVampire
     topCards :: CardsOnTable =
-      makeCardsOnTable
-        (Just udArcher)
-        Nothing
-        Nothing
-        Nothing
-        (Just udVampire)
-        (Just udMummy)
+      Map.fromList
+        [ (TopLeft, udArcher),
+          (Bottom, udVampire),
+          (BottomRight, udMummy)
+        ]
     topPlayer = PlayerPart topCards []
     botHand = [CreatureCard hArcher, CreatureCard hArcher]
     botCards :: CardsOnTable =
-      makeCardsOnTable
-        Nothing
-        Nothing
-        Nothing
-        Nothing
-        (Just hGeneral)
-        (Just hSpearman)
+      makeBottomCardsOnTable $
+        Map.fromList
+          [ (Top, hGeneral),
+            (TopLeft, hSpearman)
+          ]
     botPlayer = PlayerPart botCards botHand
