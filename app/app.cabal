@@ -27,6 +27,7 @@ executable app
     containers,
     extra,
     file-embed,
+    lens,
     miso
   if !impl(ghcjs)
     build-depends:

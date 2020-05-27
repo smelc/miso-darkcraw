@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Board
@@ -13,6 +14,7 @@ module Board
 where
 
 import Card
+import Control.Lens
 import Data.Bifunctor
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -35,22 +37,25 @@ allCardsSpots = [TopLeft ..]
 
 type CardsOnTable = Map.Map CardSpot (Creature Core)
 
--- | A convenience method for building an instance of CardsOnTable
--- | from a list. First member of the list if TopLeft, then Top, then
--- | TopRight, then BottomLeft, then Bottom, then BottomRight. Maybe
--- | allow to skip a spot. Items after the sixth one are simply ignored.
-listToCardsOnTable :: [Maybe (Creature Core)] -> CardsOnTable
-listToCardsOnTable maybeCreatures =
-  impl (take (length allCardsSpots) maybeCreatures) 0 Map.empty
-  where
-    impl :: [Maybe (Creature Core)] -> Int -> CardsOnTable -> CardsOnTable
-    impl [] idx acc = acc
-    impl (fst : tail) idx acc =
-      let nextAcc =
-            case fst of
-              Nothing -> acc
-              Just creature -> Map.insert (allCardsSpots !! idx) creature acc
-       in impl tail (idx + 1) nextAcc
+-- | A convenience method for building an instance of CardsOnTable.
+-- | First argument if TopLeft, then Top, then TopRight, then
+-- | BottomLeft, then Bottom, then BottomRight. Nothing means no card.
+makeCardsOnTable
+  :: Maybe (Creature Core)
+  -> Maybe (Creature Core)
+  -> Maybe (Creature Core)
+  -> Maybe (Creature Core)
+  -> Maybe (Creature Core)
+  -> Maybe (Creature Core)
+  -> CardsOnTable
+makeCardsOnTable c1 c2 c3 c4 c5 c6 =
+  Map.empty
+    & at TopLeft .~ c1
+    & at Top .~ c2
+    & at TopRight .~ c3
+    & at BottomLeft .~ c4
+    & at Bottom .~ c5
+    & at BottomRight .~ c6
 
 data PlayerPart
   = PlayerPart
@@ -69,31 +74,19 @@ allPlayersSpots = [PlayerBottom ..]
 
 type Board = Map.Map PlayerSpot PlayerPart
 
-_listProduct :: [(a, [b])] -> [[(a, b)]]
-_listProduct [] = []
-_listProduct ((a, bs) : rest) =
-  [(a, b) | b <- bs] : _listProduct rest
-
 boardToCardsInPlace :: Board -> [(PlayerSpot, CardSpot, Creature Core)]
 boardToCardsInPlace board =
-  [(a, b, c) | (a, (b, c)) <- board''']
-  where
-    board' :: [(PlayerSpot, PlayerPart)] = Map.toList board
-    sndFiddler :: PlayerPart -> [(CardSpot, Creature Core)] =
-      Map.toList . inPlace
-    board'' :: [(PlayerSpot, [(CardSpot, Creature Core)])] =
-      Prelude.map (Data.Bifunctor.second sndFiddler) board'
-    board''' = concat $ _listProduct board''
+  [ (pspot, cspot, creature)
+  | (pspot, PlayerPart{inPlace}) <- Map.toList board
+  , (cspot, creature) <- Map.toList inPlace
+  ]
 
 boardToCardsInHand :: Board -> [(PlayerSpot, Card Core)]
 boardToCardsInHand board =
-  concat $ _listProduct board''
-  where
-    board' :: [(PlayerSpot, PlayerPart)] = Map.toList board
-    sndFiddler :: PlayerPart -> [(CardSpot, Creature Core)] =
-      Map.toList . inPlace
-    board'' :: [(PlayerSpot, [Card Core])] =
-      Prelude.map (Data.Bifunctor.second inHand) board'
+  [ (pspot, card)
+  | (pspot, PlayerPart{inHand}) <- Map.toList board
+  , card <- inHand
+  ]
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
@@ -117,24 +110,22 @@ exampleBoard cards =
     udVampire = getCardByID undeadVampire
 
     topCards :: CardsOnTable =
-      listToCardsOnTable
-        [ Just udArcher,
-          Nothing,
-          Nothing,
-          Nothing,
-          Just udVampire,
-          Just udMummy
-        ]
+      makeCardsOnTable
+        (Just udArcher)
+        Nothing
+        Nothing
+        Nothing
+        (Just udVampire)
+        (Just udMummy)
     topPlayer = PlayerPart topCards []
 
     botHand = [CreatureCard hArcher, CreatureCard hArcher]
     botCards :: CardsOnTable =
-      listToCardsOnTable
-        [ Nothing,
-          Nothing,
-          Nothing,
-          Nothing,
-          Just hGeneral,
-          Just hSpearman
-        ]
+      makeCardsOnTable
+        Nothing
+        Nothing
+        Nothing
+        Nothing
+        (Just hGeneral)
+        (Just hSpearman)
     botPlayer = PlayerPart botCards botHand
