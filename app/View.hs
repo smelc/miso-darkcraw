@@ -81,15 +81,16 @@ boardToInPlaceCells z Model {board, handHover} =
              style1_ "border" "3px solid #00FF00" -- draw the border
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
-         | cSpot <- emptyBottomSpots, -- on all empty spots
-           isJust handHover, -- if card is being hovered in hand
+         | isJust handHover, -- if card is being hovered in hand
+           cSpot <- emptyBottomSpots, -- on all empty spots
            let (x, y) = cardCellsBoardOffset PlayerBottom cSpot
        ]
   where
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
-    bottomSpotsWithCards :: [CardSpot] = [c | (PlayerBottom, c, _) <- board']
-    emptyBottomSpots = [c | c <- allCardsSpots, notElem c bottomSpotsWithCards]
+    bottomCardsSpots :: [CardSpot] = [c | (PlayerBottom, c, _) <- board']
+    emptyBottomSpots =
+      [c | c <- allCardsSpots, c `notElem` bottomCardsSpots]
 
 boardToInHandCells ::
   -- | The z index

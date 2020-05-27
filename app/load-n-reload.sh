@@ -41,7 +41,7 @@ function midori_listen() {
 midori_listen &
 
 # Start midori if not yet there:
-[[ $(pgrep midori) == "0" ]] || (midori -p "http://localhost:8080" &)
+[[ $(pgrep midori) ]] || (midori -p "http://localhost:8080" &)
 
 # Regenerate js upon .hs saving:
 nix-shell --run reload
