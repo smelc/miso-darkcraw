@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -10,12 +11,14 @@ module Board
     Board,
     CardSpot (..),
     exampleBoard,
+    PlayerPart (..),
     PlayerSpot (..),
   )
 where
 
 import Card
 import Data.Bifunctor
+import GHC.Generics
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
@@ -30,7 +33,7 @@ data CardSpot
   | BottomLeft
   | Bottom
   | BottomRight
-  deriving (Enum, Eq, Ord, Show)
+  deriving (Enum, Eq, Ord, Show, Generic)
 
 allCardsSpots :: [CardSpot]
 allCardsSpots = [TopLeft ..]
@@ -58,10 +61,10 @@ data PlayerPart = PlayerPart
     -- | Cards in hand
     inHand :: [Card Core]
   }
-  deriving (Eq)
+  deriving (Eq, Generic)
 
 data PlayerSpot = PlayerBottom | PlayerTop
-  deriving (Enum, Eq, Ord, Show)
+  deriving (Enum, Eq, Ord, Show, Generic)
 
 allPlayersSpots :: [PlayerSpot]
 allPlayersSpots = [PlayerBottom ..]

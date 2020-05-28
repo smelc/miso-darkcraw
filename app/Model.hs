@@ -1,13 +1,15 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Model where
 
 import Board
 import Card
+import GHC.Generics
 
 newtype HandIndex = HandIndex Int
-  deriving (Eq, Show)
+  deriving (Eq, Show, Generic)
 
 -- | Type synonym for an application model
 data Model = Model
@@ -17,3 +19,4 @@ data Model = Model
   }
 
 deriving instance (Eq Model)
+deriving instance (Generic Model)

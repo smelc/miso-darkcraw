@@ -102,3 +102,4 @@ card2Creature =
 deriving instance Forall Eq p => Eq (Card p)
 
 deriving instance Forall Show p => Show (Card p)
+deriving instance Generic (Card p)

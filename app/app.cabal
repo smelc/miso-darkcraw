@@ -27,8 +27,9 @@ executable app
     containers,
     extra,
     file-embed,
-    lens,
-    miso
+    miso,
+    ansi-wl-pprint,
+    tree-diff
   if !impl(ghcjs)
     build-depends:
        jsaddle, jsaddle-warp, transformers,

@@ -68,7 +68,7 @@ main = do
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    update = updateModel          -- update function
+    update = logUpdates updateModel          -- update function
     view   = viewModel            -- view function
     events = Map.fromList [("mouseleave", True), ("mouseenter", True)] <> defaultEvents -- delegated events
     subs   = []                   -- empty subscription list
