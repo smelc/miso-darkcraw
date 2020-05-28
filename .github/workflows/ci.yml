@@ -21,7 +21,7 @@ jobs:
     - name: Install linters
       run: |
         sudo apt install jsonlint python3-pip
-        pip install -r $GITHUB_WORKSPACE/hooks/requirements.txt
+        # pip install -r $GITHUB_WORKSPACE/hooks/requirements.txt
 
     - name: jsonlint-php app/data.json
       run: jsonlint-php $GITHUB_WORKSPACE/app/data.json
@@ -30,4 +30,4 @@ jobs:
       run: |
         # mypy        $GITHUB_WORKSPACE/hooks/pre-commit.py
         # pycodestyle $GITHUB_WORKSPACE/hooks/pre-commit.py
-        pylint      $GITHUB_WORKSPACE/hooks/pre-commit.py
+        # pylint      $GITHUB_WORKSPACE/hooks/pre-commit.py
