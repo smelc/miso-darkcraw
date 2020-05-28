@@ -52,13 +52,12 @@ makeBottomCardsOnTable =
       Bottom -> Top
       BottomRight -> TopLeft
 
-data PlayerPart
-  = PlayerPart
-      { -- | Cards on the board
-        inPlace :: CardsOnTable,
-        -- | Cards in hand
-        inHand :: [Card Core]
-      }
+data PlayerPart = PlayerPart
+  { -- | Cards on the board
+    inPlace :: CardsOnTable,
+    -- | Cards in hand
+    inHand :: [Card Core]
+  }
   deriving (Eq)
 
 data PlayerSpot = PlayerBottom | PlayerTop

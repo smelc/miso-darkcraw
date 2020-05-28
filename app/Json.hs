@@ -105,12 +105,11 @@ instance ToJSON ItemObject
 instance FromJSON ItemObject where
   parseJSON = genericParseJSON itemObjectOptions
 
-data AllData (p :: Phase)
-  = AllData
-      { creatures :: [Creature p],
-        neutral :: [NeutralObject],
-        items :: [ItemObject]
-      }
+data AllData (p :: Phase) = AllData
+  { creatures :: [Creature p],
+    neutral :: [NeutralObject],
+    items :: [ItemObject]
+  }
   deriving (Generic)
 
 deriving instance Forall Show p => Show (AllData p)

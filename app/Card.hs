@@ -48,21 +48,21 @@ data CreatureKind
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
 
-data Creature (p :: Phase)
-  = Creature
-      { creatureId :: CreatureID,
-        hp :: Int,
-        attack :: Int,
-        moral :: Maybe Int,
-        victoryPoints :: Int,
-        skills :: Maybe [Skill],
-        x :: CoordType p,
-        y :: CoordType p,
-        filename :: String
-      }
+data Creature (p :: Phase) = Creature
+  { creatureId :: CreatureID,
+    hp :: Int,
+    attack :: Int,
+    moral :: Maybe Int,
+    victoryPoints :: Int,
+    skills :: Maybe [Skill],
+    x :: CoordType p,
+    y :: CoordType p,
+    filename :: String
+  }
   deriving (Generic)
 
 deriving instance Forall Eq p => Eq (Creature p)
+
 deriving instance Forall Show p => Show (Creature p)
 
 data Neutral
@@ -70,9 +70,8 @@ data Neutral
   | Life
   deriving (Eq, Generic, Show)
 
-newtype NeutralObject
-  = NeutralObject
-      {neutral :: Neutral}
+newtype NeutralObject = NeutralObject
+  {neutral :: Neutral}
   deriving (Eq, Generic, Show)
 
 data Item
@@ -80,9 +79,8 @@ data Item
   | FooBar
   deriving (Eq, Generic, Show)
 
-newtype ItemObject
-  = ItemObject
-      {item :: Item}
+newtype ItemObject = ItemObject
+  {item :: Item}
   deriving (Generic, Show)
 
 data Card (p :: Phase)
@@ -102,4 +100,5 @@ card2Creature =
     ItemCard _ -> Nothing
 
 deriving instance Forall Eq p => Eq (Card p)
+
 deriving instance Forall Show p => Show (Card p)
