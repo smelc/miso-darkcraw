@@ -28,6 +28,6 @@ jobs:
 
     - name: lint hooks/pre-commit.py
       run: |
-        mypy        $GITHUB_WORKSPACE/hooks/pre-commit.py
-        pycodestyle $GITHUB_WORKSPACE/hooks/pre-commit.py
+        # mypy        $GITHUB_WORKSPACE/hooks/pre-commit.py
+        # pycodestyle $GITHUB_WORKSPACE/hooks/pre-commit.py
         pylint      $GITHUB_WORKSPACE/hooks/pre-commit.py

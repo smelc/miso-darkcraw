@@ -22,13 +22,13 @@ executable app
     View
   build-depends:
     aeson,
+    ansi-wl-pprint,
     base,
     bytestring,
     containers,
     extra,
     file-embed,
     miso,
-    ansi-wl-pprint,
     tree-diff
   if !impl(ghcjs)
     build-depends:
