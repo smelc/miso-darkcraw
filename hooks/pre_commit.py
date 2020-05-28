@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-#
-# Script to be executed before commiting, to do things fast.
-#
-# Installation: ln -sr pre-commit.py .git/hooks/pre-commit
-#
-# You can pass "--unstaged" to apply the hook on modified but not yet
-# staged files. This is useful to apply the hook prior staging.
+"""
+Script to be executed before commiting, to do things fast.
+
+Installation: ln -sr hooks/pre_commit.py .git/hooks/pre-commit
+
+You can pass "--unstaged" to apply the hook on modified but not yet
+staged files. This is useful to apply the hook prior staging.
+"""
 
 import subprocess
 import sys
@@ -25,11 +26,9 @@ def _git_diff(staged_or_modified: bool, extension: str) -> List[str]:
         git_cmd += ["--cached"]
     git_cmd += ["--name-only", "--diff-filter=ACMR", "*." + extension]
     git_diff_result = subprocess.run(git_cmd,
+                                     check=True,
                                      stdout=subprocess.PIPE,
                                      universal_newlines=True)
-    if git_diff_result.returncode != 0:
-        print("Call to git diff failed, failing globally.", file=sys.stderr)
-        sys.exit(1)
     # The comprehension filters empty lines
     return [x for x in git_diff_result.stdout.split("\n") if x]
 
@@ -53,35 +52,28 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
         # those modifications
         cmd = ["git", "diff", "--name-only"]
         modified_files_result = subprocess.run(cmd,
+                                               check=True,
                                                stdout=subprocess.PIPE,
                                                universal_newlines=True)
-        if modified_files_result.returncode != 0:
-            print("Call to %s failed" % " ".join(cmd), file=sys.stderr)
-            sys.exit(1)
         trimmed_files = [
             x for x in files
             if x not in modified_files_result.stdout.split("\n")
         ]
         excluded = [x for x in files if x not in trimmed_files]
         if excluded:
-            print(
-                """Some files are not considered because they have unstaged modifications.
-Modifying them and readding them would stage unwanted modifications.
-Concerned files:""")
-            for x in excluded:
-                print("  " + x)
+            print("Some files are not considered because"
+                  " they have unstaged modifications."
+                  "\nModifying them and readding them would stage unwanted"
+                  " modifications\nConcerned files:")
+            for exclude in excluded:
+                print("  " + exclude)
         files = trimmed_files
-    rc = 0
+    return_code = 0
     for file_ in files:
         cmd = list(cmd)  # Copy to be safe
         cmd.append(file_)
         print(" ".join(cmd))
-        call_result = subprocess.run(cmd,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
-        if call_result.returncode != 0:
-            print("Call to %s failed " % " ".join(cmd), file=sys.stderr)
-            sys.exit(1)
+        subprocess.run(cmd, check=True)
         if staged_or_modified:
             # Readd file, so that formatting makes it to the commit
             # This is safe, because of the previous check having
@@ -93,18 +85,16 @@ Concerned files:""")
             # this information, we would be able to avoid these calls.
             cmd = ["git", "add", file_]
             print(" ".join(cmd))
-            git_result = subprocess.run(cmd)
-            if git_result.returncode != 0:
-                print("Call to %s failed " % " ".join(cmd), file=sys.stderr)
-                sys.exit(1)
-    return rc
+            subprocess.run(cmd, check=True)
+    return return_code
 
 
 def main() -> int:
+    """ The main """
     staged = "--unstaged" not in sys.argv
     adjective = "staged" if staged else "modified"
 
-    rc = 0
+    return_code = 0
 
     relevant_hs_files = _git_diff(staged, "hs")
     # Remove Main.hs that uses CPP
@@ -112,11 +102,11 @@ def main() -> int:
     if relevant_hs_files:
         ormolu_rc = _call_tool(relevant_hs_files, staged,
                                ["ormolu", "-m", "inplace"])
-        rc = max(rc, ormolu_rc)
+        return_code = max(return_code, ormolu_rc)
     else:
         print("No %s *.hs relevant file found" % adjective)
 
-    return rc
+    return return_code
 
 
 if __name__ == "__main__":

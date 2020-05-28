@@ -1,0 +1,3 @@
+mypy
+pycodestyle
+pylint

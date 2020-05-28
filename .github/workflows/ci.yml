@@ -17,10 +17,17 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-      
-    - name: Install json linter
-      run: sudo apt install jsonlint
-        
-    # Runs a single command using the runners shell
+
+    - name: Install linters
+      run: |
+        sudo apt install jsonlint python3-pip
+        pip install -r $GITHUB_WORKSPACE/hooks/requirements.txt
+
     - name: jsonlint-php app/data.json
       run: jsonlint-php $GITHUB_WORKSPACE/app/data.json
+
+    - name: lint hooks/pre-commit.py
+      run: |
+        mypy        $GITHUB_WORKSPACE/hooks/pre-commit.py
+        pycodestyle $GITHUB_WORKSPACE/hooks/pre-commit.py
+        pylint      $GITHUB_WORKSPACE/hooks/pre-commit.py
