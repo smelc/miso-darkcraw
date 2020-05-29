@@ -65,7 +65,7 @@ boardToInPlaceCells ::
   Int ->
   Model ->
   [View Action]
-boardToInPlaceCells z Model {board, handHover} =
+boardToInPlaceCells z Model {board, handFiddle} =
   -- draw cards on table
   [ div_
       [ style_ $ cardStyle x y,
@@ -75,13 +75,17 @@ boardToInPlaceCells z Model {board, handHover} =
     | (pSpot, cSpot, creature) <- board',
       let (x, y) = cardCellsBoardOffset pSpot cSpot
   ]
-    -- draw border around valid dragging targets if card in hand is being hovered
+    -- draw border around valid dragging targets if card in hand is:
+    -- 1/ being hovered or 2/ being dragged
     ++ [ div_
            [ style_ $ cardStyle x y, -- position the div
              style1_ "border" "3px solid #00FF00" -- draw the border
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
-         | isJust handHover, -- if card is being hovered in hand
+         | case handFiddle of
+             Just (HandHovering _) -> True -- if card in hand is being hovered
+             Just HandDragging {} -> True -- if card in hand is being dragged
+             _ -> False,
            cSpot <- emptyBottomSpots, -- on all empty spots
            let (x, y) = cardCellsBoardOffset PlayerBottom cSpot
        ]
@@ -97,7 +101,7 @@ boardToInHandCells ::
   Int ->
   Model ->
   [View Action]
-boardToInHandCells z Model {board, handHover} =
+boardToInHandCells z Model {board, handFiddle} =
   [ div_
       [ style_ $ cardStyle x 2,
         onDragXYEvent "drag" (DragXY i),
@@ -108,7 +112,9 @@ boardToInHandCells z Model {board, handHover} =
       [cardCreature z (Just creature) beingHovered]
     | (creature, i) <- Prelude.zip cards' [HandIndex 0 ..],
       let x = cellsXOffset (unHandIndex i),
-      let beingHovered = handHover == Just i
+      let beingHovered = case handFiddle of
+            Just (HandHovering i) -> True
+            _ -> False
   ]
   where
     board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board

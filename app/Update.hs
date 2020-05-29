@@ -54,6 +54,8 @@ instance ToExpr CardSpot
 
 instance ToExpr HandIndex
 
+instance ToExpr HandFiddle
+
 instance ToExpr Model
 
 logUpdates :: (Show a, Eq m, ToExpr m) => (a -> m -> Effect a m) -> a -> m -> Effect a m
@@ -73,14 +75,14 @@ logUpdates update action model = do
 updateModel :: Action -> Model -> Effect Action Model
 updateModel action m =
   case action of
-    DragXY {} ->
-      noEff m
+    DragXY i x y ->
+      noEff $ m {handFiddle = Just $ HandDragging i x y}
     Drop ->
       noEff m
     InHandMouseEnter i ->
-      noEff $ m {handHover = Just i}
+      noEff $ m {handFiddle = Just $ HandHovering i}
     InHandMouseLeave i ->
-      noEff $ m {handHover = Nothing}
+      noEff $ m {handFiddle = Nothing}
     NoOp ->
       noEff m
     SayHelloWorld ->
