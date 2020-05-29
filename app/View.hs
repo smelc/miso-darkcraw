@@ -106,9 +106,9 @@ boardToInHandCells z Model {board, handHover} =
         onMouseLeave' "card" $ InHandMouseLeave i
       ]
       [cardCreature z (Just creature) beingHovered]
-    | (creature, i) <- Prelude.zip cards' [0 ..],
-      let x = cellsXOffset i,
-      let beingHovered = handHover == Just (HandIndex i)
+    | (creature, i) <- Prelude.zip cards' [HandIndex 0 ..],
+      let x = cellsXOffset (unHandIndex i),
+      let beingHovered = handHover == Just i
   ]
   where
     board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board

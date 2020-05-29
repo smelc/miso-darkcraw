@@ -14,17 +14,14 @@ import Model
 import Text.PrettyPrint.ANSI.Leijen
 
 -- | Sum type for application events
--- | It'd be better to have HandIndex the type of the first argument of
--- | DragXY, InHandMouseenter and InHandMouseLeave but it's inconvenient :-()
--- | XXX Should I use a type alias instead?
 data Action
   = -- | Dragging card in hand
-    DragXY Int Int Int
+    DragXY HandIndex Int Int
   | Drop
   | -- | Starting hovering card in hand
-    InHandMouseEnter Int
+    InHandMouseEnter HandIndex
   | -- | Ending hovering card in hand
-    InHandMouseLeave Int
+    InHandMouseLeave HandIndex
   | NoOp
   | SayHelloWorld
   deriving (Show, Eq)
@@ -81,7 +78,7 @@ updateModel action m =
     Drop ->
       noEff m
     InHandMouseEnter i ->
-      noEff $ m {handHover = Just $ HandIndex i}
+      noEff $ m {handHover = Just i}
     InHandMouseLeave i ->
       noEff $ m {handHover = Nothing}
     NoOp ->
