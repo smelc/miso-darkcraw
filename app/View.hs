@@ -100,7 +100,7 @@ boardToInHandCells ::
 boardToInHandCells z Model {board, handHover} =
   [ div_
       [ style_ $ cardStyle x 2,
-        onEvent "drag",
+        onDragXYEvent "drag",
         class_ "card",
         onMouseEnter' "card" $ InHandMouseEnter i,
         onMouseLeave' "card" $ InHandMouseLeave i
