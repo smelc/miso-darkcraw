@@ -11,7 +11,7 @@ import Card
 import Constants
 import Data.Aeson
 import Data.Map.Strict as Map
-import Data.Maybe (fromJust, isJust, isNothing, mapMaybe)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe)
 import Event
 import Miso
 import Miso.Event
@@ -68,7 +68,7 @@ boardToInPlaceCells ::
 boardToInPlaceCells z Model {board, handFiddle} =
   -- draw cards on table
   [ div_
-      [ style_ $ cardStyle x y,
+      [ style_ $ cardStyle x y Nothing Nothing,
         onDrop (AllowDrop True) Drop
       ]
       [cardCreature z (Just creature) False]
@@ -78,7 +78,7 @@ boardToInPlaceCells z Model {board, handFiddle} =
     -- draw border around valid dragging targets if card in hand is:
     -- 1/ being hovered or 2/ being dragged
     ++ [ div_
-           [ style_ $ cardStyle x y, -- position the div
+           [ style_ $ cardStyle x y Nothing Nothing, -- position the div
              style1_ "border" "3px solid #00FF00" -- draw the border
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
@@ -103,28 +103,38 @@ boardToInHandCells ::
   [View Action]
 boardToInHandCells z Model {board, handFiddle} =
   [ div_
-      [ style_ $ cardStyle x 2,
+      [ style_ $ cardStyle x 2 xoff yoff,
         onDragXYEvent "drag" (DragXY i),
         class_ "card",
         onMouseEnter' "card" $ InHandMouseEnter i,
         onMouseLeave' "card" $ InHandMouseLeave i
       ]
       [cardCreature z (Just creature) beingHovered]
-    | (creature, i) <- Prelude.zip cards' [HandIndex 0 ..],
+    | (creature, i) <- Prelude.zip cards'' [HandIndex 0 ..],
       let x = cellsXOffset (unHandIndex i),
       let beingHovered = case handFiddle of
             Just (HandHovering i) -> True
-            _ -> False
+            _ -> False,
+      let (xoff, yoff) = case handFiddle of
+            Just (HandDragging j x y) ->
+              if j == i then (Just x, Just y) else (Nothing, Nothing)
+            _ -> (Nothing, Nothing)
   ]
   where
     board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board
-    cards :: [Card Core] = [c | (p, c) <- board', p == PlayerBottom]
-    cards' :: [Creature Core] =
+    cards :: [(Card Core, HandIndex)] =
+      Prelude.zip [c | (p, c) <- board', p == PlayerBottom] [HandIndex 0 ..]
+    cards' :: [Card Core] =
+      [ c | (c, i) <- cards, case handFiddle of -- do not show card if it being dragged
+                               Just (HandDragging j _ _) -> j == i
+                               _ -> True
+      ]
+    cards'' :: [Creature Core] =
       let filter = \case
             CreatureCard c -> Just c
             NeutralCard _ -> Nothing
             ItemCard _ -> Nothing
-       in Data.Maybe.mapMaybe filter cards
+       in Data.Maybe.mapMaybe filter cards'
     cellsXOffset i
       | i == 0 = boardToLeftCardCellsOffset + (cardCellWidth * 2) -- center
       | i == 1 = cellsXOffset 0 - xshift -- shift to the left compared to the center
@@ -139,16 +149,23 @@ cardStyle ::
   Int ->
   -- | The vertical offset from the enclosing container, in number of cells
   Int ->
+  -- | Optional horizontal offset, in PIXELS
+  Maybe Int ->
+  -- | Optional vertical offset, in PIXELS
+  Maybe Int ->
   Map MisoString MisoString
-cardStyle xCellsOffset yCellsOffset =
+cardStyle xCellsOffset yCellsOffset xPixsOffset yPixsOffset =
   Map.fromList
     [ ("position", "absolute"),
       ("display", "block"),
       ("width", ms cardPixelWidth <> "px"),
       ("height", ms cardPixelHeight <> "px"),
-      ("left", ms (xCellsOffset * cellPixelSize) <> "px"),
-      ("top", ms (yCellsOffset * cellPixelSize) <> "px")
+      ("left", ms xPixels <> "px"),
+      ("top", ms yPixels <> "px")
     ]
+  where
+    xPixels = (xCellsOffset * cellPixelSize) + fromMaybe 0 xPixsOffset
+    yPixels = (yCellsOffset * cellPixelSize) + fromMaybe 0 yPixsOffset
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
