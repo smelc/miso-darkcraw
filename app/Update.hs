@@ -6,11 +6,11 @@ module Update where
 
 import Board
 import Card
+import Data.TreeDiff
 import Debug.Trace
 import Miso
 import Miso.String
 import Model
-import Data.TreeDiff
 import Text.PrettyPrint.ANSI.Leijen
 
 -- | Sum type for application events
@@ -24,34 +24,47 @@ data Action
   deriving (Show, Eq)
 
 instance ToExpr CreatureKind
-instance ToExpr Team
-instance ToExpr CreatureID
-instance ToExpr Skill
-instance ToExpr Neutral
-instance ToExpr Item
-instance ToExpr (Creature Core)
-instance ToExpr (Creature UI)
-instance ToExpr (Card Core)
-instance ToExpr (Card UI)
-instance ToExpr PlayerSpot
-instance ToExpr PlayerPart
-instance ToExpr CardSpot
-instance ToExpr HandIndex
-instance ToExpr Model
 
+instance ToExpr Team
+
+instance ToExpr CreatureID
+
+instance ToExpr Skill
+
+instance ToExpr Neutral
+
+instance ToExpr Item
+
+instance ToExpr (Creature Core)
+
+instance ToExpr (Creature UI)
+
+instance ToExpr (Card Core)
+
+instance ToExpr (Card UI)
+
+instance ToExpr PlayerSpot
+
+instance ToExpr PlayerPart
+
+instance ToExpr CardSpot
+
+instance ToExpr HandIndex
+
+instance ToExpr Model
 
 logUpdates :: (Show a, Eq m, ToExpr m) => (a -> m -> Effect a m) -> a -> m -> Effect a m
 logUpdates update action model = do
   model' <- update action model
-  return $ trace
-    (show action ++ "\n" ++ diff model model')
-    model'
- where
-  diff model model'
-    | model == model' = "no diff"
-    | otherwise = prettyDiff (ediff model model')
-  prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
-
+  return $
+    trace
+      (show action ++ "\n" ++ diff model model')
+      model'
+  where
+    diff model model'
+      | model == model' = "no diff"
+      | otherwise = prettyDiff (ediff model model')
+    prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
