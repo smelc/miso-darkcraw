@@ -4,7 +4,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
--- | Haskell module declaration
+-- Haskell module declaration
 module Main where
 
 import Board
@@ -19,11 +19,11 @@ import System.IO (hPutStrLn, stderr)
 import Update
 import View
 
--- | Miso framework import
+-- Miso framework import
 import           Miso
 import           Miso.String
 
--- | JSAddle import
+-- JSAddle import
 #ifndef __GHCJS__
 import           Language.Javascript.JSaddle.Warp as JSaddle
 import           Network.Wai.Application.Static
