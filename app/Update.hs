@@ -14,11 +14,17 @@ import Model
 import Text.PrettyPrint.ANSI.Leijen
 
 -- | Sum type for application events
+-- | It'd be better to have HandIndex the type of the first argument of
+-- | DragXY, InHandMouseenter and InHandMouseLeave but it's inconvenient :-()
+-- | XXX Should I use a type alias instead?
 data Action
-  = DragXY Int Int
+  = -- | Dragging card in hand
+    DragXY Int Int Int
   | Drop
-  | InHandMouseEnter Int
-  | InHandMouseLeave Int
+  | -- | Starting hovering card in hand
+    InHandMouseEnter Int
+  | -- | Ending hovering card in hand
+    InHandMouseLeave Int
   | NoOp
   | SayHelloWorld
   deriving (Show, Eq)
@@ -70,7 +76,7 @@ logUpdates update action model = do
 updateModel :: Action -> Model -> Effect Action Model
 updateModel action m =
   case action of
-    DragXY _ _ ->
+    DragXY {} ->
       noEff m
     Drop ->
       noEff m

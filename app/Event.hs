@@ -10,6 +10,7 @@ where
 import Data.Aeson
 import Miso
 import Miso.String
+import Model (HandIndex)
 import Update
 
 clientXYDecoder :: Decoder (Int, Int)
@@ -20,10 +21,10 @@ clientXYDecoder = mempty `at` withObject "xy" parser
 onDragXYEvent ::
   -- | The event on which to apply
   MisoString ->
-  -- | How to build the Action
+  (Int -> Int -> Action) ->
   Attribute Action
-onDragXYEvent s =
-  on s clientXYDecoder $ uncurry DragXY
+onDragXYEvent s actionBuilder =
+  on s clientXYDecoder $ uncurry actionBuilder
 
 -- | Extracts the class name of the target from an event.
 classNameDecoder :: Decoder Value
