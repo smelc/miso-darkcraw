@@ -68,7 +68,11 @@ main = do
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    update = logUpdates updateModel          -- update function
+#ifndef __GHCJS__
+    update = logUpdates updateModel -- log events in dev mode
+#else
+    update = updateModel
+#endif
     view   = viewModel            -- view function
     events = Map.fromList [("mouseleave", True), ("mouseenter", True)] <> defaultEvents -- delegated events
     subs   = []                   -- empty subscription list
