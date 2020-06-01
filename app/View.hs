@@ -111,7 +111,7 @@ boardToInHandCells z Model {board, handFiddle} =
     | (creature, i) <- Prelude.zip cards'' [HandIndex 0 ..],
       let x = cellsXOffset (unHandIndex i),
       let beingHovered = case handFiddle of
-            Just (HandHovering i) -> True
+            Just (HandHovering j) -> j == i
             _ -> False,
       let (xoff, yoff) = case handFiddle of
             Just (HandDragging j x y) ->
