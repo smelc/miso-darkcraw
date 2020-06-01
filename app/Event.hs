@@ -10,7 +10,6 @@ where
 import Data.Aeson
 import Miso
 import Miso.String
-import Model (HandIndex)
 import Update
 
 clientXYDecoder :: Decoder (Int, Int)

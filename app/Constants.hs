@@ -3,7 +3,6 @@
 
 module Constants where
 
-import Miso
 import Miso.String
 
 assetsDir :: MisoString

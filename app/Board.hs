@@ -17,11 +17,9 @@ module Board
 where
 
 import Card
-import Data.Bifunctor
 import GHC.Generics
 import qualified Data.Map.Strict as Map
 import Data.Maybe
-import qualified Data.Set as Set
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board

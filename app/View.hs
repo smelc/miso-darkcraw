@@ -9,12 +9,10 @@ module View where
 import Board
 import Card
 import Constants
-import Data.Aeson
 import Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe)
+import Data.Maybe (fromJust, fromMaybe, isNothing, mapMaybe)
 import Event
 import Miso
-import Miso.Event
 import Miso.String
 import Model
 import Update
@@ -22,7 +20,7 @@ import Utils (style1_)
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel model@Model {board, uiCards} =
+viewModel model =
   div_ [] [boardDiv, handDiv]
   where
     z :: Int = 0
@@ -236,7 +234,6 @@ cardCreature z creature hover =
       ++ [cardBackground z hover]
   where
     placeholder = isNothing creature
-    cellPixelSz = ms cellPixelSize <> "px"
     topMargin = cellPixelSize `div` 4
     pictureStyle =
       Map.fromList
@@ -262,7 +259,6 @@ cardCreature z creature hover =
           ("display", "flex"),
           ("align-items", "center")
         ]
-    statImgStyle :: Map MisoString MisoString = Map.fromList []
     statsCell :: View Action =
       div_
         [style_ inStatsStyle]
@@ -290,7 +286,6 @@ cardBackground z hover =
         ]
     ]
   where
-    divStyle = Map.fromList [("position", "absolute")]
     cardStyle =
       Map.fromList $
         [ ("width", ms cardPixelWidth <> "px"),

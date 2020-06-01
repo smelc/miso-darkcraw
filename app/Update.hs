@@ -81,7 +81,7 @@ updateModel action m =
       noEff m
     InHandMouseEnter i ->
       noEff $ m {handFiddle = Just $ HandHovering i}
-    InHandMouseLeave i ->
+    InHandMouseLeave _ ->
       noEff $ m {handFiddle = Nothing}
     NoOp ->
       noEff m
