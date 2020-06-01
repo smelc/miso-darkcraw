@@ -69,7 +69,7 @@ main = do
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
 #ifndef __GHCJS__
-    update = updateModel -- log events in dev mode
+    update = logUpdates updateModel -- log events in dev mode
 #else
     update = updateModel
 #endif
