@@ -10,7 +10,7 @@ import Board
 import Card
 import Constants
 import Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isNothing, mapMaybe)
+import Data.Maybe (fromJust, fromMaybe, isNothing, mapMaybe, maybeToList)
 import Event
 import Miso
 import Miso.String
@@ -20,8 +20,8 @@ import Utils (style1_)
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel model =
-  div_ [] [boardDiv, handDiv]
+viewModel model@Model {board, handFiddle} =
+  div_ [] ([boardDiv, handDiv] ++ maybeToList draggedCardDiv)
   where
     z :: Int = 0
     globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
@@ -57,6 +57,15 @@ viewModel model =
         [ ("position", "relative"),
           ("top", ms boardPixelHeight <> "px")
         ]
+    draggedCardDiv :: Maybe (View Action) =
+      case handFiddle of
+        Just (HandDragging i x y) ->
+          let creatures = boardToInHandCreaturesToDraw board in
+          let creature :: Creature Core = creatures !! unHandIndex i in
+            Just $ div_
+              [ style_ $ cardStyle 0 0 (Just x) (Just y) ]
+              [cardCreature (z + 1) (Just creature) False]
+        _ -> Nothing
 
 boardToInPlaceCells ::
   -- | The z index
@@ -94,6 +103,21 @@ boardToInPlaceCells z Model {board, handFiddle} =
     emptyBottomSpots =
       [c | c <- allCardsSpots, c `notElem` bottomCardsSpots]
 
+boardToInHandCreaturesToDraw :: Board -> [Creature 'Core]
+boardToInHandCreaturesToDraw board =
+  cards
+  where
+    board' :: [Card Core] =
+      Prelude.map snd
+        $ Prelude.filter ((== PlayerBottom) . fst)
+        $ boardToCardsInHand board
+    cards :: [Creature Core] =
+      let filter = \case
+            CreatureCard c -> Just c
+            NeutralCard _ -> Nothing
+            ItemCard _ -> Nothing
+       in Data.Maybe.mapMaybe filter board'
+
 boardToInHandCells ::
   -- | The z index
   Int ->
@@ -116,22 +140,9 @@ boardToInHandCells z Model {board, handFiddle} =
       let beingDragged = case handFiddle of
             Just (HandDragging j _ _) -> j == i
             _ -> False
-      -- let (xoff, yoff) = case handFiddle of
-      --       Just (HandDragging j x y) ->
-      --         if j == i then (Just 48, Just 48) else (Nothing, Nothing)
-      --       _ -> (Nothing, Nothing)
   ]
   where
-    board' :: [Card Core] =
-      Prelude.map snd
-        $ Prelude.filter ((== PlayerBottom) . fst)
-        $ boardToCardsInHand board
-    cards :: [Creature Core] =
-      let filter = \case
-            CreatureCard c -> Just c
-            NeutralCard _ -> Nothing
-            ItemCard _ -> Nothing
-       in Data.Maybe.mapMaybe filter board'
+    cards :: [Creature Core] = boardToInHandCreaturesToDraw board
     cellsXOffset i
       | i == 0 = boardToLeftCardCellsOffset + (cardCellWidth * 2) -- center
       | i == 1 = cellsXOffset 0 - xshift -- shift to the left compared to the center
