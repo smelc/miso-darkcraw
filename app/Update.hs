@@ -61,12 +61,13 @@ instance ToExpr HandFiddle
 
 instance ToExpr Model
 
-logUpdates :: (Show a, Eq m, ToExpr m) => (a -> m -> Effect a m) -> a -> m -> Effect a m
+logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a
+logUpdates update NoOp model = update NoOp model
 logUpdates update action model = do
   model' <- update action model
   return $
     trace
-      (show action ++ "\n" ++ diff model model')
+      ("--------\n" ++ show action ++ "\n" ++ diff model model')
       model'
   where
     diff model model'
