@@ -16,7 +16,8 @@ import Text.PrettyPrint.ANSI.Leijen
 -- | Sum type for application events
 data Action
   = -- | Dragging card in hand
-    DragXY HandIndex Int Int
+    DragStart HandIndex
+  | DragEnd
   | Drop
   | -- | Starting hovering card in hand
     InHandMouseEnter HandIndex
@@ -73,17 +74,10 @@ logUpdates update action model = do
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
-updateModel action m =
-  case action of
-    DragXY i x y ->
-      noEff $ m {handFiddle = Just $ HandDragging i x y}
-    Drop ->
-      noEff m
-    InHandMouseEnter i ->
-      noEff $ m {handFiddle = Just $ HandHovering i}
-    InHandMouseLeave _ ->
-      noEff $ m {handFiddle = Nothing}
-    NoOp ->
-      noEff m
-    SayHelloWorld ->
-      m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
+updateModel (DragStart i) m = noEff $ m {handFiddle = Just $ HandDragging i}
+updateModel DragEnd m@Model{handFiddle=Just _} = noEff $ m {handFiddle = Nothing}
+updateModel Drop m@Model{handFiddle=Just _} = noEff $ m {handFiddle = Nothing}
+updateModel (InHandMouseEnter i) m@Model{handFiddle=Nothing} = noEff $ m {handFiddle = Just $ HandHovering i}
+updateModel (InHandMouseLeave i) m@Model{handFiddle=Just (HandHovering _)} = noEff $ m {handFiddle = Nothing}
+updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
+updateModel _ m = noEff m

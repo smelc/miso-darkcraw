@@ -21,7 +21,7 @@ import Utils (style1_)
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel model@Model {board, handFiddle} =
-  div_ [] ([boardDiv, handDiv] ++ maybeToList draggedCardDiv)
+  div_ [] [boardDiv, handDiv]
   where
     z :: Int = 0
     globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
@@ -57,15 +57,6 @@ viewModel model@Model {board, handFiddle} =
         [ ("position", "relative"),
           ("top", ms boardPixelHeight <> "px")
         ]
-    draggedCardDiv :: Maybe (View Action) =
-      case handFiddle of
-        Just (HandDragging i x y) ->
-          let creatures = boardToInHandCreaturesToDraw board in
-          let creature :: Creature Core = creatures !! unHandIndex i in
-            Just $ div_
-              [ style_ $ cardStyle 0 0 (Just x) (Just y) ]
-              [cardCreature (z + 1) (Just creature) False]
-        _ -> Nothing
 
 boardToInPlaceCells ::
   -- | The z index
@@ -90,7 +81,7 @@ boardToInPlaceCells z Model {board, handFiddle} =
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
          | case handFiddle of
-             Just (HandHovering _) -> True -- if card in hand is being hovered
+             Just HandHovering {} -> True -- if card in hand is being hovered
              Just HandDragging {} -> True -- if card in hand is being dragged
              _ -> False,
            cSpot <- emptyBottomSpots, -- on all empty spots
@@ -126,7 +117,9 @@ boardToInHandCells ::
 boardToInHandCells z Model {board, handFiddle} =
   [ div_
       [ style_ $ cardStyle x 2 Nothing Nothing,
-        onDragXYEvent "drag" (DragXY i),
+        prop "draggable" True,
+        onDragStart (DragStart i),
+        onDragEnd DragEnd,
         class_ "card",
         onMouseEnter' "card" $ InHandMouseEnter i,
         onMouseLeave' "card" $ InHandMouseLeave i
@@ -134,12 +127,8 @@ boardToInHandCells z Model {board, handFiddle} =
       [cardCreature z (Just creature) beingHovered | not beingDragged]
     | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
       let x = cellsXOffset (unHandIndex i),
-      let beingHovered = case handFiddle of
-            Just (HandHovering j) -> j == i
-            _ -> False,
-      let beingDragged = case handFiddle of
-            Just (HandDragging j _ _) -> j == i
-            _ -> False
+      let beingHovered = handFiddle == Just (HandHovering i),
+      let beingDragged = handFiddle == Just (HandDragging i)
   ]
   where
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board
@@ -209,24 +198,32 @@ cardCellsBoardOffset PlayerBottom cardSpot =
       Bottom -> (xtop, 0) -- Bottom is Top in bottom part
       BottomRight -> (0, 0) -- BottomRight is Top Left in bottom part
 
+noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
+
 backgroundCell :: View Action
 backgroundCell =
   img_
     [ width_ $ ms boardPixelWidth,
       height_ $ ms boardPixelHeight,
-      src_ $ assetsPath "forest.png"
+      src_ $ assetsPath "forest.png",
+      noDrag
     ]
 
 handCell :: View Action
 handCell =
   img_
     [ width_ $ ms handPixelWidth,
-      src_ $ assetsPath "forest-hand.png"
+      src_ $ assetsPath "forest-hand.png",
+      noDrag
     ]
 
 imgCell :: MisoString -> View Action
 imgCell filename =
-  img_ [src_ $ assetsPath filename]
+  img_ [
+    src_ $ assetsPath filename,
+    noDrag
+  ]
+
 
 cardCreature ::
   -- | The z index
@@ -292,7 +289,8 @@ cardBackground z hover =
     [ img_
         [ src_ $ assetsPath assetFilenameBeigeBG,
           width_ $ ms cardPixelWidth,
-          height_ $ ms cardPixelHeight
+          height_ $ ms cardPixelHeight,
+          noDrag
         ]
     ]
   where

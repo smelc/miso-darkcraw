@@ -16,7 +16,7 @@ data HandFiddle
   = -- | Card in hand being hovered
     HandHovering HandIndex
   | -- | Card in hand being dragged to (x, y)
-    HandDragging HandIndex Int Int
+    HandDragging HandIndex
   deriving (Eq, Show, Generic)
 
 -- | Type synonym for an application model

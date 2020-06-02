@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Event
-  ( onDragXYEvent,
-    onMouseEnter',
+  ( onMouseEnter',
     onMouseLeave',
   )
 where
@@ -11,19 +10,6 @@ import Data.Aeson
 import Miso
 import Miso.String
 import Update
-
-clientXYDecoder :: Decoder (Int, Int)
-clientXYDecoder = mempty `at` withObject "xy" parser
-  where
-    parser o = (,) <$> o .: "clientX" <*> o .: "clientY"
-
-onDragXYEvent ::
-  -- | The event on which to apply
-  MisoString ->
-  (Int -> Int -> Action) ->
-  Attribute Action
-onDragXYEvent s actionBuilder =
-  on s clientXYDecoder $ uncurry actionBuilder
 
 -- | Extracts the class name of the target from an event.
 classNameDecoder :: Decoder Value
