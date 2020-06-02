@@ -23,7 +23,8 @@ data HandFiddle
 data Model = Model
   { board :: Board,
     uiCards :: [Card UI],
-    handFiddle :: Maybe HandFiddle
+    handFiddle :: Maybe HandFiddle,
+    onDragTarget :: Maybe CardSpot
   }
 
 deriving instance (Eq Model)

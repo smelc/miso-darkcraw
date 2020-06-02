@@ -63,7 +63,7 @@ boardToInPlaceCells ::
   Int ->
   Model ->
   [View Action]
-boardToInPlaceCells z Model {board, handFiddle} =
+boardToInPlaceCells z Model {board, handFiddle, onDragTarget} =
   -- draw cards on table
   [ div_
       [style_ $ cardStyle x y]
@@ -75,7 +75,7 @@ boardToInPlaceCells z Model {board, handFiddle} =
     -- 1/ being hovered or 2/ being dragged
     ++ [ div_
            [ style_ $ cardStyle x y, -- position the div
-             style1_ "border" "3px solid #00FF00", -- draw the border
+             style1_ "border" ("3px solid " <> borderColor), -- draw the border
              onDrop (AllowDrop True) Drop,
              onDragEnter (DragEnter cSpot),
              onDragLeave (DragLeave cSpot)
@@ -86,7 +86,9 @@ boardToInPlaceCells z Model {board, handFiddle} =
              Just HandDragging {} -> True -- if card in hand is being dragged
              _ -> False,
            cSpot <- emptyBottomSpots, -- on all empty spots
-           let (x, y) = cardCellsBoardOffset PlayerBottom cSpot
+           let isDragTarget = onDragTarget == Just cSpot,
+           let (x, y) = cardCellsBoardOffset PlayerBottom cSpot,
+           let borderColor = if isDragTarget then "#FFFF00" else "#00FF00"
        ]
   where
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =

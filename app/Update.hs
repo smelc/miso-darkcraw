@@ -18,8 +18,8 @@ data Action
   = -- | Dragging card in hand
     DragStart HandIndex
   | DragEnd
-  | DragEnter CardSpot -- for debugging purposes only
-  | DragLeave CardSpot -- for debugging purposes only
+  | DragEnter CardSpot
+  | DragLeave CardSpot
   | Drop
   | -- | Starting hovering card in hand
     InHandMouseEnter HandIndex
@@ -78,6 +78,8 @@ logUpdates update action model = do
 updateModel :: Action -> Model -> Effect Action Model
 updateModel (DragStart i) m = noEff $ m {handFiddle = Just $ HandDragging i}
 updateModel DragEnd m@Model {handFiddle = Just _} = noEff $ m {handFiddle = Nothing}
+updateModel (DragEnter cSpot) m@Model {onDragTarget = Nothing} = noEff $ m {onDragTarget = Just cSpot}
+updateModel (DragLeave _) m@Model {onDragTarget = Just _} = noEff $ m {onDragTarget = Nothing}
 updateModel Drop m@Model {handFiddle = Just _} = noEff $ m {handFiddle = Nothing}
 updateModel (InHandMouseEnter i) m@Model {handFiddle = Nothing} = noEff $ m {handFiddle = Just $ HandHovering i}
 updateModel (InHandMouseLeave i) m@Model {handFiddle = Just (HandHovering _)} = noEff $ m {handFiddle = Nothing}
