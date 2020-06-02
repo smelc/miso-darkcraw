@@ -101,38 +101,37 @@ boardToInHandCells ::
   [View Action]
 boardToInHandCells z Model {board, handFiddle} =
   [ div_
-      [ style_ $ cardStyle x 2 xoff yoff,
+      [ style_ $ cardStyle x 2 Nothing Nothing,
         onDragXYEvent "drag" (DragXY i),
         class_ "card",
         onMouseEnter' "card" $ InHandMouseEnter i,
         onMouseLeave' "card" $ InHandMouseLeave i
       ]
-      [cardCreature z (Just creature) beingHovered]
-    | (creature, i) <- Prelude.zip cards'' [HandIndex 0 ..],
+      [cardCreature z (Just creature) beingHovered | not beingDragged]
+    | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
       let x = cellsXOffset (unHandIndex i),
       let beingHovered = case handFiddle of
             Just (HandHovering j) -> j == i
             _ -> False,
-      let (xoff, yoff) = case handFiddle of
-            Just (HandDragging j x y) ->
-              if j == i then (Just x, Just y) else (Nothing, Nothing)
-            _ -> (Nothing, Nothing)
+      let beingDragged = case handFiddle of
+            Just (HandDragging j _ _) -> j == i
+            _ -> False
+      -- let (xoff, yoff) = case handFiddle of
+      --       Just (HandDragging j x y) ->
+      --         if j == i then (Just 48, Just 48) else (Nothing, Nothing)
+      --       _ -> (Nothing, Nothing)
   ]
   where
-    board' :: [(PlayerSpot, Card Core)] = boardToCardsInHand board
-    cards :: [(Card Core, HandIndex)] =
-      Prelude.zip [c | (p, c) <- board', p == PlayerBottom] [HandIndex 0 ..]
-    cards' :: [Card Core] =
-      [ c | (c, i) <- cards, case handFiddle of -- do not show card if it being dragged
-                               Just (HandDragging j _ _) -> j == i
-                               _ -> True
-      ]
-    cards'' :: [Creature Core] =
+    board' :: [Card Core] =
+      Prelude.map snd
+        $ Prelude.filter ((== PlayerBottom) . fst)
+        $ boardToCardsInHand board
+    cards :: [Creature Core] =
       let filter = \case
             CreatureCard c -> Just c
             NeutralCard _ -> Nothing
             ItemCard _ -> Nothing
-       in Data.Maybe.mapMaybe filter cards'
+       in Data.Maybe.mapMaybe filter board'
     cellsXOffset i
       | i == 0 = boardToLeftCardCellsOffset + (cardCellWidth * 2) -- center
       | i == 1 = cellsXOffset 0 - xshift -- shift to the left compared to the center
@@ -155,9 +154,9 @@ cardStyle ::
 cardStyle xCellsOffset yCellsOffset xPixsOffset yPixsOffset =
   Map.fromList
     [ ("position", "absolute"),
-      ("display", "block"),
-      ("width", ms cardPixelWidth <> "px"),
-      ("height", ms cardPixelHeight <> "px"),
+      -- ("display", "block"), doesn't seem required in the end
+      ("width", ms cardPixelWidth <> "px"), -- required for drawing drag target
+      ("height", ms cardPixelHeight <> "px"), -- required for drawing drag target
       ("left", ms xPixels <> "px"),
       ("top", ms yPixels <> "px")
     ]
