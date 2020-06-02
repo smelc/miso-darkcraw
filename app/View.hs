@@ -66,9 +66,7 @@ boardToInPlaceCells ::
 boardToInPlaceCells z Model {board, handFiddle} =
   -- draw cards on table
   [ div_
-      [ style_ $ cardStyle x y Nothing Nothing,
-        onDrop (AllowDrop True) Drop
-      ]
+      [style_ $ cardStyle x y]
       [cardCreature z (Just creature) False]
     | (pSpot, cSpot, creature) <- board',
       let (x, y) = cardCellsBoardOffset pSpot cSpot
@@ -76,8 +74,11 @@ boardToInPlaceCells z Model {board, handFiddle} =
     -- draw border around valid dragging targets if card in hand is:
     -- 1/ being hovered or 2/ being dragged
     ++ [ div_
-           [ style_ $ cardStyle x y Nothing Nothing, -- position the div
-             style1_ "border" "3px solid #00FF00" -- draw the border
+           [ style_ $ cardStyle x y, -- position the div
+             style1_ "border" "3px solid #00FF00", -- draw the border
+             onDrop (AllowDrop True) Drop,
+             onDragEnter (DragEnter cSpot),
+             onDragLeave (DragLeave cSpot)
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
          | case handFiddle of
@@ -116,7 +117,7 @@ boardToInHandCells ::
   [View Action]
 boardToInHandCells z Model {board, handFiddle} =
   [ div_
-      [ style_ $ cardStyle x 2 Nothing Nothing,
+      [ style_ $ cardStyle x 2,
         prop "draggable" True,
         onDragStart (DragStart i),
         onDragEnd DragEnd,
@@ -146,12 +147,8 @@ cardStyle ::
   Int ->
   -- | The vertical offset from the enclosing container, in number of cells
   Int ->
-  -- | Optional horizontal offset, in PIXELS
-  Maybe Int ->
-  -- | Optional vertical offset, in PIXELS
-  Maybe Int ->
   Map MisoString MisoString
-cardStyle xCellsOffset yCellsOffset xPixsOffset yPixsOffset =
+cardStyle xCellsOffset yCellsOffset =
   Map.fromList
     [ ("position", "absolute"),
       -- ("display", "block"), doesn't seem required in the end
@@ -161,8 +158,8 @@ cardStyle xCellsOffset yCellsOffset xPixsOffset yPixsOffset =
       ("top", ms yPixels <> "px")
     ]
   where
-    xPixels = (xCellsOffset * cellPixelSize) + fromMaybe 0 xPixsOffset
-    yPixels = (yCellsOffset * cellPixelSize) + fromMaybe 0 yPixsOffset
+    xPixels = xCellsOffset * cellPixelSize
+    yPixels = yCellsOffset * cellPixelSize
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
@@ -219,11 +216,10 @@ handCell =
 
 imgCell :: MisoString -> View Action
 imgCell filename =
-  img_ [
-    src_ $ assetsPath filename,
-    noDrag
-  ]
-
+  img_
+    [ src_ $ assetsPath filename,
+      noDrag
+    ]
 
 cardCreature ::
   -- | The z index
