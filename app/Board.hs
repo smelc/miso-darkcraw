@@ -11,6 +11,7 @@ module Board
     Board,
     CardSpot (..),
     exampleBoard,
+    playingPlayerSpot,
     PlayerPart (..),
     PlayerSpot (..),
   )
@@ -118,3 +119,6 @@ exampleBoard cards =
             (TopLeft, hSpearman)
           ]
     botPlayer = PlayerPart botCards botHand
+
+playingPlayerSpot :: PlayerSpot
+playingPlayerSpot = PlayerBottom

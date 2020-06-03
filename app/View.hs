@@ -85,17 +85,18 @@ boardToInPlaceCells z Model {board, handFiddle, onDragTarget} =
              Just HandHovering {} -> True -- if card in hand is being hovered
              Just HandDragging {} -> True -- if card in hand is being dragged
              _ -> False,
-           cSpot <- emptyBottomSpots, -- on all empty spots
+           cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
            let isDragTarget = onDragTarget == Just cSpot,
-           let (x, y) = cardCellsBoardOffset PlayerBottom cSpot,
+           let (x, y) = cardCellsBoardOffset playingPlayerSpot cSpot,
            let borderColor = if isDragTarget then "#FFFF00" else "#00FF00"
        ]
   where
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
-    bottomCardsSpots :: [CardSpot] = [c | (PlayerBottom, c, _) <- board']
-    emptyBottomSpots =
-      [c | c <- allCardsSpots, c `notElem` bottomCardsSpots]
+    playingPlayerCardsSpots :: [CardSpot] =
+      [c | (playingPlayerSpot, c, _) <- board']
+    emptyPlayingPlayerSpots =
+      [c | c <- allCardsSpots, c `notElem` playingPlayerCardsSpots]
 
 boardToInHandCreaturesToDraw :: Board -> [Creature 'Core]
 boardToInHandCreaturesToDraw board =
