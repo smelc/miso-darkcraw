@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 module Model where
 
@@ -40,7 +39,4 @@ data Model = Model
     uiCards :: [Card UI],
     interaction :: Maybe Interaction
   }
-
-deriving instance (Eq Model)
-
-deriving instance (Generic Model)
+  deriving (Eq, Generic)
