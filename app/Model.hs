@@ -9,8 +9,23 @@ import Board
 import Card
 import GHC.Generics
 
-newtype HandIndex = HandIndex { unHandIndex :: Int }
+newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
+
+data Interaction
+  = HoverInteraction Hovering
+  | DragInteraction Dragging
+  deriving (Eq, Generic, Show)
+
+newtype Hovering = Hovering
+  {hoveredCard :: HandIndex}
+  deriving (Eq, Generic, Show)
+
+data Dragging = Dragging
+  { draggedCard :: HandIndex,
+    dragTarget :: Maybe CardSpot
+  }
+  deriving (Eq, Show, Generic)
 
 data HandFiddle
   = -- | Card in hand being hovered
@@ -23,8 +38,7 @@ data HandFiddle
 data Model = Model
   { board :: Board,
     uiCards :: [Card UI],
-    handFiddle :: Maybe HandFiddle,
-    onDragTarget :: Maybe CardSpot
+    interaction :: Maybe Interaction
   }
 
 deriving instance (Eq Model)

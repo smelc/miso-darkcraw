@@ -20,7 +20,7 @@ import Utils (style1_)
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel model@Model {board, handFiddle} =
+viewModel model@Model {board, interaction} =
   div_ [] [boardDiv, handDiv]
   where
     z :: Int = 0
@@ -63,7 +63,7 @@ boardToInPlaceCells ::
   Int ->
   Model ->
   [View Action]
-boardToInPlaceCells z Model {board, handFiddle, onDragTarget} =
+boardToInPlaceCells z Model {board, interaction} =
   -- draw cards on table
   [ div_
       [style_ $ cardStyle x y]
@@ -81,12 +81,15 @@ boardToInPlaceCells z Model {board, handFiddle, onDragTarget} =
              onDragLeave (DragLeave cSpot)
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
-         | case handFiddle of
-             Just HandHovering {} -> True -- if card in hand is being hovered
-             Just HandDragging {} -> True -- if card in hand is being dragged
+         | case interaction of
+             Just HoverInteraction {} -> True -- if card in hand is being hovered
+             Just DragInteraction {} -> True -- if card in hand is being dragged
              _ -> False,
            cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
-           let isDragTarget = onDragTarget == Just cSpot,
+           let isDragTarget = case interaction of
+                 -- Would this deep deconstruction benefit of a lens ?
+                 Just (DragInteraction Dragging {dragTarget}) -> dragTarget == Just cSpot
+                 _ -> False,
            let (x, y) = cardCellsBoardOffset playingPlayerSpot cSpot,
            let borderColor = if isDragTarget then "#FFFF00" else "#00FF00"
        ]
@@ -118,7 +121,7 @@ boardToInHandCells ::
   Int ->
   Model ->
   [View Action]
-boardToInHandCells z Model {board, handFiddle} =
+boardToInHandCells z Model {board, interaction} =
   [ div_
       [ style_ $ cardStyle x 2,
         prop "draggable" True,
@@ -131,8 +134,13 @@ boardToInHandCells z Model {board, handFiddle} =
       [cardCreature z (Just creature) beingHovered | not beingDragged]
     | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
       let x = cellsXOffset (unHandIndex i),
-      let beingHovered = handFiddle == Just (HandHovering i),
-      let beingDragged = handFiddle == Just (HandDragging i)
+      let (beingHovered, beingDragged) =
+            case interaction of
+              Just (HoverInteraction Hovering {hoveredCard}) ->
+                (hoveredCard == i, False)
+              Just (DragInteraction Dragging {draggedCard}) ->
+                (False, draggedCard == i)
+              Nothing -> (False, False)
   ]
   where
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board

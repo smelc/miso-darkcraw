@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Update where
@@ -59,6 +60,12 @@ instance ToExpr HandIndex
 
 instance ToExpr HandFiddle
 
+instance ToExpr Dragging
+
+instance ToExpr Hovering
+
+instance ToExpr Interaction
+
 instance ToExpr Model
 
 logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a
@@ -75,14 +82,24 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
+updateI :: Action -> Maybe Interaction -> Maybe Interaction
+updateI (DragStart i) (Just (DragInteraction dragging)) =
+  Just $ DragInteraction $ dragging {draggedCard = i}
+updateI (DragStart i) Nothing =
+  Just $ DragInteraction $ Dragging i Nothing
+updateI DragEnd _ = Nothing
+-- DragEnter cannot create a DragInteraction if there's none yet, we don't
+-- want to keep track of drag targets if a drag action did not start yet
+updateI (DragEnter cSpot) (Just (DragInteraction dragging)) =
+  Just $ DragInteraction $ dragging {dragTarget = Just cSpot}
+updateI (DragLeave _) (Just (DragInteraction dragging)) =
+  Just $ DragInteraction $ dragging {dragTarget = Nothing}
+updateI Drop _ = Nothing -- TODO modify board if dropping on target
+updateI (InHandMouseEnter i) _ = Just $ HoverInteraction $ Hovering i
+updateI (InHandMouseLeave _) _ = Nothing
+updateI _ _ = Nothing
+
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
-updateModel (DragStart i) m = noEff $ m {handFiddle = Just $ HandDragging i}
-updateModel DragEnd m@Model {handFiddle = Just _} = noEff $ m {handFiddle = Nothing}
-updateModel (DragEnter cSpot) m@Model {onDragTarget = Nothing} = noEff $ m {onDragTarget = Just cSpot}
-updateModel (DragLeave _) m@Model {onDragTarget = Just _} = noEff $ m {onDragTarget = Nothing}
-updateModel Drop m@Model {handFiddle = Just _} = noEff $ m {handFiddle = Nothing}
-updateModel (InHandMouseEnter i) m@Model {handFiddle = Nothing} = noEff $ m {handFiddle = Just $ HandHovering i}
-updateModel (InHandMouseLeave i) m@Model {handFiddle = Just (HandHovering _)} = noEff $ m {handFiddle = Nothing}
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
-updateModel _ m = noEff m
+updateModel a m@Model {interaction} = noEff $ m {interaction = updateI a interaction}
