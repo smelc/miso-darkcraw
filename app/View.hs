@@ -9,8 +9,9 @@ module View where
 import Board
 import Card
 import Constants
-import Data.Map.Strict as Map
+import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isNothing, mapMaybe, maybeToList)
+import Data.List
 import Event
 import Miso
 import Miso.String
@@ -68,7 +69,7 @@ boardToInPlaceCells z Model {board, interaction} =
   [ div_
       [style_ $ cardStyle x y]
       [cardCreature z (Just creature) False]
-    | (pSpot, cSpot, creature) <- board',
+    | (pSpot, cSpot, creature) <- cardsInPlace,
       let (x, y) = cardCellsBoardOffset pSpot cSpot
   ]
     -- draw border around valid dragging targets if card in hand is:
@@ -92,12 +93,12 @@ boardToInPlaceCells z Model {board, interaction} =
            let borderColor = if isDragTarget then "#FFFF00" else "#00FF00"
        ]
   where
-    board' :: [(PlayerSpot, CardSpot, Creature Core)] =
+    cardsInPlace :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
     playingPlayerCardsSpots :: [CardSpot] =
-      [c | (pSpot, c, _) <- board', pSpot == playingPlayerSpot]
-    emptyPlayingPlayerSpots =
-      [c | c <- allCardsSpots, c `notElem` playingPlayerCardsSpots]
+      [c | (pSpot, c, _) <- cardsInPlace, pSpot == playingPlayerSpot]
+    emptyPlayingPlayerSpots:: [CardSpot] =
+      allCardsSpots \\ playingPlayerCardsSpots
 
 boardToInHandCreaturesToDraw :: Board -> [Creature 'Core]
 boardToInHandCreaturesToDraw board =
@@ -156,7 +157,7 @@ cardStyle ::
   Int ->
   -- | The vertical offset from the enclosing container, in number of cells
   Int ->
-  Map MisoString MisoString
+  Map.Map MisoString MisoString
 cardStyle xCellsOffset yCellsOffset =
   Map.fromList
     [ ("position", "absolute"),
