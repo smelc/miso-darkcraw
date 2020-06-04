@@ -94,7 +94,7 @@ boardToInPlaceCells z Model {board, handFiddle, onDragTarget} =
     board' :: [(PlayerSpot, CardSpot, Creature Core)] =
       boardToCardsInPlace board
     playingPlayerCardsSpots :: [CardSpot] =
-      [c | (playingPlayerSpot, c, _) <- board']
+      [c | (pSpot, c, _) <- board', pSpot == playingPlayerSpot]
     emptyPlayingPlayerSpots =
       [c | c <- allCardsSpots, c `notElem` playingPlayerCardsSpots]
 
