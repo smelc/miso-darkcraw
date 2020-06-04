@@ -86,7 +86,6 @@ boardToInPlaceCells z Model {board, interaction} =
              NoInteraction -> False,
            cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
            let isDragTarget = case interaction of
-                 -- Would this deep deconstruction benefit of a lens ?
                  DragInteraction Dragging {dragTarget} -> dragTarget == Just cSpot
                  _ -> False,
            let (x, y) = cardCellsBoardOffset playingPlayerSpot cSpot,
