@@ -76,7 +76,6 @@ boardToInPlaceCells z Model {board, interaction} =
     ++ [ div_
            [ style_ $ cardStyle x y, -- position the div
              style1_ "border" ("3px solid " <> borderColor), -- draw the border
-             onDrop (AllowDrop True) Drop,
              onDragEnter (DragEnter cSpot),
              onDragLeave (DragLeave cSpot)
            ]

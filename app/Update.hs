@@ -21,7 +21,6 @@ data Action
   | DragEnd
   | DragEnter CardSpot
   | DragLeave CardSpot
-  | Drop
   | -- | Starting hovering card in hand
     InHandMouseEnter HandIndex
   | -- | Ending hovering card in hand
@@ -83,21 +82,18 @@ logUpdates update action model = do
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
 updateI :: Action -> Interaction -> Interaction
-updateI (DragStart i) (DragInteraction dragging) =
-  DragInteraction $ dragging {draggedCard = i}
-updateI (DragStart i) NoInteraction =
+updateI (DragStart i) _ =
   DragInteraction $ Dragging i Nothing
-updateI DragEnd _ = NoInteraction
+updateI DragEnd _ = NoInteraction -- TODO: drop if on drop target
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
 updateI (DragEnter cSpot) (DragInteraction dragging) =
   DragInteraction $ dragging {dragTarget = Just cSpot}
 updateI (DragLeave _) (DragInteraction dragging) =
   DragInteraction $ dragging {dragTarget = Nothing}
-updateI Drop _ = NoInteraction -- TODO modify board if dropping on target
-updateI (InHandMouseEnter i) _ = HoverInteraction $ Hovering i
+updateI (InHandMouseEnter i) NoInteraction = HoverInteraction $ Hovering i
 updateI (InHandMouseLeave _) _ = NoInteraction
-updateI _ _ = NoInteraction
+updateI _ i = i
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
