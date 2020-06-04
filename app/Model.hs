@@ -14,6 +14,7 @@ newtype HandIndex = HandIndex {unHandIndex :: Int}
 data Interaction
   = HoverInteraction Hovering
   | DragInteraction Dragging
+  | NoInteraction
   deriving (Eq, Generic, Show)
 
 newtype Hovering = Hovering
@@ -37,6 +38,6 @@ data HandFiddle
 data Model = Model
   { board :: Board,
     uiCards :: [Card UI],
-    interaction :: Maybe Interaction
+    interaction :: Interaction
   }
   deriving (Eq, Generic)

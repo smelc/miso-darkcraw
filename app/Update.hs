@@ -82,22 +82,22 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-updateI :: Action -> Maybe Interaction -> Maybe Interaction
-updateI (DragStart i) (Just (DragInteraction dragging)) =
-  Just $ DragInteraction $ dragging {draggedCard = i}
-updateI (DragStart i) Nothing =
-  Just $ DragInteraction $ Dragging i Nothing
-updateI DragEnd _ = Nothing
+updateI :: Action -> Interaction -> Interaction
+updateI (DragStart i) (DragInteraction dragging) =
+  DragInteraction $ dragging {draggedCard = i}
+updateI (DragStart i) NoInteraction =
+  DragInteraction $ Dragging i Nothing
+updateI DragEnd _ = NoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
-updateI (DragEnter cSpot) (Just (DragInteraction dragging)) =
-  Just $ DragInteraction $ dragging {dragTarget = Just cSpot}
-updateI (DragLeave _) (Just (DragInteraction dragging)) =
-  Just $ DragInteraction $ dragging {dragTarget = Nothing}
-updateI Drop _ = Nothing -- TODO modify board if dropping on target
-updateI (InHandMouseEnter i) _ = Just $ HoverInteraction $ Hovering i
-updateI (InHandMouseLeave _) _ = Nothing
-updateI _ _ = Nothing
+updateI (DragEnter cSpot) (DragInteraction dragging) =
+  DragInteraction $ dragging {dragTarget = Just cSpot}
+updateI (DragLeave _) (DragInteraction dragging) =
+  DragInteraction $ dragging {dragTarget = Nothing}
+updateI Drop _ = NoInteraction -- TODO modify board if dropping on target
+updateI (InHandMouseEnter i) _ = HoverInteraction $ Hovering i
+updateI (InHandMouseLeave _) _ = NoInteraction
+updateI _ _ = NoInteraction
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model

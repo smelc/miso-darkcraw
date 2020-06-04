@@ -82,13 +82,13 @@ boardToInPlaceCells z Model {board, interaction} =
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
          | case interaction of
-             Just HoverInteraction {} -> True -- if card in hand is being hovered
-             Just DragInteraction {} -> True -- if card in hand is being dragged
-             _ -> False,
+             HoverInteraction {} -> True -- if card in hand is being hovered
+             DragInteraction {} -> True -- if card in hand is being dragged
+             NoInteraction -> False,
            cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
            let isDragTarget = case interaction of
                  -- Would this deep deconstruction benefit of a lens ?
-                 Just (DragInteraction Dragging {dragTarget}) -> dragTarget == Just cSpot
+                 DragInteraction Dragging {dragTarget} -> dragTarget == Just cSpot
                  _ -> False,
            let (x, y) = cardCellsBoardOffset playingPlayerSpot cSpot,
            let borderColor = if isDragTarget then "#FFFF00" else "#00FF00"
@@ -136,11 +136,11 @@ boardToInHandCells z Model {board, interaction} =
       let x = cellsXOffset (unHandIndex i),
       let (beingHovered, beingDragged) =
             case interaction of
-              Just (HoverInteraction Hovering {hoveredCard}) ->
+              HoverInteraction Hovering {hoveredCard} ->
                 (hoveredCard == i, False)
-              Just (DragInteraction Dragging {draggedCard}) ->
+              DragInteraction Dragging {draggedCard} ->
                 (False, draggedCard == i)
-              Nothing -> (False, False)
+              NoInteraction -> (False, False)
   ]
   where
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board
