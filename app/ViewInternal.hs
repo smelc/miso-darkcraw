@@ -55,13 +55,7 @@ zplt z pos left top =
 
 -- | A style specifying the position, the top margin,
 -- | the left margin, the width, and the height. All sizes are in pixels
-pltwh ::
-  Position ->
-  Int ->
-  Int ->
-  Int ->
-  Int ->
-  Map.Map MisoString MisoString
+pltwh :: Position -> Int -> Int -> Int -> Int -> Map.Map MisoString MisoString
 pltwh pos left top width height =
   Map.fromList
     [ ("position", ms $ show pos),

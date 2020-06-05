@@ -118,10 +118,11 @@ def main() -> int:
         ormolu_rc = _call_tool(relevant_hs_files, staged,
                                ["ormolu", "-m", "inplace"])
         return_code = max(return_code, ormolu_rc)
+        return_code = max(return_code, _build())
     else:
-        print("No %s *.hs relevant file found" % adjective)
+        print("No %s *.hs relevant file found, nothing to format" % adjective)
+        print("Not calling nix-build either")
 
-    return_code = max(return_code, _build())
 
     return return_code
 
