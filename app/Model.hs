@@ -6,6 +6,7 @@ module Model where
 
 import Board
 import Card
+import qualified Data.Text as Text
 import GHC.Generics
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
@@ -15,6 +16,7 @@ data Interaction
   = HoverInteraction Hovering
   | DragInteraction Dragging
   | NoInteraction
+  | ShowErrorInteraction Text.Text
   deriving (Eq, Generic, Show)
 
 newtype Hovering = Hovering

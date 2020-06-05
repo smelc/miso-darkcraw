@@ -18,27 +18,17 @@ import Miso.String
 import Model
 import Update
 import Utils (style1_)
+import ViewInternal (Position (..), errView, pltwh, zplt, zpltwh, zpwh)
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel model@Model {board, interaction} =
-  div_ [] [boardDiv, handDiv]
+  div_ [] $ [boardDiv, handDiv] ++ errView model
   where
     z :: Int = 0
     globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
-    boardStyle =
-      Map.fromList
-        [ ("position", "relative"),
-          ("left", ms globalLeftShift <> "px"),
-          ("top", "0px")
-        ]
-    bgStyle pixelWidth pixelHeight =
-      Map.fromList
-        [ ("width", ms pixelWidth <> "px"),
-          ("height", ms pixelHeight <> "px"),
-          ("position", "absolute"),
-          ("z-index", ms z)
-        ]
+    boardStyle = zplt z Relative globalLeftShift 0
+    bgStyle :: Int -> Int -> Map.Map MisoString MisoString = zpwh z Absolute
     boardCards = boardToInPlaceCells (z + 1) model
     boardDiv =
       div_
@@ -53,11 +43,7 @@ viewModel model@Model {board, interaction} =
         ( div_ [style_ $ bgStyle handPixelWidth handPixelHeight] [handCell]
             : handCards
         )
-    handStyle =
-      Map.fromList
-        [ ("position", "relative"),
-          ("top", ms boardPixelHeight <> "px")
-        ]
+    handStyle = zplt z Relative 0 boardPixelHeight
 
 boardToInPlaceCells ::
   -- | The z index
@@ -84,6 +70,7 @@ boardToInPlaceCells z Model {board, interaction} =
          | case interaction of
              HoverInteraction {} -> True -- if card in hand is being hovered
              DragInteraction {} -> True -- if card in hand is being dragged
+             ShowErrorInteraction _ -> False
              NoInteraction -> False,
            cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
            let isDragTarget = case interaction of
@@ -139,6 +126,7 @@ boardToInHandCells z Model {board, interaction} =
                 (hoveredCard == i, False)
               DragInteraction Dragging {draggedCard} ->
                 (False, draggedCard == i)
+              ShowErrorInteraction _ -> (False, False)
               NoInteraction -> (False, False)
   ]
   where
@@ -159,14 +147,7 @@ cardStyle ::
   Int ->
   Map.Map MisoString MisoString
 cardStyle xCellsOffset yCellsOffset =
-  Map.fromList
-    [ ("position", "absolute"),
-      -- ("display", "block"), doesn't seem required in the end
-      ("width", ms cardPixelWidth <> "px"), -- required for drawing drag target
-      ("height", ms cardPixelHeight <> "px"), -- required for drawing drag target
-      ("left", ms xPixels <> "px"),
-      ("top", ms yPixels <> "px")
-    ]
+  pltwh Absolute xPixels yPixels cardPixelWidth cardPixelHeight
   where
     xPixels = xCellsOffset * cellPixelSize
     yPixels = yCellsOffset * cellPixelSize
@@ -249,22 +230,12 @@ cardCreature z creature hover =
     placeholder = isNothing creature
     topMargin = cellPixelSize `div` 4
     pictureStyle =
-      Map.fromList
-        [ ("z-index", ms $ z + 1),
-          ("position", "absolute"),
-          ("top", ms topMargin <> "px"),
-          ("left", ms ((cardPixelWidth - cellPixelSize) `div` 2) <> "px")
-        ]
+      zplt (z + 1) Absolute ((cardPixelWidth - cellPixelSize) `div` 2) topMargin
     pictureCell :: View Action = imgCell $ ms $ filename $ fromJust creature
-    statsStyle =
-      Map.fromList
-        [ ("z-index", ms $ z + 1),
-          ("position", "absolute"),
-          ("top", ms (topMargin + cellPixelSize + topMargin) <> "px"),
-          ("left", ms topMargin <> "px"),
-          ("width", ms (cardPixelWidth - (topMargin * 2)) <> "px"),
-          ("height", ms cellPixelSize <> "px")
-        ]
+    statsStyle = zpltwh (z + 1) Absolute topMargin top width cellPixelSize
+      where
+        width = cardPixelWidth - (topMargin * 2)
+        top = topMargin + cellPixelSize + topMargin
     inStatsStyle =
       Map.fromList
         [ ("font-size", ms (cellPixelSize `div` 2) <> "px"),
@@ -291,7 +262,7 @@ cardBackground ::
   View Action
 cardBackground z hover =
   div_
-    [style_ cardStyle]
+    [style_ cardStyle']
     [ img_
         [ src_ $ assetsPath assetFilenameBeigeBG,
           width_ $ ms cardPixelWidth,
@@ -300,14 +271,8 @@ cardBackground z hover =
         ]
     ]
   where
-    cardStyle =
-      Map.fromList $
-        [ ("width", ms cardPixelWidth <> "px"),
-          ("height", ms cardPixelHeight <> "px"),
-          ("position", "absolute"),
-          ("display", "block"),
-          ("z-index", ms z),
-          ("left", "0px"),
-          ("top", "0px")
-        ]
-          ++ [("outline", "3px solid red") | hover]
+    cardStyle = zpwh z Absolute cardPixelWidth cardPixelHeight
+    cardStyle' =
+      if hover
+        then Map.insert "outline" "3px solid red" cardStyle
+        else cardStyle

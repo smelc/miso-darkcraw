@@ -33,6 +33,7 @@ executable app
     extra,
     file-embed,
     miso,
+    text,
     tree-diff
   if !impl(ghcjs)
     build-depends:
