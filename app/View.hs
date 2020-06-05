@@ -76,7 +76,7 @@ boardToInPlaceCells z Model {board, interaction} =
     -- 1/ being hovered or 2/ being dragged
     ++ [ div_
            [ style_ $ cardStyle x y, -- position the div
-             style1_ "border" ("3px solid " <> borderColor), -- draw the border
+             style1_ "outline" ("3px solid " <> borderColor), -- draw the border
              onDragEnter (DragEnter cSpot),
              onDragLeave (DragLeave cSpot)
            ]
@@ -310,4 +310,4 @@ cardBackground z hover =
           ("left", "0px"),
           ("top", "0px")
         ]
-          ++ [("border", "3px solid red") | hover]
+          ++ [("outline", "3px solid red") | hover]
