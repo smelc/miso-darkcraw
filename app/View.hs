@@ -9,9 +9,9 @@ module View where
 import Board
 import Card
 import Constants
+import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isNothing, mapMaybe, maybeToList)
-import Data.List
 import Event
 import Miso
 import Miso.String
@@ -97,7 +97,7 @@ boardToInPlaceCells z Model {board, interaction} =
       boardToCardsInPlace board
     playingPlayerCardsSpots :: [CardSpot] =
       [c | (pSpot, c, _) <- cardsInPlace, pSpot == playingPlayerSpot]
-    emptyPlayingPlayerSpots:: [CardSpot] =
+    emptyPlayingPlayerSpots :: [CardSpot] =
       allCardsSpots \\ playingPlayerCardsSpots
 
 boardToInHandCreaturesToDraw :: Board -> [Creature 'Core]
