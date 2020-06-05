@@ -89,6 +89,21 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
     return return_code
 
 
+def _build() -> int:
+    """
+    Checks that the project builds
+    Returns:
+        A return code
+    """
+    cmd = ["nix-build", "-A", "release2"]
+    cwd = "app"
+    print(f'{cwd}> {" ".join(cmd)}')
+    result = subprocess.run(cmd,
+                            check=False,
+                            cwd=cwd)
+    return result.returncode
+
+
 def main() -> int:
     """ The main """
     staged = "--unstaged" not in sys.argv
@@ -105,6 +120,8 @@ def main() -> int:
         return_code = max(return_code, ormolu_rc)
     else:
         print("No %s *.hs relevant file found" % adjective)
+
+    return_code = max(return_code, _build())
 
     return return_code
 

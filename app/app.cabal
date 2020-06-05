@@ -10,6 +10,10 @@ extra-source-files:
 executable app
   main-is:
     Main.hs
+  ghc-options:
+    -Wincomplete-patterns
+    -Werror
+    -Wwarn=missing-home-modules
   other-modules:
     Card
     Constants
