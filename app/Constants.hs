@@ -28,11 +28,11 @@ assetsPath filename = assetsDir <> "/" <> filename
 
 -- | The number of cells from the left of the board to leftmost cards
 boardToLeftCardCellsOffset :: Int
-boardToLeftCardCellsOffset = 3
+boardToLeftCardCellsOffset = 5
 
 -- | The board's width, in pixels
 boardPixelWidth :: Int
-boardPixelWidth = 408
+boardPixelWidth = 504
 
 -- | The board's height , in pixels
 boardPixelHeight :: Int
@@ -44,7 +44,7 @@ handPixelHeight = 192
 
 -- | The hands's width, in pixels
 handPixelWidth :: Int
-handPixelWidth = 504
+handPixelWidth = boardPixelWidth
 
 -- | A card's height, in cells
 cardCellHeight :: Int
