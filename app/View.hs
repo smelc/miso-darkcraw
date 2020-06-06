@@ -18,12 +18,12 @@ import Miso.String
 import Model
 import Update
 import Utils (style1_)
-import ViewInternal (Position (..), errView, pltwh, zplt, zpltwh, zpwh)
+import ViewInternal
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel model@Model {board, interaction} =
-  div_ [] $ [boardDiv, handDiv] ++ errView model
+  div_ [] $ [boardDiv, handDiv] ++ errView model (z + 1)
   where
     z :: Int = 0
     globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
@@ -36,6 +36,13 @@ viewModel model@Model {board, interaction} =
         ( div_ [style_ $ bgStyle boardPixelWidth boardPixelHeight] [backgroundCell]
             : boardCards
         )
+    backgroundCell =
+      img_
+        [ width_ $ ms boardPixelWidth,
+          height_ $ ms boardPixelHeight,
+          src_ $ assetsPath "forest.png",
+          noDrag
+        ]
     handCards = boardToInHandCells (z + 1) model
     handDiv =
       div_
@@ -185,17 +192,6 @@ cardCellsBoardOffset PlayerBottom cardSpot =
       BottomLeft -> (xtopright, 0) -- BottomLeft is top right in bottom part
       Bottom -> (xtop, 0) -- Bottom is Top in bottom part
       BottomRight -> (0, 0) -- BottomRight is Top Left in bottom part
-
-noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
-
-backgroundCell :: View Action
-backgroundCell =
-  img_
-    [ width_ $ ms boardPixelWidth,
-      height_ $ ms boardPixelHeight,
-      src_ $ assetsPath "forest.png",
-      noDrag
-    ]
 
 handCell :: View Action
 handCell =

@@ -11,6 +11,7 @@ import Board
 import Card
 import Data.ByteString.Lazy
 import qualified Data.Map.Strict as Map
+import qualified Data.Text as Text
 import Json
 import JsonData
 import Model
@@ -64,7 +65,7 @@ main :: IO ()
 main = do
   cards :: [Card UI] <- loadJson
   let board = exampleBoard cards
-  let model = Model board cards NoInteraction -- initial model
+  let model = Model board cards interaction -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
@@ -77,3 +78,4 @@ main = do
     events = Map.fromList [("mouseleave", True), ("mouseenter", True)] <> defaultEvents -- delegated events
     subs   = []                   -- empty subscription list
     mountPoint = Nothing          -- mount point for application (Nothing defaults to 'body')
+    interaction = ShowErrorInteraction "bar"                 -- initial interaction
