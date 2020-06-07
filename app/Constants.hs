@@ -26,6 +26,9 @@ assetFilenameSword = "16x16_1_0.png"
 assetsPath :: MisoString -> MisoString
 assetsPath filename = assetsDir <> "/" <> filename
 
+assetsUrl :: MisoString -> MisoString
+assetsUrl filename = "url(" <> assetsPath filename <> ")"
+
 -- | The number of cells from the left of the board to leftmost cards
 boardToLeftCardCellsOffset :: Int
 boardToLeftCardCellsOffset = 5

@@ -27,15 +27,16 @@ viewModel model@Model {board, interaction} =
   where
     z :: Int = 0
     globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
-    boardStyle = zplt z Relative globalLeftShift 0
     bgStyle :: Int -> Int -> Map.Map MisoString MisoString = zpwh z Absolute
     boardCards = boardToInPlaceCells (z + 1) model
     boardDiv =
       div_
         [style_ boardStyle]
+        -- FIXME smelc replace backgroundCell with the "background-image" attr
         ( div_ [style_ $ bgStyle boardPixelWidth boardPixelHeight] [backgroundCell]
             : boardCards
         )
+    boardStyle = zplt z Relative globalLeftShift 0
     backgroundCell =
       img_
         [ width_ $ ms boardPixelWidth,
@@ -47,6 +48,7 @@ viewModel model@Model {board, interaction} =
     handDiv =
       div_
         [style_ handStyle]
+        -- FIXME smelc replace handCell with the "background-image" attr
         ( div_ [style_ $ bgStyle handPixelWidth handPixelHeight] [handCell]
             : handCards
         )

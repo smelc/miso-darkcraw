@@ -33,22 +33,27 @@ errView model@Model {interaction} z =
     HoverInteraction _ -> []
     DragInteraction _ -> []
     NoInteraction -> []
-    ShowErrorInteraction msg -> [errView' msg]
+    ShowErrorInteraction msg ->
+      [div_ [style_ errViewStyle] [textView msg]]
   where
-    errView' msg = div_ [style_ style'] [errBackgroundCell, textDiv msg]
-    errBackgroundCell :: View Action =
-      img_
-        [ width_ $ ms (504 :: Int),
-          height_ $ ms (168 :: Int),
-          src_ $ assetsPath "errbox.png",
-          noDrag
-        ]
-    style = zplt z Relative ((boardPixelWidth - 504) `div` 2) (boardPixelHeight `div` 2)
-    style' = Map.union (Map.fromList [("opacity", "0.95")]) style
-    textDiv msg = div_ [style_ textStylePairs] [text $ ms msg]
-    textStylePairs =
-      Map.fromList
-        [("color", "#FF0000"), ("position", "relative")]
+    width = 504
+    height = 168
+    left = (boardPixelWidth - width) `div` 2
+    top = boardPixelHeight `div` 2
+    errViewStyle =
+      Map.union (zpltwh z Relative left top width height) $
+        Map.fromList
+          [ ("display", "flex"),
+            ("align-items", "center"),
+            ("justify-content", "center"),
+            ("flex-wrap", "wrap-reverse"),
+            ("background-image", assetsUrl "errbox.png")
+          ]
+    errViewStyle' = Map.union (Map.fromList [("opacity", "0.9")]) errViewStyle
+    textStylePairs = Map.fromList [("color", "#FF0000")]
+    textView msg = div_ [style_ textStylePairs] [text $ ms msg]
+
+-- feedbackText = "Please copy paste it in a comment of https://hgames.itch.io/darkcraw"
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
