@@ -98,14 +98,15 @@ updateI (DragEnter cSpot) (DragInteraction dragging) =
   (DragInteraction $ dragging {dragTarget = Just cSpot}, NoPlayAction)
 updateI (DragLeave _) (DragInteraction dragging) =
   (DragInteraction $ dragging {dragTarget = Nothing}, NoPlayAction)
-updateI (InHandMouseEnter i) NoInteraction = (HoverInteraction $ Hovering i, NoPlayAction)
+updateI (InHandMouseEnter i) NoInteraction =
+  (HoverInteraction $ Hovering i, NoPlayAction)
 updateI (InHandMouseLeave _) _ = (NoInteraction, NoPlayAction)
 updateI _ i = (i, NoPlayAction)
 
 play :: Model -> PlayAction -> Model
-play m@Model{board} =
+play m@Model {board} =
   \case
-    Place (HandIndex i) pSpot cSpot-> m -- FIXME smelc forward to board
+    Place (HandIndex i) pSpot cSpot -> m -- FIXME smelc forward to board
     NoPlayAction -> m
 
 -- | Updates model, optionally introduces side effects
