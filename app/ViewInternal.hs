@@ -34,7 +34,7 @@ errView model@Model {interaction} z =
     DragInteraction _ -> []
     NoInteraction -> []
     ShowErrorInteraction msg ->
-      [div_ [style_ errViewStyle] [textView msg]]
+      [div_ [style_ errViewStyle] $ textView msg : feedbackViews]
   where
     width = 504
     height = 168
@@ -46,14 +46,18 @@ errView model@Model {interaction} z =
           [ ("display", "flex"),
             ("align-items", "center"),
             ("justify-content", "center"),
-            ("flex-wrap", "wrap-reverse"),
+            ("flex-direction", "column"),
             ("background-image", assetsUrl "errbox.png")
           ]
     errViewStyle' = Map.union (Map.fromList [("opacity", "0.9")]) errViewStyle
-    textStylePairs = Map.fromList [("color", "#FF0000")]
     textView msg = div_ [style_ textStylePairs] [text $ ms msg]
-
--- feedbackText = "Please copy paste it in a comment of https://hgames.itch.io/darkcraw"
+    textStylePairs = Map.fromList [("color", "#FF0000")]
+    feedbackViews :: [View Action] =
+      [ br_ [],
+        text "Please copy/paste this error in a comment of ",
+        a_ [href_ itch] [text itch]
+      ]
+    itch = "https://hgames.itch.io/darkcraw"
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
