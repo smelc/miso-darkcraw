@@ -51,7 +51,11 @@ errView model@Model {interaction} z =
           ]
     errViewStyle' = Map.union (Map.fromList [("opacity", "0.9")]) errViewStyle
     textView msg = div_ [style_ textStylePairs] [text $ ms msg]
-    textStylePairs = Map.fromList [("color", "#FF0000")]
+    textWidth = width - (cellPixelSize * 2)
+    textWidthAttr = ("width", ms textWidth <> "px")
+    -- XXX It'd be better to center the error message (like the feedback text).
+    -- This is the case if the width is NOT specified.
+    textStylePairs = Map.fromList [("color", "#FF0000"), textWidthAttr]
     feedbackViews :: [View Action] =
       [ br_ [],
         text "Please copy/paste this error in a comment of ",
