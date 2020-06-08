@@ -89,6 +89,10 @@ data PlayAction
   | NoPlayAction
 
 updateI :: Action -> Interaction -> (Interaction, PlayAction)
+-- This is the only definition that should care about ShowErrorInteraction:
+updateI action (ShowErrorInteraction _) | action /= NoOp =
+  updateI action NoInteraction -- clear error message
+-- Now onto "normal" stuff:
 updateI (DragStart i) _ =
   (DragInteraction $ Dragging i Nothing, NoPlayAction)
 updateI DragEnd _ = (NoInteraction, NoPlayAction) -- TODO: drop if on drop target
