@@ -13,8 +13,10 @@ newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
 
 data Interaction
-  = HoverInteraction Hovering
-  | DragInteraction Dragging
+  = -- | Hovering over a card
+    HoverInteraction Hovering
+  | -- | Dragging a card
+    DragInteraction Dragging
   | NoInteraction
   | ShowErrorInteraction Text.Text
   deriving (Eq, Generic, Show)

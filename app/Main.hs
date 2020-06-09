@@ -78,4 +78,4 @@ main = do
     events = Map.fromList [("mouseleave", True), ("mouseenter", True)] <> defaultEvents -- delegated events
     subs   = []                   -- empty subscription list
     mountPoint = Nothing          -- mount point for application (Nothing defaults to 'body')
-    interaction = ShowErrorInteraction "bar"                 -- initial interaction
+    interaction = NoInteraction   -- initial interaction

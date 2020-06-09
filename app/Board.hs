@@ -6,8 +6,9 @@
 
 module Board
   ( allCardsSpots,
-    boardToCardsInHand,
+    boardHand,
     boardToCardsInPlace,
+    boardToInHandCreaturesToDraw,
     Board,
     CardSpot (..),
     exampleBoard,
@@ -18,9 +19,10 @@ module Board
 where
 
 import Card
-import GHC.Generics
+import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import GHC.Generics
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
@@ -68,6 +70,8 @@ data PlayerSpot = PlayerBottom | PlayerTop
 allPlayersSpots :: [PlayerSpot]
 allPlayersSpots = [PlayerBottom ..]
 
+-- FIXME smelc Use a record with two fields, as proposed by @polux
+-- to avoid dealing with Map.lookup returning Maybe
 type Board = Map.Map PlayerSpot PlayerPart
 
 boardToCardsInPlace :: Board -> [(PlayerSpot, CardSpot, Creature Core)]
@@ -77,12 +81,31 @@ boardToCardsInPlace board =
       (cspot, creature) <- Map.toList inPlace
   ]
 
-boardToCardsInHand :: Board -> [(PlayerSpot, Card Core)]
-boardToCardsInHand board =
+_boardToCardsInHand :: Board -> [(PlayerSpot, Card Core)]
+_boardToCardsInHand board =
   [ (pspot, card)
     | (pspot, PlayerPart {inHand}) <- Map.toList board,
       card <- inHand
   ]
+
+boardToInHandCreaturesToDraw :: Board -> [Creature Core]
+boardToInHandCreaturesToDraw board =
+  cards
+  where
+    board' :: [Card Core] =
+      Prelude.map snd
+        $ Prelude.filter ((== playingPlayerSpot) . fst)
+        $ _boardToCardsInHand board
+    cards :: [Creature Core] =
+      let filter = \case
+            CreatureCard c -> Just c
+            NeutralCard _ -> Nothing
+            ItemCard _ -> Nothing
+       in Data.Maybe.mapMaybe filter board'
+
+boardHand :: Board -> PlayerSpot -> [Card Core]
+boardHand board pSpot =
+  Map.lookup pSpot board & fromJust & inHand
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
@@ -111,7 +134,7 @@ exampleBoard cards =
           (BottomRight, udMummy)
         ]
     topPlayer = PlayerPart topCards []
-    botHand = [CreatureCard hArcher, CreatureCard hArcher]
+    botHand = [CreatureCard hArcher, CreatureCard hSpearman]
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList

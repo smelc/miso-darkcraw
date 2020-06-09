@@ -3,11 +3,13 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Update where
 
 import Board
 import Card
+import Data.Maybe (fromJust, isJust)
 import Data.TreeDiff
 import Debug.Trace
 import Miso
@@ -90,12 +92,19 @@ data PlayAction
 
 updateI :: Action -> Interaction -> (Interaction, PlayAction)
 -- This is the only definition that should care about ShowErrorInteraction:
-updateI action (ShowErrorInteraction _) | action /= NoOp =
-  updateI action NoInteraction -- clear error message
--- Now onto "normal" stuff:
+updateI action (ShowErrorInteraction _)
+  | action /= NoOp =
+    updateI action NoInteraction -- clear error message
+    -- Now onto "normal" stuff:
 updateI (DragStart i) _ =
   (DragInteraction $ Dragging i Nothing, NoPlayAction)
-updateI DragEnd _ = (NoInteraction, NoPlayAction) -- TODO: drop if on drop target
+updateI DragEnd (DragInteraction Dragging {draggedCard, dragTarget})
+  | isJust dragTarget =
+    (NoInteraction, Place draggedCard playingPlayerSpot dragTarget')
+  where
+    dragTarget' :: CardSpot = fromJust dragTarget
+    dragged :: Int = unHandIndex draggedCard
+updateI DragEnd _ = (NoInteraction, NoPlayAction)
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
 updateI (DragEnter cSpot) (DragInteraction dragging) =

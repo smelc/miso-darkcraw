@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -95,21 +94,6 @@ boardToInPlaceCells z Model {board, interaction} =
       [c | (pSpot, c, _) <- cardsInPlace, pSpot == playingPlayerSpot]
     emptyPlayingPlayerSpots :: [CardSpot] =
       allCardsSpots \\ playingPlayerCardsSpots
-
-boardToInHandCreaturesToDraw :: Board -> [Creature 'Core]
-boardToInHandCreaturesToDraw board =
-  cards
-  where
-    board' :: [Card Core] =
-      Prelude.map snd
-        $ Prelude.filter ((== PlayerBottom) . fst)
-        $ boardToCardsInHand board
-    cards :: [Creature Core] =
-      let filter = \case
-            CreatureCard c -> Just c
-            NeutralCard _ -> Nothing
-            ItemCard _ -> Nothing
-       in Data.Maybe.mapMaybe filter board'
 
 boardToInHandCells ::
   -- | The z index
