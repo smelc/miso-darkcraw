@@ -32,6 +32,7 @@ executable app
     containers,
     extra,
     file-embed,
+    formatting,
     miso,
     text,
     tree-diff

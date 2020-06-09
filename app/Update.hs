@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -10,12 +11,15 @@ module Update where
 import Board
 import Card
 import Data.Maybe (fromJust, isJust)
+import Data.Text (Text)
 import Data.TreeDiff
 import Debug.Trace
+import Formatting ((%), format, hex, sformat)
 import Miso
 import Miso.String
 import Model
 import Text.PrettyPrint.ANSI.Leijen
+import Text.Printf
 
 instance ToExpr CreatureKind
 
@@ -90,6 +94,7 @@ data PlayAction
     Place HandIndex PlayerSpot CardSpot
   | NoPlayAction
 
+-- | Translates an UI event into an 'Interaction' and a 'PlayAction'
 updateI :: Action -> Interaction -> (Interaction, PlayAction)
 -- This is the only definition that should care about ShowErrorInteraction:
 updateI action (ShowErrorInteraction _)
@@ -116,16 +121,35 @@ updateI (InHandMouseEnter i) NoInteraction =
 updateI (InHandMouseLeave _) _ = (NoInteraction, NoPlayAction)
 updateI _ i = (i, NoPlayAction)
 
-play :: Model -> PlayAction -> Model
+play :: Model -> PlayAction -> Either Text Model
 play m@Model {board} =
   \case
-    Place (HandIndex i) pSpot cSpot -> m -- FIXME smelc forward to board
-    NoPlayAction -> m
+    Place (HandIndex i) pSpot cSpot ->
+      if
+          | i < 0 -> Left $ sformat ("Invalid hand index: " % hex) i
+          | i >= lenHand' ->
+            Left $
+              sformat
+                ("Invalid hand index: " % hex % ". Hand has " % hex % " card(s).")
+                i
+                lenHand'
+          | otherwise ->
+            let played :: Card Core = boardHand' !! i in undefined -- FIXME smelc implement me
+      where
+        uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
+        boardHand' :: [Card Core] = boardHand board playingPlayerSpot
+        lenHand' = Prelude.length boardHand'
+    NoPlayAction -> Right m
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
 updateModel a m@Model {interaction} =
-  noEff $ (play m playAction) {interaction = interaction'}
+  noEff $ m' {interaction = interaction''}
   where
     (interaction', playAction) = updateI a interaction
+    eitherErrModel = play m playAction
+    (interaction'', m') =
+      case eitherErrModel of
+        Left errMsg -> (ShowErrorInteraction errMsg, m)
+        Right model' -> (interaction', model')
