@@ -19,7 +19,7 @@ import Data.TreeDiff
 import Debug.Trace
 import Formatting ((%), format, hex, sformat)
 import Miso
-import Miso.String
+import Miso.String (ms)
 import Model
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
@@ -126,25 +126,30 @@ updateI (InHandMouseEnter i) NoInteraction =
 updateI (InHandMouseLeave _) _ = (NoInteraction, NoPlayAction)
 updateI _ i = (i, NoPlayAction)
 
+lookupInHand :: [a] -> Int -> Either Text a
+lookupInHand hand i
+  | i < 0 = Left $ sformat ("Invalid hand index: " % hex) i
+  | i >= handLength =
+    Left $
+      sformat
+        ("Invalid hand index: " % hex % ". Hand has " % hex % " card(s).")
+        i
+        handLength
+  | otherwise = Right (hand !! i)
+  where
+    handLength = length hand
+
 play :: Model -> PlayAction -> Either Text Model
 play m@Model {board} =
   \case
-    Place (HandIndex i) pSpot cSpot ->
-      if
-          | i < 0 -> Left $ sformat ("Invalid hand index: " % hex) i
-          | i >= lenHand' ->
-            Left $
-              sformat
-                ("Invalid hand index: " % hex % ". Hand has " % hex % " card(s).")
-                i
-                lenHand'
-          | otherwise ->
-            let played :: Card Core = boardHand' !! i in undefined -- FIXME smelc implement me
+    Place (HandIndex i) pSpot cSpot -> do
+      played <- lookupInHand boardHand i
+      undefined
       where
         uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
-        boardHand' :: [Card Core] = board ^. playingPlayerPart . #inHand
-        lenHand' = Prelude.length boardHand'
-    NoPlayAction -> Right m
+        boardHand :: [Card Core] = board ^. playingPlayerPart . #inHand
+    NoPlayAction ->
+      pure m
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
