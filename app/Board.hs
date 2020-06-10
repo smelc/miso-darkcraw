@@ -90,7 +90,7 @@ boardToCardsInPlace board =
 
 boardToInHandCreaturesToDraw :: Board -> [Creature Core]
 boardToInHandCreaturesToDraw board =
-  board ^.. ix playingPlayerSpot . #inHand . folded . #_CreatureCard
+  board ^.. playingPlayerPart . #inHand . folded . #_CreatureCard
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
@@ -131,5 +131,5 @@ exampleBoard cards =
 playingPlayerSpot :: PlayerSpot
 playingPlayerSpot = PlayerBottom
 
-playingPlayerPart :: Board -> PlayerPart
-playingPlayerPart = playerBottom
+playingPlayerPart :: Lens' Board PlayerPart
+playingPlayerPart = #playerBottom

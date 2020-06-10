@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -10,6 +11,7 @@ module Update where
 
 import Board
 import Card
+import Control.Lens
 import Data.Function ((&))
 import Data.Maybe (fromJust, isJust)
 import Data.Text (Text)
@@ -140,7 +142,7 @@ play m@Model {board} =
             let played :: Card Core = boardHand' !! i in undefined -- FIXME smelc implement me
       where
         uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
-        boardHand' :: [Card Core] = playingPlayerPart board & inHand
+        boardHand' :: [Card Core] = board ^. playingPlayerPart . #inHand
         lenHand' = Prelude.length boardHand'
     NoPlayAction -> Right m
 
