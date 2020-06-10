@@ -99,6 +99,9 @@ data PlayAction
     Place HandIndex PlayerSpot CardSpot
   | NoPlayAction
 
+noPlayAction :: a -> (a, PlayAction)
+noPlayAction interaction = (interaction, NoPlayAction)
+
 -- | Translates an UI event into an 'Interaction' and a 'PlayAction'
 updateI :: Action -> Interaction -> (Interaction, PlayAction)
 -- This is the only definition that should care about ShowErrorInteraction:
@@ -107,24 +110,23 @@ updateI action (ShowErrorInteraction _)
     updateI action NoInteraction -- clear error message
     -- Now onto "normal" stuff:
 updateI (DragStart i) _ =
-  (DragInteraction $ Dragging i Nothing, NoPlayAction)
-updateI DragEnd (DragInteraction Dragging {draggedCard, dragTarget})
-  | isJust dragTarget =
-    (NoInteraction, Place draggedCard playingPlayerSpot dragTarget')
-  where
-    dragTarget' :: CardSpot = fromJust dragTarget
-    dragged :: Int = unHandIndex draggedCard
-updateI DragEnd _ = (NoInteraction, NoPlayAction)
+  noPlayAction $ DragInteraction $ Dragging i Nothing
+updateI DragEnd (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
+  (NoInteraction, Place draggedCard playingPlayerSpot dragTarget)
+updateI DragEnd _ =
+  noPlayAction NoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
 updateI (DragEnter cSpot) (DragInteraction dragging) =
-  (DragInteraction $ dragging {dragTarget = Just cSpot}, NoPlayAction)
+  noPlayAction $ DragInteraction $ dragging {dragTarget = Just cSpot}
 updateI (DragLeave _) (DragInteraction dragging) =
-  (DragInteraction $ dragging {dragTarget = Nothing}, NoPlayAction)
+  noPlayAction $ DragInteraction $ dragging {dragTarget = Nothing}
 updateI (InHandMouseEnter i) NoInteraction =
-  (HoverInteraction $ Hovering i, NoPlayAction)
-updateI (InHandMouseLeave _) _ = (NoInteraction, NoPlayAction)
-updateI _ i = (i, NoPlayAction)
+  noPlayAction $ HoverInteraction $ Hovering i
+updateI (InHandMouseLeave _) _ =
+  noPlayAction NoInteraction
+updateI _ i =
+  noPlayAction i
 
 lookupInHand :: [a] -> Int -> Either Text a
 lookupInHand hand i
