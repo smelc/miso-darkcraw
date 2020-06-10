@@ -2,7 +2,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -10,8 +9,6 @@
 
 module Card where
 
-import Control.Lens
-import Data.Generics.Labels
 import Data.Kind (Constraint, Type)
 import GHC.Generics
 
