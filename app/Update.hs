@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -18,6 +17,7 @@ import Data.Text (Text)
 import Data.TreeDiff
 import Debug.Trace
 import Formatting ((%), format, hex, sformat)
+import qualified Game
 import Miso
 import Miso.String (ms)
 import Model
@@ -142,11 +142,18 @@ lookupInHand hand i
     handLength = length hand
 
 play :: Model -> PlayAction -> Either Text Model
-play m@Model {board} =
-  \case
+play m@Model {board} playAction =
+  case playAction of
     Place (HandIndex i) pSpot cSpot -> do
-      played <- lookupInHand boardHand i
-      undefined
+      -- FIXME smelc can we use boardHand instead ? Yes if the call to
+      -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of
+      -- the hand (which I believe is the case) meaning the UI index
+      -- stored in DragStart and then in Place is valid in terms of Board.
+      played :: Creature Core <- lookupInHand uiHand i
+      let gameAction :: Game.PlayAction =
+            Game.Place (CreatureCard played) pSpot cSpot
+      board' <- Game.play board gameAction
+      return m {board = board'}
       where
         uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
         boardHand :: [Card Core] = board ^. playingPlayerPart . #inHand
@@ -160,7 +167,7 @@ updateModel a m@Model {interaction} =
   noEff $ m' {interaction = interaction''}
   where
     (interaction', playAction) = updateI a interaction
-    eitherErrModel = play m playAction
+    eitherErrModel = Update.play m playAction
     (interaction'', m') =
       case eitherErrModel of
         Left errMsg -> (ShowErrorInteraction errMsg, m)
