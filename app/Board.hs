@@ -24,7 +24,7 @@ import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe
-import GHC.Generics
+import GHC.Generics (Generic)
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
@@ -96,35 +96,29 @@ exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
   Board topPlayer botPlayer
   where
-    humanArcher = CreatureID Archer Human
-    humanGeneral = CreatureID General Human
-    humanSpearman = CreatureID Spearman Human
-    undeadArcher = CreatureID Archer Undead
-    undeadMummy = CreatureID Mummy Undead
-    undeadVampire = CreatureID Vampire Undead
     creatures :: [Creature Core] =
-      map creatureUI2CreatureCore $ mapMaybe card2Creature cards
+      cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore
     getCardByID searched =
       head $ filter (\c -> creatureId c == searched) creatures
-    hArcher = getCardByID humanArcher
-    hGeneral = getCardByID humanGeneral
-    hSpearman = getCardByID humanSpearman
-    udArcher = getCardByID undeadArcher
-    udMummy = getCardByID undeadMummy
-    udVampire = getCardByID undeadVampire
+    humanArcher = getCardByID (CreatureID Archer Human)
+    humanGeneral = getCardByID (CreatureID General Human)
+    humanSpearman = getCardByID (CreatureID Spearman Human)
+    undeaddArcher = getCardByID (CreatureID Archer Undead)
+    undeaddMummy = getCardByID (CreatureID Mummy Undead)
+    undeaddVampire = getCardByID (CreatureID Vampire Undead)
     topCards :: CardsOnTable =
       Map.fromList
-        [ (TopLeft, udArcher),
-          (Bottom, udVampire),
-          (BottomRight, udMummy)
+        [ (TopLeft, undeaddArcher),
+          (Bottom, undeaddVampire),
+          (BottomRight, undeaddMummy)
         ]
     topPlayer = PlayerPart topCards []
-    botHand = [CreatureCard hArcher, CreatureCard hSpearman]
+    botHand = [CreatureCard humanArcher, CreatureCard humanSpearman]
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList
-          [ (Top, hGeneral),
-            (TopLeft, hSpearman)
+          [ (Top, humanGeneral),
+            (TopLeft, humanSpearman)
           ]
     botPlayer = PlayerPart botCards botHand
 

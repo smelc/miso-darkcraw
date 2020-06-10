@@ -2,8 +2,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -11,6 +10,8 @@
 
 module Card where
 
+import Control.Lens
+import Data.Generics.Labels
 import Data.Kind (Constraint, Type)
 import GHC.Generics
 
@@ -88,18 +89,12 @@ data Card (p :: Phase)
   | NeutralCard Neutral
   | ItemCard Item
 
-creatureUI2CreatureCore :: Creature UI -> Creature Core
-creatureUI2CreatureCore Creature {creatureId, hp, attack, moral, victoryPoints, skills, filename, ..} =
-  Creature creatureId hp attack moral victoryPoints skills () () filename
-
-card2Creature :: Card p -> Maybe (Creature p)
-card2Creature =
-  \case
-    CreatureCard creature -> Just creature
-    NeutralCard _ -> Nothing
-    ItemCard _ -> Nothing
-
 deriving instance Forall Eq p => Eq (Card p)
 
 deriving instance Forall Show p => Show (Card p)
+
 deriving instance Generic (Card p)
+
+creatureUI2CreatureCore :: Creature UI -> Creature Core
+creatureUI2CreatureCore Creature {..} =
+  Creature creatureId hp attack moral victoryPoints skills () () filename
