@@ -103,14 +103,14 @@ exampleBoard cards =
     humanArcher = getCardByID (CreatureID Archer Human)
     humanGeneral = getCardByID (CreatureID General Human)
     humanSpearman = getCardByID (CreatureID Spearman Human)
-    undeaddArcher = getCardByID (CreatureID Archer Undead)
-    undeaddMummy = getCardByID (CreatureID Mummy Undead)
-    undeaddVampire = getCardByID (CreatureID Vampire Undead)
+    undeadArcher = getCardByID (CreatureID Archer Undead)
+    undeadMummy = getCardByID (CreatureID Mummy Undead)
+    undeadVampire = getCardByID (CreatureID Vampire Undead)
     topCards :: CardsOnTable =
       Map.fromList
-        [ (TopLeft, undeaddArcher),
-          (Bottom, undeaddVampire),
-          (BottomRight, undeaddMummy)
+        [ (TopLeft, undeadArcher),
+          (Bottom, undeadVampire),
+          (BottomRight, undeadMummy)
         ]
     topPlayer = PlayerPart topCards []
     botHand = [CreatureCard humanArcher, CreatureCard humanSpearman]
