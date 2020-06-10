@@ -7,13 +7,13 @@
 
 module Board
   ( allCardsSpots,
-    boardHand,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,
     Board,
     CardSpot (..),
     exampleBoard,
     playingPlayerSpot,
+    playingPlayerPart,
     PlayerPart (..),
     PlayerSpot (..),
   )
@@ -21,7 +21,6 @@ where
 
 import Card
 import Control.Lens
-import Data.Function ((&))
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -73,14 +72,19 @@ data PlayerSpot = PlayerBottom | PlayerTop
 allPlayersSpots :: [PlayerSpot]
 allPlayersSpots = [PlayerBottom ..]
 
--- FIXME smelc Use a record with two fields, as proposed by @polux
--- to avoid dealing with Map.lookup returning Maybe
-type Board = Map.Map PlayerSpot PlayerPart
+data Board = Board
+  { playerTop :: PlayerPart,
+    playerBottom :: PlayerPart
+  } deriving (Eq, Generic)
+
+boardToList :: Board -> [(PlayerSpot, PlayerPart)]
+boardToList Board {playerTop, playerBottom} =
+  [(PlayerTop, playerTop), (PlayerBottom, playerBottom)]
 
 boardToCardsInPlace :: Board -> [(PlayerSpot, CardSpot, Creature Core)]
 boardToCardsInPlace board =
   [ (pspot, cspot, creature)
-    | (pspot, PlayerPart {inPlace}) <- Map.toList board,
+    | (pspot, PlayerPart {inPlace}) <- boardToList board,
       (cspot, creature) <- Map.toList inPlace
   ]
 
@@ -88,12 +92,9 @@ boardToInHandCreaturesToDraw :: Board -> [Creature Core]
 boardToInHandCreaturesToDraw board =
   board ^.. ix playingPlayerSpot . #inHand . folded . #_CreatureCard
 
-boardHand :: Board -> PlayerSpot -> [Card Core]
-boardHand board pSpot = board ^. ix pSpot . #inHand
-
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
-  Map.fromList [(PlayerBottom, botPlayer), (PlayerTop, topPlayer)]
+  Board topPlayer botPlayer
   where
     humanArcher = CreatureID Archer Human
     humanGeneral = CreatureID General Human
@@ -129,3 +130,6 @@ exampleBoard cards =
 
 playingPlayerSpot :: PlayerSpot
 playingPlayerSpot = PlayerBottom
+
+playingPlayerPart :: Board -> PlayerPart
+playingPlayerPart = playerBottom

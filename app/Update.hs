@@ -10,6 +10,7 @@ module Update where
 
 import Board
 import Card
+import Data.Function ((&))
 import Data.Maybe (fromJust, isJust)
 import Data.Text (Text)
 import Data.TreeDiff
@@ -46,6 +47,8 @@ instance ToExpr PlayerSpot
 instance ToExpr PlayerPart
 
 instance ToExpr CardSpot
+
+instance ToExpr Board
 
 instance ToExpr HandIndex
 
@@ -137,7 +140,7 @@ play m@Model {board} =
             let played :: Card Core = boardHand' !! i in undefined -- FIXME smelc implement me
       where
         uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
-        boardHand' :: [Card Core] = boardHand board playingPlayerSpot
+        boardHand' :: [Card Core] = playingPlayerPart board & inHand
         lenHand' = Prelude.length boardHand'
     NoPlayAction -> Right m
 
