@@ -1,8 +1,13 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Board
   ( allCardsSpots,
@@ -19,7 +24,9 @@ module Board
 where
 
 import Card
+import Control.Lens
 import Data.Function ((&))
+import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics
@@ -81,31 +88,12 @@ boardToCardsInPlace board =
       (cspot, creature) <- Map.toList inPlace
   ]
 
-_boardToCardsInHand :: Board -> [(PlayerSpot, Card Core)]
-_boardToCardsInHand board =
-  [ (pspot, card)
-    | (pspot, PlayerPart {inHand}) <- Map.toList board,
-      card <- inHand
-  ]
-
 boardToInHandCreaturesToDraw :: Board -> [Creature Core]
 boardToInHandCreaturesToDraw board =
-  cards
-  where
-    board' :: [Card Core] =
-      Prelude.map snd
-        $ Prelude.filter ((== playingPlayerSpot) . fst)
-        $ _boardToCardsInHand board
-    cards :: [Creature Core] =
-      let filter = \case
-            CreatureCard c -> Just c
-            NeutralCard _ -> Nothing
-            ItemCard _ -> Nothing
-       in Data.Maybe.mapMaybe filter board'
+  board ^.. ix playingPlayerSpot . #inHand . folded . #_CreatureCard
 
 boardHand :: Board -> PlayerSpot -> [Card Core]
-boardHand board pSpot =
-  Map.lookup pSpot board & fromJust & inHand
+boardHand board pSpot = board ^. ix pSpot . #inHand
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =

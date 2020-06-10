@@ -33,6 +33,8 @@ executable app
     extra,
     file-embed,
     formatting,
+    lens,
+    generic-lens,
     miso,
     text,
     tree-diff
