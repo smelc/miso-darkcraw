@@ -28,11 +28,15 @@ data PlayAction
 
 play :: Board -> PlayAction -> Either Text.Text Board
 play board (Place (card :: Card Core) cSpot)
-  | length hand' == length hand =
+  | length hand == length hand' -- number of cards in hand did not decrease,
+  -- this means the card wasn't in the hand to begin with
+    =
     Left
       $ Text.pack
       $ "Trying to place card not in hand: " <> show card
-  | isJust onSpot =
+  | Map.size onTable == Map.size onTable' -- number of cards on table
+  -- did not grow, this means the spot wasn't empty
+    =
     Left
       $ Text.pack
       $ "Cannot place card on non-empty spot: " <> show cSpot
@@ -40,10 +44,7 @@ play board (Place (card :: Card Core) cSpot)
   where
     hand :: [Card Core] = boardToHand board playingPlayerPart
     hand' :: [Card Core] = delete card hand
-    -- XXX alternatively update map with lens and check new map
-    -- did grow?
     onTable :: Map.Map CardSpot (Creature Core) =
       board ^. playingPlayerPart . #inPlace
-    onSpot :: Maybe (Creature Core) = Map.lookup cSpot onTable
-    onTable' = Map.insert cSpot (cardToCreature card) onTable
+    onTable' = onTable & (at cSpot ?~ cardToCreature card)
     playerPart' = PlayerPart {inPlace = onTable', inHand = hand'}
