@@ -21,7 +21,7 @@ data Skill
   | Leader
   | Ranged
   | Unique
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 data Phase = UI | Core
 
@@ -61,12 +61,14 @@ data Creature (p :: Phase) = Creature
 
 deriving instance Forall Eq p => Eq (Creature p)
 
+deriving instance Forall Ord p => Ord (Creature p)
+
 deriving instance Forall Show p => Show (Creature p)
 
 data Neutral
   = Health
   | Life
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 newtype NeutralObject = NeutralObject
   {neutral :: Neutral}
@@ -75,7 +77,7 @@ newtype NeutralObject = NeutralObject
 data Item
   = Crown
   | FooBar
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 newtype ItemObject = ItemObject
   {item :: Item}
@@ -88,6 +90,8 @@ data Card (p :: Phase)
 
 deriving instance Forall Eq p => Eq (Card p)
 
+deriving instance Forall Ord p => Ord (Card p)
+
 deriving instance Forall Show p => Show (Card p)
 
 deriving instance Generic (Card p)
@@ -95,3 +99,8 @@ deriving instance Generic (Card p)
 creatureUI2CreatureCore :: Creature UI -> Creature Core
 creatureUI2CreatureCore Creature {..} =
   Creature creatureId hp attack moral victoryPoints skills () () filename
+
+cardToCreature :: Card p -> Creature p
+cardToCreature (CreatureCard creature) = creature
+cardToCreature (NeutralCard _) = error "neutral card not handled yet"
+cardToCreature (ItemCard _) = error "item card not handled yet"

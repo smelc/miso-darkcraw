@@ -3,13 +3,15 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Board
   ( allCardsSpots,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,
-    Board,
+    boardToHand,
+    Board(..),
     CardSpot (..),
     exampleBoard,
     playingPlayerSpot,
@@ -91,6 +93,10 @@ boardToCardsInPlace board =
 boardToInHandCreaturesToDraw :: Board -> [Creature Core]
 boardToInHandCreaturesToDraw board =
   board ^.. playingPlayerPart . #inHand . folded . #_CreatureCard
+
+boardToHand :: Board -> Lens' Board PlayerPart -> [Card Core]
+boardToHand board player =
+  board ^. player . #inHand
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
