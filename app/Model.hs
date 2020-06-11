@@ -34,7 +34,7 @@ data Dragging = Dragging
 data HandFiddle
   = -- | Card in hand being hovered
     HandHovering HandIndex
-  | -- | Card in hand being dragged to (x, y)
+  | -- | Card in hand being dragged
     HandDragging HandIndex
   deriving (Eq, Show, Generic)
 
