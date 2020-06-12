@@ -109,6 +109,7 @@ boardToInHandCells z Model {board, interaction} =
       [ style_ $ cardStyle x 2,
         prop "draggable" True,
         onDragStart (DragStart i),
+        onDragEnd DragEnd,
         class_ "card",
         onMouseEnter' "card" $ InHandMouseEnter i,
         onMouseLeave' "card" $ InHandMouseLeave i
