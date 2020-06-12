@@ -72,7 +72,11 @@ boardToInPlaceCells z Model {board, interaction} =
            [ style_ $ cardStyle x y, -- position the div
              style1_ "outline" ("3px solid " <> borderColor), -- draw the border
              onDragEnter (DragEnter cSpot),
-             onDragLeave (DragLeave cSpot)
+             onDragLeave (DragLeave cSpot),
+             onDrop (AllowDrop True) DragEnd,
+            --  onDrop (AllowDrop False) DragEnd,
+             onWithOptions defaultOptions {preventDefault = True}
+     "dragover" emptyDecoder (\() -> NoOp)
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
          | case interaction of
@@ -105,7 +109,6 @@ boardToInHandCells z Model {board, interaction} =
       [ style_ $ cardStyle x 2,
         prop "draggable" True,
         onDragStart (DragStart i),
-        onDragEnd DragEnd,
         class_ "card",
         onMouseEnter' "card" $ InHandMouseEnter i,
         onMouseLeave' "card" $ InHandMouseLeave i

@@ -69,7 +69,7 @@ instance ToExpr Model
 data Action
   = -- | Dragging card in hand
     DragStart HandIndex
-  | DragEnd
+  | DragEnd -- FIXME smelc rename me to Drop
   | DragEnter CardSpot
   | DragLeave CardSpot
   | -- | Starting hovering card in hand
@@ -98,6 +98,7 @@ data PlayAction
   = -- | Playing player puts a card from his hand on its part of the board
     Place HandIndex CardSpot
   | NoPlayAction
+  deriving (Show)
 
 noPlayAction :: a -> (a, PlayAction)
 noPlayAction interaction = (interaction, NoPlayAction)
@@ -143,6 +144,7 @@ lookupInHand hand i
 
 play :: Model -> PlayAction -> Either Text Model
 play m@Model {board} playAction =
+  trace ("playing " ++ show playAction) $
   case playAction of
     Place (HandIndex i) cSpot -> do
       -- FIXME smelc can we use boardHand instead ? Yes if the call to
