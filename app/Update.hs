@@ -62,6 +62,8 @@ instance ToExpr Hovering
 
 instance ToExpr Interaction
 
+instance ToExpr Turn
+
 instance ToExpr Model
 
 -- | Sum type for application events. If drop stuff doesn't work

@@ -22,9 +22,9 @@ import ViewInternal
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel model@Model {board, interaction} =
-  div_ [] $ [boardDiv, handDiv] ++ errView model (z + 1)
+  div_ [] $ [boardDiv, handDiv] ++ errView model zpp ++ [turnView model zpp]
   where
-    z :: Int = 0
+    (z, zpp) = (0, z + 1)
     globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
     bgStyle :: Int -> Int -> Map.Map MisoString MisoString = zpwh z Absolute
     boardCards = boardToInPlaceCells (z + 1) model

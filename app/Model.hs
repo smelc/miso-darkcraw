@@ -41,7 +41,8 @@ data HandFiddle
 -- | Type synonym for an application model
 data Model = Model
   { board :: Board,
-    uiCards :: [Card UI],
-    interaction :: Interaction
+    interaction :: Interaction,
+    turn :: Turn,
+    uiCards :: [Card UI]
   }
   deriving (Eq, Generic)

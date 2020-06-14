@@ -7,7 +7,7 @@
 -- Haskell module declaration
 module Main where
 
-import Board
+import Board (exampleBoard, initialTurn)
 import Card
 import Data.ByteString.Lazy
 import qualified Data.Map.Strict as Map
@@ -65,7 +65,7 @@ main :: IO ()
 main = do
   cards :: [Card UI] <- loadJson
   let board = exampleBoard cards
-  let model = Model board cards interaction -- initial model
+  let model = Model board interaction initialTurn cards -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load

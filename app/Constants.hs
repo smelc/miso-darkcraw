@@ -77,6 +77,14 @@ cardVCellGap = 1
 teamsVCellGap :: Int
 teamsVCellGap = 2
 
+-- | The turn widget height, in pixels
+turnPixelHeight :: Int
+turnPixelHeight = 6 * cellPixelSize
+
+-- | The turn widget width, in pixels
+turnPixelWidth :: Int
+turnPixelWidth = 4 * cellPixelSize
+
 -- | The size of a cell, in pixels
 cellPixelSize :: Int
 cellPixelSize = 24

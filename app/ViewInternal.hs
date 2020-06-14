@@ -7,12 +7,14 @@ module ViewInternal
     noDrag,
     Position (..),
     pltwh,
+    turnView,
     zplt,
     zpltwh,
     zpwh,
   )
 where
 
+import Board (turnToInt)
 import Constants
 import qualified Data.Map.Strict as Map
 import Event
@@ -36,8 +38,7 @@ errView model@Model {interaction} z =
     ShowErrorInteraction msg ->
       [div_ [style_ errViewStyle] $ textView msg : feedbackViews]
   where
-    width = 504
-    height = 168
+    (width, height) = (504, 168)
     left = (boardPixelWidth - width) `div` 2
     top = boardPixelHeight `div` 2
     errViewStyle =
@@ -62,6 +63,25 @@ errView model@Model {interaction} z =
         a_ [href_ itch] [text itch]
       ]
     itch = "https://hgames.itch.io/darkcraw"
+
+turnView :: Model -> Int -> View Action
+turnView model@Model {turn} z =
+  div_ [style_ turnViewStyle, style_ textStylePairs] [line1]
+  where
+    (width, height) = (turnPixelWidth, turnPixelHeight)
+    left = boardPixelWidth - width
+    top = boardPixelHeight - height
+    turnViewStyle =
+      Map.union (zpltwh z Relative left top width height) $
+        Map.fromList
+          [ ("display", "flex"),
+            ("align-items", "center"),
+            ("justify-content", "center"),
+            ("flex-direction", "column"),
+            ("background-image", assetsUrl "turn.png")
+          ]
+    textStylePairs = Map.fromList [("color", "#FFFFFF")]
+    line1 :: View Action = text $ "Turn " <> ms (turnToInt turn)
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
