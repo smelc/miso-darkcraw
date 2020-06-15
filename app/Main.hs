@@ -7,7 +7,7 @@
 -- Haskell module declaration
 module Main where
 
-import Board (exampleBoard, initialTurn)
+import Board (exampleBoard)
 import Card
 import Data.ByteString.Lazy
 import qualified Data.Map.Strict as Map
@@ -17,6 +17,7 @@ import JsonData
 import Model
 import System.Exit
 import System.IO (hPutStrLn, stderr)
+import Turn (initialTurn)
 import Update
 import View
 

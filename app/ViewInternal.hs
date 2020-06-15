@@ -14,7 +14,6 @@ module ViewInternal
   )
 where
 
-import Board (turnToInt)
 import Constants
 import qualified Data.Map.Strict as Map
 import Event
@@ -22,6 +21,7 @@ import Miso
 import Miso.String
 import Model
 import Update
+import Turn (turnToInt)
 import Utils (style1_)
 
 -- This module contains things used in View.hs

@@ -23,6 +23,7 @@ import Miso.String (ms)
 import Model
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
+import Turn (Turn)
 
 instance ToExpr CreatureKind
 

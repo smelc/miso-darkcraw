@@ -8,6 +8,7 @@ import Board
 import Card
 import qualified Data.Text as Text
 import GHC.Generics
+import Turn (Turn)
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
