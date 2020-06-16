@@ -90,13 +90,24 @@ turnView model@Model {turn} z =
     line2ImgSize = cellPixelSize
     topMargin = cellPixelSize `div` 2
     line2 :: View Action =
-      img_ $
-        [ src_ $ assetsPath "24x24_" <> playerImgY <> "_2.png",
-          width_ $ ms line2ImgSize,
-          height_ $ ms line2ImgSize,
-          noDrag
+      div_
+        [style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"]
+        [ nodeHtml "style" [] ["@keyframes pulse { from { outline: 0px solid #00FF00; } to { outline: 4px solid #00FF00; } }"],
+          img_ $
+            [ src_ $ assetsPath "24x24_" <> playerImgY <> "_2.png",
+              width_ $ ms line2ImgSize,
+              height_ $ ms line2ImgSize,
+              noDrag
+            ]
+              ++ [ style_ $
+                     Map.fromList
+                       [ ("animation-duration", "1s"),
+                         ("animation-name", "pulse"),
+                         ("animation-iteration-count", "infinite"),
+                         ("animation-direction", "alternate")
+                       ]
+                 ]
         ]
-          ++ [style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"]
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
