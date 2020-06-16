@@ -14,14 +14,15 @@ module ViewInternal
   )
 where
 
+import Board (PlayerSpot (..))
 import Constants
 import qualified Data.Map.Strict as Map
 import Event
 import Miso
 import Miso.String
 import Model
+import Turn (turnToInt, turnToPlayerSpot)
 import Update
-import Turn (turnToInt)
 import Utils (style1_)
 
 -- This module contains things used in View.hs
@@ -66,7 +67,7 @@ errView model@Model {interaction} z =
 
 turnView :: Model -> Int -> View Action
 turnView model@Model {turn} z =
-  div_ [style_ turnViewStyle, style_ textStylePairs] [line1]
+  div_ [style_ turnViewStyle, style_ textStylePairs] [line1, line2]
   where
     (width, height) = (turnPixelWidth, turnPixelHeight)
     left = boardPixelWidth - width
@@ -82,6 +83,20 @@ turnView model@Model {turn} z =
           ]
     textStylePairs = Map.fromList [("color", "#FFFFFF")]
     line1 :: View Action = text $ "Turn " <> ms (turnToInt turn)
+    playerImgY =
+      case turnToPlayerSpot turn of
+        PlayerTop -> "1"
+        PlayerBottom -> "2"
+    line2ImgSize = cellPixelSize
+    topMargin = cellPixelSize `div` 2
+    line2 :: View Action =
+      img_ $
+        [ src_ $ assetsPath "24x24_" <> playerImgY <> "_2.png",
+          width_ $ ms line2ImgSize,
+          height_ $ ms line2ImgSize,
+          noDrag
+        ]
+          ++ [style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"]
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
