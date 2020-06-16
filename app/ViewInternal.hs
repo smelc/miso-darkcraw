@@ -92,7 +92,7 @@ turnView model@Model {turn} z =
     line2 :: View Action =
       div_
         [style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"]
-        [ nodeHtml "style" [] ["@keyframes pulse { from { outline: 0px solid #00FF00; } to { outline: 4px solid #00FF00; } }"],
+        [ nodeHtml "style" [] ["@keyframes pulse { from { box-shadow: 0 0 0 0 rgba(0,255,0,1); } to { box-shadow: 0 0 0 3px rgba(0,255,0,1); } }"],
           img_ $
             [ src_ $ assetsPath "24x24_" <> playerImgY <> "_2.png",
               width_ $ ms line2ImgSize,
@@ -104,7 +104,8 @@ turnView model@Model {turn} z =
                        [ ("animation-duration", "1s"),
                          ("animation-name", "pulse"),
                          ("animation-iteration-count", "infinite"),
-                         ("animation-direction", "alternate")
+                         ("animation-direction", "alternate"),
+                         ("animation-timing-function", "ease-in-out")
                        ]
                  ]
         ]
