@@ -80,9 +80,8 @@ boardToInPlaceCells z Model {board, interaction} =
                  style_ $
                    Map.fromList
                      [ ("animation-duration", "1s"),
-                       ("animation-name", "pulse"),
+                       ("animation-name", "inPlacePulse"),
                        ("animation-iteration-count", "1"),
-                       ("animation-direction", "alternate"),
                        ("animation-timing-function", "ease-in-out")
                      ]
                ]
@@ -108,9 +107,8 @@ boardToInPlaceCells z Model {board, interaction} =
     emptyPlayingPlayerSpots :: [CardSpot] =
       allCardsSpots \\ playingPlayerCardsSpots
     keyframes :: Int -> Int -> Int -> View Action = \r g b ->
-      let rgba :: String = "rgba(" ++ show r ++ "," ++ show g ++ "," ++ show b ++ ",1);"
-       in let result :: String = "@keyframes pulse { from { box-shadow: 0 0 0 0 " ++ rgba ++ " } to { box-shadow: 0 0 0 3px " ++ rgba ++ " } }"
-           in toView result
+      let rgba = "rgba(" <> ms r <> "," <> ms g <> "," <> ms b <> ",1);"
+       in text $ "@keyframes inPlacePulse { from { box-shadow: 0 0 0 0 " <> rgba <> " } to { box-shadow: 0 0 0 3px " <> rgba <> " } }"
 
 boardToInHandCells ::
   -- | The z index
