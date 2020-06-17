@@ -69,35 +69,30 @@ boardToInPlaceCells z Model {board, interaction} =
     -- draw border around valid dragging targets if card in hand is:
     -- 1/ being hovered or 2/ being dragged
     ++ [ div_
-           []
-           [ nodeHtml "style" [] [keyframes r g b],
-             div_
-               [ style_ $ cardStyle x y, -- position the div
-                 onDragEnter (DragEnter cSpot),
-                 onDragLeave (DragLeave cSpot),
-                 onDrop (AllowDrop True) DragEnd,
-                 dummyOn "dragover",
-                 style_ $
-                   Map.fromList
-                     [ ("animation-duration", "1s"),
-                       ("animation-name", "inPlacePulse"),
-                       ("animation-iteration-count", "1"),
-                       ("animation-timing-function", "ease-in-out")
-                     ]
-               ]
-               [div_ [] []] -- empty divs, the point is that they have a border
+           [ onDragEnter (DragEnter cSpot),
+             onDragLeave (DragLeave cSpot),
+             onDrop (AllowDrop True) DragEnd,
+             dummyOn "dragover",
+             style_ $
+               cardStyle x y
+                 <> Map.fromList
+                   [ ("box-shadow", "0 0 0 " <> ms borderWidth <> "px " <> rgba r g b),
+                     ("transition", "box-shadow"),
+                     ("transition-duration", "0.15s"),
+                     ("transition-timing-function", "ease-in-out")
+                   ]
            ]
-         | case interaction of
-             HoverInteraction {} -> True -- if card in hand is being hovered
-             DragInteraction {} -> True -- if card in hand is being dragged
-             ShowErrorInteraction _ -> False
-             NoInteraction -> False,
-           cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
-           let isDragTarget = case interaction of
-                 DragInteraction Dragging {dragTarget} -> dragTarget == Just cSpot
-                 _ -> False,
+           []
+         | cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
+           let borderWidth
+                 | DragInteraction {} <- interaction = (3 :: Int)
+                 | HoverInteraction {} <- interaction = 3
+                 | otherwise = 0,
            let (x, y) = cardCellsBoardOffset playingPlayerSpot cSpot,
-           let (r, g, b) = if isDragTarget then (255, 255, 0) else (0, 255, 0)
+           let (r, g, b) =
+                 case interaction of
+                   DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> (255, 255, 0)
+                   _ -> (0, 255, 0)
        ]
   where
     cardsInPlace :: [(PlayerSpot, CardSpot, Creature Core)] =
@@ -106,9 +101,9 @@ boardToInPlaceCells z Model {board, interaction} =
       [c | (pSpot, c, _) <- cardsInPlace, pSpot == playingPlayerSpot]
     emptyPlayingPlayerSpots :: [CardSpot] =
       allCardsSpots \\ playingPlayerCardsSpots
-    keyframes :: Int -> Int -> Int -> View Action = \r g b ->
-      let rgba = "rgba(" <> ms r <> "," <> ms g <> "," <> ms b <> ",1);"
-       in text $ "@keyframes inPlacePulse { from { box-shadow: 0 0 0 0 " <> rgba <> " } to { box-shadow: 0 0 0 3px " <> rgba <> " } }"
+    rgba :: Int -> Int -> Int -> MisoString
+    rgba r g b =
+      "rgba(" <> ms r <> "," <> ms g <> "," <> ms b <> ",1)"
 
 boardToInHandCells ::
   -- | The z index
