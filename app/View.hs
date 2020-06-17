@@ -83,11 +83,11 @@ boardToInPlaceCells z Model {board, interaction} =
                    ]
            ]
            []
-         | cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
-           let borderWidth
-                 | DragInteraction {} <- interaction = (3 :: Int)
+         | let borderWidth
+                 | DragInteraction {} <- interaction = 3 :: Int
                  | HoverInteraction {} <- interaction = 3
                  | otherwise = 0,
+           cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
            let (x, y) = cardCellsBoardOffset playingPlayerSpot cSpot,
            let (r, g, b) =
                  case interaction of
