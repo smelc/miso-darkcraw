@@ -3,7 +3,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ViewInternal
-  ( errView,
+  ( dummyOn,
+    errView,
     noDrag,
     Position (..),
     pltwh,
@@ -112,6 +113,19 @@ turnView model@Model {turn} z =
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
+
+-- | Dummy [onWithOptions] instance.
+-- | See https://github.com/dmjio/miso/issues/478
+dummyOn ::
+  -- | One of "dragenter" or "dragover"
+  MisoString ->
+  Attribute Action
+dummyOn str =
+  onWithOptions
+    defaultOptions {preventDefault = True}
+    str
+    emptyDecoder
+    (\() -> NoOp)
 
 -- * Now a lot of boring boilerplate
 

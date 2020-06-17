@@ -74,9 +74,7 @@ boardToInPlaceCells z Model {board, interaction} =
              onDragEnter (DragEnter cSpot),
              onDragLeave (DragLeave cSpot),
              onDrop (AllowDrop True) DragEnd,
-            --  onDrop (AllowDrop False) DragEnd,
-             onWithOptions defaultOptions {preventDefault = True}
-     "dragover" emptyDecoder (\() -> NoOp)
+             dummyOn "dragover"
            ]
            [div_ [] []] -- empty divs, the point is that they have a border
          | case interaction of
