@@ -14,10 +14,12 @@ module Board
     Board (..),
     CardSpot (..),
     exampleBoard,
+    otherPlayerSpot,
     playingPlayerSpot,
     playingPlayerPart,
     PlayerPart (..),
     PlayerSpot (..),
+    spotToLens,
   )
 where
 
@@ -134,3 +136,13 @@ playingPlayerSpot = PlayerBottom
 
 playingPlayerPart :: Lens' Board PlayerPart
 playingPlayerPart = #playerBottom
+
+-- | The other spot
+otherPlayerSpot :: PlayerSpot -> PlayerSpot
+otherPlayerSpot PlayerBottom = PlayerTop
+otherPlayerSpot PlayerTop = PlayerBottom
+
+spotToLens :: PlayerSpot -> Lens' Board PlayerPart
+spotToLens =
+  \case PlayerBottom -> #playerBottom
+        PlayerTop -> #playerTop
