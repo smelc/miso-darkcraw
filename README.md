@@ -20,9 +20,10 @@ If you have the rights to do a release, install the pre-push hook as follows:
 
 There are two kind of assets at the moment:
 
-* `app/assets/forest.png`. It can be generated from `tiled/forest.tmx`
-  using [tiled](https://www.mapeditor.org/).
-* `app/assets/16x16*.png` and `app/assets/24x24*.png`. Generated them
-  by executing `scripts/gen-assets.py` whenever `assets/16x16.png`
+* `app/assets/16x16*.png` and `app/assets/24x24*.png`. Generate them
+  by executing `./scripts/GenAssets.hs` whenever `assets/16x16.png`
   or `assets/24x24.png` change.
+* `app/assets/*.png`. @smelc generate them from `tiled/*.tmx` files
+  using [tiled](https://www.mapeditor.org/) when required. Execute
+  `./scripts/dl-large-assets.sh` to download up-to-date versions.
 
