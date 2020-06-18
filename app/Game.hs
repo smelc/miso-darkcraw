@@ -23,10 +23,13 @@ import qualified Data.Text as Text
 
 -- TODO smelc Use a type family to share this type with Update.PlayAction
 data PlayAction
-  = -- | Player puts a card from his hand on its part of the board
+  = -- | Player finishes its turn, we should resolve it
+    EndPlayerTurn
+  | -- | Player puts a card from his hand on its part of the board
     Place (Card Core) CardSpot
 
 play :: Board -> PlayAction -> Either Text.Text Board
+play board EndPlayerTurn = Right $ endPlayerTurn board
 play board (Place (card :: Card Core) cSpot)
   | length hand == length hand' -- number of cards in hand did not decrease,
   -- this means the card wasn't in the hand to begin with
@@ -48,3 +51,6 @@ play board (Place (card :: Card Core) cSpot)
       board ^. playingPlayerPart . #inPlace
     onTable' = onTable & (at cSpot ?~ cardToCreature card)
     playerPart' = PlayerPart {inPlace = onTable', inHand = hand'}
+
+endPlayerTurn :: Board -> Board
+endPlayerTurn = undefined

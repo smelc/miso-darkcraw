@@ -100,7 +100,9 @@ logUpdates update action model = do
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
 data PlayAction
-  = -- | Playing player puts a card from his hand on its part of the board
+  = -- | Player ends its turn
+    EndPlayerTurn
+  | -- | Playing player puts a card from his hand on its part of the board
     Place HandIndex CardSpot
   | NoPlayAction
   deriving (Show)
@@ -127,6 +129,8 @@ updateI (DragEnter cSpot) (DragInteraction dragging) =
   noPlayAction $ DragInteraction $ dragging {dragTarget = Just cSpot}
 updateI (DragLeave _) (DragInteraction dragging) =
   noPlayAction $ DragInteraction $ dragging {dragTarget = Nothing}
+updateI EndTurn _ =
+  (NoInteraction, EndPlayerTurn)
 updateI (InHandMouseEnter i) NoInteraction =
   noPlayAction $ HoverInteraction $ Hovering i
 updateI (InHandMouseLeave _) _ =
@@ -150,22 +154,25 @@ lookupInHand hand i
 play :: Model -> PlayAction -> Either Text Model
 play m@Model {board} playAction =
   trace ("playing " ++ show playAction) $
-  case playAction of
-    Place (HandIndex i) cSpot -> do
-      -- FIXME smelc can we use boardHand instead ? Yes if the call to
-      -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of
-      -- the hand (which I believe is the case) meaning the UI index
-      -- stored in DragStart and then in Place is valid in terms of Board.
-      played :: Creature Core <- lookupInHand uiHand i
-      let gameAction :: Game.PlayAction =
-            Game.Place (CreatureCard played) cSpot
-      board' <- Game.play board gameAction
-      return m {board = board'}
-      where
-        uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
-        boardHand :: [Card Core] = boardToHand board playingPlayerPart
-    NoPlayAction ->
-      pure m
+    case playAction of
+      EndPlayerTurn -> do
+        board' <- Game.play board Game.EndPlayerTurn
+        return $ m {board = board'}
+      Place (HandIndex i) cSpot -> do
+        -- FIXME smelc can we use boardHand instead ? Yes if the call to
+        -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of
+        -- the hand (which I believe is the case) meaning the UI index
+        -- stored in DragStart and then in Place is valid in terms of Board.
+        played :: Creature Core <- lookupInHand uiHand i
+        let gameAction :: Game.PlayAction =
+              Game.Place (CreatureCard played) cSpot
+        board' <- Game.play board gameAction
+        return m {board = board'}
+        where
+          uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
+          boardHand :: [Card Core] = boardToHand board playingPlayerPart
+      NoPlayAction ->
+        pure m
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
