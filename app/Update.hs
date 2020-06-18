@@ -75,6 +75,8 @@ data Action
   | DragEnd -- FIXME smelc rename me to Drop
   | DragEnter CardSpot
   | DragLeave CardSpot
+  | -- | End Turn button pressed in turn widget
+    EndTurn
   | -- | Starting hovering card in hand
     InHandMouseEnter HandIndex
   | -- | Ending hovering card in hand

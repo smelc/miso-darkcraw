@@ -68,7 +68,7 @@ errView model@Model {interaction} z =
 
 turnView :: Model -> Int -> View Action
 turnView model@Model {turn} z =
-  div_ [style_ turnViewStyle, style_ textStylePairs] [line1, line2]
+  div_ [style_ turnViewStyle, style_ textStylePairs] [line1, line2, line3]
   where
     (width, height) = (turnPixelWidth, turnPixelHeight)
     left = boardPixelWidth - width
@@ -82,7 +82,8 @@ turnView model@Model {turn} z =
             ("flex-direction", "column"),
             ("background-image", assetsUrl "turn.png")
           ]
-    textStylePairs = Map.fromList [("color", "#FFFFFF")]
+    mainColor = "#FFFFFF"
+    textStylePairs = Map.fromList [("color", mainColor)]
     line1 :: View Action = text $ "Turn " <> ms (turnToInt turn)
     playerImgY =
       case turnToPlayerSpot turn of
@@ -90,9 +91,10 @@ turnView model@Model {turn} z =
         PlayerBottom -> "2"
     line2ImgSize = cellPixelSize
     topMargin = cellPixelSize `div` 2
+    topMarginAttr = style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"
     line2 :: View Action =
       div_
-        [style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"]
+        [topMarginAttr]
         [ nodeHtml "style" [] ["@keyframes pulse { from { box-shadow: 0 0 0 0 rgba(0,255,0,1); } to { box-shadow: 0 0 0 3px rgba(0,255,0,1); } }"],
           img_ $
             [ src_ $ assetsPath "24x24_" <> playerImgY <> "_2.png",
@@ -110,6 +112,17 @@ turnView model@Model {turn} z =
                        ]
                  ]
         ]
+    line3Style =
+      style_ $
+        Map.fromList
+          [ ("background-color", "transparent"), -- no background
+            ("border", "2px solid " <> mainColor), -- white not-shadowed border
+            ("outline", "none") -- don't highlight that it has been pressed
+          ]
+    line3 :: View Action =
+      button_
+        [topMarginAttr, onClick EndTurn, line3Style]
+        [div_ [style_ textStylePairs] [text "End Turn"]]
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
