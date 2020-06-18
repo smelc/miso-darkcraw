@@ -69,15 +69,14 @@ attack board pSpot cSpot
     skills' :: [Skill] = fmap skills attacker & reduce
     reduce (Just (Just a)) = a
     reduce _ = []
+    reduce' (Just (Just a)) = Just a
+    reduce' _ = Nothing
     allyBlockerSpot' :: Maybe CardSpot =
       if Ranged `elem` skills' || HitFromBack `elem` skills'
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot
     allyBlocker :: Maybe (Creature Core) =
-      -- Can this be made more idiomatic? by chaining?
-      case allyBlockerSpot' of
-        Nothing -> Nothing
-        Just a -> attackerInPlace Map.!? a
+      fmap (attackerInPlace Map.!?) allyBlockerSpot' & reduce'
     attackedSpots' :: [CardSpot] = attackedSpots cSpot
     attacked :: Map.Map CardSpot (Creature Core) =
       board ^. (pOtherSpotLens . #inPlace)
