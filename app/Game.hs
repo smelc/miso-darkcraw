@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -66,22 +67,18 @@ attack board pSpot cSpot
     attackerInPlace :: Map.Map CardSpot (Creature Core) =
       board ^. (pSpotLens . #inPlace)
     attacker :: Maybe (Creature Core) = attackerInPlace Map.!? cSpot
-    skills' :: [Skill] = fmap skills attacker & reduce
-    reduce (Just (Just a)) = a
-    reduce _ = []
-    reduce' (Just (Just a)) = Just a
-    reduce' _ = Nothing
+    skills' :: [Skill] = attacker >>= skills & reduce
+    reduce (Just a) = a
+    reduce Nothing = []
     allyBlockerSpot' :: Maybe CardSpot =
       if Ranged `elem` skills' || HitFromBack `elem` skills'
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot
     allyBlocker :: Maybe (Creature Core) =
-      fmap (attackerInPlace Map.!?) allyBlockerSpot' & reduce'
+      allyBlockerSpot' >>= (attackerInPlace Map.!?)
     attackedSpots' :: [CardSpot] = attackedSpots cSpot
     attacked :: Map.Map CardSpot (Creature Core) =
       board ^. (pOtherSpotLens . #inPlace)
-    -- attacked' :: Map.Map CardSpot (Creature Core) =
-    --   Map.filterWithKey (\k _ -> k `elem` attackedSpots') attacked
     attacked' :: [(CardSpot, Creature Core)] =
       Map.toList attacked & filter (\(c, _) -> c `elem` attackedSpots')
 
