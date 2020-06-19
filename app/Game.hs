@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Game
@@ -16,7 +16,7 @@ import Control.Lens
 import Data.Generics.Labels
 import Data.List (delete)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (isJust, isNothing)
+import Data.Maybe (fromJust, isJust, isNothing, listToMaybe)
 import qualified Data.Text as Text
 
 -- * This module contains the game mechanic i.e. the function
@@ -28,6 +28,12 @@ data PlayAction
     EndPlayerTurn
   | -- | Player puts a card from his hand on its part of the board
     Place (Card Core) CardSpot
+
+data AttackEffect
+  = -- | Death (hits points change that makes hit points go 0 or negative)
+    Death
+  | -- | Hit points change
+    HitPointsChange Int
 
 play :: Board -> PlayAction -> Either Text.Text Board
 play board EndPlayerTurn = Right $ endTurn board playingPlayerSpot
@@ -57,10 +63,14 @@ endTurn :: Board -> PlayerSpot -> Board
 endTurn = undefined
 
 attack :: Board -> PlayerSpot -> CardSpot -> Board
-attack board pSpot cSpot
-  | isNothing attacker = board -- nothing to do
-  | isJust allyBlocker = board -- cannot attack
-  | otherwise = undefined
+attack board pSpot cSpot =
+  case (attacker, allyBlocker, attacked'') of
+    (_, Just _, _) -> board -- an ally blocks the way
+    (Just hitter, _, Just (hitSpot, hittee)) ->
+      -- attack can proceed
+      let effect = singleAttack hitter hittee
+       in undefined
+    _ -> board -- no attacker or nothing to attack
   where
     pSpotLens = spotToLens pSpot
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
@@ -81,6 +91,27 @@ attack board pSpot cSpot
       board ^. (pOtherSpotLens . #inPlace)
     attacked' :: [(CardSpot, Creature Core)] =
       Map.toList attacked & filter (\(c, _) -> c `elem` attackedSpots')
+    -- For the moment a card attacks the first card in front of it. If
+    -- later there's a skill Rampage, this will change:
+    attacked'' :: Maybe (CardSpot, Creature Core) = listToMaybe attacked'
+
+attack' :: Creature Core -> (CardSpot, Creature Core) -> AttackEffect
+attack' = undefined
+
+applyAttackEffect :: AttackEffect -> Creature Core -> Maybe (Creature Core)
+applyAttackEffect effect creature@Creature {..} =
+  case effect of
+    Death -> Nothing
+    HitPointsChange i -> Just $ creature {hp = hp + i}
+
+-- The effect of an attack on the defender
+singleAttack :: Creature Core -> Creature Core -> AttackEffect
+singleAttack attacker defender
+  | hps' <= 0 = Death
+  | otherwise = HitPointsChange $ -hit
+  where
+    hit = Card.attack attacker
+    hps' = Card.hp defender - hit
 
 -- | The spot that blocks a spot from attacking, which happens
 -- | if the input spot is in the back line
@@ -107,7 +138,7 @@ otherSpotInColumn BottomRight = TopRight
 -- | Spots that can be attacked from a spot. Spot as argument is
 -- | a player part while spots returned are in the opposing player part.
 -- | The order in the result matters, the first element is the first spot
--- | attacked, then the second element is attacked is the first element
+-- | attacked, then the second element is attacked if the first element
 -- | gets killed, etc.
 attackedSpots :: CardSpot -> [CardSpot]
 attackedSpots cSpot = [otherSpotInColumn cSpot, cSpot]
