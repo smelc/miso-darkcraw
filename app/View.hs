@@ -61,7 +61,11 @@ boardToInPlaceCells ::
 boardToInPlaceCells z Model {board, interaction} =
   -- draw cards on table
   [ div_
-      [style_ $ cardStyle x y]
+      [ cardPositionStyle x y,
+        class_ "card",
+        onMouseEnter' "card" $ InPlaceMouseEnter pSpot cSpot,
+        onMouseLeave' "card" $ InPlaceMouseLeave pSpot cSpot
+      ]
       [cardCreature z (Just creature) False]
     | (pSpot, cSpot, creature) <- cardsInPlace,
       let (x, y) = cardCellsBoardOffset pSpot cSpot
@@ -69,18 +73,12 @@ boardToInPlaceCells z Model {board, interaction} =
     -- draw border around valid dragging targets if card in hand is:
     -- 1/ being hovered or 2/ being dragged
     ++ [ div_
-           [ onDragEnter (DragEnter cSpot),
+           [ cardPositionStyle x y,
+             onDragEnter (DragEnter cSpot),
              onDragLeave (DragLeave cSpot),
              onDrop (AllowDrop True) DragEnd,
              dummyOn "dragover",
-             style_ $
-               cardStyle x y
-                 <> Map.fromList
-                   [ ("box-shadow", "0 0 0 " <> ms borderWidth <> "px " <> rgba r g b),
-                     ("transition", "box-shadow"),
-                     ("transition-duration", "0.15s"),
-                     ("transition-timing-function", "ease-in-out")
-                   ]
+             cardBoxShadowStyle (r, g, b) borderWidth "ease-in-out"
            ]
            []
          | let borderWidth
@@ -101,9 +99,6 @@ boardToInPlaceCells z Model {board, interaction} =
       [c | (pSpot, c, _) <- cardsInPlace, pSpot == playingPlayerSpot]
     emptyPlayingPlayerSpots :: [CardSpot] =
       allCardsSpots \\ playingPlayerCardsSpots
-    rgba :: Int -> Int -> Int -> MisoString
-    rgba r g b =
-      "rgba(" <> ms r <> "," <> ms g <> "," <> ms b <> ",1)"
 
 boardToInHandCells ::
   -- | The z index
@@ -112,7 +107,7 @@ boardToInHandCells ::
   [View Action]
 boardToInHandCells z Model {board, interaction} =
   [ div_
-      [ style_ $ cardStyle x 2,
+      [ cardPositionStyle x 2,
         prop "draggable" True,
         onDragStart (DragStart i),
         onDragEnd DragEnd,
@@ -130,7 +125,7 @@ boardToInHandCells z Model {board, interaction} =
               DragInteraction Dragging {draggedCard} ->
                 (False, draggedCard == i)
               ShowErrorInteraction _ -> (False, False)
-              NoInteraction -> (False, False)
+              _ -> (False, False)
   ]
   where
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board
@@ -142,18 +137,6 @@ boardToInHandCells z Model {board, interaction} =
       | otherwise = xshift + cellsXOffset (i - 2) -- iterate
       where
         xshift = cardCellWidth + cardHCellGap
-
-cardStyle ::
-  -- | The horizontal offset from the enclosing container, in number of cells
-  Int ->
-  -- | The vertical offset from the enclosing container, in number of cells
-  Int ->
-  Map.Map MisoString MisoString
-cardStyle xCellsOffset yCellsOffset =
-  pltwh Absolute xPixels yPixels cardPixelWidth cardPixelHeight
-  where
-    xPixels = xCellsOffset * cellPixelSize
-    yPixels = yCellsOffset * cellPixelSize
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =

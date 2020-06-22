@@ -3,7 +3,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ViewInternal
-  ( dummyOn,
+  ( cardBoxShadowStyle,
+    cardPositionStyle,
+    dummyOn,
     errView,
     noDrag,
     Position (..),
@@ -34,11 +36,9 @@ import Utils (style1_)
 errView :: Model -> Int -> [View Action]
 errView model@Model {interaction} z =
   case interaction of
-    HoverInteraction _ -> []
-    DragInteraction _ -> []
-    NoInteraction -> []
     ShowErrorInteraction msg ->
       [div_ [style_ errViewStyle] $ textView msg : feedbackViews]
+    _ -> []
   where
     (width, height) = (504, 168)
     left = (boardPixelWidth - width) `div` 2
@@ -127,6 +127,35 @@ turnView model@Model {turn} z =
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
 
+cardPositionStyle ::
+  -- | The horizontal offset from the enclosing container, in number of cells
+  Int ->
+  -- | The vertical offset from the enclosing container, in number of cells
+  Int ->
+  Attribute a
+cardPositionStyle xCellsOffset yCellsOffset =
+  style_ $ pltwh Absolute xPixels yPixels cardPixelWidth cardPixelHeight
+  where
+    xPixels = xCellsOffset * cellPixelSize
+    yPixels = yCellsOffset * cellPixelSize
+
+cardBoxShadowStyle ::
+  -- | The (r, g, b) of the border
+  (Int, Int, Int) ->
+  -- | The width of the border
+  Int ->
+  -- | The timing-function of the transition
+  MisoString ->
+  Attribute a
+cardBoxShadowStyle (r, g, b) width timingFunction =
+  style_ $
+    Map.fromList
+      [ ("box-shadow", "0 0 0 " <> ms width <> "px " <> rgba r g b),
+        ("transition", "box-shadow"),
+        ("transition-duration", "0.15s"),
+        ("transition-timing-function", timingFunction)
+      ]
+
 -- | Dummy [onWithOptions] instance.
 -- | See https://github.com/dmjio/miso/issues/478
 dummyOn ::
@@ -139,6 +168,10 @@ dummyOn str =
     str
     emptyDecoder
     (\() -> NoOp)
+
+rgba :: Int -> Int -> Int -> MisoString
+rgba r g b =
+  "rgba(" <> ms r <> "," <> ms g <> "," <> ms b <> ",1)"
 
 -- * Now a lot of boring boilerplate
 

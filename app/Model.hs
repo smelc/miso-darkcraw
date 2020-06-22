@@ -14,8 +14,10 @@ newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
 
 data Interaction
-  = -- | Hovering over a card
+  = -- | Hovering over a card in hand TODO smelc rename to HoverHandInteraction
     HoverInteraction Hovering
+  | -- | Hovering over a card in place
+    HoverInPlaceInteraction PlayerSpot CardSpot
   | -- | Dragging a card
     DragInteraction Dragging
   | NoInteraction

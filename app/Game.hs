@@ -71,7 +71,8 @@ attack board pSpot cSpot =
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
       let effect = singleAttack hitter hittee
-       in undefined
+       in let hittee' = applyAttackEffect effect hittee
+           in undefined
     _ -> board -- no attacker or nothing to attack
   where
     pSpotLens = spotToLens pSpot
@@ -96,9 +97,6 @@ attack board pSpot cSpot =
     -- For the moment a card attacks the first card in front of it. If
     -- later there's a skill Rampage, this will change:
     attacked'' :: Maybe (CardSpot, Creature Core) = listToMaybe attacked'
-
-attack' :: Creature Core -> (CardSpot, Creature Core) -> AttackEffect
-attack' = undefined
 
 applyAttackEffect :: AttackEffect -> Creature Core -> Maybe (Creature Core)
 applyAttackEffect effect creature@Creature {..} =

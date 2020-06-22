@@ -81,6 +81,10 @@ data Action
     InHandMouseEnter HandIndex
   | -- | Ending hovering card in hand
     InHandMouseLeave HandIndex
+  | -- | Starting hovering card in place
+    InPlaceMouseEnter PlayerSpot CardSpot
+  | -- | Ending hovering card in place
+    InPlaceMouseLeave PlayerSpot CardSpot
   | NoOp
   | SayHelloWorld
   deriving (Show, Eq)
@@ -131,10 +135,17 @@ updateI (DragLeave _) (DragInteraction dragging) =
   noPlayAction $ DragInteraction $ dragging {dragTarget = Nothing}
 updateI EndTurn _ =
   (NoInteraction, EndPlayerTurn)
+-- Hovering in hand cards
 updateI (InHandMouseEnter i) NoInteraction =
   noPlayAction $ HoverInteraction $ Hovering i
 updateI (InHandMouseLeave _) _ =
   noPlayAction NoInteraction
+-- Hovering in place cards
+updateI (InPlaceMouseEnter pSpot cSpot) NoInteraction =
+  noPlayAction $ HoverInPlaceInteraction pSpot cSpot
+updateI (InPlaceMouseLeave _ _) _ =
+  noPlayAction NoInteraction
+-- default
 updateI _ i =
   noPlayAction i
 
