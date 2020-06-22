@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -62,6 +63,7 @@ play board (Place (card :: Card Core) cSpot)
 endTurn :: Board -> PlayerSpot -> Board
 endTurn = undefined
 
+-- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack :: Board -> PlayerSpot -> CardSpot -> Board
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attacked'') of
@@ -86,7 +88,7 @@ attack board pSpot cSpot =
         else allyBlockerSpot cSpot
     allyBlocker :: Maybe (Creature Core) =
       allyBlockerSpot' >>= (attackerInPlace Map.!?)
-    attackedSpots' :: [CardSpot] = attackedSpots cSpot
+    attackedSpots' :: [CardSpot] = enemySpots cSpot
     attacked :: Map.Map CardSpot (Creature Core) =
       board ^. (pOtherSpotLens . #inPlace)
     attacked' :: [(CardSpot, Creature Core)] =
@@ -108,7 +110,7 @@ applyAttackEffect effect creature@Creature {..} =
 singleAttack :: Creature Core -> Creature Core -> AttackEffect
 singleAttack attacker defender
   | hps' <= 0 = Death
-  | otherwise = HitPointsChange $ -hit
+  | otherwise = HitPointsChange $ - hit
   where
     hit = Card.attack attacker
     hps' = Card.hp defender - hit
@@ -127,18 +129,28 @@ inTheBack Top = True
 inTheBack TopRight = True
 inTheBack _ = False
 
-otherSpotInColumn :: CardSpot -> CardSpot
-otherSpotInColumn TopLeft = BottomLeft
-otherSpotInColumn Top = Bottom
-otherSpotInColumn TopRight = BottomRight
-otherSpotInColumn BottomLeft = TopLeft
-otherSpotInColumn Bottom = Top
-otherSpotInColumn BottomRight = TopRight
+-- | The other spot in the column in the spot's part
+otherYSpot :: CardSpot -> CardSpot
+otherYSpot TopLeft = BottomLeft
+otherYSpot Top = Bottom
+otherYSpot TopRight = BottomRight
+otherYSpot BottomLeft = TopLeft
+otherYSpot Bottom = Top
+otherYSpot BottomRight = TopRight
 
 -- | Spots that can be attacked from a spot. Spot as argument is
--- | a player part while spots returned are in the opposing player part.
+-- | one player part while spots returned are in the other player part.
 -- | The order in the result matters, the first element is the first spot
--- | attacked, then the second element is attacked if the first element
--- | gets killed, etc.
-attackedSpots :: CardSpot -> [CardSpot]
-attackedSpots cSpot = [otherSpotInColumn cSpot, cSpot]
+-- | attacked, then the second element is attacked if the first spot is empty
+enemySpots :: CardSpot -> [CardSpot]
+enemySpots cSpot =
+  -- map bottomSpotOfTopVisual [cSpot, otherYSpot cSpot]
+  enemyYSpot' cSpot & map bottomSpotOfTopVisual
+  where
+    enemyYSpot' = \case
+      TopLeft -> [TopLeft, BottomLeft]
+      Top -> [Top, Bottom]
+      TopRight -> [TopRight, BottomRight]
+      BottomLeft -> [TopLeft, BottomLeft]
+      Bottom -> [Top, Bottom]
+      BottomRight -> [TopRight, BottomRight]

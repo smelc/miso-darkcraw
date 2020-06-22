@@ -8,6 +8,7 @@
 
 module Board
   ( allCardsSpots,
+    bottomSpotOfTopVisual,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,
     boardToHand,
@@ -52,15 +53,20 @@ type CardsOnTable = Map.Map CardSpot (Creature Core)
 -- | the 180 degrees rotation mentioned in CardSpot
 makeBottomCardsOnTable :: CardsOnTable -> CardsOnTable
 makeBottomCardsOnTable =
-  Map.mapKeys translate
-  where
-    translate = \case
-      TopLeft -> BottomRight
-      Top -> Bottom
-      TopRight -> BottomLeft
-      BottomLeft -> TopRight
-      Bottom -> Top
-      BottomRight -> TopLeft
+  Map.mapKeys bottomSpotOfTopVisual
+
+-- | Returns a bottom position, by taking a position that makes sense visually
+-- | I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]
+-- | bottom position that you SEE; even if positions make sense for the top
+-- | part. This method takes care of translating correctly.
+bottomSpotOfTopVisual :: CardSpot -> CardSpot
+bottomSpotOfTopVisual = \case
+  TopLeft -> BottomRight
+  Top -> Bottom
+  TopRight -> BottomLeft
+  BottomLeft -> TopRight
+  Bottom -> Top
+  BottomRight -> TopLeft
 
 data PlayerPart = PlayerPart
   { -- | Cards on the board
@@ -144,5 +150,6 @@ otherPlayerSpot PlayerTop = PlayerBottom
 
 spotToLens :: PlayerSpot -> Lens' Board PlayerPart
 spotToLens =
-  \case PlayerBottom -> #playerBottom
-        PlayerTop -> #playerTop
+  \case
+    PlayerBottom -> #playerBottom
+    PlayerTop -> #playerTop
