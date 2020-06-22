@@ -8,6 +8,7 @@
 
 module Board
   ( allCardsSpots,
+    allPlayersSpots,
     bottomSpotOfTopVisual,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,

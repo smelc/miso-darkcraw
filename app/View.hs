@@ -12,6 +12,7 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isNothing, mapMaybe, maybeToList)
 import Event
+import Game (enemySpots)
 import Miso
 import Miso.String
 import Model
@@ -70,8 +71,11 @@ boardToInPlaceCells z Model {board, interaction} =
     | (pSpot, cSpot, creature) <- cardsInPlace,
       let (x, y) = cardCellsBoardOffset pSpot cSpot
   ]
-    -- draw border around valid dragging targets if card in hand is:
-    -- 1/ being hovered or 2/ being dragged
+    -- draw border around some cards if:
+    -- 1/ card is hand is being hovered or dragged -> draw borders around
+    --    valid drag targets
+    -- or 2/ card in place is being hovered -> draw borders cards that can
+    --       be hit from this card
     ++ [ div_
            [ cardPositionStyle x y,
              onDragEnter (DragEnter cSpot),
@@ -81,12 +85,18 @@ boardToInPlaceCells z Model {board, interaction} =
              cardBoxShadowStyle (r, g, b) borderWidth "ease-in-out"
            ]
            []
-         | let borderWidth
-                 | DragInteraction {} <- interaction = 3 :: Int
-                 | HoverInteraction {} <- interaction = 3
-                 | otherwise = 0,
-           cSpot <- emptyPlayingPlayerSpots, -- on all empty spots
-           let (x, y) = cardCellsBoardOffset playingPlayerSpot cSpot,
+         | pSpot <- allPlayersSpots,
+           cSpot <- allCardsSpots,
+           let (x, y) = cardCellsBoardOffset pSpot cSpot,
+           let emptyPlayingPlayerSpot = cSpot `elem` emptyPlayingPlayerSpots,
+           let borderWidth :: Int =
+                 case interaction of
+                   DragInteraction _ | emptyPlayingPlayerSpot -> 3
+                   HoverInteraction _ | emptyPlayingPlayerSpot -> 3
+                   HoverInPlaceInteraction pSpot' cSpotHovered
+                     | pSpot /= pSpot' && cSpot `elem` enemySpots cSpotHovered ->
+                       3
+                   _ -> 0,
            let (r, g, b) =
                  case interaction of
                    DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> (255, 255, 0)

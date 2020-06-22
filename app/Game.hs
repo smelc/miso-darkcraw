@@ -6,7 +6,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Game
-  ( PlayAction (..),
+  ( enemySpots,
+    PlayAction (..),
     play,
   )
 where
