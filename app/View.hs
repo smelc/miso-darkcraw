@@ -67,9 +67,10 @@ boardToInPlaceCells z Model {board, interaction} =
         onMouseEnter' "card" $ InPlaceMouseEnter pSpot cSpot,
         onMouseLeave' "card" $ InPlaceMouseLeave pSpot cSpot
       ]
-      [cardCreature z (Just creature) False]
+      [cardCreature z (Just creature) beingHovered]
     | (pSpot, cSpot, creature) <- cardsInPlace,
-      let (x, y) = cardCellsBoardOffset pSpot cSpot
+      let (x, y) = cardCellsBoardOffset pSpot cSpot,
+      let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot
   ]
     -- draw border around some cards if:
     -- 1/ card is hand is being hovered or dragged -> draw borders around
@@ -101,8 +102,8 @@ boardToInPlaceCells z Model {board, interaction} =
                    _ -> 0,
            let (r, g, b) =
                  case interaction of
-                   DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> (255, 255, 0)
-                   _ -> (0, 255, 0)
+                   DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
+                   _ -> green
        ]
   where
     cardsInPlace :: [(PlayerSpot, CardSpot, Creature Core)] =
@@ -111,6 +112,8 @@ boardToInPlaceCells z Model {board, interaction} =
       [c | (pSpot, c, _) <- cardsInPlace, pSpot == playingPlayerSpot]
     emptyPlayingPlayerSpots :: [CardSpot] =
       allCardsSpots \\ playingPlayerCardsSpots
+    yellow = (255, 255, 0)
+    green = (0, 255, 0)
 
 boardToInHandCells ::
   -- | The z index
