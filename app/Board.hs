@@ -111,7 +111,7 @@ boardToHand board player =
 
 boardToInPlaceCreature :: Board -> Lens' Board PlayerPart -> CardSpot -> Maybe (Creature Core)
 boardToInPlaceCreature board player cSpot =
-  board ^. ((player . #inPlace) . at cSpot)
+  board ^. player . #inPlace . at cSpot
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =
