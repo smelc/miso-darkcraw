@@ -15,6 +15,7 @@ where
 import Board
 import Card
 import Control.Lens
+import Data.Bifunctor
 import Data.Generics.Labels
 import Data.List (delete)
 import qualified Data.Map.Strict as Map
@@ -90,7 +91,7 @@ attack board pSpot cSpot =
         else allyBlockerSpot cSpot
     allyBlocker :: Maybe (Creature Core) =
       allyBlockerSpot' >>= (attackerInPlace Map.!?)
-    attackedSpots' :: [CardSpot] = enemySpots cSpot
+    attackedSpots' :: [CardSpot] = enemySpots skills' cSpot
     attacked :: Map.Map CardSpot (Creature Core) =
       board ^. (pOtherSpotLens . #inPlace)
     attacked' :: [(CardSpot, Creature Core)] =
@@ -137,19 +138,27 @@ otherYSpot BottomLeft = TopLeft
 otherYSpot Bottom = Top
 otherYSpot BottomRight = TopRight
 
--- | Spots that can be attacked from a spot. Spot as argument is
--- | one player part while spots returned are in the other player part.
+-- | Spots that can be attacked from a spot
+-- | Spot as argument is in one player part while spots returned
+-- | are in the other player part.
 -- | The order in the result matters, the first element is the first spot
 -- | attacked, then the second element is attacked if the first spot is empty
-enemySpots :: CardSpot -> [CardSpot]
-enemySpots cSpot =
-  -- map bottomSpotOfTopVisual [cSpot, otherYSpot cSpot]
-  enemyYSpot' cSpot & map bottomSpotOfTopVisual
+enemySpots :: [Skill] -> CardSpot -> [CardSpot]
+enemySpots skills cSpot =
+  map fst result
   where
     enemyYSpot' = \case
-      TopLeft -> [TopLeft, BottomLeft]
-      Top -> [Top, Bottom]
-      TopRight -> [TopRight, BottomRight]
-      BottomLeft -> [TopLeft, BottomLeft]
-      Bottom -> [Top, Bottom]
-      BottomRight -> [TopRight, BottomRight]
+      TopLeft -> zip [TopLeft, BottomLeft] [1 ..]
+      Top -> zip [Top, Bottom] [1 ..]
+      TopRight -> zip [TopRight, BottomRight] [1 ..]
+      BottomLeft -> zip [TopLeft, BottomLeft] [0 ..]
+      Bottom -> zip [Top, Bottom] [0 ..]
+      BottomRight -> zip [TopRight, BottomRight] [0 ..]
+    all :: [(CardSpot, Int)] = enemyYSpot' cSpot & map (Data.Bifunctor.first bottomSpotOfTopVisual)
+    result
+      | Ranged `elem` skills = all -- ranged attacker can attack anywhere in its column
+      | HitFromBack `elem` skills && inTheBack cSpot = take 1 all
+      | otherwise =
+        if null all || ((Prelude.head all & snd) > 0)
+          then []
+          else take 1 all

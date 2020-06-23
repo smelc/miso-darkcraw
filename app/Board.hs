@@ -12,6 +12,7 @@ module Board
     bottomSpotOfTopVisual,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,
+    boardToInPlaceCreature,
     boardToHand,
     Board (..),
     CardSpot (..),
@@ -107,6 +108,10 @@ boardToInHandCreaturesToDraw board =
 boardToHand :: Board -> Lens' Board PlayerPart -> [Card Core]
 boardToHand board player =
   board ^. player . #inHand
+
+boardToInPlaceCreature :: Board -> Lens' Board PlayerPart -> CardSpot -> Maybe (Creature Core)
+boardToInPlaceCreature board player cSpot =
+  board ^. ((player . #inPlace) . at cSpot)
 
 exampleBoard :: [Card UI] -> Board
 exampleBoard cards =

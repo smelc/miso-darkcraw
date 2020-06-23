@@ -96,9 +96,15 @@ boardToInPlaceCells z Model {board, interaction} =
                  case interaction of
                    DragInteraction _ | emptyPlayingPlayerSpot -> 3
                    HoverInteraction _ | emptyPlayingPlayerSpot -> 3
-                   HoverInPlaceInteraction pSpot' cSpotHovered
-                     | pSpot /= pSpot' && cSpot `elem` enemySpots cSpotHovered ->
-                       3
+                   HoverInPlaceInteraction pSpot' cSpotHovered ->
+                     let attacker = boardToInPlaceCreature board (spotToLens pSpot') cSpotHovered
+                      in let skills' =
+                               case attacker of
+                                 Nothing -> [] -- case should not happen but we handle it
+                                 Just attacker -> fromMaybe [] $ skills attacker
+                          in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
+                               then 3
+                               else 0
                    _ -> 0,
            let (r, g, b) =
                  case interaction of
