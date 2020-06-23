@@ -39,7 +39,7 @@ data AttackEffect
     HitPointsChange Int
 
 play :: Board -> PlayAction -> Either Text.Text Board
-play board EndPlayerTurn = Right $ endTurn board playingPlayerSpot
+play board EndPlayerTurn = Right $ endTurn board playingPlayerSpot & fst
 play board (Place (card :: Card Core) cSpot)
   | length hand == length hand' -- number of cards in hand did not decrease,
   -- this means the card wasn't in the hand to begin with
@@ -62,21 +62,33 @@ play board (Place (card :: Card Core) cSpot)
     onTable' = onTable & (at cSpot ?~ cardToCreature card)
     playerPart' = PlayerPart {inPlace = onTable', inHand = hand'}
 
-endTurn :: Board -> PlayerSpot -> Board
-endTurn = undefined
+endTurn ::
+  -- | The input board
+  Board ->
+  -- | The player whose turn is ending
+  PlayerSpot ->
+  (Board, AttackEffect)
+endTurn board pSpot =
+  Prelude.foldr (\cSpot (b, ae) -> Game.attack b pSpot cSpot) initial cSpots
+  where
+    initial = (board, emptyAttackEffect)
+    cSpots = allCardsSpots
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
-attack :: Board -> PlayerSpot -> CardSpot -> Board
+attack :: Board -> PlayerSpot -> CardSpot -> (Board, AttackEffect)
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attacked'') of
-    (_, Just _, _) -> board -- an ally blocks the way
+    (_, Just _, _) -> noChange -- an ally blocks the way
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
       let effect = singleAttack hitter hittee
        in let hittee' = applyAttackEffect effect hittee
-           in board & pOtherSpotLens . #inPlace . at hitSpot .~ hittee'
-    _ -> board -- no attacker or nothing to attack
+           in ( board & pOtherSpotLens . #inPlace . at hitSpot .~ hittee',
+                effect
+              )
+    _ -> noChange -- no attacker or nothing to attack
   where
+    noChange = (board, emptyAttackEffect)
     pSpotLens = spotToLens pSpot
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
     pOtherSpotLens' = spotToLens $ otherPlayerSpot pSpot
@@ -101,11 +113,19 @@ attack board pSpot cSpot =
     -- later there's a skill Rampage, this will change:
     attacked'' :: Maybe (CardSpot, Creature Core) = listToMaybe attacked'
 
+emptyAttackEffect = HitPointsChange 0
+
 applyAttackEffect :: AttackEffect -> Creature Core -> Maybe (Creature Core)
 applyAttackEffect effect creature@Creature {..} =
   case effect of
     Death -> Nothing
     HitPointsChange i -> Just $ creature {hp = hp + i}
+
+reduceAttackEffect :: AttackEffect -> AttackEffect -> AttackEffect
+reduceAttackEffect Death _ = Death
+reduceAttackEffect _ Death = Death
+reduceAttackEffect (HitPointsChange i) (HitPointsChange j) =
+  HitPointsChange (i + j)
 
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> AttackEffect
