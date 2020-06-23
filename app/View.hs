@@ -88,7 +88,9 @@ boardToInPlaceCells z Model {board, interaction} =
          | pSpot <- allPlayersSpots,
            cSpot <- allCardsSpots,
            let (x, y) = cardCellsBoardOffset pSpot cSpot,
-           let emptyPlayingPlayerSpot = cSpot `elem` emptyPlayingPlayerSpots,
+           let emptyPlayingPlayerSpot =
+                 cSpot `elem` emptyPlayingPlayerSpots
+                   && pSpot == playingPlayerSpot,
            let borderWidth :: Int =
                  case interaction of
                    DragInteraction _ | emptyPlayingPlayerSpot -> 3
