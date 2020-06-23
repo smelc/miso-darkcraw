@@ -74,12 +74,12 @@ attack board pSpot cSpot =
       -- attack can proceed
       let effect = singleAttack hitter hittee
        in let hittee' = applyAttackEffect effect hittee
-           in undefined -- How to set hittee' at hitSpot in board with a lens?
-          -- (removing the mapping if hittee' is Nothing)
+           in board & pOtherSpotLens . #inPlace . at hitSpot .~ hittee'
     _ -> board -- no attacker or nothing to attack
   where
     pSpotLens = spotToLens pSpot
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
+    pOtherSpotLens' = spotToLens $ otherPlayerSpot pSpot
     attackerInPlace :: Map.Map CardSpot (Creature Core) =
       board ^. (pSpotLens . #inPlace)
     attacker :: Maybe (Creature Core) = attackerInPlace Map.!? cSpot
@@ -94,7 +94,7 @@ attack board pSpot cSpot =
       allyBlockerSpot' >>= (attackerInPlace Map.!?)
     attackedSpots' :: [CardSpot] = enemySpots skills' cSpot
     attacked :: Map.Map CardSpot (Creature Core) =
-      board ^. (pOtherSpotLens . #inPlace)
+      board ^. pOtherSpotLens' . #inPlace
     attacked' :: [(CardSpot, Creature Core)] =
       Map.toList attacked & filter (\(c, _) -> c `elem` attackedSpots')
     -- For the moment a card attacks the first card in front of it. If
