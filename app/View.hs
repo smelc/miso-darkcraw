@@ -73,10 +73,10 @@ boardToInPlaceCells z Model {board, interaction} =
       let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot
   ]
     -- draw border around some cards if:
-    -- 1/ card is hand is being hovered or dragged -> draw borders around
+    -- 1/ card in hand is being hovered or dragged -> draw borders around
     --    valid drag targets
-    -- or 2/ card in place is being hovered -> draw borders cards that can
-    --       be hit from this card
+    -- or 2/ card in place is being hovered -> draw borders around cards
+    --       be attacked from this card
     ++ [ div_
            [ cardPositionStyle x y,
              onDragEnter (DragEnter cSpot),
