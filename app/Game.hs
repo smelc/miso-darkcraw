@@ -74,7 +74,8 @@ attack board pSpot cSpot =
       -- attack can proceed
       let effect = singleAttack hitter hittee
        in let hittee' = applyAttackEffect effect hittee
-           in undefined
+           in undefined -- How to set hittee' at hitSpot in board with a lens?
+          -- (removing the mapping if hittee' is Nothing)
     _ -> board -- no attacker or nothing to attack
   where
     pSpotLens = spotToLens pSpot
