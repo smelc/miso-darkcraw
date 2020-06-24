@@ -1,10 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Game
   ( enemySpots,
@@ -19,8 +19,9 @@ import Control.Lens
 import Data.Bifunctor
 import Data.Generics.Labels
 import Data.List (delete)
+import Data.Map.Strict (Map, (!?))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, isJust, isNothing, listToMaybe)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
 import qualified Data.Text as Text
 
 -- * This module contains the game mechanic i.e. the function
@@ -58,7 +59,7 @@ play board (Place (card :: Card Core) cSpot)
   where
     hand :: [Card Core] = boardToHand board playingPlayerPart
     hand' :: [Card Core] = delete card hand
-    onTable :: Map.Map CardSpot (Creature Core) =
+    onTable :: Map CardSpot (Creature Core) =
       board ^. playingPlayerPart . #inPlace
     onTable' = onTable & (at cSpot ?~ cardToCreature card)
     playerPart' = PlayerPart {inPlace = onTable', inHand = hand'}
@@ -78,40 +79,33 @@ endTurn board pSpot =
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack :: Board -> PlayerSpot -> CardSpot -> (Board, AttackEffect)
 attack board pSpot cSpot =
-  case (attacker, allyBlocker, attacked'') of
+  case (attacker, allyBlocker, attacked) of
     (_, Just _, _) -> noChange -- an ally blocks the way
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
       let effect = singleAttack hitter hittee
-       in let hittee' = applyAttackEffect effect hittee
-           in ( board & pOtherSpotLens . #inPlace . at hitSpot .~ hittee',
-                effect
-              )
+          newHittee = applyAttackEffect effect hittee
+       in ( board & pOtherSpotLens . #inPlace . at hitSpot .~ newHittee,
+            effect
+          )
     _ -> noChange -- no attacker or nothing to attack
   where
     noChange = (board, emptyAttackEffect)
     pSpotLens = spotToLens pSpot
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
-    attackerInPlace :: Map.Map CardSpot (Creature Core) =
-      board ^. (pSpotLens . #inPlace)
-    attacker :: Maybe (Creature Core) = attackerInPlace Map.!? cSpot
-    skills' :: [Skill] = attacker >>= skills & reduce
-    reduce (Just a) = a
-    reduce Nothing = []
-    allyBlockerSpot' :: Maybe CardSpot =
-      if Ranged `elem` skills' || HitFromBack `elem` skills'
-        then Nothing -- attacker bypasses ally blocker (if any)
-        else allyBlockerSpot cSpot
+    attackerInPlace :: Map CardSpot (Creature Core) =
+      board ^. pSpotLens . #inPlace
+    attacker :: Maybe (Creature Core) = attackerInPlace !? cSpot
+    attackerSkills :: [Skill] = attacker >>= skills & fromMaybe []
     allyBlocker :: Maybe (Creature Core) =
-      allyBlockerSpot' >>= (attackerInPlace Map.!?)
-    attackedSpots' :: [CardSpot] = enemySpots skills' cSpot
-    attacked :: Map.Map CardSpot (Creature Core) =
-      board ^. pOtherSpotLens . #inPlace
-    attacked' :: [(CardSpot, Creature Core)] =
-      Map.toList attacked & filter (\(c, _) -> c `elem` attackedSpots')
+      if any (`elem` attackerSkills) [Ranged, HitFromBack]
+        then Nothing -- attacker bypasses ally blocker (if any)
+        else allyBlockerSpot cSpot >>= (attackerInPlace !?)
+    attackedSpots :: [CardSpot] = enemySpots attackerSkills cSpot
     -- For the moment a card attacks the first card in front of it. If
     -- later there's a skill Rampage, this will change:
-    attacked'' :: Maybe (CardSpot, Creature Core) = listToMaybe attacked'
+    attacked :: Maybe (CardSpot, Creature Core) =
+      board ^@? pOtherSpotLens . #inPlace . ifolded . indices (`elem` attackedSpots)
 
 emptyAttackEffect = HitPointsChange 0
 
