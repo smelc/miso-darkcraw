@@ -19,7 +19,7 @@ import Control.Lens
 import Data.Bifunctor
 import Data.Generics.Labels
 import Data.List (delete)
-import Data.Map.Strict (Map, (!?))
+import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
 import qualified Data.Text as Text
@@ -40,8 +40,10 @@ data AttackEffect
   | -- | Hit points change
     HitPointsChange Int
 
-play :: Board -> PlayAction -> Either Text.Text Board
-play board EndPlayerTurn = Right $ endTurn board playingPlayerSpot & fst
+type PlayResult = (Board, Map.Map CardSpot AttackEffect)
+
+play :: Board -> PlayAction -> Either Text.Text PlayResult
+play board EndPlayerTurn = Right $ endTurn board playingPlayerSpot
 play board (Place (card :: Card Core) cSpot)
   | length hand == length hand' -- number of cards in hand did not decrease,
   -- this means the card wasn't in the hand to begin with
@@ -55,7 +57,7 @@ play board (Place (card :: Card Core) cSpot)
     Left
       $ Text.pack
       $ "Cannot place card on non-empty spot: " <> show cSpot
-  | otherwise = Right $ board {playerBottom = playerPart'}
+  | otherwise = Right (board {playerBottom = playerPart'}, Map.empty)
   where
     hand :: [Card Core] = boardToHand board playingPlayerPart
     hand' :: [Card Core] = delete card hand
@@ -69,15 +71,20 @@ endTurn ::
   Board ->
   -- | The player whose turn is ending
   PlayerSpot ->
-  (Board, AttackEffect)
+  PlayResult
 endTurn board pSpot =
-  Prelude.foldr (\cSpot (b, ae) -> Game.attack b pSpot cSpot) initial cSpots
+  Prelude.foldr f initial cSpots
   where
-    initial = (board, emptyAttackEffect)
+    initial = (board, Map.empty)
     cSpots = allCardsSpots
+    f :: CardSpot -> PlayResult -> PlayResult
+    f cSpot (board', effects) = (board'', effectsUnion effects effects')
+      where
+        (board'', effects') = Game.attack board' pSpot cSpot
+        effectsUnion = Map.unionWith reduceAttackEffect
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
-attack :: Board -> PlayerSpot -> CardSpot -> (Board, AttackEffect)
+attack :: Board -> PlayerSpot -> CardSpot -> PlayResult
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attacked) of
     (_, Just _, _) -> noChange -- an ally blocks the way
@@ -86,11 +93,11 @@ attack board pSpot cSpot =
       let effect = singleAttack hitter hittee
           newHittee = applyAttackEffect effect hittee
        in ( board & pOtherSpotLens . #inPlace . at hitSpot .~ newHittee,
-            effect
+            Map.singleton hitSpot effect
           )
     _ -> noChange -- no attacker or nothing to attack
   where
-    noChange = (board, emptyAttackEffect)
+    noChange = (board, Map.empty)
     pSpotLens = spotToLens pSpot
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
     attackerInPlace :: Map CardSpot (Creature Core) =
@@ -106,8 +113,6 @@ attack board pSpot cSpot =
     -- later there's a skill Rampage, this will change:
     attacked :: Maybe (CardSpot, Creature Core) =
       board ^@? pOtherSpotLens . #inPlace . ifolded . indices (`elem` attackedSpots)
-
-emptyAttackEffect = HitPointsChange 0
 
 applyAttackEffect :: AttackEffect -> Creature Core -> Maybe (Creature Core)
 applyAttackEffect effect creature@Creature {..} =

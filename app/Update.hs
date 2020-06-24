@@ -167,8 +167,8 @@ play m@Model {board} playAction =
   trace ("playing " ++ show playAction) $
     case playAction of
       EndPlayerTurn -> do
-        board' <- Game.play board Game.EndPlayerTurn
-        return $ m {board = board'}
+        playResult <- Game.play board Game.EndPlayerTurn
+        return $ m {board = fst playResult}
       Place (HandIndex i) cSpot -> do
         -- FIXME smelc can we use boardHand instead ? Yes if the call to
         -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of
@@ -177,8 +177,8 @@ play m@Model {board} playAction =
         played :: Creature Core <- lookupInHand uiHand i
         let gameAction :: Game.PlayAction =
               Game.Place (CreatureCard played) cSpot
-        board' <- Game.play board gameAction
-        return m {board = board'}
+        playResult <- Game.play board gameAction
+        return m {board = fst playResult}
         where
           uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
           boardHand :: [Card Core] = boardToHand board playingPlayerPart
