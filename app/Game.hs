@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -91,7 +92,6 @@ attack board pSpot cSpot =
     noChange = (board, emptyAttackEffect)
     pSpotLens = spotToLens pSpot
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
-    pOtherSpotLens' = spotToLens $ otherPlayerSpot pSpot
     attackerInPlace :: Map.Map CardSpot (Creature Core) =
       board ^. (pSpotLens . #inPlace)
     attacker :: Maybe (Creature Core) = attackerInPlace Map.!? cSpot
@@ -106,7 +106,7 @@ attack board pSpot cSpot =
       allyBlockerSpot' >>= (attackerInPlace Map.!?)
     attackedSpots' :: [CardSpot] = enemySpots skills' cSpot
     attacked :: Map.Map CardSpot (Creature Core) =
-      board ^. pOtherSpotLens' . #inPlace
+      board ^. pOtherSpotLens . #inPlace
     attacked' :: [(CardSpot, Creature Core)] =
       Map.toList attacked & filter (\(c, _) -> c `elem` attackedSpots')
     -- For the moment a card attacks the first card in front of it. If
