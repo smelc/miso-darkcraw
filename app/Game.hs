@@ -1,11 +1,12 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Game
   ( attackOrder, -- Exported only for tests
@@ -18,12 +19,16 @@ where
 import Board
 import Card
 import Control.Lens
+import Control.Monad.Except
+import Control.Monad.Writer
 import Data.Bifunctor
+import Data.Foldable
 import Data.Generics.Labels
 import Data.List (delete)
 import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
+import Data.Text (Text)
 import qualified Data.Text as Text
 
 -- * This module contains the game mechanic i.e. the function
@@ -42,65 +47,86 @@ data AttackEffect
   | -- | Hit points change
     HitPointsChange Int
 
--- TODO put Board UI as second member which will map CardSpot to AttackEffect
--- instead of mapping them to Creature (as Board Core does)
-type PlayResult = (Board Core, Map.Map CardSpot AttackEffect)
+instance Semigroup AttackEffect where
+  Death <> _ = Death
+  _ <> Death = Death
+  HitPointsChange i <> HitPointsChange j = HitPointsChange (i + j)
 
-play :: Board Core -> PlayAction -> Either Text.Text PlayResult
-play board EndPlayerTurn = Right $ endTurn board playingPlayerSpot
-play board (Place (card :: Card Core) cSpot)
+newtype AttackEffects = AttackEffects (Map CardSpot AttackEffect)
+
+instance Semigroup AttackEffects where
+  AttackEffects m1 <> AttackEffects m2 = AttackEffects (Map.unionWith (<>) m1 m2)
+
+instance Monoid AttackEffects where
+  mempty = AttackEffects mempty
+
+reportEffect :: MonadWriter AttackEffects m => CardSpot -> AttackEffect -> m ()
+reportEffect cSpot effect = tell $ AttackEffects (Map.singleton cSpot effect)
+
+play :: Board Core -> PlayAction -> Either Text (Board Core, AttackEffects)
+play board action =
+  playM board action
+    & runWriterT
+    & runExcept
+
+playM ::
+  MonadError Text m =>
+  MonadWriter AttackEffects m =>
+  Board Core ->
+  PlayAction ->
+  m (Board Core)
+playM board EndPlayerTurn = endTurn board playingPlayerSpot
+playM board (Place (card :: Card Core) cSpot)
   | length hand == length hand' -- number of cards in hand did not decrease,
   -- this means the card wasn't in the hand to begin with
     =
-    Left
-      $ Text.pack
-      $ "Trying to place card not in hand: " <> show card
+    throwError $
+      "Trying to place card not in hand: " <> Text.pack (show card)
   | Map.size onTable == Map.size onTable' -- number of cards on table
   -- did not grow, this means the spot wasn't empty
     =
-    Left
-      $ Text.pack
-      $ "Cannot place card on non-empty spot: " <> show cSpot
-  | otherwise = Right (board {playerBottom = playerPart'}, Map.empty)
+    throwError $
+      "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
+  | otherwise = return $ board {playerBottom = playerPart'}
   where
     hand :: [Card Core] = boardToHand board playingPlayerPart
     hand' :: [Card Core] = delete card hand
     onTable :: Map CardSpot (Creature Core) =
       board ^. playingPlayerPart . #inPlace
-    onTable' = onTable & (at cSpot ?~ cardToCreature card)
+    onTable' = onTable & at cSpot ?~ cardToCreature card
     playerPart' = PlayerPart {inPlace = onTable', inHand = hand'}
 
 endTurn ::
+  MonadWriter AttackEffects m =>
   -- | The input board
   Board Core ->
   -- | The player whose turn is ending
   PlayerSpot ->
-  PlayResult
+  m (Board Core)
 endTurn board pSpot =
-  Prelude.foldr f initial attackOrder
+  foldrM applyCard board attackOrder
   where
-    initial = (board, Map.empty)
-    f :: CardSpot -> PlayResult -> PlayResult
-    f cSpot (board', effects) = (board'', effectsUnion effects effects')
-      where
-        (board'', effects') = Game.attack board' pSpot cSpot
-        effectsUnion = Map.unionWith reduceAttackEffect
+    applyCard cSpot board = Game.attack board pSpot cSpot
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
-attack :: Board Core -> PlayerSpot -> CardSpot -> PlayResult
+attack ::
+  MonadWriter AttackEffects m =>
+  Board Core ->
+  PlayerSpot ->
+  CardSpot ->
+  m (Board Core)
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attacked) of
-    (_, Just _, _) -> noChange -- an ally blocks the way
+    (_, Just _, _) -> return board -- an ally blocks the way
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
       let effect = singleAttack hitter hittee
           newHittee = applyAttackEffect effect hittee
-       in ( board & pOtherSpotLens . #inPlace . at hitSpot .~ newHittee,
-            Map.singleton hitSpot effect
-          )
-    _ -> noChange -- no attacker or nothing to attack
+       in do
+            reportEffect hitSpot effect
+            return (board & pOtherSpotLens . #inPlace . at hitSpot .~ newHittee)
+    _ -> return board -- no attacker or nothing to attack
   where
-    noChange = (board, Map.empty)
     pSpotLens = spotToLens pSpot
     pOtherSpotLens :: Lens' (Board Core) (PlayerPart Core)
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
@@ -123,12 +149,6 @@ applyAttackEffect effect creature@Creature {..} =
   case effect of
     Death -> Nothing
     HitPointsChange i -> Just $ creature {hp = hp + i}
-
-reduceAttackEffect :: AttackEffect -> AttackEffect -> AttackEffect
-reduceAttackEffect Death _ = Death
-reduceAttackEffect _ Death = Death
-reduceAttackEffect (HitPointsChange i) (HitPointsChange j) =
-  HitPointsChange (i + j)
 
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> AttackEffect
