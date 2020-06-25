@@ -35,7 +35,7 @@ import GHC.Generics (Generic)
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
--- | 180 degrees clockwise
+-- | 180 degrees clockwise; or use these values and map [bottomSpotOfTopVisual].
 data CardSpot
   = TopLeft
   | Top

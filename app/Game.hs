@@ -7,7 +7,8 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Game
-  ( enemySpots,
+  ( attackOrder, -- Exported only for tests
+    enemySpots,
     PlayAction (..),
     play,
   )
@@ -73,10 +74,9 @@ endTurn ::
   PlayerSpot ->
   PlayResult
 endTurn board pSpot =
-  Prelude.foldr f initial cSpots
+  Prelude.foldr f initial attackOrder
   where
     initial = (board, Map.empty)
-    cSpots = allCardsSpots
     f :: CardSpot -> PlayResult -> PlayResult
     f cSpot (board', effects) = (board'', effectsUnion effects effects')
       where
@@ -182,3 +182,7 @@ enemySpots skills cSpot =
         if null all || ((Prelude.head all & snd) > 0)
           then []
           else take 1 all
+
+-- | The order in which cards attack
+attackOrder :: [CardSpot]
+attackOrder = [BottomRight, Bottom, BottomLeft, TopRight, Top, TopLeft]
