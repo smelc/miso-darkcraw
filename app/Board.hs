@@ -1,10 +1,15 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Board
   ( allCardsSpots,
@@ -29,6 +34,7 @@ where
 import Card
 import Control.Lens
 import Data.Generics.Labels
+import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics (Generic)
@@ -70,13 +76,24 @@ bottomSpotOfTopVisual = \case
   Bottom -> Top
   BottomRight -> TopLeft
 
-data PlayerPart = PlayerPart
+type family InPlaceType (p :: Phase) where
+  InPlaceType Core = CardsOnTable -- We could forward p here
+  InPlaceType UI = () -- for the moment
+
+type Forall (c :: Type -> Constraint) (p :: Phase) =
+  ( c (InPlaceType p)
+  )
+
+data PlayerPart (p :: Phase) = PlayerPart
   { -- | Cards on the board
-    inPlace :: CardsOnTable,
+    inPlace :: InPlaceType p,
     -- | Cards in hand
     inHand :: [Card Core]
   }
-  deriving (Eq, Generic)
+
+deriving instance Board.Forall Eq p => Eq (PlayerPart p)
+
+deriving instance Board.Forall Generic p => Generic (PlayerPart p)
 
 data PlayerSpot = PlayerBottom | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)
@@ -84,36 +101,43 @@ data PlayerSpot = PlayerBottom | PlayerTop
 allPlayersSpots :: [PlayerSpot]
 allPlayersSpots = [PlayerBottom ..]
 
-data Board = Board
-  { playerTop :: PlayerPart,
-    playerBottom :: PlayerPart
+data Board (p :: Phase) = Board
+  { playerTop :: PlayerPart p,
+    playerBottom :: PlayerPart p
   }
-  deriving (Eq, Generic)
 
-boardToList :: Board -> [(PlayerSpot, PlayerPart)]
+deriving instance Board.Forall Eq p => Eq (Board p)
+
+deriving instance Board.Forall Generic p => Generic (Board p)
+
+boardToList :: Board p -> [(PlayerSpot, PlayerPart p)]
 boardToList Board {playerTop, playerBottom} =
   [(PlayerTop, playerTop), (PlayerBottom, playerBottom)]
 
-boardToCardsInPlace :: Board -> [(PlayerSpot, CardSpot, Creature Core)]
+boardToCardsInPlace :: Board Core -> [(PlayerSpot, CardSpot, Creature Core)]
 boardToCardsInPlace board =
   [ (pspot, cspot, creature)
     | (pspot, PlayerPart {inPlace}) <- boardToList board,
       (cspot, creature) <- Map.toList inPlace
   ]
 
-boardToInHandCreaturesToDraw :: Board -> [Creature Core]
+boardToInHandCreaturesToDraw :: Board Core -> [Creature Core]
 boardToInHandCreaturesToDraw board =
   board ^.. playingPlayerPart . #inHand . folded . #_CreatureCard
 
-boardToHand :: Board -> Lens' Board PlayerPart -> [Card Core]
+boardToHand :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Card Core]
 boardToHand board player =
   board ^. player . #inHand
 
-boardToInPlaceCreature :: Board -> Lens' Board PlayerPart -> CardSpot -> Maybe (Creature Core)
+boardToInPlaceCreature ::
+  Board p ->
+  Lens' (Board p) (PlayerPart p) ->
+  CardSpot ->
+  Maybe (Creature Core)
 boardToInPlaceCreature board player cSpot =
   board ^. player . #inPlace . at cSpot
 
-exampleBoard :: [Card UI] -> Board
+exampleBoard :: [Card UI] -> Board Core
 exampleBoard cards =
   Board topPlayer botPlayer
   where
@@ -146,7 +170,7 @@ exampleBoard cards =
 playingPlayerSpot :: PlayerSpot
 playingPlayerSpot = PlayerBottom
 
-playingPlayerPart :: Lens' Board PlayerPart
+playingPlayerPart :: Lens' (Board Core) (PlayerPart Core)
 playingPlayerPart = #playerBottom
 
 -- | The other spot
@@ -154,7 +178,7 @@ otherPlayerSpot :: PlayerSpot -> PlayerSpot
 otherPlayerSpot PlayerBottom = PlayerTop
 otherPlayerSpot PlayerTop = PlayerBottom
 
-spotToLens :: PlayerSpot -> Lens' Board PlayerPart
+spotToLens :: PlayerSpot -> Lens' (Board Core) (PlayerPart Core)
 spotToLens =
   \case
     PlayerBottom -> #playerBottom

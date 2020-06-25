@@ -1,10 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Game
   ( attackOrder, -- Exported only for tests
@@ -41,9 +42,11 @@ data AttackEffect
   | -- | Hit points change
     HitPointsChange Int
 
-type PlayResult = (Board, Map.Map CardSpot AttackEffect)
+-- TODO put Board UI as second member which will map CardSpot to AttackEffect
+-- instead of mapping them to Creature (as Board Core does)
+type PlayResult = (Board Core, Map.Map CardSpot AttackEffect)
 
-play :: Board -> PlayAction -> Either Text.Text PlayResult
+play :: Board Core -> PlayAction -> Either Text.Text PlayResult
 play board EndPlayerTurn = Right $ endTurn board playingPlayerSpot
 play board (Place (card :: Card Core) cSpot)
   | length hand == length hand' -- number of cards in hand did not decrease,
@@ -69,7 +72,7 @@ play board (Place (card :: Card Core) cSpot)
 
 endTurn ::
   -- | The input board
-  Board ->
+  Board Core ->
   -- | The player whose turn is ending
   PlayerSpot ->
   PlayResult
@@ -84,7 +87,7 @@ endTurn board pSpot =
         effectsUnion = Map.unionWith reduceAttackEffect
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
-attack :: Board -> PlayerSpot -> CardSpot -> PlayResult
+attack :: Board Core -> PlayerSpot -> CardSpot -> PlayResult
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attacked) of
     (_, Just _, _) -> noChange -- an ally blocks the way

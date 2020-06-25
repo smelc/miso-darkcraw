@@ -47,11 +47,15 @@ instance ToExpr (Card UI)
 
 instance ToExpr PlayerSpot
 
-instance ToExpr PlayerPart
+instance ToExpr (PlayerPart Core)
+
+instance ToExpr (PlayerPart UI)
 
 instance ToExpr CardSpot
 
-instance ToExpr Board
+instance ToExpr (Board Core)
+
+instance ToExpr (Board UI)
 
 instance ToExpr HandIndex
 

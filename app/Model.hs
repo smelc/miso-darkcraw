@@ -43,7 +43,7 @@ data HandFiddle
 
 -- | Type synonym for an application model
 data Model = Model
-  { board :: Board,
+  { board :: Board Core,
     interaction :: Interaction,
     turn :: Turn,
     uiCards :: [Card UI]
