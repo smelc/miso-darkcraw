@@ -62,9 +62,8 @@ errView model@Model {interaction} z =
     feedbackViews :: [View Action] =
       [ br_ [],
         text "Please copy/paste this error in a comment of ",
-        a_ [href_ itch] [text itch]
+        a_ [href_ itchURL] [text itchURL]
       ]
-    itch = "https://hgames.itch.io/darkcraw"
 
 turnView :: Model -> Int -> View Action
 turnView model@Model {turn} z =

@@ -73,6 +73,10 @@ cardHCellGap = 1
 cardVCellGap :: Int
 cardVCellGap = 1
 
+-- | The URL of the game on itch.io
+itchURL :: MisoString
+itchURL = "https://hgames.itch.io/darkcraw"
+
 -- | The vertical spacing between the two teams, in cells
 teamsVCellGap :: Int
 teamsVCellGap = 2
