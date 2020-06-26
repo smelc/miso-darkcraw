@@ -14,8 +14,8 @@
 module Board
   ( allCardsSpots,
     allPlayersSpots,
-    AttackEffect(..),
-    AttackEffects(..),
+    AttackEffect (..),
+    AttackEffects (..),
     bottomSpotOfTopVisual,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,
@@ -86,7 +86,7 @@ data AttackEffect
     Death
   | -- | Hit points change
     HitPointsChange Int
-  deriving Generic
+  deriving (Generic)
 
 instance Semigroup AttackEffect where
   Death <> _ = Death
@@ -94,7 +94,7 @@ instance Semigroup AttackEffect where
   HitPointsChange i <> HitPointsChange j = HitPointsChange (i + j)
 
 newtype AttackEffects = AttackEffects (Map.Map CardSpot AttackEffect)
-  deriving Generic
+  deriving (Generic)
 
 instance Semigroup AttackEffects where
   AttackEffects m1 <> AttackEffects m2 = AttackEffects (Map.unionWith (<>) m1 m2)
@@ -106,15 +106,20 @@ type family InPlaceType (p :: Phase) where
   InPlaceType Core = CardsOnTable
   InPlaceType UI = AttackEffects
 
+type family InHandType (p :: Phase) where
+  InHandType Core = [Card Core]
+  InHandType UI = ()
+
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (InPlaceType p)
+  ( c (InPlaceType p),
+    c (InHandType p)
   )
 
 data PlayerPart (p :: Phase) = PlayerPart
   { -- | Cards on the board
     inPlace :: InPlaceType p,
     -- | Cards in hand
-    inHand :: [Card Core]
+    inHand :: InHandType p
   }
   deriving (Generic)
 
