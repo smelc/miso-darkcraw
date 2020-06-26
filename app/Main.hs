@@ -9,21 +9,7 @@ module Main where
 
 import Board (exampleBoard)
 import Card
-import Data.ByteString.Lazy
-import qualified Data.Map.Strict as Map
-import qualified Data.Text as Text
-import Json
-import JsonData
-import Model
-import System.Exit
-import System.IO (hPutStrLn, stderr)
-import Turn (initialTurn)
-import Update
-import View
-
 -- Miso framework import
-import           Miso
-import           Miso.String
 
 -- JSAddle import
 #ifndef __GHCJS__
@@ -33,7 +19,20 @@ import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
 import           Network.WebSockets
 #endif
-import           Control.Monad.IO.Class
+import Control.Monad.IO.Class
+import Data.ByteString.Lazy
+import qualified Data.Map.Strict as Map
+import qualified Data.Text as Text
+import Json
+import JsonData
+import Miso
+import Miso.String
+import Model
+import System.Exit
+import System.IO (hPutStrLn, stderr)
+import Turn (initialTurn)
+import Update
+import View
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
@@ -53,13 +52,12 @@ loadJson :: IO [Card UI]
 loadJson =
   case parseJson bs of
     Left errMsg -> do
-      hPutStrLn  stderr errMsg
+      hPutStrLn stderr errMsg
       exitWith $ ExitFailure 1
     Right cards -> return cards
   where
     bs :: Data.ByteString.Lazy.ByteString
     bs = Data.ByteString.Lazy.fromStrict jsonData
-
 
 -- | Entry point for a miso application
 main :: IO ()
@@ -75,8 +73,8 @@ main = do
 #else
     update = updateModel
 #endif
-    view   = viewModel            -- view function
+    view = viewModel -- view function
     events = Map.fromList [("mouseleave", True), ("mouseenter", True)] <> defaultEvents -- delegated events
-    subs   = []                   -- empty subscription list
-    mountPoint = Nothing          -- mount point for application (Nothing defaults to 'body')
-    interaction = NoInteraction   -- initial interaction
+    subs = [] -- empty subscription list
+    mountPoint = Nothing -- mount point for application (Nothing defaults to 'body')
+    interaction = NoInteraction -- initial interaction

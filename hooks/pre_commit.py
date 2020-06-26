@@ -112,8 +112,6 @@ def main() -> int:
     return_code = 0
 
     relevant_hs_files = _git_diff(staged, "hs")
-    # Remove Main.hs that uses CPP
-    relevant_hs_files = [x for x in relevant_hs_files if "Main.hs" not in x]
     if relevant_hs_files:
         ormolu_rc = _call_tool(relevant_hs_files, staged,
                                ["ormolu", "-m", "inplace"])
