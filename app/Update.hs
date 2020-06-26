@@ -47,6 +47,10 @@ instance ToExpr (Card UI)
 
 instance ToExpr PlayerSpot
 
+instance ToExpr AttackEffect
+
+instance ToExpr AttackEffects
+
 instance ToExpr (PlayerPart Core)
 
 instance ToExpr (PlayerPart UI)

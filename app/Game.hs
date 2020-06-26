@@ -41,25 +41,6 @@ data PlayAction
   | -- | Player puts a card from his hand on its part of the board
     Place (Card Core) CardSpot
 
-data AttackEffect
-  = -- | Death (hits points change that makes hit points go 0 or negative)
-    Death
-  | -- | Hit points change
-    HitPointsChange Int
-
-instance Semigroup AttackEffect where
-  Death <> _ = Death
-  _ <> Death = Death
-  HitPointsChange i <> HitPointsChange j = HitPointsChange (i + j)
-
-newtype AttackEffects = AttackEffects (Map CardSpot AttackEffect)
-
-instance Semigroup AttackEffects where
-  AttackEffects m1 <> AttackEffects m2 = AttackEffects (Map.unionWith (<>) m1 m2)
-
-instance Monoid AttackEffects where
-  mempty = AttackEffects mempty
-
 reportEffect :: MonadWriter AttackEffects m => CardSpot -> AttackEffect -> m ()
 reportEffect cSpot effect = tell $ AttackEffects (Map.singleton cSpot effect)
 

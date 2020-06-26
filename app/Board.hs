@@ -14,6 +14,8 @@
 module Board
   ( allCardsSpots,
     allPlayersSpots,
+    AttackEffect(..),
+    AttackEffects(..),
     bottomSpotOfTopVisual,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,
@@ -76,9 +78,33 @@ bottomSpotOfTopVisual = \case
   Bottom -> Top
   BottomRight -> TopLeft
 
+-- It is a bit unfortunate to have these types defined here
+-- as they are UI only. However we need them to define the InPlaceType family
+
+data AttackEffect
+  = -- | Death (hits points change that makes hit points go 0 or negative)
+    Death
+  | -- | Hit points change
+    HitPointsChange Int
+  deriving Generic
+
+instance Semigroup AttackEffect where
+  Death <> _ = Death
+  _ <> Death = Death
+  HitPointsChange i <> HitPointsChange j = HitPointsChange (i + j)
+
+newtype AttackEffects = AttackEffects (Map.Map CardSpot AttackEffect)
+  deriving Generic
+
+instance Semigroup AttackEffects where
+  AttackEffects m1 <> AttackEffects m2 = AttackEffects (Map.unionWith (<>) m1 m2)
+
+instance Monoid AttackEffects where
+  mempty = AttackEffects mempty
+
 type family InPlaceType (p :: Phase) where
-  InPlaceType Core = CardsOnTable -- We could forward p here
-  InPlaceType UI = () -- for the moment
+  InPlaceType Core = CardsOnTable
+  InPlaceType UI = AttackEffects
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (InPlaceType p)
