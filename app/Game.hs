@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
@@ -170,23 +171,19 @@ otherYSpot BottomRight = TopRight
 -- | attacked, then the second element is attacked if the first spot is empty
 enemySpots :: [Skill] -> CardSpot -> [CardSpot]
 enemySpots skills cSpot =
-  map fst result
+  map bottomSpotOfTopVisual $
+    if | Ranged `elem` skills -> spotsInSight
+       | inTheBack cSpot -> if HitFromBack `elem` skills then take 1 spotsInSight else []
+       | otherwise -> take 1 spotsInSight
   where
-    enemyYSpot' = \case
-      TopLeft -> zip [TopLeft, BottomLeft] [1 ..]
-      Top -> zip [Top, Bottom] [1 ..]
-      TopRight -> zip [TopRight, BottomRight] [1 ..]
-      BottomLeft -> zip [TopLeft, BottomLeft] [0 ..]
-      Bottom -> zip [Top, Bottom] [0 ..]
-      BottomRight -> zip [TopRight, BottomRight] [0 ..]
-    all :: [(CardSpot, Int)] = enemyYSpot' cSpot & map (Data.Bifunctor.first bottomSpotOfTopVisual)
-    result
-      | Ranged `elem` skills = all -- ranged attacker can attack anywhere in its column
-      | HitFromBack `elem` skills && inTheBack cSpot = take 1 all
-      | otherwise =
-        if null all || ((Prelude.head all & snd) > 0)
-          then []
-          else take 1 all
+    spotsInSight =
+      case cSpot of
+        TopLeft -> [TopLeft, BottomLeft]
+        Top -> [Top, Bottom]
+        TopRight -> [TopRight, BottomRight]
+        BottomLeft -> [TopLeft, BottomLeft]
+        Bottom -> [Top, Bottom]
+        BottomRight -> [TopRight, BottomRight]
 
 -- | The order in which cards attack
 attackOrder :: [CardSpot]
