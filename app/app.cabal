@@ -57,4 +57,5 @@ Test-Suite test-darkcraw
       containers,
       generic-lens,
       lens,
+      mtl,
       text
