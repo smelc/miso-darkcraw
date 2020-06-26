@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -27,9 +28,10 @@ import Data.Generics.Labels
 import Data.List (delete)
 import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe, catMaybes)
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Debug.Trace
 
 -- * This module contains the game mechanic i.e. the function
 -- that takes a 'Board', a 'PlayAction', and returns an updated 'Board'
@@ -97,7 +99,7 @@ attack ::
   CardSpot ->
   m (Board Core)
 attack board pSpot cSpot =
-  case (attacker, allyBlocker, attacked) of
+  case (attacker, allyBlocker, attackee) of
     (_, Just _, _) -> return board -- an ally blocks the way
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
@@ -111,19 +113,21 @@ attack board pSpot cSpot =
     pSpotLens = spotToLens pSpot
     pOtherSpotLens :: Lens' (Board Core) (PlayerPart Core)
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
-    attackerInPlace :: Map CardSpot (Creature Core) =
+    attackersInPlace :: Map CardSpot (Creature Core) =
       board ^. pSpotLens . #inPlace
-    attacker :: Maybe (Creature Core) = attackerInPlace !? cSpot
+    attackeesInPlace :: Map CardSpot (Creature Core) =
+      board ^. pOtherSpotLens . #inPlace
+    attacker :: Maybe (Creature Core) = attackersInPlace !? cSpot
     attackerSkills :: [Skill] = attacker >>= skills & fromMaybe []
     allyBlocker :: Maybe (Creature Core) =
       if any (`elem` attackerSkills) [Ranged, HitFromBack]
         then Nothing -- attacker bypasses ally blocker (if any)
-        else allyBlockerSpot cSpot >>= (attackerInPlace !?)
+        else allyBlockerSpot cSpot >>= (attackersInPlace !?)
     attackedSpots :: [CardSpot] = enemySpots attackerSkills cSpot
     -- For the moment a card attacks the first card in front of it. If
     -- later there's a skill Rampage, this will change:
-    attacked :: Maybe (CardSpot, Creature Core) =
-      board ^@? pOtherSpotLens . #inPlace . ifolded . indices (`elem` attackedSpots)
+    attackee :: Maybe (CardSpot, Creature Core) =
+      asum [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots]
 
 applyAttackEffect :: AttackEffect -> Creature Core -> Maybe (Creature Core)
 applyAttackEffect effect creature@Creature {..} =
