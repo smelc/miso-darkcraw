@@ -128,14 +128,14 @@ attack board pSpot cSpot =
 applyAttackEffect :: AttackEffect -> Creature Core -> Maybe (Creature Core)
 applyAttackEffect effect creature@Creature {..} =
   case effect of
-    Death -> Nothing
-    HitPointsChange i -> Just $ creature {hp = hp + i}
+    AttackEffect {death = True} -> Nothing
+    AttackEffect {hitPointsChange = i} -> Just $ creature {hp = hp + i}
 
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> AttackEffect
 singleAttack attacker defender
-  | hps' <= 0 = Death
-  | otherwise = HitPointsChange $ - hit
+  | hps' <= 0 = createAttackEffect (Just True) Nothing Nothing
+  | otherwise = createAttackEffect Nothing Nothing (Just $ - hit)
   where
     hit = Card.attack attacker
     hps' = Card.hp defender - hit

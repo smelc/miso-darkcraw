@@ -23,6 +23,7 @@ module Board
     boardToHand,
     Board (..),
     CardSpot (..),
+    createAttackEffect,
     exampleBoard,
     otherPlayerSpot,
     playingPlayerSpot,
@@ -81,17 +82,39 @@ bottomSpotOfTopVisual = \case
 -- It is a bit unfortunate to have these types defined here
 -- as they are UI only. However we need them to define the InPlaceType family
 
-data AttackEffect
-  = -- | Death (hits points change that makes hit points go 0 or negative)
-    Death
-  | -- | Hit points change
-    HitPointsChange Int
+data AttackEffect = AttackEffect
+  { -- | Creature dies
+    death :: Bool,
+    -- | Creature attacked (value used solely for animations)
+    attackBump :: Bool,
+    -- | Hits points changed
+    hitPointsChange :: Int
+  }
   deriving (Generic)
 
+-- | How to build instances of [AttackEffect] values
+createAttackEffect ::
+  -- | The [death] field
+  Maybe Bool ->
+  -- | The [attackBump] field
+  Maybe Bool ->
+  -- | The [hitPointsChange] field
+  Maybe Int ->
+  AttackEffect
+createAttackEffect mDeath mAttackBump mHitPointsChange =
+  AttackEffect
+    (fromMaybe False mDeath)
+    (fromMaybe False mAttackBump)
+    (fromMaybe 0 mHitPointsChange)
+
 instance Semigroup AttackEffect where
-  Death <> _ = Death
-  _ <> Death = Death
-  HitPointsChange i <> HitPointsChange j = HitPointsChange (i + j)
+  AttackEffect {death = d1, attackBump = ab1, hitPointsChange = hp1}
+    <> AttackEffect {death = d2, attackBump = ab2, hitPointsChange = hp2} =
+      AttackEffect
+        { death = d1 || d2,
+          attackBump = ab1 || ab2,
+          hitPointsChange = hp1 + hp2
+        }
 
 newtype AttackEffects = AttackEffects (Map.Map CardSpot AttackEffect)
   deriving (Generic)
