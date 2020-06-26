@@ -90,10 +90,9 @@ data PlayerPart (p :: Phase) = PlayerPart
     -- | Cards in hand
     inHand :: [Card Core]
   }
+  deriving (Generic)
 
 deriving instance Board.Forall Eq p => Eq (PlayerPart p)
-
-deriving instance Board.Forall Generic p => Generic (PlayerPart p)
 
 data PlayerSpot = PlayerBottom | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)
@@ -105,10 +104,9 @@ data Board (p :: Phase) = Board
   { playerTop :: PlayerPart p,
     playerBottom :: PlayerPart p
   }
+  deriving (Generic)
 
 deriving instance Board.Forall Eq p => Eq (Board p)
-
-deriving instance Board.Forall Generic p => Generic (Board p)
 
 boardToList :: Board p -> [(PlayerSpot, PlayerPart p)]
 boardToList Board {playerTop, playerBottom} =
@@ -130,8 +128,8 @@ boardToHand board player =
   board ^. player . #inHand
 
 boardToInPlaceCreature ::
-  Board p ->
-  Lens' (Board p) (PlayerPart p) ->
+  Board Core ->
+  Lens' (Board Core) (PlayerPart Core) ->
   CardSpot ->
   Maybe (Creature Core)
 boardToInPlaceCreature board player cSpot =

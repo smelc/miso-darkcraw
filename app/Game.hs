@@ -102,6 +102,7 @@ attack board pSpot cSpot =
   where
     noChange = (board, Map.empty)
     pSpotLens = spotToLens pSpot
+    pOtherSpotLens :: Lens' (Board Core) (PlayerPart Core)
     pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
     attackerInPlace :: Map CardSpot (Creature Core) =
       board ^. pSpotLens . #inPlace
