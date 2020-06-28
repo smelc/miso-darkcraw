@@ -28,10 +28,9 @@ import Data.Generics.Labels
 import Data.List (delete)
 import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe, catMaybes)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Debug.Trace
 
 -- * This module contains the game mechanic i.e. the function
 -- that takes a 'Board', a 'PlayAction', and returns an updated 'Board'
