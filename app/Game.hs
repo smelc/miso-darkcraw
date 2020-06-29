@@ -1,11 +1,11 @@
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
@@ -193,9 +193,10 @@ otherYSpot BottomRight = TopRight
 enemySpots :: [Skill] -> CardSpot -> [CardSpot]
 enemySpots skills cSpot =
   map bottomSpotOfTopVisual $
-    if | Ranged `elem` skills -> spotsInSight
-       | inTheBack cSpot -> if HitFromBack `elem` skills then take 1 spotsInSight else []
-       | otherwise -> take 1 spotsInSight
+    if
+        | Ranged `elem` skills -> spotsInSight
+        | inTheBack cSpot -> if HitFromBack `elem` skills then take 1 spotsInSight else []
+        | otherwise -> take 1 spotsInSight
   where
     spotsInSight =
       case cSpot of
