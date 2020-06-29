@@ -43,9 +43,13 @@ data HandFiddle
 
 -- | Type synonym for an application model
 data Model = Model
-  { board :: Board Core,
+  { -- | The core part of the model
+    board :: Board Core,
+    -- | What user interaction is going on
     interaction :: Interaction,
+    -- | The current turn
     turn :: Turn,
+    -- | Data obtained at load time, that never changes
     uiCards :: [Card UI]
   }
   deriving (Eq, Generic)
