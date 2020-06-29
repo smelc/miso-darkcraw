@@ -2,6 +2,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -148,6 +149,13 @@ data PlayerPart (p :: Phase) = PlayerPart
 
 deriving instance Board.Forall Eq p => Eq (PlayerPart p)
 
+instance Semigroup (PlayerPart UI) where
+  PlayerPart inPlace1 () <> PlayerPart inPlace2 () =
+    PlayerPart (inPlace1 <> inPlace2) ()
+
+instance Monoid (PlayerPart UI) where
+  mempty = PlayerPart mempty mempty
+
 data PlayerSpot = PlayerBottom | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)
 
@@ -161,6 +169,13 @@ data Board (p :: Phase) = Board
   deriving (Generic)
 
 deriving instance Board.Forall Eq p => Eq (Board p)
+
+instance Semigroup (Board UI) where
+  Board top1 bot1 <> Board top2 bot2 =
+    Board (top1 <> top2) (bot1 <> bot2)
+
+instance Monoid (Board UI) where
+  mempty = Board mempty mempty
 
 boardToList :: Board p -> [(PlayerSpot, PlayerPart p)]
 boardToList Board {playerTop, playerBottom} =

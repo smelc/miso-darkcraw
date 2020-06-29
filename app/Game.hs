@@ -42,10 +42,27 @@ data PlayAction
   | -- | Player puts a card from his hand on its part of the board
     Place (Card Core) CardSpot
 
-reportEffect :: MonadWriter AttackEffects m => CardSpot -> AttackEffect -> m ()
-reportEffect cSpot effect = tell $ AttackEffects (Map.singleton cSpot effect)
+reportEffect ::
+  MonadWriter (Board UI) m =>
+  PlayerSpot ->
+  CardSpot ->
+  AttackEffect ->
+  m ()
+reportEffect pSpot cSpot effect =
+  tell $ Board {playerTop = pTop, playerBottom = pBot}
+  where
+    botInPlace :: AttackEffects =
+      case pSpot of
+        PlayerBottom -> undefined
+        PlayerTop -> undefined
+    topInPlace :: AttackEffects =
+      case pSpot of
+        PlayerBottom -> undefined
+        PlayerTop -> undefined
+    pTop :: PlayerPart UI = PlayerPart topInPlace ()
+    pBot :: PlayerPart UI = PlayerPart botInPlace ()
 
-play :: Board Core -> PlayAction -> Either Text (Board Core, AttackEffects)
+play :: Board Core -> PlayAction -> Either Text (Board Core, Board UI)
 play board action =
   playM board action
     & runWriterT
@@ -53,7 +70,7 @@ play board action =
 
 playM ::
   MonadError Text m =>
-  MonadWriter AttackEffects m =>
+  MonadWriter (Board UI) m =>
   Board Core ->
   PlayAction ->
   m (Board Core)
@@ -79,7 +96,7 @@ playM board (Place (card :: Card Core) cSpot)
     playerPart' = PlayerPart {inPlace = onTable', inHand = hand'}
 
 endTurn ::
-  MonadWriter AttackEffects m =>
+  MonadWriter (Board UI) m =>
   -- | The input board
   Board Core ->
   -- | The player whose turn is ending
@@ -92,7 +109,7 @@ endTurn board pSpot =
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
-  MonadWriter AttackEffects m =>
+  MonadWriter (Board UI) m =>
   Board Core ->
   PlayerSpot ->
   CardSpot ->
@@ -105,7 +122,9 @@ attack board pSpot cSpot =
       let effect = singleAttack hitter hittee
           newHittee = applyAttackEffect effect hittee
        in do
-            reportEffect hitSpot effect
+            reportEffect pSpot cSpot $ -- attacker bumps
+              createAttackEffect Nothing (Just True) Nothing
+            reportEffect (otherPlayerSpot pSpot) hitSpot effect -- hittee
             return (board & pOtherSpotLens . #inPlace . at hitSpot .~ newHittee)
     _ -> return board -- no attacker or nothing to attack
   where
