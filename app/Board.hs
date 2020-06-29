@@ -91,7 +91,7 @@ data AttackEffect = AttackEffect
     -- | Hits points changed
     hitPointsChange :: Int
   }
-  deriving (Generic)
+  deriving (Eq, Generic)
 
 -- | How to build instances of [AttackEffect] values
 createAttackEffect ::
@@ -118,7 +118,7 @@ instance Semigroup AttackEffect where
         }
 
 newtype AttackEffects = AttackEffects (Map.Map CardSpot AttackEffect)
-  deriving (Generic)
+  deriving (Eq, Generic)
 
 instance Semigroup AttackEffects where
   AttackEffects m1 <> AttackEffects m2 = AttackEffects (Map.unionWith (<>) m1 m2)

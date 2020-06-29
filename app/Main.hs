@@ -64,7 +64,7 @@ main :: IO ()
 main = do
   cards :: [Card UI] <- loadJson
   let board = exampleBoard cards
-  let model = Model board interaction initialTurn cards -- initial model
+  let model = Model board interaction initialTurn cards mempty -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load

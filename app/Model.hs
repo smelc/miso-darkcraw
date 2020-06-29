@@ -50,6 +50,8 @@ data Model = Model
     -- | The current turn
     turn :: Turn,
     -- | Data obtained at load time, that never changes
-    uiCards :: [Card UI]
+    uiCards :: [Card UI],
+    -- | Animations to perform next
+    anims :: Board UI
   }
   deriving (Eq, Generic)
