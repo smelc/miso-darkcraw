@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -172,26 +173,27 @@ lookupInHand hand i
 
 play :: Model -> PlayAction -> Either Text Model
 play m@Model {board} playAction =
-  trace ("playing " ++ show playAction) $
-    case playAction of
-      EndPlayerTurn -> do
-        playResult <- Game.play board Game.EndPlayerTurn
+  trace ("playing " ++ show playAction) $ do
+    gamePlayAction <- gamify playAction
+    case gamePlayAction of
+      Nothing -> pure m
+      Just gamePlayAction' -> do
+        playResult <- Game.play board gamePlayAction'
         return $ m {board = fst playResult}
+  where
+    gamify :: PlayAction -> Either Text (Maybe Game.PlayAction) = \case
+      EndPlayerTurn -> return $ Just Game.EndPlayerTurn
       Place (HandIndex i) cSpot -> do
         -- FIXME smelc can we use boardHand instead ? Yes if the call to
         -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of
         -- the hand (which I believe is the case) meaning the UI index
         -- stored in DragStart and then in Place is valid in terms of Board.
-        played :: Creature Core <- lookupInHand uiHand i
-        let gameAction :: Game.PlayAction =
-              Game.Place (CreatureCard played) cSpot
-        playResult <- Game.play board gameAction
-        return m {board = fst playResult}
+        played <- lookupInHand uiHand i
+        return $ Just $ Game.Place (CreatureCard played) cSpot
         where
           uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
           boardHand :: [Card Core] = boardToHand board playingPlayerPart
-      NoPlayAction ->
-        pure m
+      NoPlayAction -> return Nothing
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
