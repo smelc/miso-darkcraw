@@ -181,11 +181,12 @@ boardToList :: Board p -> [(PlayerSpot, PlayerPart p)]
 boardToList Board {playerTop, playerBottom} =
   [(PlayerTop, playerTop), (PlayerBottom, playerBottom)]
 
-boardToCardsInPlace :: Board Core -> [(PlayerSpot, CardSpot, Creature Core)]
+boardToCardsInPlace :: Board Core -> [(PlayerSpot, CardSpot, Maybe (Creature Core))]
 boardToCardsInPlace board =
-  [ (pspot, cspot, creature)
-    | (pspot, PlayerPart {inPlace}) <- boardToList board,
-      (cspot, creature) <- Map.toList inPlace
+  [ (pSpot, cSpot, maybeCreature)
+    | pSpot <- allPlayersSpots,
+      cSpot <- allCardsSpots,
+      let maybeCreature = boardToInPlaceCreature board (spotToLens pSpot) cSpot
   ]
 
 boardToInHandCreaturesToDraw :: Board Core -> [Creature Core]

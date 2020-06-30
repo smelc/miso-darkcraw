@@ -10,7 +10,7 @@ import Card
 import Constants
 import Data.List
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isNothing, mapMaybe, maybeToList)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe, maybeToList)
 import Event
 import Game (enemySpots)
 import Miso
@@ -62,60 +62,58 @@ boardToInPlaceCells ::
 boardToInPlaceCells z Model {board, interaction} =
   -- draw cards on table
   [ div_
-      [ cardPositionStyle x y,
-        class_ "card",
-        onMouseEnter' "card" $ InPlaceMouseEnter pSpot cSpot,
-        onMouseLeave' "card" $ InPlaceMouseLeave pSpot cSpot
-      ]
-      [cardCreature z (Just creature) beingHovered]
-    | (pSpot, cSpot, creature) <- cardsInPlace,
+      ( [ cardPositionStyle x y,
+          class_ "card",
+          cardBoxShadowStyle (r, g, b) borderWidth "ease-in-out"
+        ]
+          ++ case maybeCreature of
+            Just _ ->
+              [ onMouseEnter' "card" $ InPlaceMouseEnter pSpot cSpot,
+                onMouseLeave' "card" $ InPlaceMouseLeave pSpot cSpot
+              ]
+            Nothing ->
+              [ onDragEnter (DragEnter cSpot),
+                onDragLeave (DragLeave cSpot),
+                onDrop (AllowDrop True) DragEnd,
+                dummyOn "dragover"
+              ]
+      )
+      [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
+    | (pSpot, cSpot, maybeCreature) <- allInPlace,
       let (x, y) = cardCellsBoardOffset pSpot cSpot,
-      let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot
+      let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot,
+      let emptyPlayingPlayerSpot =
+            cSpot `elem` emptyPlayingPlayerSpots
+              && pSpot == playingPlayerSpot,
+      -- draw border around some cards if:
+      -- 1/ card in hand is being hovered or dragged -> draw borders around
+      --    valid drag targets
+      -- or 2/ card in place is being hovered -> draw borders around cards
+      --       be attacked from this card== playingPlayerSpot,
+      let borderWidth :: Int =
+            case interaction of
+              DragInteraction _ | emptyPlayingPlayerSpot -> 3
+              HoverInteraction _ | emptyPlayingPlayerSpot -> 3
+              HoverInPlaceInteraction pSpot' cSpotHovered ->
+                let attacker = boardToInPlaceCreature board (spotToLens pSpot') cSpotHovered
+                 in let skills' =
+                          case attacker of
+                            Nothing -> [] -- case should not happen but we handle it
+                            Just attacker -> fromMaybe [] $ skills attacker
+                     in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
+                          then 3
+                          else 0
+              _ -> 0,
+      let (r, g, b) =
+            case interaction of
+              DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
+              _ -> green
   ]
-    -- draw border around some cards if:
-    -- 1/ card in hand is being hovered or dragged -> draw borders around
-    --    valid drag targets
-    -- or 2/ card in place is being hovered -> draw borders around cards
-    --       be attacked from this card
-    ++ [ div_
-           [ cardPositionStyle x y,
-             onDragEnter (DragEnter cSpot),
-             onDragLeave (DragLeave cSpot),
-             onDrop (AllowDrop True) DragEnd,
-             dummyOn "dragover",
-             cardBoxShadowStyle (r, g, b) borderWidth "ease-in-out"
-           ]
-           []
-         | pSpot <- allPlayersSpots,
-           cSpot <- allCardsSpots,
-           let (x, y) = cardCellsBoardOffset pSpot cSpot,
-           let emptyPlayingPlayerSpot =
-                 cSpot `elem` emptyPlayingPlayerSpots
-                   && pSpot == playingPlayerSpot,
-           let borderWidth :: Int =
-                 case interaction of
-                   DragInteraction _ | emptyPlayingPlayerSpot -> 3
-                   HoverInteraction _ | emptyPlayingPlayerSpot -> 3
-                   HoverInPlaceInteraction pSpot' cSpotHovered ->
-                     let attacker = boardToInPlaceCreature board (spotToLens pSpot') cSpotHovered
-                      in let skills' =
-                               case attacker of
-                                 Nothing -> [] -- case should not happen but we handle it
-                                 Just attacker -> fromMaybe [] $ skills attacker
-                          in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
-                               then 3
-                               else 0
-                   _ -> 0,
-           let (r, g, b) =
-                 case interaction of
-                   DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
-                   _ -> green
-       ]
   where
-    cardsInPlace :: [(PlayerSpot, CardSpot, Creature Core)] =
+    allInPlace :: [(PlayerSpot, CardSpot, Maybe (Creature Core))] =
       boardToCardsInPlace board
     playingPlayerCardsSpots :: [CardSpot] =
-      [c | (pSpot, c, _) <- cardsInPlace, pSpot == playingPlayerSpot]
+      [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayerSpot, isJust m]
     emptyPlayingPlayerSpots :: [CardSpot] =
       allCardsSpots \\ playingPlayerCardsSpots
     yellow = (255, 255, 0)
