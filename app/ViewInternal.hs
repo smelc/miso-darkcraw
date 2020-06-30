@@ -13,6 +13,7 @@ module ViewInternal
     turnView,
     zplt,
     zpltwh,
+    zprbwh,
     zpwh,
   )
 where
@@ -69,11 +70,8 @@ turnView :: Model -> Int -> View Action
 turnView model@Model {turn} z =
   div_ [style_ turnViewStyle, style_ textStylePairs] [line1, line2, line3]
   where
-    (width, height) = (turnPixelWidth, turnPixelHeight)
-    left = boardPixelWidth - width
-    top = boardPixelHeight - height
     turnViewStyle =
-      Map.union (zpltwh z Relative left top width height) $
+      Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight) $
         Map.fromList
           [ ("display", "flex"),
             ("align-items", "center"),
@@ -219,6 +217,26 @@ zpltwh z pos left top width height =
       ("position", ms $ show pos),
       ("top", ms top <> "px"),
       ("left", ms left <> "px"),
+      ("width", ms width <> "px"),
+      ("height", ms height <> "px")
+    ]
+
+-- | A style specifying the z-index, the position, the right margin,
+-- | the bottom margin, the width, and the height. All sizes are in pixels
+zprbwh ::
+  Int ->
+  Position ->
+  Int ->
+  Int ->
+  Int ->
+  Int ->
+  Map.Map MisoString MisoString
+zprbwh z pos left top width height =
+  Map.fromList
+    [ ("z-index", ms z),
+      ("position", ms $ show pos),
+      ("right", ms top <> "px"),
+      ("bottom", ms left <> "px"),
       ("width", ms width <> "px"),
       ("height", ms height <> "px")
     ]

@@ -23,36 +23,20 @@ import ViewInternal
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel model@Model {board, interaction} =
-  div_ [] $ [boardDiv, handDiv] ++ errView model zpp ++ [turnView model zpp]
+  div_ [] $ [boardDiv, handDiv] ++ errView model zpp
   where
     (z, zpp) = (0, z + 1)
-    globalLeftShift = (handPixelWidth - boardPixelWidth) `div` 2
-    bgStyle :: Int -> Int -> Map.Map MisoString MisoString = zpwh z Absolute
-    boardCards = boardToInPlaceCells (z + 1) model
-    boardDiv =
-      div_
-        [style_ boardStyle]
-        -- FIXME smelc replace backgroundCell with the "background-image" attr
-        ( div_ [style_ $ bgStyle boardPixelWidth boardPixelHeight] [backgroundCell]
-            : boardCards
-        )
-    boardStyle = zplt z Relative globalLeftShift 0
-    backgroundCell =
-      img_
-        [ width_ $ ms boardPixelWidth,
-          height_ $ ms boardPixelHeight,
-          src_ $ assetsPath "forest.png",
-          noDrag
-        ]
-    handCards = boardToInHandCells (z + 1) model
-    handDiv =
-      div_
-        [style_ handStyle]
-        -- FIXME smelc replace handCell with the "background-image" attr
-        ( div_ [style_ $ bgStyle handPixelWidth handPixelHeight] [handCell]
-            : handCards
-        )
-    handStyle = zplt z Relative 0 boardPixelHeight
+    boardCards = boardToInPlaceCells zpp model
+    boardDiv = div_ [style_ boardStyle] $ turnView model zpp : boardCards
+    boardStyle =
+      Map.union (zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight) $
+        Map.fromList
+          [("background-image", assetsUrl "forest.png")]
+    handDiv = div_ [style_ handStyle] $ boardToInHandCells zpp model
+    handStyle =
+      Map.union (zpltwh z Relative 0 0 handPixelWidth handPixelHeight) $
+        Map.fromList
+          [("background-image", assetsUrl "forest-hand.png")]
 
 boardToInPlaceCells ::
   -- | The z index
