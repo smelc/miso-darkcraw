@@ -184,11 +184,7 @@ handCell =
     ]
 
 imgCell :: MisoString -> View Action
-imgCell filename =
-  img_
-    [ src_ $ assetsPath filename,
-      noDrag
-    ]
+imgCell filename = img_ [src_ $ assetsPath filename, noDrag]
 
 cardCreature ::
   -- | The z index
