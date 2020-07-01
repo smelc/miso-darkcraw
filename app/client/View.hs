@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -8,12 +9,14 @@ module View where
 import Board
 import Card
 import Constants
+import Control.Lens
+import Data.Generics.Labels
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe, maybeToList)
 import Event
 import Game (enemySpots)
-import Miso
+import Miso hiding (at)
 import Miso.String
 import Model
 import Update
@@ -43,7 +46,7 @@ boardToInPlaceCells ::
   Int ->
   Model ->
   [View Action]
-boardToInPlaceCells z Model {board, interaction} =
+boardToInPlaceCells z Model {anims, board, interaction} =
   -- draw cards on table
   [ div_
       ( [ cardPositionStyle x y,
@@ -69,6 +72,9 @@ boardToInPlaceCells z Model {board, interaction} =
       let emptyPlayingPlayerSpot =
             cSpot `elem` emptyPlayingPlayerSpots
               && pSpot == playingPlayerSpot,
+      let attackEffect =
+            (anims ^. spotToLens pSpot . #inPlace & unwrap)
+              Map.!? cSpot & flip fromMaybe mempty,
       -- draw border around some cards if:
       -- 1/ card in hand is being hovered or dragged -> draw borders around
       --    valid drag targets
@@ -102,6 +108,7 @@ boardToInPlaceCells z Model {board, interaction} =
       allCardsSpots \\ playingPlayerCardsSpots
     yellow = (255, 255, 0)
     green = (0, 255, 0)
+    unwrap (AttackEffects m) = m -- TODO use some lens magic
 
 boardToInHandCells ::
   -- | The z index

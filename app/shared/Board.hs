@@ -246,7 +246,7 @@ otherPlayerSpot :: PlayerSpot -> PlayerSpot
 otherPlayerSpot PlayerBottom = PlayerTop
 otherPlayerSpot PlayerTop = PlayerBottom
 
-spotToLens :: PlayerSpot -> Lens' (Board Core) (PlayerPart Core)
+spotToLens :: PlayerSpot -> Lens' (Board p) (PlayerPart p)
 spotToLens =
   \case
     PlayerBottom -> #playerBottom
