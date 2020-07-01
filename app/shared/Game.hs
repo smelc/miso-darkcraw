@@ -51,14 +51,12 @@ reportEffect ::
 reportEffect pSpot cSpot effect =
   tell $ Board {playerTop = pTop, playerBottom = pBot}
   where
-    botInPlace :: AttackEffects =
+    effectfull = AttackEffects $ Map.singleton cSpot effect
+    effectless = AttackEffects Map.empty
+    (botInPlace, topInPlace) =
       case pSpot of
-        PlayerBottom -> undefined
-        PlayerTop -> undefined
-    topInPlace :: AttackEffects =
-      case pSpot of
-        PlayerBottom -> undefined
-        PlayerTop -> undefined
+        PlayerBottom -> (effectfull, effectless)
+        PlayerTop -> (effectless, effectfull)
     pTop :: PlayerPart UI = PlayerPart topInPlace ()
     pBot :: PlayerPart UI = PlayerPart botInPlace ()
 
