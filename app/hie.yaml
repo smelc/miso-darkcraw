@@ -1,0 +1,10 @@
+cradle:
+  cabal:
+    - path: "client"
+      component: "app:exe:app"
+
+    - path: "shared"
+      component: "app:exe:app"
+
+    - path: "test"
+      component: "app:test:test-darkcraw"
