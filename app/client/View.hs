@@ -3,6 +3,7 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module View where
 
@@ -11,6 +12,7 @@ import Card
 import Constants
 import Control.Lens
 import Data.Generics.Labels
+import Data.Generics.Product
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe, maybeToList)
@@ -73,8 +75,7 @@ boardToInPlaceCells z Model {anims, board, interaction} =
             cSpot `elem` emptyPlayingPlayerSpots
               && pSpot == playingPlayerSpot,
       let attackEffect =
-            (anims ^. spotToLens pSpot . #inPlace & unwrap)
-              Map.!? cSpot & flip fromMaybe mempty,
+            anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
       -- draw border around some cards if:
       -- 1/ card in hand is being hovered or dragged -> draw borders around
       --    valid drag targets

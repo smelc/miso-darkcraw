@@ -117,7 +117,10 @@ instance Semigroup AttackEffect where
           hitPointsChange = hp1 + hp2
         }
 
-newtype AttackEffects = AttackEffects (Map.Map CardSpot AttackEffect)
+instance Monoid AttackEffect where
+  mempty = AttackEffect { death = False, attackBump = False, hitPointsChange = 0 }
+
+newtype AttackEffects = AttackEffects { unAttackEffects :: Map.Map CardSpot AttackEffect }
   deriving (Eq, Generic)
 
 instance Semigroup AttackEffects where
