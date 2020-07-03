@@ -104,9 +104,11 @@ createAttackEffect ::
   AttackEffect
 createAttackEffect mDeath mAttackBump mHitPointsChange =
   AttackEffect
-    (fromMaybe False mDeath)
-    (fromMaybe False mAttackBump)
-    (fromMaybe 0 mHitPointsChange)
+    (fromMaybe (death neutral) mDeath)
+    (fromMaybe (attackBump neutral) mAttackBump)
+    (fromMaybe (hitPointsChange neutral) mHitPointsChange)
+  where
+    neutral :: AttackEffect = mempty
 
 instance Semigroup AttackEffect where
   AttackEffect {death = d1, attackBump = ab1, hitPointsChange = hp1}
