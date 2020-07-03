@@ -72,7 +72,7 @@ boardToInPlaceCells z Model {anims, board, interaction} =
       let (x, y) = cardCellsBoardOffset pSpot cSpot,
       let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot,
       let emptyPlayingPlayerSpot =
-            cSpot `elem` emptyPlayingPlayerSpots
+            cSpot `notElem` playingPlayerCardsSpots
               && pSpot == playingPlayerSpot,
       let attackEffect =
             anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
@@ -105,8 +105,6 @@ boardToInPlaceCells z Model {anims, board, interaction} =
       boardToCardsInPlace board
     playingPlayerCardsSpots :: [CardSpot] =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayerSpot, isJust m]
-    emptyPlayingPlayerSpots :: [CardSpot] =
-      allCardsSpots \\ playingPlayerCardsSpots
     yellow = (255, 255, 0)
     green = (0, 255, 0)
     unwrap (AttackEffects m) = m -- TODO use some lens magic
