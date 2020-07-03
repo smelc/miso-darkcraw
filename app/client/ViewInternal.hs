@@ -1,9 +1,11 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ViewInternal
-  ( cardBoxShadowStyle,
+  ( borderWidth,
+    cardBoxShadowStyle,
     cardPositionStyle,
     dummyOn,
     errView,
@@ -18,10 +20,14 @@ module ViewInternal
   )
 where
 
-import Board (PlayerSpot (..))
+import Board
+import Card
 import Constants
+import Data.List
 import qualified Data.Map.Strict as Map
+import Data.Maybe (fromMaybe, isJust)
 import Event
+import Game (enemySpots)
 import Miso
 import Miso.String
 import Model
@@ -120,6 +126,34 @@ turnView model@Model {turn} z =
       button_
         [topMarginAttr, onClick EndTurn, line3Style]
         [div_ [style_ textStylePairs] [text "End Turn"]]
+
+-- draw border around some cards if:
+-- 1/ card in hand is being hovered or dragged -> draw borders around
+--    valid drag targets
+-- or 2/ card in place is being hovered -> draw borders around cards
+--       be attacked from this card== playingPlayerSpot,
+borderWidth :: Model -> PlayerSpot -> CardSpot -> Int
+borderWidth Model {board, interaction} pSpot cSpot =
+  case interaction of
+    DragInteraction _ | emptyPlayingPlayerSpot -> 3
+    HoverInteraction _ | emptyPlayingPlayerSpot -> 3
+    HoverInPlaceInteraction pSpot' cSpotHovered ->
+      let attacker = boardToInPlaceCreature board (spotToLens pSpot') cSpotHovered
+       in let skills' =
+                case attacker of
+                  Nothing -> [] -- case should not happen but we handle it
+                  Just attacker -> fromMaybe [] $ skills attacker
+           in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
+                then borderSize
+                else 0
+    _ -> 0
+  where
+    allInPlace :: [(PlayerSpot, CardSpot, Maybe (Creature Core))] =
+      boardToCardsInPlace board
+    playingPlayerCardsSpots :: [CardSpot] =
+      [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayerSpot, isJust m]
+    emptyPlayingPlayerSpot =
+      cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayerSpot
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
