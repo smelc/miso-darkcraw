@@ -92,7 +92,7 @@ boardToInPlaceCells z Model {anims, board, interaction} =
                             Nothing -> [] -- case should not happen but we handle it
                             Just attacker -> fromMaybe [] $ skills attacker
                      in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
-                          then 3
+                          then borderSize
                           else 0
               _ -> 0,
       let (r, g, b) =
@@ -107,7 +107,6 @@ boardToInPlaceCells z Model {anims, board, interaction} =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayerSpot, isJust m]
     yellow = (255, 255, 0)
     green = (0, 255, 0)
-    unwrap (AttackEffects m) = m -- TODO use some lens magic
 
 boardToInHandCells ::
   -- | The z index
@@ -254,5 +253,5 @@ cardBackground z hover =
     cardStyle = zpwh z Absolute cardPixelWidth cardPixelHeight
     cardStyle' =
       if hover
-        then Map.insert "outline" "3px solid red" cardStyle
+        then Map.insert "outline" (ms borderSize <> "px solid red") cardStyle
         else cardStyle

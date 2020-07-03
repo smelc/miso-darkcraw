@@ -41,6 +41,10 @@ boardPixelWidth = 504
 boardPixelHeight :: Int
 boardPixelHeight = 624
 
+-- | The size of borders around cards
+borderSize :: Int
+borderSize = 3
+
 -- | The hands's height, in pixels
 handPixelHeight :: Int
 handPixelHeight = 192
