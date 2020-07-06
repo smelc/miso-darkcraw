@@ -20,6 +20,9 @@ assetFilenameHumanSpearman = "24x24_0_0.png"
 assetFilenameHeart :: MisoString
 assetFilenameHeart = "16x16_0_0.png"
 
+assetFilenameSkull :: MisoString
+assetFilenameSkull = "16x16_1_1.png"
+
 assetFilenameSword :: MisoString
 assetFilenameSword = "16x16_1_0.png"
 

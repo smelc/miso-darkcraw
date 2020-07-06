@@ -7,6 +7,7 @@ module ViewInternal
   ( borderWidth,
     cardBoxShadowStyle,
     cardPositionStyle,
+    deathFadeout,
     dummyOn,
     errView,
     noDrag,
@@ -186,6 +187,35 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
         ("transition-duration", "0.15s"),
         ("transition-timing-function", timingFunction)
       ]
+
+deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
+deathFadeout ae x y =
+  [ div_
+      [style_ sty]
+      [ nodeHtml "style" [] ["@keyframes deathFadeout { from { opacity: 1; } to { opacity: 0; } }"],
+        img_
+          [ src_ $ assetsPath assetFilenameSkull,
+            width_ $ ms imgw,
+            height_ $ ms imgh,
+            noDrag
+          ]
+      ]
+    | death ae
+  ]
+  where
+    sty =
+      Map.union
+        ( Map.fromList
+            [ ("animation-duration", "1s"),
+              ("animation-name", "deathFadeout"),
+              ("animation-iteration-count", "1"),
+              ("animation-timing-function", "ease")
+            ]
+        )
+        $ pltwh Absolute left top imgw imgh
+    (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
+    left = (cardPixelWidth - imgw) `div` 2
+    top = (cardPixelHeight - imgh) `div` 2
 
 -- | Dummy [onWithOptions] instance.
 -- | See https://github.com/dmjio/miso/issues/478

@@ -178,8 +178,8 @@ play m@Model {board} playAction =
     case gamePlayAction of
       Nothing -> pure m
       Just gamePlayAction' -> do
-        playResult <- Game.play board gamePlayAction'
-        return $ m {board = fst playResult}
+        (board', anims') <- Game.play board gamePlayAction'
+        return $ m {board = board', anims = anims'}
   where
     gamify :: PlayAction -> Either Text (Maybe Game.PlayAction) = \case
       EndPlayerTurn -> return $ Just Game.EndPlayerTurn

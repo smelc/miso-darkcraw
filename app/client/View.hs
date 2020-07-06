@@ -67,7 +67,8 @@ boardToInPlaceCells z m@Model {anims, board, interaction} =
                 dummyOn "dragover"
               ]
       )
-      [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
+      $ [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
+        ++ deathFadeout attackEffect x y
     | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
       let (x, y) = cardCellsBoardOffset pSpot cSpot,
       let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot,
