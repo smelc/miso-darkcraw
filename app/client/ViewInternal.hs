@@ -209,7 +209,8 @@ deathFadeout ae x y =
             [ ("animation-duration", "1s"),
               ("animation-name", "deathFadeout"),
               ("animation-iteration-count", "1"),
-              ("animation-timing-function", "ease")
+              ("animation-timing-function", "ease"),
+              ("animation-fill-mode", "forwards")
             ]
         )
         $ pltwh Absolute left top imgw imgh
