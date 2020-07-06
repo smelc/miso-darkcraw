@@ -190,18 +190,23 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
 
 deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
 deathFadeout ae x y =
-  [ div_
-      [style_ sty]
-      [ nodeHtml "style" [] ["@keyframes deathFadeout { from { opacity: 1; } to { opacity: 0; } }"],
-        img_
-          [ src_ $ assetsPath assetFilenameSkull,
-            width_ $ ms imgw,
-            height_ $ ms imgh,
-            noDrag
+  if death ae
+    then
+      [ nodeHtml
+          "style"
+          []
+          ["@keyframes deathFadeout { from { opacity: 1; } to { opacity: 0; } }"],
+        div_
+          [style_ sty]
+          [ img_
+              [ src_ $ assetsPath assetFilenameSkull,
+                width_ $ ms imgw,
+                height_ $ ms imgh,
+                noDrag
+              ]
           ]
       ]
-    | death ae
-  ]
+    else []
   where
     sty =
       Map.union
