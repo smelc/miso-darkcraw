@@ -99,6 +99,7 @@ turnView model@Model {turn} z =
     line2 :: View Action =
       div_
         [topMarginAttr]
+        -- TODO share code with deathFadeout
         [ nodeHtml "style" [] ["@keyframes pulse { from { box-shadow: 0 0 0 0 rgba(0,255,0,1); } to { box-shadow: 0 0 0 3px rgba(0,255,0,1); } }"],
           img_ $
             [ src_ $ assetsPath "24x24_" <> playerImgY <> "_2.png",
@@ -192,6 +193,7 @@ deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
 deathFadeout ae x y =
   if death ae
     then
+      -- TODO share code with turnView
       [ nodeHtml
           "style"
           []
