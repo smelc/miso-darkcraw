@@ -88,8 +88,8 @@ boardToInPlaceCells z m@Model {anims, board, interaction} =
     yellow = (255, 255, 0)
     green = (0, 255, 0)
     bumpAnim = "bump"
-    bumpFrom = "transform: translateY(0);"
-    bumpTo = "transform: translateY(" <> ms cellPixelSize <> ");"
+    bumpFrom = "transform: translateY(0px);"
+    bumpTo = "transform: translateY(" <> ms cellPixelSize <> "px);"
     bumpHtml = nodeHtml "style" [] [keyframe bumpAnim bumpFrom bumpTo]
 
 boardToInHandCells ::
