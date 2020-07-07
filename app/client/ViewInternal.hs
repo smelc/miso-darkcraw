@@ -24,12 +24,13 @@ where
 import Board
 import Card
 import Constants
+import Control.Lens
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe, isJust)
 import Event
 import Game (enemySpots)
-import Miso
+import Miso hiding (at)
 import Miso.String
 import Model
 import Turn (turnToInt, turnToPlayerSpot)
@@ -135,23 +136,21 @@ keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) dire
       "style"
       []
       [text $ "@keyframes " <> name <> " { from { " <> from <> " } to { " <> to <> " } }"],
-    img_ $
-      [src_ $ assetsPath path, width_ $ ms w, height_ $ ms h, noDrag]
-        ++ [ style_
-               $ Map.union sty
-               $ Map.fromList
-               $ [ ("animation-duration", "1s"),
-                   ("animation-name", name),
-                   ("animation-iteration-count", iterationCount),
-                   ("animation-timing-function", timingFunction)
-                 ]
-                 ++ pair "animation-direction" direction
-                 ++ pair "animation-fill-mode" fillMode
-           ]
+    img_
+      [ src_ $ assetsPath path,
+        width_ $ ms w,
+        height_ $ ms h,
+        noDrag,
+        style_ $
+          sty
+            & at "animation-duration" ?~ "1s"
+            & at "animation-name" ?~ name
+            & at "animation-iteration-count" ?~ iterationCount
+            & at "animation-timing-function" ?~ timingFunction
+            & at "animation-direction" .~ direction
+            & at "animation-fill-mode" .~ fillMode
+      ]
   ]
-  where
-    pair k Nothing = []
-    pair k (Just v) = [(k, v)]
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
