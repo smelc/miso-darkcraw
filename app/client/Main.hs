@@ -74,7 +74,8 @@ main = do
     update = updateModel
 #endif
     view = viewModel -- view function
-    events = Map.fromList [("mouseleave", True), ("mouseenter", True)] <> defaultEvents -- delegated events
+    events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
     subs = [] -- empty subscription list
     mountPoint = Nothing -- mount point for application (Nothing defaults to 'body')
     interaction = NoInteraction -- initial interaction
+    logLevel = Off

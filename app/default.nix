@@ -1,6 +1,6 @@
 with (import (builtins.fetchTarball {
-  url = "https://github.com/dmjio/miso/archive/561ffad.tar.gz";
-  sha256 = "1wwzckz2qxb873wdkwqmx9gmh0wshcdxi7gjwkba0q51jnkfdi41";
+  url = "https://github.com/dmjio/miso/archive/bb23019.tar.gz";
+  sha256 = "0q44lxzz8pp89ccaiw3iwczha8x2rxjwmgzkxj8cxm97ymsm0diy";  # obtained with nix-prefetch-url --unpack <URL>
 }) {});
 let
   dev = pkgs.haskell.packages.ghc865.callCabal2nix "app" ./. { miso = miso-jsaddle; };
