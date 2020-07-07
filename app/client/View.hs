@@ -49,39 +49,48 @@ boardToInPlaceCells ::
   Model ->
   [View Action]
 boardToInPlaceCells z m@Model {anims, board, interaction} =
-  -- draw cards on table
-  [ div_
-      ( [ cardPositionStyle x y,
-          class_ "card",
-          cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
-        ]
-          ++ case maybeCreature of
-            Just _ ->
-              [ onMouseEnter' "card" $ InPlaceMouseEnter pSpot cSpot,
-                onMouseLeave' "card" $ InPlaceMouseLeave pSpot cSpot
-              ]
-            Nothing ->
-              [ onDragEnter (DragEnter cSpot),
-                onDragLeave (DragLeave cSpot),
-                onDrop (AllowDrop True) DragEnd,
-                dummyOn "dragover"
-              ]
-      )
-      $ [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
-        ++ deathFadeout attackEffect x y
-    | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
-      let (x, y) = cardCellsBoardOffset pSpot cSpot,
-      let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot,
-      let attackEffect =
-            anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
-      let (r, g, b) =
-            case interaction of
-              DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
-              _ -> green
-  ]
+  [div_ [] $ bumpHtml : main]
   where
+    main =
+      [ div_
+          ( [ style_ (Map.union (Map.fromList bounceStyle) $ cardPositionStyle x y),
+              class_ "card",
+              cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
+            ]
+              ++ case maybeCreature of
+                Just _ ->
+                  [ onMouseEnter' "card" $ InPlaceMouseEnter pSpot cSpot,
+                    onMouseLeave' "card" $ InPlaceMouseLeave pSpot cSpot
+                  ]
+                Nothing ->
+                  [ onDragEnter (DragEnter cSpot),
+                    onDragLeave (DragLeave cSpot),
+                    onDrop (AllowDrop True) DragEnd,
+                    dummyOn "dragover"
+                  ]
+          )
+          $ [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
+            ++ deathFadeout attackEffect x y
+        | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
+          let (x, y) = cardCellsBoardOffset pSpot cSpot,
+          let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot,
+          let attackEffect =
+                anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
+          let bounceStyle =
+                [ ("animation", bumpAnim <> " 0.35s ease infinite alternate")
+                  | attackBump attackEffect
+                ],
+          let (r, g, b) =
+                case interaction of
+                  DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
+                  _ -> green
+      ]
     yellow = (255, 255, 0)
     green = (0, 255, 0)
+    bumpAnim = "bump"
+    bumpFrom = "transform: translateY(0);"
+    bumpTo = "transform: translateY(" <> ms cellPixelSize <> ");"
+    bumpHtml = nodeHtml "style" [] [keyframe bumpAnim bumpFrom bumpTo]
 
 boardToInHandCells ::
   -- | The z index
@@ -90,7 +99,7 @@ boardToInHandCells ::
   [View Action]
 boardToInHandCells z Model {board, interaction} =
   [ div_
-      [ cardPositionStyle x 2,
+      [ style_ $ cardPositionStyle x 2,
         prop "draggable" True,
         onDragStart (DragStart i),
         onDragEnd DragEnd,

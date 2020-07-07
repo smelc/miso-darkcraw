@@ -10,6 +10,7 @@ module ViewInternal
     deathFadeout,
     dummyOn,
     errView,
+    keyframe,
     noDrag,
     Position (..),
     pltwh,
@@ -121,6 +122,10 @@ turnView model@Model {turn} z =
         [topMarginAttr, onClick EndTurn, line3Style]
         [div_ [style_ textStylePairs] [text "End Turn"]]
 
+keyframe :: MisoString -> MisoString -> MisoString -> View m
+keyframe name from to =
+  text $ "@keyframes " <> name <> " { from { " <> from <> " } to { " <> to <> " } }"
+
 keyframedImg ::
   MisoString ->
   (Int, Int) ->
@@ -135,7 +140,7 @@ keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) dire
   [ nodeHtml
       "style"
       []
-      [text $ "@keyframes " <> name <> " { from { " <> from <> " } to { " <> to <> " } }"],
+      [keyframe name from to],
     img_
       [ src_ $ assetsPath path,
         width_ $ ms w,
@@ -188,9 +193,9 @@ cardPositionStyle ::
   Int ->
   -- | The vertical offset from the enclosing container, in number of cells
   Int ->
-  Attribute a
+  Map.Map MisoString MisoString
 cardPositionStyle xCellsOffset yCellsOffset =
-  style_ $ pltwh Absolute xPixels yPixels cardPixelWidth cardPixelHeight
+  pltwh Absolute xPixels yPixels cardPixelWidth cardPixelHeight
   where
     xPixels = xCellsOffset * cellPixelSize
     yPixels = yCellsOffset * cellPixelSize
