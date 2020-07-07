@@ -99,24 +99,15 @@ turnView model@Model {turn} z =
     line2 :: View Action =
       div_
         [topMarginAttr]
-        -- TODO share code with deathFadeout
-        [ nodeHtml "style" [] ["@keyframes pulse { from { box-shadow: 0 0 0 0 rgba(0,255,0,1); } to { box-shadow: 0 0 0 3px rgba(0,255,0,1); } }"],
-          img_ $
-            [ src_ $ assetsPath "24x24_" <> playerImgY <> "_2.png",
-              width_ $ ms line2ImgSize,
-              height_ $ ms line2ImgSize,
-              noDrag
-            ]
-              ++ [ style_ $
-                     Map.fromList
-                       [ ("animation-duration", "1s"),
-                         ("animation-name", "pulse"),
-                         ("animation-iteration-count", "infinite"),
-                         ("animation-direction", "alternate"),
-                         ("animation-timing-function", "ease-in-out")
-                       ]
-                 ]
-        ]
+        $ keyframedImg
+          ("24x24_" <> playerImgY <> "_2.png")
+          (line2ImgSize, line2ImgSize)
+          "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
+          ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
+          Map.empty
+          ("pulse", "infinite", "ease-in-out")
+          (Just "alternate")
+          Nothing
     line3Style =
       style_ $
         Map.fromList
@@ -128,6 +119,39 @@ turnView model@Model {turn} z =
       button_
         [topMarginAttr, onClick EndTurn, line3Style]
         [div_ [style_ textStylePairs] [text "End Turn"]]
+
+keyframedImg ::
+  MisoString ->
+  (Int, Int) ->
+  MisoString ->
+  MisoString ->
+  Map.Map MisoString MisoString ->
+  (MisoString, MisoString, MisoString) ->
+  Maybe MisoString ->
+  Maybe MisoString ->
+  [View Action]
+keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) direction fillMode =
+  [ nodeHtml
+      "style"
+      []
+      [text $ "@keyframes " <> name <> " { from { " <> from <> " } to { " <> to <> " } }"],
+    img_ $
+      [src_ $ assetsPath path, width_ $ ms w, height_ $ ms h, noDrag]
+        ++ [ style_
+               $ Map.union sty
+               $ Map.fromList
+               $ [ ("animation-duration", "1s"),
+                   ("animation-name", name),
+                   ("animation-iteration-count", iterationCount),
+                   ("animation-timing-function", timingFunction)
+                 ]
+                 ++ pair "animation-direction" direction
+                 ++ pair "animation-fill-mode" fillMode
+           ]
+  ]
+  where
+    pair k Nothing = []
+    pair k (Just v) = [(k, v)]
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
@@ -193,34 +217,18 @@ deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
 deathFadeout ae x y =
   if death ae
     then
-      -- TODO share code with turnView
-      [ nodeHtml
-          "style"
-          []
-          ["@keyframes deathFadeout { from { opacity: 1; } to { opacity: 0; } }"],
-        div_
-          [style_ sty]
-          [ img_
-              [ src_ $ assetsPath assetFilenameSkull,
-                width_ $ ms imgw,
-                height_ $ ms imgh,
-                noDrag
-              ]
-          ]
-      ]
+      keyframedImg
+        assetFilenameSkull
+        (imgw, imgh)
+        "opacity: 1;"
+        "opacity: 0;"
+        sty
+        ("deathFadeout", "1", "ease")
+        Nothing
+        $ Just "forwards"
     else []
   where
-    sty =
-      Map.union
-        ( Map.fromList
-            [ ("animation-duration", "1s"),
-              ("animation-name", "deathFadeout"),
-              ("animation-iteration-count", "1"),
-              ("animation-timing-function", "ease"),
-              ("animation-fill-mode", "forwards")
-            ]
-        )
-        $ pltwh Absolute left top imgw imgh
+    sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
     left = (cardPixelWidth - imgw) `div` 2
     top = (cardPixelHeight - imgh) `div` 2
