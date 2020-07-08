@@ -7,7 +7,7 @@
     { "id": { "name":"skeleton",  "team":"undead" }, "title":"skeleton",  "hp":1, "attack":1, "victory_points":1, "x":0, "y":72,   "filename":"24x24_0_1.png" },
     { "id": { "name":"vampire",   "team":"undead" }, "title":"vampire",   "hp":3, "attack":3, "victory_points":5, "x":72, "y":72,  "filename":"24x24_1_1.png" },
     { "id": { "name":"archer",    "team":"undead" }, "title":"archer",    "hp":1, "attack":1, "victory_points":1, "x":144, "y":72, "filename":"24x24_2_1.png", "skills":["Ranged"]},
-    { "id": { "name":"mummy",     "team":"undead" }, "title":"mummy",     "hp":5, "attack":2, "victory_points":2, "x":216, "y":72, "filename":"24x24_3_1.png", "skills":["Flammable"]}
+    { "id": { "name":"mummy",     "team":"undead" }, "title":"mummy",     "hp":5, "attack":2, "victory_points":2, "x":216, "y":72, "filename":"24x24_3_1.png"}
   ],
   "neutral": [
     { "name":"health", "title":"Health", "tile":"red_potion",   "text":"Heals 1 HP" },
@@ -25,7 +25,6 @@
   ],
   "skills": [
     { "name":"HitFromBack", "title":"back hit",   "text":"hits 2 cells away when in the back line"},
-    { "name":"Flammable",   "title":"flammable",  "text":"fire deals double damage"},
     { "name":"Leader",      "title":"leadership", "text":"adjacent allies get +2 moral upon arrival"},
     { "name":"Ranged",      "title":"ranged",     "text":"hits any enemy in its column"},
     { "name":"Unique",      "title":"unique",     "text":"discarded after kill"}

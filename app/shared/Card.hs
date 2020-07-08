@@ -2,22 +2,27 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Card where
 
+import Control.Lens
+import Data.Generics.Labels
 import Data.Kind (Constraint, Type)
-import GHC.Generics
+import qualified Data.Map.Strict as Map
+import GHC.Generics (Generic)
+import Data.Maybe (fromJust)
 
 data Team = Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
 
 data Skill
   = HitFromBack
-  | Flammable
   | Leader
   | Ranged
   | Unique
@@ -104,3 +109,20 @@ cardToCreature :: Card p -> Creature p
 cardToCreature (CreatureCard creature) = creature
 cardToCreature (NeutralCard _) = error "neutral card not handled yet"
 cardToCreature (ItemCard _) = error "item card not handled yet"
+
+defaultDeck ::
+  -- | The cards as loaded from disk
+  [Card UI] ->
+  -- | The team for which to build the deck
+  Team ->
+  -- | The initial deck
+  [Card Core]
+defaultDeck cards t =
+  undefined
+  where
+    creatures :: Map.Map CreatureKind (Creature Core) =
+      (cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore)
+        & filter (\c -> (creatureId c & team) == t)
+        & map (\c -> (creatureId c & creatureKind, c))
+        & Map.fromList
+    finder x = x Map.!? creatures & fromJust
