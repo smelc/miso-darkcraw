@@ -10,7 +10,7 @@ module ViewInternal
     deathFadeout,
     dummyOn,
     errView,
-    keyframe,
+    keyframes,
     noDrag,
     Position (..),
     pltwh,
@@ -122,9 +122,17 @@ turnView model@Model {turn} z =
         [topMarginAttr, onClick EndTurn, line3Style]
         [div_ [style_ textStylePairs] [text "End Turn"]]
 
-keyframe :: MisoString -> MisoString -> MisoString -> View m
-keyframe name from to =
-  text $ "@keyframes " <> name <> " { from { " <> from <> " } to { " <> to <> " } }"
+keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
+keyframes name from steps to =
+  text $ "@keyframes " <> name <> "{ " <> tail <> " }"
+  where
+    from_ = "from { " <> from <> " }"
+    steps' :: String =
+      Data.List.map (\(i, s) -> show i ++ "% { " ++ s ++ " }") steps
+        & Data.List.intersperse " "
+        & Data.List.concat
+    to_ = "to { " <> to <> " }"
+    tail = from_ <> " " <> ms steps' <> " " <> to_
 
 keyframedImg ::
   MisoString ->
@@ -140,7 +148,7 @@ keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) dire
   [ nodeHtml
       "style"
       []
-      [keyframe name from to],
+      [keyframes name from [] to],
     img_
       [ src_ $ assetsPath path,
         width_ $ ms w,

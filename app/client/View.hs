@@ -77,7 +77,7 @@ boardToInPlaceCells z m@Model {anims, board, interaction} =
           let attackEffect =
                 anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
           let bounceStyle =
-                [ ("animation", bumpAnim <> " 0.35s ease infinite alternate")
+                [ ("animation", bumpAnim <> " 0.5s ease-in-out")
                   | attackBump attackEffect
                 ],
           let (r, g, b) =
@@ -88,9 +88,10 @@ boardToInPlaceCells z m@Model {anims, board, interaction} =
     yellow = (255, 255, 0)
     green = (0, 255, 0)
     bumpAnim = "bump"
-    bumpFrom = "transform: translateY(0px);"
-    bumpTo = "transform: translateY(" <> ms cellPixelSize <> "px);"
-    bumpHtml = nodeHtml "style" [] [keyframe bumpAnim bumpFrom bumpTo]
+    bumpInit = "transform: translateY(0px);"
+    bump50 = "transform: translateY(-" ++ show cellPixelSize ++ "px);"
+    bumpKeyFrames = [keyframes bumpAnim bumpInit [(50, bump50)] bumpInit]
+    bumpHtml = nodeHtml "style" [] bumpKeyFrames
 
 boardToInHandCells ::
   -- | The z index
