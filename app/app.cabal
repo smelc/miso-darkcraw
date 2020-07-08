@@ -10,6 +10,20 @@ extra-source-files:
 executable app
   main-is:
     Main.hs
+  other-modules:
+    Board
+    Card
+    Constants
+    Event
+    Game
+    Json
+    JsonData
+    Model
+    Turn
+    Update
+    Utils
+    View
+    ViewInternal
   ghc-options:
     -Wincomplete-patterns
     -Werror
