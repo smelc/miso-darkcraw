@@ -95,7 +95,7 @@ def _build() -> int:
     Returns:
         A return code
     """
-    cmd = ["nix-build", "-A", "release2"]
+    cmd = ["nix-build", "-A", "release"]
     cwd = "app"
     print(f'{cwd}> {" ".join(cmd)}')
     result = subprocess.run(cmd,
