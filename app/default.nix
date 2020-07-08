@@ -5,21 +5,17 @@ with (import (builtins.fetchTarball {
 let
   dev = pkgs.haskell.packages.ghc865.callCabal2nix "app" ./. { miso = miso-jsaddle; };
   release = pkgs.haskell.packages.ghcjs86.callCabal2nix "app" ./. {};
-in
-  let
-    dev2 = dev.overrideAttrs (old: {
+in {
+  dev = dev.overrideAttrs (old: {
     postInstall = ''
-        mkdir -p $out/bin/assets
-        cp -r ${old.src}/assets $out/bin/app.jsexe
-      '';
+      mkdir -p $out/bin/assets
+      cp -r ${old.src}/assets $out/bin/app.jsexe
+    '';
   });
-    release2 = release.overrideAttrs (old: {
+  release = release.overrideAttrs (old: {
     postInstall = ''
-        cp -r ${old.src}/assets $out/bin/app.jsexe
-      '';
+      cp -r ${old.src}/assets $out/bin/app.jsexe
+    '';
   });
-  in {
-    inherit dev2;
-    inherit release2;
-    inherit pkgs;
-  }
+  inherit pkgs;
+}

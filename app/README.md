@@ -26,6 +26,15 @@ and update the webserver automatically:
 
   `./load-n-reload.sh`
 
+# Incremental ghcjs compilation with cabal
+
+`nix-build` will recompile all modules at each invocation. To only recompile
+what has changed since the last build, run:
+
+```
+nix-shell -A release.env default.nix --run "cabal --project-file=cabal.config build all"
+```
+
 # Tips
 
 If `nix-build` fails with `ghc: can't find a package database at /home/churlin/.cabal/store/ghc-8.6.5/package.db`

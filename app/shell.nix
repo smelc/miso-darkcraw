@@ -5,6 +5,6 @@ let
         '${pkgs.haskell.packages.ghc865.cabal-install}/bin/cabal new-repl' \
         -T 'Main.main'
 '';
-in dev2.env.overrideAttrs (old: {
+in dev.env.overrideAttrs (old: {
   buildInputs = old.buildInputs ++ [reload-script];
 })
