@@ -71,6 +71,7 @@ Test-Suite test-darkcraw
     containers,
     extra,
     generic-lens,
+    hspec,
     lens,
     mtl,
     text

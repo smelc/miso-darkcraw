@@ -5,13 +5,7 @@ module Main where
 import Board (allCardsSpots)
 import Card
 import Game (attackOrder)
-import System.Exit (exitFailure, exitSuccess, exitWith)
-
-testAttackOrder :: Int
-testAttackOrder =
-  if length allCardsSpots == length attackOrder
-    then 0
-    else 1
+import Test.Hspec
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
 creatureSum cards getter =
@@ -24,11 +18,8 @@ testBalance cards =
     humanDeck = defaultDeck cards Human
     undeadDeck = defaultDeck cards Undead
 
--- TODO use a test framework
--- TODO Loads the json data to obtain a [Card UI] value
-main :: IO Int
-main =
-  let rc = testAttackOrder
-   in case rc of
-        0 -> exitSuccess
-        _ -> exitFailure
+main :: IO ()
+main = hspec $ do
+  describe "attack order contains all spots" $ do
+    it "check the lengths" $ do
+      length allCardsSpots `shouldBe` length attackOrder
