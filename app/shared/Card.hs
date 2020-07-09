@@ -15,8 +15,9 @@ import Control.Lens
 import Data.Generics.Labels
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
-import GHC.Generics (Generic)
 import Data.Maybe (fromJust)
+import Data.Tuple.Extra ((&&&))
+import GHC.Generics (Generic)
 
 data Team = Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
@@ -118,11 +119,15 @@ defaultDeck ::
   -- | The initial deck
   [Card Core]
 defaultDeck cards t =
-  undefined
+  map CreatureCard $
+    case t of
+      Human -> 3 * Spearman
+      Undead -> undefined
   where
     creatures :: Map.Map CreatureKind (Creature Core) =
       (cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore)
         & filter (\c -> (creatureId c & team) == t)
-        & map (\c -> (creatureId c & creatureKind, c))
+        & map ((creatureKind . creatureId) &&& id)
         & Map.fromList
-    finder x = x Map.!? creatures & fromJust
+    finder x = creatures Map.!? x & fromJust
+    (*) i k = replicate i $ finder k
