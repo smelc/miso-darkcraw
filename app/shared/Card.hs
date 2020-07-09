@@ -111,14 +111,14 @@ cardToCreature (CreatureCard creature) = creature
 cardToCreature (NeutralCard _) = error "neutral card not handled yet"
 cardToCreature (ItemCard _) = error "item card not handled yet"
 
-defaultDeck ::
+initialDeck ::
   -- | The cards as loaded from disk
   [Card UI] ->
   -- | The team for which to build the deck
   Team ->
   -- | The initial deck
   [Card Core]
-defaultDeck cards t =
+initialDeck cards t =
   map CreatureCard $
     case t of
       Human -> 3 * Spearman

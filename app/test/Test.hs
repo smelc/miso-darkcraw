@@ -15,8 +15,8 @@ testBalance :: [Card UI] -> Int
 testBalance cards =
   undefined
   where
-    humanDeck = defaultDeck cards Human
-    undeadDeck = defaultDeck cards Undead
+    humanDeck = initialDeck cards Human
+    undeadDeck = initialDeck cards Undead
 
 main :: IO ()
 main = hspec $ do
