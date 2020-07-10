@@ -10,7 +10,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Json
-  ( parseJson,
+  ( loadJson,
   )
 where
 
@@ -19,6 +19,7 @@ import Data.Aeson
 import Data.ByteString.Lazy
 import Data.List.Extra
 import GHC.Generics
+import JsonData
 
 instance ToJSON Team
 
@@ -129,3 +130,10 @@ parseJson json = do
       itemCards = Prelude.map (ItemCard . Card.item) items
       allCards = creatureCards ++ neutralCards ++ itemCards
   return allCards
+
+loadJson :: Either String [Card UI]
+loadJson =
+  parseJson bs
+  where
+    bs :: Data.ByteString.Lazy.ByteString
+    bs = Data.ByteString.Lazy.fromStrict jsonData

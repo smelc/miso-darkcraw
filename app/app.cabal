@@ -67,9 +67,12 @@ Test-Suite test-darkcraw
     shared,
     test
   build-depends:
+    aeson,
     base >= 4 && < 5,
+    bytestring,
     containers,
     extra,
+    file-embed,
     generic-lens,
     hspec,
     lens,

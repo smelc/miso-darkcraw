@@ -23,7 +23,7 @@ import Control.Monad.IO.Class
 import Data.ByteString.Lazy
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
-import Json
+import Json (loadJson)
 import JsonData
 import Miso
 import Miso.String
@@ -48,9 +48,9 @@ runApp :: IO () -> IO ()
 runApp app = app
 #endif
 
-loadJson :: IO [Card UI]
-loadJson =
-  case parseJson bs of
+loadJson' :: IO [Card UI]
+loadJson' =
+  case loadJson of
     Left errMsg -> do
       hPutStrLn stderr errMsg
       exitWith $ ExitFailure 1
@@ -62,7 +62,7 @@ loadJson =
 -- | Entry point for a miso application
 main :: IO ()
 main = do
-  cards :: [Card UI] <- loadJson
+  cards :: [Card UI] <- loadJson'
   let board = exampleBoard cards
   let model = Model board interaction initialTurn cards mempty -- initial model
   runApp $ startApp App {..}

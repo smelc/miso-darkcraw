@@ -22,6 +22,9 @@ import GHC.Generics (Generic)
 data Team = Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
 
+allTeams :: [Team]
+allTeams = [Human ..]
+
 data Skill
   = HitFromBack
   | Leader
@@ -121,7 +124,7 @@ initialDeck ::
 initialDeck cards t =
   map CreatureCard $
     case t of
-      Human -> 3 * Spearman
+      Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Spearman ++ 1 * General
       Undead -> undefined
   where
     creatures :: Map.Map CreatureKind (Creature Core) =
