@@ -11,12 +11,12 @@
 
 module Card where
 
+import Control.Arrow ((&&&))
 import Control.Lens
 import Data.Generics.Labels
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust)
-import Data.Tuple.Extra ((&&&))
 import GHC.Generics (Generic)
 
 data Team = Human | Undead

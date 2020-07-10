@@ -17,7 +17,7 @@ where
 import Card
 import Data.Aeson
 import Data.ByteString.Lazy
-import Data.List.Extra
+import Data.List.Extra (lower)
 import GHC.Generics
 import JsonData
 
