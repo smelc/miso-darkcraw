@@ -9,8 +9,7 @@ import Json
 import Test.Hspec
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
-creatureSum cards getter =
-  foldr (\c i -> getter c + i) 0 cards
+creatureSum cards getter = sum (map getter cards)
 
 testBalance :: [Card UI] -> Int
 testBalance cards =
