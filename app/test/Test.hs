@@ -35,8 +35,7 @@ main = hspec $ do
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
       isRight eitherCards -- should be the first test, others depend on it
-    xit "all decks are initially of the same size" $ -- TODO unxit me
-      -- when Undead deck is implemented
+    it "all decks are initially of the same size" $
       all (\l -> length l == length (head allDecks)) allDecks
   describe "attack order contains all spots"
     $ it "check the lengths"

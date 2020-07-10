@@ -56,6 +56,10 @@ handPixelHeight = 192
 handPixelWidth :: Int
 handPixelWidth = boardPixelWidth
 
+-- | The maximum number of cards in the hand
+handSize :: Int
+handSize = 5
+
 -- | A card's height, in cells
 cardCellHeight :: Int
 cardCellHeight = 4

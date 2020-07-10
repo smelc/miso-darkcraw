@@ -76,5 +76,6 @@ Test-Suite test-darkcraw
     generic-lens,
     hspec,
     lens,
+    miso,
     mtl,
     text

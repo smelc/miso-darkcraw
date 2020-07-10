@@ -7,6 +7,7 @@ module ViewInternal
   ( borderWidth,
     cardBoxShadowStyle,
     cardPositionStyle,
+    cardPositionStyle',
     deathFadeout,
     dummyOn,
     errView,
@@ -203,10 +204,18 @@ cardPositionStyle ::
   Int ->
   Map.Map MisoString MisoString
 cardPositionStyle xCellsOffset yCellsOffset =
-  pltwh Absolute xPixels yPixels cardPixelWidth cardPixelHeight
-  where
-    xPixels = xCellsOffset * cellPixelSize
-    yPixels = yCellsOffset * cellPixelSize
+  cardPositionStyle'
+    (xCellsOffset * cellPixelSize)
+    (yCellsOffset * cellPixelSize)
+
+cardPositionStyle' ::
+  -- | The horizontal offset from the enclosing container, in pixels
+  Int ->
+  -- | The vertical offset from the enclosing container, in pixels
+  Int ->
+  Map.Map MisoString MisoString
+cardPositionStyle' xPixelsOffset yPixelsOffset =
+  pltwh Absolute xPixelsOffset yPixelsOffset cardPixelWidth cardPixelHeight
 
 cardBoxShadowStyle ::
   -- | The (r, g, b) of the border

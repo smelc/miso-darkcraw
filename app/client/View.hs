@@ -100,7 +100,7 @@ boardToInHandCells ::
   [View Action]
 boardToInHandCells z Model {board, interaction} =
   [ div_
-      [ style_ $ cardPositionStyle x 2,
+      [ style_ $ cardPositionStyle' x $ 2 * cellPixelSize,
         prop "draggable" True,
         onDragStart (DragStart i),
         onDragEnd DragEnd,
@@ -110,7 +110,7 @@ boardToInHandCells z Model {board, interaction} =
       ]
       [cardCreature z (Just creature) beingHovered | not beingDragged]
     | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
-      let x = cellsXOffset (unHandIndex i),
+      let x = pixelsXOffset (unHandIndex i),
       let (beingHovered, beingDragged) =
             case interaction of
               HoverInteraction Hovering {hoveredCard} ->
@@ -122,14 +122,14 @@ boardToInHandCells z Model {board, interaction} =
   ]
   where
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board
-    cellsXOffset i
-      | i == 0 = boardToLeftCardCellsOffset + (cardCellWidth * 2) -- center
-      | i == 1 = cellsXOffset 0 - xshift -- shift to the left compared to the center
-      | i == 2 = cellsXOffset 0 + xshift -- shift to the right compared to the center
-      | i `mod` 2 == 0 = - xshift + cellsXOffset (i - 2) -- iterate
-      | otherwise = xshift + cellsXOffset (i - 2) -- iterate
+    pixelsXOffset i
+      | i == 0 = (boardPixelWidth - cardPixelWidth) `div` 2 -- center
+      | i == 1 = pixelsXOffset 0 - xshift -- shift to the left compared to the center
+      | i == 2 = pixelsXOffset 0 + xshift -- shift to the right compared to the center
+      | i `mod` 2 == 0 = xshift + pixelsXOffset (i - 2) -- iterate
+      | otherwise = pixelsXOffset (i - 2) - xshift -- iterate
       where
-        xshift = cardCellWidth + cardHCellGap
+        xshift = cardCellWidth * cellPixelSize + (cardHCellGap * cellPixelSize) `div` 2
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =

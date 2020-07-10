@@ -36,6 +36,7 @@ module Board
 where
 
 import Card
+import Constants (handSize)
 import Control.Lens
 import Data.Generics.Labels
 import Data.Kind (Constraint, Type)
@@ -197,6 +198,7 @@ boardToCardsInPlace board =
 boardToInHandCreaturesToDraw :: Board Core -> [Creature Core]
 boardToInHandCreaturesToDraw board =
   board ^.. playingPlayerPart . #inHand . folded . #_CreatureCard
+    & take handSize
 
 boardToHand :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Card Core]
 boardToHand board player =
@@ -230,8 +232,9 @@ exampleBoard cards =
           (Bottom, undeadVampire),
           (BottomRight, undeadMummy)
         ]
-    topPlayer = PlayerPart topCards []
-    botHand = [CreatureCard humanArcher, CreatureCard humanSpearman]
+    topHand = initialDeck cards Undead
+    topPlayer = PlayerPart topCards topHand
+    botHand = initialDeck cards Human
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList
