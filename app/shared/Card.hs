@@ -125,7 +125,7 @@ initialDeck cards t =
   map CreatureCard $
     case t of
       Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Spearman ++ 1 * General
-      Undead -> undefined
+      Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
   where
     creatures :: Map.Map CreatureKind (Creature Core) =
       (cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore)

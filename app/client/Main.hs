@@ -20,7 +20,8 @@ import qualified Network.Wai.Handler.Warp as Warp
 import           Network.WebSockets
 #endif
 import Control.Monad.IO.Class
-import Data.ByteString.Lazy
+import Control.Monad (forM_)
+import Data.ByteString.Lazy (ByteString, fromStrict)
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
 import Json (loadJson)
@@ -59,10 +60,19 @@ loadJson' =
     bs :: Data.ByteString.Lazy.ByteString
     bs = Data.ByteString.Lazy.fromStrict jsonData
 
+logTeam :: [Card UI] -> Team -> IO ()
+logTeam cards t = do
+  let deck = Prelude.map cardToCreature $ initialDeck cards t
+  print t
+  print $ "nb cards: " ++ show (Prelude.length deck)
+  print $ "attack: " ++ show (sum (Prelude.map attack deck))
+  print $ "hp: " ++ show (sum (Prelude.map hp deck))
+
 -- | Entry point for a miso application
 main :: IO ()
 main = do
   cards :: [Card UI] <- loadJson'
+  forM_ allTeams (logTeam cards)
   let board = exampleBoard cards
   let model = Model board interaction initialTurn cards mempty -- initial model
   runApp $ startApp App {..}
