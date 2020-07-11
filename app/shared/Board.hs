@@ -140,27 +140,39 @@ type family InHandType (p :: Phase) where
   InHandType Core = [Card Core]
   InHandType UI = ()
 
+type family StackType (p :: Phase) where
+  StackType Core = [Card Core]
+  StackType UI = ()
+
+type family DiscardedType (p :: Phase) where
+  DiscardedType Core = [Card Core]
+  DiscardedType UI = ()
+
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (InPlaceType p),
-    c (InHandType p)
+    c (InHandType p),
+    c (StackType p),
+    c (DiscardedType p)
   )
 
 data PlayerPart (p :: Phase) = PlayerPart
   { -- | Cards on the board
     inPlace :: InPlaceType p,
     -- | Cards in hand
-    inHand :: InHandType p
+    inHand :: InHandType p,
+    stack :: StackType p,
+    discarded :: DiscardedType p
   }
   deriving (Generic)
 
 deriving instance Board.Forall Eq p => Eq (PlayerPart p)
 
 instance Semigroup (PlayerPart UI) where
-  PlayerPart inPlace1 () <> PlayerPart inPlace2 () =
-    PlayerPart (inPlace1 <> inPlace2) ()
+  PlayerPart inPlace1 () () () <> PlayerPart inPlace2 () () () =
+    PlayerPart (inPlace1 <> inPlace2) () () ()
 
 instance Monoid (PlayerPart UI) where
-  mempty = PlayerPart mempty mempty
+  mempty = PlayerPart mempty mempty mempty mempty
 
 data PlayerSpot = PlayerBottom | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)
@@ -198,7 +210,6 @@ boardToCardsInPlace board =
 boardToInHandCreaturesToDraw :: Board Core -> [Creature Core]
 boardToInHandCreaturesToDraw board =
   board ^.. playingPlayerPart . #inHand . folded . #_CreatureCard
-    & take handSize
 
 boardToHand :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Card Core]
 boardToHand board player =
@@ -232,16 +243,16 @@ exampleBoard cards =
           (Bottom, undeadVampire),
           (BottomRight, undeadMummy)
         ]
-    topHand = initialDeck cards Undead
-    topPlayer = PlayerPart topCards topHand
-    botHand = initialDeck cards Human
+    (topHand, topStack) = splitAt handSize $ initialDeck cards Undead
+    topPlayer = PlayerPart topCards topHand topStack []
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList
           [ (Top, humanGeneral),
             (TopLeft, humanSpearman)
           ]
-    botPlayer = PlayerPart botCards botHand
+    (botHand, botStack) = splitAt handSize $ initialDeck cards Human
+    botPlayer = PlayerPart botCards botHand botStack []
 
 playingPlayerSpot :: PlayerSpot
 playingPlayerSpot = PlayerBottom

@@ -57,8 +57,8 @@ reportEffect pSpot cSpot effect =
       case pSpot of
         PlayerBottom -> (effectfull, effectless)
         PlayerTop -> (effectless, effectfull)
-    pTop :: PlayerPart UI = PlayerPart topInPlace ()
-    pBot :: PlayerPart UI = PlayerPart botInPlace ()
+    pTop :: PlayerPart UI = PlayerPart topInPlace () () ()
+    pBot :: PlayerPart UI = PlayerPart botInPlace () () ()
 
 play :: Board Core -> PlayAction -> Either Text (Board Core, Board UI)
 play board action =
@@ -86,12 +86,12 @@ playM board (Place (card :: Card Core) cSpot)
       "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
   | otherwise = return $ board {playerBottom = playerPart'}
   where
+    base :: PlayerPart Core = board ^. playingPlayerPart
     hand :: [Card Core] = boardToHand board playingPlayerPart
     hand' :: [Card Core] = delete card hand
-    onTable :: Map CardSpot (Creature Core) =
-      board ^. playingPlayerPart . #inPlace
+    onTable :: Map CardSpot (Creature Core) = inPlace base
     onTable' = onTable & at cSpot ?~ cardToCreature card
-    playerPart' = PlayerPart {inPlace = onTable', inHand = hand'}
+    playerPart' = base {inPlace = onTable', inHand = hand'}
 
 endTurn ::
   MonadWriter (Board UI) m =>
