@@ -16,14 +16,14 @@ executable app
     Constants
     Event
     Game
+    GameView
+    GameViewInternal
     Json
     JsonData
     Model
     Turn
     Update
     Utils
-    View
-    ViewInternal
   ghc-options:
     -Wincomplete-patterns
     -Werror

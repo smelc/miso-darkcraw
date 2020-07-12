@@ -5,7 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module View where
+module GameView where
 
 import Board
 import Card
@@ -23,7 +23,7 @@ import Miso.String
 import Model
 import Update
 import Utils (style1_)
-import ViewInternal
+import GameViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewModel :: Model -> View Action

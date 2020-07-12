@@ -33,7 +33,7 @@ import System.Exit
 import System.IO (hPutStrLn, stderr)
 import Turn (initialTurn)
 import Update
-import View
+import GameView
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()

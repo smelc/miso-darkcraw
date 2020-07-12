@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module ViewInternal
+module GameViewInternal
   ( borderWidth,
     cardBoxShadowStyle,
     cardPositionStyle,
