@@ -44,8 +44,8 @@ import Utils (style1_)
 -- View.hs growing too much. Other modules besides
 -- View should nod depend on this module.
 
-errView :: Model -> Int -> [View Action]
-errView model@Model {interaction} z =
+errView :: GameModel -> Int -> [View Action]
+errView model@GameModel {interaction} z =
   case interaction of
     ShowErrorInteraction msg ->
       [div_ [style_ errViewStyle] $ textView msg : feedbackViews]
@@ -76,8 +76,8 @@ errView model@Model {interaction} z =
         a_ [href_ itchURL] [text itchURL]
       ]
 
-turnView :: Model -> Int -> View Action
-turnView model@Model {turn} z =
+turnView :: GameModel -> Int -> View Action
+turnView model@GameModel {turn} z =
   div_ [style_ turnViewStyle, style_ textStylePairs] [line1, line2, line3]
   where
     turnViewStyle =
@@ -171,8 +171,8 @@ keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) dire
 --    valid drag targets
 -- or 2/ card in place is being hovered -> draw borders around cards
 --       be attacked from this card== playingPlayerSpot,
-borderWidth :: Model -> PlayerSpot -> CardSpot -> Int
-borderWidth Model {board, interaction} pSpot cSpot =
+borderWidth :: GameModel -> PlayerSpot -> CardSpot -> Int
+borderWidth GameModel {board, interaction} pSpot cSpot =
   case interaction of
     DragInteraction _ | emptyPlayingPlayerSpot -> 3
     HoverInteraction _ | emptyPlayingPlayerSpot -> 3

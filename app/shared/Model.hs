@@ -41,8 +41,8 @@ data HandFiddle
     HandDragging HandIndex
   deriving (Eq, Show, Generic)
 
--- | Type synonym for an application model
-data Model = Model
+-- | The model of the gaming page
+data GameModel = GameModel
   { -- | The core part of the model
     board :: Board Core,
     -- | What user interaction is going on
@@ -54,4 +54,9 @@ data Model = Model
     -- | Animations to perform next
     anims :: Board UI
   }
+  deriving (Eq, Generic)
+
+-- | The top level model, later it will be a disjunction
+-- | of the model of each page
+newtype Model = GameModel' GameModel
   deriving (Eq, Generic)

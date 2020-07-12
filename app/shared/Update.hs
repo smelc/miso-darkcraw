@@ -74,6 +74,8 @@ instance ToExpr Interaction
 
 instance ToExpr Turn
 
+instance ToExpr GameModel
+
 instance ToExpr Model
 
 -- | Sum type for application events. If drop stuff doesn't work
@@ -171,8 +173,8 @@ lookupInHand hand i
   where
     handLength = length hand
 
-play :: Model -> PlayAction -> Either Text Model
-play m@Model {board} playAction =
+play :: GameModel -> PlayAction -> Either Text GameModel
+play m@GameModel {board} playAction =
   trace ("playing " ++ show playAction) $ do
     gamePlayAction <- gamify playAction
     case gamePlayAction of
@@ -198,8 +200,8 @@ play m@Model {board} playAction =
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
-updateModel a m@Model {interaction} =
-  noEff $ m' {interaction = interaction''}
+updateModel a (GameModel' m@GameModel{interaction}) =
+  noEff $ GameModel' $ m' {interaction = interaction''}
   where
     (interaction', playAction) = updateI a interaction
     eitherErrModel = Update.play m playAction

@@ -25,9 +25,9 @@ import Update
 import Utils (style1_)
 import ViewInternal
 
--- | Constructs a virtual DOM from a model
+-- | Constructs a virtual DOM from a game model
 viewModel :: Model -> View Action
-viewModel model@Model {board, interaction} =
+viewModel (GameModel' model@GameModel {board, interaction}) =
   div_ [] $ [boardDiv, handDiv] ++ errView model zpp
   where
     (z, zpp) = (0, z + 1)
@@ -46,9 +46,9 @@ viewModel model@Model {board, interaction} =
 boardToInPlaceCells ::
   -- | The z index
   Int ->
-  Model ->
+  GameModel ->
   [View Action]
-boardToInPlaceCells z m@Model {anims, board, interaction} =
+boardToInPlaceCells z m@GameModel {anims, board, interaction} =
   [div_ [] $ bumpHtml : main]
   where
     main =
@@ -96,9 +96,9 @@ boardToInPlaceCells z m@Model {anims, board, interaction} =
 boardToInHandCells ::
   -- | The z index
   Int ->
-  Model ->
+  GameModel ->
   [View Action]
-boardToInHandCells z Model {board, interaction} =
+boardToInHandCells z GameModel {board, interaction} =
   [ div_
       [ style_ $ cardPositionStyle' x $ 2 * cellPixelSize,
         prop "draggable" True,
