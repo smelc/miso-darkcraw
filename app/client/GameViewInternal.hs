@@ -123,6 +123,10 @@ turnView model@GameModel {turn} z =
         [topMarginAttr, onClick EndTurn, line3Style]
         [div_ [style_ textStylePairs] [text "End Turn"]]
 
+-- | The widget showing the number of cards in the stack
+stackView :: GameModel -> Int -> View Action
+stackView model z = undefined
+
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
 keyframes name from steps to =
   text $ "@keyframes " <> name <> "{ " <> tail <> " }"

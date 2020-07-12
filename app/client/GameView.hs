@@ -100,7 +100,7 @@ boardToInHandCells ::
   [View Action]
 boardToInHandCells z GameModel {board, interaction} =
   [ div_
-      [ style_ $ cardPositionStyle' x $ 2 * cellPixelSize,
+      [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,
         onDragStart (DragStart i),
         onDragEnd DragEnd,
@@ -111,6 +111,7 @@ boardToInHandCells z GameModel {board, interaction} =
       [cardCreature z (Just creature) beingHovered | not beingDragged]
     | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
       let x = pixelsXOffset (unHandIndex i),
+      let y = 2 * cellPixelSize,
       let (beingHovered, beingDragged) =
             case interaction of
               HoverInteraction Hovering {hoveredCard} ->
