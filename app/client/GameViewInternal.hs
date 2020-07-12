@@ -110,16 +110,9 @@ turnView model@GameModel {turn} z =
           ("pulse", "infinite", "ease-in-out")
           (Just "alternate")
           Nothing
-    line3Style =
-      style_ $
-        Map.fromList
-          [ ("background-color", "transparent"), -- no background
-            ("border", "2px solid " <> mainColor), -- white not-shadowed border
-            ("outline", "none") -- don't highlight that it has been pressed
-          ]
     line3 :: View Action =
       button_
-        [topMarginAttr, onClick EndTurn, line3Style]
+        [topMarginAttr, onClick EndTurn, buttonStyle]
         [div_ [style_ textStylePairs] [text "End Turn"]]
 
 -- | The widget showing the number of cards in the stack
@@ -136,16 +129,9 @@ stackView model z =
             ("align-items", "center"),
             ("justify-content", "center")
           ]
-    line1Style =
-      style_ $
-        Map.fromList
-          [ ("background-color", "transparent"), -- no background
-            ("border", "2px solid " <> mainColor), -- white not-shadowed border
-            ("outline", "none") -- don't highlight that it has been pressed
-          ]
     line1 :: View Action =
       button_
-        [line1Style] -- onClick ShowStack
+        [buttonStyle] -- onClick ShowStack
         [div_ [style_ textStylePairs] [text "6"]]
 
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
@@ -227,6 +213,15 @@ mainColor = "#FFFFFF"
 
 textStylePairs :: Map.Map MisoString MisoString
 textStylePairs = Map.fromList [("color", mainColor)]
+
+buttonStyle :: Attribute action
+buttonStyle =
+  style_ $
+    Map.fromList
+      [ ("background-color", "transparent"), -- no background
+        ("border", "2px solid " <> mainColor), -- white not-shadowed border
+        ("outline", "none") -- don't highlight that it has been pressed
+      ]
 
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
