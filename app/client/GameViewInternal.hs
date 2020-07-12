@@ -19,6 +19,7 @@ module GameViewInternal
     turnView,
     zplt,
     zpltwh,
+    zprb,
     zprbwh,
     zpwh,
   )
@@ -79,7 +80,7 @@ errView model@GameModel {interaction} z =
 
 turnView :: GameModel -> Int -> View Action
 turnView model@GameModel {turn} z =
-  div_ [style_ turnViewStyle, style_ textStylePairs] [line1, line2, line3]
+  div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
   where
     turnViewStyle =
       Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight) $
@@ -113,26 +114,20 @@ turnView model@GameModel {turn} z =
     line3 :: View Action =
       button_
         [topMarginAttr, onClick EndTurn, buttonStyle]
-        [div_ [style_ textStylePairs] [text "End Turn"]]
+        [div_ [textStyle] [text "End Turn"]]
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
 stackView model z =
-  div_ [style_ stackViewStyle] [line1]
+  button_
+    [buttonStyle, positionStyle] -- onClick ShowStack
+    [text "6"]
   where
     off = cellPixelSize `div` 2
     (width, height) = (cellPixelSize, cellPixelSize)
-    stackViewStyle =
-      Map.union (zprbwh z Absolute off off width height) $
-        Map.fromList
-          [ ("display", "flex"),
-            ("align-items", "center"),
-            ("justify-content", "center")
-          ]
-    line1 :: View Action =
-      button_
-        [buttonStyle] -- onClick ShowStack
-        [div_ [style_ textStylePairs] [text "6"]]
+    positionStyle =
+      style_ $
+        zprb z Absolute off off
 
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
 keyframes name from steps to =
@@ -211,17 +206,20 @@ noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "n
 mainColor :: MisoString
 mainColor = "#FFFFFF"
 
-textStylePairs :: Map.Map MisoString MisoString
-textStylePairs = Map.fromList [("color", mainColor)]
+textRawStyle :: [(MisoString, MisoString)]
+textRawStyle = [("color", mainColor)]
+
+textStyle :: Attribute action
+textStyle = style_ $ Map.fromList textRawStyle
 
 buttonStyle :: Attribute action
 buttonStyle =
   style_ $
-    Map.fromList
+    Map.fromList $
       [ ("background-color", "transparent"), -- no background
         ("border", "2px solid " <> mainColor), -- white not-shadowed border
         ("outline", "none") -- don't highlight that it has been pressed
-      ]
+      ] ++ textRawStyle
 
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
@@ -346,6 +344,23 @@ zpltwh z pos left top width height =
       ("left", ms left <> "px"),
       ("width", ms width <> "px"),
       ("height", ms height <> "px")
+    ]
+
+
+-- | A style specifying the z-index, the position, the right margin,
+-- | the bottom margin. All sizes are in pixels
+zprb ::
+  Int ->
+  Position ->
+  Int ->
+  Int ->
+  Map.Map MisoString MisoString
+zprb z pos left top =
+  Map.fromList
+    [ ("z-index", ms z),
+      ("position", ms $ show pos),
+      ("right", ms top <> "px"),
+      ("bottom", ms left <> "px")
     ]
 
 -- | A style specifying the z-index, the position, the right margin,
