@@ -98,7 +98,7 @@ boardToInHandCells ::
   Int ->
   GameModel ->
   [View Action]
-boardToInHandCells z GameModel {board, interaction} =
+boardToInHandCells z m@GameModel {board, interaction} =
   [ div_
       [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,
@@ -120,7 +120,7 @@ boardToInHandCells z GameModel {board, interaction} =
                 (False, draggedCard == i)
               ShowErrorInteraction _ -> (False, False)
               _ -> (False, False)
-  ]
+  ] ++ [stackView m z]
   where
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board
     pixelsXOffset i

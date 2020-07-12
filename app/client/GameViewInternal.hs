@@ -15,6 +15,7 @@ module GameViewInternal
     noDrag,
     Position (..),
     pltwh,
+    stackView,
     turnView,
     zplt,
     zpltwh,
@@ -89,8 +90,6 @@ turnView model@GameModel {turn} z =
             ("flex-direction", "column"),
             ("background-image", assetsUrl "turn.png")
           ]
-    mainColor = "#FFFFFF"
-    textStylePairs = Map.fromList [("color", mainColor)]
     line1 :: View Action = text $ "Turn " <> ms (turnToInt turn)
     playerImgY =
       case turnToPlayerSpot turn of
@@ -125,7 +124,29 @@ turnView model@GameModel {turn} z =
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
-stackView model z = undefined
+stackView model z =
+  div_ [style_ stackViewStyle] [line1]
+  where
+    off = cellPixelSize `div` 2
+    (width, height) = (cellPixelSize, cellPixelSize)
+    stackViewStyle =
+      Map.union (zprbwh z Absolute off off width height) $
+        Map.fromList
+          [ ("display", "flex"),
+            ("align-items", "center"),
+            ("justify-content", "center")
+          ]
+    line1Style =
+      style_ $
+        Map.fromList
+          [ ("background-color", "transparent"), -- no background
+            ("border", "2px solid " <> mainColor), -- white not-shadowed border
+            ("outline", "none") -- don't highlight that it has been pressed
+          ]
+    line1 :: View Action =
+      button_
+        [line1Style] -- onClick ShowStack
+        [div_ [style_ textStylePairs] [text "6"]]
 
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
 keyframes name from steps to =
@@ -200,6 +221,12 @@ borderWidth GameModel {board, interaction} pSpot cSpot =
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
+
+mainColor :: MisoString
+mainColor = "#FFFFFF"
+
+textStylePairs :: Map.Map MisoString MisoString
+textStylePairs = Map.fromList [("color", mainColor)]
 
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
