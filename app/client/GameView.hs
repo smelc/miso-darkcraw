@@ -29,6 +29,7 @@ import Miso.String
 import Model
 import Update
 import Utils (style1_)
+import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewModel :: Model -> View Action
