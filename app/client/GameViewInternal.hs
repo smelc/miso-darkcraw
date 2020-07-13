@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -41,7 +42,7 @@ import Data.Maybe (fromMaybe, isJust)
 import Event
 import Game (enemySpots)
 import Miso hiding (at)
-import Miso.String
+import Miso.String hiding (length)
 import Model
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
@@ -119,16 +120,17 @@ turnView model@GameModel {turn} z =
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
-stackView model z =
+stackView model@GameModel {board} z =
   button_
     [buttonStyle, positionStyle] -- onClick ShowStack
-    [text "6"]
+    [text $ ms stackSize]
   where
     off = cellPixelSize `div` 2
     (width, height) = (cellPixelSize, cellPixelSize)
     positionStyle =
       style_ $
         zprb z Absolute off off
+    stackSize = board ^. playingPlayerPart . #stack & length
 
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
 keyframes name from steps to =
