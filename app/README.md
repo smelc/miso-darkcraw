@@ -25,6 +25,12 @@ and update the webserver automatically:
   (uses [midori](https://www.midori-browser.org/)):
 
   `./load-n-reload.sh`
+* To update the released version automatically (is closer to what players
+  will observe because webserver has interaction issues):
+
+  `./load-n-reload.sh release`
+
+  Contrary to the previous item, this script uses your default browser.
 
 # Incremental ghcjs compilation with cabal
 
