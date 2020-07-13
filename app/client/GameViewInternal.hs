@@ -3,6 +3,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+-- |
+-- This module contains things used in GameView.hs
+-- but which are likely rarely modified, to avoid
+-- GameView.hs growing too much. Other modules besides
+-- 'GameView' should nod depend on this module.
+-- |
 module GameViewInternal
   ( borderWidth,
     cardBoxShadowStyle,
@@ -40,11 +46,6 @@ import Model
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
 import Utils (style1_)
-
--- This module contains things used in View.hs
--- but which are likely rarely modified, to avoid
--- View.hs growing too much. Other modules besides
--- View should nod depend on this module.
 
 errView :: GameModel -> Int -> [View Action]
 errView model@GameModel {interaction} z =
@@ -214,12 +215,13 @@ textStyle = style_ $ Map.fromList textRawStyle
 
 buttonStyle :: Attribute action
 buttonStyle =
-  style_ $
-    Map.fromList $
-      [ ("background-color", "transparent"), -- no background
+  style_
+    $ Map.fromList
+    $ [ ("background-color", "transparent"), -- no background
         ("border", "2px solid " <> mainColor), -- white not-shadowed border
         ("outline", "none") -- don't highlight that it has been pressed
-      ] ++ textRawStyle
+      ]
+      ++ textRawStyle
 
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
@@ -345,7 +347,6 @@ zpltwh z pos left top width height =
       ("width", ms width <> "px"),
       ("height", ms height <> "px")
     ]
-
 
 -- | A style specifying the z-index, the position, the right margin,
 -- | the bottom margin. All sizes are in pixels

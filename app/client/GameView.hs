@@ -5,6 +5,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
+-- |
+-- Module to display an instance of the main view, i.e.
+-- the battle between two players. It's the only module that
+-- can depend on 'GameViewInternal'.
+-- |
 module GameView where
 
 import Board
@@ -18,12 +23,12 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe, maybeToList)
 import Event
 import Game (enemySpots)
+import GameViewInternal
 import Miso hiding (at)
 import Miso.String
 import Model
 import Update
 import Utils (style1_)
-import GameViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewModel :: Model -> View Action
@@ -120,7 +125,8 @@ boardToInHandCells z m@GameModel {board, interaction} =
                 (False, draggedCard == i)
               ShowErrorInteraction _ -> (False, False)
               _ -> (False, False)
-  ] ++ [stackView m z]
+  ]
+    ++ [stackView m z]
   where
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board
     pixelsXOffset i
