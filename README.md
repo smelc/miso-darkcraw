@@ -6,6 +6,9 @@ You can see the current game [here](https://schplaf.org/hgames/darkcraw).
 
 # Developers
 
+See [app/README.md](https://github.com/smelc/miso-darkcraw/blob/master/app/README.md)
+for Haskell/[miso](https://github.com/dmjio/miso/) instructions.
+
 ## Hooks
 
 Install the pre-commit hook as follows:

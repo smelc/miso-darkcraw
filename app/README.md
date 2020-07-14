@@ -30,7 +30,13 @@ and update the webserver automatically:
 
   `./load-n-reload.sh release`
 
-  Contrary to the previous item, this script uses your default browser.
+  Contrary to the previous item, this script uses your default browser. It
+  is faster than doing `nix-build` because it uses incremental compilation.
+* To reexecute tests upon modifying them, execute:
+
+  `./load-n-reload.sh test`
+
+  It is faster than doing `nix-build` because it uses incremental compilation.
 
 # Incremental ghcjs compilation with cabal
 

@@ -12,7 +12,7 @@
 #   --sync %1 key F5 windowactivate\
 #   $(xdotool getactivewindow)
 
-set -ex
+set -e
 
 CABAL_ROOT="dist-newstyle/build/x86_64-linux/ghcjs-8.6.0.1/app-0.1.0.0/x/app/build/app/app.jsexe"
 CABAL_ASSETS="$CABAL_ROOT/assets"
@@ -44,6 +44,24 @@ function cabal_listen() {
   git ls-files "*.hs" | entr -s "cabal --project-file=cabal.config build all && mkdir -p $CABAL_ASSETS && cp $ASSETS_TO_COPY $CABAL_ASSETS/."
 }
 
+function cabal_test_listen() {
+  echo "test/Test.hs" | entr -s "cabal test"
+}
+
+function check_in_nix_shell() {
+  if [[ -z "$IN_NIX_SHELL" ]]
+  then
+    # I prefer the nix-shell to be entered already, to avoid entering
+    # it for every invocation of cabal
+    echo "You should be in a nix-shell to execute 'load-n-reload.sh [release|test]'"
+    echo "Please run:"
+    echo "  nix-shell -A release.env default.nix (release case)"
+    echo "  nix-shell (test case)"
+    echo "and execute me again in the resulting shell"
+    exit 1
+  fi
+}
+
 if [[ -z "$1" ]]
 then
   # jsaddle case, use midori (historical)
@@ -65,15 +83,7 @@ then
   # google-chrome (better dev tools and
   # since a while, midori needs manual refreshing; some better use chrome)
 
-  if [[ -z "$IN_NIX_SHELL" ]]
-  then
-    # I prefer the nix-shell to be entered already, to avoid entering
-    # it for every invocation of cabal
-    echo "You should be in a nix-shell to execute 'load-n-reload.sh release'"
-    echo "Please run: nix-shell -A release.env default.nix"
-    echo "and execute me again in the resulting shell"
-    exit 1
-  fi
+  check_in_nix_shell
 
   if [[ -e "$CABAL_INDEX" ]]
   then
@@ -85,7 +95,12 @@ then
 
   cabal_listen  # Not executing in the background, so that ctrl-c
   # this script exits 'entr'
+elif [[ "$1" == "test" ]]
+then
+  check_in_nix_shell
+
+  cabal_test_listen
 else
-  echo "Unrecognized argument: $1. Expecting no argument or 'release'"
+  echo "Unrecognized argument: $1. Expecting no argument or 'release' or 'test'"
   exit 1
 fi
