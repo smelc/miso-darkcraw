@@ -22,11 +22,11 @@ CABAL_INDEX="$CABAL_ROOT/index.html"
 # $2 is the command to install it if missing
 function install() {
   set +e
-  which "$1" &> /dev/null
+  command -v "$1" &> /dev/null
   if [[ "$?" != "0" ]];
   then
     $2
-    which "$1" &> /dev/null
+    command -v "$1" &> /dev/null
     [[ "$?" == "0" ]] || { echo "$1 could not be installed; exiting"; exit 1; }
   fi
   set -e
