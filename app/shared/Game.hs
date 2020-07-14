@@ -91,7 +91,7 @@ playM board (Place pSpot cSpot (card :: Card Core))
     hand :: [Card Core] = boardToHand board $ spotToLens pSpot
     hand' :: [Card Core] = delete card hand
     onTable :: Map CardSpot (Creature Core) = inPlace base
-    onTable' = onTable & at cSpot ?~ cardToCreature card
+    onTable' = onTable & at cSpot ?~ unsafeCardToCreature card
     playerPart' = base {inPlace = onTable', inHand = hand'}
 
 endTurn ::

@@ -109,10 +109,15 @@ creatureUI2CreatureCore :: Creature UI -> Creature Core
 creatureUI2CreatureCore Creature {..} =
   Creature creatureId hp attack moral victoryPoints skills () () filename
 
-cardToCreature :: Card p -> Creature p
-cardToCreature (CreatureCard creature) = creature
-cardToCreature (NeutralCard _) = error "neutral card not handled yet"
-cardToCreature (ItemCard _) = error "item card not handled yet"
+cardToCreature :: Card p -> Maybe (Creature p)
+cardToCreature (CreatureCard creature) = Just creature
+cardToCreature (NeutralCard _) = Nothing
+cardToCreature (ItemCard _) = Nothing
+
+unsafeCardToCreature :: Card p -> Creature p
+unsafeCardToCreature (CreatureCard creature) = creature
+unsafeCardToCreature (NeutralCard _) = error "neutral card not handled yet"
+unsafeCardToCreature (ItemCard _) = error "item card not handled yet"
 
 initialDeck ::
   -- | The cards as loaded from disk

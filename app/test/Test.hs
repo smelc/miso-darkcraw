@@ -4,6 +4,7 @@ module Main where
 
 import Board (allCardsSpots)
 import Card
+import Data.Maybe (mapMaybe)
 import Game (attackOrder)
 import Json
 import Test.Hspec
@@ -32,11 +33,16 @@ main = hspec $ do
   let eitherCards = loadJson
   let cards = getRight eitherCards
   let allDecks = getAllDecks cards
+  let allCreatures = mapMaybe cardToCreature $ concat allDecks
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
       isRight eitherCards -- should be the first test, others depend on it
     it "all decks are initially of the same size" $
       all (\l -> length l == length (head allDecks)) allDecks
+    it "all hit points are initially > 0" $
+      all (\c -> hp c > 0) allCreatures
+    it "all attacks are initially >= 0" $
+      all (\c -> attack c >= 0) allCreatures
   describe "attack order contains all spots"
     $ it "check the lengths"
     $ length allCardsSpots `shouldBe` length attackOrder

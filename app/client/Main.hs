@@ -20,6 +20,7 @@ import Control.Monad (forM_)
 import Control.Monad.IO.Class
 import Data.ByteString.Lazy (ByteString, fromStrict)
 import qualified Data.Map.Strict as Map
+import Data.Maybe (mapMaybe)
 import qualified Data.Text as Text
 import GameView
 import Json (loadJson)
@@ -59,7 +60,7 @@ loadJson' =
 
 logTeam :: [Card UI] -> Team -> IO ()
 logTeam cards t = do
-  let deck = Prelude.map cardToCreature $ initialDeck cards t
+  let deck = mapMaybe cardToCreature $ initialDeck cards t
   print t
   print $ "nb cards: " ++ show (Prelude.length deck)
   print $ "attack: " ++ show (sum (Prelude.map attack deck))
