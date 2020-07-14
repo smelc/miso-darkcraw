@@ -80,8 +80,7 @@ then
 elif [[ "$1" == "release" ]]
 then
   # release case, uses sensible-browser, i.e. your default browser
-  # google-chrome (better dev tools and
-  # since a while, midori needs manual refreshing; some better use chrome)
+  # (since a while, midori needs manual refreshing :-()
 
   check_in_nix_shell
 
@@ -99,7 +98,8 @@ elif [[ "$1" == "test" ]]
 then
   check_in_nix_shell
 
-  cabal_test_listen
+  cabal_test_listen  # Not executing in the background, so that ctrl-c
+  # this script exits 'entr'
 else
   echo "Unrecognized argument: $1. Expecting no argument or 'release' or 'test'"
   exit 1
