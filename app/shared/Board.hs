@@ -25,12 +25,12 @@ module Board
     Board (..),
     CardSpot (..),
     createAttackEffect,
+    endingPlayerSpot,
     exampleBoard,
     otherPlayerSpot,
-    playingPlayerSpot,
-    playingPlayerPart,
     PlayerPart (..),
     PlayerSpot (..),
+    startingPlayerSpot,
     spotToLens,
   )
 where
@@ -180,6 +180,12 @@ data PlayerSpot = PlayerBottom | PlayerTop
 allPlayersSpots :: [PlayerSpot]
 allPlayersSpots = [PlayerBottom ..]
 
+startingPlayerSpot :: PlayerSpot
+startingPlayerSpot = PlayerBottom
+
+endingPlayerSpot :: PlayerSpot
+endingPlayerSpot = PlayerTop
+
 data Board (p :: Phase) = Board
   { playerTop :: PlayerPart p,
     playerBottom :: PlayerPart p
@@ -207,9 +213,9 @@ boardToCardsInPlace board =
       let maybeCreature = boardToInPlaceCreature board (spotToLens pSpot) cSpot
   ]
 
-boardToInHandCreaturesToDraw :: Board Core -> [Creature Core]
-boardToInHandCreaturesToDraw board =
-  board ^.. playingPlayerPart . #inHand . folded . #_CreatureCard
+boardToInHandCreaturesToDraw :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Creature Core]
+boardToInHandCreaturesToDraw board player =
+  board ^.. player . #inHand . folded . #_CreatureCard
 
 boardToHand :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Card Core]
 boardToHand board player =
@@ -253,12 +259,6 @@ exampleBoard cards =
           ]
     (botHand, botStack) = splitAt handSize $ initialDeck cards Human
     botPlayer = PlayerPart botCards botHand botStack []
-
-playingPlayerSpot :: PlayerSpot
-playingPlayerSpot = PlayerBottom
-
-playingPlayerPart :: Lens' (Board Core) (PlayerPart Core)
-playingPlayerPart = #playerBottom
 
 -- | The other spot
 otherPlayerSpot :: PlayerSpot -> PlayerSpot

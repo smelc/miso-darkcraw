@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -104,7 +105,7 @@ boardToInHandCells ::
   Int ->
   GameModel ->
   [View Action]
-boardToInHandCells z m@GameModel {board, interaction} =
+boardToInHandCells z m@GameModel {board, interaction, playingPlayer} =
   [ div_
       [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,
@@ -129,7 +130,8 @@ boardToInHandCells z m@GameModel {board, interaction} =
   ]
     ++ [stackView m z]
   where
-    cards :: [Creature Core] = boardToInHandCreaturesToDraw board
+    pLens = spotToLens playingPlayer
+    cards :: [Creature Core] = boardToInHandCreaturesToDraw board pLens
     pixelsXOffset i
       | i == 0 = (boardPixelWidth - cardPixelWidth) `div` 2 -- center
       | i == 1 = pixelsXOffset 0 - xshift -- shift to the left compared to the center

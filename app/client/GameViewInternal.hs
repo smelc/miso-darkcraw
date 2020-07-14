@@ -113,7 +113,7 @@ turnView model@GameModel {turn} z =
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
-stackView model@GameModel {board} z =
+stackView model@GameModel {board, playingPlayer} z =
   button_
     [buttonStyle, positionStyle] -- onClick ShowStack
     [text $ ms stackSize]
@@ -123,7 +123,8 @@ stackView model@GameModel {board} z =
     positionStyle =
       style_ $
         zprb z Absolute off off
-    stackSize = board ^. playingPlayerPart . #stack & length
+    pLens = spotToLens playingPlayer
+    stackSize = board ^. pLens . #stack & length
 
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
 keyframes name from steps to =
@@ -174,7 +175,7 @@ keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) dire
 -- or 2/ card in place is being hovered -> draw borders around cards
 --       be attacked from this card== playingPlayerSpot,
 borderWidth :: GameModel -> PlayerSpot -> CardSpot -> Int
-borderWidth GameModel {board, interaction} pSpot cSpot =
+borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
   case interaction of
     DragInteraction _ | emptyPlayingPlayerSpot -> 3
     HoverInteraction _ | emptyPlayingPlayerSpot -> 3
@@ -192,9 +193,9 @@ borderWidth GameModel {board, interaction} pSpot cSpot =
     allInPlace :: [(PlayerSpot, CardSpot, Maybe (Creature Core))] =
       boardToCardsInPlace board
     playingPlayerCardsSpots :: [CardSpot] =
-      [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayerSpot, isJust m]
+      [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
     emptyPlayingPlayerSpot =
-      cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayerSpot
+      cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
 
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])

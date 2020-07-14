@@ -4,14 +4,8 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
--- Haskell module declaration
 module Main where
 
-import Board (exampleBoard)
-import Card
--- Miso framework import
-
--- JSAddle import
 #ifndef __GHCJS__
 import           Language.Javascript.JSaddle.Warp as JSaddle
 import           Network.Wai.Application.Static
@@ -19,11 +13,15 @@ import qualified Network.Wai as Wai
 import qualified Network.Wai.Handler.Warp as Warp
 import           Network.WebSockets
 #endif
-import Control.Monad.IO.Class
+
+import Board (exampleBoard, startingPlayerSpot)
+import Card
 import Control.Monad (forM_)
+import Control.Monad.IO.Class
 import Data.ByteString.Lazy (ByteString, fromStrict)
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as Text
+import GameView
 import Json (loadJson)
 import JsonData
 import Miso
@@ -33,7 +31,6 @@ import System.Exit
 import System.IO (hPutStrLn, stderr)
 import Turn (initialTurn)
 import Update
-import GameView
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
@@ -74,7 +71,16 @@ main = do
   cards :: [Card UI] <- loadJson'
   forM_ allTeams (logTeam cards)
   let board = exampleBoard cards
-  let model = GameModel' $ GameModel board interaction initialTurn cards mempty -- initial model
+  let model =
+        -- initial model
+        GameModel' $
+          GameModel
+            board
+            interaction
+            startingPlayerSpot
+            initialTurn
+            cards
+            mempty
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load

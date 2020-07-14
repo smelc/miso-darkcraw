@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -116,9 +117,9 @@ logUpdates update action model = do
 
 data PlayAction
   = -- | Player ends its turn
-    EndPlayerTurn
+    EndPlayerTurn PlayerSpot
   | -- | Playing player puts a card from his hand on its part of the board
-    Place HandIndex CardSpot
+    Place PlayerSpot CardSpot HandIndex
   | NoPlayAction
   deriving (Show)
 
@@ -126,38 +127,38 @@ noPlayAction :: a -> (a, PlayAction)
 noPlayAction interaction = (interaction, NoPlayAction)
 
 -- | Translates an UI event into an 'Interaction' and a 'PlayAction'
-updateI :: Action -> Interaction -> (Interaction, PlayAction)
+updateI :: Model -> Action -> Interaction -> (Interaction, PlayAction)
 -- This is the only definition that should care about ShowErrorInteraction:
-updateI action (ShowErrorInteraction _)
+updateI m action (ShowErrorInteraction _)
   | action /= NoOp =
-    updateI action NoInteraction -- clear error message
+    updateI m action NoInteraction -- clear error message
     -- Now onto "normal" stuff:
-updateI (DragStart i) _ =
+updateI _ (DragStart i) _ =
   noPlayAction $ DragInteraction $ Dragging i Nothing
-updateI DragEnd (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-  (NoInteraction, Place draggedCard dragTarget)
-updateI DragEnd _ =
+updateI (GameModel' GameModel{playingPlayer}) DragEnd (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
+  (NoInteraction, Place playingPlayer dragTarget draggedCard)
+updateI _ DragEnd _ =
   noPlayAction NoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
-updateI (DragEnter cSpot) (DragInteraction dragging) =
+updateI _ (DragEnter cSpot) (DragInteraction dragging) =
   noPlayAction $ DragInteraction $ dragging {dragTarget = Just cSpot}
-updateI (DragLeave _) (DragInteraction dragging) =
+updateI _ (DragLeave _) (DragInteraction dragging) =
   noPlayAction $ DragInteraction $ dragging {dragTarget = Nothing}
-updateI EndTurn _ =
-  (NoInteraction, EndPlayerTurn)
+updateI (GameModel' GameModel{playingPlayer}) EndTurn _ =
+  (NoInteraction, EndPlayerTurn playingPlayer)
 -- Hovering in hand cards
-updateI (InHandMouseEnter i) NoInteraction =
+updateI _ (InHandMouseEnter i) NoInteraction =
   noPlayAction $ HoverInteraction $ Hovering i
-updateI (InHandMouseLeave _) _ =
+updateI _ (InHandMouseLeave _) _ =
   noPlayAction NoInteraction
 -- Hovering in place cards
-updateI (InPlaceMouseEnter pSpot cSpot) NoInteraction =
+updateI _ (InPlaceMouseEnter pSpot cSpot) NoInteraction =
   noPlayAction $ HoverInPlaceInteraction pSpot cSpot
-updateI (InPlaceMouseLeave _ _) _ =
+updateI _ (InPlaceMouseLeave _ _) _ =
   noPlayAction NoInteraction
 -- default
-updateI _ i =
+updateI _ _ i =
   noPlayAction i
 
 lookupInHand :: [a] -> Int -> Either Text a
@@ -184,26 +185,27 @@ play m@GameModel {board} playAction =
         return $ m {board = board', anims = anims'}
   where
     gamify :: PlayAction -> Either Text (Maybe Game.PlayAction) = \case
-      EndPlayerTurn -> return $ Just Game.EndPlayerTurn
-      Place (HandIndex i) cSpot -> do
+      EndPlayerTurn pSpot -> return $ Just $ Game.EndPlayerTurn pSpot
+      Place pSpot cSpot (HandIndex i) -> do
         -- FIXME smelc can we use boardHand instead ? Yes if the call to
         -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of
         -- the hand (which I believe is the case) meaning the UI index
         -- stored in DragStart and then in Place is valid in terms of Board.
         played <- lookupInHand uiHand i
-        return $ Just $ Game.Place (CreatureCard played) cSpot
+        return $ Just $ Game.Place pSpot cSpot (CreatureCard played)
         where
-          uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board
-          boardHand :: [Card Core] = boardToHand board playingPlayerPart
+          pLens = spotToLens pSpot
+          uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board pLens
+          boardHand :: [Card Core] = boardToHand board pLens
       NoPlayAction -> return Nothing
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
-updateModel a (GameModel' m@GameModel{interaction}) =
+updateModel a gm@(GameModel' m@GameModel {interaction}) =
   noEff $ GameModel' $ m' {interaction = interaction''}
   where
-    (interaction', playAction) = updateI a interaction
+    (interaction', playAction) = updateI gm a interaction
     eitherErrModel = Update.play m playAction
     (interaction'', m') =
       case eitherErrModel of

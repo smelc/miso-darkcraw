@@ -9,18 +9,19 @@ module Turn
   )
 where
 
-import Board (PlayerSpot (..), playingPlayerSpot)
+import Board (PlayerSpot (..), endingPlayerSpot, startingPlayerSpot)
 import GHC.Generics (Generic)
 
 newtype Turn = Turn (Int, PlayerSpot)
   deriving (Eq, Generic, Show)
 
 initialTurn :: Turn
-initialTurn = Turn (1, playingPlayerSpot)
+initialTurn = Turn (1, startingPlayerSpot)
 
 nextTurn :: Turn -> Turn
-nextTurn (Turn (i, pSpot)) | pSpot == playingPlayerSpot = Turn (i, PlayerTop)
-nextTurn (Turn (i, _)) = Turn (i + 1, playingPlayerSpot)
+nextTurn (Turn (i, pSpot))
+  | pSpot == startingPlayerSpot = Turn (i, endingPlayerSpot)
+nextTurn (Turn (i, _)) = Turn (i + 1, startingPlayerSpot)
 
 turnToInt :: Turn -> Int
 turnToInt (Turn (i, _)) = i

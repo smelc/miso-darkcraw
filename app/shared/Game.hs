@@ -1,13 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Game
   ( attackOrder, -- Exported only for tests
@@ -38,9 +38,9 @@ import qualified Data.Text as Text
 -- TODO smelc Use a type family to share this type with Update.PlayAction
 data PlayAction
   = -- | Player finishes its turn, we should resolve it
-    EndPlayerTurn
+    EndPlayerTurn PlayerSpot
   | -- | Player puts a card from his hand on its part of the board
-    Place (Card Core) CardSpot
+    Place PlayerSpot CardSpot (Card Core)
 
 reportEffect ::
   MonadWriter (Board UI) m =>
@@ -72,8 +72,8 @@ playM ::
   Board Core ->
   PlayAction ->
   m (Board Core)
-playM board EndPlayerTurn = endTurn board playingPlayerSpot
-playM board (Place (card :: Card Core) cSpot)
+playM board (EndPlayerTurn pSpot) = endTurn board pSpot
+playM board (Place pSpot cSpot (card :: Card Core))
   | length hand == length hand' -- number of cards in hand did not decrease,
   -- this means the card wasn't in the hand to begin with
     =
@@ -86,8 +86,9 @@ playM board (Place (card :: Card Core) cSpot)
       "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
   | otherwise = return $ board {playerBottom = playerPart'}
   where
-    base :: PlayerPart Core = board ^. playingPlayerPart
-    hand :: [Card Core] = boardToHand board playingPlayerPart
+    pLens = spotToLens pSpot
+    base :: PlayerPart Core = board ^. pLens
+    hand :: [Card Core] = boardToHand board $ spotToLens pSpot
     hand' :: [Card Core] = delete card hand
     onTable :: Map CardSpot (Creature Core) = inPlace base
     onTable' = onTable & at cSpot ?~ cardToCreature card

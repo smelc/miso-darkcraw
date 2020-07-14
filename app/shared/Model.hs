@@ -47,6 +47,8 @@ data GameModel = GameModel
     board :: Board Core,
     -- | What user interaction is going on
     interaction :: Interaction,
+    -- | Where the player plays
+    playingPlayer :: PlayerSpot,
     -- | The current turn
     turn :: Turn,
     -- | Data obtained at load time, that never changes
