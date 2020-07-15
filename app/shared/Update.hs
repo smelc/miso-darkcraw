@@ -204,7 +204,7 @@ play m@GameModel {board} playAction =
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
-updateModel _ m@(WelcomeModel' _) = m <# do consoleLog "updateModel WelcomeModel" >> pure NoOp
+updateModel _ m@(WelcomeModel' _) = noEff m
 updateModel a gm@(GameModel' m@GameModel {interaction}) =
   noEff $ GameModel' $ m' {interaction = interaction''}
   where

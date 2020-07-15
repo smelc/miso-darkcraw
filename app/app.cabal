@@ -25,6 +25,7 @@ executable app
     Update
     Utils
     View
+    WelcomeView
   ghc-options:
     -Wincomplete-patterns
     -Werror

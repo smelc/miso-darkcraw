@@ -48,6 +48,9 @@ boardPixelHeight = 624
 borderSize :: Int
 borderSize = 3
 
+gameTitle :: MisoString
+gameTitle = "Pixel Card Wars"
+
 -- | The hands's height, in pixels
 handPixelHeight :: Int
 handPixelHeight = 192
@@ -86,7 +89,7 @@ cardVCellGap = 1
 
 -- | The URL of the game on itch.io
 itchURL :: MisoString
-itchURL = "https://hgames.itch.io/darkcraw"
+itchURL = "https://hgames.itch.io/pixel-card-wars"
 
 -- | The vertical spacing between the two teams, in cells
 teamsVCellGap :: Int
