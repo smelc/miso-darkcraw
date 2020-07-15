@@ -203,16 +203,6 @@ noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "n
 textStyle :: Attribute action
 textStyle = style_ $ Map.fromList textRawStyle
 
-buttonStyle :: Attribute action
-buttonStyle =
-  style_
-    $ Map.fromList
-    $ [ ("background-color", "transparent"), -- no background
-        ("border", "2px solid " <> textMainColor), -- white not-shadowed border
-        ("outline", "none") -- don't highlight that it has been pressed
-      ]
-      ++ textRawStyle
-
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
   Int ->

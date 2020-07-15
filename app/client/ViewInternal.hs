@@ -12,6 +12,16 @@ import Miso hiding (at)
 import Miso.String hiding (length)
 import Update (Action (..))
 
+buttonStyle :: Attribute action
+buttonStyle =
+  style_
+    $ Map.fromList
+    $ [ ("background-color", "transparent"), -- no background
+        ("border", "2px solid " <> textMainColor), -- white not-shadowed border
+        ("outline", "none") -- don't highlight that it has been pressed
+      ]
+      ++ textRawStyle
+
 textMainColor :: MisoString
 textMainColor = "#FFFFFF" -- white
 
