@@ -33,8 +33,8 @@ import Utils (style1_)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
-viewModel :: Model -> View Action
-viewModel (GameModel' model@GameModel {board, interaction}) =
+viewGameModel :: GameModel -> View Action
+viewGameModel model@GameModel {board, interaction} =
   div_ [] $ [boardDiv, handDiv] ++ errView model zpp
   where
     (z, zpp) = (0, z + 1)

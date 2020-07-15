@@ -22,7 +22,6 @@ import Data.ByteString.Lazy (ByteString, fromStrict)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
 import qualified Data.Text as Text
-import GameView
 import Json (loadJson)
 import JsonData
 import Miso
@@ -31,7 +30,8 @@ import Model
 import System.Exit
 import System.IO (hPutStrLn, stderr)
 import Turn (initialTurn)
-import Update
+import View (viewModel)
+import Update (Action(..), logUpdates, updateModel)
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
