@@ -19,7 +19,7 @@ import ViewInternal
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> View Action
 viewWelcomeModel _ =
-  div_ [style_ style, style_ flexStyle] [titleDiv]
+  div_ [style_ style, style_ flexStyle] [titleDiv, buttonDiv]
   where
     (z, zpp) = (0, z + 1)
     style =
@@ -30,11 +30,18 @@ viewWelcomeModel _ =
       "display" =: "flex"
         <> "flex-direction" =: "column"
         <> "align-items" =: "center"
+    textStyle = Map.fromList textRawStyle
     titleDiv = div_ [style_ titleStyle] [text gameTitle]
     titleFontSize = cellPixelSize + (cellPixelSize `div` 2)
     titleStyle =
-      Map.union
-        (Map.fromList textRawStyle)
-        $ "font-size" =: (ms titleFontSize <> "px")
-          <> "z-index" =: ms zpp
-          <> "margin-top" =: (ms cellPixelSize <> "px")
+      textStyle
+        <> "font-size" =: (ms titleFontSize <> "px")
+        <> "z-index" =: ms zpp
+        <> "margin-top" =: (ms cellPixelSize <> "px")
+    topMarginAttr = style_ $ "margin-top" =: (ms titleFontSize <> "px")
+    buttonDiv =
+      button_
+        [ style_ $ "margin-top" =: (ms (titleFontSize * 2) <> "px"),
+          buttonStyle
+        ]
+        [div_ [style_ textStyle] [text "Start"]]
