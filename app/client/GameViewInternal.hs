@@ -200,12 +200,6 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
 
-mainColor :: MisoString
-mainColor = "#FFFFFF"
-
-textRawStyle :: [(MisoString, MisoString)]
-textRawStyle = [("color", mainColor)]
-
 textStyle :: Attribute action
 textStyle = style_ $ Map.fromList textRawStyle
 
@@ -214,7 +208,7 @@ buttonStyle =
   style_
     $ Map.fromList
     $ [ ("background-color", "transparent"), -- no background
-        ("border", "2px solid " <> mainColor), -- white not-shadowed border
+        ("border", "2px solid " <> textMainColor), -- white not-shadowed border
         ("outline", "none") -- don't highlight that it has been pressed
       ]
       ++ textRawStyle

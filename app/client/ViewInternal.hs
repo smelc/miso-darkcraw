@@ -12,6 +12,12 @@ import Miso hiding (at)
 import Miso.String hiding (length)
 import Update (Action (..))
 
+textMainColor :: MisoString
+textMainColor = "#FFFFFF" -- white
+
+textRawStyle :: [(MisoString, MisoString)]
+textRawStyle = [("color", textMainColor)]
+
 -- | Dummy [onWithOptions] instance.
 -- | See https://github.com/dmjio/miso/issues/478
 dummyOn ::
