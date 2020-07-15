@@ -3,10 +3,10 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Update where
 
@@ -25,7 +25,7 @@ import Miso.String (ms)
 import Model
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
-import Turn (Turn)
+import Turn (Turn, initialTurn)
 
 instance ToExpr CreatureKind
 
@@ -76,6 +76,8 @@ instance ToExpr Interaction
 instance ToExpr Turn
 
 instance ToExpr GameModel
+
+instance ToExpr WelcomeModel
 
 instance ToExpr Model
 
@@ -135,7 +137,7 @@ updateI m action (ShowErrorInteraction _)
     -- Now onto "normal" stuff:
 updateI _ (DragStart i) _ =
   noPlayAction $ DragInteraction $ Dragging i Nothing
-updateI (GameModel' GameModel{playingPlayer}) DragEnd (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
+updateI (GameModel' GameModel {playingPlayer}) DragEnd (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
   (NoInteraction, Place playingPlayer dragTarget draggedCard)
 updateI _ DragEnd _ =
   noPlayAction NoInteraction
@@ -145,7 +147,7 @@ updateI _ (DragEnter cSpot) (DragInteraction dragging) =
   noPlayAction $ DragInteraction $ dragging {dragTarget = Just cSpot}
 updateI _ (DragLeave _) (DragInteraction dragging) =
   noPlayAction $ DragInteraction $ dragging {dragTarget = Nothing}
-updateI (GameModel' GameModel{playingPlayer}) EndTurn _ =
+updateI (GameModel' GameModel {playingPlayer}) EndTurn _ =
   (NoInteraction, EndPlayerTurn playingPlayer)
 -- Hovering in hand cards
 updateI _ (InHandMouseEnter i) NoInteraction =
@@ -202,6 +204,7 @@ play m@GameModel {board} playAction =
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
+updateModel _ m@(WelcomeModel' _) = m <# do consoleLog "updateModel WelcomeModel" >> pure NoOp
 updateModel a gm@(GameModel' m@GameModel {interaction}) =
   noEff $ GameModel' $ m' {interaction = interaction''}
   where
@@ -211,3 +214,15 @@ updateModel a gm@(GameModel' m@GameModel {interaction}) =
       case eitherErrModel of
         Left errMsg -> (ShowErrorInteraction errMsg, m)
         Right model' -> (interaction', model')
+
+initialGameModel :: [Card UI] -> GameModel
+initialGameModel cards =
+  GameModel
+    board
+    NoInteraction
+    startingPlayerSpot
+    initialTurn
+    cards
+    mempty
+  where
+    board = exampleBoard cards

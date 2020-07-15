@@ -63,6 +63,7 @@ Test-Suite test-darkcraw
   other-modules:
     Board
     Card
+    Constants
     Game
   hs-source-dirs:
     shared,

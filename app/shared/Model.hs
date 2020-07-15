@@ -58,7 +58,13 @@ data GameModel = GameModel
   }
   deriving (Eq, Generic)
 
+-- | The model of the welcome page
+data WelcomeModel = WelcomeModel { }
+  deriving (Eq, Generic)
+
 -- | The top level model, later it will be a disjunction
 -- | of the model of each page
-newtype Model = GameModel' GameModel
+data Model =
+    GameModel' GameModel
+  | WelcomeModel' WelcomeModel
   deriving (Eq, Generic)

@@ -4,6 +4,7 @@ module Main where
 
 import Board (allCardsSpots)
 import Card
+import Constants
 import Data.Maybe (mapMaybe)
 import Game (attackOrder)
 import Json
@@ -43,6 +44,10 @@ main = hspec $ do
       all (\c -> hp c > 0) allCreatures
     it "all attacks are initially >= 0" $
       all (\c -> attack c >= 0) allCreatures
+    it "welcome and board backgrounds agree in width" $
+      boardPixelWidth `shouldBe` welcomePixelWidth
+    it "welcome and board backgrounds agree in height" $
+      boardPixelHeight `shouldBe` welcomePixelHeight
   describe "attack order contains all spots"
     $ it "check the lengths"
     $ length allCardsSpots `shouldBe` length attackOrder

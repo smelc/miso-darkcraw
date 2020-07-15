@@ -103,3 +103,11 @@ turnPixelWidth = 4 * cellPixelSize
 -- | The size of a cell, in pixels
 cellPixelSize :: Int
 cellPixelSize = 24
+
+-- | The width of the welcome background, in pixels
+welcomePixelWidth :: Int
+welcomePixelWidth = 504
+
+-- | The height of the welcome background, in pixels
+welcomePixelHeight :: Int
+welcomePixelHeight = 624

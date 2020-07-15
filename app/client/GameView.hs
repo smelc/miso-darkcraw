@@ -27,7 +27,7 @@ import Game (enemySpots)
 import GameViewInternal
 import Miso hiding (at)
 import Miso.String
-import Model
+import Model -- XXX tighten the imports?
 import Update
 import Utils (style1_)
 import ViewInternal

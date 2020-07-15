@@ -40,7 +40,7 @@ function midori_listen() {
 }
 
 function cabal_listen() {
-  local -r ASSETS_TO_COPY="$(find assets -iname '*.png' -print0 | xargs)"
+  local -r ASSETS_TO_COPY="$(find assets -iname '*.png' -print0 | xargs -0)"
   git ls-files "*.hs" | entr -s "cabal --project-file=cabal.config build all && mkdir -p $CABAL_ASSETS && cp $ASSETS_TO_COPY $CABAL_ASSETS/."
 }
 
