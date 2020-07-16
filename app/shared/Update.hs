@@ -238,9 +238,10 @@ updateGameModel a m@GameModel {interaction} =
 -- | (SpecializedAction -> SpecializedModel -> SpecializedModel),
 -- | it needs to be in `Action -> Model -> Model`.
 updateModel :: Action -> Model -> Effect Action Model
+updateModel NoOp m = noEff m
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
-updateModel _ m@(WelcomeModel' _) =
-  noEff m
+updateModel (WelcomeAction' WelcomeStart) m@(WelcomeModel' WelcomeModel {welcomeCards}) =
+  noEff $ GameModel' $ initialGameModel welcomeCards
 updateModel (GameAction' a) (GameModel' m) =
   noEff $ GameModel' $ updateGameModel a m
 updateModel a m =

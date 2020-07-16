@@ -52,14 +52,16 @@ data GameModel = GameModel
     -- | The current turn
     turn :: Turn,
     -- | Data obtained at load time, that never changes
-    uiCards :: [Card UI],
+    gameCards :: [Card UI],
     -- | Animations to perform next
     anims :: Board UI
   }
   deriving (Eq, Generic, Show)
 
 -- | The model of the welcome page
-data WelcomeModel = WelcomeModel { }
+newtype WelcomeModel = WelcomeModel {
+  welcomeCards :: [Card UI]
+}
   deriving (Eq, Generic, Show)
 
 -- | The top level model, later it will be a disjunction
