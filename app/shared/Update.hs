@@ -81,6 +81,10 @@ instance ToExpr WelcomeModel
 
 instance ToExpr Model
 
+data WelcomeAction =
+  WelcomeStart
+  deriving (Show, Eq)
+
 -- | Sum type for application events. If drop stuff doesn't work
 -- | think whether it's affected by https://github.com/dmjio/miso/issues/478
 data Action
@@ -101,6 +105,7 @@ data Action
     InPlaceMouseLeave PlayerSpot CardSpot
   | NoOp
   | SayHelloWorld
+  | WelcomeAction' WelcomeAction
   deriving (Show, Eq)
 
 logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a

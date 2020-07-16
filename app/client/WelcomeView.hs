@@ -42,6 +42,7 @@ viewWelcomeModel _ =
     buttonDiv =
       button_
         [ style_ $ "margin-top" =: (ms (titleFontSize * 2) <> "px"),
+          onClick $ WelcomeAction' WelcomeStart,
           buttonStyle
         ]
         [div_ [style_ textStyle] [text "Start"]]
