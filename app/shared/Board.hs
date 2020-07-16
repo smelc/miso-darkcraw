@@ -92,7 +92,7 @@ data AttackEffect = AttackEffect
     -- | Hits points changed
     hitPointsChange :: Int
   }
-  deriving (Eq, Generic)
+  deriving (Eq, Generic, Show)
 
 -- | How to build instances of [AttackEffect] values
 createAttackEffect ::
@@ -124,7 +124,7 @@ instance Monoid AttackEffect where
   mempty = AttackEffect {death = False, attackBump = False, hitPointsChange = 0}
 
 newtype AttackEffects = AttackEffects {unAttackEffects :: Map.Map CardSpot AttackEffect}
-  deriving (Eq, Generic)
+  deriving (Eq, Generic, Show)
 
 instance Semigroup AttackEffects where
   AttackEffects m1 <> AttackEffects m2 = AttackEffects (Map.unionWith (<>) m1 m2)
@@ -167,6 +167,8 @@ data PlayerPart (p :: Phase) = PlayerPart
 
 deriving instance Board.Forall Eq p => Eq (PlayerPart p)
 
+deriving instance Board.Forall Show p => Show (PlayerPart p)
+
 instance Semigroup (PlayerPart UI) where
   PlayerPart inPlace1 () () () <> PlayerPart inPlace2 () () () =
     PlayerPart (inPlace1 <> inPlace2) () () ()
@@ -193,6 +195,8 @@ data Board (p :: Phase) = Board
   deriving (Generic)
 
 deriving instance Board.Forall Eq p => Eq (Board p)
+
+deriving instance Board.Forall Show p => Show (Board p)
 
 instance Semigroup (Board UI) where
   Board top1 bot1 <> Board top2 bot2 =

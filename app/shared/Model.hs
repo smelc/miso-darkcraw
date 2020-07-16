@@ -56,15 +56,15 @@ data GameModel = GameModel
     -- | Animations to perform next
     anims :: Board UI
   }
-  deriving (Eq, Generic)
+  deriving (Eq, Generic, Show)
 
 -- | The model of the welcome page
 data WelcomeModel = WelcomeModel { }
-  deriving (Eq, Generic)
+  deriving (Eq, Generic, Show)
 
 -- | The top level model, later it will be a disjunction
 -- | of the model of each page
 data Model =
     GameModel' GameModel
   | WelcomeModel' WelcomeModel
-  deriving (Eq, Generic)
+  deriving (Eq, Generic, Show)
