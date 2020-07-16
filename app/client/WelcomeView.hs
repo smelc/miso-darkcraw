@@ -5,7 +5,7 @@
 -- Module to display the initial view of the game, i.e. the one
 -- that shows up when the game starts.
 -- |
-module WelcomeView where
+module WelcomeView (viewWelcomeModel) where
 
 import Constants
 import qualified Data.Map.Strict as Map
@@ -19,7 +19,9 @@ import ViewInternal
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> View Action
 viewWelcomeModel _ =
-  div_ [style_ style, style_ flexStyle] [titleDiv, buttonDiv]
+  div_
+    [style_ style]
+    [torchesDiv zpp, div_ [style_ flexStyle] [titleDiv, buttonDiv]]
   where
     (z, zpp) = (0, z + 1)
     style =
@@ -46,3 +48,12 @@ viewWelcomeModel _ =
           buttonStyle
         ]
         [div_ [style_ textStyle] [text "Start"]]
+
+torchesDiv :: Int -> View Action
+torchesDiv z = div_ [] [torch 1, torch $ -1]
+  where
+    torch x = div_ [style_ $ style x] []
+    style x =
+      Map.union (tilerb z Absolute 0 (14 + x)) $
+        Map.fromList
+          [("background-image", assetsUrl "24x24_0_3.png")]

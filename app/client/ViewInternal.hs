@@ -7,6 +7,7 @@
 -- |
 module ViewInternal where
 
+import Constants (cellPixelSize)
 import qualified Data.Map.Strict as Map
 import Miso hiding (at)
 import Miso.String hiding (length)
@@ -50,6 +51,13 @@ data Position = Absolute | Relative
 instance Show Position where
   show Absolute = "absolute"
   show Relative = "relative"
+
+-- | A style specifying the z-index, the position,
+-- | the right margin (in cells), and the bottom margin (in pixels) of a tile
+-- | i.e. of a rectangle of size 'cellPixelSize'.
+tilerb :: Int -> Position -> Int -> Int -> Map.Map MisoString MisoString
+tilerb z pos right bot =
+  zprbwh z pos (cellPixelSize * right) (cellPixelSize * bot) cellPixelSize cellPixelSize
 
 -- | A style specifying the z-index, the position,
 -- | the left margin (in pixels), and the top margin (in pixels)
@@ -120,12 +128,12 @@ zprbwh ::
   Int ->
   Int ->
   Map.Map MisoString MisoString
-zprbwh z pos left top width height =
+zprbwh z pos right bottom width height =
   Map.fromList
     [ ("z-index", ms z),
       ("position", ms $ show pos),
-      ("right", ms top <> "px"),
-      ("bottom", ms left <> "px"),
+      ("right", ms right <> "px"),
+      ("bottom", ms bottom <> "px"),
       ("width", ms width <> "px"),
       ("height", ms height <> "px")
     ]
