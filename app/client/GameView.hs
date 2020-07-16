@@ -1,10 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 -- |
 -- Module to display an instance of the main view, i.e.
@@ -66,13 +66,13 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} =
             ]
               ++ case maybeCreature of
                 Just _ ->
-                  [ onMouseEnter' "card" $ InPlaceMouseEnter pSpot cSpot,
-                    onMouseLeave' "card" $ InPlaceMouseLeave pSpot cSpot
+                  [ onMouseEnter' "card" $ GameAction' $ GameInPlaceMouseEnter pSpot cSpot,
+                    onMouseLeave' "card" $ GameAction' $ GameInPlaceMouseLeave pSpot cSpot
                   ]
                 Nothing ->
-                  [ onDragEnter (DragEnter cSpot),
-                    onDragLeave (DragLeave cSpot),
-                    onDrop (AllowDrop True) DragEnd,
+                  [ onDragEnter (GameAction' $ GameDragEnter cSpot),
+                    onDragLeave (GameAction' $ GameDragLeave cSpot),
+                    onDrop (AllowDrop True) $ GameAction' GameDrop,
                     dummyOn "dragover"
                   ]
           )
@@ -80,7 +80,7 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} =
             ++ deathFadeout attackEffect x y
         | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
           let (x, y) = cardCellsBoardOffset pSpot cSpot,
-          let beingHovered = interaction == HoverInPlaceInteraction pSpot cSpot,
+          let beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot,
           let attackEffect =
                 anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
           let bounceStyle =
@@ -89,7 +89,7 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} =
                 ],
           let (r, g, b) =
                 case interaction of
-                  DragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
+                  GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
                   _ -> green
       ]
     yellow = (255, 255, 0)
@@ -109,11 +109,11 @@ boardToInHandCells z m@GameModel {board, interaction, playingPlayer} =
   [ div_
       [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,
-        onDragStart (DragStart i),
-        onDragEnd DragEnd,
+        onDragStart (GameAction' $ GameDragStart i),
+        onDragEnd $ GameAction' GameDrop,
         class_ "card",
-        onMouseEnter' "card" $ InHandMouseEnter i,
-        onMouseLeave' "card" $ InHandMouseLeave i
+        onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
+        onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
       ]
       [cardCreature z (Just creature) beingHovered | not beingDragged]
     | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
@@ -121,11 +121,11 @@ boardToInHandCells z m@GameModel {board, interaction, playingPlayer} =
       let y = 2 * cellPixelSize,
       let (beingHovered, beingDragged) =
             case interaction of
-              HoverInteraction Hovering {hoveredCard} ->
+              GameHoverInteraction Hovering {hoveredCard} ->
                 (hoveredCard == i, False)
-              DragInteraction Dragging {draggedCard} ->
+              GameDragInteraction Dragging {draggedCard} ->
                 (False, draggedCard == i)
-              ShowErrorInteraction _ -> (False, False)
+              GameShowErrorInteraction _ -> (False, False)
               _ -> (False, False)
   ]
     ++ [stackView m z]

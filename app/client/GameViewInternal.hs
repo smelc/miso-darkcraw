@@ -44,7 +44,7 @@ import ViewInternal
 errView :: GameModel -> Int -> [View Action]
 errView model@GameModel {interaction} z =
   case interaction of
-    ShowErrorInteraction msg ->
+    GameShowErrorInteraction msg ->
       [div_ [style_ errViewStyle] $ textView msg : feedbackViews]
     _ -> []
   where
@@ -108,7 +108,7 @@ turnView model@GameModel {turn} z =
           Nothing
     line3 :: View Action =
       button_
-        [topMarginAttr, onClick EndTurn, buttonStyle]
+        [topMarginAttr, onClick $ GameAction' GameEndTurn, buttonStyle]
         [div_ [textStyle] [text "End Turn"]]
 
 -- | The widget showing the number of cards in the stack
@@ -177,9 +177,9 @@ keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) dire
 borderWidth :: GameModel -> PlayerSpot -> CardSpot -> Int
 borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
   case interaction of
-    DragInteraction _ | emptyPlayingPlayerSpot -> 3
-    HoverInteraction _ | emptyPlayingPlayerSpot -> 3
-    HoverInPlaceInteraction pSpot' cSpotHovered ->
+    GameDragInteraction _ | emptyPlayingPlayerSpot -> 3
+    GameHoverInteraction _ | emptyPlayingPlayerSpot -> 3
+    GameHoverInPlaceInteraction pSpot' cSpotHovered ->
       let attacker = boardToInPlaceCreature board (spotToLens pSpot') cSpotHovered
        in let skills' =
                 case attacker of

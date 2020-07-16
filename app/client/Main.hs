@@ -85,5 +85,4 @@ main = do
     events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
     subs = [] -- empty subscription list
     mountPoint = Nothing -- mount point for application (Nothing defaults to 'body')
-    interaction = NoInteraction -- initial interaction
     logLevel = Off

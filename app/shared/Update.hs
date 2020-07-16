@@ -71,7 +71,7 @@ instance ToExpr Dragging
 
 instance ToExpr Hovering
 
-instance ToExpr Interaction
+instance ToExpr GameInteraction
 
 instance ToExpr Turn
 
@@ -81,28 +81,34 @@ instance ToExpr WelcomeModel
 
 instance ToExpr Model
 
+-- | Actions that are raised by 'WelcomeView'
 data WelcomeAction
   = WelcomeStart
+  deriving (Show, Eq)
+
+-- | Actions that are raised by 'GameView'
+data GameAction
+  = -- | Dragging card in hand
+    GameDragStart HandIndex
+  | GameDrop
+  | GameDragEnter CardSpot
+  | GameDragLeave CardSpot
+  | -- | End Turn button pressed in turn widget
+    GameEndTurn
+  | -- | Starting hovering card in hand
+    GameInHandMouseEnter HandIndex
+  | -- | Ending hovering card in hand
+    GameInHandMouseLeave HandIndex
+  | -- | Starting hovering card in place
+    GameInPlaceMouseEnter PlayerSpot CardSpot
+  | -- | Ending hovering card in place
+    GameInPlaceMouseLeave PlayerSpot CardSpot
   deriving (Show, Eq)
 
 -- | Sum type for application events. If drop stuff doesn't work
 -- | think whether it's affected by https://github.com/dmjio/miso/issues/478
 data Action
-  = -- | Dragging card in hand
-    DragStart HandIndex
-  | DragEnd -- FIXME smelc rename me to Drop
-  | DragEnter CardSpot
-  | DragLeave CardSpot
-  | -- | End Turn button pressed in turn widget
-    EndTurn
-  | -- | Starting hovering card in hand
-    InHandMouseEnter HandIndex
-  | -- | Ending hovering card in hand
-    InHandMouseLeave HandIndex
-  | -- | Starting hovering card in place
-    InPlaceMouseEnter PlayerSpot CardSpot
-  | -- | Ending hovering card in place
-    InPlaceMouseLeave PlayerSpot CardSpot
+  = GameAction' GameAction
   | NoOp
   | SayHelloWorld
   | WelcomeAction' WelcomeAction
@@ -136,41 +142,40 @@ noPlayAction interaction = (interaction, NoPlayAction)
 -- | Translates a game action into an 'Interaction' and a 'PlayAction'
 interpretOnGameModel ::
   GameModel ->
-  Action ->
-  Interaction ->
-  (Interaction, PlayAction)
--- This is the only definition that should care about ShowErrorInteraction:
-interpretOnGameModel m action (ShowErrorInteraction _)
-  | action /= NoOp =
-    interpretOnGameModel m action NoInteraction -- clear error message
-    -- Now onto "normal" stuff:
-interpretOnGameModel _ (DragStart i) _ =
-  noPlayAction $ DragInteraction $ Dragging i Nothing
+  GameAction ->
+  GameInteraction ->
+  (GameInteraction, PlayAction)
+-- This is the only definition that should care about GameShowErrorInteraction:
+interpretOnGameModel m action (GameShowErrorInteraction _) =
+  interpretOnGameModel m action GameNoInteraction -- clear error message
+  -- Now onto "normal" stuff:
+interpretOnGameModel _ (GameDragStart i) _ =
+  noPlayAction $ GameDragInteraction $ Dragging i Nothing
 interpretOnGameModel
   GameModel {playingPlayer}
-  DragEnd
-  (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    (NoInteraction, Place playingPlayer dragTarget draggedCard)
-interpretOnGameModel _ DragEnd _ =
-  noPlayAction NoInteraction
+  GameDrop
+  (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
+    (GameNoInteraction, Place playingPlayer dragTarget draggedCard)
+interpretOnGameModel _ GameDrop _ =
+  noPlayAction GameNoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
-interpretOnGameModel _ (DragEnter cSpot) (DragInteraction dragging) =
-  noPlayAction $ DragInteraction $ dragging {dragTarget = Just cSpot}
-interpretOnGameModel _ (DragLeave _) (DragInteraction dragging) =
-  noPlayAction $ DragInteraction $ dragging {dragTarget = Nothing}
-interpretOnGameModel GameModel {playingPlayer} EndTurn _ =
-  (NoInteraction, EndPlayerTurn playingPlayer)
+interpretOnGameModel _ (GameDragEnter cSpot) (GameDragInteraction dragging) =
+  noPlayAction $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
+interpretOnGameModel _ (GameDragLeave _) (GameDragInteraction dragging) =
+  noPlayAction $ GameDragInteraction $ dragging {dragTarget = Nothing}
+interpretOnGameModel GameModel {playingPlayer} GameEndTurn _ =
+  (GameNoInteraction, EndPlayerTurn playingPlayer)
 -- Hovering in hand cards
-interpretOnGameModel _ (InHandMouseEnter i) NoInteraction =
-  noPlayAction $ HoverInteraction $ Hovering i
-interpretOnGameModel _ (InHandMouseLeave _) _ =
-  noPlayAction NoInteraction
+interpretOnGameModel _ (GameInHandMouseEnter i) GameNoInteraction =
+  noPlayAction $ GameHoverInteraction $ Hovering i
+interpretOnGameModel _ (GameInHandMouseLeave _) _ =
+  noPlayAction GameNoInteraction
 -- Hovering in place cards
-interpretOnGameModel _ (InPlaceMouseEnter pSpot cSpot) NoInteraction =
-  noPlayAction $ HoverInPlaceInteraction pSpot cSpot
-interpretOnGameModel _ (InPlaceMouseLeave _ _) _ =
-  noPlayAction NoInteraction
+interpretOnGameModel _ (GameInPlaceMouseEnter pSpot cSpot) GameNoInteraction =
+  noPlayAction $ GameHoverInPlaceInteraction pSpot cSpot
+interpretOnGameModel _ (GameInPlaceMouseLeave _ _) _ =
+  noPlayAction GameNoInteraction
 -- default
 interpretOnGameModel _ _ i =
   noPlayAction i
@@ -214,7 +219,7 @@ play m@GameModel {board} playAction =
       NoPlayAction -> return Nothing
 
 -- | Updates a game model
-updateGameModel :: Action -> GameModel -> GameModel
+updateGameModel :: GameAction -> GameModel -> GameModel
 updateGameModel a m@GameModel {interaction} =
   m' {interaction = interaction''}
   where
@@ -222,7 +227,7 @@ updateGameModel a m@GameModel {interaction} =
     eitherErrModel = Update.play m playAction
     (interaction'', m') =
       case eitherErrModel of
-        Left errMsg -> (ShowErrorInteraction errMsg, m)
+        Left errMsg -> (GameShowErrorInteraction errMsg, m)
         Right model' -> (interaction', model')
 
 -- | Updates model, optionally introduces side effects
@@ -234,16 +239,22 @@ updateGameModel a m@GameModel {interaction} =
 -- | it needs to be in `Action -> Model -> Model`.
 updateModel :: Action -> Model -> Effect Action Model
 updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
-updateModel _ m@(WelcomeModel' _) = noEff m
-updateModel a (GameModel' m) = noEff $ GameModel' $ updateGameModel a m
-
--- updateModel a m = error $ "Unhandled case in updateModel with the model being:\n" ++ show m ++ "\nand the action being:\n" ++ show a
+updateModel _ m@(WelcomeModel' _) =
+  noEff m
+updateModel (GameAction' a) (GameModel' m) =
+  noEff $ GameModel' $ updateGameModel a m
+updateModel a m =
+  error $
+    "Unhandled case in updateModel with the model being:\n"
+      ++ show m
+      ++ "\nand the action being:\n"
+      ++ show a
 
 initialGameModel :: [Card UI] -> GameModel
 initialGameModel cards =
   GameModel
     board
-    NoInteraction
+    GameNoInteraction
     startingPlayerSpot
     initialTurn
     cards

@@ -13,15 +13,15 @@ import Turn (Turn)
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
 
-data Interaction
+data GameInteraction
   = -- | Hovering over a card in hand TODO smelc rename to HoverHandInteraction
-    HoverInteraction Hovering
+    GameHoverInteraction Hovering
   | -- | Hovering over a card in place
-    HoverInPlaceInteraction PlayerSpot CardSpot
+    GameHoverInPlaceInteraction PlayerSpot CardSpot
   | -- | Dragging a card
-    DragInteraction Dragging
-  | NoInteraction
-  | ShowErrorInteraction Text.Text
+    GameDragInteraction Dragging
+  | GameNoInteraction
+  | GameShowErrorInteraction Text.Text
   deriving (Eq, Generic, Show)
 
 newtype Hovering = Hovering
@@ -46,7 +46,7 @@ data GameModel = GameModel
   { -- | The core part of the model
     board :: Board Core,
     -- | What user interaction is going on
-    interaction :: Interaction,
+    interaction :: GameInteraction,
     -- | Where the player plays
     playingPlayer :: PlayerSpot,
     -- | The current turn
