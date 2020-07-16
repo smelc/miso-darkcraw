@@ -10,7 +10,7 @@ module WelcomeView (viewWelcomeModel) where
 import Constants
 import qualified Data.Map.Strict as Map
 import Miso
-import Miso.String
+import Miso.String hiding (length)
 import Miso.Util ((=:))
 import Model (WelcomeModel (..))
 import Update
@@ -50,10 +50,22 @@ viewWelcomeModel _ =
         [div_ [style_ textStyle] [text "Start"]]
 
 torchesDiv :: Int -> View Action
-torchesDiv z = div_ [] [torch 1, torch $ -1]
+torchesDiv z =
+  div_
+    []
+    [ nodeHtml
+        "style"
+        []
+        ["@keyframes torch { 100% { background-position: -48px; } }"],
+      torch 1,
+      torch $ -1
+    ]
   where
     torch x = div_ [style_ $ style x] []
     style x =
-      Map.union (tilerb z Absolute 0 (14 + x)) $
-        Map.fromList
-          [("background-image", assetsUrl "24x24_0_3.png")]
+      Map.union
+        (tilerb z Absolute 0 (14 + x))
+        ("background-image" =: assetsUrl "torchs.png")
+        <> ("animation" =: ("torch " <> duration x <> " steps(2) infinite"))
+    duration :: Int -> MisoString
+    duration x = if x == 1 then "2s" else "2.5s"

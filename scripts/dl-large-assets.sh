@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
 # Use that if you don't have the sources of the assets below
-# (the ones inf FILES) and wanna test the game like a developer
+# (the ones in FILES) and wanna test the game like a developer
 
 set -eux
 
 declare -r SCHPLAF_ADDRESS="https://schplaf.org/hgames/darkcraw/assets"
 
 declare -r LOCAL_DIR="app/assets"
-declare -r FILES="errbox.png forest.png forest-hand.png turn.png"
+declare -r FILES="errbox.png forest.png forest-hand.png torchs.png turn.png welcome.png"
 
 for FILE in $FILES
 do
