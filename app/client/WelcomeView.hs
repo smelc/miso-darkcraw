@@ -21,13 +21,14 @@ viewWelcomeModel :: WelcomeModel -> View Action
 viewWelcomeModel _ =
   div_
     [style_ style]
-    [torchesDiv zpp, div_ [style_ flexStyle] [titleDiv, buttonDiv]]
+    [torchesDiv zpp, div_ [style_ flexStyle] [titleDiv, buttonsDiv]]
   where
     (z, zpp) = (0, z + 1)
     style =
       Map.union (zpltwh z Relative 0 0 welcomePixelWidth welcomePixelHeight) $
         Map.fromList
           [("background-image", assetsUrl "welcome.png")]
+    -- The top level flex, layout things in a column
     flexStyle =
       "display" =: "flex"
         <> "flex-direction" =: "column"
@@ -41,10 +42,24 @@ viewWelcomeModel _ =
         <> "z-index" =: ms zpp
         <> "margin-top" =: (ms cellPixelSize <> "px")
     topMarginAttr = style_ $ "margin-top" =: (ms titleFontSize <> "px")
+    -- A flex right below the top level, layout things in a line
+    -- It has two cells: ["single player"; "start"]
+    buttonsDiv =
+      div_
+        [ style_ $
+            "width" =: (ms welcomePixelWidth <> "px")
+              <> "margin-top" =: (ms (titleFontSize * 2) <> "px")
+              <> "display" =: "flex"
+              <> "justify-content" =: "center"
+        ]
+        [singlePlayerButtonDiv, buttonDiv]
+    singlePlayerButtonDiv =
+        div_
+          [style_ textStyle, style_ $ "margin-right" =: "48px"]
+          [text "Single Player"]
     buttonDiv =
       button_
-        [ style_ $ "margin-top" =: (ms (titleFontSize * 2) <> "px"),
-          onClick $ WelcomeAction' WelcomeStart,
+        [ onClick $ WelcomeAction' WelcomeStart,
           buttonStyle
         ]
         [div_ [style_ textStyle] [text "Start"]]
