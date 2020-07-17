@@ -7,6 +7,7 @@
 -- |
 module WelcomeView (viewWelcomeModel) where
 
+import Card (Team (..), allTeams, ppTeam)
 import Constants
 import qualified Data.Map.Strict as Map
 import Miso
@@ -21,7 +22,11 @@ viewWelcomeModel :: WelcomeModel -> View Action
 viewWelcomeModel _ =
   div_
     [style_ style]
-    [torchesDiv zpp, div_ [style_ flexColumnStyle] [titleDiv, buttonsDiv]]
+    [ torchesDiv zpp,
+      div_
+        [style_ flexColumnStyle]
+        [titleDiv, buttonsDiv]
+    ]
   where
     (z, zpp) = (0, z + 1)
     style =
@@ -48,18 +53,36 @@ viewWelcomeModel _ =
               <> "width" =: (ms welcomePixelWidth <> "px")
               <> "margin-top" =: (ms (titleFontSize * 2) <> "px")
         ]
-        [singlePlayerButtonDiv, buttonDiv]
-    singlePlayerButtonDiv =
+        [singlePlayerTextDiv, selectTeamDiv zpp]
+    singlePlayerTextDiv =
       div_
         [style_ textStyle, style_ $ marginhv cellPixelSize 0]
         [text "Single Player"]
+
+selectTeamDiv :: Int -> View Action
+selectTeamDiv z =
+  div_
+    [style_ flexLineStyle]
+    [ div_
+        [style_ flexColumnStyle]
+        $ styledText z "Choose your team" : [teamButton z t | t <- allTeams],
+      buttonDiv
+    ]
+  where
     buttonDiv =
+      -- TODO use me
       button_
         [ onClick $ WelcomeAction' WelcomeStart,
           style_ $ marginhv cellPixelSize 0,
           buttonStyle
         ]
-        [div_ [style_ textStyle] [text "Start"]]
+        [styledText z "Start"]
+
+teamButton :: Int -> Team -> View Action
+teamButton z team =
+  div_
+    [style_ flexLineStyle]
+    [styledText z $ ms $ ppTeam team]
 
 torchesDiv :: Int -> View Action
 torchesDiv z =
@@ -80,3 +103,11 @@ torchesDiv z =
         ("background-image" =: assetsUrl "torchs.png")
         <> ("animation" =: ("torch " <> duration x <> " steps(2) infinite"))
     duration x = if x then "2s" else "2.5s"
+
+styledText :: Int -> MisoString -> View action
+styledText z txt =
+  div_
+    [ style_ $ Map.fromList textRawStyle,
+      style_ $ "z-index" =: ms z
+    ]
+    [text txt]
