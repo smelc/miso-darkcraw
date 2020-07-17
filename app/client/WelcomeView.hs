@@ -51,11 +51,12 @@ viewWelcomeModel _ =
         [singlePlayerButtonDiv, buttonDiv]
     singlePlayerButtonDiv =
       div_
-        [style_ textStyle, style_ $ "margin-right" =: "48px"]
+        [style_ textStyle, style_ $ marginhv cellPixelSize 0]
         [text "Single Player"]
     buttonDiv =
       button_
         [ onClick $ WelcomeAction' WelcomeStart,
+          style_ $ marginhv cellPixelSize 0,
           buttonStyle
         ]
         [div_ [style_ textStyle] [text "Start"]]
@@ -68,15 +69,14 @@ torchesDiv z =
         "style"
         []
         ["@keyframes torch { 100% { background-position: -48px; } }"],
-      torch 1,
-      torch $ -1
+      torch True,
+      torch False
     ]
   where
     torch x = div_ [style_ $ style x] []
     style x =
       Map.union
-        (tilerb z Absolute 0 (14 + x))
+        (tilerb z Absolute 0 (14 + (if x then 1 else -1)))
         ("background-image" =: assetsUrl "torchs.png")
         <> ("animation" =: ("torch " <> duration x <> " steps(2) infinite"))
-    duration :: Int -> MisoString
-    duration x = if x == 1 then "2s" else "2.5s"
+    duration x = if x then "2s" else "2.5s"

@@ -68,6 +68,11 @@ flexLineStyle =
       ("align-items", "center")
     ]
 
+-- | A style specifing the left and right margin and the top and bottom margin
+-- | Both sizes are in pixels
+marginhv :: Int -> Int -> Map.Map MisoString MisoString
+marginhv h v = Map.singleton "margin" (ms v <> "px " <> ms h <> "px")
+
 -- | A style specifying the z-index, the position,
 -- | the right margin (in cells), and the bottom margin (in pixels) of a tile
 -- | i.e. of a rectangle of size 'cellPixelSize'.
