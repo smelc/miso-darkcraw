@@ -211,12 +211,11 @@ cardCreature z creature hover =
         width = cardPixelWidth - (topMargin * 2)
         top = topMargin + cellPixelSize + topMargin
     inStatsStyle =
-      Map.fromList
-        [ ("font-size", ms (cellPixelSize `div` 2) <> "px"),
-          ("font-family", "serif"),
-          ("display", "flex"),
-          ("align-items", "center")
-        ]
+      Map.union flexLineStyle $
+        Map.fromList
+          [ ("font-size", ms (cellPixelSize `div` 2) <> "px"),
+            ("font-family", "serif")
+          ]
     statsCell :: View Action =
       div_
         [style_ inStatsStyle]

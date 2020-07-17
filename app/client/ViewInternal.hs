@@ -11,6 +11,7 @@ import Constants (cellPixelSize)
 import qualified Data.Map.Strict as Map
 import Miso hiding (at)
 import Miso.String hiding (length)
+import Miso.Util ((=:))
 import Update (Action (..))
 
 buttonStyle :: Attribute action
@@ -51,6 +52,21 @@ data Position = Absolute | Relative
 instance Show Position where
   show Absolute = "absolute"
   show Relative = "relative"
+
+flexColumnStyle :: Map.Map MisoString MisoString
+flexColumnStyle =
+  Map.fromList
+    [ ("display", "flex"),
+      ("flex-direction", "column"),
+      ("align-items", "center")
+    ]
+
+flexLineStyle :: Map.Map MisoString MisoString
+flexLineStyle =
+  Map.fromList
+    [ ("display", "flex"),
+      ("align-items", "center")
+    ]
 
 -- | A style specifying the z-index, the position,
 -- | the right margin (in cells), and the bottom margin (in pixels) of a tile

@@ -21,7 +21,7 @@ viewWelcomeModel :: WelcomeModel -> View Action
 viewWelcomeModel _ =
   div_
     [style_ style]
-    [torchesDiv zpp, div_ [style_ flexStyle] [titleDiv, buttonsDiv]]
+    [torchesDiv zpp, div_ [style_ flexColumnStyle] [titleDiv, buttonsDiv]]
   where
     (z, zpp) = (0, z + 1)
     style =
@@ -29,10 +29,6 @@ viewWelcomeModel _ =
         Map.fromList
           [("background-image", assetsUrl "welcome.png")]
     -- The top level flex, layout things in a column
-    flexStyle =
-      "display" =: "flex"
-        <> "flex-direction" =: "column"
-        <> "align-items" =: "center"
     textStyle = Map.fromList textRawStyle
     titleDiv = div_ [style_ titleStyle] [text gameTitle]
     titleFontSize = cellPixelSize + (cellPixelSize `div` 2)
@@ -47,16 +43,16 @@ viewWelcomeModel _ =
     buttonsDiv =
       div_
         [ style_ $
-            "width" =: (ms welcomePixelWidth <> "px")
-              <> "margin-top" =: (ms (titleFontSize * 2) <> "px")
-              <> "display" =: "flex"
+            flexLineStyle
               <> "justify-content" =: "center"
+              <> "width" =: (ms welcomePixelWidth <> "px")
+              <> "margin-top" =: (ms (titleFontSize * 2) <> "px")
         ]
         [singlePlayerButtonDiv, buttonDiv]
     singlePlayerButtonDiv =
-        div_
-          [style_ textStyle, style_ $ "margin-right" =: "48px"]
-          [text "Single Player"]
+      div_
+        [style_ textStyle, style_ $ "margin-right" =: "48px"]
+        [text "Single Player"]
     buttonDiv =
       button_
         [ onClick $ WelcomeAction' WelcomeStart,

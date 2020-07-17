@@ -20,7 +20,7 @@ module GameViewInternal
     keyframes,
     noDrag,
     stackView,
-    turnView
+    turnView,
   )
 where
 
@@ -52,12 +52,10 @@ errView model@GameModel {interaction} z =
     left = (boardPixelWidth - width) `div` 2
     top = boardPixelHeight `div` 2
     errViewStyle =
-      Map.union (zpltwh z Relative left top width height) $
-        Map.fromList
-          [ ("display", "flex"),
-            ("align-items", "center"),
-            ("justify-content", "center"),
-            ("flex-direction", "column"),
+      Map.union (zpltwh z Relative left top width height)
+        $ Map.union flexColumnStyle
+        $ Map.fromList
+          [ ("justify-content", "center"),
             ("background-image", assetsUrl "errbox.png")
           ]
     errViewStyle' = Map.union (Map.fromList [("opacity", "0.9")]) errViewStyle
@@ -78,12 +76,10 @@ turnView model@GameModel {turn} z =
   div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
   where
     turnViewStyle =
-      Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight) $
-        Map.fromList
-          [ ("display", "flex"),
-            ("align-items", "center"),
-            ("justify-content", "center"),
-            ("flex-direction", "column"),
+      Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight)
+        $ Map.union flexColumnStyle
+        $ Map.fromList
+          [ ("justify-content", "center"),
             ("background-image", assetsUrl "turn.png")
           ]
     line1 :: View Action = text $ "Turn " <> ms (turnToInt turn)
