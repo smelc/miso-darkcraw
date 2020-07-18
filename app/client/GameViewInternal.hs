@@ -193,9 +193,6 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
     emptyPlayingPlayerSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
 
-noDrag :: Attribute Action
-noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
-
 textStyle :: Attribute action
 textStyle = style_ $ Map.fromList textRawStyle
 

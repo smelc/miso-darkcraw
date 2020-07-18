@@ -7,7 +7,7 @@
 -- |
 module ViewInternal where
 
-import Constants (cellPixelSize)
+import Constants (assetsPath, cellPixelSize)
 import qualified Data.Map.Strict as Map
 import Miso hiding (at)
 import Miso.String hiding (length)
@@ -24,9 +24,11 @@ buttonStyle =
       ]
       ++ textRawStyle
 
+-- TODO smelc carry me over with a monad
 textMainColor :: MisoString
 textMainColor = "#FFFFFF" -- white
 
+-- TODO smelc carry me over with a monad
 textRawStyle :: [(MisoString, MisoString)]
 textRawStyle = [("color", textMainColor)]
 
@@ -68,16 +70,58 @@ flexLineStyle =
       ("align-items", "center")
     ]
 
+img_' :: MisoString -> View Action
+img_' filename = img_ [src_ $ assetsPath filename, noDrag]
+
+noDrag :: Attribute Action
+noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
+
 -- | A style specifing the left and right margin and the top and bottom margin
 -- | Both sizes are in pixels
 marginhv :: Int -> Int -> Map.Map MisoString MisoString
-marginhv h v = Map.singleton "margin" (ms v <> "px " <> ms h <> "px")
+marginhv h v = margintrbl v h v h
+
+-- | A style specifing the top, right, bottom, and left margins.
+-- | All sizes are in pixels
+margintrbl :: Int -> Int -> Int -> Int -> Map.Map MisoString MisoString
+margintrbl t r b l =
+  Map.singleton
+    "margin"
+    (ms t <> "px " <> ms r <> "px "  <> ms b <> "px " <> ms l <> "px")
+
+-- | Surrounds an element with a div specifying the left and right margin
+-- | and the top and bottom margin. All sizes are in pixels.
+marginifyhv :: Int -> Int -> View Action -> View Action
+marginifyhv h v view =
+  div_ [style_ $ marginhv h v] [view]
+
+-- | Styled text, specifying the z-index, the text, the left and right margin
+-- | (in pixels) and the top and bottom margin (in pixels)
+stytextzhv :: Int -> MisoString -> Int -> Int -> View action
+stytextzhv z txt h v =
+  div_
+    [ style_ $ Map.fromList textRawStyle,
+      style_ $ "z-index" =: ms z,
+      style_ $ marginhv h v
+    ]
+    [text txt]
+
+-- | Styled text, specifying the z-index, the text, the left and right margin
+-- | (in pixels) and the top and bottom margin (in pixels)
+stytextztrbl :: Int -> MisoString -> Int -> Int -> Int -> Int -> View action
+stytextztrbl z txt t r b l =
+  div_
+    [ style_ $ Map.fromList textRawStyle,
+      style_ $ "z-index" =: ms z,
+      style_ $ margintrbl t r b l
+    ]
+    [text txt]
 
 -- | A style specifying the z-index, the position,
 -- | the right margin (in cells), and the bottom margin (in pixels) of a tile
 -- | i.e. of a rectangle of size 'cellPixelSize'.
-tilerb :: Int -> Position -> Int -> Int -> Map.Map MisoString MisoString
-tilerb z pos right bot =
+tilezprb :: Int -> Position -> Int -> Int -> Map.Map MisoString MisoString
+tilezprb z pos right bot =
   zprbwh z pos (cellPixelSize * right) (cellPixelSize * bot) cellPixelSize cellPixelSize
 
 -- | A style specifying the z-index, the position,

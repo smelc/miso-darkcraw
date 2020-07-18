@@ -11,12 +11,6 @@ assetsDir = "assets"
 assetFilenameBeigeBG :: MisoString
 assetFilenameBeigeBG = "24x24_0_2.png"
 
-assetFilenameHumanGeneral :: MisoString
-assetFilenameHumanGeneral = "24x24_3_0.png"
-
-assetFilenameHumanSpearman :: MisoString
-assetFilenameHumanSpearman = "24x24_0_0.png"
-
 assetFilenameHeart :: MisoString
 assetFilenameHeart = "16x16_0_0.png"
 
@@ -106,6 +100,10 @@ turnPixelWidth = 4 * cellPixelSize
 -- | The size of a cell, in pixels
 cellPixelSize :: Int
 cellPixelSize = 24
+
+-- | The size of a cell, in pixels
+cps :: Int
+cps = cellPixelSize
 
 -- | The width of the welcome background, in pixels
 welcomePixelWidth :: Int

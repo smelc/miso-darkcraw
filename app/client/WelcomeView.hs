@@ -11,7 +11,7 @@ import Card (Team (..), allTeams, ppTeam)
 import Constants
 import qualified Data.Map.Strict as Map
 import Miso
-import Miso.String hiding (length)
+import Miso.String hiding (length, map)
 import Miso.Util ((=:))
 import Model (WelcomeModel (..))
 import Update
@@ -51,7 +51,7 @@ viewWelcomeModel _ =
             flexLineStyle
               <> "justify-content" =: "center"
               <> "width" =: (ms welcomePixelWidth <> "px")
-              <> "margin-top" =: (ms (titleFontSize * 2) <> "px")
+              <> "margin-top" =: (ms cps <> "px")
         ]
         [singlePlayerTextDiv, selectTeamDiv zpp]
     singlePlayerTextDiv =
@@ -65,7 +65,8 @@ selectTeamDiv z =
     [style_ flexLineStyle]
     [ div_
         [style_ flexColumnStyle]
-        $ styledText z "Choose your team" : [teamButton z t | t <- allTeams],
+        $ stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
+          : [teamButton z t | t <- allTeams],
       buttonDiv
     ]
   where
@@ -76,13 +77,21 @@ selectTeamDiv z =
           style_ $ marginhv cellPixelSize 0,
           buttonStyle
         ]
-        [styledText z "Start"]
+        [stytextzhv z "Start" 0 0]
 
 teamButton :: Int -> Team -> View Action
 teamButton z team =
   div_
     [style_ flexLineStyle]
-    [styledText z $ ms $ ppTeam team]
+    $ map (marginifyhv hmargin vmargin) textAndTile
+  where
+    tile Human = "24x24_3_0.png"
+    tile Undead = "24x24_1_1.png"
+    (hmargin, vmargin) = (0, cellPixelSize `div` 4)
+    textAndTile =
+      [ stytextzhv z (ms $ ppTeam team) 0 0,
+        marginifyhv 4 0 $ img_' $ tile team
+      ]
 
 torchesDiv :: Int -> View Action
 torchesDiv z =
@@ -99,15 +108,7 @@ torchesDiv z =
     torch x = div_ [style_ $ style x] []
     style x =
       Map.union
-        (tilerb z Absolute 0 (14 + (if x then 1 else -1)))
+        (tilezprb z Absolute 0 (14 + (if x then 1 else -1)))
         ("background-image" =: assetsUrl "torchs.png")
         <> ("animation" =: ("torch " <> duration x <> " steps(2) infinite"))
     duration x = if x then "2s" else "2.5s"
-
-styledText :: Int -> MisoString -> View action
-styledText z txt =
-  div_
-    [ style_ $ Map.fromList textRawStyle,
-      style_ $ "z-index" =: ms z
-    ]
-    [text txt]
