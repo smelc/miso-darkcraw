@@ -39,10 +39,10 @@ viewWelcomeModel _ =
     titleFontSize = cellPixelSize + (cellPixelSize `div` 2)
     titleStyle =
       textStyle
-        <> "font-size" =: (ms titleFontSize <> "px")
+        <> "font-size" =: px titleFontSize
         <> "z-index" =: ms zpp
-        <> "margin-top" =: (ms cellPixelSize <> "px")
-    topMarginAttr = style_ $ "margin-top" =: (ms titleFontSize <> "px")
+        <> "margin-top" =: px cellPixelSize
+    topMarginAttr = style_ $ "margin-top" =: px titleFontSize
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "start"]
     buttonsDiv =
@@ -50,13 +50,15 @@ viewWelcomeModel _ =
         [ style_ $
             flexLineStyle
               <> "justify-content" =: "center"
-              <> "width" =: (ms welcomePixelWidth <> "px")
-              <> "margin-top" =: (ms cps <> "px")
+              <> "width" =: px welcomePixelWidth
+              <> "margin-top" =: px cps
         ]
         [singlePlayerTextDiv, selectTeamDiv zpp]
+    singlePlayerFontSize = (cps + titleFontSize) `div` 3
     singlePlayerTextDiv =
       div_
-        [style_ textStyle, style_ $ marginhv cellPixelSize 0]
+        [style_ textStyle, style_ $ marginhv cellPixelSize 0,
+         style_ $ Map.singleton "font-size" $ px singlePlayerFontSize]
         [text "Single Player"]
 
 selectTeamDiv :: Int -> View Action

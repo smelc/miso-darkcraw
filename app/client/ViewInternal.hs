@@ -95,6 +95,10 @@ marginifyhv :: Int -> Int -> View Action -> View Action
 marginifyhv h v view =
   div_ [style_ $ marginhv h v] [view]
 
+-- | px i = ms i <> "px"
+px :: Int -> MisoString
+px i = ms i <> "px"
+
 -- | Styled text, specifying the z-index, the text, the left and right margin
 -- | (in pixels) and the top and bottom margin (in pixels)
 stytextzhv :: Int -> MisoString -> Int -> Int -> View action
