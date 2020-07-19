@@ -57,8 +57,10 @@ viewWelcomeModel _ =
     singlePlayerFontSize = (cps + titleFontSize) `div` 3
     singlePlayerTextDiv =
       div_
-        [style_ textStyle, style_ $ marginhv cellPixelSize 0,
-         style_ $ Map.singleton "font-size" $ px singlePlayerFontSize]
+        [ style_ textStyle,
+          style_ $ marginhv cps 0,
+          style_ $ "font-size" =: px singlePlayerFontSize
+        ]
         [text "Single Player"]
 
 selectTeamDiv :: Int -> View Action
@@ -83,9 +85,7 @@ selectTeamDiv z =
 
 teamButton :: Int -> Team -> View Action
 teamButton z team =
-  div_
-    [style_ flexLineStyle]
-    $ map (marginifyhv hmargin vmargin) textAndTile
+  builder []
   where
     tile Human = "24x24_3_0.png"
     tile Undead = "24x24_1_1.png"
@@ -94,6 +94,8 @@ teamButton z team =
       [ stytextzhv z (ms $ ppTeam team) 0 0,
         marginifyhv 4 0 $ img_' $ tile team
       ]
+    builder x =
+      div_ (style_ flexLineStyle : x) $ map (marginifyhv hmargin vmargin) textAndTile
 
 torchesDiv :: Int -> View Action
 torchesDiv z =

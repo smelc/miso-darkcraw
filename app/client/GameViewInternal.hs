@@ -38,7 +38,6 @@ import Miso.String hiding (length)
 import Model
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
-import Utils (style1_)
 import ViewInternal
 
 errView :: GameModel -> Int -> [View Action]
@@ -87,18 +86,15 @@ turnView model@GameModel {turn} z =
       case turnToPlayerSpot turn of
         PlayerTop -> "1"
         PlayerBottom -> "2"
-    line2ImgSize = cellPixelSize
     topMargin = cellPixelSize `div` 2
     topMarginAttr = style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"
     line2 :: View Action =
       div_
         [topMarginAttr]
-        $ keyframedImg
-          ("24x24_" <> playerImgY <> "_2.png")
-          (line2ImgSize, line2ImgSize)
+        $ keyframed
+          imgBuilder
           "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
           ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
-          Map.empty
           ("pulse", "infinite", "ease-in-out")
           (Just "alternate")
           Nothing
@@ -106,6 +102,9 @@ turnView model@GameModel {turn} z =
       button_
         [topMarginAttr, onClick $ GameAction' GameEndTurn, buttonStyle]
         [div_ [textStyle] [text "End Turn"]]
+    imgBuilder :: [Attribute Action] -> View Action
+    imgBuilder x =
+      img_ $ src_ (assetsPath $ "24x24_" <> playerImgY <> "_2.png") : x
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
@@ -121,49 +120,6 @@ stackView model@GameModel {board, playingPlayer} z =
         zprb z Absolute off off
     pLens = spotToLens playingPlayer
     stackSize = board ^. pLens . #stack & length
-
-keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
-keyframes name from steps to =
-  text $ "@keyframes " <> name <> "{ " <> tail <> " }"
-  where
-    from_ = "from { " <> from <> " }"
-    steps' :: String =
-      Data.List.map (\(i, s) -> show i ++ "% { " ++ s ++ " }") steps
-        & Data.List.intersperse " "
-        & Data.List.concat
-    to_ = "to { " <> to <> " }"
-    tail = from_ <> " " <> ms steps' <> " " <> to_
-
-keyframedImg ::
-  MisoString ->
-  (Int, Int) ->
-  MisoString ->
-  MisoString ->
-  Map.Map MisoString MisoString ->
-  (MisoString, MisoString, MisoString) ->
-  Maybe MisoString ->
-  Maybe MisoString ->
-  [View Action]
-keyframedImg path (w, h) from to sty (name, iterationCount, timingFunction) direction fillMode =
-  [ nodeHtml
-      "style"
-      []
-      [keyframes name from [] to],
-    img_
-      [ src_ $ assetsPath path,
-        width_ $ ms w,
-        height_ $ ms h,
-        noDrag,
-        style_ $
-          sty
-            & at "animation-duration" ?~ "1s"
-            & at "animation-name" ?~ name
-            & at "animation-iteration-count" ?~ iterationCount
-            & at "animation-timing-function" ?~ timingFunction
-            & at "animation-direction" .~ direction
-            & at "animation-fill-mode" .~ fillMode
-      ]
-  ]
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
@@ -237,12 +193,10 @@ deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
 deathFadeout ae x y =
   if death ae
     then
-      keyframedImg
-        assetFilenameSkull
-        (imgw, imgh)
+      keyframed
+        builder
         "opacity: 1;"
         "opacity: 0;"
-        sty
         ("deathFadeout", "1", "ease")
         Nothing
         $ Just "forwards"
@@ -252,3 +206,5 @@ deathFadeout ae x y =
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
     left = (cardPixelWidth - imgw) `div` 2
     top = (cardPixelHeight - imgh) `div` 2
+    builder x =
+      img_ $ [src_ (assetsPath assetFilenameSkull), style_ sty] ++ x

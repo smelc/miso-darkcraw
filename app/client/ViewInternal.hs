@@ -8,6 +8,9 @@
 module ViewInternal where
 
 import Constants (assetsPath, cellPixelSize)
+import Control.Lens
+import Data.Function ((&))
+import Data.List
 import qualified Data.Map.Strict as Map
 import Miso hiding (at)
 import Miso.String hiding (length)
@@ -73,6 +76,51 @@ flexLineStyle =
 img_' :: MisoString -> View Action
 img_' filename = img_ [src_ $ assetsPath filename, noDrag]
 
+keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
+keyframes name from steps to =
+  text $ "@keyframes " <> name <> "{ " <> tail <> " }"
+  where
+    from_ = "from { " <> from <> " }"
+    steps' :: String =
+      Data.List.map (\(i, s) -> show i ++ "% { " ++ s ++ " }") steps
+        & Data.List.intersperse " "
+        & Data.List.concat
+    to_ = "to { " <> to <> " }"
+    tail = from_ <> " " <> ms steps' <> " " <> to_
+
+keyframed ::
+  -- | How to build the element
+  ([Attribute Action] -> View Action) ->
+  -- | The 'from' attribute
+  MisoString ->
+  -- | The 'to' attribute
+  MisoString ->
+  -- | The attributes `animation-name`, `animation-iteration-count` and
+  -- | `animate-timing-function`
+  (MisoString, MisoString, MisoString) ->
+  -- | The attribute `animation-direction`
+  Maybe MisoString ->
+  -- | The attribute `animation-fill-mode`
+  Maybe MisoString ->
+  [View Action]
+keyframed e from to (name, iterationCount, timingFunction) direction fillMode =
+  [ nodeHtml
+      "style"
+      []
+      [keyframes name from [] to],
+    e
+      [ noDrag,
+        style_ $
+          Map.empty
+            & at "animation-duration" ?~ "1s"
+            & at "animation-name" ?~ name
+            & at "animation-iteration-count" ?~ iterationCount
+            & at "animation-timing-function" ?~ timingFunction
+            & at "animation-direction" .~ direction
+            & at "animation-fill-mode" .~ fillMode
+      ]
+  ]
+
 noDrag :: Attribute Action
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
 
@@ -87,7 +135,7 @@ margintrbl :: Int -> Int -> Int -> Int -> Map.Map MisoString MisoString
 margintrbl t r b l =
   Map.singleton
     "margin"
-    (ms t <> "px " <> ms r <> "px "  <> ms b <> "px " <> ms l <> "px")
+    (ms t <> "px " <> ms r <> "px " <> ms b <> "px " <> ms l <> "px")
 
 -- | Surrounds an element with a div specifying the left and right margin
 -- | and the top and bottom margin. All sizes are in pixels.
