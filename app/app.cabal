@@ -28,6 +28,7 @@ executable app
     WelcomeView
   ghc-options:
     -Wincomplete-patterns
+    -Wunused-binds
     -Werror
     -Wwarn=missing-home-modules
   hs-source-dirs:

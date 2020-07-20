@@ -205,10 +205,6 @@ instance Semigroup (Board UI) where
 instance Monoid (Board UI) where
   mempty = Board mempty mempty
 
-boardToList :: Board p -> [(PlayerSpot, PlayerPart p)]
-boardToList Board {playerTop, playerBottom} =
-  [(PlayerTop, playerTop), (PlayerBottom, playerBottom)]
-
 boardToCardsInPlace :: Board Core -> [(PlayerSpot, CardSpot, Maybe (Creature Core))]
 boardToCardsInPlace board =
   [ (pSpot, cSpot, maybeCreature)
@@ -241,7 +237,6 @@ exampleBoard cards =
       cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore
     getCardByID searched =
       head $ filter (\c -> creatureId c == searched) creatures
-    humanArcher = getCardByID (CreatureID Archer Human)
     humanGeneral = getCardByID (CreatureID General Human)
     humanSpearman = getCardByID (CreatureID Spearman Human)
     undeadArcher = getCardByID (CreatureID Archer Undead)

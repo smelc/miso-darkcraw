@@ -42,7 +42,6 @@ viewWelcomeModel _ =
         <> "font-size" =: px titleFontSize
         <> "z-index" =: ms zpp
         <> "margin-top" =: px cellPixelSize
-    topMarginAttr = style_ $ "margin-top" =: px titleFontSize
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "start"]
     buttonsDiv =

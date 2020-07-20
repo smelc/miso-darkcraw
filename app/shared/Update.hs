@@ -215,7 +215,6 @@ play m@GameModel {board} playAction =
         where
           pLens = spotToLens pSpot
           uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board pLens
-          boardHand :: [Card Core] = boardToHand board pLens
       NoPlayAction -> return Nothing
 
 -- | Updates a game model

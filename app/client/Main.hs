@@ -18,7 +18,6 @@ import Board (exampleBoard, startingPlayerSpot)
 import Card
 import Control.Monad (forM_)
 import Control.Monad.IO.Class
-import Data.ByteString.Lazy (ByteString, fromStrict)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
 import qualified Data.Text as Text
@@ -54,9 +53,6 @@ loadJson' =
       hPutStrLn stderr errMsg
       exitWith $ ExitFailure 1
     Right cards -> return cards
-  where
-    bs :: Data.ByteString.Lazy.ByteString
-    bs = Data.ByteString.Lazy.fromStrict jsonData
 
 logTeam :: [Card UI] -> Team -> IO ()
 logTeam cards t = do
@@ -71,7 +67,6 @@ main :: IO ()
 main = do
   cards :: [Card UI] <- loadJson'
   forM_ allTeams (logTeam cards)
-  let board = exampleBoard cards
   let model = WelcomeModel' $ WelcomeModel cards -- initial model
   runApp $ startApp App {..}
   where

@@ -57,7 +57,6 @@ errView model@GameModel {interaction} z =
           [ ("justify-content", "center"),
             ("background-image", assetsUrl "errbox.png")
           ]
-    errViewStyle' = Map.union (Map.fromList [("opacity", "0.9")]) errViewStyle
     textView msg = div_ [style_ textStylePairs] [text $ ms msg]
     textWidth = width - (cellPixelSize * 2)
     textWidthAttr = ("width", ms textWidth <> "px")
@@ -114,7 +113,6 @@ stackView model@GameModel {board, playingPlayer} z =
     [text $ ms stackSize]
   where
     off = cellPixelSize `div` 2
-    (width, height) = (cellPixelSize, cellPixelSize)
     positionStyle =
       style_ $
         zprb z Absolute off off

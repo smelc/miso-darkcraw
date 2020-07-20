@@ -176,13 +176,13 @@ inTheBack TopRight = True
 inTheBack _ = False
 
 -- | The other spot in the column in the spot's part
-otherYSpot :: CardSpot -> CardSpot
-otherYSpot TopLeft = BottomLeft
-otherYSpot Top = Bottom
-otherYSpot TopRight = BottomRight
-otherYSpot BottomLeft = TopLeft
-otherYSpot Bottom = Top
-otherYSpot BottomRight = TopRight
+-- otherYSpot :: CardSpot -> CardSpot
+-- otherYSpot TopLeft = BottomLeft
+-- otherYSpot Top = Bottom
+-- otherYSpot TopRight = BottomRight
+-- otherYSpot BottomLeft = TopLeft
+-- otherYSpot Bottom = Top
+-- otherYSpot BottomRight = TopRight
 
 -- | Spots that can be attacked from a spot
 -- | Spot as argument is in one player part while spots returned
