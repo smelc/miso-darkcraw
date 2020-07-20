@@ -74,14 +74,13 @@ selectTeamDiv z =
       ]
       ++ startButtonDiv
   where
-    textButton' = textButton gui
     startButtonDiv :: [View Action] =
-      textButton'
+      textButton
+        gui
         z
         True
         [ onClick $ WelcomeAction' WelcomeStart,
-          style_ $ marginhv cps 0,
-          buttonStyle True
+          style_ $ marginhv cps 0
         ]
         "Start"
 

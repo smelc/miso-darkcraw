@@ -38,6 +38,7 @@ import Miso.String hiding (length)
 import Model
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
+import ViewBlocks (gui, textButton)
 import ViewInternal
 
 errView :: GameModel -> Int -> [View Action]
@@ -71,7 +72,7 @@ errView model@GameModel {interaction} z =
 
 turnView :: GameModel -> Int -> View Action
 turnView model@GameModel {turn} z =
-  div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
+  div_ [style_ turnViewStyle, textStyle] $ [line1, line2] ++ line3
   where
     turnViewStyle =
       Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight)
@@ -91,25 +92,20 @@ turnView model@GameModel {turn} z =
       div_
         [topMarginAttr]
         [img_ [src_ (assetsPath $ "24x24_" <> playerImgY <> "_2.png")]]
-    line3 :: View Action =
-      button_
+    line3 :: [View Action] =
+      textButton
+        gui
+        z
+        True
         [ topMarginAttr,
-          onClick $ GameAction' GameEndTurn,
-          buttonStyle False
+          onClick $ GameAction' GameEndTurn
         ]
-        $ buttonEnabled
-          line3Builder
-    line3Builder x =
-      div_
-        (textStyle : x)
-        [div_ [style_ $ marginhv 4 4] [text "End Turn"]]
+        "EndTurn"
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
 stackView model@GameModel {board, playingPlayer} z =
-  button_
-    [buttonStyle False, positionStyle] -- onClick ShowStack
-    $ buttonEnabled buttonBuilder
+  div_ [positionStyle] $ textButton gui z True [] $ ms stackSize
   where
     off = cellPixelSize `div` 2
     positionStyle =
@@ -117,7 +113,6 @@ stackView model@GameModel {board, playingPlayer} z =
         zprb z Absolute off off
     pLens = spotToLens playingPlayer
     stackSize = board ^. pLens . #stack & length
-    buttonBuilder x = div_ (style_ (marginhv 4 4) : x) [text $ ms stackSize]
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around

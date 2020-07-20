@@ -81,6 +81,8 @@ instance ToExpr WelcomeModel
 
 instance ToExpr Model
 
+-- FIXME smelc move Action* to its own file (to avoid cycles later on)
+
 -- | Actions that are raised by 'WelcomeView'
 data WelcomeAction
   = WelcomeStart

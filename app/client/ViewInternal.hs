@@ -17,32 +17,11 @@ import Miso.String hiding (length)
 import Miso.Util ((=:))
 import Update (Action (..))
 
--- | A button that is enabled, with the style used all over the game
-buttonEnabled :: ([Attribute Action] -> View Action) -> [View Action]
-buttonEnabled e =
-  keyframed
-    e
-    "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
-    ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
-    ("pulse", "infinite", "ease-in-out")
-    (Just "alternate")
-    Nothing
-
-buttonStyle :: Bool -> Attribute action
-buttonStyle border =
-  style_ $
-    ("border" =: (px bordersz <> " solid " <> textMainColor))
-      <> "background-color" =: "transparent" -- no background
-      <> "outline" =: "none" -- don't highlight that it has been pressed
-      <> Map.fromList textRawStyle
-  where
-    bordersz = if border then 2 else 0
-
--- TODO smelc carry me over with a monad
+-- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textMainColor :: MisoString
 textMainColor = "#FFFFFF" -- white
 
--- TODO smelc carry me over with a monad
+-- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textRawStyle :: [(MisoString, MisoString)]
 textRawStyle = [("color", textMainColor)]
 
@@ -84,10 +63,10 @@ flexLineStyle =
       ("align-items", "center")
     ]
 
-img_' :: MisoString -> View Action
+img_' :: MisoString -> View a
 img_' filename = img_ [src_ $ assetsPath filename, noDrag]
 
-keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View m
+keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View a
 keyframes name from steps to =
   text $ "@keyframes " <> name <> "{ " <> tail <> " }"
   where
@@ -101,7 +80,7 @@ keyframes name from steps to =
 
 keyframed ::
   -- | How to build the element
-  ([Attribute Action] -> View Action) ->
+  ([Attribute a] -> View a) ->
   -- | The 'from' attribute
   MisoString ->
   -- | The 'to' attribute
@@ -113,15 +92,14 @@ keyframed ::
   Maybe MisoString ->
   -- | The attribute `animation-fill-mode`
   Maybe MisoString ->
-  [View Action]
+  [View a]
 keyframed e from to (name, iterationCount, timingFunction) direction fillMode =
   [ nodeHtml
       "style"
       []
       [keyframes name from [] to],
     e
-      [ noDrag,
-        style_ $
+      [ style_ $
           Map.empty
             & at "animation-duration" ?~ "1s"
             & at "animation-name" ?~ name
@@ -132,7 +110,7 @@ keyframed e from to (name, iterationCount, timingFunction) direction fillMode =
       ]
   ]
 
-noDrag :: Attribute Action
+noDrag :: Attribute a
 noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
 
 -- | A style specifing the left and right margin and the top and bottom margin
@@ -150,7 +128,7 @@ margintrbl t r b l =
 
 -- | Surrounds an element with a div specifying the left and right margin
 -- | and the top and bottom margin. All sizes are in pixels.
-marginifyhv :: Int -> Int -> View Action -> View Action
+marginifyhv :: Int -> Int -> View a -> View a
 marginifyhv h v view =
   div_ [style_ $ marginhv h v] [view]
 
@@ -160,7 +138,7 @@ px i = ms i <> "px"
 
 -- | Styled text, specifying the z-index, the text, the left and right margin
 -- | (in pixels) and the top and bottom margin (in pixels)
-stytextzhv :: Int -> MisoString -> Int -> Int -> View action
+stytextzhv :: Int -> MisoString -> Int -> Int -> View a
 stytextzhv z txt h v =
   div_
     [ style_ $ Map.fromList textRawStyle,
@@ -171,7 +149,7 @@ stytextzhv z txt h v =
 
 -- | Styled text, specifying the z-index, the text, the left and right margin
 -- | (in pixels) and the top and bottom margin (in pixels)
-stytextztrbl :: Int -> MisoString -> Int -> Int -> Int -> Int -> View action
+stytextztrbl :: Int -> MisoString -> Int -> Int -> Int -> Int -> View a
 stytextztrbl z txt t r b l =
   div_
     [ style_ $ Map.fromList textRawStyle,
