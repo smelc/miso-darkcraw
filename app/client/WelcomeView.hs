@@ -15,6 +15,7 @@ import Miso.String hiding (length, map)
 import Miso.Util ((=:))
 import Model (WelcomeModel (..))
 import Update
+import ViewBlocks (gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
@@ -66,21 +67,23 @@ selectTeamDiv :: Int -> View Action
 selectTeamDiv z =
   div_
     [style_ flexLineStyle]
-    [ div_
-        [style_ flexColumnStyle]
-        $ stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-          : [teamButton z t | t <- allTeams],
-      buttonDiv
-    ]
+    $ [ div_
+          [style_ flexColumnStyle]
+          $ stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
+            : [teamButton z t | t <- allTeams]
+      ]
+      ++ startButtonDiv
   where
-    buttonDiv =
-      -- TODO use me
-      button_
+    textButton' = textButton gui
+    startButtonDiv :: [View Action] =
+      textButton'
+        z
+        True
         [ onClick $ WelcomeAction' WelcomeStart,
           style_ $ marginhv cps 0,
           buttonStyle True
         ]
-        [stytextzhv z "Start" 0 0]
+        "Start"
 
 teamButton :: Int -> Team -> View Action
 teamButton z team =
