@@ -20,13 +20,14 @@ data GUI a = GUI
     -- | argument #2 is whether the button is enabled
     -- | argument #3 is the style
     -- | argument #4 is the button's text
-    textButton :: Int -> Bool -> [Attribute a] -> MisoString -> [View a],
-    x :: Int -- Temporary
+    textButton :: Int -> Bool -> [Attribute a] -> MisoString -> [View a]
   }
 
+-- Implementation used by the code
 gui :: GUI a
 gui = simpleGUI
 
+-- | Implementation where text buttons have a simple non moving border
 simpleGUI :: GUI a
 simpleGUI = GUI {..}
   where
@@ -35,7 +36,6 @@ simpleGUI = GUI {..}
           (buttonStyle enabled : attrs)
           [stytextzhv z text 0 0]
       ]
-    x = 0
 
 disabledColor :: MisoString
 disabledColor = "#CCCCCC"
