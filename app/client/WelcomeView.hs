@@ -77,8 +77,8 @@ selectTeamDiv z =
       -- TODO use me
       button_
         [ onClick $ WelcomeAction' WelcomeStart,
-          style_ $ marginhv cellPixelSize 0,
-          buttonStyle
+          style_ $ marginhv cps 0,
+          buttonStyle True
         ]
         [stytextzhv z "Start" 0 0]
 

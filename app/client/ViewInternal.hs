@@ -7,7 +7,7 @@
 -- |
 module ViewInternal where
 
-import Constants (assetsPath, cellPixelSize)
+import Constants (assetsPath, borderSize, cellPixelSize)
 import Control.Lens
 import Data.Function ((&))
 import Data.List
@@ -17,15 +17,26 @@ import Miso.String hiding (length)
 import Miso.Util ((=:))
 import Update (Action (..))
 
-buttonStyle :: Attribute action
-buttonStyle =
-  style_
-    $ Map.fromList
-    $ [ ("background-color", "transparent"), -- no background
-        ("border", "2px solid " <> textMainColor), -- white not-shadowed border
-        ("outline", "none") -- don't highlight that it has been pressed
-      ]
-      ++ textRawStyle
+-- | A button that is enabled, with the style used all over the game
+buttonEnabled :: ([Attribute Action] -> View Action) -> [View Action]
+buttonEnabled e =
+  keyframed
+    e
+    "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
+    ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
+    ("pulse", "infinite", "ease-in-out")
+    (Just "alternate")
+    Nothing
+
+buttonStyle :: Bool -> Attribute action
+buttonStyle border =
+  style_ $
+    ("border" =: (px bordersz <> " solid " <> textMainColor))
+      <> "background-color" =: "transparent" -- no background
+      <> "outline" =: "none" -- don't highlight that it has been pressed
+      <> Map.fromList textRawStyle
+  where
+    bordersz = if border then 2 else 0
 
 -- TODO smelc carry me over with a monad
 textMainColor :: MisoString

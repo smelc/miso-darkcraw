@@ -90,27 +90,26 @@ turnView model@GameModel {turn} z =
     line2 :: View Action =
       div_
         [topMarginAttr]
-        $ keyframed
-          imgBuilder
-          "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
-          ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
-          ("pulse", "infinite", "ease-in-out")
-          (Just "alternate")
-          Nothing
+        [img_ [src_ (assetsPath $ "24x24_" <> playerImgY <> "_2.png")]]
     line3 :: View Action =
       button_
-        [topMarginAttr, onClick $ GameAction' GameEndTurn, buttonStyle]
-        [div_ [textStyle] [text "End Turn"]]
-    imgBuilder :: [Attribute Action] -> View Action
-    imgBuilder x =
-      img_ $ src_ (assetsPath $ "24x24_" <> playerImgY <> "_2.png") : x
+        [ topMarginAttr,
+          onClick $ GameAction' GameEndTurn,
+          buttonStyle False
+        ]
+        $ buttonEnabled
+          line3Builder
+    line3Builder x =
+      div_
+        (textStyle : x)
+        [div_ [style_ $ marginhv 4 4] [text "End Turn"]]
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
 stackView model@GameModel {board, playingPlayer} z =
   button_
-    [buttonStyle, positionStyle] -- onClick ShowStack
-    [text $ ms stackSize]
+    [buttonStyle False, positionStyle] -- onClick ShowStack
+    $ buttonEnabled buttonBuilder
   where
     off = cellPixelSize `div` 2
     positionStyle =
@@ -118,6 +117,7 @@ stackView model@GameModel {board, playingPlayer} z =
         zprb z Absolute off off
     pLens = spotToLens playingPlayer
     stackSize = board ^. pLens . #stack & length
+    buttonBuilder x = div_ (style_ (marginhv 4 4) : x) [text $ ms stackSize]
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
