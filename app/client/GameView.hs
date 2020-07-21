@@ -89,11 +89,9 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} =
                 ],
           let (r, g, b) =
                 case interaction of
-                  GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellow
-                  _ -> green
+                  GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
+                  _ -> greenRGB
       ]
-    yellow = (255, 255, 0)
-    green = (0, 255, 0)
     bumpAnim = "bump"
     bumpInit = "transform: translateY(0px);"
     bump50 = "transform: translateY(-" ++ show cellPixelSize ++ "px);"

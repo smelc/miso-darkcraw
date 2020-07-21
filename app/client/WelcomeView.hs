@@ -15,7 +15,7 @@ import Miso.String hiding (length, map)
 import Miso.Util ((=:))
 import Model (WelcomeModel (..))
 import Update
-import ViewBlocks (gui, textButton)
+import ViewBlocks (ButtonState(..), gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
@@ -78,7 +78,7 @@ selectTeamDiv z =
       textButton
         gui
         z
-        True
+        Enabled
         [ onClick $ WelcomeAction' WelcomeStart,
           style_ $ marginhv cps 0
         ]

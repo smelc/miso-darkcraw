@@ -6,9 +6,9 @@
 -- This module defines the basic building blocks used by views,
 -- so that they have a uniform look'n'feel
 -- |
-module ViewBlocks (gui, GUI (..)) where
+module ViewBlocks (ButtonState (..), gui, GUI (..)) where
 
-import Constants (borderSize)
+import Constants (borderSize, greenHTML, yellowHTML)
 import Data.List
 import qualified Data.Map.Strict as Map
 import Miso
@@ -18,10 +18,10 @@ import ViewInternal
 
 data GUI a = GUI
   { -- | argument #1 is the z-index
-    -- | argument #2 is whether the button is enabled
+    -- | argument #2 is the button's state
     -- | argument #3 is the style
     -- | argument #4 is the button's text
-    textButton :: Int -> Bool -> [Attribute a] -> MisoString -> [View a]
+    textButton :: Int -> ButtonState -> [Attribute a] -> MisoString -> [View a]
   }
 
 -- Implementation used by the code
@@ -32,37 +32,49 @@ gui = _captivatingGUI
 _captivatingGUI :: GUI a
 _captivatingGUI = GUI {..}
   where
-    textButton z enabled attrs text =
+    textButton z bState attrs text =
       keyframed
-        (\as -> builder z enabled (as ++ attrs) text)
+        (\as -> builder z bState (as ++ attrs) text)
         "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
         ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
         ("pulse", "infinite", "ease-in-out")
         (Just "alternate")
         Nothing
-    builder z enabled attrs text =
-      button_ (buttonStyle enabled False : attrs) [stytextzhv z text 0 0]
+    builder z bState attrs text =
+      button_ (buttonStyle bState False : attrs) [stytextzhv z text 0 0]
 
 -- | Implementation where text buttons have a simple non moving border
 _simpleGUI :: GUI a
 _simpleGUI = GUI {..}
   where
-    textButton z enabled attrs text =
+    textButton z bState attrs text =
       [ button_
-          (buttonStyle enabled True : attrs)
+          (buttonStyle bState True : attrs)
           [stytextzhv z text 0 0]
       ]
 
-disabledColor :: MisoString
-disabledColor = "#CCCCCC"
+disabledHTML :: MisoString
+disabledHTML = "#AAAAAA"
 
-buttonStyle :: Bool -> Bool -> Attribute a
-buttonStyle enabled border =
+buttonStyle :: ButtonState -> Bool -> Attribute a
+buttonStyle bState border =
   style_ $
     ("border" =: (px borderSize <> " solid " <> borderColor))
       <> "background-color" =: "transparent" -- no background
       <> "outline" =: "none" -- don't highlight that it has been pressed
       <> Map.fromList textRawStyle
   where
-    borderColor = if enabled then textMainColor else disabledColor
+    borderColor =
+      case bState of
+        Disabled -> disabledHTML
+        Enabled -> greenHTML
+        Selected -> yellowHTML
     borderSize = if border then 2 else 0
+
+data ButtonState
+  = -- | Button is disabled
+    Disabled
+  | -- | Button is enabled
+    Enabled
+  | -- | Button was enabled and has been chosen
+    Selected

@@ -112,3 +112,15 @@ welcomePixelWidth = 504
 -- | The height of the welcome background, in pixels
 welcomePixelHeight :: Int
 welcomePixelHeight = 624
+
+greenHTML :: MisoString
+greenHTML = "#00FF00"
+
+greenRGB :: (Int, Int, Int)
+greenRGB = (255, 0, 0)
+
+yellowHTML :: MisoString
+yellowHTML = "#FFFF00"
+
+yellowRGB :: (Int, Int, Int)
+yellowRGB = (255, 255, 0)
