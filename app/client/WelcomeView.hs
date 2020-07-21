@@ -108,6 +108,11 @@ teamButton ::
 teamButton z selected team =
   builder []
   where
+    _bState =
+      case selected of
+        Nothing -> Enabled
+        Just t | t == team -> Selected
+        _ -> Disabled
     tile Human = "24x24_3_0.png"
     tile Undead = "24x24_1_1.png"
     (hmargin, vmargin) = (0, cellPixelSize `div` 4)

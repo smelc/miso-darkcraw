@@ -17,7 +17,8 @@ import Miso.Util ((=:))
 import ViewInternal
 
 data GUI a = GUI
-  { -- | argument #1 is the z-index
+  { anyButton :: Int -> ButtonState -> ([Attribute a] -> View a) -> [View a],
+    -- | argument #1 is the z-index
     -- | argument #2 is the button's state
     -- | argument #3 is the style
     -- | argument #4 is the button's text
@@ -32,21 +33,25 @@ gui = _captivatingGUI
 _captivatingGUI :: GUI a
 _captivatingGUI = GUI {..}
   where
-    textButton z bState attrs text =
+    anyButton z bState f =
       keyframed
-        (\as -> builder z bState (as ++ attrs) text)
+        f
         "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
         ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
         ("pulse", "infinite", "ease-in-out")
         (Just "alternate")
         Nothing
-    builder z bState attrs text =
-      button_ (buttonStyle bState False : attrs) [stytextzhv z text 0 0]
+    textButton z bState attrs t =
+      anyButton
+        z
+        bState
+        (\as -> button_ (textButtonStyle bState False ++ as ++ attrs) [text t])
 
 -- | Implementation where text buttons have a simple non moving border
 _simpleGUI :: GUI a
 _simpleGUI = GUI {..}
   where
+    anyButton = undefined
     textButton z bState attrs text =
       [ button_
           (buttonStyle bState True : attrs)
@@ -62,7 +67,6 @@ buttonStyle bState border =
     ("border" =: (px borderSize <> " solid " <> borderColor))
       <> "background-color" =: "transparent" -- no background
       <> "outline" =: "none" -- don't highlight that it has been pressed
-      <> Map.fromList textRawStyle
   where
     borderColor =
       case bState of
@@ -70,6 +74,10 @@ buttonStyle bState border =
         Enabled -> greenHTML
         Selected -> yellowHTML
     borderSize = if border then 2 else 0
+
+textButtonStyle :: ButtonState -> Bool -> [Attribute a]
+textButtonStyle bState border =
+  [buttonStyle bState border, style_ $ Map.fromList textRawStyle]
 
 data ButtonState
   = -- | Button is disabled
