@@ -6,6 +6,8 @@ module Model where
 
 import Board
 import Card
+import Control.Lens
+import Data.Generics.Labels
 import qualified Data.Text as Text
 import GHC.Generics
 import Turn (Turn)
@@ -58,15 +60,22 @@ data GameModel = GameModel
   }
   deriving (Eq, Generic, Show)
 
+data PlayingMode
+  = NoPlayingMode
+  | MultiPlayer
+  | SinglePlayer Team
+  deriving (Eq, Generic, Show)
+
 -- | The model of the welcome page
-newtype WelcomeModel = WelcomeModel {
-  welcomeCards :: [Card UI]
-}
+data WelcomeModel = WelcomeModel
+  { playingMode :: PlayingMode,
+    welcomeCards :: [Card UI]
+  }
   deriving (Eq, Generic, Show)
 
 -- | The top level model, later it will be a disjunction
 -- | of the model of each page
-data Model =
-    GameModel' GameModel
+data Model
+  = GameModel' GameModel
   | WelcomeModel' WelcomeModel
   deriving (Eq, Generic, Show)

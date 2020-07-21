@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -9,18 +10,20 @@ module WelcomeView (viewWelcomeModel) where
 
 import Card (Team (..), allTeams, ppTeam)
 import Constants
+import Control.Lens
+import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Miso
 import Miso.String hiding (length, map)
 import Miso.Util ((=:))
-import Model (WelcomeModel (..))
+import Model (PlayingMode (..), WelcomeModel (..))
 import Update
-import ViewBlocks (ButtonState(..), gui, textButton)
+import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> View Action
-viewWelcomeModel _ =
+viewWelcomeModel m =
   div_
     [style_ style]
     [ torchesDiv zpp,
@@ -53,7 +56,12 @@ viewWelcomeModel _ =
               <> "width" =: px welcomePixelWidth
               <> "margin-top" =: px cps
         ]
-        [singlePlayerTextDiv, selectTeamDiv zpp]
+        [singlePlayerTextDiv, selectTeamDiv zpp singlePlayerTeam]
+      where
+        singlePlayerTeam =
+          case m ^. #playingMode of -- tried to use . #_SinglePlayer, to no avail :-()
+            SinglePlayer t -> Just t
+            _ -> Nothing
     singlePlayerFontSize = (cps + titleFontSize) `div` 3
     singlePlayerTextDiv =
       div_
@@ -63,18 +71,23 @@ viewWelcomeModel _ =
         ]
         [text "Single Player"]
 
-selectTeamDiv :: Int -> View Action
-selectTeamDiv z =
+selectTeamDiv :: Int -> Maybe Team -> View Action
+selectTeamDiv z maybeTeam =
   div_
     [style_ flexLineStyle]
     $ [ div_
           [style_ flexColumnStyle]
           $ stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-            : [teamButton z t | t <- allTeams]
+            : [teamButton z maybeTeam t | t <- allTeams]
       ]
-      ++ startButtonDiv
+      ++ startButtonDiv startState
   where
-    startButtonDiv :: [View Action] =
+    startState =
+      case maybeTeam of
+        Nothing -> Disabled
+        _ -> Enabled
+    startButtonDiv :: ButtonState -> [View Action]
+    startButtonDiv bState =
       textButton
         gui
         z
@@ -84,8 +97,15 @@ selectTeamDiv z =
         ]
         "Start"
 
-teamButton :: Int -> Team -> View Action
-teamButton z team =
+teamButton ::
+  -- The z index
+  Int ->
+  -- The team actually selected
+  Maybe Team ->
+  -- The team for which to build the button
+  Team ->
+  View Action
+teamButton z selected team =
   builder []
   where
     tile Human = "24x24_3_0.png"

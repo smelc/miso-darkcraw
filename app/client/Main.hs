@@ -67,7 +67,7 @@ main :: IO ()
 main = do
   cards :: [Card UI] <- loadJson'
   forM_ allTeams (logTeam cards)
-  let model = WelcomeModel' $ WelcomeModel cards -- initial model
+  let model = WelcomeModel' $ WelcomeModel NoPlayingMode cards -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load

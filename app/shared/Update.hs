@@ -77,6 +77,8 @@ instance ToExpr Turn
 
 instance ToExpr GameModel
 
+instance ToExpr PlayingMode
+
 instance ToExpr WelcomeModel
 
 instance ToExpr Model
