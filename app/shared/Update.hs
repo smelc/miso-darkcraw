@@ -87,7 +87,8 @@ instance ToExpr Model
 
 -- | Actions that are raised by 'WelcomeView'
 data WelcomeAction
-  = WelcomeStart
+  = WelcomeSelectSinglePlayer Team
+  | WelcomeStart
   deriving (Show, Eq)
 
 -- | Actions that are raised by 'GameView'
@@ -233,6 +234,13 @@ updateGameModel a m@GameModel {interaction} =
         Left errMsg -> (GameShowErrorInteraction errMsg, m)
         Right model' -> (interaction', model')
 
+-- | Updates a 'WelcomeModel'
+updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
+updateWelcomeModel (WelcomeSelectSinglePlayer team) m =
+  m {playingMode = SinglePlayer team}
+updateWelcomeModel WelcomeStart _ =
+  error "WelcomeStart action should be handled in updateModel"
+
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
 -- | and is the only one to handle page changes. A page change event
@@ -241,12 +249,20 @@ updateGameModel a m@GameModel {interaction} =
 -- | (SpecializedAction -> SpecializedModel -> SpecializedModel),
 -- | it needs to be in `Action -> Model -> Model`.
 updateModel :: Action -> Model -> Effect Action Model
+-- Generic actions
 updateModel NoOp m = noEff m
-updateModel SayHelloWorld m = m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
-updateModel (WelcomeAction' WelcomeStart) m@(WelcomeModel' WelcomeModel {welcomeCards}) =
-  noEff $ GameModel' $ initialGameModel welcomeCards
+updateModel SayHelloWorld m =
+  m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
+-- Actions that change the page
+updateModel
+  (WelcomeAction' WelcomeStart)
+  m@(WelcomeModel' WelcomeModel {welcomeCards}) =
+    noEff $ GameModel' $ initialGameModel welcomeCards
+-- Actions that do not change the page, delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m) =
   noEff $ GameModel' $ updateGameModel a m
+updateModel (WelcomeAction' a) (WelcomeModel' m) =
+  noEff $ WelcomeModel' $ updateWelcomeModel a m
 updateModel a m =
   error $
     "Unhandled case in updateModel with the model being:\n"

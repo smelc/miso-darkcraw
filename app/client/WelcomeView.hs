@@ -13,12 +13,13 @@ import Constants
 import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
+import Data.Maybe (isJust)
 import Miso
-import Miso.String hiding (length, map)
+import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (PlayingMode (..), WelcomeModel (..))
 import Update
-import ViewBlocks (ButtonState (..), gui, textButton)
+import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
@@ -77,24 +78,20 @@ selectTeamDiv z maybeTeam =
     [style_ flexLineStyle]
     $ [ div_
           [style_ flexColumnStyle]
-          $ stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-            : [teamButton z maybeTeam t | t <- allTeams]
+          $ [stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0]
+            ++ concat [teamButton z maybeTeam t | t <- allTeams]
       ]
-      ++ startButtonDiv startState
+      ++ startButtonDiv
   where
-    startState =
-      case maybeTeam of
-        Nothing -> Disabled
-        _ -> Enabled
-    startButtonDiv :: ButtonState -> [View Action]
-    startButtonDiv bState =
+    teamSelected = isJust maybeTeam
+    startButtonDiv =
       textButton
         gui
         z
-        Enabled
-        [ onClick $ WelcomeAction' WelcomeStart,
-          style_ $ marginhv cps 0
-        ]
+        (if teamSelected then Enabled else Disabled)
+        ( [style_ $ marginhv cps 0]
+            ++ [onClick $ WelcomeAction' WelcomeStart | teamSelected]
+        )
         "Start"
 
 teamButton ::
@@ -104,24 +101,29 @@ teamButton ::
   Maybe Team ->
   -- The team for which to build the button
   Team ->
-  View Action
+  [View Action]
 teamButton z selected team =
-  builder []
+  marginify $ anyButton gui z bState builder
   where
-    _bState =
+    bState =
       case selected of
         Nothing -> Enabled
         Just t | t == team -> Selected
         _ -> Disabled
     tile Human = "24x24_3_0.png"
     tile Undead = "24x24_1_1.png"
-    (hmargin, vmargin) = (0, cellPixelSize `div` 4)
+    (hmargin, vmargin) = (2, 2)
     textAndTile =
-      [ stytextzhv z (ms $ ppTeam team) 0 0,
-        marginifyhv 4 0 $ img_' $ tile team
+      [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
+        img_' $ tile team -- tile
       ]
+    onClickAction = WelcomeAction' $ WelcomeSelectSinglePlayer team
     builder x =
-      div_ (style_ flexLineStyle : x) $ map (marginifyhv hmargin vmargin) textAndTile
+      div_
+        ([style_ flexLineStyle, onClick onClickAction] ++ x)
+        $ marginify textAndTile
+    marginify :: [View a] -> [View a]
+    marginify = map (marginifyhv hmargin vmargin)
 
 torchesDiv :: Int -> View Action
 torchesDiv z =

@@ -136,6 +136,10 @@ marginifyhv h v view =
 px :: Int -> MisoString
 px i = ms i <> "px"
 
+-- | Styled text, specifying the z-index and the text
+stytextz :: Int -> MisoString -> View a
+stytextz z txt = stytextzhv z txt 0 0
+
 -- | Styled text, specifying the z-index, the text, the left and right margin
 -- | (in pixels) and the top and bottom margin (in pixels)
 stytextzhv :: Int -> MisoString -> Int -> Int -> View a

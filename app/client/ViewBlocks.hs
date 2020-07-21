@@ -30,17 +30,21 @@ gui :: GUI a
 gui = _captivatingGUI
 
 -- | Implementation where text buttons have a continuous shrink/grow border
+-- | when enabled
 _captivatingGUI :: GUI a
 _captivatingGUI = GUI {..}
   where
     anyButton z bState f =
-      keyframed
-        f
-        "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
-        ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
-        ("pulse", "infinite", "ease-in-out")
-        (Just "alternate")
-        Nothing
+      case bState of
+        Enabled ->
+          keyframed
+            (\as -> f (as ++ [buttonStyle bState False]))
+            "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
+            ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
+            ("pulse", "infinite", "ease-in-out")
+            (Just "alternate")
+            Nothing
+        _ -> [f [buttonStyle bState True]] -- XXX Call _simpleGUI's anyButton
     textButton z bState attrs t =
       anyButton
         z
@@ -51,7 +55,7 @@ _captivatingGUI = GUI {..}
 _simpleGUI :: GUI a
 _simpleGUI = GUI {..}
   where
-    anyButton = undefined
+    anyButton z bState f = [f [buttonStyle bState True]]
     textButton z bState attrs text =
       [ button_
           (buttonStyle bState True : attrs)
