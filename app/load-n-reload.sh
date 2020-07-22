@@ -62,6 +62,13 @@ function check_in_nix_shell() {
   fi
 }
 
+function display_help() {
+  echo "Usage: ./load-n-reload [release|test]?"
+  echo "  Without argument, launches a jsaddle webserver at localhost:8080 that is reloaded when code changes"
+  echo "  With argument 'release', regenerates server at dist-newstyle/build/x86_64-linux/ghcjs-8.6.0.1/app-0.1.0.0/x/app/build/app/app.jsexe/index.html when code changes"
+  echo "  With argument 'test', reexecute 'Test.hs' when it changes"
+}
+
 if [[ -z "$1" ]]
 then
   # jsaddle case, use midori (historical)
@@ -77,6 +84,10 @@ then
 
   # Auto refreshing of midori's tab upon saving a .hs file:
   midori_listen &
+elif [[ "$1" == "help" ]]
+then
+  display_help
+  exit 0
 elif [[ "$1" == "release" ]]
 then
   # release case, uses sensible-browser, i.e. your default browser
