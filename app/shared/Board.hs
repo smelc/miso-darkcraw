@@ -26,6 +26,7 @@ module Board
     createAttackEffect,
     endingPlayerSpot,
     exampleBoard,
+    inTheBack,
     otherPlayerSpot,
     PlayerPart (..),
     PlayerSpot (..),
@@ -257,6 +258,13 @@ exampleBoard cards =
           ]
     (botHand, botStack) = splitAt handSize $ initialDeck cards Human
     botPlayer = PlayerPart botCards botHand botStack []
+
+-- Whether a spot is in the back line
+inTheBack :: CardSpot -> Bool
+inTheBack TopLeft = True
+inTheBack Top = True
+inTheBack TopRight = True
+inTheBack _ = False
 
 -- | The other spot
 otherPlayerSpot :: PlayerSpot -> PlayerSpot

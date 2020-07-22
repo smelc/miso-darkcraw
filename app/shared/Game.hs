@@ -1,16 +1,17 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Game
-  ( attackOrder, -- Exported only for tests
+  ( allEnemySpots,
+    attackOrder, -- Exported only for tests
     enemySpots,
     PlayAction (..),
     play,
@@ -169,12 +170,6 @@ allyBlockerSpot Top = Just Bottom
 allyBlockerSpot TopRight = Just BottomRight
 allyBlockerSpot _ = Nothing
 
-inTheBack :: CardSpot -> Bool
-inTheBack TopLeft = True
-inTheBack Top = True
-inTheBack TopRight = True
-inTheBack _ = False
-
 -- | The other spot in the column in the spot's part
 -- otherYSpot :: CardSpot -> CardSpot
 -- otherYSpot TopLeft = BottomLeft
@@ -183,6 +178,10 @@ inTheBack _ = False
 -- otherYSpot BottomLeft = TopLeft
 -- otherYSpot Bottom = Top
 -- otherYSpot BottomRight = TopRight
+
+-- | All enemy spots of a spot
+allEnemySpots :: CardSpot -> [CardSpot]
+allEnemySpots = enemySpots [Ranged]
 
 -- | Spots that can be attacked from a spot
 -- | Spot as argument is in one player part while spots returned

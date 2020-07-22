@@ -38,7 +38,7 @@ import Miso.String hiding (length)
 import Model
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
-import ViewBlocks (ButtonState(..), gui, textButton)
+import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
 errView :: GameModel -> Int -> [View Action]
