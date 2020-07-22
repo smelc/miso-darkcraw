@@ -111,7 +111,7 @@ keyframed e from to (name, iterationCount, timingFunction) direction fillMode =
   ]
 
 noDrag :: Attribute a
-noDrag = style_ (Map.fromList [("-webkit-user-drag", "none"), ("user-select", "none")])
+noDrag = style_ $ "-webkit-user-drag" =: "none" <> "user-select" =: "none"
 
 -- | A style specifing the left and right margin and the top and bottom margin
 -- | Both sizes are in pixels

@@ -68,7 +68,7 @@ disabledHTML = "#AAAAAA"
 buttonStyle :: ButtonState -> Bool -> Attribute a
 buttonStyle bState border =
   style_ $
-    ("border" =: (px borderSize <> " solid " <> borderColor))
+    ("border" =: (px borderSize' <> " solid " <> borderColor))
       <> "background-color" =: "transparent" -- no background
       <> "outline" =: "none" -- don't highlight that it has been pressed
   where
@@ -77,7 +77,7 @@ buttonStyle bState border =
         Disabled -> disabledHTML
         Enabled -> greenHTML
         Selected -> yellowHTML
-    borderSize = if border then 2 else 0
+    borderSize' = if border then borderSize else 0
 
 textButtonStyle :: ButtonState -> Bool -> [Attribute a]
 textButtonStyle bState border =
