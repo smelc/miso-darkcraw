@@ -11,8 +11,9 @@ import Board
 import Card
 import Control.Lens
 import Data.Generics.Labels
+import Data.List (permutations, sortBy)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, fromMaybe, isNothing)
+import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
 import Game (PlayAction (..), allEnemySpots)
 import Turn (Turn, turnToPlayerSpot)
 
@@ -22,8 +23,42 @@ aiPlay :: Board Core -> Turn -> PlayAction
 aiPlay board turn = aiPlay' board $ turnToPlayerSpot turn
 
 aiPlay' :: Board Core -> PlayerSpot -> PlayAction
-aiPlay' board pSpot =
-  undefined
+aiPlay' board pSpot
+  | null hand || null candidates = EndPlayerTurn pSpot -- hand is empty
+  | otherwise =
+    let (creature, cSpot, _) = head candidates
+     in Place pSpot cSpot undefined
+  where
+    hand :: [Card Core] = boardToHand board $ spotToLens pSpot
+    hand' :: [Creature Core] = map cardToCreature hand & catMaybes
+    places :: [CardSpot] = placements board pSpot
+    -- It's not a min-max yet because we do not try to play the first
+    -- card and see whether it helps putting a good second one, etc.
+    scores :: [(Creature Core, CardSpot, Int)]
+    scores =
+      [ ( creature,
+          cSpot,
+          fromJust score
+        )
+        | creature <- hand',
+          cSpot <- places,
+          let score = scorePlace board (pSpot, cSpot) creature,
+          isJust score
+      ]
+    sortThd (_, _, t1) (_, _, t2) = compare t1 t2
+    candidates = sortBy sortThd scores
+
+placements ::
+  Board Core ->
+  -- | The player placing a card
+  PlayerSpot ->
+  -- | All spots where the card can be put
+  [CardSpot]
+placements board pSpot =
+  [cSpot | cSpot <- allCardsSpots, cSpot `Map.notMember` inPlace]
+  where
+    pLens = spotToLens pSpot
+    inPlace :: Map.Map CardSpot (Creature Core) = board ^. pLens . #inPlace
 
 -- | The score of placing a card at the given position
 scorePlace ::
@@ -33,12 +68,13 @@ scorePlace ::
   -- | The card to place
   Creature Core ->
   -- | The score of placing the card, 0 is the best. 'Nothing' if the card
-  -- | cannot be placed
+  -- | cannot be placed or if score cannot be beaten.
   Maybe Int
 scorePlace board (pSpot, cSpot) card =
   case inPlace of
     Just _ -> Nothing -- Target spot is occupied
-    _ -> Just backMalus
+    _ -> Just $ sum maluses -- Can be optimized, by interrupting computations
+    -- when partial sum is above the current best score
   where
     pLens = spotToLens pSpot
     otherPLens = spotToLens $ otherPlayerSpot pSpot
@@ -52,3 +88,4 @@ scorePlace board (pSpot, cSpot) card =
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
+    maluses = [backMalus, victoryPointsMalus]
