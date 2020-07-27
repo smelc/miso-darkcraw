@@ -69,6 +69,7 @@ buttonStyle bState border =
   style_ $
     "background-color" =: "transparent" -- no background
       <> "outline" =: (px borderSize' <> " solid " <> borderColor)
+      <> "border" =: "none"
   where
     borderColor =
       case bState of
