@@ -35,9 +35,8 @@ viewWelcomeModel m =
   where
     (z, zpp) = (0, z + 1)
     style =
-      Map.union (zpltwh z Relative 0 0 welcomePixelWidth welcomePixelHeight) $
-        Map.fromList
-          [("background-image", assetsUrl "welcome.png")]
+      zpltwh z Relative 0 0 welcomePixelWidth welcomePixelHeight
+        <> "background-image" =: assetsUrl "welcome.png"
     -- The top level flex, layout things in a column
     textStyle = Map.fromList textRawStyle
     titleDiv = div_ [style_ titleStyle] [text gameTitle]
@@ -59,16 +58,14 @@ viewWelcomeModel m =
         ]
         [singlePlayerTextDiv, selectTeamDiv zpp singlePlayerTeam]
       where
-        singlePlayerTeam =
-          case m ^. #playingMode of -- tried to use . #_SinglePlayer, to no avail :-()
-            SinglePlayer t -> Just t
-            _ -> Nothing
+        singlePlayerTeam = m ^? #playingMode . #_SinglePlayer
     singlePlayerFontSize = (cps + titleFontSize) `div` 3
     singlePlayerTextDiv =
       div_
-        [ style_ textStyle,
-          style_ $ marginhv cps 0,
-          style_ $ "font-size" =: px singlePlayerFontSize
+        [ style_ $
+            textStyle
+              <> marginhv cps 0
+              <> "font-size" =: px singlePlayerFontSize
         ]
         [text "Single Player"]
 
@@ -76,12 +73,12 @@ selectTeamDiv :: Int -> Maybe Team -> View Action
 selectTeamDiv z maybeTeam =
   div_
     [style_ flexLineStyle]
-    $ [ div_
-          [style_ flexColumnStyle]
-          $ [stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0]
-            ++ concat [teamButton z maybeTeam t | t <- allTeams]
-      ]
-      ++ startButtonDiv
+    $ div_
+      [style_ flexColumnStyle]
+      ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
+          : concat [teamButton z maybeTeam t | t <- allTeams]
+      )
+      : startButtonDiv
   where
     teamSelected = isJust maybeTeam
     startButtonDiv =
@@ -89,8 +86,8 @@ selectTeamDiv z maybeTeam =
         gui
         z
         (if teamSelected then Enabled else Disabled)
-        ( [style_ $ marginhv cps 0]
-            ++ [onClick $ WelcomeAction' WelcomeStart | teamSelected]
+        ( style_ (marginhv cps 0)
+            : [onClick $ WelcomeAction' WelcomeStart | teamSelected]
         )
         "Start"
 
@@ -139,8 +136,7 @@ torchesDiv z =
   where
     torch x = div_ [style_ $ style x] []
     style x =
-      Map.union
-        (tilezprb z Absolute 0 (14 + (if x then 1 else -1)))
-        ("background-image" =: assetsUrl "torchs.png")
-        <> ("animation" =: ("torch " <> duration x <> " steps(2) infinite"))
+      tilezprb z Absolute 0 (14 + (if x then 1 else -1))
+        <> "background-image" =: assetsUrl "torchs.png"
+        <> "animation" =: ("torch " <> duration x <> " steps(2) infinite")
     duration x = if x then "2s" else "2.5s"
