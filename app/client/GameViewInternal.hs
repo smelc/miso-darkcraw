@@ -72,7 +72,7 @@ errView model@GameModel {interaction} z =
 
 turnView :: GameModel -> Int -> View Action
 turnView model@GameModel {turn} z =
-  div_ [style_ turnViewStyle, textStyle] $ [line1, line2] ++ line3
+  div_ [style_ turnViewStyle, textStyle] $ [line1, line2, line3]
   where
     turnViewStyle =
       Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight)
@@ -92,7 +92,7 @@ turnView model@GameModel {turn} z =
       div_
         [topMarginAttr]
         [img_ [src_ (assetsPath $ "24x24_" <> playerImgY <> "_2.png")]]
-    line3 :: [View Action] =
+    line3 :: View Action =
       textButton
         gui
         z
@@ -105,7 +105,7 @@ turnView model@GameModel {turn} z =
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action
 stackView model@GameModel {board, playingPlayer} z =
-  div_ [positionStyle] $ textButton gui z Enabled [] $ ms stackSize
+  div_ [positionStyle] [textButton gui z Enabled [] $ ms stackSize]
   where
     off = cellPixelSize `div` 2
     positionStyle =
@@ -184,16 +184,15 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
 
 deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
 deathFadeout ae x y =
-  if death ae
-    then
-      keyframed
-        builder
-        "opacity: 1;"
-        "opacity: 0;"
-        ("deathFadeout", "1", "ease")
-        Nothing
-        $ Just "forwards"
-    else []
+  [ keyframed
+      builder
+      "opacity: 1;"
+      "opacity: 0;"
+      ("deathFadeout", "1", "ease")
+      Nothing
+      $ Just "forwards"
+    | death ae
+  ]
   where
     sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)

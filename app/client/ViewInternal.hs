@@ -92,23 +92,25 @@ keyframed ::
   Maybe MisoString ->
   -- | The attribute `animation-fill-mode`
   Maybe MisoString ->
-  [View a]
+  View a
 keyframed e from to (name, iterationCount, timingFunction) direction fillMode =
-  [ nodeHtml
-      "style"
-      []
-      [keyframes name from [] to],
-    e
-      [ style_ $
-          Map.empty
-            & at "animation-duration" ?~ "1s"
-            & at "animation-name" ?~ name
-            & at "animation-iteration-count" ?~ iterationCount
-            & at "animation-timing-function" ?~ timingFunction
-            & at "animation-direction" .~ direction
-            & at "animation-fill-mode" .~ fillMode
-      ]
-  ]
+  div_
+    []
+    [ nodeHtml
+        "style"
+        []
+        [keyframes name from [] to],
+      e
+        [ style_ $
+            Map.empty
+              & at "animation-duration" ?~ "1s"
+              & at "animation-name" ?~ name
+              & at "animation-iteration-count" ?~ iterationCount
+              & at "animation-timing-function" ?~ timingFunction
+              & at "animation-direction" .~ direction
+              & at "animation-fill-mode" .~ fillMode
+        ]
+    ]
 
 noDrag :: Attribute a
 noDrag = style_ $ "-webkit-user-drag" =: "none" <> "user-select" =: "none"

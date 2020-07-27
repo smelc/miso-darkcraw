@@ -73,12 +73,13 @@ selectTeamDiv :: Int -> Maybe Team -> View Action
 selectTeamDiv z maybeTeam =
   div_
     [style_ flexLineStyle]
-    $ div_
-      [style_ flexColumnStyle]
-      ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-          : concat [teamButton z maybeTeam t | t <- allTeams]
-      )
-      : startButtonDiv
+    $ [ div_
+          [style_ flexColumnStyle]
+          ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
+              : [teamButton z maybeTeam t | t <- allTeams]
+          ),
+        startButtonDiv
+      ]
   where
     teamSelected = isJust maybeTeam
     startButtonDiv =
@@ -98,9 +99,9 @@ teamButton ::
   Maybe Team ->
   -- The team for which to build the button
   Team ->
-  [View Action]
+  View Action
 teamButton z selected team =
-  marginify $ anyButton gui z bState builder
+  marginifyhv 2 4 $ anyButton gui z bState builder
   where
     bState =
       case selected of
@@ -109,7 +110,6 @@ teamButton z selected team =
         _ -> Disabled
     tile Human = "24x24_3_0.png"
     tile Undead = "24x24_1_1.png"
-    (hmargin, vmargin) = (2, 2)
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
         img_' $ tile team -- tile
@@ -118,9 +118,7 @@ teamButton z selected team =
     builder x =
       div_
         ([style_ flexLineStyle, onClick onClickAction] ++ x)
-        $ marginify textAndTile
-    marginify :: [View a] -> [View a]
-    marginify = map (marginifyhv hmargin vmargin)
+        $ map (marginifyhv 2 2) textAndTile
 
 torchesDiv :: Int -> View Action
 torchesDiv z =

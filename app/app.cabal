@@ -26,6 +26,7 @@ executable app
     Utils
     View
     ViewBlocks
+    ViewInternal
     WelcomeView
   ghc-options:
     -Wincomplete-patterns

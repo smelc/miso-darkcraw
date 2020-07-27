@@ -17,12 +17,12 @@ import Miso.Util ((=:))
 import ViewInternal
 
 data GUI a = GUI
-  { anyButton :: Int -> ButtonState -> ([Attribute a] -> View a) -> [View a],
+  { anyButton :: Int -> ButtonState -> ([Attribute a] -> View a) -> View a,
     -- | argument #1 is the z-index
     -- | argument #2 is the button's state
     -- | argument #3 is the style
     -- | argument #4 is the button's text
-    textButton :: Int -> ButtonState -> [Attribute a] -> MisoString -> [View a]
+    textButton :: Int -> ButtonState -> [Attribute a] -> MisoString -> View a
   }
 
 -- Implementation used by the code
@@ -44,7 +44,7 @@ _captivatingGUI = GUI {..}
             ("pulse", "infinite", "ease-in-out")
             (Just "alternate")
             Nothing
-        _ -> [f [buttonStyle bState True]] -- XXX Call _simpleGUI's anyButton
+        _ -> f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
     textButton z bState attrs t =
       anyButton
         z
@@ -55,12 +55,11 @@ _captivatingGUI = GUI {..}
 _simpleGUI :: GUI a
 _simpleGUI = GUI {..}
   where
-    anyButton z bState f = [f [buttonStyle bState True]]
+    anyButton z bState f = f [buttonStyle bState True]
     textButton z bState attrs text =
-      [ button_
-          (buttonStyle bState True : attrs)
-          [stytextzhv z text 0 0]
-      ]
+      button_
+        (buttonStyle bState True : attrs)
+        [stytextzhv z text 0 0]
 
 disabledHTML :: MisoString
 disabledHTML = "#AAAAAA"
@@ -68,9 +67,8 @@ disabledHTML = "#AAAAAA"
 buttonStyle :: ButtonState -> Bool -> Attribute a
 buttonStyle bState border =
   style_ $
-    ("border" =: (px borderSize' <> " solid " <> borderColor))
-      <> "background-color" =: "transparent" -- no background
-      <> "outline" =: "none" -- don't highlight that it has been pressed
+    "background-color" =: "transparent" -- no background
+      <> "outline" =: (px borderSize' <> " solid " <> borderColor)
   where
     borderColor =
       case bState of
