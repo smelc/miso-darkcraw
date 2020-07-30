@@ -14,21 +14,34 @@ import Data.Generics.Labels
 import Data.List (sortBy)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
-import Game (PlayAction (..), allEnemySpots)
+import Data.Text (Text)
+import Game (PlayAction (..), allEnemySpots, play)
 import Turn (Turn, turnToPlayerSpot)
+
+-- | Crafts play actions for the player whose turn it is.
+-- | The returned list is guaranteed not to contain 'EndPlayerTurn'. This
+-- | function returns 'Either', because 'play' can.
+aiPlay :: Board Core -> Turn -> Either Text [PlayAction]
+aiPlay board turn =
+  helper board []
+  where
+    helper board' actions =
+      case aiPlay' board' turn of
+        EndPlayerTurn _ -> Right $ reverse actions
+        action -> do
+          (board'', _) <- play board' action
+          helper board'' $ action : actions
 
 -- | Crafts a play action for the player whose turn it is.
 -- | Returns 'EndPlayerTurn' if the player cannot do anything.
-aiPlay :: Board Core -> Turn -> PlayAction
-aiPlay board turn = aiPlay' board $ turnToPlayerSpot turn
-
-aiPlay' :: Board Core -> PlayerSpot -> PlayAction
-aiPlay' board pSpot
+aiPlay' :: Board Core -> Turn -> PlayAction
+aiPlay' board turn
   | null hand || null candidates = EndPlayerTurn pSpot -- hand is empty
   | otherwise =
     let (creature, cSpot, _) = head candidates
      in Place pSpot cSpot undefined
   where
+    pSpot = turnToPlayerSpot turn
     hand :: [Card Core] = boardToHand board $ spotToLens pSpot
     hand' :: [Creature Core] = map cardToCreature hand & catMaybes
     places :: [CardSpot] = placements board pSpot
