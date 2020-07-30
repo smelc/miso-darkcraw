@@ -11,7 +11,7 @@ import Board
 import Card
 import Control.Lens
 import Data.Generics.Labels
-import Data.List (permutations, sortBy)
+import Data.List (sortBy)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
 import Game (PlayAction (..), allEnemySpots)
