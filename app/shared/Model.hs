@@ -16,6 +16,7 @@ import Turn (Turn, turnToPlayerSpot)
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
 
+-- | An interaction happening in the game page
 data GameInteraction
   = -- | Hovering over a card in hand TODO smelc rename to HoverHandInteraction
     GameHoverInteraction Hovering
