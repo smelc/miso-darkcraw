@@ -9,23 +9,26 @@ import GHC.Generics (Generic)
 type UserName = Text
 
 data InMessage = CreateUser UserName
-  deriving (Generic)
+  deriving (Eq, Show, Generic)
 
 instance FromJSON InMessage
+
 instance ToJSON InMessage
 
 data UserCreationError = UsernameAlreadyExists
-  deriving (Generic)
+  deriving (Eq, Show, Generic)
 
 instance FromJSON UserCreationError
+
 instance ToJSON UserCreationError
 
 data OutMessage
-   = ParseError
-   | UserCreated
-   | UserCreationFailed UserCreationError
-   | NewUserList [UserName]
-  deriving (Generic)
+  = ParseError
+  | UserCreated
+  | UserCreationFailed UserCreationError
+  | NewUserList [UserName]
+  deriving (Eq, Show, Generic)
 
 instance FromJSON OutMessage
+
 instance ToJSON OutMessage

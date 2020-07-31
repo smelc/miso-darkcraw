@@ -11,6 +11,8 @@ import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Text as Text
 import GHC.Generics
+import Miso.String
+import ServerMessages
 import Turn (Turn, turnToPlayerSpot)
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
@@ -80,9 +82,16 @@ data WelcomeModel = WelcomeModel
   }
   deriving (Eq, Generic, Show)
 
+data MultiPlayerLobbyModel
+  = CollectingUserName UserName
+  | WaitingForNameSubmission UserName
+  | DisplayingUserList UserName [UserName]
+  deriving (Eq, Generic, Show)
+
 -- | The top level model, later it will be a disjunction
 -- | of the model of each page
 data Model
   = GameModel' GameModel
   | WelcomeModel' WelcomeModel
+  | MultiPlayerLobbyModel' MultiPlayerLobbyModel
   deriving (Eq, Generic, Show)

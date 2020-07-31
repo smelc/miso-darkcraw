@@ -63,6 +63,7 @@ executable app
   other-modules:
     GameView
     GameViewInternal
+    MultiPlayerLobbyView
     View
     ViewBlocks
     ViewInternal

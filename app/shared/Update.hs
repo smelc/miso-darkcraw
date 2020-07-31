@@ -21,8 +21,9 @@ import Debug.Trace
 import Formatting ((%), format, hex, sformat)
 import qualified Game
 import Miso
-import Miso.String (ms)
+import Miso.String (MisoString, fromMisoString, ms)
 import Model
+import ServerMessages
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
@@ -81,6 +82,8 @@ instance ToExpr PlayingMode
 
 instance ToExpr WelcomeModel
 
+instance ToExpr MultiPlayerLobbyModel
+
 instance ToExpr Model
 
 -- FIXME smelc move Action* to its own file (to avoid cycles later on)
@@ -89,6 +92,13 @@ instance ToExpr Model
 data WelcomeAction
   = WelcomeSelectSinglePlayer Team
   | WelcomeStart
+  | WelcomeSelectMultiPlayer
+  deriving (Show, Eq)
+
+data MultiPlayerLobbyAction
+  = LobbyUpdateUsername MisoString
+  | LobbySubmitUsername
+  | LobbyServerMessage OutMessage
   deriving (Show, Eq)
 
 -- | Actions that are raised by 'GameView'
@@ -117,6 +127,7 @@ data Action
   | NoOp
   | SayHelloWorld
   | WelcomeAction' WelcomeAction
+  | MultiPlayerLobbyAction' MultiPlayerLobbyAction
   deriving (Show, Eq)
 
 logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a
@@ -247,8 +258,25 @@ updateGameModel a m@GameModel {interaction} =
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
 updateWelcomeModel (WelcomeSelectSinglePlayer team) m =
   m {playingMode = SinglePlayer team}
+updateWelcomeModel WelcomeSelectMultiPlayer _ =
+  error "WelcomeSelectMultiplayer action should be handled in updateModel"
 updateWelcomeModel WelcomeStart _ =
   error "WelcomeStart action should be handled in updateModel"
+
+-- | Updates a 'MultiPlayerLobbyModel'
+updateMultiPlayerLobbyModel :: MultiPlayerLobbyAction -> MultiPlayerLobbyModel -> Effect Action MultiPlayerLobbyModel
+updateMultiPlayerLobbyModel (LobbyUpdateUsername userName) (CollectingUserName _) =
+  noEff $ CollectingUserName (fromMisoString userName)
+updateMultiPlayerLobbyModel LobbySubmitUsername (CollectingUserName userName) =
+  WaitingForNameSubmission userName <# do
+    send (CreateUser userName)
+    return NoOp
+updateMultiPlayerLobbyModel (LobbyServerMessage UserCreated) (WaitingForNameSubmission userName) =
+  noEff $ DisplayingUserList userName []
+updateMultiPlayerLobbyModel (LobbyServerMessage (NewUserList users)) (DisplayingUserList userName _) =
+  noEff $ DisplayingUserList userName users
+updateMultiPlayerLobbyModel a m =
+  noEff $ traceShow (a, m) m
 
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
@@ -267,11 +295,19 @@ updateModel
   (WelcomeAction' WelcomeStart)
   m@(WelcomeModel' WelcomeModel {welcomeCards}) =
     noEff $ GameModel' $ initialGameModel welcomeCards
+updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
+  effectSub (MultiPlayerLobbyModel' (CollectingUserName "")) $
+    websocketSub (URL "ws://127.0.0.1:9160") (Protocols []) handleWebSocket
+  where
+    handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
+    handleWebSocket problem = traceShow problem NoOp
 -- Actions that do not change the page, delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m) =
   noEff $ GameModel' $ updateGameModel a m
 updateModel (WelcomeAction' a) (WelcomeModel' m) =
   noEff $ WelcomeModel' $ updateWelcomeModel a m
+updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
+  MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
 updateModel a m =
   error $
     "Unhandled case in updateModel with the model being:\n"

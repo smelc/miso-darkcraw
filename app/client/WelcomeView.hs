@@ -30,7 +30,8 @@ viewWelcomeModel m =
     [ torchesDiv zpp,
       div_
         [style_ flexColumnStyle]
-        [titleDiv, buttonsDiv]
+        [titleDiv, buttonsDiv],
+      button_ [onClick $ WelcomeAction' WelcomeSelectMultiPlayer] [text "multi player"]
     ]
   where
     (z, zpp) = (0, z + 1)
