@@ -38,8 +38,8 @@ import qualified Data.Text as Text
 
 -- TODO smelc Use a type family to share this type with Update.PlayAction
 data PlayAction
-  = -- | Player finishes its turn, we should resolve it
-    EndPlayerTurn PlayerSpot
+  = -- | A player finishes its turn, we should resolve it
+    EndPlayerTurn PlayerSpot -- FIXME rename me into EndTurn
   | -- | Player puts a card from his hand on its part of the board
     Place PlayerSpot CardSpot (Card Core)
 

@@ -25,7 +25,7 @@ import Miso.String (ms)
 import Model
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
-import Turn (Turn, initialTurn)
+import Turn (Turn, initialTurn, turnToPlayerSpot)
 
 instance ToExpr CreatureKind
 
@@ -135,7 +135,7 @@ logUpdates update action model = do
 
 data PlayAction
   = -- | Player ends its turn
-    EndPlayerTurn PlayerSpot
+    EndPlayerTurn PlayerSpot -- FIXME rename me into EndTurn
   | -- | Playing player puts a card from his hand on its part of the board
     Place PlayerSpot CardSpot HandIndex
   | NoPlayAction
@@ -143,6 +143,12 @@ data PlayAction
 
 noPlayAction :: a -> (a, PlayAction)
 noPlayAction interaction = (interaction, NoPlayAction)
+
+-- | Whether it's the turn of the playing player, i.e. neither the AI turn
+-- | nor the turn of the other player if in multiplayer
+isPlayerTurn :: GameModel -> Bool
+isPlayerTurn GameModel {playingPlayer, turn} =
+  turnToPlayerSpot turn == playingPlayer
 
 -- | Translates a game action into an 'Interaction' and a 'PlayAction'
 interpretOnGameModel ::
@@ -154,23 +160,28 @@ interpretOnGameModel ::
 interpretOnGameModel m action (GameShowErrorInteraction _) =
   interpretOnGameModel m action GameNoInteraction -- clear error message
   -- Now onto "normal" stuff:
-interpretOnGameModel _ (GameDragStart i) _ =
-  noPlayAction $ GameDragInteraction $ Dragging i Nothing
+interpretOnGameModel m (GameDragStart i) _
+  | isPlayerTurn m =
+    noPlayAction $ GameDragInteraction $ Dragging i Nothing
 interpretOnGameModel
   GameModel {playingPlayer}
   GameDrop
   (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
     (GameNoInteraction, Place playingPlayer dragTarget draggedCard)
-interpretOnGameModel _ GameDrop _ =
-  noPlayAction GameNoInteraction
+interpretOnGameModel m GameDrop _
+  | isPlayerTurn m =
+    noPlayAction GameNoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
-interpretOnGameModel _ (GameDragEnter cSpot) (GameDragInteraction dragging) =
-  noPlayAction $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
-interpretOnGameModel _ (GameDragLeave _) (GameDragInteraction dragging) =
-  noPlayAction $ GameDragInteraction $ dragging {dragTarget = Nothing}
-interpretOnGameModel GameModel {playingPlayer} GameEndTurn _ =
-  (GameNoInteraction, EndPlayerTurn playingPlayer)
+interpretOnGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
+  | isPlayerTurn m =
+    noPlayAction $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
+interpretOnGameModel m (GameDragLeave _) (GameDragInteraction dragging)
+  | isPlayerTurn m =
+    noPlayAction $ GameDragInteraction $ dragging {dragTarget = Nothing}
+interpretOnGameModel m@GameModel {turn} GameEndTurn _
+  | isPlayerTurn m =
+    (GameNoInteraction, EndPlayerTurn $ turnToPlayerSpot turn)
 -- Hovering in hand cards
 interpretOnGameModel _ (GameInHandMouseEnter i) GameNoInteraction =
   noPlayAction $ GameHoverInteraction $ Hovering i
