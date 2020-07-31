@@ -10,6 +10,7 @@
 
 module Update where
 
+import AI (aiPlay)
 import Board
 import Card
 import Control.Lens
@@ -103,7 +104,8 @@ data MultiPlayerLobbyAction
 
 -- | Actions that are raised by 'GameView'
 data GameAction
-  = -- | Dragging card in hand
+  = GameAIPlay
+  | -- | Dragging card in hand
     GameDragStart HandIndex
   | GameDrop
   | GameDragEnter CardSpot
@@ -184,6 +186,9 @@ interpretOnGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
 interpretOnGameModel m (GameDragLeave _) (GameDragInteraction dragging)
   | isPlayerTurn m =
     noPlayAction $ GameDragInteraction $ dragging {dragTarget = Nothing}
+interpretOnGameModel GameModel {board, turn} GameAIPlay _ =
+  let actions = aiPlay board turn
+   in undefined -- FIXME @smelc create DelayedGameActions from that
 interpretOnGameModel m@GameModel {turn} GameEndTurn _
   | isPlayerTurn m =
     (GameNoInteraction, EndTurn $ turnToPlayerSpot turn)
@@ -214,19 +219,32 @@ lookupInHand hand i
   where
     handLength = length hand
 
-play :: GameModel -> PlayAction -> Either Text GameModel
-play m@GameModel {board, turn} playAction =
-  trace ("playing " ++ show playAction) $ do
-    gamePlayAction <- gamify playAction
-    case gamePlayAction of
-      Nothing -> pure m
-      Just gamePlayAction' -> do
-        (board', anims') <- Game.play board gamePlayAction'
-        let turn' =
-              case gamePlayAction' of
-                Game.EndTurn _ -> nextTurn turn
-                _ -> turn
-        return $ m {board = board', turn = turn', anims = anims'}
+-- | Event to fire after the given delays. Delays adds up
+type DelayedGameActions = [(Int, GameAction)]
+
+microSecsOfSecs :: Num a => a -> a
+microSecsOfSecs i = i * 1000000
+
+play ::
+  GameModel ->
+  PlayAction ->
+  Either Text (GameModel, DelayedGameActions)
+play m@GameModel {board, playingPlayer, turn} playAction = do
+  gamePlayAction <- gamify playAction
+  case gamePlayAction of
+    Nothing -> pure (m, [])
+    Just gamePlayAction' -> do
+      (board', anims') <- Game.play board gamePlayAction'
+      let turn' =
+            case gamePlayAction' of
+              Game.EndTurn _ -> nextTurn turn
+              _ -> turn
+      let delayedActions =
+            [ (microSecsOfSecs 1, GameAIPlay)
+              | turnToPlayerSpot turn' == playingPlayer
+            ]
+      let m' = m {board = board', turn = turn', anims = anims'}
+      return (m', delayedActions)
   where
     gamify :: PlayAction -> Either Text (Maybe Game.PlayAction) = \case
       EndTurn pSpot -> return $ Just $ Game.EndTurn pSpot
@@ -252,7 +270,7 @@ updateGameModel a m@GameModel {interaction} =
     (interaction'', m') =
       case eitherErrModel of
         Left errMsg -> (GameShowErrorInteraction errMsg, m)
-        Right model' -> (interaction', model')
+        Right (model', _) -> (interaction', model') -- FIXME @smelc use data in _
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
