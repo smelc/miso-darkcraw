@@ -25,6 +25,7 @@ function install() {
   command -v "$1" &> /dev/null
   if [[ "$?" != "0" ]];
   then
+    echo "$2"
     $2
     command -v "$1" &> /dev/null
     [[ "$?" == "0" ]] || { echo "$1 could not be installed; exiting"; exit 1; }
