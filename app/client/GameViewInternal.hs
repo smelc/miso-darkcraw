@@ -72,7 +72,7 @@ errView model@GameModel {interaction} z =
 
 turnView :: GameModel -> Int -> View Action
 turnView model@GameModel {turn} z =
-  div_ [style_ turnViewStyle, textStyle] $ [line1, line2, line3]
+  div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
   where
     turnViewStyle =
       Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight)
@@ -96,11 +96,11 @@ turnView model@GameModel {turn} z =
       textButton
         gui
         z
-        Enabled
+        (if isPlayerTurn model then Enabled else Disabled)
         [ topMarginAttr,
           onClick $ GameAction' GameEndTurn
         ]
-        "EndTurn"
+        "End Turn"
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> View Action

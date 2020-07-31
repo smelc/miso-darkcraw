@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Model where
 
@@ -10,7 +11,7 @@ import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Text as Text
 import GHC.Generics
-import Turn (Turn)
+import Turn (Turn, turnToPlayerSpot)
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
@@ -59,6 +60,12 @@ data GameModel = GameModel
     anims :: Board UI
   }
   deriving (Eq, Generic, Show)
+
+-- | Whether it's the turn of the playing player, i.e. neither the AI turn
+-- | nor the turn of the other player if in multiplayer.
+isPlayerTurn :: GameModel -> Bool
+isPlayerTurn GameModel {playingPlayer, turn} =
+  turnToPlayerSpot turn == playingPlayer
 
 data PlayingMode
   = NoPlayingMode

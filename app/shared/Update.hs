@@ -25,7 +25,7 @@ import Miso.String (ms)
 import Model
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
-import Turn (Turn, initialTurn, turnToPlayerSpot)
+import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
 
 instance ToExpr CreatureKind
 
@@ -144,12 +144,6 @@ data PlayAction
 noPlayAction :: a -> (a, PlayAction)
 noPlayAction interaction = (interaction, NoPlayAction)
 
--- | Whether it's the turn of the playing player, i.e. neither the AI turn
--- | nor the turn of the other player if in multiplayer
-isPlayerTurn :: GameModel -> Bool
-isPlayerTurn GameModel {playingPlayer, turn} =
-  turnToPlayerSpot turn == playingPlayer
-
 -- | Translates a game action into an 'Interaction' and a 'PlayAction'
 interpretOnGameModel ::
   GameModel ->
@@ -210,14 +204,18 @@ lookupInHand hand i
     handLength = length hand
 
 play :: GameModel -> PlayAction -> Either Text GameModel
-play m@GameModel {board} playAction =
+play m@GameModel {board, turn} playAction =
   trace ("playing " ++ show playAction) $ do
     gamePlayAction <- gamify playAction
     case gamePlayAction of
       Nothing -> pure m
       Just gamePlayAction' -> do
         (board', anims') <- Game.play board gamePlayAction'
-        return $ m {board = board', anims = anims'}
+        let turn' =
+              case gamePlayAction' of
+                Game.EndTurn _ -> nextTurn turn
+                _ -> turn
+        return $ m {board = board', turn = turn', anims = anims'}
   where
     gamify :: PlayAction -> Either Text (Maybe Game.PlayAction) = \case
       EndTurn pSpot -> return $ Just $ Game.EndTurn pSpot
@@ -233,7 +231,7 @@ play m@GameModel {board} playAction =
           uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board pLens
       NoPlayAction -> return Nothing
 
--- | Updates a game model
+-- | Updates a 'Gamemodel'
 updateGameModel :: GameAction -> GameModel -> GameModel
 updateGameModel a m@GameModel {interaction} =
   m' {interaction = interaction''}
