@@ -135,7 +135,7 @@ logUpdates update action model = do
 
 data PlayAction
   = -- | Player ends its turn
-    EndPlayerTurn PlayerSpot -- FIXME rename me into EndTurn
+    EndTurn PlayerSpot
   | -- | Playing player puts a card from his hand on its part of the board
     Place PlayerSpot CardSpot HandIndex
   | NoPlayAction
@@ -181,7 +181,7 @@ interpretOnGameModel m (GameDragLeave _) (GameDragInteraction dragging)
     noPlayAction $ GameDragInteraction $ dragging {dragTarget = Nothing}
 interpretOnGameModel m@GameModel {turn} GameEndTurn _
   | isPlayerTurn m =
-    (GameNoInteraction, EndPlayerTurn $ turnToPlayerSpot turn)
+    (GameNoInteraction, EndTurn $ turnToPlayerSpot turn)
 -- Hovering in hand cards
 interpretOnGameModel _ (GameInHandMouseEnter i) GameNoInteraction =
   noPlayAction $ GameHoverInteraction $ Hovering i
@@ -220,7 +220,7 @@ play m@GameModel {board} playAction =
         return $ m {board = board', anims = anims'}
   where
     gamify :: PlayAction -> Either Text (Maybe Game.PlayAction) = \case
-      EndPlayerTurn pSpot -> return $ Just $ Game.EndPlayerTurn pSpot
+      EndTurn pSpot -> return $ Just $ Game.EndTurn pSpot
       Place pSpot cSpot (HandIndex i) -> do
         -- FIXME smelc can we use boardHand instead ? Yes if the call to
         -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of

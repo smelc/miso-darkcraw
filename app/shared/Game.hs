@@ -39,7 +39,7 @@ import qualified Data.Text as Text
 -- TODO smelc Use a type family to share this type with Update.PlayAction
 data PlayAction
   = -- | A player finishes its turn, we should resolve it
-    EndPlayerTurn PlayerSpot -- FIXME rename me into EndTurn
+    EndTurn PlayerSpot
   | -- | Player puts a card from his hand on its part of the board
     Place PlayerSpot CardSpot (Card Core)
 
@@ -73,7 +73,7 @@ playM ::
   Board Core ->
   PlayAction ->
   m (Board Core)
-playM board (EndPlayerTurn pSpot) = endTurn board pSpot
+playM board (EndTurn pSpot) = endTurn board pSpot
 playM board (Place pSpot cSpot (card :: Card Core))
   | length hand == length hand' -- number of cards in hand did not decrease,
   -- this means the card wasn't in the hand to begin with
