@@ -6,5 +6,8 @@ cradle:
     - path: "shared"
       component: "app:exe:app"
 
+    - path: "server"
+      component: "app:exe:server"
+
     - path: "test"
       component: "app:test:test-darkcraw"
