@@ -27,7 +27,7 @@ aiPlay board turn =
   where
     helper board' actions =
       case aiPlay' board' turn of
-        EndPlayerTurn _ -> Right $ reverse actions
+        EndTurn _ -> Right $ reverse actions
         action -> do
           (board'', _) <- play board' action
           helper board'' $ action : actions
@@ -36,7 +36,7 @@ aiPlay board turn =
 -- | Returns 'EndPlayerTurn' if the player cannot do anything.
 aiPlay' :: Board Core -> Turn -> PlayAction
 aiPlay' board turn
-  | null hand || null candidates = EndPlayerTurn pSpot -- hand is empty
+  | null hand || null candidates = EndTurn pSpot -- hand is empty
   | otherwise =
     let (creature, cSpot, _) = head candidates
      in Place pSpot cSpot undefined
