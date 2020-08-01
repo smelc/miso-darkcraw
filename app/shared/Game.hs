@@ -13,7 +13,7 @@ module Game
   ( allEnemySpots,
     attackOrder, -- Exported only for tests
     enemySpots,
-    PlayAction (..),
+    GamePlayEvent (..),
     play,
   )
 where
@@ -34,10 +34,13 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 
 -- * This module contains the game mechanic i.e. the function
--- that takes a 'Board', a 'PlayAction', and returns an updated 'Board'
+-- that takes a 'Board', a 'GamePlayAct', and returns an updated 'Board'
 
--- TODO smelc Use a type family to share this type with Update.PlayAction
-data PlayAction
+-- | TODO smelc Use a type family to share this type with Update.PlayAction
+-- | This type is used internally in this module. UI actions do not produce
+-- | instances of this type, they produce instances of 'Update.PlayAct'
+-- | which get translated into this type in 'Update'
+data GamePlayEvent
   = -- | A player finishes its turn, we should resolve it
     EndTurn PlayerSpot
   | -- | Player puts a card from his hand on its part of the board
@@ -61,7 +64,7 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart UI = PlayerPart topInPlace () () ()
     pBot :: PlayerPart UI = PlayerPart botInPlace () () ()
 
-play :: Board Core -> PlayAction -> Either Text (Board Core, Board UI)
+play :: Board Core -> GamePlayEvent-> Either Text (Board Core, Board UI)
 play board action =
   playM board action
     & runWriterT
@@ -71,7 +74,7 @@ playM ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
   Board Core ->
-  PlayAction ->
+  GamePlayEvent ->
   m (Board Core)
 playM board (EndTurn pSpot) = endTurn board pSpot
 playM board (Place pSpot cSpot (card :: Card Core))

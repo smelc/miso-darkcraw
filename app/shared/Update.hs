@@ -19,6 +19,7 @@ import Data.Maybe (fromJust, isJust)
 import Data.Text (Text)
 import Data.TreeDiff
 import Debug.Trace
+import Game (GamePlayEvent)
 import Formatting ((%), format, hex, sformat)
 import qualified Game
 import Miso
@@ -146,7 +147,7 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-data PlayAction
+data UpdatePlayEvent
   = -- | Player ends its turn
     EndTurn PlayerSpot
   | -- | Playing player puts a card from his hand on its part of the board
@@ -154,7 +155,7 @@ data PlayAction
   | NoPlayAction
   deriving (Show)
 
-noPlayAction :: a -> (a, PlayAction)
+noPlayAction :: a -> (a, UpdatePlayEvent)
 noPlayAction interaction = (interaction, NoPlayAction)
 
 -- | Translates a game action into an 'Interaction' and a 'PlayAction'
@@ -162,7 +163,7 @@ interpretOnGameModel ::
   GameModel ->
   GameAction ->
   GameInteraction ->
-  (GameInteraction, PlayAction)
+  (GameInteraction, UpdatePlayEvent)
 -- This is the only definition that should care about GameShowErrorInteraction:
 interpretOnGameModel m action (GameShowErrorInteraction _) =
   interpretOnGameModel m action GameNoInteraction -- clear error message
@@ -227,7 +228,7 @@ microSecsOfSecs i = i * 1000000
 
 play ::
   GameModel ->
-  PlayAction ->
+  UpdatePlayEvent ->
   Either Text (GameModel, DelayedGameActions)
 play m@GameModel {board, playingPlayer, turn} playAction = do
   gamePlayAction <- gamify playAction
@@ -246,7 +247,7 @@ play m@GameModel {board, playingPlayer, turn} playAction = do
       let m' = m {board = board', turn = turn', anims = anims'}
       return (m', delayedActions)
   where
-    gamify :: PlayAction -> Either Text (Maybe Game.PlayAction) = \case
+    gamify :: UpdatePlayEvent -> Either Text (Maybe GamePlayEvent) = \case
       EndTurn pSpot -> return $ Just $ Game.EndTurn pSpot
       Place pSpot cSpot (HandIndex i) -> do
         -- FIXME smelc can we use boardHand instead ? Yes if the call to

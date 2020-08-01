@@ -15,13 +15,13 @@ import Data.List (sortBy)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
 import Data.Text (Text)
-import Game (PlayAction (..), allEnemySpots, play)
+import Game (GamePlayEvent (..), allEnemySpots, play)
 import Turn (Turn, turnToPlayerSpot)
 
 -- | Crafts play actions for the player whose turn it is.
 -- | The returned list is guaranteed not to contain 'EndPlayerTurn'. This
 -- | function returns 'Either', because 'play' can.
-aiPlay :: Board Core -> Turn -> Either Text [PlayAction]
+aiPlay :: Board Core -> Turn -> Either Text [GamePlayEvent]
 aiPlay board turn =
   helper board []
   where
@@ -34,7 +34,7 @@ aiPlay board turn =
 
 -- | Crafts a play action for the player whose turn it is.
 -- | Returns 'EndPlayerTurn' if the player cannot do anything.
-aiPlay' :: Board Core -> Turn -> PlayAction
+aiPlay' :: Board Core -> Turn -> GamePlayEvent
 aiPlay' board turn
   | null hand || null candidates = EndTurn pSpot -- hand is empty
   | otherwise =
