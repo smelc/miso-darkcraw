@@ -3,6 +3,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RankNTypes #-}
@@ -26,6 +27,7 @@ module Board
     createAttackEffect,
     endingPlayerSpot,
     exampleBoard,
+    HandIndex (..),
     inTheBack,
     otherPlayerSpot,
     PlayerPart (..),
@@ -175,6 +177,9 @@ instance Semigroup (PlayerPart UI) where
 
 instance Monoid (PlayerPart UI) where
   mempty = PlayerPart mempty mempty mempty mempty
+
+newtype HandIndex = HandIndex {unHandIndex :: Int}
+  deriving (Eq, Show, Generic, Enum)
 
 data PlayerSpot = PlayerBottom | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)

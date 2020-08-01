@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Model where
@@ -14,9 +13,6 @@ import GHC.Generics
 import Miso.String
 import ServerMessages
 import Turn (Turn, turnToPlayerSpot)
-
-newtype HandIndex = HandIndex {unHandIndex :: Int}
-  deriving (Eq, Show, Generic, Enum)
 
 -- | An interaction happening in the game page
 data GameInteraction
