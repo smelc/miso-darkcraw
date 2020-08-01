@@ -74,13 +74,13 @@ selectTeamDiv :: Int -> Maybe Team -> View Action
 selectTeamDiv z maybeTeam =
   div_
     [style_ flexLineStyle]
-    $ [ div_
-          [style_ flexColumnStyle]
-          ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-              : [teamButton z maybeTeam t | t <- allTeams]
-          ),
-        startButtonDiv
-      ]
+    [ div_
+        [style_ flexColumnStyle]
+        ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
+            : [teamButton z maybeTeam t | t <- allTeams]
+        ),
+      startButtonDiv
+    ]
   where
     teamSelected = isJust maybeTeam
     startButtonDiv =
