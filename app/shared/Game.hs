@@ -44,6 +44,11 @@ data GamePlayEvent
   = -- | A player finishes its turn, we should resolve it
     EndTurn PlayerSpot
   | -- | Player puts a card from his hand on its part of the board
+    -- | FIXME smelc change the type to Place PlayerSpot (Card Core) (InHandType Core)
+    -- | where the third argument is the next hand (the current hand minus the
+    -- | the card being played). This will avoid lookupInHand tartelette
+    -- | elsewhere, because the witness that the card can be retrieved and
+    -- | the hand shrank won't be needed.
     Place PlayerSpot CardSpot (Card Core)
 
 reportEffect ::
