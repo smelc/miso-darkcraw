@@ -189,7 +189,7 @@ interpretOnGameModel m (GameDragLeave _) (GameDragInteraction dragging)
     noPlayAction $ GameDragInteraction $ dragging {dragTarget = Nothing}
 interpretOnGameModel GameModel {board, turn} GameAIPlay _ =
   let actions = aiPlay board turn
-   in undefined -- FIXME @smelc create DelayedGameActions from that
+   in undefined -- FIXME @smelc create GameActionSeq from that
 interpretOnGameModel m@GameModel {turn} GameEndTurn _
   | isPlayerTurn m =
     (GameNoInteraction, EndTurn $ turnToPlayerSpot turn)
@@ -221,7 +221,7 @@ lookupInHand hand i
     handLength = length hand
 
 -- | Event to fire after the given delays. Delays adds up
-type DelayedGameActions = [(Int, GameAction)]
+type GameActionSeq = [(Int, GameAction)]
 
 microSecsOfSecs :: Num a => a -> a
 microSecsOfSecs i = i * 1000000
@@ -229,7 +229,7 @@ microSecsOfSecs i = i * 1000000
 play ::
   GameModel ->
   UpdatePlayEvent ->
-  Either Text (GameModel, DelayedGameActions)
+  Either Text (GameModel, GameActionSeq)
 play m@GameModel {board, playingPlayer, turn} playAction = do
   gamePlayAction <- gamify playAction
   case gamePlayAction of
