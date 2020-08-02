@@ -39,7 +39,7 @@ aiPlay' board turn
   | null hand || null candidates = EndTurn pSpot -- hand is empty
   | otherwise =
     let (creature, cSpot, _) = head candidates
-     in Place pSpot cSpot undefined
+     in Place pSpot cSpot undefined -- FIXME @smelc Fix this undefined next
   where
     pSpot = turnToPlayerSpot turn
     hand :: [Card Core] = boardToHand board $ spotToLens pSpot

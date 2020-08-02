@@ -6,6 +6,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -29,6 +30,7 @@ module Board
     exampleBoard,
     HandIndex (..),
     inTheBack,
+    lookupHand,
     otherPlayerSpot,
     PlayerPart (..),
     PlayerSpot (..),
@@ -40,10 +42,13 @@ where
 import Card
 import Constants (handSize)
 import Control.Lens
+import Control.Monad.Except (MonadError, throwError)
 import Data.Generics.Labels
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import Data.Text (Text)
+import Formatting ((%), format, hex, sformat)
 import GHC.Generics (Generic)
 
 -- | The spot of a card, as visible from the top of the screen. For the
@@ -180,6 +185,23 @@ instance Monoid (PlayerPart UI) where
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
+
+lookupHand ::
+  MonadError Text m =>
+  [a] ->
+  Int ->
+  m a
+lookupHand hand i
+  | i < 0 = throwError $ sformat ("Invalid hand index: " % hex) i
+  | i >= handLength =
+    throwError $
+      sformat
+        ("Invalid hand index: " % hex % ". Hand has " % hex % " card(s).")
+        i
+        handLength
+  | otherwise = return $ hand !! i
+  where
+    handLength = length hand
 
 data PlayerSpot = PlayerBottom | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)

@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -19,8 +18,8 @@ import Data.Maybe (fromJust, isJust)
 import Data.Text (Text)
 import Data.TreeDiff
 import Debug.Trace
-import Game (GamePlayEvent)
 import Formatting ((%), format, hex, sformat)
+import Game (GamePlayEvent (..))
 import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString, ms)
@@ -147,30 +146,22 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-data UpdatePlayEvent
-  = -- | Player ends its turn
-    EndTurn PlayerSpot
-  | -- | Playing player puts a card from his hand on its part of the board
-    Place PlayerSpot CardSpot HandIndex
-  | NoPlayAction
-  deriving (Show)
-
-noPlayAction :: a -> (a, UpdatePlayEvent)
-noPlayAction interaction = (interaction, NoPlayAction)
+noPlayEvent :: a -> (a, GamePlayEvent)
+noPlayEvent interaction = (interaction, NoPlayEvent)
 
 -- | Translates a game action into an 'Interaction' and a 'PlayAction'
 interpretOnGameModel ::
   GameModel ->
   GameAction ->
   GameInteraction ->
-  (GameInteraction, UpdatePlayEvent)
+  (GameInteraction, GamePlayEvent)
 -- This is the only definition that should care about GameShowErrorInteraction:
 interpretOnGameModel m action (GameShowErrorInteraction _) =
   interpretOnGameModel m action GameNoInteraction -- clear error message
   -- Now onto "normal" stuff:
 interpretOnGameModel m (GameDragStart i) _
   | isPlayerTurn m =
-    noPlayAction $ GameDragInteraction $ Dragging i Nothing
+    noPlayEvent $ GameDragInteraction $ Dragging i Nothing
 interpretOnGameModel
   GameModel {playingPlayer}
   GameDrop
@@ -178,15 +169,15 @@ interpretOnGameModel
     (GameNoInteraction, Place playingPlayer dragTarget draggedCard)
 interpretOnGameModel m GameDrop _
   | isPlayerTurn m =
-    noPlayAction GameNoInteraction
+    noPlayEvent GameNoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
 interpretOnGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
   | isPlayerTurn m =
-    noPlayAction $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
+    noPlayEvent $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
 interpretOnGameModel m (GameDragLeave _) (GameDragInteraction dragging)
   | isPlayerTurn m =
-    noPlayAction $ GameDragInteraction $ dragging {dragTarget = Nothing}
+    noPlayEvent $ GameDragInteraction $ dragging {dragTarget = Nothing}
 interpretOnGameModel GameModel {board, turn} GameAIPlay _ =
   let actions = aiPlay board turn
    in undefined -- FIXME @smelc create GameActionSeq from that
@@ -195,30 +186,17 @@ interpretOnGameModel m@GameModel {turn} GameEndTurn _
     (GameNoInteraction, EndTurn $ turnToPlayerSpot turn)
 -- Hovering in hand cards
 interpretOnGameModel _ (GameInHandMouseEnter i) GameNoInteraction =
-  noPlayAction $ GameHoverInteraction $ Hovering i
+  noPlayEvent $ GameHoverInteraction $ Hovering i
 interpretOnGameModel _ (GameInHandMouseLeave _) _ =
-  noPlayAction GameNoInteraction
+  noPlayEvent GameNoInteraction
 -- Hovering in place cards
 interpretOnGameModel _ (GameInPlaceMouseEnter pSpot cSpot) GameNoInteraction =
-  noPlayAction $ GameHoverInPlaceInteraction pSpot cSpot
+  noPlayEvent $ GameHoverInPlaceInteraction pSpot cSpot
 interpretOnGameModel _ (GameInPlaceMouseLeave _ _) _ =
-  noPlayAction GameNoInteraction
+  noPlayEvent GameNoInteraction
 -- default
 interpretOnGameModel _ _ i =
-  noPlayAction i
-
-lookupInHand :: [a] -> Int -> Either Text a
-lookupInHand hand i
-  | i < 0 = Left $ sformat ("Invalid hand index: " % hex) i
-  | i >= handLength =
-    Left $
-      sformat
-        ("Invalid hand index: " % hex % ". Hand has " % hex % " card(s).")
-        i
-        handLength
-  | otherwise = Right (hand !! i)
-  where
-    handLength = length hand
+  noPlayEvent i
 
 -- | Event to fire after the given delays. Delays adds up
 type GameActionSeq = [(Int, GameAction)]
@@ -228,38 +206,20 @@ microSecsOfSecs i = i * 1000000
 
 play ::
   GameModel ->
-  UpdatePlayEvent ->
+  GamePlayEvent ->
   Either Text (GameModel, GameActionSeq)
 play m@GameModel {board, playingPlayer, turn} playAction = do
-  gamePlayAction <- gamify playAction
-  case gamePlayAction of
-    Nothing -> pure (m, [])
-    Just gamePlayAction' -> do
-      (board', anims') <- Game.play board gamePlayAction'
-      let turn' =
-            case gamePlayAction' of
-              Game.EndTurn _ -> nextTurn turn
-              _ -> turn
-      let delayedActions =
-            [ (microSecsOfSecs 1, GameAIPlay)
-              | turnToPlayerSpot turn' == playingPlayer
-            ]
-      let m' = m {board = board', turn = turn', anims = anims'}
-      return (m', delayedActions)
-  where
-    gamify :: UpdatePlayEvent -> Either Text (Maybe GamePlayEvent) = \case
-      EndTurn pSpot -> return $ Just $ Game.EndTurn pSpot
-      Place pSpot cSpot (HandIndex i) -> do
-        -- FIXME smelc can we use boardHand instead ? Yes if the call to
-        -- boardToInHandCreaturesToDraw in View.hs preserves the ordering of
-        -- the hand (which I believe is the case) meaning the UI index
-        -- stored in DragStart and then in Place is valid in terms of Board.
-        played <- lookupInHand uiHand i
-        return $ Just $ Game.Place pSpot cSpot (CreatureCard played)
-        where
-          pLens = spotToLens pSpot
-          uiHand :: [Creature Core] = boardToInHandCreaturesToDraw board pLens
-      NoPlayAction -> return Nothing
+  (board', anims') <- Game.play board playAction
+  let turn' =
+        case playAction of
+          Game.EndTurn _ -> nextTurn turn
+          _ -> turn
+  let delayedActions =
+        [ (microSecsOfSecs 1, GameAIPlay)
+          | turnToPlayerSpot turn' == playingPlayer
+        ]
+  let m' = m {board = board', turn = turn', anims = anims'}
+  return (m', delayedActions)
 
 -- | Updates a 'Gamemodel'
 updateGameModel :: GameAction -> GameModel -> GameModel

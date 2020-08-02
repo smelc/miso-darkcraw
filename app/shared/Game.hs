@@ -26,30 +26,20 @@ import Control.Monad.Writer
 import Data.Bifunctor
 import Data.Foldable
 import Data.Generics.Labels
-import Data.List (delete)
+import Data.List.Index (deleteAt)
 import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 
--- * This module contains the game mechanic i.e. the function
--- that takes a 'Board', a 'GamePlayAct', and returns an updated 'Board'
-
--- | TODO smelc Use a type family to share this type with Update.PlayAction
--- | This type is used internally in this module. UI actions do not produce
--- | instances of this type, they produce instances of 'Update.PlayAct'
--- | which get translated into this type in 'Update'
 data GamePlayEvent
   = -- | A player finishes its turn, we should resolve it
     EndTurn PlayerSpot
+  | -- | A Nothing case, for convenience
+    NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board
-    -- | FIXME smelc change the type to Place PlayerSpot (Card Core) (InHandType Core)
-    -- | where the third argument is the next hand (the current hand minus the
-    -- | the card being played). This will avoid lookupInHand tartelette
-    -- | elsewhere, because the witness that the card can be retrieved and
-    -- | the hand shrank won't be needed.
-    Place PlayerSpot CardSpot (Card Core)
+    Place PlayerSpot CardSpot HandIndex
 
 reportEffect ::
   MonadWriter (Board UI) m =>
@@ -69,7 +59,7 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart UI = PlayerPart topInPlace () () ()
     pBot :: PlayerPart UI = PlayerPart botInPlace () () ()
 
-play :: Board Core -> GamePlayEvent-> Either Text (Board Core, Board UI)
+play :: Board Core -> GamePlayEvent -> Either Text (Board Core, Board UI)
 play board action =
   playM board action
     & runWriterT
@@ -82,26 +72,22 @@ playM ::
   GamePlayEvent ->
   m (Board Core)
 playM board (EndTurn pSpot) = endTurn board pSpot
-playM board (Place pSpot cSpot (card :: Card Core))
-  | length hand == length hand' -- number of cards in hand did not decrease,
-  -- this means the card wasn't in the hand to begin with
-    =
-    throwError $
-      "Trying to place card not in hand: " <> Text.pack (show card)
-  | Map.size onTable == Map.size onTable' -- number of cards on table
-  -- did not grow, this means the spot wasn't empty
-    =
-    throwError $
-      "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
-  | otherwise = return $ board {playerBottom = playerPart'}
+playM board NoPlayEvent = return board
+playM board (Place pSpot cSpot (handhi :: HandIndex)) = do
+  card <- lookupHand hand handi
+  let onTable :: Map CardSpot (Creature Core) = inPlace base
+  if Map.member cSpot onTable
+    then throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
+    else do
+      let onTable' = Map.insert cSpot (unsafeCardToCreature card) onTable
+      let playerPart' = base {inPlace = onTable', inHand = hand'}
+      return $ board {playerBottom = playerPart'}
   where
+    handi = unHandIndex handhi
     pLens = spotToLens pSpot
     base :: PlayerPart Core = board ^. pLens
     hand :: [Card Core] = boardToHand board $ spotToLens pSpot
-    hand' :: [Card Core] = delete card hand
-    onTable :: Map CardSpot (Creature Core) = inPlace base
-    onTable' = onTable & at cSpot ?~ unsafeCardToCreature card
-    playerPart' = base {inPlace = onTable', inHand = hand'}
+    hand' :: [Card Core] = deleteAt handi hand
 
 endTurn ::
   MonadWriter (Board UI) m =>
