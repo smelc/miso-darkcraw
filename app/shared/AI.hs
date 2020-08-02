@@ -19,7 +19,7 @@ import Game (GamePlayEvent (..), allEnemySpots, play)
 import Turn (Turn, turnToPlayerSpot)
 
 -- | Crafts play actions for the player whose turn it is.
--- | The returned list is guaranteed not to contain 'EndPlayerTurn'. This
+-- | The returned list is guaranteed not to contain 'EndTurn'. This
 -- | function returns 'Either', because 'play' can.
 aiPlay :: Board Core -> Turn -> Either Text [GamePlayEvent]
 aiPlay board turn =
@@ -33,29 +33,29 @@ aiPlay board turn =
           helper board'' $ action : actions
 
 -- | Crafts a play action for the player whose turn it is.
--- | Returns 'EndPlayerTurn' if the player cannot do anything.
+-- | Returns 'EndTurn' if the player cannot do anything.
 aiPlay' :: Board Core -> Turn -> GamePlayEvent
 aiPlay' board turn
   | null hand || null candidates = EndTurn pSpot -- hand is empty
   | otherwise =
-    let (creature, cSpot, _) = head candidates
-     in Place pSpot cSpot undefined -- FIXME @smelc Fix this undefined next
+    let (handi, cSpot, _) = head candidates
+     in Place pSpot cSpot $ HandIndex handi
   where
     pSpot = turnToPlayerSpot turn
-    hand :: [Card Core] = boardToHand board $ spotToLens pSpot
-    hand' :: [Creature Core] = map cardToCreature hand & catMaybes
+    hand :: [(Int, Card Core)] =
+      boardToHand board (spotToLens pSpot) & zip [1 ..]
     places :: [CardSpot] = placements board pSpot
     -- It's not a min-max yet because we do not try to play the first
     -- card and see whether it helps putting a good second one, etc.
-    scores :: [(Creature Core, CardSpot, Int)]
+    scores :: [(Int, CardSpot, Int)] -- (index, _, score)
     scores =
-      [ ( creature,
+      [ ( i,
           cSpot,
           fromJust score
         )
-        | creature <- hand',
+        | (i, card) <- hand,
           cSpot <- places,
-          let score = scorePlace board (pSpot, cSpot) creature,
+          let score = scorePlace board (pSpot, cSpot) $ unsafeCardToCreature card,
           isJust score
       ]
     sortThd (_, _, t1) (_, _, t2) = compare t1 t2
