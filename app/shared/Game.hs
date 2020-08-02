@@ -15,6 +15,7 @@ module Game
     enemySpots,
     GamePlayEvent (..),
     play,
+    playM,
   )
 where
 

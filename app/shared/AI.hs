@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -10,26 +11,33 @@ module AI (aiPlay) where
 import Board
 import Card
 import Control.Lens
+import Control.Monad.Except (MonadError)
+import Control.Monad.Writer (WriterT (runWriterT))
 import Data.Generics.Labels
 import Data.List (sortBy)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
 import Data.Text (Text)
-import Game (GamePlayEvent (..), allEnemySpots, play)
+import Game (GamePlayEvent (..), allEnemySpots, play, playM)
 import Turn (Turn, turnToPlayerSpot)
 
 -- | Crafts play actions for the player whose turn it is.
--- | The returned list is guaranteed not to contain 'EndTurn'. This
--- | function returns 'Either', because 'play' can.
-aiPlay :: Board Core -> Turn -> Either Text [GamePlayEvent]
+-- | The returned list is guaranteed not to contain 'EndTurn'.
+aiPlay ::
+  MonadError Text m =>
+  Board Core ->
+  Turn ->
+  m [GamePlayEvent]
 aiPlay board turn =
   helper board []
   where
+    helper ::
+      MonadError Text m => Board Core -> [GamePlayEvent] -> m [GamePlayEvent]
     helper board' actions =
       case aiPlay' board' turn of
-        EndTurn _ -> Right $ reverse actions
+        EndTurn _ -> return $ reverse actions
         action -> do
-          (board'', _) <- play board' action
+          (board'', _) <- playM board' action & runWriterT
           helper board'' $ action : actions
 
 -- | Crafts a play action for the player whose turn it is.
