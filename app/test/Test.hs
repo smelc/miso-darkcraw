@@ -15,15 +15,15 @@ import Test.Hspec
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
 creatureSum cards getter = sum (map getter cards)
 
+getAllDecks :: [Card UI] -> [[Card Core]]
+getAllDecks cards = [initialDeck cards t | t <- allTeams]
+
 testBalance :: [Card UI] -> Int
 testBalance cards =
   undefined
   where
     humanDeck = initialDeck cards Human
     undeadDeck = initialDeck cards Undead
-
-getAllDecks :: [Card UI] -> [[Card Core]]
-getAllDecks cards = [initialDeck cards t | t <- allTeams]
 
 main :: IO ()
 main = hspec $ do
