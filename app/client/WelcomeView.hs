@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -24,14 +25,14 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> View Action
-viewWelcomeModel m =
+viewWelcomeModel m@WelcomeModel {playingMode} =
   div_
     [style_ style]
-    [ torchesDiv zpp,
+    [ torchesDiv zpp, -- Absolute placement
+      multiPlayerDiv, -- Absolute placement
       div_
         [style_ flexColumnStyle]
-        [titleDiv, buttonsDiv],
-      button_ [onClick $ WelcomeAction' WelcomeSelectMultiPlayer] [text "multi player"]
+        [titleDiv, singlePlayerDiv]
     ]
   where
     (z, zpp) = (0, z + 1)
@@ -48,8 +49,8 @@ viewWelcomeModel m =
         <> "z-index" =: ms zpp
         <> "margin-top" =: px cellPixelSize
     -- A flex right below the top level, layout things in a line
-    -- It has two cells: ["single player"; "start"]
-    buttonsDiv =
+    -- It has two cells: ["single player"; "choose your team -> start"]
+    singlePlayerDiv =
       div_
         [ style_ $
             flexLineStyle
@@ -57,32 +58,52 @@ viewWelcomeModel m =
               <> "width" =: px welcomePixelWidth
               <> "margin-top" =: px cps
         ]
-        [singlePlayerTextDiv, selectTeamDiv zpp singlePlayerTeam]
-      where
-        singlePlayerTeam = m ^? #playingMode . #_SinglePlayer
-    singlePlayerFontSize = (cps + titleFontSize) `div` 3
-    singlePlayerTextDiv =
+        [singlePlayerButtonDiv, selectTeamDiv zpp playingMode]
+    playingModeFontSize = px $ (cps + titleFontSize) `div` 3
+    singlePlayerButtonDiv = div_ [style_ $ marginhv cps 0] [singlePlayerButton]
+    singlePlayerButton =
+      textButton
+        gui
+        zpp
+        singlePlayerEnabled
+        [style_ $ textStyle <> "font-size" =: playingModeFontSize,
+         onClick $ WelcomeAction' WelcomeSelectSinglePlayer]
+        "Single Player"
+    singlePlayerEnabled =
+      if playingMode == NoPlayingMode then Enabled else Disabled
+    multiPlayerDiv =
       div_
         [ style_ $
-            textStyle
-              <> marginhv cps 0
-              <> "font-size" =: px singlePlayerFontSize
+            zplt zpp Absolute 0 275
+              <> flexLineStyle
+              <> "justify-content" =: "center"
+              <> "width" =: px welcomePixelWidth
         ]
-        [text "Single Player"]
+        [multiPlayerButton]
+    multiPlayerButton =
+      textButton gui zpp multiPlayerEnabled multiPlayerAttrs "Multiplayer"
+    multiPlayerAttrs =
+      [ style_ $
+          textStyle
+            <> marginhv 0 200
+            <> "font-size" =: playingModeFontSize,
+        onClick $ WelcomeAction' WelcomeSelectMultiPlayer
+      ]
+    multiPlayerEnabled =
+      if playingMode == NoPlayingMode then Enabled else Disabled
 
-selectTeamDiv :: Int -> Maybe Team -> View Action
-selectTeamDiv z maybeTeam =
+selectTeamDiv :: Int -> PlayingMode -> View Action
+selectTeamDiv z playingMode =
   div_
     [style_ flexLineStyle]
     [ div_
         [style_ flexColumnStyle]
         ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-            : [teamButton z maybeTeam t | t <- allTeams]
+            : [teamButton z playingMode t | t <- allTeams]
         ),
       startButtonDiv
     ]
   where
-    teamSelected = isJust maybeTeam
     startButtonDiv =
       textButton
         gui
@@ -92,30 +113,39 @@ selectTeamDiv z maybeTeam =
             : [onClick $ WelcomeAction' WelcomeStart | teamSelected]
         )
         "Start"
+    teamSelected =
+      case playingMode of
+        SinglePlayerTeam t -> True
+        _ -> False
 
 teamButton ::
   -- The z index
   Int ->
-  -- The team actually selected
-  Maybe Team ->
+  PlayingMode ->
   -- The team for which to build the button
   Team ->
   View Action
-teamButton z selected team =
+teamButton z playingMode team =
   marginifyhv 2 4 $ anyButton gui z bState builder
   where
     bState =
-      case selected of
-        Nothing -> Enabled
-        Just t | t == team -> Selected
-        _ -> Disabled
+      case playingMode of
+        NoPlayingMode -> Disabled
+        MultiPlayer -> Disabled
+        SinglePlayer -> Enabled
+        SinglePlayerTeam t | t == team -> Selected
+        SinglePlayerTeam _ -> Disabled
     tile Human = "24x24_3_0.png"
     tile Undead = "24x24_1_1.png"
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
         img_' $ tile team -- tile
       ]
-    onClickAction = WelcomeAction' $ WelcomeSelectSinglePlayer team
+    -- Team buttons are always clickable, even if Single Player wasn't selected
+    -- yet. I wan't Single Player to pulse initially, for symmetry with
+    -- multiplayer; yet selecting the single player team without selecting
+    -- Single Player first is fine
+    onClickAction = WelcomeAction' $ WelcomeSelectSinglePlayerTeam team
     builder x =
       div_
         ([style_ flexLineStyle, onClick onClickAction] ++ x)

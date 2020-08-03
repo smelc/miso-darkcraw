@@ -92,8 +92,12 @@ instance ToExpr Model
 
 -- | Actions that are raised by 'WelcomeView'
 data WelcomeAction
-  = WelcomeSelectSinglePlayer Team
+  = -- | Click on "Single Player"
+    WelcomeSelectSinglePlayer
+    -- | Select a team in Single Player mode
+  | WelcomeSelectSinglePlayerTeam Team
   | WelcomeStart
+    -- | Click on "Multiplayer"
   | WelcomeSelectMultiPlayer
   deriving (Show, Eq)
 
@@ -236,8 +240,10 @@ updateGameModel a m@GameModel {interaction} =
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
-updateWelcomeModel (WelcomeSelectSinglePlayer team) m =
-  m {playingMode = SinglePlayer team}
+updateWelcomeModel WelcomeSelectSinglePlayer m =
+  m {playingMode = SinglePlayer}
+updateWelcomeModel (WelcomeSelectSinglePlayerTeam team) m =
+  m {playingMode = SinglePlayerTeam team}
 updateWelcomeModel WelcomeSelectMultiPlayer _ =
   error "WelcomeSelectMultiplayer action should be handled in updateModel"
 updateWelcomeModel WelcomeStart _ =

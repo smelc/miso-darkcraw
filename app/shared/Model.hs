@@ -69,7 +69,8 @@ isPlayerTurn GameModel {playingPlayer, turn} =
 data PlayingMode
   = NoPlayingMode
   | MultiPlayer
-  | SinglePlayer Team
+  | SinglePlayer
+  | SinglePlayerTeam Team
   deriving (Eq, Generic, Show)
 
 -- | The model of the welcome page
