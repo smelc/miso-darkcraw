@@ -228,17 +228,13 @@ play m@GameModel {board, playingPlayer, turn} playAction = do
   return (m', delayedActions)
 
 -- | Updates a 'Gamemodel'
-updateGameModel :: GameAction -> GameModel -> GameModel
+updateGameModel :: GameAction -> GameModel -> (GameModel, GameActionSeq)
 updateGameModel a m@GameModel {interaction} =
-  case helper of
-    Left errMsg -> m {interaction = GameShowErrorInteraction errMsg}
-    Right m' -> m'
+  case play m playEvent of
+    Left errMsg -> (m {interaction = GameShowErrorInteraction errMsg}, [])
+    Right (m', as) -> (m' {interaction = interaction'}, as)
   where
-    helper :: Either Text GameModel
-    helper = do
-      let (interaction', playEvent) = interpretOnGameModel m a interaction
-      (m', _) <- Update.play m playEvent -- FIXME @smelc use data in _
-      return m' {interaction = interaction'}
+    (interaction', playEvent) = interpretOnGameModel m a interaction
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
@@ -291,7 +287,14 @@ updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
     handleWebSocket problem = traceShow problem NoOp
 -- Actions that do not change the page, delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m) =
-  noEff $ GameModel' $ updateGameModel a m
+  if null actions
+    then noEff m''
+    else undefined -- do FIXME schedule members of 'actions'. Something like:
+    -- effectSub m'' (\sink -> do { threadDelay i; sink GameAction' _})
+  where
+    (m', actions) = updateGameModel a m
+    m'' = GameModel' m'
+    multiplier = 1000000
 updateModel (WelcomeAction' a) (WelcomeModel' m) =
   noEff $ WelcomeModel' $ updateWelcomeModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
