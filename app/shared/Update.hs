@@ -13,7 +13,9 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
+import Control.Concurrent (threadDelay)
 import Control.Lens
+import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Data.Maybe (fromJust, isJust)
 import Data.Text (Text)
@@ -262,6 +264,17 @@ updateMultiPlayerLobbyModel (LobbyServerMessage (NewUserList users)) (Displaying
 updateMultiPlayerLobbyModel a m =
   noEff $ traceShow (a, m) m
 
+-- Function courtesy of @dmjio!
+delayActions :: Model -> [(Int, Action)] -> Effect Action Model
+delayActions m actions =
+  Effect
+    m
+    [ \sink -> do
+        liftIO $ threadDelay i
+        liftIO (sink action)
+      | (i, action) <- actions
+    ]
+
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
 -- | and is the only one to handle page changes. A page change event
@@ -289,12 +302,14 @@ updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
 updateModel (GameAction' a) (GameModel' m) =
   if null actions
     then noEff m''
-    else undefined -- do FIXME schedule members of 'actions'. Something like:
-    -- effectSub m'' (\sink -> do { threadDelay i; sink GameAction' _})
+    else delayActions m'' actions'
   where
     (m', actions) = updateGameModel a m
     m'' = GameModel' m'
-    multiplier = 1000000
+    sumDelays _ [] = []
+    sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl
+    actions' = map (\(i, a) -> (i * toSecs, GameAction' a)) $ sumDelays 0 actions
+    toSecs = 1000000
 updateModel (WelcomeAction' a) (WelcomeModel' m) =
   noEff $ WelcomeModel' $ updateWelcomeModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
