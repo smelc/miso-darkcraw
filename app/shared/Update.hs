@@ -1,5 +1,5 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -94,11 +94,11 @@ instance ToExpr Model
 data WelcomeAction
   = -- | Click on "Single Player"
     WelcomeSelectSinglePlayer
-    -- | Select a team in Single Player mode
-  | WelcomeSelectSinglePlayerTeam Team
+  | -- | Select a team in Single Player mode
+    WelcomeSelectSinglePlayerTeam Team
   | WelcomeStart
-    -- | Click on "Multiplayer"
-  | WelcomeSelectMultiPlayer
+  | -- | Click on "Multiplayer"
+    WelcomeSelectMultiPlayer
   deriving (Show, Eq)
 
 data MultiPlayerLobbyAction
@@ -151,15 +151,18 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-noPlayEvent :: a -> (a, GamePlayEvent)
-noPlayEvent interaction = (interaction, NoPlayEvent)
+noPlayEvent :: a -> (a, Either Text GamePlayEvent)
+noPlayEvent interaction = (interaction, Right NoPlayEvent)
+
+noGameInteraction :: GamePlayEvent -> (GameInteraction, Either Text GamePlayEvent)
+noGameInteraction gameEvent = (GameNoInteraction, Right gameEvent)
 
 -- | Translates a game action into an 'Interaction' and a 'PlayAction'
 interpretOnGameModel ::
   GameModel ->
   GameAction ->
   GameInteraction ->
-  (GameInteraction, GamePlayEvent)
+  (GameInteraction, Either Text GamePlayEvent)
 -- This is the only definition that should care about GameShowErrorInteraction:
 interpretOnGameModel m action (GameShowErrorInteraction _) =
   interpretOnGameModel m action GameNoInteraction -- clear error message
@@ -171,7 +174,7 @@ interpretOnGameModel
   GameModel {playingPlayer}
   GameDrop
   (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    (GameNoInteraction, Place playingPlayer dragTarget draggedCard)
+    noGameInteraction $ Place playingPlayer dragTarget draggedCard
 interpretOnGameModel m GameDrop _
   | isPlayerTurn m =
     noPlayEvent GameNoInteraction
@@ -188,7 +191,7 @@ interpretOnGameModel GameModel {board, turn} GameAIPlay _ =
    in undefined -- FIXME @smelc create GameActionSeq from that
 interpretOnGameModel m@GameModel {turn} GameEndTurn _
   | isPlayerTurn m =
-    (GameNoInteraction, EndTurn $ turnToPlayerSpot turn)
+    noGameInteraction $ EndTurn $ turnToPlayerSpot turn
 -- Hovering in hand cards
 interpretOnGameModel _ (GameInHandMouseEnter i) GameNoInteraction =
   noPlayEvent $ GameHoverInteraction $ Hovering i
@@ -229,14 +232,16 @@ play m@GameModel {board, playingPlayer, turn} playAction = do
 -- | Updates a 'Gamemodel'
 updateGameModel :: GameAction -> GameModel -> GameModel
 updateGameModel a m@GameModel {interaction} =
-  m' {interaction = interaction''}
-  where
-    (interaction', playAction) = interpretOnGameModel m a interaction
-    eitherErrModel = Update.play m playAction
-    (interaction'', m') =
-      case eitherErrModel of
-        Left errMsg -> (GameShowErrorInteraction errMsg, m)
-        Right (model', _) -> (interaction', model') -- FIXME @smelc use data in _
+  let (interaction', eitherErrPlayAction) = interpretOnGameModel m a interaction
+   in case eitherErrPlayAction of
+        Left errMsg -> m {interaction = GameShowErrorInteraction errMsg}
+        Right playAction ->
+          let eitherErrModel = Update.play m playAction
+           in let (interaction'', m') =
+                    case eitherErrModel of
+                      Left errMsg -> (GameShowErrorInteraction errMsg, m)
+                      Right (model', _) -> (interaction', model') -- FIXME @smelc use data in _
+               in m' {interaction = interaction''}
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
