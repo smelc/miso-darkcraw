@@ -66,8 +66,9 @@ viewWelcomeModel m@WelcomeModel {playingMode} =
         gui
         zpp
         singlePlayerEnabled
-        [style_ $ textStyle <> "font-size" =: playingModeFontSize,
-         onClick $ WelcomeAction' WelcomeSelectSinglePlayer]
+        [ style_ $ textStyle <> "font-size" =: playingModeFontSize,
+          onClick $ WelcomeAction' WelcomeSelectSinglePlayer
+        ]
         "Single Player"
     singlePlayerEnabled =
       if playingMode == NoPlayingMode then Enabled else Disabled
@@ -128,24 +129,22 @@ teamButton ::
 teamButton z playingMode team =
   marginifyhv 2 4 $ anyButton gui z bState builder
   where
-    bState =
+    (bState, action) =
       case playingMode of
-        NoPlayingMode -> Disabled
-        MultiPlayer -> Disabled
-        SinglePlayer -> Enabled
-        SinglePlayerTeam t | t == team -> Selected
-        SinglePlayerTeam _ -> Disabled
+        NoPlayingMode -> (Disabled, WelcomeSelectSinglePlayerTeam team)
+        MultiPlayer -> (Disabled, WelcomeSelectSinglePlayerTeam team)
+        SinglePlayer -> (Enabled, WelcomeSelectSinglePlayerTeam team)
+        SinglePlayerTeam t
+          | t == team ->
+            (Selected, WelcomeSelectSinglePlayer) -- toggle
+        SinglePlayerTeam _ -> (Disabled, WelcomeSelectSinglePlayerTeam team)
     tile Human = "24x24_3_0.png"
     tile Undead = "24x24_1_1.png"
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
         img_' $ tile team -- tile
       ]
-    -- Team buttons are always clickable, even if Single Player wasn't selected
-    -- yet. I wan't Single Player to pulse initially, for symmetry with
-    -- multiplayer; yet selecting the single player team without selecting
-    -- Single Player first is fine
-    onClickAction = WelcomeAction' $ WelcomeSelectSinglePlayerTeam team
+    onClickAction = WelcomeAction' action
     builder x =
       div_
         ([style_ flexLineStyle, onClick onClickAction] ++ x)
