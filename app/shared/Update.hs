@@ -151,18 +151,18 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-noPlayEvent :: a -> (a, Either Text GamePlayEvent)
-noPlayEvent interaction = (interaction, Right NoPlayEvent)
+noPlayEvent :: a -> Either Text (a, GamePlayEvent)
+noPlayEvent interaction = Right (interaction, NoPlayEvent)
 
-noGameInteraction :: GamePlayEvent -> (GameInteraction, Either Text GamePlayEvent)
-noGameInteraction gameEvent = (GameNoInteraction, Right gameEvent)
+noGameInteraction :: GamePlayEvent -> Either Text (GameInteraction, GamePlayEvent)
+noGameInteraction gameEvent = Right (GameNoInteraction, gameEvent)
 
 -- | Translates a game action into an 'Interaction' and a 'PlayAction'
 interpretOnGameModel ::
   GameModel ->
   GameAction ->
   GameInteraction ->
-  (GameInteraction, Either Text GamePlayEvent)
+  Either Text (GameInteraction, GamePlayEvent)
 -- This is the only definition that should care about GameShowErrorInteraction:
 interpretOnGameModel m action (GameShowErrorInteraction _) =
   interpretOnGameModel m action GameNoInteraction -- clear error message
@@ -232,16 +232,15 @@ play m@GameModel {board, playingPlayer, turn} playAction = do
 -- | Updates a 'Gamemodel'
 updateGameModel :: GameAction -> GameModel -> GameModel
 updateGameModel a m@GameModel {interaction} =
-  let (interaction', eitherErrPlayAction) = interpretOnGameModel m a interaction
-   in case eitherErrPlayAction of
-        Left errMsg -> m {interaction = GameShowErrorInteraction errMsg}
-        Right playAction ->
-          let eitherErrModel = Update.play m playAction
-           in let (interaction'', m') =
-                    case eitherErrModel of
-                      Left errMsg -> (GameShowErrorInteraction errMsg, m)
-                      Right (model', _) -> (interaction', model') -- FIXME @smelc use data in _
-               in m' {interaction = interaction''}
+  case helper of
+    Left errMsg -> m {interaction = GameShowErrorInteraction errMsg}
+    Right m' -> m'
+  where
+    helper :: Either Text GameModel
+    helper = do
+      (interaction', playEvent) <- interpretOnGameModel m a interaction
+      (m', _) <- Update.play m playEvent -- FIXME @smelc use data in _
+      return m' {interaction=interaction'}
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
