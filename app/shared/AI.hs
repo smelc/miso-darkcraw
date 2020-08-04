@@ -10,11 +10,12 @@ module AI (aiPlay) where
 
 import Board
 import Card
-import Control.Lens
+import Control.Lens hiding (snoc)
 import Control.Monad.Except (MonadError)
 import Control.Monad.Writer (WriterT (runWriterT))
 import Data.Generics.Labels
 import Data.List (sortBy)
+import Data.List.Extra (snoc)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
 import Data.Text (Text)
@@ -22,15 +23,17 @@ import Game (GamePlayEvent (..), allEnemySpots, play, playM)
 import Turn (Turn, turnToPlayerSpot)
 
 -- | Crafts play actions for the player whose turn it is.
--- | The returned list is guaranteed not to contain 'EndTurn'.
+-- | The returned list is guaranteed to end with 'EndTurn'
 aiPlay ::
   MonadError Text m =>
   Board Core ->
   Turn ->
   m [GamePlayEvent]
-aiPlay board turn =
-  helper board []
+aiPlay board turn = do
+  events <- helper board []
+  return $ snoc events (EndTurn pSpot)
   where
+    pSpot = turnToPlayerSpot turn
     helper ::
       MonadError Text m => Board Core -> [GamePlayEvent] -> m [GamePlayEvent]
     helper board' actions =

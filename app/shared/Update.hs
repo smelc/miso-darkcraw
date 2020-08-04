@@ -109,7 +109,7 @@ data MultiPlayerLobbyAction
 
 -- | Actions that are raised by 'GameView'
 data GameAction
-  = GameAIPlay
+  = GameAIPlay GamePlayEvent
   | -- | Dragging card in hand
     GameDragStart HandIndex
   | GameDrop
@@ -151,18 +151,17 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-noPlayEvent :: a -> Either Text (a, GamePlayEvent)
-noPlayEvent interaction = Right (interaction, NoPlayEvent)
+noPlayEvent :: a -> (a, GamePlayEvent)
+noPlayEvent interaction = (interaction, NoPlayEvent)
 
-noGameInteraction :: GamePlayEvent -> Either Text (GameInteraction, GamePlayEvent)
-noGameInteraction gameEvent = Right (GameNoInteraction, gameEvent)
+noGameInteraction :: GamePlayEvent -> (GameInteraction, GamePlayEvent)
+noGameInteraction gameEvent = (GameNoInteraction, gameEvent)
 
--- | Translates a game action into an 'Interaction' and a 'PlayAction'
 interpretOnGameModel ::
   GameModel ->
   GameAction ->
   GameInteraction ->
-  Either Text (GameInteraction, GamePlayEvent)
+  (GameInteraction, GamePlayEvent)
 -- This is the only definition that should care about GameShowErrorInteraction:
 interpretOnGameModel m action (GameShowErrorInteraction _) =
   interpretOnGameModel m action GameNoInteraction -- clear error message
@@ -186,9 +185,9 @@ interpretOnGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
 interpretOnGameModel m (GameDragLeave _) (GameDragInteraction dragging)
   | isPlayerTurn m =
     noPlayEvent $ GameDragInteraction $ dragging {dragTarget = Nothing}
-interpretOnGameModel GameModel {board, turn} GameAIPlay _ =
-  let actions = aiPlay board turn
-   in undefined -- FIXME @smelc create GameActionSeq from that
+interpretOnGameModel m@GameModel {board, turn} (GameAIPlay gameEvent) _
+  | not $ isPlayerTurn m =
+    noGameInteraction gameEvent
 interpretOnGameModel m@GameModel {turn} GameEndTurn _
   | isPlayerTurn m =
     noGameInteraction $ EndTurn $ turnToPlayerSpot turn
@@ -206,11 +205,8 @@ interpretOnGameModel _ (GameInPlaceMouseLeave _ _) _ =
 interpretOnGameModel _ _ i =
   noPlayEvent i
 
--- | Event to fire after the given delays. Delays adds up
+-- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
-
-microSecsOfSecs :: Num a => a -> a
-microSecsOfSecs i = i * 1000000
 
 play ::
   GameModel ->
@@ -222,10 +218,12 @@ play m@GameModel {board, playingPlayer, turn} playAction = do
         case playAction of
           Game.EndTurn _ -> nextTurn turn
           _ -> turn
-  let delayedActions =
-        [ (microSecsOfSecs 1, GameAIPlay)
-          | turnToPlayerSpot turn' == playingPlayer
-        ]
+  delayedActions <-
+    if turnToPlayerSpot turn' == playingPlayer
+      then pure []
+      else do
+        aiEvents <- aiPlay board' turn'
+        pure $ map GameAIPlay aiEvents & zip [1 ..] -- 1 second between each event
   let m' = m {board = board', turn = turn', anims = anims'}
   return (m', delayedActions)
 
@@ -238,9 +236,9 @@ updateGameModel a m@GameModel {interaction} =
   where
     helper :: Either Text GameModel
     helper = do
-      (interaction', playEvent) <- interpretOnGameModel m a interaction
+      let (interaction', playEvent) = interpretOnGameModel m a interaction
       (m', _) <- Update.play m playEvent -- FIXME @smelc use data in _
-      return m' {interaction=interaction'}
+      return m' {interaction = interaction'}
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel

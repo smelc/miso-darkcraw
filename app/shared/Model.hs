@@ -16,7 +16,7 @@ import Turn (Turn, turnToPlayerSpot)
 
 -- | An interaction happening in the game page
 data GameInteraction
-  = -- | Hovering over a card in hand TODO smelc rename to HoverHandInteraction
+  = -- | Hovering over a card in hand
     GameHoverInteraction Hovering
   | -- | Hovering over a card in place
     GameHoverInPlaceInteraction PlayerSpot CardSpot

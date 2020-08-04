@@ -41,6 +41,7 @@ data GamePlayEvent
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board
     Place PlayerSpot CardSpot HandIndex
+  deriving (Eq, Show)
 
 reportEffect ::
   MonadWriter (Board UI) m =>
