@@ -86,10 +86,12 @@ Test-Suite test-darkcraw
   type:       exitcode-stdio-1.0
   main-is:    Test.hs
   other-modules:
+    AI
     Board
     Card
     Constants
     Game
+    Turn
   hs-source-dirs:
     shared,
     test
