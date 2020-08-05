@@ -19,6 +19,7 @@ module Board
     AttackEffect (..),
     AttackEffects (..),
     bottomSpotOfTopVisual,
+    boardSetPart,
     boardToCardsInPlace,
     boardToInHandCreaturesToDraw,
     boardToInPlaceCreature,
@@ -231,6 +232,10 @@ instance Semigroup (Board UI) where
 
 instance Monoid (Board UI) where
   mempty = Board mempty mempty
+
+boardSetPart :: Board p -> PlayerSpot -> PlayerPart p -> Board p
+boardSetPart board PlayerTop part = board {playerTop = part}
+boardSetPart board PlayerBottom part = board {playerBottom = part}
 
 boardToCardsInPlace :: Board Core -> [(PlayerSpot, CardSpot, Maybe (Creature Core))]
 boardToCardsInPlace board =

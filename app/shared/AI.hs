@@ -54,7 +54,7 @@ aiPlay' board turn
   where
     pSpot = turnToPlayerSpot turn
     hand :: [(Int, Card Core)] =
-      boardToHand board (spotToLens pSpot) & zip [1 ..]
+      boardToHand board (spotToLens pSpot) & zip [0 ..]
     places :: [CardSpot] = placements board pSpot
     -- It's not a min-max yet because we do not try to play the first
     -- card and see whether it helps putting a good second one, etc.

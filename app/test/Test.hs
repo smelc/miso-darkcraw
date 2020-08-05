@@ -58,5 +58,6 @@ main = hspec $ do
     $ it "check the lengths"
     $ length allCardsSpots `shouldBe` length attackOrder
   describe "AI.hs"
-    $ xit "aiPlay terminates" -- xit: FIXME @smelc skipping test for now, aiPlay doesn't terminate
+    $ it "aiPlay terminates"
     $ all (is _Right . testAI board) [turn, turn']
+    -- XXX check EndTurn appears exactly once and is the last element

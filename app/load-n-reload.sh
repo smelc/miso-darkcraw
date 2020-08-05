@@ -46,7 +46,7 @@ function cabal_listen() {
 }
 
 function cabal_test_listen() {
-  echo "test/Test.hs" | entr -s "cabal test"
+  echo "test/Test.hs" | entr -s "cabal test --test-show-details=streaming"
 }
 
 function check_in_nix_shell() {

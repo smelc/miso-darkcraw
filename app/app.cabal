@@ -91,6 +91,8 @@ Test-Suite test-darkcraw
     Card
     Constants
     Game
+    Json
+    JsonData
     Turn
   hs-source-dirs:
     shared,

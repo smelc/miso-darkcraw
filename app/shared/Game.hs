@@ -81,9 +81,9 @@ playM board (Place pSpot cSpot (handhi :: HandIndex)) = do
   if Map.member cSpot onTable
     then throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
     else do
-      let onTable' = Map.insert cSpot (unsafeCardToCreature card) onTable
-      let playerPart' = base {inPlace = onTable', inHand = hand'}
-      return $ board {playerBottom = playerPart'}
+      let inPlace' = Map.insert cSpot (unsafeCardToCreature card) onTable
+      let part' = base {inPlace = inPlace', inHand = hand'}
+      return $ boardSetPart board pSpot part'
   where
     handi = unHandIndex handhi
     pLens = spotToLens pSpot
