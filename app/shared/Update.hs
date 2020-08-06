@@ -88,6 +88,12 @@ instance ToExpr WelcomeModel
 
 instance ToExpr MultiPlayerLobbyModel
 
+instance ToExpr MultiPlayerLobbyError
+
+instance ToExpr InvitationState
+
+instance ToExpr InvitedState
+
 instance ToExpr Model
 
 -- FIXME smelc move Action* to its own file (to avoid cycles later on)
@@ -106,6 +112,10 @@ data WelcomeAction
 data MultiPlayerLobbyAction
   = LobbyUpdateUsername MisoString
   | LobbySubmitUsername
+  | LobbyInviteUser UserName
+  | CancelInvitationClicked
+  | AcceptInvitationClicked
+  | RejectInvitationClicked
   | LobbyServerMessage OutMessage
   deriving (Show, Eq)
 
@@ -251,16 +261,92 @@ updateWelcomeModel WelcomeStart _ =
 
 -- | Updates a 'MultiPlayerLobbyModel'
 updateMultiPlayerLobbyModel :: MultiPlayerLobbyAction -> MultiPlayerLobbyModel -> Effect Action MultiPlayerLobbyModel
-updateMultiPlayerLobbyModel (LobbyUpdateUsername userName) (CollectingUserName _) =
-  noEff $ CollectingUserName (fromMisoString userName)
-updateMultiPlayerLobbyModel LobbySubmitUsername (CollectingUserName userName) =
-  WaitingForNameSubmission userName <# do
-    send (CreateUser userName)
-    return NoOp
-updateMultiPlayerLobbyModel (LobbyServerMessage UserCreated) (WaitingForNameSubmission userName) =
-  noEff $ DisplayingUserList userName []
-updateMultiPlayerLobbyModel (LobbyServerMessage (NewUserList users)) (DisplayingUserList userName _) =
-  noEff $ DisplayingUserList userName users
+updateMultiPlayerLobbyModel
+  (LobbyUpdateUsername userName)
+  (CollectingUserName _) =
+    noEff $ CollectingUserName (fromMisoString userName)
+updateMultiPlayerLobbyModel
+  LobbySubmitUsername
+  (CollectingUserName userName) =
+    WaitingForNameSubmission userName <# do
+      send (CreateUser userName)
+      return NoOp
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage UserCreated)
+  (WaitingForNameSubmission userName) =
+    noEff $ DisplayingUserList Nothing userName []
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage (NewUserList users))
+  (DisplayingUserList merror userName _) =
+    noEff $ DisplayingUserList merror userName users
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage (NewUserList users))
+  (InvitingUser me _ user state) =
+    noEff $ InvitingUser me users user state
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage (NewUserList users))
+  (Invited me _ user state) =
+    noEff $ Invited me users user state
+updateMultiPlayerLobbyModel
+  (LobbyInviteUser user)
+  (DisplayingUserList _ me users) =
+    InvitingUser me users user WaitingForUserInvitationAck <# do
+      send (InviteUser user)
+      return NoOp
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage UserBusy)
+  (InvitingUser me users user WaitingForUserInvitationAck) =
+    noEff $ DisplayingUserList (Just (UserBusyError user)) me users
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage InvitationSent)
+  (InvitingUser me users user WaitingForUserInvitationAck) =
+    noEff $ InvitingUser me users user WaitingForRSVP
+updateMultiPlayerLobbyModel
+  CancelInvitationClicked
+  (InvitingUser me users user WaitingForRSVP) =
+    InvitingUser me users user WaitingForInvitationDropAck <# do
+      send DropInvitation
+      return NoOp
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage InvitationDropAck)
+  (InvitingUser me users _ WaitingForInvitationDropAck) =
+    noEff $ DisplayingUserList Nothing me users
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage InvitationRejected)
+  (InvitingUser me users user WaitingForRSVP) =
+    noEff $ DisplayingUserList (Just (InvitationRejectedError user)) me users
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage InvitationAccepted)
+  (InvitingUser me users user WaitingForRSVP) =
+    noEff $ GameStarted me user
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage (IncomingInvitation user))
+  (DisplayingUserList _ me users) =
+    noEff $ Invited me users user CollectingUserRSVP
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage IncomingInvitationCancelled)
+  (Invited me users user _) =
+    noEff $ DisplayingUserList (Just (InvitationCancelledError user)) me users
+updateMultiPlayerLobbyModel
+  RejectInvitationClicked
+  (Invited me users user CollectingUserRSVP) =
+    Invited me users user WaitingForRejectionAck <# do
+      send RejectInvitation
+      return NoOp
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage IncomingInvitationRejectionAck)
+  (Invited me users _ WaitingForRejectionAck) =
+    noEff $ DisplayingUserList Nothing me users
+updateMultiPlayerLobbyModel
+  AcceptInvitationClicked
+  (Invited me users user CollectingUserRSVP) =
+    Invited me users user WaitingForAcceptanceAck <# do
+      send AcceptInvitation
+      return NoOp
+updateMultiPlayerLobbyModel
+  (LobbyServerMessage IncomingInvitationAcceptanceAck)
+  (Invited me _ user WaitingForAcceptanceAck) =
+    noEff $ GameStarted me user
 updateMultiPlayerLobbyModel a m =
   noEff $ traceShow (a, m) m
 

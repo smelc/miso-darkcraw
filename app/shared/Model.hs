@@ -80,10 +80,31 @@ data WelcomeModel = WelcomeModel
   }
   deriving (Eq, Generic, Show)
 
+data MultiPlayerLobbyError
+  = InvitationCancelledError UserName
+  | InvitationRejectedError UserName
+  | UserBusyError UserName
+  deriving (Eq, Generic, Show)
+
 data MultiPlayerLobbyModel
   = CollectingUserName UserName
   | WaitingForNameSubmission UserName
-  | DisplayingUserList UserName [UserName]
+  | DisplayingUserList (Maybe MultiPlayerLobbyError) UserName [UserName]
+  | InvitingUser UserName [UserName] UserName InvitationState
+  | Invited UserName [UserName] UserName InvitedState
+  | GameStarted UserName UserName
+  deriving (Eq, Generic, Show)
+
+data InvitationState
+  = WaitingForUserInvitationAck
+  | WaitingForRSVP
+  | WaitingForInvitationDropAck
+  deriving (Eq, Generic, Show)
+
+data InvitedState
+  = CollectingUserRSVP
+  | WaitingForRejectionAck
+  | WaitingForAcceptanceAck
   deriving (Eq, Generic, Show)
 
 -- | The top level model, later it will be a disjunction

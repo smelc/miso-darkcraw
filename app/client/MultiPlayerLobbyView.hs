@@ -2,8 +2,10 @@
 
 module MultiPlayerLobbyView (viewMultiPlayerLobbyModel) where
 
+import Data.List
+import Data.Maybe (maybeToList)
 import Miso
-import Miso.String
+import Miso.String (ToMisoString, ms)
 import Model
 import Update
 
@@ -18,8 +20,75 @@ viewLobby (CollectingUserName userName) =
       input_ [onInput $ LobbyUpdateUsername],
       button_ [onClick $ LobbySubmitUsername] [text "submit"]
     ]
-viewLobby (WaitingForNameSubmission userName) = text ("submitting " <> ms userName)
-viewLobby (DisplayingUserList _ users) =
-  ul_
+viewLobby (WaitingForNameSubmission userName) =
+  whoAmIFrame userName $
+    text ("submitting " <> ms userName)
+viewLobby (DisplayingUserList merror me users)
+  | null otherUsers =
+    whoAmIFrame me $
+      text "there is no other player at the moment"
+  | otherwise =
+    whoAmIFrame me $
+      div_
+        []
+        ( maybeToList (fmap viewError merror)
+            ++ [ text "select user to invite",
+                 ul_
+                   []
+                   [ li_
+                       []
+                       [button_ [onClick (LobbyInviteUser user)] [text (ms user)]]
+                     | user <- otherUsers
+                   ]
+               ]
+        )
+  where
+    otherUsers = delete me users
+viewLobby (InvitingUser me users user WaitingForUserInvitationAck) =
+  whoAmIFrame me $
+    text ("sending invitation to " <> ms user)
+viewLobby (InvitingUser me users user WaitingForRSVP) =
+  whoAmIFrame me $
+    div_
+      []
+      [ text ("waiting for user " <> ms user <> " to accept the invitation"),
+        button_ [onClick CancelInvitationClicked] [text "Cancel invitation"]
+      ]
+viewLobby (InvitingUser me users user WaitingForInvitationDropAck) =
+  whoAmIFrame me $
+    text ("cancelling invitation to " <> ms user)
+viewLobby (Invited me users user CollectingUserRSVP) =
+  whoAmIFrame me $
+    div_
+      []
+      [ text ("you are invited to a game by " <> ms user),
+        button_ [onClick AcceptInvitationClicked] [text "Accept"],
+        button_ [onClick RejectInvitationClicked] [text "Reject"]
+      ]
+viewLobby (Invited me users user WaitingForRejectionAck) =
+  whoAmIFrame me $
+    text ("rejecting invitation from " <> ms user)
+viewLobby (Invited me users user WaitingForAcceptanceAck) =
+  whoAmIFrame me $
+    text ("accepting invitation from " <> ms user)
+viewLobby (GameStarted me user) =
+  whoAmIFrame me $
+    text (ms me <> " vs " <> ms user <> ": fight!")
+
+viewError :: MultiPlayerLobbyError -> View a
+viewError err = div_ [style_ ("color" =: "red")] [viewError' err]
+  where
+    viewError' (InvitationRejectedError user) =
+      text ("user " <> ms user <> " rejected your invitation")
+    viewError' (InvitationCancelledError user) =
+      text ("user " <> ms user <> " cancelled their invitation")
+    viewError' (UserBusyError user) =
+      text ("user " <> ms user <> " is busy")
+
+whoAmIFrame :: ToMisoString str => str -> View action -> View action
+whoAmIFrame userName view =
+  div_
     []
-    [li_ [] [text (ms user)] | user <- users]
+    [ h3_ [] [text ("Playing as " <> ms userName)],
+      view
+    ]
