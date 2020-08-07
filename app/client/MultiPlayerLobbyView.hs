@@ -17,8 +17,8 @@ viewLobby (CollectingUserName userName) =
   div_
     []
     [ text "user name",
-      input_ [onInput $ LobbyUpdateUsername],
-      button_ [onClick $ LobbySubmitUsername] [text "submit"]
+      input_ [onInput LobbyUpdateUsername],
+      button_ [onClick LobbySubmitUsername] [text "submit"]
     ]
 viewLobby (WaitingForNameSubmission userName) =
   whoAmIFrame userName $
