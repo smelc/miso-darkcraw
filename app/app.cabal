@@ -36,7 +36,7 @@ common client-server-shared
     lens,
     miso,
     mtl,
-    random == 1.2.*,
+    random,
     text,
     tree-diff
   ghc-options:

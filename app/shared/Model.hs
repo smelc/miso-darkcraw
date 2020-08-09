@@ -69,7 +69,11 @@ data SharedModel = SharedModel
     -- | RNG obtained at load time, to be user whenever randomness is needed
     sharedStdGen :: StdGen
   }
-  deriving (Eq, Generic, Show)
+  deriving (Generic, Show)
+
+instance Eq SharedModel where
+  SharedModel {sharedCards = sharedCards1} == SharedModel {sharedCards = sharedCards2} =
+    sharedCards1 == sharedCards2
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.
