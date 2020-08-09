@@ -28,6 +28,7 @@ import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Model
 import ServerMessages
+import System.Random (StdGen)
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
@@ -79,6 +80,10 @@ instance ToExpr Hovering
 instance ToExpr GameInteraction
 
 instance ToExpr Turn
+
+instance ToExpr StdGen
+
+instance ToExpr SharedModel
 
 instance ToExpr GameModel
 
@@ -376,8 +381,8 @@ updateModel SayHelloWorld m =
 -- Actions that change the page
 updateModel
   (WelcomeAction' WelcomeStart)
-  m@(WelcomeModel' WelcomeModel {welcomeCards}) =
-    noEff $ GameModel' $ initialGameModel welcomeCards
+  m@(WelcomeModel' WelcomeModel {welcomeShared}) =
+    noEff $ GameModel' $ initialGameModel welcomeShared
 updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
   effectSub (MultiPlayerLobbyModel' (CollectingUserName "")) $
     websocketSub (URL "ws://127.0.0.1:9160") (Protocols []) handleWebSocket
@@ -407,14 +412,14 @@ updateModel a m =
       ++ "\nand the action being:\n"
       ++ show a
 
-initialGameModel :: [Card UI] -> GameModel
-initialGameModel cards =
+initialGameModel :: SharedModel -> GameModel
+initialGameModel shared =
   GameModel
+    shared
     board
     GameNoInteraction
     startingPlayerSpot
     initialTurn
-    cards
     mempty
   where
-    board = exampleBoard cards
+    board = exampleBoard $ sharedCards shared

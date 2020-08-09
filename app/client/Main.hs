@@ -28,9 +28,10 @@ import Miso.String
 import Model
 import System.Exit
 import System.IO (hPutStrLn, stderr)
+import System.Random (StdGen, getStdGen)
 import Turn (initialTurn)
+import Update (Action (..), logUpdates, updateModel)
 import View (viewModel)
-import Update (Action(..), logUpdates, updateModel)
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
@@ -66,8 +67,10 @@ logTeam cards t = do
 main :: IO ()
 main = do
   cards :: [Card UI] <- loadJson'
+  stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
-  let model = WelcomeModel' $ WelcomeModel NoPlayingMode cards -- initial model
+  let shared = SharedModel {sharedCards = cards, sharedStdGen = stdGen}
+  let model = WelcomeModel' $ WelcomeModel shared NoPlayingMode -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
