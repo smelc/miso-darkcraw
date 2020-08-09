@@ -15,6 +15,7 @@ module Game
     enemySpots,
     GamePlayEvent (..),
     play,
+    playAll,
     playM,
   )
 where
@@ -66,6 +67,13 @@ play board action =
   playM board action
     & runWriterT
     & runExcept
+
+playAll :: Board Core -> [GamePlayEvent] -> Either Text (Board Core, Board UI)
+playAll board [] = Right (board, mempty)
+playAll board (e : events) = do
+  (board', boardui') <- play board e
+  (board'', boardui'') <- playAll board' events
+  return (board'', boardui' <> boardui'')
 
 playM ::
   MonadError Text m =>

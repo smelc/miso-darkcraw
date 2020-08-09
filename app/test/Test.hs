@@ -3,7 +3,14 @@
 module Main where
 
 import AI (aiPlay)
-import Board (Board, allCardsSpots, exampleBoard)
+import Board
+  ( Board,
+    allCardsSpots,
+    boardToCardsInPlace,
+    emptyInPlaceBoard,
+    exampleBoard,
+    inTheBack,
+  )
 import Card
 import Constants
 import Control.Lens
@@ -11,7 +18,7 @@ import Control.Lens.Extras
 import Control.Monad.Except (runExcept)
 import Data.Maybe (mapMaybe)
 import Data.Text (Text)
-import Game (GamePlayEvent, attackOrder)
+import Game (GamePlayEvent, attackOrder, playAll)
 import Json
 import Test.Hspec
 import Turn (Turn, initialTurn, nextTurn)
@@ -32,6 +39,24 @@ testBalance cards =
 testAI :: Board Core -> Turn -> Either Text [GamePlayEvent]
 testAI board turn =
   aiPlay board turn & runExcept
+
+-- XXX smelc group AI tests together
+
+-- | Tests that the AI treats 'Ranged' correctly.
+testAIRanged :: [Card UI] -> Turn -> Board Core
+testAIRanged cards turn =
+  case aiPlay board turn & runExcept of
+    Left _ -> error "AI failed"
+    Right events ->
+      case playAll board events of
+        Left _ -> error "AI failed"
+        Right (board', _) -> board'
+  where
+    archer =
+      CreatureCard
+        $ unsafeCreatureWithID cards
+        $ CreatureID Archer Undead
+    board = emptyInPlaceBoard cards [archer]
 
 main :: IO ()
 main = hspec $ do
@@ -57,7 +82,12 @@ main = hspec $ do
   describe "attack order contains all spots"
     $ it "check the lengths"
     $ length allCardsSpots `shouldBe` length attackOrder
-  describe "AI.hs"
-    $ it "aiPlay terminates"
-    $ all (is _Right . testAI board) [turn, turn']
-    -- XXX check EndTurn appears exactly once and is the last element
+  describe "AI.hs" $ do
+    it "AI terminates" $
+      all (is _Right . testAI board) [turn, turn']
+    xit "AI puts Ranged creature in back line" $
+      all
+        (\(_, cSpot, _) -> inTheBack cSpot)
+        (boardToCardsInPlace $ testAIRanged cards initialTurn)
+
+-- XXX check EndTurn appears exactly once and is the last element

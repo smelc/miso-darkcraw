@@ -28,6 +28,7 @@ module Board
     CardSpot (..),
     createAttackEffect,
     endingPlayerSpot,
+    emptyInPlaceBoard,
     exampleBoard,
     HandIndex (..),
     inTheBack,
@@ -260,6 +261,16 @@ boardToInPlaceCreature ::
   Maybe (Creature Core)
 boardToInPlaceCreature board player cSpot =
   board ^. player . #inPlace . at cSpot
+
+-- | A board with nothing in place, and solely the following
+-- | hand for the top player. For testing.
+emptyInPlaceBoard :: [Card UI] -> InHandType Core -> Board Core
+emptyInPlaceBoard cards topHand =
+  Board topPlayer botPlayer
+  where
+    (topCards, topStack) = (Map.empty, [])
+    topPlayer = PlayerPart topCards topHand topStack []
+    botPlayer = PlayerPart Map.empty [] [] []
 
 exampleBoard :: [Card UI] -> Board Core
 exampleBoard cards =
