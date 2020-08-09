@@ -265,15 +265,11 @@ exampleBoard :: [Card UI] -> Board Core
 exampleBoard cards =
   Board topPlayer botPlayer
   where
-    creatures :: [Creature Core] =
-      cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore
-    getCardByID searched =
-      head $ filter (\c -> creatureId c == searched) creatures
-    humanGeneral = getCardByID (CreatureID General Human)
-    humanSpearman = getCardByID (CreatureID Spearman Human)
-    undeadArcher = getCardByID (CreatureID Archer Undead)
-    undeadMummy = getCardByID (CreatureID Mummy Undead)
-    undeadVampire = getCardByID (CreatureID Vampire Undead)
+    humanGeneral = unsafeCreatureWithID cards (CreatureID General Human)
+    humanSpearman = unsafeCreatureWithID cards (CreatureID Spearman Human)
+    undeadArcher = unsafeCreatureWithID cards (CreatureID Archer Undead)
+    undeadMummy = unsafeCreatureWithID cards (CreatureID Mummy Undead)
+    undeadVampire = unsafeCreatureWithID cards (CreatureID Vampire Undead)
     topCards :: CardsOnTable =
       Map.fromList
         [ (TopLeft, undeadArcher),

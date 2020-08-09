@@ -116,6 +116,14 @@ cardToCreature (CreatureCard creature) = Just creature
 cardToCreature (NeutralCard _) = Nothing
 cardToCreature (ItemCard _) = Nothing
 
+-- | The creature 'id' taken from 'cards'
+unsafeCreatureWithID :: [Card UI] -> CreatureID -> Creature Core
+unsafeCreatureWithID cards id =
+  head $ filter (\c -> creatureId c == id) creatures
+  where
+    creatures :: [Creature Core] =
+      cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore
+
 unsafeCardToCreature :: Card p -> Creature p
 unsafeCardToCreature (CreatureCard creature) = creature
 unsafeCardToCreature (NeutralCard _) = error "neutral card not handled yet"
