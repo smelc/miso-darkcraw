@@ -5,7 +5,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
@@ -82,9 +81,9 @@ instance ToExpr GameInteraction
 
 instance ToExpr Turn
 
-instance ToExpr SharedModel where
-  -- Ignore sharedStdGen
-  toExpr SharedModel {..} = toExpr sharedCards
+instance ToExpr StdGen where toExpr = defaultExprViaShow
+
+instance ToExpr SharedModel
 
 instance ToExpr GameModel
 

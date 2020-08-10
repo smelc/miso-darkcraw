@@ -61,20 +61,18 @@ data GameModel = GameModel
   }
   deriving (Eq, Generic, Show)
 
+instance Eq StdGen where
+  std1 == std2 = show std1 == show std2
+
 -- | The part of the model that is likely to be used by all pages
 -- | i.e. all possible models
 data SharedModel = SharedModel
-  -- If you add a field, you ***MUST*** extend the class ToExpr in Update.hs
   { -- | Data obtained at load time, that never changes
     sharedCards :: [Card UI],
     -- | RNG obtained at load time, to be user whenever randomness is needed
     sharedStdGen :: StdGen
   }
-  deriving (Generic, Show)
-
-instance Eq SharedModel where
-  SharedModel {sharedCards = sharedCards1} == SharedModel {sharedCards = sharedCards2} =
-    sharedCards1 == sharedCards2
+  deriving (Eq, Generic, Show)
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.
