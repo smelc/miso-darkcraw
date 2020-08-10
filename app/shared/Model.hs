@@ -64,6 +64,7 @@ data GameModel = GameModel
 -- | The part of the model that is likely to be used by all pages
 -- | i.e. all possible models
 data SharedModel = SharedModel
+  -- If you add a field, you ***MUST*** extend the class ToExpr in Update.hs
   { -- | Data obtained at load time, that never changes
     sharedCards :: [Card UI],
     -- | RNG obtained at load time, to be user whenever randomness is needed
