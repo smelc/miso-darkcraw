@@ -11,7 +11,8 @@
 
 module Game
   ( allEnemySpots,
-    attackOrder, -- Exported only for tests
+    attackOrder, -- exported for tests only
+    nextAttackSpot,
     enemySpots,
     GamePlayEvent (..),
     play,
@@ -28,6 +29,7 @@ import Control.Monad.Writer
 import Data.Bifunctor
 import Data.Foldable
 import Data.Generics.Labels
+import Data.List (elemIndex)
 import Data.List.Index (deleteAt)
 import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
@@ -36,8 +38,8 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 
 data GamePlayEvent
-  = -- | A player finishes its turn, we should resolve it
-    EndTurn PlayerSpot
+  = -- | A player finishes its turn, resolving it in a single card spot
+    EndTurn PlayerSpot CardSpot
   | -- | A Nothing case, for convenience
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board
@@ -81,7 +83,7 @@ playM ::
   Board Core ->
   GamePlayEvent ->
   m (Board Core)
-playM board (EndTurn pSpot) = endTurn board pSpot
+playM board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
 playM board NoPlayEvent = return board
 playM board (Place pSpot cSpot (handhi :: HandIndex)) = do
   card <- lookupHand hand handi
@@ -99,17 +101,10 @@ playM board (Place pSpot cSpot (handhi :: HandIndex)) = do
     hand :: [Card Core] = boardToHand board $ spotToLens pSpot
     hand' :: [Card Core] = deleteAt handi hand
 
-endTurn ::
-  MonadWriter (Board UI) m =>
-  -- | The input board
-  Board Core ->
-  -- | The player whose turn is ending
-  PlayerSpot ->
-  m (Board Core)
-endTurn board pSpot =
-  foldrM applyCard board attackOrder
-  where
-    applyCard cSpot board = Game.attack board pSpot cSpot
+-- | Events to schedule when a turn is finished, either when the player
+-- | pressed "End Turn" or when the AI is finished.
+allEndTurnEvents :: PlayerSpot -> [GamePlayEvent]
+allEndTurnEvents pSpot = map (EndTurn pSpot) $ attackOrder pSpot
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
@@ -210,5 +205,23 @@ enemySpots skills cSpot =
         BottomRight -> [TopRight, BottomRight]
 
 -- | The order in which cards attack
-attackOrder :: [CardSpot]
-attackOrder = [BottomRight, Bottom, BottomLeft, TopRight, Top, TopLeft]
+attackOrder :: PlayerSpot -> [CardSpot]
+attackOrder PlayerTop =
+  [BottomRight, Bottom, BottomLeft, TopRight, Top, TopLeft]
+attackOrder PlayerBottom =
+  map bottomSpotOfTopVisual $ reverse $ attackOrder PlayerTop
+
+nextAttackSpot :: Board Core -> PlayerSpot -> Maybe CardSpot -> Maybe CardSpot
+nextAttackSpot board pSpot cSpot =
+  case cSpot of
+    Nothing -> find hasCreature spots
+    Just cSpot ->
+      let idx = elemIndex cSpot spots
+       in case idx of
+            Nothing -> error "wrong use of nextAttackSpot"
+            Just idx ->
+              let spots' = splitAt idx spots & snd & drop 1
+               in find hasCreature spots'
+  where
+    spots :: [CardSpot] = attackOrder pSpot
+    hasCreature c = isJust $ boardToInPlaceCreature board (spotToLens pSpot) c

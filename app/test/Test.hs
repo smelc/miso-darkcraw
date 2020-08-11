@@ -6,6 +6,7 @@ import AI (aiPlay)
 import Board
   ( Board,
     allCardsSpots,
+    allPlayersSpots,
     boardToCardsInPlace,
     emptyInPlaceBoard,
     exampleBoard,
@@ -79,9 +80,10 @@ main = hspec $ do
       boardPixelWidth `shouldBe` welcomePixelWidth
     it "welcome and board backgrounds agree in height" $
       boardPixelHeight `shouldBe` welcomePixelHeight
-  describe "attack order contains all spots"
-    $ it "check the lengths"
-    $ length allCardsSpots `shouldBe` length attackOrder
+  describe "exactly all spots are used" $ it "attackOrder" $
+    all
+      (\pSpot -> length allCardsSpots == length (attackOrder pSpot))
+      allPlayersSpots
   describe "AI.hs" $ do
     it "AI terminates" $
       all (is _Right . testAI board) [turn, turn']
@@ -89,5 +91,3 @@ main = hspec $ do
       all
         (\(_, cSpot, _) -> inTheBack cSpot)
         (boardToCardsInPlace $ testAIRanged cards initialTurn)
-
--- XXX check EndTurn appears exactly once and is the last element

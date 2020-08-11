@@ -15,14 +15,15 @@ import Board
 import Card
 import Control.Concurrent (threadDelay)
 import Control.Lens
+import Control.Monad.Except (runExcept)
 import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust, isJust, maybeToList)
 import Data.Text (Text)
 import Data.TreeDiff
 import Debug.Trace
 import Formatting ((%), format, hex, sformat)
-import Game (GamePlayEvent (..))
+import Game (GamePlayEvent (..), nextAttackSpot)
 import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString, ms)
@@ -126,14 +127,24 @@ data MultiPlayerLobbyAction
 
 -- | Actions that are raised by 'GameView'
 data GameAction
-  = GameAIPlay GamePlayEvent
+  = -- | Play some game event. It can be an event scheduled by the AI
+    -- | Or a 'EndTurn' 'GamePlayEvent' scheduled because the player
+    -- | pressed "End Turn".
+    GamePlay GamePlayEvent
+  | -- | All actions have been resolved, time to update the turn widget
+    -- | and give the next player the control. This does NOT translate
+    -- | to a 'GamePlayEvent'.
+    GameIncrTurn
   | -- | Dragging card in hand
     GameDragStart HandIndex
-  | GameDrop
+  | -- | This can play the 'GamePlayEvent' 'Place'
+    GameDrop
   | GameDragEnter CardSpot
   | GameDragLeave CardSpot
-  | -- | End Turn button pressed in turn widget
-    GameEndTurn
+  | -- | End Turn button pressed in turn widget. For player, schedule
+    -- | attacks then 'GameIncrTurn'; for AI, compute its actions,
+    -- | schedule them, and then schedule attack and 'GameIncrTurn'.
+    GameEndTurnPressed
   | -- | Starting hovering card in hand
     GameInHandMouseEnter HandIndex
   | -- | Ending hovering card in hand
@@ -168,90 +179,94 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-noPlayEvent :: a -> (a, GamePlayEvent)
-noPlayEvent interaction = (interaction, NoPlayEvent)
-
-noGameInteraction :: GamePlayEvent -> (GameInteraction, GamePlayEvent)
-noGameInteraction gameEvent = (GameNoInteraction, gameEvent)
-
-interpretOnGameModel ::
-  GameModel ->
-  GameAction ->
-  GameInteraction ->
-  (GameInteraction, GamePlayEvent)
--- This is the only definition that should care about GameShowErrorInteraction:
-interpretOnGameModel m action (GameShowErrorInteraction _) =
-  interpretOnGameModel m action GameNoInteraction -- clear error message
-  -- Now onto "normal" stuff:
-interpretOnGameModel m (GameDragStart i) _
-  | isPlayerTurn m =
-    noPlayEvent $ GameDragInteraction $ Dragging i Nothing
-interpretOnGameModel
-  GameModel {playingPlayer}
-  GameDrop
-  (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    noGameInteraction $ Place playingPlayer dragTarget draggedCard
-interpretOnGameModel m GameDrop _
-  | isPlayerTurn m =
-    noPlayEvent GameNoInteraction
--- DragEnter cannot create a DragInteraction if there's none yet, we don't
--- want to keep track of drag targets if a drag action did not start yet
-interpretOnGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
-  | isPlayerTurn m =
-    noPlayEvent $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
-interpretOnGameModel m (GameDragLeave _) (GameDragInteraction dragging)
-  | isPlayerTurn m =
-    noPlayEvent $ GameDragInteraction $ dragging {dragTarget = Nothing}
-interpretOnGameModel m@GameModel {board, turn} (GameAIPlay gameEvent) _
-  | not $ isPlayerTurn m =
-    noGameInteraction gameEvent
-interpretOnGameModel m@GameModel {turn} GameEndTurn _
-  | isPlayerTurn m =
-    noGameInteraction $ EndTurn $ turnToPlayerSpot turn
--- Hovering in hand cards
-interpretOnGameModel _ (GameInHandMouseEnter i) GameNoInteraction =
-  noPlayEvent $ GameHoverInteraction $ Hovering i
-interpretOnGameModel _ (GameInHandMouseLeave _) _ =
-  noPlayEvent GameNoInteraction
--- Hovering in place cards
-interpretOnGameModel _ (GameInPlaceMouseEnter pSpot cSpot) GameNoInteraction =
-  noPlayEvent $ GameHoverInPlaceInteraction pSpot cSpot
-interpretOnGameModel _ (GameInPlaceMouseLeave _ _) _ =
-  noPlayEvent GameNoInteraction
--- default
-interpretOnGameModel _ _ i =
-  noPlayEvent i
-
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
 
-play ::
-  GameModel ->
-  GamePlayEvent ->
-  Either Text (GameModel, GameActionSeq)
-play m@GameModel {board, playingPlayer, turn} playAction = do
-  (board', anims') <- Game.play board playAction
-  let turn' =
-        case playAction of
-          Game.EndTurn _ -> nextTurn turn
-          _ -> turn
-  delayedActions <-
-    if turnToPlayerSpot turn' == playingPlayer
-      then pure []
-      else do
-        aiEvents <- aiPlay board' turn'
-        pure $ map GameAIPlay aiEvents & zip [1 ..] -- 1 second between each event
-  let m' = m {board = board', turn = turn', anims = anims'}
-  return (m', delayedActions)
+noPlayEvent :: GameModel -> GameInteraction -> (GameModel, GameActionSeq)
+noPlayEvent m i = (m {interaction = i}, [])
 
--- | Updates a 'Gamemodel'
-updateGameModel :: GameAction -> GameModel -> (GameModel, GameActionSeq)
-updateGameModel a m@GameModel {interaction} =
-  case play m playEvent of
-    Left errMsg -> (m {interaction = GameShowErrorInteraction errMsg}, [])
-    Right (m', as) -> (m' {interaction = interaction'}, as)
+noGameInteraction :: GameModel -> GamePlayEvent -> (GameModel, GameActionSeq)
+noGameInteraction m gamePlayEvent = (m, [(0, GamePlay gamePlayEvent)])
+
+updateGameModel ::
+  GameModel ->
+  GameAction ->
+  GameInteraction ->
+  (GameModel, GameActionSeq)
+-- This is the only definition that should care about GameShowErrorInteraction:
+updateGameModel m action (GameShowErrorInteraction _) =
+  updateGameModel m action GameNoInteraction -- clear error message
+  -- Now onto "normal" stuff:
+updateGameModel m (GameDragStart i) _
+  | isPlayerTurn m =
+    noPlayEvent m $ GameDragInteraction $ Dragging i Nothing
+updateGameModel
+  m@GameModel {playingPlayer}
+  GameDrop
+  (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
+    noGameInteraction m $ Place playingPlayer dragTarget draggedCard
+updateGameModel m GameDrop _
+  | isPlayerTurn m =
+    noPlayEvent m GameNoInteraction
+-- DragEnter cannot create a DragInteraction if there's none yet, we don't
+-- want to keep track of drag targets if a drag action did not start yet
+updateGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
+  | isPlayerTurn m =
+    noPlayEvent m $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
+updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
+  | isPlayerTurn m =
+    noPlayEvent m $ GameDragInteraction $ dragging {dragTarget = Nothing}
+-- A GamePlayEvent to execute
+updateGameModel m@GameModel {board, turn} (GamePlay gameEvent) _
+  | not $ isPlayerTurn m =
+    case Game.play board gameEvent of
+      Left errMsg -> noPlayEvent m $ GameShowErrorInteraction errMsg
+      Right (board', anims') ->
+        let m' = m {board = board', anims = anims'}
+         in let event = case gameEvent of
+                  EndTurn pSpot cSpot ->
+                    -- enqueue resolving next attack if applicable
+                    case nextAttackSpot board pSpot (Just cSpot) of
+                      Nothing -> Nothing
+                      Just cSpot' -> Just $ GamePlay $ EndTurn pSpot cSpot'
+                  _ -> Nothing
+             in (m', zip [1 ..] $ maybeToList event)
+-- "End Turn" button pressed by the player or the AI
+updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
+  (m {interaction = GameNoInteraction}, [(1, event)])
   where
-    (interaction', playEvent) = interpretOnGameModel m a interaction
+    pSpot = turnToPlayerSpot turn
+    event =
+      -- schedule resolving first attack
+      case nextAttackSpot board pSpot Nothing of
+        Nothing -> GameIncrTurn
+        Just cSpot -> GamePlay $ EndTurn pSpot cSpot
+updateGameModel m@GameModel {board, playingPlayer, turn} GameIncrTurn _ =
+  if turnToPlayerSpot turn' == playingPlayer
+    then (m', [])
+    else -- next turn is AI
+    case aiPlay board turn' & runExcept of
+      Left errMsg -> noPlayEvent m $ GameShowErrorInteraction errMsg
+      Right events ->
+        let events' = zip [1 ..] $ map GamePlay events
+         in -- schedule its actions, then simulate pressing "End Turn"
+            (m', snoc events' (1, GameEndTurnPressed))
+  where
+    turn' = nextTurn turn
+    m' = m {turn = turn'}
+-- Hovering in hand cards
+updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
+  noPlayEvent m $ GameHoverInteraction $ Hovering i
+updateGameModel m (GameInHandMouseLeave _) _ =
+  noPlayEvent m GameNoInteraction
+-- Hovering in place cards
+updateGameModel m (GameInPlaceMouseEnter pSpot cSpot) GameNoInteraction =
+  noPlayEvent m $ GameHoverInPlaceInteraction pSpot cSpot
+updateGameModel m (GameInPlaceMouseLeave _ _) _ =
+  noPlayEvent m GameNoInteraction
+-- default
+updateGameModel m _ i =
+  noPlayEvent m i
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
@@ -390,12 +405,12 @@ updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
 -- Actions that do not change the page, delegate to more specialized versions
-updateModel (GameAction' a) (GameModel' m) =
+updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
     else delayActions m'' actions'
   where
-    (m', actions) = updateGameModel a m
+    (m', actions) = updateGameModel m a interaction
     m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl

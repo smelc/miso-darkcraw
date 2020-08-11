@@ -98,7 +98,7 @@ turnView model@GameModel {turn} z =
         z
         (if isPlayerTurn model then Enabled else Disabled)
         [ topMarginAttr,
-          onClick $ GameAction' GameEndTurn
+          onClick $ GameAction' GameEndTurnPressed
         ]
         "End Turn"
 

@@ -22,35 +22,33 @@ import Data.Text (Text)
 import Game (GamePlayEvent (..), allEnemySpots, play, playM)
 import Turn (Turn, turnToPlayerSpot)
 
--- | Crafts play actions for the player whose turn it is.
--- | The returned list is guaranteed to end with 'EndTurn'
+-- | """Smart""" play events
 aiPlay ::
   MonadError Text m =>
   Board Core ->
   Turn ->
   m [GamePlayEvent]
-aiPlay board turn = do
-  events <- helper board []
-  return $ snoc events (EndTurn pSpot)
+aiPlay board turn =
+  helper board []
   where
     pSpot = turnToPlayerSpot turn
     helper ::
       MonadError Text m => Board Core -> [GamePlayEvent] -> m [GamePlayEvent]
     helper board' actions =
       case aiPlay' board' turn of
-        EndTurn _ -> return $ reverse actions
-        action -> do
+        Nothing -> return $ reverse actions
+        Just action -> do
           (board'', _) <- playM board' action & runWriterT
           helper board'' $ action : actions
 
--- | Crafts a play action for the player whose turn it is.
--- | Returns 'EndTurn' if the player cannot do anything.
-aiPlay' :: Board Core -> Turn -> GamePlayEvent
+-- | Crafts a play action for the player whose turn it is, or 'Nothing'
+-- | if done.
+aiPlay' :: Board Core -> Turn -> Maybe GamePlayEvent
 aiPlay' board turn
-  | null hand || null candidates = EndTurn pSpot -- hand is empty
+  | null hand || null candidates = Nothing -- hand is empty
   | otherwise =
     let (handi, cSpot, _) = head candidates
-     in Place pSpot cSpot $ HandIndex handi
+     in Just $ Place pSpot cSpot $ HandIndex handi
   where
     pSpot = turnToPlayerSpot turn
     hand :: [(Int, Card Core)] =
