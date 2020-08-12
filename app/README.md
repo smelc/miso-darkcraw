@@ -18,13 +18,9 @@ with my usual configuration, nice!
 # Fast feedback
 
 * To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal
-and update the webserver automatically:
+  that will update the webserver automatically:
 
-  `nix-shell --run reload`
-* To do that AND to refresh the browser automatically
-  (uses [midori](https://www.midori-browser.org/)):
-
-  `./load-n-reload.sh`
+  `./load-n-reload.sh` (`nix-shell --run reload` under the hood)
 * To update the released version automatically (is closer to what players
   will observe because webserver has interaction issues):
 

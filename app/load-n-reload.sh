@@ -1,16 +1,6 @@
 #!/bin/bash
 #
-# This script uses midori (https://www.midori-browser.org/)
-# because it can be reloaded without giving focus to it
-#
-# Refreshing chrome requires giving it temporarily focus:
-# https://unix.stackexchange.com/questions/87831/how-to-send-keystrokes-f5-from-terminal-to-a-gui-program
-# which sucks because it makes the coding editor flickers
-# at every save. For the record, here's how it would go for chrome:
-# 
-# xdotool search --name JSaddle windowactivate\
-#   --sync %1 key F5 windowactivate\
-#   $(xdotool getactivewindow)
+# Execute --help for help
 
 CABAL_SERVER_EXEC="/home/churlin/PERSONNEL/miso-darkcraw/app/dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/x/server/build/server/server"
 CABAL_ROOT="dist-newstyle/build/x86_64-linux/ghcjs-8.6.0.1/app-0.1.0.0/x/app/build/app/app.jsexe"
@@ -41,10 +31,6 @@ function run() {
 # http://eradman.com/entrproject/
 install entr "sudo apt install entr"
 
-function midori_listen() {
-  git ls-files "*.hs" | entr -s "midori -e tab-reload"
-}
-
 function cabal_listen() {
   local -r ASSETS_TO_COPY="$(find assets -iname '*.png' -print0 | xargs -0)"
   git ls-files "*.hs" | entr -s "cabal --project-file=cabal.config build all && mkdir -p $CABAL_ASSETS && cp $ASSETS_TO_COPY $CABAL_ASSETS/."
@@ -74,7 +60,7 @@ function check_in_nix_shell() {
 
 function display_help() {
   echo "Usage: ./load-n-reload [release|server|test]?"
-  echo "  Without argument, launches a jsaddle webserver at localhost:8080 that is reloaded when code changes"
+  echo "  Without argument, launches a jsaddle webserver at localhost:8080 that is updated when code changes"
   echo "  With argument 'release', regenerates client $CABAL_ROOT/index.html when its code changes"
   echo "  With argument 'server', regenerates server at $CABAL_SERVER_EXEC when its code changes and restart it"
   echo "  With argument 'test', reexecute 'Test.hs' when it changes"
@@ -116,19 +102,12 @@ trap on_exit EXIT
 
 if [[ -z "$1" ]]
 then
-  # jsaddle case, use midori (historical)
-
-  # https://www.midori-browser.org/
-  install midori "sudo snap install midori"
-
-  # Start midori if not yet there:
-  [[ $(pgrep midori) ]] || (midori -p "http://localhost:8080" &)
+  # jsaddle case
 
   # Regenerate js upon .hs saving:
   nix-shell --run reload
 
-  # Auto refreshing of midori's tab upon saving a .hs file:
-  midori_listen &
+  sensible-browser "http://localhost:8080" &
 elif [[ "$1" == *"help" ]]
 then
   display_help
@@ -142,7 +121,6 @@ then
 elif [[ "$1" == "release" ]]
 then
   # release case, uses sensible-browser, i.e. your default browser
-  # (since a while, midori needs manual refreshing :-()
 
   check_in_nix_shell
 
