@@ -17,6 +17,7 @@ import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Bifunctor as DataBifunctor
 import Data.Function ((&))
 import Data.Maybe (fromJust, isJust, maybeToList)
 import Data.Text (Text)
@@ -179,6 +180,9 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
+withError :: GameModel -> Text -> GameModel
+withError m text = m {interaction = GameShowErrorInteraction text}
+
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
 
@@ -188,6 +192,8 @@ noPlayEvent m i = (m {interaction = i}, [])
 noGameInteraction :: GameModel -> GamePlayEvent -> (GameModel, GameActionSeq)
 noGameInteraction m gamePlayEvent = (m, [(0, GamePlay gamePlayEvent)])
 
+-- | We MUST return GameAction as the second element (as opposed to
+-- | 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
 updateGameModel ::
   GameModel ->
   GameAction ->
@@ -217,20 +223,19 @@ updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
   | isPlayerTurn m =
     noPlayEvent m $ GameDragInteraction $ dragging {dragTarget = Nothing}
 -- A GamePlayEvent to execute
-updateGameModel m@GameModel {board, turn} (GamePlay gameEvent) _
-  | not $ isPlayerTurn m =
-    case Game.play board gameEvent of
-      Left errMsg -> noPlayEvent m $ GameShowErrorInteraction errMsg
-      Right (board', anims') ->
-        let m' = m {board = board', anims = anims'}
-         in let event = case gameEvent of
-                  EndTurn pSpot cSpot ->
-                    -- enqueue resolving next attack if applicable
-                    case nextAttackSpot board pSpot (Just cSpot) of
-                      Nothing -> Nothing
-                      Just cSpot' -> Just $ GamePlay $ EndTurn pSpot cSpot'
-                  _ -> Nothing
-             in (m', zip [1 ..] $ maybeToList event)
+updateGameModel m@GameModel {board, turn} (GamePlay gameEvent) _ =
+  case Game.play board gameEvent of
+    Left errMsg -> (withError m errMsg, [])
+    Right (board', anims') ->
+      let m' = m {board = board', anims = anims'}
+       in let event = case gameEvent of
+                EndTurn pSpot cSpot ->
+                  -- enqueue resolving next attack if applicable
+                  case nextAttackSpot board pSpot (Just cSpot) of
+                    Nothing -> Just GameIncrTurn -- no more attack, change turn
+                    Just cSpot' -> Just $ GamePlay $ EndTurn pSpot cSpot'
+                _ -> Nothing
+           in (m', zip [1 ..] $ maybeToList event)
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
   (m {interaction = GameNoInteraction}, [(1, event)])
@@ -239,7 +244,7 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
     event =
       -- schedule resolving first attack
       case nextAttackSpot board pSpot Nothing of
-        Nothing -> GameIncrTurn
+        Nothing -> GameIncrTurn -- no more attack, change turn
         Just cSpot -> GamePlay $ EndTurn pSpot cSpot
 updateGameModel m@GameModel {board, playingPlayer, turn} GameIncrTurn _ =
   if turnToPlayerSpot turn' == playingPlayer
@@ -381,6 +386,25 @@ delayActions m actions =
       | (i, action) <- actions
     ]
 
+playAll :: GameModel -> [GamePlayEvent] -> GameModel
+playAll m [] = m
+playAll m@GameModel {board} (event : rest) =
+  case Game.play board event of
+    Left errMsg -> withError m errMsg
+    Right (board', anims') -> playAll (m {board = board', anims = anims'}) rest
+
+splitInstaGPEDelayed ::
+  (Eq a, Num a) =>
+  [(a, GameAction)] ->
+  ([GamePlayEvent], [(a, GameAction)])
+splitInstaGPEDelayed ((0, GamePlay event) : rest) =
+  (event : f, s)
+  where
+    (f, s) = splitInstaGPEDelayed rest
+splitInstaGPEDelayed ((0, action) : rest) =
+  error "Non GamePlay action should not be scheduled with delay 0. It should be resolved in updateGameModel"
+splitInstaGPEDelayed rest = ([], rest)
+
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
 -- | and is the only one to handle page changes. A page change event
@@ -408,14 +432,15 @@ updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
-    else delayActions m'' actions'
+    else delayActions m'' $ map (DataBifunctor.second GameAction') delayedActions
   where
     (m', actions) = updateGameModel m a interaction
-    m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl
-    actions' = map (\(i, a) -> (i * toSecs, GameAction' a)) $ sumDelays 0 actions
+    actions' = map (\(i, a) -> (i * toSecs, a)) $ sumDelays 0 actions
     toSecs = 1000000
+    (events, delayedActions) = splitInstaGPEDelayed actions'
+    m'' = GameModel' $ playAll m' events
 updateModel (WelcomeAction' a) (WelcomeModel' m) =
   noEff $ WelcomeModel' $ updateWelcomeModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
