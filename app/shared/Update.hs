@@ -180,20 +180,24 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
-withError :: GameModel -> Text -> GameModel
-withError m text = m {interaction = GameShowErrorInteraction text}
-
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
 
-noPlayEvent :: GameModel -> GameInteraction -> (GameModel, GameActionSeq)
-noPlayEvent m i = (m {interaction = i}, [])
+withInteraction :: GameModel -> GameInteraction -> (GameModel, GameActionSeq)
+withInteraction m i = (m {interaction = i}, [])
 
-noGameInteraction :: GameModel -> GamePlayEvent -> (GameModel, GameActionSeq)
-noGameInteraction m gamePlayEvent = (m, [(0, GamePlay gamePlayEvent)])
+playOne :: GameModel -> GamePlayEvent -> (GameModel, GameActionSeq)
+playOne m gamePlayEvent =
+  updateGameModel m (GamePlay gamePlayEvent) GameNoInteraction
 
 -- | We MUST return GameAction as the second element (as opposed to
 -- | 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
+-- | The second element must only contain delayed stuff, it's invalid
+-- | to return a list whose first element has 0. If we did that, we would
+-- | need to play this event right away, and then we would have new delayed
+-- | actions to consider which we wouldn't know how to merge with the first ones.
+-- | If you feel like adding a 0 event, you instead need to play this event
+-- | right away by doing a recursive call (or using 'playOne')
 updateGameModel ::
   GameModel ->
   GameAction ->
@@ -205,41 +209,47 @@ updateGameModel m action (GameShowErrorInteraction _) =
   -- Now onto "normal" stuff:
 updateGameModel m (GameDragStart i) _
   | isPlayerTurn m =
-    noPlayEvent m $ GameDragInteraction $ Dragging i Nothing
+    withInteraction m $ GameDragInteraction $ Dragging i Nothing
 updateGameModel
   m@GameModel {playingPlayer}
   GameDrop
   (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    noGameInteraction m $ Place playingPlayer dragTarget draggedCard
+    playOne m $ Place playingPlayer dragTarget draggedCard
 updateGameModel m GameDrop _
   | isPlayerTurn m =
-    noPlayEvent m GameNoInteraction
+    withInteraction m GameNoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
 updateGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
   | isPlayerTurn m =
-    noPlayEvent m $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
+    withInteraction m $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
 updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
   | isPlayerTurn m =
-    noPlayEvent m $ GameDragInteraction $ dragging {dragTarget = Nothing}
+    withInteraction m $ GameDragInteraction $ dragging {dragTarget = Nothing}
 -- A GamePlayEvent to execute
-updateGameModel m@GameModel {board, turn} (GamePlay gameEvent) _ =
+updateGameModel m@GameModel {board} (GamePlay gameEvent) _ =
   case Game.play board gameEvent of
-    Left errMsg -> (withError m errMsg, [])
+    Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
     Right (board', anims') ->
-      let m' = m {board = board', anims = anims'}
-       in let event = case gameEvent of
-                EndTurn pSpot cSpot ->
-                  -- enqueue resolving next attack if applicable
-                  case nextAttackSpot board pSpot (Just cSpot) of
-                    Nothing -> Just GameIncrTurn -- no more attack, change turn
-                    Just cSpot' -> Just $ GamePlay $ EndTurn pSpot cSpot'
-                _ -> Nothing
-           in (m', zip [1 ..] $ maybeToList event)
+      -- There MUST be a delay here, otherwise it means we would need
+      -- to execute this event now. We don't want that. 'playAll' checks that.
+      (m', zip [1 ..] $ maybeToList event)
+      where
+        m' = m {board = board', anims = anims'}
+        event = case gameEvent of
+          EndTurn pSpot cSpot ->
+            -- enqueue resolving next attack if applicable
+            case nextAttackSpot board pSpot (Just cSpot) of
+              Nothing -> Just GameIncrTurn -- no more attack, change turn
+              Just cSpot' -> Just $ GamePlay $ EndTurn pSpot cSpot'
+          _ -> Nothing
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
-  (m {interaction = GameNoInteraction}, [(1, event)])
+  -- We don't want any delay so that the game feels responsive
+  -- when the player presses "End Turn", hence the recursive call.
+  updateGameModel m' event GameNoInteraction
   where
+    m' = m {interaction = GameNoInteraction}
     pSpot = turnToPlayerSpot turn
     event =
       -- schedule resolving first attack
@@ -251,27 +261,30 @@ updateGameModel m@GameModel {board, playingPlayer, turn} GameIncrTurn _ =
     then (m', [])
     else -- next turn is AI
     case aiPlay board turn' & runExcept of
-      Left errMsg -> noPlayEvent m $ GameShowErrorInteraction errMsg
+      Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
       Right events ->
-        let events' = zip [1 ..] $ map GamePlay events
-         in -- schedule its actions, then simulate pressing "End Turn"
-            (m', snoc events' (1, GameEndTurnPressed))
+        -- schedule its actions, then simulate pressing "End Turn"
+        (m', snoc events' (1, GameEndTurnPressed))
+        where
+          -- We want a one second delay, it's make it easier to understand
+          -- what's going on
+          events' = zip [1 ..] $ map GamePlay events
   where
     turn' = nextTurn turn
     m' = m {turn = turn'}
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
-  noPlayEvent m $ GameHoverInteraction $ Hovering i
+  withInteraction m $ GameHoverInteraction $ Hovering i
 updateGameModel m (GameInHandMouseLeave _) _ =
-  noPlayEvent m GameNoInteraction
+  withInteraction m GameNoInteraction
 -- Hovering in place cards
 updateGameModel m (GameInPlaceMouseEnter pSpot cSpot) GameNoInteraction =
-  noPlayEvent m $ GameHoverInPlaceInteraction pSpot cSpot
+  withInteraction m $ GameHoverInPlaceInteraction pSpot cSpot
 updateGameModel m (GameInPlaceMouseLeave _ _) _ =
-  noPlayEvent m GameNoInteraction
+  withInteraction m GameNoInteraction
 -- default
 updateGameModel m _ i =
-  noPlayEvent m i
+  withInteraction m i
 
 -- | Updates a 'WelcomeModel'
 updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
@@ -386,25 +399,6 @@ delayActions m actions =
       | (i, action) <- actions
     ]
 
-playAll :: GameModel -> [GamePlayEvent] -> GameModel
-playAll m [] = m
-playAll m@GameModel {board} (event : rest) =
-  case Game.play board event of
-    Left errMsg -> withError m errMsg
-    Right (board', anims') -> playAll (m {board = board', anims = anims'}) rest
-
-splitInstaGPEDelayed ::
-  (Eq a, Num a) =>
-  [(a, GameAction)] ->
-  ([GamePlayEvent], [(a, GameAction)])
-splitInstaGPEDelayed ((0, GamePlay event) : rest) =
-  (event : f, s)
-  where
-    (f, s) = splitInstaGPEDelayed rest
-splitInstaGPEDelayed ((0, action) : rest) =
-  error "Non GamePlay action should not be scheduled with delay 0. It should be resolved in updateGameModel"
-splitInstaGPEDelayed rest = ([], rest)
-
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
 -- | and is the only one to handle page changes. A page change event
@@ -432,15 +426,16 @@ updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
-    else delayActions m'' $ map (DataBifunctor.second GameAction') delayedActions
+    else delayActions m'' $ prepare $ check actions
   where
     (m', actions) = updateGameModel m a interaction
+    m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl
-    actions' = map (\(i, a) -> (i * toSecs, a)) $ sumDelays 0 actions
+    prepare as = map (\(i, a) -> (i * toSecs, GameAction' a)) $ sumDelays 0 as
     toSecs = 1000000
-    (events, delayedActions) = splitInstaGPEDelayed actions'
-    m'' = GameModel' $ playAll m' events
+    check ((0, event) : _) = error $ "updateGameModel should not return event with 0 delay, but " ++ show event ++ " did"
+    check as = as
 updateModel (WelcomeAction' a) (WelcomeModel' m) =
   noEff $ WelcomeModel' $ updateWelcomeModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =

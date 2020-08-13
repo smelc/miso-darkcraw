@@ -36,9 +36,13 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Debug.Trace (trace)
 
 data GamePlayEvent
-  = -- | A player finishes its turn, resolving it in a single card spot
+  = -- | A player finishes its turn, resolving it in a single card spot.
+    -- | This event is a bit tricky to handle, because every consumer should
+    -- | take care of scheduling the next event (if any) using 'nextAttackSpot'
+    -- | or scheduling 'GameIncrTurn' if none.
     EndTurn PlayerSpot CardSpot
   | -- | A Nothing case, for convenience
     NoPlayEvent
@@ -83,9 +87,18 @@ playM ::
   Board Core ->
   GamePlayEvent ->
   m (Board Core)
-playM board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
-playM board NoPlayEvent = return board
-playM board (Place pSpot cSpot (handhi :: HandIndex)) = do
+playM board gpe =
+  trace ("playing " ++ show gpe) $ playM' board gpe
+
+playM' ::
+  MonadError Text m =>
+  MonadWriter (Board UI) m =>
+  Board Core ->
+  GamePlayEvent ->
+  m (Board Core)
+playM' board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
+playM' board NoPlayEvent = return board
+playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
   card <- lookupHand hand handi
   let onTable :: Map CardSpot (Creature Core) = inPlace base
   if Map.member cSpot onTable
