@@ -38,10 +38,6 @@ dummyOn str =
     emptyDecoder
     (\() -> NoOp)
 
-rgba :: Int -> Int -> Int -> MisoString
-rgba r g b =
-  "rgba(" <> ms r <> "," <> ms g <> "," <> ms b <> ",1)"
-
 data Position = Absolute | Relative
 
 instance Show Position where
@@ -137,6 +133,10 @@ marginifyhv h v view =
 -- | px i = ms i <> "px"
 px :: Int -> MisoString
 px i = ms i <> "px"
+
+rgba :: Int -> Int -> Int -> MisoString
+rgba r g b =
+  "rgba(" <> ms r <> "," <> ms g <> "," <> ms b <> ",1)"
 
 -- | Styled text, specifying the z-index and the text
 stytextz :: Int -> MisoString -> View a
