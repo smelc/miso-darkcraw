@@ -56,7 +56,7 @@ boardToInPlaceCells ::
   GameModel ->
   [View Action]
 boardToInPlaceCells z m@GameModel {anims, board, interaction} =
-  [div_ [] $ bumpHtml : main]
+  [div_ [] $ [bumpHtml True, bumpHtml False] ++ main]
   where
     main =
       [ div_
@@ -79,12 +79,16 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} =
           $ [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
             ++ deathFadeout attackEffect x y
         | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
+          let upOrDown =
+                case pSpot of
+                  PlayerTop -> False -- down
+                  PlayerBottom -> True, -- up
           let (x, y) = cardCellsBoardOffset pSpot cSpot,
           let beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot,
           let attackEffect =
                 anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
           let bounceStyle =
-                [ ("animation", bumpAnim <> " 0.5s ease-in-out")
+                [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
                   | attackBump attackEffect
                 ],
           let (r, g, b) =
@@ -92,11 +96,13 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} =
                   GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
                   _ -> greenRGB
       ]
-    bumpAnim = "bump"
+    bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     bumpInit = "transform: translateY(0px);"
-    bump50 = "transform: translateY(-" ++ show cellPixelSize ++ "px);"
-    bumpKeyFrames = [keyframes bumpAnim bumpInit [(50, bump50)] bumpInit]
-    bumpHtml = nodeHtml "style" [] bumpKeyFrames
+    sign upOrDown = if upOrDown then "-" else ""
+    bump50 upOrDown = "transform: translateY(" ++ sign upOrDown ++ show cellPixelSize ++ "px);"
+    bumpKeyFrames upOrDown =
+      [keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit]
+    bumpHtml upOrDown = nodeHtml "style" [] $ bumpKeyFrames upOrDown
 
 boardToInHandCells ::
   -- | The z index
