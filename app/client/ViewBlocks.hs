@@ -44,6 +44,7 @@ _captivatingGUI = GUI {..}
             ("pulse", "infinite", "ease-in-out")
             (Just "alternate")
             Nothing
+            Nothing
         _ -> f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
     textButton z bState attrs t =
       anyButton

@@ -88,8 +88,10 @@ keyframed ::
   Maybe MisoString ->
   -- | The attribute `animation-fill-mode`
   Maybe MisoString ->
+  -- | The attribute `animation-delay`
+  Maybe MisoString ->
   View a
-keyframed e from to (name, iterationCount, timingFunction) direction fillMode =
+keyframed e from to (name, iterationCount, timingFunction) direction fillMode delay =
   div_
     []
     [ nodeHtml
@@ -105,8 +107,28 @@ keyframed e from to (name, iterationCount, timingFunction) direction fillMode =
               & at "animation-timing-function" ?~ timingFunction
               & at "animation-direction" .~ direction
               & at "animation-fill-mode" .~ fillMode
+              & at "animation-delay" .~ delay
         ]
     ]
+
+-- | Vertical wobbling
+wobblev :: MisoString -> Bool -> View a
+wobblev name upOrDown =
+  keyframes name from steps to
+  where
+    from = ms $ translateXY 0 0
+    steps =
+      [ (15, translateXY 25 15),
+        (30, translateXY (-25) 30),
+        (45, translateXY 25 45),
+        (60, translateXY (-25) 60),
+        (85, translateXY 25 85)
+      ]
+    to = ms $ translateXY 0 100
+    translateX i = "translateX(" ++ show i ++ "%)"
+    translateY i = "translateY(" ++ ysign ++ show i ++ "%)"
+    translateXY x y = translateX x ++ " " ++ translateY y
+    ysign = if upOrDown then "-" else ""
 
 noDrag :: Attribute a
 noDrag = style_ $ "-webkit-user-drag" =: "none" <> "user-select" =: "none"

@@ -190,7 +190,8 @@ deathFadeout ae x y =
       "opacity: 0;"
       ("deathFadeout", "1", "ease")
       Nothing
-      $ Just "forwards"
+      (Just "forwards")
+      Nothing
     | death ae
   ]
   where
