@@ -185,7 +185,12 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
 
 deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
 deathFadeout ae x y =
-  [keyframed builder "opacity: 1;" "opacity: 0;" animData | death ae]
+  [ keyframed
+      builder
+      (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
+      animData
+    | death ae
+  ]
   where
     sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
@@ -200,7 +205,12 @@ deathFadeout ae x y =
 
 heartWobble :: AttackEffect -> Int -> Int -> Int -> [View Action]
 heartWobble ae x y delay =
-  [keyframed builder "opacity: 1;" "opacity: 0;" animData | hpLoss]
+  [ keyframed
+      builder
+      (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
+      animData
+    | hpLoss
+  ]
   where
     hpc = hitPointsChange ae
     hpLoss = hpc < 0

@@ -118,25 +118,21 @@ keyframes name from steps to =
     to_ = "to { " <> to <> " }"
     tail = from_ <> " " <> ms steps' <> " " <> to_
 
+-- XXX smelc Get rid of this function altogether?
 keyframed ::
   -- | How to build the element
   ([Attribute a] -> View a) ->
-  -- | The 'from' attribute
-  MisoString ->
-  -- | The 'to' attribute
-  MisoString ->
+  -- | The keyframes, for example built with 'keyframes'
+  View a ->
   -- | How to display the animation
   AnimationData ->
   View a
-keyframed e from to animData =
+keyframed e keyframes animData =
   div_
     []
-    -- FIXME Make 'keyframes name from [] to' a parameter
-    [ nodeHtml "style" [] [keyframes name from [] to],
+    [ nodeHtml "style" [] [keyframes],
       e [animDataToStyle animData]
     ]
-  where
-    name = animDataName animData
 
 -- | Vertical wobbling
 wobblev :: MisoString -> Bool -> View a

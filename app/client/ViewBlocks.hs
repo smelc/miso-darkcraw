@@ -39,8 +39,12 @@ _captivatingGUI = GUI {..}
         Enabled ->
           keyframed
             (\as -> f (as ++ [buttonStyle bState False]))
-            "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
-            ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
+            ( keyframes
+                (animDataName animData)
+                "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
+                []
+                ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
+            )
             animData
         _ -> f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
       where
