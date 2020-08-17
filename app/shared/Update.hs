@@ -233,7 +233,7 @@ updateGameModel m@GameModel {board} (GamePlay gameEvent) _ =
     Right (board', anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
-      (m', zip [1 ..] $ maybeToList event)
+      (m', zip (repeat 1) $ maybeToList event)
       where
         m' = m {board = board', anims = anims'}
         event = case gameEvent of
@@ -268,7 +268,7 @@ updateGameModel m@GameModel {board, playingPlayer, turn} GameIncrTurn _ =
         where
           -- We want a one second delay, it's make it easier to understand
           -- what's going on
-          events' = zip [1 ..] $ map GamePlay events
+          events' = zip (repeat 1) $ map GamePlay events
   where
     turn' = nextTurn turn
     m' = m {turn = turn'}
