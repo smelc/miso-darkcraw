@@ -78,6 +78,7 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} =
           )
           $ [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
             ++ deathFadeout attackEffect x y
+            ++ heartWobble attackEffect x y
         | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
           let upOrDown =
                 case pSpot of

@@ -97,7 +97,7 @@ keyframed e from to (name, iterationCount, timingFunction) direction fillMode de
     [ nodeHtml
         "style"
         []
-        [keyframes name from [] to],
+        [keyframes name from [] to], -- FIXME parameterize that
       e
         [ style_ $
             Map.empty

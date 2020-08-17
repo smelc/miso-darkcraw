@@ -201,3 +201,25 @@ deathFadeout ae x y =
     top = (cardPixelHeight - imgh) `div` 2
     builder x =
       img_ $ [src_ (assetsPath assetFilenameSkull), style_ sty] ++ x
+
+heartWobble :: AttackEffect -> Int -> Int -> Int -> [View Action]
+heartWobble ae x y delay =
+  [ keyframed
+      builder
+      "opacity: 1;"
+      "opacity: 0;"
+      ("heartWobble", "1", "ease")
+      Nothing
+      (Just "forwards")
+      (if delay == 0 then Nothing else Just $ ms delay)
+    | hpLoss
+  ]
+  where
+    hpc = hitPointsChange ae
+    hpLoss = hpc < 0
+    sty = pltwh Absolute left top imgw imgh
+    (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
+    left = (cardPixelWidth - imgw) `div` 2
+    top = 0
+    builder x =
+      img_ $ [src_ (assetsPath assetFilenameHeart), style_ sty] ++ x
