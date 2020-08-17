@@ -17,6 +17,7 @@ module GameViewInternal
     cardPositionStyle',
     deathFadeout,
     errView,
+    heartWobble,
     keyframes,
     noDrag,
     stackView,
@@ -184,16 +185,7 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
 
 deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
 deathFadeout ae x y =
-  [ keyframed
-      builder
-      "opacity: 1;"
-      "opacity: 0;"
-      ("deathFadeout", "1", "ease")
-      Nothing
-      (Just "forwards")
-      Nothing
-    | death ae
-  ]
+  [keyframed builder "opacity: 1;" "opacity: 0;" animData | death ae]
   where
     sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
@@ -201,19 +193,14 @@ deathFadeout ae x y =
     top = (cardPixelHeight - imgh) `div` 2
     builder x =
       img_ $ [src_ (assetsPath assetFilenameSkull), style_ sty] ++ x
+    animData =
+      (animationData "deathFadeout" "1s" "ease")
+        { animDataFillMode = Just "forwards"
+        }
 
 heartWobble :: AttackEffect -> Int -> Int -> Int -> [View Action]
 heartWobble ae x y delay =
-  [ keyframed
-      builder
-      "opacity: 1;"
-      "opacity: 0;"
-      ("heartWobble", "1", "ease")
-      Nothing
-      (Just "forwards")
-      (if delay == 0 then Nothing else Just $ ms delay)
-    | hpLoss
-  ]
+  [keyframed builder "opacity: 1;" "opacity: 0;" animData | hpLoss]
   where
     hpc = hitPointsChange ae
     hpLoss = hpc < 0
@@ -223,3 +210,9 @@ heartWobble ae x y delay =
     top = 0
     builder x =
       img_ $ [src_ (assetsPath assetFilenameHeart), style_ sty] ++ x
+    animData =
+      (animationData "heartWobble" "1s" "ease")
+        { animDataFillMode = Just "forwards",
+          animDataDelay = animDataDelay
+        }
+    animDataDelay = if delay == 0 then Nothing else Just $ ms delay

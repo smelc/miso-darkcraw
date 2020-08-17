@@ -41,11 +41,14 @@ _captivatingGUI = GUI {..}
             (\as -> f (as ++ [buttonStyle bState False]))
             "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
             ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
-            ("pulse", "infinite", "ease-in-out")
-            (Just "alternate")
-            Nothing
-            Nothing
+            animData
         _ -> f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
+      where
+        animData =
+          (animationData "pulse" "1s" "ease-in-out")
+            { animDataDirection = Just "alternate",
+              animDataIterationCount = Just "infinite"
+            }
     textButton z bState attrs t =
       anyButton
         z

@@ -1,4 +1,6 @@
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
@@ -10,12 +12,54 @@ module ViewInternal where
 import Constants (assetsPath, borderSize, cellPixelSize)
 import Control.Lens
 import Data.Function ((&))
+import Data.Generics.Labels
 import Data.List
 import qualified Data.Map.Strict as Map
+import GHC.Generics (Generic)
 import Miso hiding (at)
 import Miso.String hiding (length)
 import Miso.Util ((=:))
 import Update (Action (..))
+
+-- | Data for creating a CSS animation
+data AnimationData = AnimationData
+  { animDataDelay :: Maybe MisoString,
+    animDataDirection :: Maybe MisoString,
+    animDataDuration :: MisoString,
+    animDataFillMode :: Maybe MisoString,
+    animDataIterationCount :: Maybe MisoString,
+    animDataName :: MisoString,
+    animDataTimingFunction :: MisoString
+  }
+
+-- | Creates an 'AnimationData' requiring the minimal fields
+animationData ::
+  -- | The animation's name
+  MisoString ->
+  -- | The animation's duration
+  MisoString ->
+  -- | The animation's timing function
+  MisoString ->
+  AnimationData
+animationData animDataName animDataDuration animDataTimingFunction =
+  AnimationData {..}
+  where
+    animDataDelay = Nothing -- "0s"
+    animDataDirection = Nothing -- "normal"
+    animDataFillMode = Nothing -- "none"
+    animDataIterationCount = Nothing -- "1"
+
+animDataToStyle :: AnimationData -> Attribute a
+animDataToStyle animData =
+  style_ $
+    Map.empty
+      & at "animation-direction" .~ animDataDirection animData
+      & at "animation-delay" .~ animDataDelay animData
+      & at "animation-duration" ?~ animDataDuration animData
+      & at "animation-iteration-count" .~ animDataIterationCount animData
+      & at "animation-fill-mode" .~ animDataFillMode animData
+      & at "animation-name" ?~ animDataName animData
+      & at "animation-timing-function" ?~ animDataTimingFunction animData
 
 -- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textMainColor :: MisoString
@@ -81,35 +125,18 @@ keyframed ::
   MisoString ->
   -- | The 'to' attribute
   MisoString ->
-  -- | The attributes `animation-name`, `animation-iteration-count` and
-  -- | `animate-timing-function`
-  (MisoString, MisoString, MisoString) ->
-  -- | The attribute `animation-direction`
-  Maybe MisoString ->
-  -- | The attribute `animation-fill-mode`
-  Maybe MisoString ->
-  -- | The attribute `animation-delay`
-  Maybe MisoString ->
+  -- | How to display the animation
+  AnimationData ->
   View a
-keyframed e from to (name, iterationCount, timingFunction) direction fillMode delay =
+keyframed e from to animData =
   div_
     []
-    [ nodeHtml
-        "style"
-        []
-        [keyframes name from [] to], -- FIXME parameterize that
-      e
-        [ style_ $
-            Map.empty
-              & at "animation-duration" ?~ "1s"
-              & at "animation-name" ?~ name
-              & at "animation-iteration-count" ?~ iterationCount
-              & at "animation-timing-function" ?~ timingFunction
-              & at "animation-direction" .~ direction
-              & at "animation-fill-mode" .~ fillMode
-              & at "animation-delay" .~ delay
-        ]
+    -- FIXME Make 'keyframes name from [] to' a parameter
+    [ nodeHtml "style" [] [keyframes name from [] to],
+      e [animDataToStyle animData]
     ]
+  where
+    name = animDataName animData
 
 -- | Vertical wobbling
 wobblev :: MisoString -> Bool -> View a
