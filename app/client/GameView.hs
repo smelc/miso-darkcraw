@@ -71,7 +71,7 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} = do
     mainM =
       sequence
         [ div_
-            ( [ style_ (Map.union (Map.fromList bounceStyle) $ cardPositionStyle x y),
+            ( [ style_ $ Map.fromList bounceStyle <> cardPositionStyle x y,
                 class_ "card",
                 cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
               ]
@@ -89,7 +89,7 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} = do
             )
             <$> do
               death <- deathFadeout attackEffect x y
-              heart <- heartWobble attackEffect x y 0
+              heart <- heartWobble (z + 1) attackEffect x y
               return $
                 [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
                   ++ death

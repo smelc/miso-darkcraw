@@ -276,6 +276,7 @@ exampleBoard :: [Card UI] -> Board Core
 exampleBoard cards =
   Board topPlayer botPlayer
   where
+    humanArcher = unsafeCreatureWithID cards (CreatureID Archer Human)
     humanGeneral = unsafeCreatureWithID cards (CreatureID General Human)
     humanSpearman = unsafeCreatureWithID cards (CreatureID Spearman Human)
     undeadArcher = unsafeCreatureWithID cards (CreatureID Archer Undead)
@@ -292,8 +293,9 @@ exampleBoard cards =
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList
-          [ (Top, humanGeneral),
-            (TopLeft, humanSpearman)
+          [ (Top, humanSpearman),
+            (TopLeft, humanGeneral),
+            (TopRight, humanArcher)
           ]
     (botHand, botStack) = splitAt handSize $ initialDeck cards Human
     botPlayer = PlayerPart botCards botHand botStack []

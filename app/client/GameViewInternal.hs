@@ -206,27 +206,30 @@ deathFadeout ae x y =
         { animDataFillMode = Just "forwards"
         }
 
-heartWobble :: AttackEffect -> Int -> Int -> Int -> Styled [View Action]
-heartWobble ae x y delay =
+heartWobble :: Int -> AttackEffect -> Int -> Int -> Styled [View Action]
+heartWobble z ae x y =
   sequence
     [ keyframed
         builder
-        (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
+        (wobblev (animDataName animData) True)
         animData
-      | hpLoss
+      | delay <- delays,
+        let animData = createAnimData delay
     ]
   where
     hpc = hitPointsChange ae
     hpLoss = hpc < 0
-    sty = pltwh Absolute left top imgw imgh
+    delay = 250 -- The delay between each wobbling heart, milliseconds
+    delays =
+      [delay * i | i <- if hpLoss then [0 .. (- hpc)] else []]
+    sty = pltwh Absolute left top imgw imgh <> Map.singleton "z-index" (ms z)
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
     left = (cardPixelWidth - imgw) `div` 2
     top = 0
     builder x =
       img_ $ [src_ (assetsPath assetFilenameHeart), style_ sty] ++ x
-    animData =
-      (animationData "heartWobble" "1s" "ease")
+    createAnimData delay =
+      (animationData "heartWobble" "1s" "linear")
         { animDataFillMode = Just "forwards",
-          animDataDelay = animDataDelay
+          animDataDelay = Just $ ms delay <> "ms"
         }
-    animDataDelay = if delay == 0 then Nothing else Just $ ms delay

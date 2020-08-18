@@ -129,12 +129,12 @@ keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> MisoSt
 keyframes name from steps to =
   "@keyframes " <> name <> "{ " <> tail <> " }"
   where
-    from_ = "from { " <> from <> " }"
+    from_ = "0% { " <> from <> " }"
     steps' :: String =
       Data.List.map (\(i, s) -> show i ++ "% { " ++ s ++ " }") steps
         & Data.List.intersperse " "
         & Data.List.concat
-    to_ = "to { " <> to <> " }"
+    to_ = "100% { " <> to <> " }"
     tail = from_ <> " " <> ms steps' <> " " <> to_
 
 -- XXX smelc Get rid of this function altogether?
@@ -164,9 +164,10 @@ wobblev name upOrDown =
         (85, translateXY 25 85)
       ]
     to = ms $ translateXY 0 100
-    translateX i = "translateX(" ++ show i ++ "%)"
-    translateY i = "translateY(" ++ ysign ++ show i ++ "%)"
-    translateXY x y = translateX x ++ " " ++ translateY y
+    translateX i = "translateX(" ++ show i ++ "px)"
+    translateY i = "translateY(" ++ ysign ++ show i ++ "px)"
+    translateXY x y =
+      "transform: " ++ translateX x ++ " " ++ translateY y ++ ";"
     ysign = if upOrDown then "-" else ""
 
 noDrag :: Attribute a
