@@ -24,14 +24,14 @@ import Miso.String hiding (length)
 import Miso.Util ((=:))
 import Update (Action (..))
 
-newtype Styled a = StyledView (Writer (Set.Set MisoString) a)
+newtype Styled a = Styled (Writer (Set.Set MisoString) a)
   deriving (Functor, Applicative, Monad, MonadWriter (Set.Set MisoString))
 
 emitTopLevelStyle :: MisoString -> Styled ()
 emitTopLevelStyle style = tell (Set.singleton style)
 
 renderStyledView :: Styled (View a) -> View a
-renderStyledView (StyledView m) =
+renderStyledView (Styled m) =
   div_
     []
     [ nodeHtml "style" [] (fmap text (Set.toList styles)),
