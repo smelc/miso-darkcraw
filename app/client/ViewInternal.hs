@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -11,15 +12,33 @@ module ViewInternal where
 
 import Constants (assetsPath, borderSize, cellPixelSize)
 import Control.Lens
+import Control.Monad.Writer
 import Data.Function ((&))
 import Data.Generics.Labels
 import Data.List
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 import GHC.Generics (Generic)
 import Miso hiding (at)
 import Miso.String hiding (length)
 import Miso.Util ((=:))
 import Update (Action (..))
+
+newtype Styled a = StyledView (Writer (Set.Set MisoString) a)
+  deriving (Functor, Applicative, Monad, MonadWriter (Set.Set MisoString))
+
+emitTopLevelStyle :: MisoString -> Styled ()
+emitTopLevelStyle style = tell (Set.singleton style)
+
+renderStyledView :: Styled (View a) -> View a
+renderStyledView (StyledView m) =
+  div_
+    []
+    [ nodeHtml "style" [] (fmap text (Set.toList styles)),
+      e
+    ]
+  where
+    (e, styles) = runWriter m
 
 -- | Data for creating a CSS animation
 data AnimationData = AnimationData
@@ -106,9 +125,9 @@ flexLineStyle =
 img_' :: MisoString -> View a
 img_' filename = img_ [src_ $ assetsPath filename, noDrag]
 
-keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> View a
+keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> MisoString
 keyframes name from steps to =
-  text $ "@keyframes " <> name <> "{ " <> tail <> " }"
+  "@keyframes " <> name <> "{ " <> tail <> " }"
   where
     from_ = "from { " <> from <> " }"
     steps' :: String =
@@ -123,19 +142,16 @@ keyframed ::
   -- | How to build the element
   ([Attribute a] -> View a) ->
   -- | The keyframes, for example built with 'keyframes'
-  View a ->
+  MisoString ->
   -- | How to display the animation
   AnimationData ->
-  View a
-keyframed e keyframes animData =
-  div_
-    []
-    [ nodeHtml "style" [] [keyframes],
-      e [animDataToStyle animData]
-    ]
+  Styled (View a)
+keyframed e keyframes animData = do
+  emitTopLevelStyle keyframes
+  return $ e [animDataToStyle animData]
 
 -- | Vertical wobbling
-wobblev :: MisoString -> Bool -> View a
+wobblev :: MisoString -> Bool -> MisoString
 wobblev name upOrDown =
   keyframes name from steps to
   where

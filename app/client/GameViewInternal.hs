@@ -71,9 +71,10 @@ errView model@GameModel {interaction} z =
         a_ [href_ itchURL] [text itchURL]
       ]
 
-turnView :: GameModel -> Int -> View Action
-turnView model@GameModel {turn} z =
-  div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
+turnView :: GameModel -> Int -> Styled (View Action)
+turnView model@GameModel {turn} z = do
+  line3 <- line3M
+  return $ div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
   where
     turnViewStyle =
       Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight)
@@ -93,7 +94,7 @@ turnView model@GameModel {turn} z =
       div_
         [topMarginAttr]
         [img_ [src_ (assetsPath $ "24x24_" <> playerImgY <> "_2.png")]]
-    line3 :: View Action =
+    line3M :: Styled (View Action) =
       textButton
         gui
         z
@@ -104,9 +105,10 @@ turnView model@GameModel {turn} z =
         "End Turn"
 
 -- | The widget showing the number of cards in the stack
-stackView :: GameModel -> Int -> View Action
-stackView model@GameModel {board, playingPlayer} z =
-  div_ [positionStyle] [textButton gui z Enabled [] $ ms stackSize]
+stackView :: GameModel -> Int -> Styled (View Action)
+stackView model@GameModel {board, playingPlayer} z = do
+  button <- textButton gui z Enabled [] $ ms stackSize
+  return $ div_ [positionStyle] [button]
   where
     off = cellPixelSize `div` 2
     positionStyle =
@@ -183,14 +185,15 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
         ("transition-timing-function", timingFunction)
       ]
 
-deathFadeout :: AttackEffect -> Int -> Int -> [View Action]
+deathFadeout :: AttackEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae x y =
-  [ keyframed
-      builder
-      (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
-      animData
-    | death ae
-  ]
+  sequence
+    [ keyframed
+        builder
+        (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
+        animData
+      | death ae
+    ]
   where
     sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
@@ -203,14 +206,15 @@ deathFadeout ae x y =
         { animDataFillMode = Just "forwards"
         }
 
-heartWobble :: AttackEffect -> Int -> Int -> Int -> [View Action]
+heartWobble :: AttackEffect -> Int -> Int -> Int -> Styled [View Action]
 heartWobble ae x y delay =
-  [ keyframed
-      builder
-      (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
-      animData
-    | hpLoss
-  ]
+  sequence
+    [ keyframed
+        builder
+        (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
+        animData
+      | hpLoss
+    ]
   where
     hpc = hitPointsChange ae
     hpLoss = hpc < 0

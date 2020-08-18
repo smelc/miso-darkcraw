@@ -17,12 +17,12 @@ import Miso.Util ((=:))
 import ViewInternal
 
 data GUI a = GUI
-  { anyButton :: Int -> ButtonState -> ([Attribute a] -> View a) -> View a,
+  { anyButton :: Int -> ButtonState -> ([Attribute a] -> View a) -> Styled (View a),
     -- | argument #1 is the z-index
     -- | argument #2 is the button's state
     -- | argument #3 is the style
     -- | argument #4 is the button's text
-    textButton :: Int -> ButtonState -> [Attribute a] -> MisoString -> View a
+    textButton :: Int -> ButtonState -> [Attribute a] -> MisoString -> Styled (View a)
   }
 
 -- Implementation used by the code
@@ -46,7 +46,7 @@ _captivatingGUI = GUI {..}
                 ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
             )
             animData
-        _ -> f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
+        _ -> return $ f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
       where
         animData =
           (animationData "pulse" "1s" "ease-in-out")
@@ -63,11 +63,12 @@ _captivatingGUI = GUI {..}
 _simpleGUI :: GUI a
 _simpleGUI = GUI {..}
   where
-    anyButton z bState f = f [buttonStyle bState True]
+    anyButton z bState f = return $ f [buttonStyle bState True]
     textButton z bState attrs text =
-      button_
-        (buttonStyle bState True : attrs)
-        [stytextzhv z text 0 0]
+      return $
+        button_
+          (buttonStyle bState True : attrs)
+          [stytextzhv z text 0 0]
 
 disabledHTML :: MisoString
 disabledHTML = "#AAAAAA"

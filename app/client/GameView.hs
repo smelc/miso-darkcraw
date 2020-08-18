@@ -33,18 +33,25 @@ import Utils (style1_)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
-viewGameModel :: GameModel -> View Action
-viewGameModel model@GameModel {board, interaction} =
-  div_ [] $ [boardDiv, handDiv] ++ errView model zpp
+viewGameModel :: GameModel -> Styled (View Action)
+viewGameModel model@GameModel {board, interaction} = do
+  boardDiv <- boardDivM
+  handDiv <- handDivM
+  return $ div_ [] $ [boardDiv, handDiv] ++ errView model zpp
   where
     (z, zpp) = (0, z + 1)
-    boardCards = boardToInPlaceCells zpp model
-    boardDiv = div_ [style_ boardStyle] $ turnView model zpp : boardCards
+    boardCardsM = boardToInPlaceCells zpp model
+    boardDivM = do
+      turn <- turnView model zpp
+      boardCards <- boardCardsM
+      return $ div_ [style_ boardStyle] $ turn : boardCards
     boardStyle =
       Map.union (zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight) $
         Map.fromList
           [("background-image", assetsUrl "forest.png")]
-    handDiv = div_ [style_ handStyle] $ boardToInHandCells zpp model
+    handDivM = do
+      cells <- boardToInHandCells zpp model
+      return $ div_ [style_ handStyle] cells
     handStyle =
       Map.union (zpltwh z Relative 0 0 handPixelWidth handPixelHeight) $
         Map.fromList
@@ -54,86 +61,95 @@ boardToInPlaceCells ::
   -- | The z index
   Int ->
   GameModel ->
-  [View Action]
-boardToInPlaceCells z m@GameModel {anims, board, interaction} =
-  [div_ [] $ [bumpHtml True, bumpHtml False] ++ main]
+  Styled [View Action]
+boardToInPlaceCells z m@GameModel {anims, board, interaction} = do
+  emitTopLevelStyle $ bumpKeyFrames True
+  emitTopLevelStyle $ bumpKeyFrames False
+  main <- mainM
+  return [div_ [] main]
   where
-    main =
-      [ div_
-          ( [ style_ (Map.union (Map.fromList bounceStyle) $ cardPositionStyle x y),
-              class_ "card",
-              cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
-            ]
-              ++ case maybeCreature of
-                Just _ ->
-                  [ onMouseEnter' "card" $ GameAction' $ GameInPlaceMouseEnter pSpot cSpot,
-                    onMouseLeave' "card" $ GameAction' $ GameInPlaceMouseLeave pSpot cSpot
-                  ]
-                Nothing ->
-                  [ onDragEnter (GameAction' $ GameDragEnter cSpot),
-                    onDragLeave (GameAction' $ GameDragLeave cSpot),
-                    onDrop (AllowDrop True) $ GameAction' GameDrop,
-                    dummyOn "dragover"
-                  ]
-          )
-          $ [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
-            ++ deathFadeout attackEffect x y
-            ++ heartWobble attackEffect x y 0
-        | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
-          let upOrDown =
-                case pSpot of
-                  PlayerTop -> False -- down
-                  PlayerBottom -> True, -- up
-          let (x, y) = cardCellsBoardOffset pSpot cSpot,
-          let beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot,
-          let attackEffect =
-                anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
-          let bounceStyle =
-                [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
-                  | attackBump attackEffect
-                ],
-          let (r, g, b) =
-                case interaction of
-                  GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
-                  _ -> greenRGB
-      ]
+    mainM =
+      sequence
+        [ div_
+            ( [ style_ (Map.union (Map.fromList bounceStyle) $ cardPositionStyle x y),
+                class_ "card",
+                cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
+              ]
+                ++ case maybeCreature of
+                  Just _ ->
+                    [ onMouseEnter' "card" $ GameAction' $ GameInPlaceMouseEnter pSpot cSpot,
+                      onMouseLeave' "card" $ GameAction' $ GameInPlaceMouseLeave pSpot cSpot
+                    ]
+                  Nothing ->
+                    [ onDragEnter (GameAction' $ GameDragEnter cSpot),
+                      onDragLeave (GameAction' $ GameDragLeave cSpot),
+                      onDrop (AllowDrop True) $ GameAction' GameDrop,
+                      dummyOn "dragover"
+                    ]
+            )
+            <$> do
+              death <- deathFadeout attackEffect x y
+              heart <- heartWobble attackEffect x y 0
+              return $
+                [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
+                  ++ death
+                  ++ heart
+          | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
+            let upOrDown =
+                  case pSpot of
+                    PlayerTop -> False -- down
+                    PlayerBottom -> True, -- up
+            let (x, y) = cardCellsBoardOffset pSpot cSpot,
+            let beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot,
+            let attackEffect =
+                  anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
+            let bounceStyle =
+                  [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
+                    | attackBump attackEffect
+                  ],
+            let (r, g, b) =
+                  case interaction of
+                    GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
+                    _ -> greenRGB
+        ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     bumpInit = "transform: translateY(0px);"
     sign upOrDown = if upOrDown then "-" else ""
     bump50 upOrDown = "transform: translateY(" ++ sign upOrDown ++ show cellPixelSize ++ "px);"
     bumpKeyFrames upOrDown =
-      [keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit]
-    bumpHtml upOrDown = nodeHtml "style" [] $ bumpKeyFrames upOrDown
+      keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
 
 boardToInHandCells ::
   -- | The z index
   Int ->
   GameModel ->
-  [View Action]
-boardToInHandCells z m@GameModel {board, interaction, playingPlayer} =
-  [ div_
-      [ style_ $ cardPositionStyle' x y,
-        prop "draggable" True,
-        onDragStart (GameAction' $ GameDragStart i),
-        onDragEnd $ GameAction' GameDrop,
-        class_ "card",
-        onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
-        onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
-      ]
-      [cardCreature z (Just creature) beingHovered | not beingDragged]
-    | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
-      let x = pixelsXOffset (unHandIndex i),
-      let y = 2 * cellPixelSize,
-      let (beingHovered, beingDragged) =
-            case interaction of
-              GameHoverInteraction Hovering {hoveredCard} ->
-                (hoveredCard == i, False)
-              GameDragInteraction Dragging {draggedCard} ->
-                (False, draggedCard == i)
-              GameShowErrorInteraction _ -> (False, False)
-              _ -> (False, False)
-  ]
-    ++ [stackView m z]
+  Styled [View Action]
+boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
+  stack <- stackView m z
+  return $
+    [ div_
+        [ style_ $ cardPositionStyle' x y,
+          prop "draggable" True,
+          onDragStart (GameAction' $ GameDragStart i),
+          onDragEnd $ GameAction' GameDrop,
+          class_ "card",
+          onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
+          onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
+        ]
+        [cardCreature z (Just creature) beingHovered | not beingDragged]
+      | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
+        let x = pixelsXOffset (unHandIndex i),
+        let y = 2 * cellPixelSize,
+        let (beingHovered, beingDragged) =
+              case interaction of
+                GameHoverInteraction Hovering {hoveredCard} ->
+                  (hoveredCard == i, False)
+                GameDragInteraction Dragging {draggedCard} ->
+                  (False, draggedCard == i)
+                GameShowErrorInteraction _ -> (False, False)
+                _ -> (False, False)
+    ]
+      ++ [stack]
   where
     pLens = spotToLens playingPlayer
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board pLens

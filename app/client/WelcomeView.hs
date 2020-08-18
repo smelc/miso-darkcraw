@@ -24,16 +24,19 @@ import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
-viewWelcomeModel :: WelcomeModel -> View Action
-viewWelcomeModel m@WelcomeModel {playingMode} =
-  div_
-    [style_ style]
-    [ torchesDiv zpp, -- Absolute placement
-      multiPlayerDiv, -- Absolute placement
-      div_
-        [style_ flexColumnStyle]
-        [titleDiv, singlePlayerDiv]
-    ]
+viewWelcomeModel :: WelcomeModel -> Styled (View Action)
+viewWelcomeModel m@WelcomeModel {playingMode} = do
+  multiPlayerDiv <- multiPlayerDivM
+  singlePlayerDiv <- singlePlayerDivM
+  return $
+    div_
+      [style_ style]
+      [ torchesDiv zpp, -- Absolute placement
+        multiPlayerDiv, -- Absolute placement
+        div_
+          [style_ flexColumnStyle]
+          [titleDiv, singlePlayerDiv]
+      ]
   where
     (z, zpp) = (0, z + 1)
     style =
@@ -50,17 +53,22 @@ viewWelcomeModel m@WelcomeModel {playingMode} =
         <> "margin-top" =: px cellPixelSize
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "choose your team -> start"]
-    singlePlayerDiv =
-      div_
-        [ style_ $
-            flexLineStyle
-              <> "justify-content" =: "center"
-              <> "width" =: px welcomePixelWidth
-              <> "margin-top" =: px cps
-        ]
-        [singlePlayerButtonDiv, selectTeamDiv zpp playingMode]
+    singlePlayerDivM = do
+      singlePlayerButtonDiv <- singlePlayerButtonDivM
+      selectTeam <- selectTeamDiv zpp playingMode
+      return $
+        div_
+          [ style_ $
+              flexLineStyle
+                <> "justify-content" =: "center"
+                <> "width" =: px welcomePixelWidth
+                <> "margin-top" =: px cps
+          ]
+          [singlePlayerButtonDiv, selectTeam]
     playingModeFontSize = px $ (cps + titleFontSize) `div` 3
-    singlePlayerButtonDiv = div_ [style_ $ marginhv cps 0] [singlePlayerButton]
+    singlePlayerButtonDivM = do
+      button <- singlePlayerButton
+      return $ div_ [style_ $ marginhv cps 0] [button]
     singlePlayerButton =
       textButton
         gui
@@ -72,16 +80,18 @@ viewWelcomeModel m@WelcomeModel {playingMode} =
         "Single Player"
     singlePlayerEnabled =
       if playingMode == NoPlayingMode then Enabled else Disabled
-    multiPlayerDiv =
-      div_
-        [ style_ $
-            zplt zpp Absolute 0 275
-              <> flexLineStyle
-              <> "justify-content" =: "center"
-              <> "width" =: px welcomePixelWidth
-        ]
-        [multiPlayerButton]
-    multiPlayerButton =
+    multiPlayerDivM = do
+      multiPlayerButton <- multiPlayerButtonM
+      return $
+        div_
+          [ style_ $
+              zplt zpp Absolute 0 275
+                <> flexLineStyle
+                <> "justify-content" =: "center"
+                <> "width" =: px welcomePixelWidth
+          ]
+          [multiPlayerButton]
+    multiPlayerButtonM =
       textButton gui zpp multiPlayerEnabled multiPlayerAttrs "Multiplayer"
     multiPlayerAttrs =
       [ style_ $
@@ -93,19 +103,22 @@ viewWelcomeModel m@WelcomeModel {playingMode} =
     multiPlayerEnabled =
       if playingMode == NoPlayingMode then Enabled else Disabled
 
-selectTeamDiv :: Int -> PlayingMode -> View Action
-selectTeamDiv z playingMode =
-  div_
-    [style_ flexLineStyle]
-    [ div_
-        [style_ flexColumnStyle]
-        ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-            : [teamButton z playingMode t | t <- allTeams]
-        ),
-      startButtonDiv
-    ]
+selectTeamDiv :: Int -> PlayingMode -> Styled (View Action)
+selectTeamDiv z playingMode = do
+  startButtonDiv <- startButtonDivM
+  teamButtons <- sequence [teamButton z playingMode t | t <- allTeams]
+  return $
+    div_
+      [style_ flexLineStyle]
+      [ div_
+          [style_ flexColumnStyle]
+          ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
+              : teamButtons
+          ),
+        startButtonDiv
+      ]
   where
-    startButtonDiv =
+    startButtonDivM =
       textButton
         gui
         z
@@ -125,9 +138,10 @@ teamButton ::
   PlayingMode ->
   -- The team for which to build the button
   Team ->
-  View Action
-teamButton z playingMode team =
-  marginifyhv 2 4 $ anyButton gui z bState builder
+  Styled (View Action)
+teamButton z playingMode team = do
+  button <- anyButton gui z bState builder
+  return $ marginifyhv 2 4 $ button
   where
     (bState, action) =
       case playingMode of

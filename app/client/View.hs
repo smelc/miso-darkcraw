@@ -9,9 +9,10 @@ import Miso
 import Model (Model (..))
 import MultiPlayerLobbyView (viewMultiPlayerLobbyModel)
 import Update (Action)
+import ViewInternal (renderStyledView)
 import WelcomeView (viewWelcomeModel)
 
 viewModel :: Model -> View Action
-viewModel (GameModel' model) = viewGameModel model
-viewModel (WelcomeModel' model) = viewWelcomeModel model
+viewModel (GameModel' model) = renderStyledView $ viewGameModel model
+viewModel (WelcomeModel' model) = renderStyledView $ viewWelcomeModel model
 viewModel (MultiPlayerLobbyModel' model) = viewMultiPlayerLobbyModel model
