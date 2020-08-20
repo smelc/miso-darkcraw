@@ -183,8 +183,8 @@ wobblev name upOrDown x y =
 noDrag :: Attribute a
 noDrag = style_ $ "-webkit-user-drag" =: "none" <> "user-select" =: "none"
 
--- | A style specifing the left and right margin and the top and bottom margin
--- | Both sizes are in pixels
+-- | A style specifing the horizontal margin (left and right) and vertical
+-- | margin (top and bottom). Both sizes are in pixels
 marginhv :: Int -> Int -> Map.Map MisoString MisoString
 marginhv h v = margintrbl v h v h
 

@@ -8,7 +8,7 @@ set -eux
 declare -r SCHPLAF_ADDRESS="https://schplaf.org/hgames/darkcraw/assets"
 
 declare -r LOCAL_DIR="app/assets"
-declare -r FILES="errbox.png forest.png forest-hand.png torchs.png turn.png welcome.png"
+declare -r FILES="errbox.png forest.png forest-hand.png singleplayer.png torchs.png turn.png welcome.png"
 
 for FILE in $FILES
 do

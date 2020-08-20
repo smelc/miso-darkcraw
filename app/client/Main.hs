@@ -70,7 +70,7 @@ main = do
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
   let shared = SharedModel {sharedCards = cards, sharedStdGen = stdGen}
-  let model = WelcomeModel' $ WelcomeModel shared NoPlayingMode -- initial model
+  let model = WelcomeModel' $ WelcomeModel shared -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load

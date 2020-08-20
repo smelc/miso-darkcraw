@@ -109,13 +109,21 @@ cps = cellPixelSize
 seize :: Int
 seize = 16
 
--- | The width of the welcome background, in pixels
-welcomePixelWidth :: Int
-welcomePixelWidth = 504
+-- | The size of subtitles
+subtitleFontSize :: Int
+subtitleFontSize = (cps + titleFontSize) `div` 3
 
--- | The height of the welcome background, in pixels
-welcomePixelHeight :: Int
-welcomePixelHeight = 624
+-- | The size of titles
+titleFontSize :: Int
+titleFontSize = cps + (cps `div` 2)
+
+-- | The width of the backgrounds of non-board view, in pixels
+lobbiesPixelWidth :: Int
+lobbiesPixelWidth = 504
+
+-- | The height of the backgrounds of non-board view, in pixels
+lobbiesPixelHeight :: Int
+lobbiesPixelHeight = 624
 
 greenHTML :: MisoString
 greenHTML = "#00FF00"

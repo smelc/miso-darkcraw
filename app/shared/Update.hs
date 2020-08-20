@@ -91,6 +91,8 @@ instance ToExpr GameModel
 
 instance ToExpr PlayingMode
 
+instance ToExpr SinglePlayerLobbyModel
+
 instance ToExpr WelcomeModel
 
 instance ToExpr MultiPlayerLobbyModel
@@ -105,17 +107,6 @@ instance ToExpr Model
 
 -- FIXME smelc move Action* to its own file (to avoid cycles later on)
 
--- | Actions that are raised by 'WelcomeView'
-data WelcomeAction
-  = -- | Click on "Single Player"
-    WelcomeSelectSinglePlayer
-  | -- | Select a team in Single Player mode
-    WelcomeSelectSinglePlayerTeam Team
-  | WelcomeStart
-  | -- | Click on "Multiplayer"
-    WelcomeSelectMultiPlayer
-  deriving (Show, Eq)
-
 data MultiPlayerLobbyAction
   = LobbyUpdateUsername MisoString
   | LobbySubmitUsername
@@ -124,6 +115,10 @@ data MultiPlayerLobbyAction
   | AcceptInvitationClicked
   | RejectInvitationClicked
   | LobbyServerMessage OutMessage
+  deriving (Show, Eq)
+
+data SinglePlayerLobbyAction
+  = LobbySelectTeam (Maybe Team)
   deriving (Show, Eq)
 
 -- | Actions that are raised by 'GameView'
@@ -156,14 +151,26 @@ data GameAction
     GameInPlaceMouseLeave PlayerSpot CardSpot
   deriving (Show, Eq)
 
+-- | To which page to go to, from the welcome page
+data WelcomeDestination
+  = MultiPlayerDestination
+  | SinglePlayerDestination
+  deriving (Eq, Show)
+
 -- | Sum type for application events. If drop stuff doesn't work
 -- | think whether it's affected by https://github.com/dmjio/miso/issues/478
 data Action
   = GameAction' GameAction
   | NoOp
-  | SayHelloWorld
-  | WelcomeAction' WelcomeAction
   | MultiPlayerLobbyAction' MultiPlayerLobbyAction
+  | SayHelloWorld
+  | SinglePlayerLobbyAction' SinglePlayerLobbyAction
+  | -- Leave 'SinglePlayerView', back to 'WelcomeView'
+    SinglePlayerBack
+  | -- Leave 'SinglePlayerView', start game
+    SinglePlayerGo
+  | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
+    WelcomeGo WelcomeDestination
   deriving (Show, Eq)
 
 logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a
@@ -286,16 +293,12 @@ updateGameModel m (GameInPlaceMouseLeave _ _) _ =
 updateGameModel m _ i =
   withInteraction m i
 
--- | Updates a 'WelcomeModel'
-updateWelcomeModel :: WelcomeAction -> WelcomeModel -> WelcomeModel
-updateWelcomeModel WelcomeSelectSinglePlayer m =
-  m {playingMode = SinglePlayer}
-updateWelcomeModel (WelcomeSelectSinglePlayerTeam team) m =
-  m {playingMode = SinglePlayerTeam team}
-updateWelcomeModel WelcomeSelectMultiPlayer _ =
-  error "WelcomeSelectMultiplayer action should be handled in updateModel"
-updateWelcomeModel WelcomeStart _ =
-  error "WelcomeStart action should be handled in updateModel"
+updateSinglePlayerLobbyModel ::
+  SinglePlayerLobbyAction ->
+  SinglePlayerLobbyModel ->
+  SinglePlayerLobbyModel
+updateSinglePlayerLobbyModel (LobbySelectTeam t) m =
+  m {singlePlayerLobbyTeam = t}
 
 -- | Updates a 'MultiPlayerLobbyModel'
 updateMultiPlayerLobbyModel :: MultiPlayerLobbyAction -> MultiPlayerLobbyModel -> Effect Action MultiPlayerLobbyModel
@@ -412,11 +415,26 @@ updateModel NoOp m = noEff m
 updateModel SayHelloWorld m =
   m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
 -- Actions that change the page
+-- Actions that leave 'SinglePlayerView'
 updateModel
-  (WelcomeAction' WelcomeStart)
+  SinglePlayerBack
+  m@(SinglePlayerLobbyModel' SinglePlayerLobbyModel {singlePlayerLobbyShared = shared}) =
+    noEff $ WelcomeModel' $ WelcomeModel shared
+updateModel
+  SinglePlayerGo
+  m@( SinglePlayerLobbyModel'
+        SinglePlayerLobbyModel
+          { singlePlayerLobbyTeam = Just team,
+            singlePlayerLobbyShared = shared
+          }
+      ) =
+    noEff $ GameModel' $ initialGameModel shared
+-- Actions that leave 'WelcomeView'
+updateModel
+  (WelcomeGo SinglePlayerDestination)
   m@(WelcomeModel' WelcomeModel {welcomeShared}) =
-    noEff $ GameModel' $ initialGameModel welcomeShared
-updateModel (WelcomeAction' WelcomeSelectMultiPlayer) (WelcomeModel' _) =
+    noEff $ SinglePlayerLobbyModel' $ SinglePlayerLobbyModel Nothing welcomeShared
+updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
   effectSub (MultiPlayerLobbyModel' (CollectingUserName "")) $
     websocketSub (URL "ws://127.0.0.1:9160") (Protocols []) handleWebSocket
   where
@@ -436,8 +454,8 @@ updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
     toSecs = 1000000
     check ((0, event) : _) = error $ "updateGameModel should not return event with 0 delay, but " ++ show event ++ " did"
     check as = as
-updateModel (WelcomeAction' a) (WelcomeModel' m) =
-  noEff $ WelcomeModel' $ updateWelcomeModel a m
+updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
+  noEff $ SinglePlayerLobbyModel' $ updateSinglePlayerLobbyModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
   MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
 updateModel a m =

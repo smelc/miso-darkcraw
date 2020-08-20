@@ -1,4 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -25,149 +24,56 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> Styled (View Action)
-viewWelcomeModel m@WelcomeModel {playingMode} = do
-  multiPlayerDiv <- multiPlayerDivM
-  singlePlayerDiv <- singlePlayerDivM
+viewWelcomeModel _ = do
+  multiPlayerDiv <-
+    createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
+  singlePlayerDiv <-
+    createButtonDivM singlePlayerMargin SinglePlayerDestination "Single Player"
   return $
     div_
-      [style_ style]
+      [style_ bgStyle]
       [ torchesDiv zpp, -- Absolute placement
-        multiPlayerDiv, -- Absolute placement
         div_
           [style_ flexColumnStyle]
-          [titleDiv, singlePlayerDiv]
+          -- top level flex, layout things in a column
+          [titleDiv, singlePlayerDiv, multiPlayerDiv]
       ]
   where
     (z, zpp) = (0, z + 1)
-    style =
-      zpltwh z Relative 0 0 welcomePixelWidth welcomePixelHeight
+    bgStyle =
+      zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "welcome.png"
-    -- The top level flex, layout things in a column
     textStyle = Map.fromList textRawStyle
     titleDiv = div_ [style_ titleStyle] [text gameTitle]
-    titleFontSize = cellPixelSize + (cellPixelSize `div` 2)
     titleStyle =
       textStyle
         <> "font-size" =: px titleFontSize
         <> "z-index" =: ms zpp
-        <> "margin-top" =: px cellPixelSize
+        <> "margin-top" =: px (cps * 2)
+    singlePlayerMargin = "margin-top" =: "96px"
+    multiPlayerMargin = "margin-top" =: "300px"
+    buttonTextStyle =
+      textStyle
+        <> "font-size" =: px subtitleFontSize
+        <> "z-index" =: ms zpp
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "choose your team -> start"]
-    singlePlayerDivM = do
-      singlePlayerButtonDiv <- singlePlayerButtonDivM
-      selectTeam <- selectTeamDiv zpp playingMode
-      return $
-        div_
-          [ style_ $
-              flexLineStyle
-                <> "justify-content" =: "center"
-                <> "width" =: px welcomePixelWidth
-                <> "margin-top" =: px cps
-          ]
-          [singlePlayerButtonDiv, selectTeam]
-    playingModeFontSize = px $ (cps + titleFontSize) `div` 3
-    singlePlayerButtonDivM = do
-      button <- singlePlayerButton
-      return $ div_ [style_ $ marginhv cps 0] [button]
-    singlePlayerButton =
+    createButtonDivM customStyle dest text =
       textButton
         gui
         zpp
-        singlePlayerEnabled
-        [ style_ $ textStyle <> "font-size" =: playingModeFontSize,
-          onClick $ WelcomeAction' WelcomeSelectSinglePlayer
+        Enabled
+        [ style_ buttonTextStyle,
+          style_ customStyle,
+          onClick $ WelcomeGo dest
         ]
-        "Single Player"
-    singlePlayerEnabled =
-      if playingMode == NoPlayingMode then Enabled else Disabled
-    multiPlayerDivM = do
-      multiPlayerButton <- multiPlayerButtonM
-      return $
-        div_
-          [ style_ $
-              zplt zpp Absolute 0 275
-                <> flexLineStyle
-                <> "justify-content" =: "center"
-                <> "width" =: px welcomePixelWidth
-          ]
-          [multiPlayerButton]
-    multiPlayerButtonM =
-      textButton gui zpp multiPlayerEnabled multiPlayerAttrs "Multiplayer"
-    multiPlayerAttrs =
-      [ style_ $
-          textStyle
-            <> marginhv 0 200
-            <> "font-size" =: playingModeFontSize,
-        onClick $ WelcomeAction' WelcomeSelectMultiPlayer
-      ]
-    multiPlayerEnabled =
-      if playingMode == NoPlayingMode then Enabled else Disabled
-
-selectTeamDiv :: Int -> PlayingMode -> Styled (View Action)
-selectTeamDiv z playingMode = do
-  startButtonDiv <- startButtonDivM
-  teamButtons <- sequence [teamButton z playingMode t | t <- allTeams]
-  return $
-    div_
-      [style_ flexLineStyle]
-      [ div_
-          [style_ flexColumnStyle]
-          ( stytextztrbl z "Choose your team" 0 0 (cps `div` 2) 0
-              : teamButtons
-          ),
-        startButtonDiv
-      ]
-  where
-    startButtonDivM =
-      textButton
-        gui
-        z
-        (if teamSelected then Enabled else Disabled)
-        ( style_ (marginhv cps 0)
-            : [onClick $ WelcomeAction' WelcomeStart | teamSelected]
-        )
-        "Start"
-    teamSelected =
-      case playingMode of
-        SinglePlayerTeam t -> True
-        _ -> False
-
-teamButton ::
-  -- The z index
-  Int ->
-  PlayingMode ->
-  -- The team for which to build the button
-  Team ->
-  Styled (View Action)
-teamButton z playingMode team = do
-  button <- anyButton gui z bState builder
-  return $ marginifyhv 2 4 $ button
-  where
-    (bState, action) =
-      case playingMode of
-        NoPlayingMode -> (Disabled, WelcomeSelectSinglePlayerTeam team)
-        MultiPlayer -> (Disabled, WelcomeSelectSinglePlayerTeam team)
-        SinglePlayer -> (Enabled, WelcomeSelectSinglePlayerTeam team)
-        SinglePlayerTeam t
-          | t == team ->
-            (Selected, WelcomeSelectSinglePlayer) -- toggle
-        SinglePlayerTeam _ -> (Disabled, WelcomeSelectSinglePlayerTeam team)
-    tile Human = "24x24_3_0.png"
-    tile Undead = "24x24_1_1.png"
-    textAndTile =
-      [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
-        img_' $ tile team -- tile
-      ]
-    onClickAction = WelcomeAction' action
-    builder x =
-      div_
-        ([style_ flexLineStyle, onClick onClickAction] ++ x)
-        $ map (marginifyhv 2 2) textAndTile
+        text
 
 torchesDiv :: Int -> View Action
 torchesDiv z =
   div_
     []
+    -- TODO lift this style to the top with the Writer
     [ nodeHtml
         "style"
         []

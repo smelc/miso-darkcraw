@@ -76,10 +76,10 @@ main = hspec $ do
       all (\c -> hp c > 0) allCreatures
     it "all attacks are initially >= 0" $
       all (\c -> attack c >= 0) allCreatures
-    it "welcome and board backgrounds agree in width" $
-      boardPixelWidth `shouldBe` welcomePixelWidth
-    it "welcome and board backgrounds agree in height" $
-      boardPixelHeight `shouldBe` welcomePixelHeight
+    it "lobbies and board backgrounds agree in width" $
+      boardPixelWidth `shouldBe` lobbiesPixelWidth
+    it "lobbies and board backgrounds agree in height" $
+      boardPixelHeight `shouldBe` lobbiesPixelHeight
   describe "exactly all spots are used" $ it "attackOrder" $
     all
       (\pSpot -> length allCardsSpots == length (attackOrder pSpot))

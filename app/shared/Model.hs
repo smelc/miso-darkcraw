@@ -90,8 +90,15 @@ data PlayingMode
 -- | The model of the welcome page
 data WelcomeModel = WelcomeModel
   { -- | Part of the model shared among all pages
-    welcomeShared :: SharedModel,
-    playingMode :: PlayingMode
+    welcomeShared :: SharedModel
+  }
+  deriving (Eq, Generic, Show)
+
+data SinglePlayerLobbyModel = SinglePlayerLobbyModel
+  { -- | The chosen team
+    singlePlayerLobbyTeam :: Maybe Team,
+    -- | Part of the model shared among all pages
+    singlePlayerLobbyShared :: SharedModel
   }
   deriving (Eq, Generic, Show)
 
@@ -126,6 +133,7 @@ data InvitedState
 -- | of the model of each page
 data Model
   = GameModel' GameModel
+  | SinglePlayerLobbyModel' SinglePlayerLobbyModel
   | WelcomeModel' WelcomeModel
   | MultiPlayerLobbyModel' MultiPlayerLobbyModel
   deriving (Eq, Generic, Show)

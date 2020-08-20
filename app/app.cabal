@@ -66,6 +66,7 @@ executable app
     GameView
     GameViewInternal
     MultiPlayerLobbyView
+    SinglePlayerLobbyView
     View
     ViewBlocks
     ViewInternal

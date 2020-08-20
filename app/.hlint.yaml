@@ -7,6 +7,7 @@
 
 
 # Warnings currently triggered by your code
+- ignore: {name: "Eta reduce"}
 - ignore: {name: "Move guards forward"}
 - ignore: {name: "Use :"} # Do not suggest to replace [hd] ++ tail by hd : tail
 - ignore: {name: "Use first"}
