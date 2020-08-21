@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
+# Script to publish the game to schplaf.org/hgames/darkcraw
 
 set -eux
 
@@ -12,8 +13,14 @@ declare -r ARCHIVE_PATH="/tmp/$ARCHIVE_NAME"
 declare -r TMP_PATH="/tmp/app.jsexe"
 rm -Rf "$TMP_PATH"
 cp -R "app/result-2/bin/app.jsexe" "$TMP_PATH"
+
 # Fix permissions, because everything is readonly in the nix store
+chmod +w "$TMP_PATH"
 find "$TMP_PATH" -name \* -exec chmod +w {} \;
+
+# Record version
+git rev-parse HEAD > "$TMP_PATH/VERSION" || { echo "Cannot record version"; exit 1; }
+
 (cd "$TMP_PATH" && tar -czf "$ARCHIVE_PATH" *)
 rm -Rf "$TMP_PATH"
 
