@@ -38,6 +38,7 @@ common client-server-shared
     mtl,
     random,
     text,
+    th-env,
     tree-diff
   ghc-options:
     -Wincomplete-patterns
@@ -63,6 +64,8 @@ executable app
   main-is:
     Main.hs
   other-modules:
+    Custom
+    Flavor
     GameView
     GameViewInternal
     MultiPlayerLobbyView

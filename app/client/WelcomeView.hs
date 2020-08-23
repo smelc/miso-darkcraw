@@ -11,9 +11,11 @@ module WelcomeView (viewWelcomeModel) where
 import Card (Team (..), allTeams, ppTeam)
 import Constants
 import Control.Lens
+import Custom (pcwLocation)
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust)
+import Flavor
 import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
@@ -56,13 +58,17 @@ viewWelcomeModel _ = do
       textStyle
         <> "font-size" =: px subtitleFontSize
         <> "z-index" =: ms zpp
+    multiplayerEnabled =
+      case configuration pcwLocation of
+        Configuration _ Itch -> False
+        _ -> True
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "choose your team -> start"]
     createButtonDivM customStyle dest text =
       textButton
         gui
         zpp
-        Enabled
+        (if multiplayerEnabled then Enabled else Disabled)
         [ style_ buttonTextStyle,
           style_ customStyle,
           onClick $ WelcomeGo dest

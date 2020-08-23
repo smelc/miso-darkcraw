@@ -2,17 +2,19 @@
 #
 # Script to publish the game to https://hgames.itch.io/pixel-card-wars
 
-if [[ ! $(command -v butler) ]]; then
-  echo "You need butler installed to execute this script: https://itch.io/docs/butler/"
-  exit 1
-fi
-
 rm -Rf "$TMP_PATH"  # Erase previous run if any
 
 # Compile
-export PCW_FLAVOR="itch"
+export PCW_LOCATION="itch"
 (cd app && rm -Rf .ghc.environment.* -Rf && nix-build) || { echo "compilation failed"; exit 1; }
-unset PCW_FLAVOR
+unset PCW_LOCATION
+
+[[ "$1" != "--no-push" ]] || { echo "--no-push spcecified: exiting"; exit 0; }
+
+if [[ ! $(command -v butler) ]]; then
+  echo "You need butler installed: https://itch.io/docs/butler/"
+  exit 1
+fi
 
 # Copy nix's result to /tmp
 declare -r ARCHIVE_NAME="pixel-card-wars.zip"
