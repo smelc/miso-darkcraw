@@ -5,12 +5,17 @@ data Edition
     Vanilla
   | -- 4 races
     Legendary
+  deriving (Show)
 
 data Location
-  -- Dev version
-  = Dev
-  --- Version released on https://hgames.itch.io/pixel-card-wars
-  | Itch
+  = -- | Dev version: https://www.schplaf.org/hgames/darkcraw/
+    -- | This version is pushed regularly by @smelc
+    Dev
+  | -- | Version released on https://hgames.itch.io/pixel-card-wars
+    -- | This version is pushed when relevant by @smelc (where there's a devlog
+    -- | with it usually)
+    Itch
+  deriving (Show)
 
 data Configuration = Configuration Edition Location
 

@@ -35,6 +35,7 @@ viewWelcomeModel _ = do
     div_
       [style_ bgStyle]
       [ torchesDiv zpp, -- Absolute placement
+        versionDiv zpp config, -- Absolute placement
         div_
           [style_ flexColumnStyle]
           -- top level flex, layout things in a column
@@ -52,14 +53,15 @@ viewWelcomeModel _ = do
         <> "font-size" =: px titleFontSize
         <> "z-index" =: ms zpp
         <> "margin-top" =: px (cps * 2)
-    singlePlayerMargin = "margin-top" =: "96px"
-    multiPlayerMargin = "margin-top" =: "300px"
+    singlePlayerMargin = "margin-top" =: px (cps * 4)
+    multiPlayerMargin = "margin-top" =: px (cps * 11)
     buttonTextStyle =
       textStyle
         <> "font-size" =: px subtitleFontSize
         <> "z-index" =: ms zpp
+    config = configuration pcwLocation
     multiplayerEnabled =
-      case configuration pcwLocation of
+      case config of
         Configuration _ Itch -> False
         _ -> True
     -- A flex right below the top level, layout things in a line
@@ -94,3 +96,16 @@ torchesDiv z =
         <> "background-image" =: assetsUrl "torchs.png"
         <> "animation" =: ("torch " <> duration x <> " steps(2) infinite")
     duration x = if x then "2s" else "2.5s"
+
+versionDiv :: Int -> Configuration -> View Action
+versionDiv z (Configuration edition location) =
+  div_
+    [style_ $ style <> textStyle]
+    [text $ ms $ "Version: " ++ showLocation location ++ ", " ++ show edition]
+  where
+    textStyle = Map.fromList textRawStyle
+    showLocation Dev = "dev"
+    showLocation Itch = "Itch"
+    x = cps
+    y = lobbiesPixelHeight - cps
+    style = zplt z Absolute x y
