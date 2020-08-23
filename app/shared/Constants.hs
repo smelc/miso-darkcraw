@@ -11,6 +11,9 @@ assetsDir = "assets"
 assetFilenameBeigeBG :: MisoString
 assetFilenameBeigeBG = "24x24_0_2.png"
 
+assetFilenameCrown :: MisoString
+assetFilenameCrown = "16x16_0_1.png"
+
 assetFilenameHeart :: MisoString
 assetFilenameHeart = "16x16_0_0.png"
 

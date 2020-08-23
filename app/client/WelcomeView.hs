@@ -100,12 +100,18 @@ torchesDiv z =
 versionDiv :: Int -> Configuration -> View Action
 versionDiv z (Configuration edition location) =
   div_
-    [style_ $ style <> textStyle]
-    [text $ ms $ "Version: " ++ showLocation location ++ ", " ++ show edition]
+    [style_ $ style <> textStyle, style_ flexLineStyle]
+    $ [text $ ms txt]
+      ++ [img_ [src_ (assetsPath assetFilenameCrown)] | legendary]
   where
+    txt = "Version: " ++ showLocation location ++ ", " ++ show edition
     textStyle = Map.fromList textRawStyle
     showLocation Dev = "dev"
     showLocation Itch = "Itch"
+    legendary =
+      case edition of
+        Legendary -> True
+        Vanilla -> False
     x = cps
     y = lobbiesPixelHeight - cps
     style = zplt z Absolute x y
