@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 -- |
@@ -7,8 +8,12 @@
 module Custom where
 
 import Data.Maybe
+import Debug.Trace (trace)
 import Language.Haskell.TH.Env
 
 -- | The value of the PCW_LOCATION environment variable if any
 pcwLocation :: Maybe String
-pcwLocation = $$(envQ "PCW_LOCATION")
+pcwLocation =
+  trace ("PCW_LOCATION is " ++ show r) r
+  where
+    r :: Maybe String = $$(envQ "PCW_LOCATION")

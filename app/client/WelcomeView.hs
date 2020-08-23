@@ -70,12 +70,16 @@ viewWelcomeModel _ = do
       textButton
         gui
         zpp
-        (if multiplayerEnabled then Enabled else Disabled)
-        [ style_ buttonTextStyle,
-          style_ customStyle,
-          onClick $ WelcomeGo dest
-        ]
+        (if enabled then Enabled else Disabled)
+        ( [style_ buttonTextStyle, style_ customStyle]
+            ++ [onClick $ WelcomeGo dest | enabled]
+        )
         text
+      where
+        enabled =
+          case dest of
+            SinglePlayerDestination -> True
+            MultiPlayerDestination -> multiplayerEnabled
 
 torchesDiv :: Int -> View Action
 torchesDiv z =
