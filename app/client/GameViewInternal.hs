@@ -77,19 +77,17 @@ turnView model@GameModel {turn} z = do
   return $ div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
   where
     turnViewStyle =
-      Map.union (zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight)
-        $ Map.union flexColumnStyle
-        $ Map.fromList
-          [ ("justify-content", "center"),
-            ("background-image", assetsUrl "turn.png")
-          ]
+      zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight
+        <> flexColumnStyle
+        <> "justify-content" =: "center"
+        <> "background-image" =: assetsUrl "turn.png"
     line1 :: View Action = text $ "Turn " <> ms (turnToInt turn)
     playerImgY =
       case turnToPlayerSpot turn of
         PlayerTop -> "1"
         PlayerBottom -> "2"
     topMargin = cellPixelSize `div` 2
-    topMarginAttr = style_ $ Map.singleton "margin-top" $ ms topMargin <> "px"
+    topMarginAttr = style_ $ "margin-top" =: px topMargin
     line2 :: View Action =
       div_
         [topMarginAttr]

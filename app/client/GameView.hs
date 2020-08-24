@@ -46,16 +46,14 @@ viewGameModel model@GameModel {board, interaction} = do
       boardCards <- boardCardsM
       return $ div_ [style_ boardStyle] $ turn : boardCards
     boardStyle =
-      Map.union (zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight) $
-        Map.fromList
-          [("background-image", assetsUrl "forest.png")]
+      zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
+        <> "background-image" =: assetsUrl "forest.png"
     handDivM = do
       cells <- boardToInHandCells zpp model
       return $ div_ [style_ handStyle] cells
     handStyle =
-      Map.union (zpltwh z Relative 0 0 handPixelWidth handPixelHeight) $
-        Map.fromList
-          [("background-image", assetsUrl "forest-hand.png")]
+      zpltwh z Relative 0 0 handPixelWidth handPixelHeight
+        <> "background-image" =: assetsUrl "forest-hand.png"
 
 boardToInPlaceCells ::
   -- | The z index
@@ -71,7 +69,7 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} = do
     mainM =
       sequence
         [ div_
-            ( [ style_ $ Map.fromList bounceStyle <> cardPositionStyle x y,
+            ( [ style_ $ Map.fromList bounceStyle <> cardPositionStyle x y, -- Absolute positioning
                 class_ "card",
                 cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
               ]

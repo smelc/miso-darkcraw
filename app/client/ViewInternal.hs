@@ -247,12 +247,10 @@ tilezprb z pos right bot =
 -- | the left margin (in pixels), and the top margin (in pixels)
 zplt :: Int -> Position -> Int -> Int -> Map.Map MisoString MisoString
 zplt z pos left top =
-  Map.fromList
-    [ ("z-index", ms z),
-      ("position", ms $ show pos),
-      ("left", ms left <> "px"),
-      ("top", ms top <> "px")
-    ]
+  "z-index" =: ms z
+    <> "position" =: ms (show pos)
+    <> "left" =: px left
+    <> "top" =: px top
 
 -- | A style specifying the position, the top margin,
 -- | the left margin, the width, and the height. All sizes are in pixels
