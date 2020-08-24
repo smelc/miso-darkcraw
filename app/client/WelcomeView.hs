@@ -11,11 +11,10 @@ module WelcomeView (viewWelcomeModel) where
 import Card (Team (..), allTeams, ppTeam)
 import Constants
 import Control.Lens
-import Custom (pcwLocation)
+import Configuration
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust)
-import Flavor
 import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
@@ -35,7 +34,7 @@ viewWelcomeModel _ = do
     div_
       [style_ bgStyle]
       [ torchesDiv zpp, -- Absolute placement
-        versionDiv zpp config, -- Absolute placement
+        versionDiv zpp configuration, -- Absolute placement
         div_
           [style_ flexColumnStyle]
           -- top level flex, layout things in a column
@@ -59,9 +58,8 @@ viewWelcomeModel _ = do
       textStyle
         <> "font-size" =: px subtitleFontSize
         <> "z-index" =: ms zpp
-    config = configuration pcwLocation
     multiplayerEnabled =
-      case config of
+      case configuration of
         Configuration _ Itch -> False
         _ -> True
     -- A flex right below the top level, layout things in a line

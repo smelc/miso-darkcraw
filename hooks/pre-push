@@ -6,13 +6,13 @@ set -eux
 
 [[ "$USER" == "churlin" ]] || { echo "You should be churlin to do that"; exit 1; }
 
-(cd app && rm -Rf .ghc.environment.* -Rf && nix-build)
+(cd app && rm -Rf .ghc.environment.* -Rf && nix-build -A release)
 
 declare -r ARCHIVE_NAME="darkcraw.tgz"
 declare -r ARCHIVE_PATH="/tmp/$ARCHIVE_NAME"
 declare -r TMP_PATH="/tmp/app.jsexe"
 rm -Rf "$TMP_PATH"
-cp -R "app/result-2/bin/app.jsexe" "$TMP_PATH"
+cp -R "app/result/bin/app.jsexe" "$TMP_PATH"
 
 # Fix permissions, because everything is readonly in the nix store
 chmod +w "$TMP_PATH"

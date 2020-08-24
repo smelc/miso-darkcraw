@@ -1,4 +1,4 @@
-module Flavor where
+module Configuration where
 
 data Edition
   = -- 2 races
@@ -19,8 +19,6 @@ data Location
 
 data Configuration = Configuration Edition Location
 
--- | Given the value of PCW_LOCATION, the configuration
-configuration :: Maybe String -> Configuration
-configuration Nothing = Configuration Legendary Dev
-configuration (Just "itch") = Configuration Legendary Itch
-configuration (Just s) = error $ "Unrecognized PCW_LOCATION: " ++ s
+-- | The current configuration
+configuration :: Configuration
+configuration = Configuration Legendary Dev

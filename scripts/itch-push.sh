@@ -5,9 +5,9 @@
 rm -Rf "$TMP_PATH"  # Erase previous run if any
 
 # Compile
-export PCW_LOCATION="itch"
-(cd app && rm -Rf .ghc.environment.* -Rf && nix-build) || { echo "compilation failed"; exit 1; }
-unset PCW_LOCATION
+./scripts/change-config.sh "Legendary" "Itch" || { echo "change-config.sh failed"; exit 1; }
+(cd app && rm -Rf .ghc.environment.* -Rf && nix-build -A release) || { echo "compilation failed"; exit 1; }
+git checkout "app/client/Configuration.hs"
 
 [[ "$1" != "--no-push" ]] || { echo "--no-push spcecified: exiting"; exit 0; }
 
@@ -20,7 +20,7 @@ fi
 declare -r ARCHIVE_NAME="pixel-card-wars.zip"
 declare -r TMP_PATH="/tmp/app.jsexe"
 declare -r ARCHIVE_PATH="${TMP_PATH}/${ARCHIVE_NAME}"
-cp -R "app/result-2/bin/app.jsexe" "$TMP_PATH"
+cp -R "app/result/bin/app.jsexe" "$TMP_PATH"
 
 # Fix permissions, because everything is readonly in the nix store
 chmod +w "$TMP_PATH"
