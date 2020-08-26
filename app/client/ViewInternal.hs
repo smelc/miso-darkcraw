@@ -292,12 +292,12 @@ zprb ::
   Int ->
   Int ->
   Map.Map MisoString MisoString
-zprb z pos left top =
+zprb z pos right bot =
   Map.fromList
     [ ("z-index", ms z),
       ("position", ms $ show pos),
-      ("right", ms top <> "px"),
-      ("bottom", ms left <> "px")
+      ("right", ms right <> "px"),
+      ("bottom", ms bot <> "px")
     ]
 
 -- | A style specifying the z-index, the position, the right margin,

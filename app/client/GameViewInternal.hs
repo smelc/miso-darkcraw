@@ -156,13 +156,14 @@ turnView model@GameModel {turn} z = do
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> Styled (View Action)
 stackView model@GameModel {board, playingPlayer} z = do
-  button <- textButton gui z Enabled [] $ ms stackSize
+  button <- textButton gui z Enabled [] $ ms ("Stack: " ++ show stackSize)
   return $ div_ [positionStyle] [button]
   where
-    off = cellPixelSize `div` 2
+    xoff = cps * 4
+    yoff = cps `div` 2
     positionStyle =
       style_ $
-        zprb z Absolute off off
+        zprb z Absolute xoff yoff
     pLens = spotToLens playingPlayer
     stackSize = board ^. pLens . #stack & length
 
