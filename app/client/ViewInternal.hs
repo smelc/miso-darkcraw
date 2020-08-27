@@ -6,7 +6,9 @@
 
 -- |
 -- This module contains generic things to be used in *View.hs
--- and *ViewInternal.hs files.
+-- and *ViewInternal.hs files. If you wanna add stuff really specific
+-- to the game and that is used among various *View.hs files, put it
+-- in 'PCWViewInternal.hs'
 -- |
 module ViewInternal where
 
@@ -87,6 +89,10 @@ textMainColor = "#FFFFFF" -- white
 -- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textRawStyle :: [(MisoString, MisoString)]
 textRawStyle = [("color", textMainColor)]
+
+-- TODO smelc carry me over with a monad (or with ViewBlocks?)
+textStyle :: Map.Map MisoString MisoString
+textStyle = Map.fromList textRawStyle
 
 -- | Dummy [onWithOptions] instance.
 -- | See https://github.com/dmjio/miso/issues/478

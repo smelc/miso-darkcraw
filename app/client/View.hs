@@ -4,6 +4,7 @@
 -- |
 module View where
 
+import DeckView (viewDeck)
 import GameView (viewGameModel)
 import Miso
 import Model (Model (..))
@@ -14,6 +15,7 @@ import ViewInternal (renderStyledView)
 import WelcomeView (viewWelcomeModel)
 
 viewModel :: Model -> View Action
+viewModel (DeckModel' model) = renderStyledView $ viewDeck model
 viewModel (GameModel' model) = renderStyledView $ viewGameModel model
 viewModel (WelcomeModel' model) = renderStyledView $ viewWelcomeModel model
 viewModel (MultiPlayerLobbyModel' model) = viewMultiPlayerLobbyModel model

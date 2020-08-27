@@ -5,6 +5,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
@@ -103,6 +104,8 @@ instance ToExpr InvitationState
 
 instance ToExpr InvitedState
 
+instance ToExpr DeckModel
+
 instance ToExpr Model
 
 -- FIXME smelc move Action* to its own file (to avoid cycles later on)
@@ -157,10 +160,16 @@ data WelcomeDestination
   | SinglePlayerDestination
   deriving (Eq, Show)
 
+type DeckViewInput = [Card Core]
+
 -- | Sum type for application events. If drop stuff doesn't work
 -- | think whether it's affected by https://github.com/dmjio/miso/issues/478
 data Action
-  = GameAction' GameAction
+  = -- | Leave 'DeckView', go to another view
+    DeckBack
+  | -- | Leave a view, go to 'DeckView'
+    DeckGo DeckViewInput
+  | GameAction' GameAction
   | NoOp
   | MultiPlayerLobbyAction' MultiPlayerLobbyAction
   | SayHelloWorld
@@ -415,11 +424,17 @@ updateModel NoOp m = noEff m
 updateModel SayHelloWorld m =
   m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
 -- Actions that change the page
+-- Leave 'DeckView'
+updateModel DeckBack m@(DeckModel' DeckModel {..}) =
+  noEff deckBack
+-- Leave 'GameView', go to 'DeckView'
+updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
+  noEff $ DeckModel' $ DeckModel deck m gameShared
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack
-  m@(SinglePlayerLobbyModel' SinglePlayerLobbyModel {singlePlayerLobbyShared = shared}) =
-    noEff $ WelcomeModel' $ WelcomeModel shared
+  m@(SinglePlayerLobbyModel' SinglePlayerLobbyModel {..}) =
+    noEff $ WelcomeModel' $ WelcomeModel singlePlayerLobbyShared
 updateModel
   SinglePlayerGo
   m@( SinglePlayerLobbyModel'

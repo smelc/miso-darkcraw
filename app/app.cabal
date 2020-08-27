@@ -64,9 +64,11 @@ executable app
     Main.hs
   other-modules:
     Configuration
+    DeckView
     GameView
     GameViewInternal
     MultiPlayerLobbyView
+    PCWViewInternal
     SinglePlayerLobbyView
     View
     ViewBlocks

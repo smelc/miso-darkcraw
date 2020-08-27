@@ -28,6 +28,7 @@ import GameViewInternal
 import Miso hiding (at)
 import Miso.String
 import Model -- XXX tighten the imports?
+import PCWViewInternal (cardBoxShadowStyle, cardPositionStyle, cardPositionStyle')
 import Update
 import Utils (style1_)
 import ViewInternal
@@ -206,6 +207,7 @@ handCell =
 imgCell :: MisoString -> View Action
 imgCell filename = img_ [src_ $ assetsPath filename, noDrag]
 
+-- TODO smelc move to PCWViewInternal, for DeckView
 cardCreature ::
   -- | The z index
   Int ->
@@ -247,6 +249,7 @@ cardCreature z creature hover =
       where
         c = fromJust creature
 
+-- TODO smelc move to PCWViewInternal, for DeckView
 cardBackground ::
   -- | The z index
   Int ->

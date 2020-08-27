@@ -12,9 +12,6 @@
 -- |
 module GameViewInternal
   ( borderWidth,
-    cardBoxShadowStyle,
-    cardPositionStyle,
-    cardPositionStyle',
     deathFadeout,
     errView,
     heartWobble,
@@ -100,7 +97,7 @@ scoreView GameModel {board} z pSpot =
           -- Center horizontally
           <> "margin-left" =: "50%"
           <> "margin-right" =: "50%"
-          -- And tell the elemnt to center horizontally, not to its left
+          -- And tell the element to center horizontally, not to its left
           <> "transform" =: "translate(-50%, 0%)"
           -- Finally shift element down
           <> "margin-top" =: px (scoreMarginTop pSpot)
@@ -125,7 +122,7 @@ scoreLeaderView pSpot =
 turnView :: GameModel -> Int -> Styled (View Action)
 turnView model@GameModel {turn} z = do
   line3 <- line3M
-  return $ div_ [style_ turnViewStyle, textStyle] [line1, line2, line3]
+  return $ div_ [style_ $ turnViewStyle <> textStyle] [line1, line2, line3]
   where
     turnViewStyle =
       zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight
@@ -155,9 +152,9 @@ turnView model@GameModel {turn} z = do
 
 -- | The widget showing the number of cards in the stack
 stackView :: GameModel -> Int -> Styled (View Action)
-stackView model@GameModel {board, playingPlayer} z = do
+stackView m@GameModel {board, playingPlayer} z = do
   button <- textButton gui z Enabled [] $ ms ("Stack: " ++ show stackSize)
-  return $ div_ [positionStyle] [button]
+  return $ div_ [positionStyle, onClick $ DeckGo deck] [button]
   where
     xoff = cps * 4
     yoff = cps `div` 2
@@ -165,7 +162,8 @@ stackView model@GameModel {board, playingPlayer} z = do
       style_ $
         zprb z Absolute xoff yoff
     pLens = spotToLens playingPlayer
-    stackSize = board ^. pLens . #stack & length
+    deck = board ^. pLens . #stack
+    stackSize = length deck
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
@@ -194,46 +192,6 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
     emptyPlayingPlayerSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
-
-textStyle :: Attribute action
-textStyle = style_ $ Map.fromList textRawStyle
-
-cardPositionStyle ::
-  -- | The horizontal offset from the enclosing container, in number of cells
-  Int ->
-  -- | The vertical offset from the enclosing container, in number of cells
-  Int ->
-  Map.Map MisoString MisoString
-cardPositionStyle xCellsOffset yCellsOffset =
-  cardPositionStyle'
-    (xCellsOffset * cellPixelSize)
-    (yCellsOffset * cellPixelSize)
-
-cardPositionStyle' ::
-  -- | The horizontal offset from the enclosing container, in pixels
-  Int ->
-  -- | The vertical offset from the enclosing container, in pixels
-  Int ->
-  Map.Map MisoString MisoString
-cardPositionStyle' xPixelsOffset yPixelsOffset =
-  pltwh Absolute xPixelsOffset yPixelsOffset cardPixelWidth cardPixelHeight
-
-cardBoxShadowStyle ::
-  -- | The (r, g, b) of the border
-  (Int, Int, Int) ->
-  -- | The width of the border
-  Int ->
-  -- | The timing-function of the transition
-  MisoString ->
-  Attribute a
-cardBoxShadowStyle (r, g, b) width timingFunction =
-  style_ $
-    Map.fromList
-      [ ("box-shadow", "0 0 0 " <> ms width <> "px " <> rgba r g b),
-        ("transition", "box-shadow"),
-        ("transition-duration", "0.15s"),
-        ("transition-timing-function", timingFunction)
-      ]
 
 deathFadeout :: AttackEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae x y =

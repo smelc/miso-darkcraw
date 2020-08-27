@@ -29,17 +29,25 @@ assetsPath filename = assetsDir <> "/" <> filename
 assetsUrl :: MisoString -> MisoString
 assetsUrl filename = "url(" <> assetsPath filename <> ")"
 
+-- | The number of vertical cells in a board
+boardCellHeight :: Int
+boardCellHeight = 26
+
+-- | The number of horizontal cells in a board
+boardCellWidth :: Int
+boardCellWidth = 21
+
 -- | The number of cells from the left of the board to leftmost cards
 boardToLeftCardCellsOffset :: Int
 boardToLeftCardCellsOffset = 5
 
 -- | The board's width, in pixels
 boardPixelWidth :: Int
-boardPixelWidth = 504
+boardPixelWidth = boardCellWidth * cps
 
 -- | The board's height , in pixels
 boardPixelHeight :: Int
-boardPixelHeight = 624
+boardPixelHeight = boardCellHeight * cps
 
 -- | The size of borders around cards
 borderSize :: Int

@@ -129,10 +129,22 @@ data InvitedState
   | WaitingForAcceptanceAck
   deriving (Eq, Generic, Show)
 
+data DeckModel = DeckModel
+  {
+    -- | The deck to show
+    deck :: [Card Core],
+    -- | The model to use when closing the deck view
+    deckBack :: Model,
+    -- | Part of the model shared among all pages
+    deckShared :: SharedModel
+  }
+  deriving (Eq, Generic, Show)
+
 -- | The top level model, later it will be a disjunction
 -- | of the model of each page
 data Model
-  = GameModel' GameModel
+  = DeckModel' DeckModel
+  | GameModel' GameModel
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel
   | WelcomeModel' WelcomeModel
   | MultiPlayerLobbyModel' MultiPlayerLobbyModel

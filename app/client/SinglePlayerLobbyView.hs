@@ -41,7 +41,6 @@ viewSinglePlayerLobbyModel m@SinglePlayerLobbyModel {singlePlayerLobbyTeam = may
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "singleplayer.png"
     -- The top level flex, layout things in a column
-    textStyle = Map.fromList textRawStyle
     titleDiv = div_ [style_ titleStyle] [text "Single Player"]
     titleStyle =
       textStyle
