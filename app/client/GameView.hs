@@ -28,7 +28,7 @@ import GameViewInternal
 import Miso hiding (at)
 import Miso.String
 import Model -- XXX tighten the imports?
-import PCWViewInternal (cardBoxShadowStyle, cardPositionStyle, cardPositionStyle')
+import PCWViewInternal (cardCreature, cardBoxShadowStyle, cardPositionStyle, cardPositionStyle')
 import Update
 import Utils (style1_)
 import ViewInternal
@@ -203,72 +203,3 @@ handCell =
       src_ $ assetsPath "forest-hand.png",
       noDrag
     ]
-
-imgCell :: MisoString -> View Action
-imgCell filename = img_ [src_ $ assetsPath filename, noDrag]
-
--- TODO smelc move to PCWViewInternal, for DeckView
-cardCreature ::
-  -- | The z index
-  Int ->
-  -- | Whether a card should be drawn or solely a placeholder for drag target
-  Maybe (Creature Core) ->
-  -- | Whether this card is being hovered
-  Bool ->
-  View Action
-cardCreature z creature hover =
-  div_
-    []
-    $ [div_ [style_ pictureStyle] [pictureCell] | not placeholder]
-      ++ [div_ [style_ statsStyle] [statsCell] | not placeholder]
-      ++ [cardBackground z hover]
-  where
-    placeholder = isNothing creature
-    topMargin = cellPixelSize `div` 4
-    pictureStyle =
-      zplt (z + 1) Absolute ((cardPixelWidth - cellPixelSize) `div` 2) topMargin
-    pictureCell :: View Action = imgCell $ ms $ filename $ fromJust creature
-    statsStyle = zpltwh (z + 1) Absolute topMargin top width cellPixelSize
-      where
-        width = cardPixelWidth - (topMargin * 2)
-        top = topMargin + cellPixelSize + topMargin
-    inStatsStyle =
-      Map.union flexLineStyle $
-        Map.fromList
-          [ ("font-size", ms (cellPixelSize `div` 2) <> "px"),
-            ("font-family", "serif")
-          ]
-    statsCell :: View Action =
-      div_
-        [style_ inStatsStyle]
-        [ text $ ms $ hp c,
-          imgCell assetFilenameHeart,
-          text $ ms $ attack c,
-          imgCell assetFilenameSword
-        ]
-      where
-        c = fromJust creature
-
--- TODO smelc move to PCWViewInternal, for DeckView
-cardBackground ::
-  -- | The z index
-  Int ->
-  -- | Whether the card is being hovered
-  Bool ->
-  View Action
-cardBackground z hover =
-  div_
-    [style_ cardStyle']
-    [ img_
-        [ src_ $ assetsPath assetFilenameBeigeBG,
-          width_ $ ms cardPixelWidth,
-          height_ $ ms cardPixelHeight,
-          noDrag
-        ]
-    ]
-  where
-    cardStyle = zpwh z Absolute cardPixelWidth cardPixelHeight
-    cardStyle' =
-      if hover
-        then Map.insert "outline" (ms borderSize <> "px solid red") cardStyle
-        else cardStyle
