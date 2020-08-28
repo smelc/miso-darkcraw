@@ -116,9 +116,7 @@ cardPositionStyle ::
   Int ->
   Map.Map MisoString MisoString
 cardPositionStyle xCellsOffset yCellsOffset =
-  cardPositionStyle'
-    (xCellsOffset * cellPixelSize)
-    (yCellsOffset * cellPixelSize)
+  cardPositionStyle' (xCellsOffset * cps) (yCellsOffset * cps)
 
 cardPositionStyle' ::
   -- | The horizontal offset from the enclosing container, in pixels

@@ -13,6 +13,7 @@
 - ignore: {name: "Use first"}
 - ignore: {name: "Use newtype instead of data"}
 - ignore: {name: "Use second"}
+- ignore: {name: "Use zipWith"}
 - ignore: {name: "Reduce duplication"}
 
 

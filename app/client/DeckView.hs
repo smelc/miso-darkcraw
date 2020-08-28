@@ -8,11 +8,17 @@
 -- |
 module DeckView (viewDeck) where
 
+import Card (groupCards, unsafeCardToCreature)
 import Constants
+import Data.Function ((&))
+import Data.List
+import qualified Data.Map.Strict as Map
+import Debug.Trace (trace, traceId, traceShowId)
 import Miso (View, div_, onClick, style_)
 import Miso.String (ms)
 import Miso.Util ((=:))
 import Model (DeckModel (..))
+import PCWViewInternal (cardCreature, cardPositionStyle)
 import Update (Action (DeckBack), Action)
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), px, textStyle, zpltwh)
@@ -20,16 +26,37 @@ import ViewInternal (Position (..), Styled (..), px, textStyle, zpltwh)
 viewDeck :: DeckModel -> Styled (View Action)
 viewDeck DeckModel {deck, deckBack} = do
   backDiv <- backDivM
-  -- TODO Use PCWViewInternal functions to display 'deck'
-  return $
-    div_
+  return
+    $ div_
       [style_ bgStyle]
-      [backDiv]
+    $ [backDiv] ++ cardsDiver 0 0 cards
   where
     (z, zpp) = (0, z + 1)
     bgStyle =
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "deck.png"
+    cards = groupCards deck & Map.toList & sort
+    -- chunks 2 [0, 1, 2, 3, 4] = [[0, 1], [2, 3], [4]]
+    chunks :: Int -> [a] -> [[a]]
+    chunks sz [] = []
+    chunks sz items =
+      let (start, end) = splitAt sz items
+       in start : chunks sz end
+    cardsDiver x y cards | x == 4 = cardsDiver 0 (y + 1) cards
+    cardsDiver _ _ [] = []
+    cardsDiver x y ((_, []) : rest) =
+      cardsDiver x y rest
+    cardsDiver x y ((ident, card : _) : rest) =
+      cardDiver x y card : cardsDiver (x + 1) y rest
+    -- Create div of a single card
+    cardDiver x y card =
+      div_
+        [ style_ $
+            cardPositionStyle
+              (3 + (trace (show x) x * (cardCellWidth + 1)))
+              (3 + (trace (show y) y * (cardCellHeight + 1)))
+        ]
+        [cardCreature z (Just $ unsafeCardToCreature card) False]
     subtitleStyle = textStyle <> "font-size" =: px subtitleFontSize
     backDivM = do
       button <-

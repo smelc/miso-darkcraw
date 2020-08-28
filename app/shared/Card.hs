@@ -116,6 +116,22 @@ cardToCreature (CreatureCard creature) = Just creature
 cardToCreature (NeutralCard _) = Nothing
 cardToCreature (ItemCard _) = Nothing
 
+data CardIdentifier
+  = IDC CreatureID
+  | IDI Item
+  | IDN Neutral
+  deriving (Eq, Ord, Show)
+
+toIdentifier :: Card p -> CardIdentifier
+toIdentifier card =
+  case card of
+    CreatureCard Creature {..} -> IDC creatureId
+    ItemCard i -> IDI i
+    NeutralCard n -> IDN n
+
+groupCards :: [Card p] -> Map.Map CardIdentifier [Card p]
+groupCards xs = Map.fromListWith (++) [(toIdentifier x, [x]) | x <- xs]
+
 -- | The creature 'id' taken from 'cards'
 unsafeCreatureWithID :: [Card UI] -> CreatureID -> Creature Core
 unsafeCreatureWithID cards id =
