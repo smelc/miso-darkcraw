@@ -36,12 +36,6 @@ viewDeck DeckModel {deck, deckBack} = do
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "deck.png"
     cards = groupCards deck & Map.toList & sort
-    -- chunks 2 [0, 1, 2, 3, 4] = [[0, 1], [2, 3], [4]]
-    chunks :: Int -> [a] -> [[a]]
-    chunks sz [] = []
-    chunks sz items =
-      let (start, end) = splitAt sz items
-       in start : chunks sz end
     cardsDiver x y cards | x == 4 = cardsDiver 0 (y + 1) cards
     cardsDiver _ _ [] = []
     cardsDiver x y ((_, []) : rest) =
