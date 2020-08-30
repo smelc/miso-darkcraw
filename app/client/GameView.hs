@@ -125,7 +125,8 @@ boardToInHandCells ::
   GameModel ->
   Styled [View Action]
 boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
-  stack <- stackView m z
+  discarded <- stackView m Discarded z
+  stack <- stackView m Stacked z
   return $
     [ div_
         [ style_ $ cardPositionStyle' x y,
@@ -149,7 +150,7 @@ boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
                 GameShowErrorInteraction _ -> (False, False)
                 _ -> (False, False)
     ]
-      ++ [stack]
+      ++ [discarded, stack]
   where
     pLens = spotToLens playingPlayer
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board pLens

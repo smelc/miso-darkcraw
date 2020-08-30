@@ -302,12 +302,10 @@ zprb ::
   Int ->
   Map.Map MisoString MisoString
 zprb z pos right bot =
-  Map.fromList
-    [ ("z-index", ms z),
-      ("position", ms $ show pos),
-      ("right", ms right <> "px"),
-      ("bottom", ms bot <> "px")
-    ]
+  "z-index" =: ms z
+    <> "position" =: ms (show pos)
+    <> "right" =: px right
+    <> "bottom" =: px bot
 
 -- | A style specifying the z-index, the position, the right margin,
 -- | the bottom margin, the width, and the height. All sizes are in pixels

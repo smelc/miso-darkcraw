@@ -18,6 +18,7 @@ module GameViewInternal
     keyframes,
     noDrag,
     scoreViews,
+    StackType (..),
     stackView,
     turnView,
   )
@@ -150,19 +151,28 @@ turnView model@GameModel {turn} z = do
         ]
         "End Turn"
 
--- | The widget showing the number of cards in the stack
-stackView :: GameModel -> Int -> Styled (View Action)
-stackView m@GameModel {board, playingPlayer} z = do
-  button <- textButton gui z Enabled [] $ ms ("Stack: " ++ show stackSize)
+data StackType
+  = Stacked
+  | Discarded
+
+-- | The widget showing the number of cards in the stack/discarded stack
+stackView :: GameModel -> StackType -> Int -> Styled (View Action)
+stackView m@GameModel {board, playingPlayer} stackType z = do
+  button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
   return $ div_ [positionStyle, onClick $ DeckGo deck] [button]
   where
     xoff = cps * 4
     yoff = cps `div` 2
     positionStyle =
       style_ $
-        zprb z Absolute xoff yoff
+        "z-index" =: ms z <> "position" =: "absolute"
+          <> marginSide =: px xoff
+          <> "bottom" =: px yoff
     pLens = spotToLens playingPlayer
-    deck = board ^. pLens . #stack
+    (getter, label, marginSide) = case stackType of
+      Stacked -> (#stack, "Stack", "right")
+      Discarded -> (#discarded, "Discarded", "left")
+    deck = board ^. pLens . getter
     stackSize = length deck
 
 -- draw border around some cards if:
