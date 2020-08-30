@@ -130,11 +130,12 @@ data InvitedState
   deriving (Eq, Generic, Show)
 
 data DeckModel = DeckModel
-  {
-    -- | The deck to show
+  { -- | The deck to show
     deck :: [Card Core],
     -- | The model to use when closing the deck view
     deckBack :: Model,
+    -- | To which player 'deckBack' belongs
+    deckPlayer :: PlayerSpot,
     -- | Part of the model shared among all pages
     deckShared :: SharedModel
   }

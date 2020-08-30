@@ -429,7 +429,7 @@ updateModel DeckBack m@(DeckModel' DeckModel {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
 updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
-  noEff $ DeckModel' $ DeckModel deck m gameShared
+  noEff $ DeckModel' $ DeckModel deck m playingPlayer gameShared
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack

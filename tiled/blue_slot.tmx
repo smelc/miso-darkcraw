@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.4" tiledversion="1.4.1" orientation="orthogonal" renderorder="right-down" width="3" height="4" tilewidth="24" tileheight="24" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" source="oryx_16bit_fantasy_world_trans.tsx"/>
+ <layer id="1" name="layer" width="3" height="4">
+  <data encoding="csv">
+1353,1354,1355,
+1409,1410,1411,
+1409,1410,1411,
+1465,1466,1467
+</data>
+ </layer>
+</map>

@@ -23,6 +23,12 @@ assetFilenameSkull = "16x16_1_1.png"
 assetFilenameSword :: MisoString
 assetFilenameSword = "16x16_1_0.png"
 
+assetSlotBlue :: MisoString
+assetSlotBlue = "blue_slot.png"
+
+assetSlotRed :: MisoString
+assetSlotRed = "red_slot.png"
+
 assetsPath :: MisoString -> MisoString
 assetsPath filename = assetsDir <> "/" <> filename
 
