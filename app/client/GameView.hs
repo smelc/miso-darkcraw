@@ -28,7 +28,7 @@ import GameViewInternal
 import Miso hiding (at)
 import Miso.String
 import Model -- XXX tighten the imports?
-import PCWViewInternal (cardCreature, cardBoxShadowStyle, cardPositionStyle, cardPositionStyle')
+import PCWViewInternal (cardBoxShadowStyle, cardCreature, cardPositionStyle, cardPositionStyle')
 import Update
 import Utils (style1_)
 import ViewInternal
@@ -125,8 +125,7 @@ boardToInHandCells ::
   GameModel ->
   Styled [View Action]
 boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
-  discarded <- stackView m Discarded z
-  stack <- stackView m Stacked z
+  stacks <- traverse (stackView m z) [Discarded, Stacked]
   return $
     [ div_
         [ style_ $ cardPositionStyle' x y,
@@ -150,7 +149,7 @@ boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
                 GameShowErrorInteraction _ -> (False, False)
                 _ -> (False, False)
     ]
-      ++ [discarded, stack]
+      ++ stacks
   where
     pLens = spotToLens playingPlayer
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board pLens

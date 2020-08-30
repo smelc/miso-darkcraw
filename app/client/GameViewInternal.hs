@@ -156,8 +156,8 @@ data StackType
   | Discarded
 
 -- | The widget showing the number of cards in the stack/discarded stack
-stackView :: GameModel -> StackType -> Int -> Styled (View Action)
-stackView m@GameModel {board, playingPlayer} stackType z = do
+stackView :: GameModel -> Int -> StackType -> Styled (View Action)
+stackView m@GameModel {board, playingPlayer} z stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
   return $ div_ [positionStyle, onClick $ DeckGo deck] [button]
   where
