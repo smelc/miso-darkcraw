@@ -26,6 +26,7 @@ import JsonData
 import Miso
 import Miso.String
 import Model
+import SharedModel (SharedModel(..))
 import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (StdGen, getStdGen)

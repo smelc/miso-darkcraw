@@ -12,6 +12,7 @@ import qualified Data.Text as Text
 import GHC.Generics
 import Miso.String
 import ServerMessages
+import SharedModel (SharedModel(..))
 import System.Random
 import Turn (Turn, turnToPlayerSpot)
 
@@ -58,19 +59,6 @@ data GameModel = GameModel
     turn :: Turn,
     -- | Animations to perform next
     anims :: Board UI
-  }
-  deriving (Eq, Generic, Show)
-
-instance Eq StdGen where
-  std1 == std2 = show std1 == show std2
-
--- | The part of the model that is likely to be used by all pages
--- | i.e. all possible models
-data SharedModel = SharedModel
-  { -- | Data obtained at load time, that never changes
-    sharedCards :: [Card UI],
-    -- | RNG obtained at load time, to be user whenever randomness is needed
-    sharedStdGen :: StdGen
   }
   deriving (Eq, Generic, Show)
 

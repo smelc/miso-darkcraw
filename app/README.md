@@ -43,6 +43,12 @@ what has changed since the last build, run:
 nix-shell -A release.env default.nix --run "cabal --project-file=cabal.config build all"
 ```
 
+# Seeing the module's dependency graph
+
+* Install [`graphmod`](https://github.com/yav/graphmod)
+* `touch shared/Main.hs`  (I didn't dig why graphmod wants to load this file)
+* `graphmod $(git ls-files '*.hs') | tred | dot -Tpdf > modules.pdf`
+
 # Tips
 
 If `nix-build` fails with `ghc: can't find a package database at /home/churlin/.cabal/store/ghc-8.6.5/package.db`

@@ -31,6 +31,7 @@ import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Model
 import ServerMessages
+import SharedModel (SharedModel(..))
 import System.Random (StdGen)
 import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
