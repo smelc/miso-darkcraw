@@ -63,6 +63,8 @@ instance ToExpr AttackEffect
 
 instance ToExpr AttackEffects
 
+instance ToExpr CardIdentifier
+
 instance ToExpr (PlayerPart Core)
 
 instance ToExpr (PlayerPart UI)

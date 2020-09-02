@@ -166,11 +166,11 @@ type family ScoreType (p :: Phase) where
   ScoreType UI = ()
 
 type family StackType (p :: Phase) where
-  StackType Core = [Card Core]
+  StackType Core = [CardIdentifier]
   StackType UI = ()
 
 type family DiscardedType (p :: Phase) where
-  DiscardedType Core = [Card Core]
+  DiscardedType Core = [CardIdentifier]
   DiscardedType UI = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
@@ -308,7 +308,8 @@ exampleBoard cards =
           (BottomRight, undeadMummy)
         ]
     (topHand, topStack) = splitAt handSize $ initialDeck cards Undead
-    topPlayer = PlayerPart topCards topHand 0 topStack []
+    topStack' = map toIdentifier topStack
+    topPlayer = PlayerPart topCards topHand 0 topStack' []
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
         Map.fromList
@@ -318,7 +319,8 @@ exampleBoard cards =
             (BottomLeft, humanArcher)
           ]
     (botHand, botStack) = splitAt handSize $ initialDeck cards Human
-    botPlayer = PlayerPart botCards botHand 0 botStack []
+    botStack' = map toIdentifier botStack
+    botPlayer = PlayerPart botCards botHand 0 botStack' []
 
 -- Whether a spot is in the back line
 inTheBack :: CardSpot -> Bool

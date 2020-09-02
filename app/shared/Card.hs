@@ -111,16 +111,25 @@ creatureUI2CreatureCore :: Creature UI -> Creature Core
 creatureUI2CreatureCore Creature {..} =
   Creature creatureId hp attack moral victoryPoints skills () () filename
 
+cardUI2CardCore :: Card UI -> Card Core
+cardUI2CardCore card =
+  case card of
+    CreatureCard creature -> CreatureCard $ creatureUI2CreatureCore creature
+    NeutralCard n -> NeutralCard n
+    ItemCard i -> ItemCard i
+
 cardToCreature :: Card p -> Maybe (Creature p)
 cardToCreature (CreatureCard creature) = Just creature
 cardToCreature (NeutralCard _) = Nothing
 cardToCreature (ItemCard _) = Nothing
 
+-- | The minimal identifier of a card. See 'SharedModel' to obtain
+-- | a full-fledged card from that.
 data CardIdentifier
   = IDC CreatureID
   | IDI Item
   | IDN Neutral
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 toIdentifier :: Card p -> CardIdentifier
 toIdentifier card =

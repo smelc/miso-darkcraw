@@ -34,8 +34,9 @@ import Data.Maybe (fromMaybe, isJust)
 import Event
 import Game (enemySpots)
 import Miso hiding (at)
-import Miso.String hiding (length)
+import Miso.String hiding (length, map)
 import Model
+import SharedModel (unsafeIdentToCard)
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
@@ -157,7 +158,7 @@ data StackType
 
 -- | The widget showing the number of cards in the stack/discarded stack
 stackView :: GameModel -> Int -> StackType -> Styled (View Action)
-stackView m@GameModel {board, playingPlayer} z stackType = do
+stackView m@GameModel {board, playingPlayer, gameShared} z stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
   return $ div_ [positionStyle, onClick $ DeckGo deck] [button]
   where
@@ -172,7 +173,8 @@ stackView m@GameModel {board, playingPlayer} z stackType = do
     (getter, label, marginSide) = case stackType of
       Stacked -> (#stack, "Stack", "right")
       Discarded -> (#discarded, "Discarded", "left")
-    deck = board ^. pLens . getter
+    deck :: [Card Core] =
+      board ^. pLens . getter & map (unsafeIdentToCard gameShared) & map cardUI2CardCore
     stackSize = length deck
 
 -- draw border around some cards if:
