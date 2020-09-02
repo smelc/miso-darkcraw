@@ -135,16 +135,15 @@ data CardIdentifier
 creatureToIdentifier :: Creature p -> CardIdentifier
 creatureToIdentifier Creature {creatureId} = IDC creatureId
 
--- TODO rename me to cardToIdentifier
-toIdentifier :: Card p -> CardIdentifier
-toIdentifier card =
+cardToIdentifier :: Card p -> CardIdentifier
+cardToIdentifier card =
   case card of
     CreatureCard Creature {..} -> IDC creatureId
     ItemCard i -> IDI i
     NeutralCard n -> IDN n
 
 groupCards :: [Card p] -> Map.Map CardIdentifier [Card p]
-groupCards xs = Map.fromListWith (++) [(toIdentifier x, [x]) | x <- xs]
+groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
 
 -- | The creature 'id' taken from 'cards'
 unsafeCreatureWithID :: [Card UI] -> CreatureID -> Creature Core

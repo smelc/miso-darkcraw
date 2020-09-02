@@ -308,7 +308,7 @@ exampleBoard cards =
           (BottomRight, undeadMummy)
         ]
     (topHand, topStack) = splitAt handSize $ initialDeck cards Undead
-    topStack' = map toIdentifier topStack
+    topStack' = map cardToIdentifier topStack
     topPlayer = PlayerPart topCards topHand 0 topStack' []
     botCards :: CardsOnTable =
       makeBottomCardsOnTable $
@@ -319,7 +319,7 @@ exampleBoard cards =
             (BottomLeft, humanArcher)
           ]
     (botHand, botStack) = splitAt handSize $ initialDeck cards Human
-    botStack' = map toIdentifier botStack
+    botStack' = map cardToIdentifier botStack
     botPlayer = PlayerPart botCards botHand 0 botStack' []
 
 -- Whether a spot is in the back line
