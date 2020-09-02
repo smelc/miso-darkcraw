@@ -36,7 +36,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Debug.Trace (trace)
+import SharedModel (SharedModel (..))
 
 data GamePlayEvent
   = -- | A player finishes its turn, resolving it in a single card spot.
@@ -88,7 +88,7 @@ playM ::
   GamePlayEvent ->
   m (Board Core)
 playM board gpe =
-  trace ("playing " ++ show gpe) $ playM' board gpe
+  playM' board gpe
 
 playM' ::
   MonadError Text m =>
@@ -133,12 +133,12 @@ attack board pSpot cSpot =
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
       let effect = singleAttack hitter hittee
-          newHittee = applyAttackEffect effect hittee
+          board' = applyAttackEffectOnBoard effect board (attackeePSpot, hitSpot, hittee)
        in do
             reportEffect pSpot cSpot $ -- attacker bumps
               createAttackEffect Nothing (Just True) Nothing Nothing
-            reportEffect (otherPlayerSpot pSpot) hitSpot effect -- hittee
-            return (board & pOtherSpotLens . #inPlace . at hitSpot .~ newHittee)
+            reportEffect attackeePSpot hitSpot effect -- hittee
+            return board'
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
       let hit = Card.attack hitter
@@ -148,8 +148,9 @@ attack board pSpot cSpot =
       return (board & spotToLens pSpot . #score +~ hit)
   where
     pSpotLens = spotToLens pSpot
+    attackeePSpot = otherPlayerSpot pSpot
     pOtherSpotLens :: Lens' (Board Core) (PlayerPart Core)
-    pOtherSpotLens = spotToLens $ otherPlayerSpot pSpot
+    pOtherSpotLens = spotToLens attackeePSpot
     attackersInPlace :: Map CardSpot (Creature Core) =
       board ^. pSpotLens . #inPlace
     attackeesInPlace :: Map CardSpot (Creature Core) =
@@ -166,7 +167,32 @@ attack board pSpot cSpot =
     attackee :: Maybe (CardSpot, Creature Core) =
       asum [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots]
 
-applyAttackEffect :: AttackEffect -> Creature Core -> Maybe (Creature Core)
+applyAttackEffectOnBoard ::
+  -- | The effect of the attacker on the hittee
+  AttackEffect ->
+  -- | The input board
+  Board Core ->
+  -- | The creature being hit
+  (PlayerSpot, CardSpot, Creature Core) ->
+  -- | The updated board
+  Board Core
+applyAttackEffectOnBoard effect board (pSpot, cSpot, hittee) =
+  case hittee' of
+    Just _ -> board'
+    Nothing ->
+      board' & spotToLens pSpot . #discarded <>~ [creatureToIdentifier hittee]
+  where
+    hittee' = applyAttackEffect effect hittee
+    -- Update the hittee in the board, putting Nothing or Just _:
+    board' = board & spotToLens pSpot . #inPlace . at cSpot .~ hittee'
+
+applyAttackEffect ::
+  -- | The effect of the attacker on the hittee
+  AttackEffect ->
+  -- | The creature being hit
+  Creature Core ->
+  -- | The creature being hit, after applying the effect; or None if dead
+  Maybe (Creature Core)
 applyAttackEffect effect creature@Creature {..} =
   case effect of
     AttackEffect {death = True} -> Nothing

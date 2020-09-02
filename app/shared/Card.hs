@@ -1,6 +1,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -131,6 +132,10 @@ data CardIdentifier
   | IDN Neutral
   deriving (Eq, Generic, Ord, Show)
 
+creatureToIdentifier :: Creature p -> CardIdentifier
+creatureToIdentifier Creature {creatureId} = IDC creatureId
+
+-- TODO rename me to cardToIdentifier
 toIdentifier :: Card p -> CardIdentifier
 toIdentifier card =
   case card of
