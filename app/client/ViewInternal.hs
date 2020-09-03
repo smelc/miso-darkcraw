@@ -159,6 +159,23 @@ keyframed e keyframes animData = do
   emitTopLevelStyle keyframes
   return $ e [animDataToStyle animData]
 
+textFrames :: MisoString -> (Int, MisoString, Bool) -> (Int, MisoString, Bool) -> MisoString
+textFrames name (startFontSize, startColor, startTransparent) (endFontSize, endColor, endTransparent) =
+  keyframes
+    name
+    (builder startFontSize startColor startTransparent)
+    []
+    (builder endFontSize endColor endTransparent)
+  where
+    builder font color transparent =
+      "font-size: "
+        <> ms (px font)
+        <> "; color: "
+        <> color
+        <> "; opacity: "
+        <> (if transparent then "0" else "1")
+        <> ";"
+
 -- | Vertical wobbling
 wobblev ::
   MisoString ->

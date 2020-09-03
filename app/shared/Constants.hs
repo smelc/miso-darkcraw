@@ -122,6 +122,11 @@ cellPixelSize = 24
 cps :: Int
 cps = cellPixelSize
 
+-- | The default font size in pixels. It's actually the same as the default of browsers.
+-- | See e.g. https://www.w3schools.com/css/css_font_size.asp
+defaultFontSize :: Int
+defaultFontSize = 16
+
 -- | The size of smaller individual assets (items, heart, etc.)
 seize :: Int
 seize = 16

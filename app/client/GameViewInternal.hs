@@ -158,9 +158,14 @@ data StackType
 
 -- | The widget showing the number of cards in the stack/discarded stack
 stackView :: GameModel -> Int -> StackType -> Styled (View Action)
-stackView m@GameModel {board, playingPlayer, gameShared} z stackType = do
+stackView m@GameModel {anims, board, playingPlayer, gameShared} z stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
-  return $ div_ [positionStyle, onClick $ DeckGo deck] [button]
+  plus <- keyframed plusBuilder plusFrames animData
+  return
+    $ div_
+      [positionStyle, onClick $ DeckGo deck, style_ flexLineStyle]
+    $ [button]
+      ++ [marginifyhv (cps `div` 2) 0 plus | nbPlayingPlayerDeaths > 0]
   where
     xoff = cps * 4
     yoff = cps `div` 2
@@ -176,6 +181,22 @@ stackView m@GameModel {board, playingPlayer, gameShared} z stackType = do
     deck :: [Card Core] =
       board ^. pLens . getter & map (unsafeIdentToCard gameShared) & map cardUI2CardCore
     stackSize = length deck
+    playingPlayerAttackEffects :: Map.Map CardSpot AttackEffect =
+      anims ^. spotToLens playingPlayer . #inPlace & unAttackEffects
+    nbPlayingPlayerDeaths =
+      Map.foldr (\ae i -> i + (if death ae then 1 else 0)) 0 playingPlayerAttackEffects
+    animName = "stackPlus"
+    animData =
+      (animationData animName "1s" "linear")
+        { animDataFillMode = Just "forwards"
+        }
+    plusText :: MisoString = ("+" :: MisoString) <> ms (show nbPlayingPlayerDeaths)
+    plusFrames =
+      textFrames
+        animName
+        (defaultFontSize * 2, "#FF0000", False)
+        (defaultFontSize, "#FFFFFF", True)
+    plusBuilder x = div_ x [text plusText]
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
