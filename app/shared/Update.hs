@@ -22,6 +22,7 @@ import qualified Data.Bifunctor as DataBifunctor
 import Data.Function ((&))
 import Data.Maybe (fromJust, isJust, maybeToList)
 import Data.Text (Text)
+import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
 import Debug.Trace
 import Formatting ((%), format, hex, sformat)
@@ -34,6 +35,7 @@ import ServerMessages
 import SharedModel (SharedModel(..))
 import System.Random (StdGen)
 import Text.PrettyPrint.ANSI.Leijen
+import Text.Pretty.Simple
 import Text.Printf
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
 
@@ -477,11 +479,11 @@ updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
   MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
 updateModel a m =
-  error $
+  error . Text.unpack $
     "Unhandled case in updateModel with the model being:\n"
-      ++ show m
-      ++ "\nand the action being:\n"
-      ++ show a
+      <> pShowNoColor m
+      <> "\nand the action being:\n"
+      <> pShowNoColor a
 
 initialGameModel :: SharedModel -> GameModel
 initialGameModel shared =
