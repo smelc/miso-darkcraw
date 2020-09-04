@@ -26,7 +26,7 @@ import Event
 import Game (enemySpots)
 import GameViewInternal
 import Miso hiding (at)
-import Miso.String
+import Miso.String hiding (concat)
 import Model -- XXX tighten the imports?
 import PCWViewInternal (cardBoxShadowStyle, cardCreature, cardPositionStyle, cardPositionStyle')
 import Update
@@ -149,7 +149,7 @@ boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
                 GameShowErrorInteraction _ -> (False, False)
                 _ -> (False, False)
     ]
-      ++ stacks
+      ++ concat stacks
   where
     pLens = spotToLens playingPlayer
     cards :: [Creature Core] = boardToInHandCreaturesToDraw board pLens

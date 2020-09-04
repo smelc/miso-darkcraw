@@ -157,27 +157,34 @@ data StackType
   | Discarded
 
 -- | The widget showing the number of cards in the stack/discarded stack
-stackView :: GameModel -> Int -> StackType -> Styled (View Action)
+stackView :: GameModel -> Int -> StackType -> Styled [View Action]
 stackView m@GameModel {anims, board, playingPlayer, gameShared} z stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
   plus <- keyframed plusBuilder plusFrames animData
-  return
-    $ div_
-      [positionStyle, onClick $ DeckGo deck, style_ flexLineStyle]
-    $ [button]
-      ++ [marginifyhv (cps `div` 2) 0 plus | nbPlayingPlayerDeaths > 0]
+  return $
+    [div_ [buttonStyle, onClick $ DeckGo deck] [button]]
+      ++ [div_ [plusStyle] [plus] | showPlus && nbPlayingPlayerDeaths > 0]
   where
-    xoff = cps * 4
-    yoff = cps `div` 2
-    positionStyle =
+    commonStyle = "z-index" =: ms z <> "position" =: "absolute"
+    buttonStyle =
       style_ $
-        "z-index" =: ms z <> "position" =: "absolute"
-          <> marginSide =: px xoff
-          <> "bottom" =: px yoff
+        commonStyle
+          <> marginSide =: px (cps * 4)
+          <> "bottom" =: px (cps `div` 2)
+    plusStyle =
+      style_ $
+        commonStyle
+          <> marginSide =: px (cps * 8)
+          <> "bottom" =: px (- (cps `div` 2))
+          -- Specify size, for element to stay in place
+          <> "width" =: px plusFontSize
+          <> "height" =: px plusFontSize
+          -- Tell the element to stay in place
+          <> "transform" =: "translate(-50%, -50%)"
     pLens = spotToLens playingPlayer
-    (getter, label, marginSide) = case stackType of
-      Stacked -> (#stack, "Stack", "right")
-      Discarded -> (#discarded, "Discarded", "left")
+    (getter, label, marginSide, showPlus) = case stackType of
+      Stacked -> (#stack, "Stack", "right", False)
+      Discarded -> (#discarded, "Discarded", "left", True)
     deck :: [Card Core] =
       board ^. pLens . getter & map (unsafeIdentToCard gameShared) & map cardUI2CardCore
     stackSize = length deck
@@ -191,11 +198,13 @@ stackView m@GameModel {anims, board, playingPlayer, gameShared} z stackType = do
         { animDataFillMode = Just "forwards"
         }
     plusText :: MisoString = ("+" :: MisoString) <> ms (show nbPlayingPlayerDeaths)
+    (plusFontSize, plusFontSize') =
+      (defaultFontSize * 2, defaultFontSize) -- stard, end
     plusFrames =
       textFrames
         animName
-        (defaultFontSize * 2, "#FF0000", False)
-        (defaultFontSize, "#FFFFFF", True)
+        (plusFontSize, "#FF0000", False)
+        (plusFontSize', "#FFFFFF", True)
     plusBuilder x = div_ x [text plusText]
 
 -- draw border around some cards if:
