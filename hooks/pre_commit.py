@@ -89,19 +89,28 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
     return return_code
 
 
+def _run_unchecked_cmd(cwd: str, cmd: List[str]) -> int:
+    """ Executes a command and returns it return code """
+    print(f'{cwd}> {" ".join(cmd)}')
+    return subprocess.run(cmd, check=False, cwd=cwd).returncode
+
+
 def _build() -> int:
     """
-    Checks that the project builds
-    Returns:
-        A return code
+    Build the project in release mode
+    Returns: The return code of the build command
     """
     cmd = ["nix-build", "-A", "release"]
-    cwd = "app"
-    print(f'{cwd}> {" ".join(cmd)}')
-    result = subprocess.run(cmd,
-                            check=False,
-                            cwd=cwd)
-    return result.returncode
+    return _run_unchecked_cmd("app", cmd)
+
+
+def _test() -> int:
+    """
+    Builds and executes tests
+    Returns: The return code of building and executing the tests
+    """
+    cmd = ["nix-shell", "--run", "cabal test"]
+    return _run_unchecked_cmd("app", cmd)
 
 
 def main() -> int:
@@ -117,9 +126,10 @@ def main() -> int:
                                ["ormolu", "-m", "inplace"])
         return_code = max(return_code, ormolu_rc)
         return_code = max(return_code, _build())
+        return_code = max(return_code, _test())
     else:
         print("No %s *.hs relevant file found, nothing to format" % adjective)
-        print("Not calling nix-build either")
+        print("Not calling nix-build/cabal test either")
 
 
     return return_code
