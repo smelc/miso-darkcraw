@@ -20,6 +20,7 @@ import Data.ByteString.Lazy
 import Data.List.Extra (lower)
 import GHC.Generics
 import JsonData
+import Tile
 
 instance ToJSON Team
 
@@ -81,10 +82,20 @@ itemObjectOptions =
     impl "item" = "name"
     impl s = s
 
+tileObjectOptions :: Options
+tileObjectOptions =
+  defaultOptions
+    { fieldLabelModifier = impl
+    }
+  where
+    -- impl "tile" = "name"
+    impl s = s
+
 instance ToJSON (Creature UI)
 
 instance FromJSON (Creature UI) where
   parseJSON = genericParseJSON creatureOptions
+
 
 instance ToJSON Neutral
 
@@ -106,10 +117,21 @@ instance ToJSON ItemObject
 instance FromJSON ItemObject where
   parseJSON = genericParseJSON itemObjectOptions
 
+instance ToJSON Tile
+
+instance FromJSON Tile -- where
+  -- parseJSON = genericParseJSON toLowerConstructorOptions
+
+instance ToJSON TileUI
+
+instance FromJSON TileUI where
+  parseJSON = genericParseJSON tileObjectOptions
+
 data AllData (p :: Phase) = AllData
   { creatures :: [Creature p],
     neutral :: [NeutralObject],
-    items :: [ItemObject]
+    items :: [ItemObject],
+    tiles :: [TileUI]
   }
   deriving (Generic)
 
@@ -124,7 +146,7 @@ parseJson ::
   ByteString ->
   Either String [Card UI]
 parseJson json = do
-  AllData creatures neutral items <- eitherDecode json
+  AllData creatures neutral items tiles <- eitherDecode json
   let creatureCards = Prelude.map CreatureCard creatures
       neutralCards = Prelude.map (NeutralCard . Card.neutral) neutral
       itemCards = Prelude.map (ItemCard . Card.item) items

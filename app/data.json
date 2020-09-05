@@ -10,18 +10,18 @@
     { "id": { "name":"mummy",     "team":"undead" }, "title":"mummy",     "hp":5, "attack":2, "victory_points":2, "x":216, "y":72, "filename":"24x24_3_1.png"}
   ],
   "neutral": [
-    { "name":"health", "title":"Health", "tile":"red_potion",   "text":"Heals 1 HP" },
-    { "name":"life",   "title":"Life",   "tile":"green_potion", "text":"Restores all HP" }
+    { "name":"health", "title":"Health", "tile":"RedPotion",   "text":"Heals 1 HP" },
+    { "name":"life",   "title":"Life",   "tile":"GreenPotion", "text":"Restores all HP" }
   ],
   "items": [
     { "name":"crown", "title":"Crown", "tile":"crown", "text":"Leadership +2" }
   ],
   "tiles": [
-    { "name":"heart", "x":0, "y":0,         "filename":"16x16_0_0.png" },
-    { "name":"sword", "x":32, "y":0,        "filename":"16x16_1_0.png"  },
-    { "name":"red_potion", "x":64, "y":0,   "filename":"16x16_2_0.png" },
-    { "name":"green_potion", "x":96, "y":0, "filename":"16x16_3_0.png" },
-    { "name":"crown", "x":0, "y":32,        "filename":"16x16_0_1.png" }
+    { "tile":"Heart", "x":0, "y":0,        "filename":"16x16_0_0.png" },
+    { "tile":"Sword", "x":32, "y":0,       "filename":"16x16_1_0.png" },
+    { "tile":"RedPotion", "x":64, "y":0,   "filename":"16x16_2_0.png" },
+    { "tile":"GreenPotion", "x":96, "y":0, "filename":"16x16_3_0.png" },
+    { "tile":"Crown", "x":0, "y":32,       "filename":"16x16_0_1.png" }
   ],
   "skills": [
     { "name":"HitFromBack", "title":"back hit",   "text":"hits 2 cells away when in the back line"},
