@@ -10,7 +10,7 @@ data Tile
   | Heart
   | Sword
   | RedPotion
-  deriving (Generic, Show)
+  deriving (Eq, Generic, Show)
 
 data TileUI = TileUI
   { filename :: String,
@@ -18,4 +18,4 @@ data TileUI = TileUI
     x :: Int,
     y :: Int
   }
-  deriving (Generic, Show)
+  deriving (Eq, Generic, Show)

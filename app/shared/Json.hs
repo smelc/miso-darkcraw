@@ -82,20 +82,10 @@ itemObjectOptions =
     impl "item" = "name"
     impl s = s
 
-tileObjectOptions :: Options
-tileObjectOptions =
-  defaultOptions
-    { fieldLabelModifier = impl
-    }
-  where
-    -- impl "tile" = "name"
-    impl s = s
-
 instance ToJSON (Creature UI)
 
 instance FromJSON (Creature UI) where
   parseJSON = genericParseJSON creatureOptions
-
 
 instance ToJSON Neutral
 
@@ -119,13 +109,11 @@ instance FromJSON ItemObject where
 
 instance ToJSON Tile
 
-instance FromJSON Tile -- where
-  -- parseJSON = genericParseJSON toLowerConstructorOptions
+instance FromJSON Tile
 
 instance ToJSON TileUI
 
-instance FromJSON TileUI where
-  parseJSON = genericParseJSON tileObjectOptions
+instance FromJSON TileUI
 
 data AllData (p :: Phase) = AllData
   { creatures :: [Creature p],
