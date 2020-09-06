@@ -64,6 +64,7 @@ executable app
   main-is:
     Main.hs
   other-modules:
+    Cinema
     Configuration
     DeckView
     GameView
@@ -77,6 +78,7 @@ executable app
     WelcomeView
   hs-source-dirs:
     client,
+    client/cinema,
     shared
   if !impl(ghcjs)
     build-depends:
