@@ -1,9 +1,35 @@
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
-module Cinema where
+-- | Module containing the base for animating scenes in lobbies
+module Cinema
+  ( Change,
+    Element (..),
+    Phase (..),
+    Scene,
+    State,
+    (=:),
+    (<~>),
+    apply,
+    at,
+    down,
+    initial,
+    left,
+    right,
+    tell,
+    up,
+    while,
+  )
+where
 
 import Card (CreatureID)
+import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 
 data State = State
@@ -22,13 +48,28 @@ data Element
   | Tile
   deriving (Eq, Ord, Show)
 
-data Scene = Scene
+type Changes = Map.Map Element Change
+
+data Phase = Diff | Display
+
+type family MappingValueType (p :: Phase) where
+  MappingValueType Diff = Change
+  MappingValueType Display = State
+
+type Forall (c :: Type -> Constraint) (p :: Phase) =
+  ( c (MappingValueType p)
+  )
+
+type MappingType p = Map.Map Element (MappingValueType p)
+
+data Scene (p :: Phase) = Scene
   { -- | The duration of a scene, in tenth of seconds
     duration :: Int,
     -- | The scene's elements
-    mapping :: Map.Map Element State
+    mapping :: MappingType p
   }
-  deriving (Show)
+
+deriving instance Forall Show p => Show (Scene p)
 
 -- | The change to an actor's 'State'
 data Change = Change
@@ -41,8 +82,15 @@ data Change = Change
   }
   deriving (Show)
 
-empty :: Scene
-empty = Scene {duration = 0, mapping = Map.empty}
+instance Semigroup Change where
+  Change {tellingChange = tell1, xoffset = x1, yoffset = y1}
+    <> Change {tellingChange = tell2, xoffset = x2, yoffset = y2} =
+      case (tell1, tell2) of
+        (Just s1, Just s2) | s1 /= s2 -> error $ "Cannot union tellingChanges: " ++ s1 ++ " VS " ++ s2
+        (x, _) -> Change {tellingChange = x, xoffset = x1 + x2, yoffset = y1 + y2}
+
+instance Monoid Change where
+  mempty = Change {tellingChange = Nothing, xoffset = 0, yoffset = 0}
 
 at :: Int -> Int -> Change
 at x y = Change {tellingChange = Nothing, xoffset = x, yoffset = y}
@@ -56,6 +104,9 @@ left = at (-1) 0
 right :: Change
 right = at 1 0
 
+tell :: String -> Change
+tell s = Change {tellingChange = Just s, xoffset = 0, yoffset = 0}
+
 up :: Change
 up = at 0 (-1)
 
@@ -66,23 +117,14 @@ apply :: Change -> State -> State
 apply Change {..} s@State {x, y} =
   s {telling = tellingChange, x = x + xoffset, y = y + yoffset}
 
--- | Change the state of an existing 'Element' in a 'Scene'
-(~->) :: Scene -> (Element, Change) -> Scene
-(~->) s@Scene {..} (element, change) =
-  case mapping Map.!? element of
-    Nothing -> error $ "Element not in scene: " ++ show element
-    Just state -> s {mapping = Map.insert element (apply change state) mapping}
+(=:) :: Element -> Change -> MappingType Diff
+(=:) = Map.singleton
 
--- | Sets the state of a new 'Element' in a 'Scene'
-(+->) :: Scene -> (Element, Change) -> Scene
-(+->) s@Scene {..} (element, change) =
-  case mapping Map.!? element of
-    Nothing -> s {mapping = Map.insert element (initial change) mapping}
-    Just _ -> error $ "Element in scene already: " ++ show element
+infixr 6 <~>
 
--- | Removes an 'Element' from a 'Scene'
-(-->) :: Scene -> Element -> Scene
-(-->) s@Scene {..} element =
-  case mapping Map.!? element of
-    Nothing -> error $ "Element not in scene already " ++ show element
-    Just _ -> s {mapping = Map.delete element mapping}
+(<~>) :: MappingType Diff -> MappingType Diff -> MappingType Diff
+(<~>) = Map.unionWith (<>)
+
+-- | Given a duration and a mapping, builds a 'Scene'
+while :: Int -> MappingType p -> Scene p
+while i m = Scene {duration = i, mapping = m}
