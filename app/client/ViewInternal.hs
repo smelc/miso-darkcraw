@@ -131,7 +131,7 @@ flexLineStyle =
 img_' :: MisoString -> View a
 img_' filename = img_ [src_ $ assetsPath filename, noDrag]
 
-imgCell :: MisoString -> View Action
+imgCell :: MisoString -> View a
 imgCell filename = img_ [src_ $ assetsPath filename, noDrag]
 
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> MisoString
