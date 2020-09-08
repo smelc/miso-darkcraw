@@ -16,8 +16,8 @@ module Cinema
     State,
     (=:),
     (<~>),
-    apply,
     at,
+    diff,
     down,
     initial,
     left,
@@ -110,11 +110,26 @@ tell s = Change {tellingChange = Just s, xoffset = 0, yoffset = 0}
 up :: Change
 up = at 0 (-1)
 
-initial :: Change -> State
-initial Change {..} = State {telling = tellingChange, x = xoffset, y = yoffset}
+initial :: Scene Diff -> Scene Display
+initial Scene {duration, mapping = changes} =
+  Scene {..}
+  where
+    mapping = Map.map initial' changes
 
-apply :: Change -> State -> State
-apply Change {..} s@State {x, y} =
+initial' :: Change -> State
+initial' Change {..} = State {telling = tellingChange, x = xoffset, y = yoffset}
+
+diff :: Scene Display -> Scene Diff -> Scene Display
+diff
+  Scene {mapping = prev}
+  Scene {duration, mapping = diff} =
+    -- Take duration from Diff: ignore old duration
+    Scene {..}
+    where
+      mapping = undefined
+
+diff' :: Change -> State -> State
+diff' Change {..} s@State {x, y} =
   s {telling = tellingChange, x = x + xoffset, y = y + yoffset}
 
 (=:) :: Element -> Change -> MappingType Diff

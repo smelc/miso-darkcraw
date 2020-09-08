@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -9,7 +8,7 @@
 module Projector where
 
 import Card
-import Cinema (Change, Element (..), State (..))
+import Cinema (Change, Element (..), Phase (..), Scene, State (..), diff, initial)
 import Constants (assetsPath)
 import Data.Function ((&))
 import Data.List (find)
@@ -19,6 +18,30 @@ import Miso
 import Miso.String hiding (find, map)
 import SharedModel (SharedModel (..))
 import ViewInternal (imgCell)
+
+data Shooting = Shooting
+  { scene :: Maybe (Scene Display),
+    rest :: [Scene Diff]
+  }
+
+viewMovie ::
+  Int ->
+  SharedModel ->
+  -- | The previous scene that was returned, or Nothing if the first call
+  Maybe (Scene Display) ->
+  -- | The remaing scenes to apply
+  [Scene Diff] ->
+  Shooting
+viewMovie _ _ _ [] = Shooting {scene = Nothing, rest = []}
+viewMovie z shared prev (diff : tail) =
+  case prev of
+    Nothing ->
+      -- Building the first scene, 'diff' gets interpreted
+      -- as absolute, not a diff.
+      Shooting {scene = Just $ initial diff, rest = tail}
+    Just prev -> undefined
+      -- Applying diff to previous scene
+      Cinema.diff prev diff
 
 data Context = Context
   { z :: Int,
