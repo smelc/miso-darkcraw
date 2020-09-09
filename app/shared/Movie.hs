@@ -4,7 +4,7 @@
 -- | Module containing concrete lists of scenes for lobbies.
 -- A movie is a list of scenes, built from the smart operators
 -- from 'Cinema'.
-module Movie where
+module Movie (welcomeMovie) where
 
 import Card (CreatureID (..), CreatureKind (..), Team (..))
 import Cinema

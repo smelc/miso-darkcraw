@@ -99,10 +99,12 @@ Test-Suite test-darkcraw
     AI
     Board
     Card
+    Cinema
     Constants
     Game
     Json
     JsonData
+    Movie
     Turn
   hs-source-dirs:
     shared,

@@ -12,12 +12,13 @@ module Cinema
   ( Change,
     Element (..),
     Phase (..),
-    Scene,
-    State,
+    Scene (..),
+    State (..),
     (=:),
     (<~>),
     at,
     diff,
+    display,
     down,
     initial,
     left,
@@ -40,7 +41,7 @@ data State = State
     -- | 0 means top
     y :: Int
   }
-  deriving (Show)
+  deriving (Eq, Ord, Show)
 
 data Element
   = -- The actor's unique identifier, and its tile
@@ -80,7 +81,7 @@ data Change = Change
     -- | The change to 'y'
     yoffset :: Int
   }
-  deriving (Show)
+  deriving (Eq, Ord, Show)
 
 instance Semigroup Change where
   Change {tellingChange = tell1, xoffset = x1, yoffset = y1}
@@ -143,3 +144,15 @@ infixr 6 <~>
 -- | Given a duration and a mapping, builds a 'Scene'
 while :: Int -> MappingType p -> Scene p
 while i m = Scene {duration = i, mapping = m}
+
+-- | Builds a list of displays from a list of diffs. Interprets the
+-- | first diff as an absolute scene (i.e. not as a diff).
+display :: [Scene Diff] -> [Scene Display]
+display [] = []
+display (absolute : diffs) =
+  display' (initial absolute) diffs
+  where
+    display' _ [] = []
+    display' display (firstDiff : nextDiffs) =
+      let nextDisplay = diff display firstDiff
+       in display : nextDisplay : display' nextDisplay nextDiffs
