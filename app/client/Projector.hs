@@ -8,7 +8,7 @@
 module Projector where
 
 import Card
-import Cinema (Change, Element (..), Phase (..), Scene, State (..), diff, initial)
+import Cinema (Change, Element (..), Phase (..), Scene, State (..), initial, patch)
 import Constants (assetsPath)
 import Data.Function ((&))
 import Data.List (find)
@@ -41,7 +41,7 @@ viewMovie z shared prev (diff : tail) =
       Shooting {scene = Just $ initial diff, rest = tail}
     Just prev -> undefined
       -- Applying diff to previous scene
-      Cinema.diff prev diff
+      patch prev diff
 
 data Context = Context
   { z :: Int,

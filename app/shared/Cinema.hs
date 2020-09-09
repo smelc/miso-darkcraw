@@ -17,11 +17,12 @@ module Cinema
     (=:),
     (<~>),
     at,
-    diff,
     display,
     down,
     initial,
     left,
+    patch,
+    patch',
     right,
     tell,
     up,
@@ -30,6 +31,7 @@ module Cinema
 where
 
 import Card (CreatureID)
+import Data.Function ((&))
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 
@@ -120,17 +122,23 @@ initial Scene {duration, mapping = changes} =
 initial' :: Change -> State
 initial' Change {..} = State {telling = tellingChange, x = xoffset, y = yoffset}
 
-diff :: Scene Display -> Scene Diff -> Scene Display
-diff
+patch :: Scene Display -> Scene Diff -> Scene Display
+patch
   Scene {mapping = prev}
   Scene {duration, mapping = diff} =
     -- Take duration from Diff: ignore old duration
     Scene {..}
     where
-      mapping = undefined
+      mapping = Map.toList diff & map buildState & Map.fromList
+      buildState (e, c) =
+        ( e,
+          case prev Map.!? e of
+            Nothing -> initial' c -- No previous state, take diff as absolute
+            Just prev -> patch' prev c -- Apply diff
+        )
 
-diff' :: Change -> State -> State
-diff' Change {..} s@State {x, y} =
+patch' :: State -> Change -> State
+patch' s@State {x, y} Change {..} =
   s {telling = tellingChange, x = x + xoffset, y = y + yoffset}
 
 (=:) :: Element -> Change -> MappingType Diff
@@ -150,9 +158,10 @@ while i m = Scene {duration = i, mapping = m}
 display :: [Scene Diff] -> [Scene Display]
 display [] = []
 display (absolute : diffs) =
-  display' (initial absolute) diffs
+  firstDisplay : display' firstDisplay diffs
   where
+    firstDisplay = initial absolute
     display' _ [] = []
     display' display (firstDiff : nextDiffs) =
-      let nextDisplay = diff display firstDiff
-       in display : nextDisplay : display' nextDisplay nextDiffs
+      let nextDisplay = patch display firstDiff
+       in nextDisplay : display' nextDisplay nextDiffs

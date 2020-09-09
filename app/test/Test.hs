@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Main where
 
@@ -13,14 +14,20 @@ import Board
     inTheBack,
   )
 import Card
+import Cinema
 import Constants
 import Control.Lens
 import Control.Lens.Extras
+import Control.Monad
 import Control.Monad.Except (runExcept)
+import Data.List as List
+import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
+import qualified Data.Set as Set
 import Data.Text (Text)
 import Game (GamePlayEvent, attackOrder, playAll)
 import Json
+import Movie
 import Test.Hspec
 import Turn (Turn, initialTurn, nextTurn)
 
@@ -59,6 +66,29 @@ testAIRanged cards turn =
         $ CreatureID Archer Undead
     board = emptyInPlaceBoard cards [archer]
 
+testSceneInvariant :: (Int, Scene Display) -> Spec
+testSceneInvariant (idx, Scene {..}) =
+  -- Check no two Element are in the same spot
+  it ("Scene Diff invariant " ++ show idx) $
+    values `shouldBe` values'
+  where
+    stateToXY State {..} = (x, y)
+    values = Map.filterWithKey isActor mapping & Map.elems & List.sort
+    values' = values & Set.fromList & Set.toList & List.sort
+    isActor (Actor _ _) _ = True
+    isActor Tile _ = False
+
+testScenesInvariant :: String -> [Scene Diff] -> Spec
+testScenesInvariant name diffs =
+  describe ("Scene Diff " ++ name) $ do
+    it "length([Scene Diff]) == length(display [Scene Diff])" $
+      length
+        diffs
+        `shouldBe` length displays
+    forM_ (zip [0 ..] displays) testSceneInvariant
+  where
+    displays = display diffs
+
 main :: IO ()
 main = hspec $ do
   let eitherCards = loadJson
@@ -91,3 +121,4 @@ main = hspec $ do
       all
         (\(_, cSpot, _) -> inTheBack cSpot)
         (boardToCardsInPlace $ testAIRanged cards initialTurn)
+  testScenesInvariant "welcomeMovie" welcomeMovie
