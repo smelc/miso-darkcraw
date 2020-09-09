@@ -85,16 +85,6 @@ data Change = Change
   }
   deriving (Eq, Ord, Show)
 
-instance Semigroup Change where
-  Change {tellingChange = tell1, xoffset = x1, yoffset = y1}
-    <> Change {tellingChange = tell2, xoffset = x2, yoffset = y2} =
-      case (tell1, tell2) of
-        (Just s1, Just s2) | s1 /= s2 -> error $ "Cannot union tellingChanges: " ++ s1 ++ " VS " ++ s2
-        (x, _) -> Change {tellingChange = x, xoffset = x1 + x2, yoffset = y1 + y2}
-
-instance Monoid Change where
-  mempty = Change {tellingChange = Nothing, xoffset = 0, yoffset = 0}
-
 at :: Int -> Int -> Change
 at x y = Change {tellingChange = Nothing, xoffset = x, yoffset = y}
 
@@ -147,7 +137,9 @@ patch' s@State {x, y} Change {..} =
 infixr 6 <~>
 
 (<~>) :: MappingType Diff -> MappingType Diff -> MappingType Diff
-(<~>) = Map.unionWith (<>)
+(<~>) = Map.unionWithKey checkDisjoint
+  where
+    checkDisjoint k a b = error $ "Duplicate diff for element: " ++ show k
 
 -- | Given a duration and a mapping, builds a 'Scene'
 while :: Int -> MappingType p -> Scene p
