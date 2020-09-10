@@ -14,6 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
+import Cinema (Change, Element, Phase (..), Scene (..), State)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -32,10 +33,10 @@ import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Model
 import ServerMessages
-import SharedModel (SharedModel(..))
+import SharedModel (SharedModel (..))
 import System.Random (StdGen)
-import Text.PrettyPrint.ANSI.Leijen
 import Text.Pretty.Simple
+import Text.PrettyPrint.ANSI.Leijen
 import Text.Printf
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
 
@@ -98,6 +99,18 @@ instance ToExpr GameModel
 instance ToExpr PlayingMode
 
 instance ToExpr SinglePlayerLobbyModel
+
+instance ToExpr Cinema.Change
+
+instance ToExpr Cinema.State
+
+instance ToExpr Cinema.Element
+
+instance ToExpr (Scene Diff)
+
+instance ToExpr (Scene Display)
+
+instance ToExpr SceneModel
 
 instance ToExpr WelcomeModel
 
@@ -439,7 +452,7 @@ updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
 updateModel
   SinglePlayerBack
   m@(SinglePlayerLobbyModel' SinglePlayerLobbyModel {..}) =
-    noEff $ WelcomeModel' $ WelcomeModel singlePlayerLobbyShared
+    noEff $ WelcomeModel' $ initialWelcomeModel singlePlayerLobbyShared
 updateModel
   SinglePlayerGo
   m@( SinglePlayerLobbyModel'

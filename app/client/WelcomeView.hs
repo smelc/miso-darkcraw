@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -9,9 +10,9 @@
 module WelcomeView (viewWelcomeModel) where
 
 import Card (Team (..), allTeams, ppTeam)
+import Configuration
 import Constants
 import Control.Lens
-import Configuration
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust)
@@ -25,7 +26,7 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> Styled (View Action)
-viewWelcomeModel _ = do
+viewWelcomeModel WelcomeModel {welcomeSceneModel} = do
   multiPlayerDiv <-
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-

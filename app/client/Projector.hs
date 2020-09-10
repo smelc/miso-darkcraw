@@ -33,15 +33,15 @@ viewMovie ::
   [Scene Diff] ->
   Shooting
 viewMovie _ _ _ [] = Shooting {scene = Nothing, rest = []}
-viewMovie z shared prev (diff : tail) =
-  case prev of
-    Nothing ->
-      -- Building the first scene, 'diff' gets interpreted
-      -- as absolute, not a diff.
-      Shooting {scene = Just $ initial diff, rest = tail}
-    Just prev -> undefined
-      -- Applying diff to previous scene
-      patch prev diff
+viewMovie z shared prev (diff : rest) =
+  let scene = Just $
+        case prev of
+          -- Building the first scene, 'diff' gets interpreted
+          -- as absolute, not a diff.
+          Nothing -> initial diff
+          -- Patching previous scene
+          Just prev -> patch prev diff
+   in Shooting {..}
 
 data Context = Context
   { z :: Int,

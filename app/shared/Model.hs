@@ -1,18 +1,21 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Model where
 
 import Board
 import Card
+import Cinema (Phase (..), Scene (..))
 import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Text as Text
 import GHC.Generics
 import Miso.String
+import Movie (welcomeMovie)
 import ServerMessages
-import SharedModel (SharedModel(..))
+import SharedModel (SharedModel (..))
 import System.Random
 import Turn (Turn, turnToPlayerSpot)
 
@@ -75,12 +78,30 @@ data PlayingMode
   | SinglePlayerTeam Team
   deriving (Eq, Generic, Show)
 
+data SceneModel = SceneModel
+  { -- The previous scene displayed (if any)
+    displayed :: Maybe (Scene Display),
+    -- The next scenes to show
+    upcomings :: [Scene Diff]
+  }
+  deriving (Eq, Generic, Show)
+
 -- | The model of the welcome page
 data WelcomeModel = WelcomeModel
-  { -- | Part of the model shared among all pages
+  { -- The state of the scene
+    welcomeSceneModel :: SceneModel,
+    -- | Part of the model shared among all pages
     welcomeShared :: SharedModel
   }
   deriving (Eq, Generic, Show)
+
+initialWelcomeModel :: SharedModel -> WelcomeModel
+initialWelcomeModel welcomeShared =
+  WelcomeModel
+    { welcomeSceneModel =
+        SceneModel {displayed = Nothing, upcomings = Movie.welcomeMovie},
+      ..
+    }
 
 data SinglePlayerLobbyModel = SinglePlayerLobbyModel
   { -- | The chosen team

@@ -26,7 +26,7 @@ import JsonData
 import Miso
 import Miso.String
 import Model
-import SharedModel (SharedModel(..))
+import SharedModel (SharedModel (..))
 import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (StdGen, getStdGen)
@@ -71,7 +71,7 @@ main = do
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
   let shared = SharedModel {sharedCards = cards, sharedStdGen = stdGen}
-  let model = WelcomeModel' $ WelcomeModel shared -- initial model
+  let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
   runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load

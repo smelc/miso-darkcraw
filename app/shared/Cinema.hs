@@ -1,5 +1,6 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -34,6 +35,7 @@ import Card (CreatureID)
 import Data.Function ((&))
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
+import GHC.Generics
 
 data State = State
   { -- | Whether the element says something
@@ -43,13 +45,13 @@ data State = State
     -- | 0 means top
     y :: Int
   }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 data Element
   = -- The actor's unique identifier, and its tile
     Actor Int CreatureID
   | Tile
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 type Changes = Map.Map Element Change
 
@@ -71,6 +73,11 @@ data Scene (p :: Phase) = Scene
     -- | The scene's elements
     mapping :: MappingType p
   }
+  deriving (Generic)
+
+deriving instance Forall Eq p => Eq (Scene p)
+
+deriving instance Forall Ord p => Ord (Scene p)
 
 deriving instance Forall Show p => Show (Scene p)
 
@@ -83,7 +90,7 @@ data Change = Change
     -- | The change to 'y'
     yoffset :: Int
   }
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 at :: Int -> Int -> Change
 at x y = Change {tellingChange = Nothing, xoffset = x, yoffset = y}
