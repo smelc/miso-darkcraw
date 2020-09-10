@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module Model where
 
@@ -13,7 +12,6 @@ import Data.Generics.Labels
 import qualified Data.Text as Text
 import GHC.Generics
 import Miso.String
-import Movie (welcomeMovie)
 import ServerMessages
 import SharedModel (SharedModel (..))
 import System.Random
@@ -94,14 +92,6 @@ data WelcomeModel = WelcomeModel
     welcomeShared :: SharedModel
   }
   deriving (Eq, Generic, Show)
-
-initialWelcomeModel :: SharedModel -> WelcomeModel
-initialWelcomeModel welcomeShared =
-  WelcomeModel
-    { welcomeSceneModel =
-        SceneModel {displayed = Nothing, upcomings = Movie.welcomeMovie},
-      ..
-    }
 
 data SinglePlayerLobbyModel = SinglePlayerLobbyModel
   { -- | The chosen team

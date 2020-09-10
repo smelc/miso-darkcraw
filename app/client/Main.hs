@@ -31,7 +31,7 @@ import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (StdGen, getStdGen)
 import Turn (initialTurn)
-import Update (Action (..), logUpdates, updateModel)
+import Update (Action (..), initialWelcomeModel, logUpdates, updateModel)
 import View (viewModel)
 
 #ifndef __GHCJS__

@@ -32,6 +32,7 @@ import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Model
+import Movie (welcomeMovie)
 import ServerMessages
 import SharedModel (SharedModel (..))
 import System.Random (StdGen)
@@ -509,3 +510,11 @@ initialGameModel shared =
     mempty
   where
     board = exampleBoard $ sharedCards shared
+
+initialWelcomeModel :: SharedModel -> WelcomeModel
+initialWelcomeModel welcomeShared =
+  WelcomeModel
+    { welcomeSceneModel =
+        SceneModel {displayed = Nothing, upcomings = Movie.welcomeMovie},
+      ..
+    }
