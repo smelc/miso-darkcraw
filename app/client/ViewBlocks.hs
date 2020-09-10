@@ -6,7 +6,7 @@
 -- This module defines the basic building blocks used by views,
 -- so that they have a uniform look'n'feel
 -- |
-module ViewBlocks (ButtonState (..), gui, GUI (..)) where
+module ViewBlocks (ButtonState (..), dummyOn, gui, GUI (..)) where
 
 import Constants (borderSize, greenHTML, yellowHTML)
 import Data.List
@@ -14,6 +14,7 @@ import qualified Data.Map.Strict as Map
 import Miso
 import Miso.String
 import Miso.Util ((=:))
+import Update (Action (NoOp))
 import ViewInternal
 
 data GUI a = GUI
@@ -72,6 +73,19 @@ _simpleGUI = GUI {..}
 
 disabledHTML :: MisoString
 disabledHTML = "#AAAAAA"
+
+-- | Dummy [onWithOptions] instance.
+-- | See https://github.com/dmjio/miso/issues/478
+dummyOn ::
+  -- | One of "dragenter" or "dragover"
+  MisoString ->
+  Attribute Action
+dummyOn str =
+  onWithOptions
+    defaultOptions {preventDefault = True}
+    str
+    emptyDecoder
+    (\() -> NoOp)
 
 buttonStyle :: ButtonState -> Bool -> Attribute a
 buttonStyle bState border =

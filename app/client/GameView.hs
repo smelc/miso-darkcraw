@@ -31,6 +31,7 @@ import Model -- XXX tighten the imports?
 import PCWViewInternal (cardBoxShadowStyle, cardCreature, cardPositionStyle, cardPositionStyle')
 import Update
 import Utils (style1_)
+import ViewBlocks (dummyOn)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a game model

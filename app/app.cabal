@@ -80,7 +80,6 @@ executable app
     WelcomeView
   hs-source-dirs:
     client,
-    client/cinema,
     shared
   if !impl(ghcjs)
     build-depends:

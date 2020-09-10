@@ -9,6 +9,9 @@
 -- and *ViewInternal.hs files. If you wanna add stuff really specific
 -- to the game and that is used among various *View.hs files, put it
 -- in 'PCWViewInternal.hs'
+--
+-- This module is the base for other View modules, meaning almost all other
+-- *View* modules depend on this module.
 -- |
 module ViewInternal where
 
@@ -24,7 +27,6 @@ import GHC.Generics (Generic)
 import Miso hiding (at)
 import Miso.String hiding (length, map, take, zip)
 import Miso.Util ((=:))
-import Update (Action (..))
 
 newtype Styled a = Styled (Writer (Set.Set MisoString) a)
   deriving (Functor, Applicative, Monad, MonadWriter (Set.Set MisoString))
@@ -93,19 +95,6 @@ textRawStyle = [("color", textMainColor)]
 -- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textStyle :: Map.Map MisoString MisoString
 textStyle = Map.fromList textRawStyle
-
--- | Dummy [onWithOptions] instance.
--- | See https://github.com/dmjio/miso/issues/478
-dummyOn ::
-  -- | One of "dragenter" or "dragover"
-  MisoString ->
-  Attribute Action
-dummyOn str =
-  onWithOptions
-    defaultOptions {preventDefault = True}
-    str
-    emptyDecoder
-    (\() -> NoOp)
 
 data Position = Absolute | Relative
 
