@@ -72,7 +72,6 @@ executable app
     Movie
     MultiPlayerLobbyView
     PCWViewInternal
-    Projector
     SinglePlayerLobbyView
     View
     ViewBlocks

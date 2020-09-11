@@ -14,6 +14,7 @@ module Cinema
     Element (..),
     Phase (..),
     Scene (..),
+    Shooting (..),
     State (..),
     (=:),
     (<~>),
@@ -25,6 +26,7 @@ module Cinema
     patch,
     patch',
     right,
+    shoot,
     tell,
     up,
     while,
@@ -36,6 +38,7 @@ import Data.Function ((&))
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import GHC.Generics
+import SharedModel (SharedModel (..))
 
 data State = State
   { -- | Whether the element says something
@@ -164,3 +167,26 @@ display (absolute : diffs) =
     display' display (firstDiff : nextDiffs) =
       let nextDisplay = patch display firstDiff
        in nextDisplay : display' nextDisplay nextDiffs
+
+data Shooting = Shooting
+  { scene :: Maybe (Scene Display),
+    rest :: [Scene Diff]
+  }
+
+shoot ::
+  SharedModel ->
+  -- | The previous scene that was returned, or Nothing if the first call
+  Maybe (Scene Display) ->
+  -- | The remaing scenes to apply
+  [Scene Diff] ->
+  Shooting
+shoot _ _ [] = Shooting {scene = Nothing, rest = []}
+shoot shared prev (diff : rest) =
+  let scene = Just $
+        case prev of
+          -- Building the first scene, 'diff' gets interpreted
+          -- as absolute, not a diff.
+          Nothing -> initial diff
+          -- Patching previous scene
+          Just prev -> patch prev diff
+   in Shooting {..}

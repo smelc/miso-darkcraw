@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
@@ -17,13 +18,16 @@ module PCWViewInternal
   )
 where
 
-import Card (Creature (..), Phase (..), filename)
+import Card (Card (CreatureCard), Creature (..), CreatureID, Phase (..), filename)
+import Cinema (Change, Element (..))
 import Constants
+import Data.Function ((&))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, isNothing)
+import Data.Maybe (catMaybes, fromJust, isNothing)
 import Miso
-import Miso.String
+import Miso.String hiding (map)
 import Miso.Util ((=:))
+import SharedModel (SharedModel (..))
 import Update (Action)
 import ViewInternal
 
@@ -126,3 +130,23 @@ cardPositionStyle' ::
   Map.Map MisoString MisoString
 cardPositionStyle' xPixelsOffset yPixelsOffset =
   pltwh Absolute xPixelsOffset yPixelsOffset cardPixelWidth cardPixelHeight
+
+-- Now come functions that are about building the view of a Scene
+data Context = Context
+  { z :: Int,
+    paths :: Map.Map CreatureID MisoString
+  }
+
+createContext :: Int -> SharedModel -> Context
+createContext z SharedModel {..} =
+  Context {..}
+  where
+    paths = map f sharedCards & catMaybes & Map.fromList
+    f (CreatureCard Creature {..}) = Just (creatureId, ms filename)
+    f _ = Nothing
+
+viewEntry :: Context -> Element -> Change -> View a
+viewEntry Context {..} element change =
+  case element of
+    Actor _ cid -> imgCell $ assetsPath $ paths Map.!? cid & fromJust
+    Tile -> error "Please implement viewing a Tile"

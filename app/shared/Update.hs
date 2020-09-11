@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (Change, Element, Phase (..), Scene (..), State)
+import Cinema (Change, Element, Phase (..), Scene (..), Shooting (..), State, shoot)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -33,7 +33,6 @@ import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Model
 import Movie (welcomeMovie)
-import Projector (Shooting (..), shoot)
 import ServerMessages
 import SharedModel (SharedModel (..))
 import System.Random (StdGen)
@@ -493,7 +492,7 @@ updateModel
       Just duration | duration == 0 -> error "duration of scene should NOT be 0"
       Just duration -> delayActions m' [(duration, StepScene)]
     where
-      s@Shooting {scene} = Projector.shoot welcomeShared displayed upcomings
+      s@Shooting {scene} = Cinema.shoot welcomeShared displayed upcomings
       d = (* 10) . toSecs . duration <$> scene -- \* 10 because Scene's
       -- duration is in tenth of seconds
       m' = WelcomeModel' $ wm {welcomeSceneModel = toSceneModel s}
