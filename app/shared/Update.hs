@@ -33,11 +33,12 @@ import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Model
 import Movie (welcomeMovie)
+import Projector (Shooting (..), viewMovie)
 import ServerMessages
 import SharedModel (SharedModel (..))
 import System.Random (StdGen)
 import Text.Pretty.Simple
-import Text.PrettyPrint.ANSI.Leijen
+import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import Text.Printf
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
 
@@ -197,6 +198,8 @@ data Action
     SinglePlayerBack
   | -- Leave 'SinglePlayerView', start game
     SinglePlayerGo
+  | -- Make the current scene progress
+    StepScene
   | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
     WelcomeGo WelcomeDestination
   deriving (Show, Eq)
@@ -430,6 +433,12 @@ delayActions m actions =
       | (i, action) <- actions
     ]
 
+toSceneModel :: Shooting -> SceneModel
+toSceneModel Shooting {..} = SceneModel {displayed = scene, upcomings = rest}
+
+toSecs :: Int -> Int
+toSecs x = x * 1000000
+
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
 -- | and is the only one to handle page changes. A page change event
@@ -441,7 +450,8 @@ updateModel :: Action -> Model -> Effect Action Model
 -- Generic actions
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m =
-  m <# do consoleLog "miso-darkcraw says hello" >> pure NoOp
+  -- Say hello and start scene stepping
+  m <# do consoleLog "miso-darkcraw says hello" >> pure StepScene
 -- Actions that change the page
 -- Leave 'DeckView'
 updateModel DeckBack m@(DeckModel' DeckModel {..}) =
@@ -474,7 +484,19 @@ updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
   where
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
--- Actions that do not change the page, delegate to more specialized versions
+-- Action that does not change the page: StepScene
+updateModel
+  StepScene
+  (WelcomeModel' wm@WelcomeModel {welcomeSceneModel = s@SceneModel {..}, ..}) =
+    case d of
+      Nothing -> noEff m'
+      Just duration | duration == 0 -> error "duration of scene should NOT be 0"
+      Just duration -> delayActions m' [(duration, StepScene)]
+    where
+      s@Shooting {scene} = Projector.viewMovie welcomeShared displayed upcomings
+      d = toSecs . duration <$> scene
+      m' = WelcomeModel' $ wm {welcomeSceneModel = toSceneModel s}
+-- Actions that do not change the page delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
@@ -484,16 +506,17 @@ updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
     m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl
-    prepare as = map (\(i, a) -> (i * toSecs, GameAction' a)) $ sumDelays 0 as
-    toSecs = 1000000
+    prepare as = map (DataBifunctor.bimap toSecs GameAction') $ sumDelays 0 as
     check ((0, event) : _) = error $ "updateGameModel should not return event with 0 delay, but " ++ show event ++ " did"
     check as = as
 updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
   noEff $ SinglePlayerLobbyModel' $ updateSinglePlayerLobbyModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
   MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
+-- Ignore uninterpreted Scene transitions
+updateModel StepScene m = noEff m
 updateModel a m =
-  error . Text.unpack $
+  error $ Text.unpack $
     "Unhandled case in updateModel with the model being:\n"
       <> pShowNoColor m
       <> "\nand the action being:\n"
