@@ -33,7 +33,7 @@ import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Model
 import Movie (welcomeMovie)
-import Projector (Shooting (..), viewMovie)
+import Projector (Shooting (..), shoot)
 import ServerMessages
 import SharedModel (SharedModel (..))
 import System.Random (StdGen)
@@ -493,8 +493,9 @@ updateModel
       Just duration | duration == 0 -> error "duration of scene should NOT be 0"
       Just duration -> delayActions m' [(duration, StepScene)]
     where
-      s@Shooting {scene} = Projector.viewMovie welcomeShared displayed upcomings
-      d = toSecs . duration <$> scene
+      s@Shooting {scene} = Projector.shoot welcomeShared displayed upcomings
+      d = (* 10) . toSecs . duration <$> scene -- \* 10 because Scene's
+      -- duration is in tenth of seconds
       m' = WelcomeModel' $ wm {welcomeSceneModel = toSceneModel s}
 -- Actions that do not change the page delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =

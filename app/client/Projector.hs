@@ -5,7 +5,7 @@
 
 -- | Takes instances of scene diffs from 'Movie' and makes DOM trees
 -- out of that
-module Projector (Shooting (..), viewMovie) where
+module Projector (Shooting (..), shoot) where
 
 import Card
 import Cinema (Change, Element (..), Phase (..), Scene, State (..), initial, patch)
@@ -24,15 +24,15 @@ data Shooting = Shooting
     rest :: [Scene Diff]
   }
 
-viewMovie ::
+shoot ::
   SharedModel ->
   -- | The previous scene that was returned, or Nothing if the first call
   Maybe (Scene Display) ->
   -- | The remaing scenes to apply
   [Scene Diff] ->
   Shooting
-viewMovie _ _ [] = Shooting {scene = Nothing, rest = []}
-viewMovie shared prev (diff : rest) =
+shoot _ _ [] = Shooting {scene = Nothing, rest = []}
+shoot shared prev (diff : rest) =
   let scene = Just $
         case prev of
           -- Building the first scene, 'diff' gets interpreted
