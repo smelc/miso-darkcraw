@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -15,11 +16,12 @@ module PCWViewInternal
     cardCreature,
     cardPositionStyle,
     cardPositionStyle',
+    viewScene,
   )
 where
 
 import Card (Card (CreatureCard), Creature (..), CreatureID, Phase (..), filename)
-import Cinema (Change, Element (..))
+import Cinema (Element (..), Phase (..), Scene, Scene (..), State (..))
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -145,8 +147,25 @@ createContext z SharedModel {..} =
     f (CreatureCard Creature {..}) = Just (creatureId, ms filename)
     f _ = Nothing
 
-viewEntry :: Context -> Element -> Change -> View a
-viewEntry Context {..} element change =
+viewScene :: Int -> SharedModel -> Scene Display -> View a
+viewScene z smodel Scene {mapping} =
+  div_
+    []
+    $ Map.toList
+      mapping
+      & map (uncurry (viewEntry context))
+  where
+    context = createContext z smodel
+
+stateToAttribute :: Int -> State -> Attribute a
+stateToAttribute z State {x, y} =
+  style_ $ pltwh Absolute (x * cps) (y * cps) cps cps
+
+viewEntry :: Context -> Element -> State -> View a
+viewEntry Context {..} element state =
   case element of
-    Actor _ cid -> imgCell $ assetsPath $ paths Map.!? cid & fromJust
-    Tile -> error "Please implement viewing a Tile"
+    Actor _ cid ->
+      div_
+        [stateToAttribute z state]
+        [imgCell $ paths Map.!? cid & fromJust]
+    Tile -> error "Viewing a Tile is unimplemented"

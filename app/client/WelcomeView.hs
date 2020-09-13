@@ -1,6 +1,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
@@ -15,32 +16,34 @@ import Constants
 import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
-import Data.Maybe (isJust)
+import Data.Maybe (fromJust, isJust)
 import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
-import Model (PlayingMode (..), WelcomeModel (..))
+import Model (PlayingMode (..), SceneModel (..), WelcomeModel (..))
+import PCWViewInternal (viewScene)
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> Styled (View Action)
-viewWelcomeModel WelcomeModel {welcomeSceneModel} = do
+viewWelcomeModel WelcomeModel {welcomeSceneModel = SceneModel {displayed}, ..} = do
   multiPlayerDiv <-
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-
     createButtonDivM singlePlayerMargin SinglePlayerDestination "Single Player"
-  return $
-    div_
+  return
+    $ div_
       [style_ bgStyle]
-      [ torchesDiv zpp, -- Absolute placement
+    $ [ torchesDiv zpp, -- Absolute placement
         versionDiv zpp configuration, -- Absolute placement
         div_
           [style_ flexColumnStyle]
           -- top level flex, layout things in a column
           [titleDiv, singlePlayerDiv, multiPlayerDiv]
       ]
+      ++ [viewScene z welcomeShared $ fromJust displayed | isJust displayed]
   where
     (z, zpp) = (0, z + 1)
     bgStyle =

@@ -435,8 +435,13 @@ delayActions m actions =
 toSceneModel :: Shooting -> SceneModel
 toSceneModel Shooting {..} = SceneModel {displayed = scene, upcomings = rest}
 
+-- | Seconds to scheduling delay
 toSecs :: Int -> Int
 toSecs x = x * 1000000
+
+-- | Tenth of seconds to scheduling delay
+tenthToSecs :: Int -> Int
+tenthToSecs x = x * 100000
 
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
@@ -493,8 +498,7 @@ updateModel
       Just duration -> delayActions m' [(duration, StepScene)]
     where
       s@Shooting {scene} = Cinema.shoot welcomeShared displayed upcomings
-      d = (* 10) . toSecs . duration <$> scene -- \* 10 because Scene's
-      -- duration is in tenth of seconds
+      d = tenthToSecs . duration <$> scene
       m' = WelcomeModel' $ wm {welcomeSceneModel = toSceneModel s}
 -- Actions that do not change the page delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
