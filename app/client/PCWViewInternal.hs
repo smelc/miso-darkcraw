@@ -20,8 +20,8 @@ module PCWViewInternal
   )
 where
 
-import Card (Card (CreatureCard), Creature (..), CreatureID, Phase (..), filepath, filepathToString)
-import Cinema (Element (..), Phase (..), Scene, Scene (..), State (..))
+import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString)
+import Cinema (Direction, Element (..), Phase (..), Scene, Scene (..), State (..), defaultDirection)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -136,7 +136,7 @@ cardPositionStyle' xPixelsOffset yPixelsOffset =
 -- Now come functions that are about building the view of a Scene
 data Context = Context
   { z :: Int,
-    paths :: Map.Map CreatureID MisoString
+    paths :: Map.Map CreatureID (Direction -> MisoString)
   }
 
 createContext :: Int -> SharedModel -> Context
@@ -144,8 +144,17 @@ createContext z SharedModel {..} =
   Context {..}
   where
     paths = map f sharedCards & catMaybes & Map.fromList
-    f (CreatureCard Creature {..}) = Just (creatureId, ms (filepath & filepathToString))
+    f (CreatureCard Creature {..}) = Just (creatureId, dirToFilename filepath)
     f _ = Nothing
+    -- Leave 24x24_3_0.png untouched if direction is ToLeft
+    dirToFilename filepath dir
+      | dir == defaultDirection =
+        ms $ filepathToString filepath
+    -- Return 24x24_3_1.png untouched if direction is ToRight. This is
+    -- where we rely on the right version of a sprite to be one line below
+    -- its left version
+    dirToFilename f@Filepath {..} _ =
+      dirToFilename f {fpY = fpY + 1} defaultDirection
 
 viewScene :: Int -> SharedModel -> Scene Display -> View a
 viewScene z smodel Scene {mapping} =
@@ -162,10 +171,13 @@ stateToAttribute z State {x, y} =
   style_ $ pltwh Absolute (x * cps) (y * cps) cps cps
 
 viewEntry :: Context -> Element -> State -> View a
-viewEntry Context {..} element state =
+viewEntry Context {..} element state@State {direction} =
   case element of
     Actor _ cid ->
-      div_
-        [stateToAttribute z state]
-        [imgCell $ paths Map.!? cid & fromJust]
+      div_ [stateToAttribute z state] [imgCell path]
+      where
+        path =
+          case paths Map.!? cid of
+            Nothing -> error $ "CreatureID has no corresponding filename: " ++ show cid
+            Just dirToPath -> dirToPath direction
     Tile -> error "Viewing a Tile is unimplemented"

@@ -11,6 +11,7 @@
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
   ( Change,
+    Direction (..),
     Element (..),
     Phase (..),
     Scene (..),
@@ -19,6 +20,8 @@ module Cinema
     (=:),
     (<~>),
     at,
+    at',
+    defaultDirection,
     display,
     down,
     initial,
@@ -36,12 +39,22 @@ where
 import Card (CreatureID)
 import Data.Function ((&))
 import Data.Kind (Constraint, Type)
+import Data.List (find)
 import qualified Data.Map.Strict as Map
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import GHC.Generics
 import SharedModel (SharedModel (..))
 
+data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clasing with Either
+  deriving (Eq, Generic, Ord, Show)
+
+defaultDirection :: Direction
+defaultDirection = ToLeft -- How sprite are in oryx' set
+
 data State = State
-  { -- | Whether the element says something
+  { -- | In which direction the sprite is looking at
+    direction :: Direction,
+    -- | Whether the element says something
     telling :: Maybe String,
     -- | 0 means on the left
     x :: Int,
@@ -86,7 +99,9 @@ deriving instance Forall Show p => Show (Scene p)
 
 -- | The change to an actor's 'State'
 data Change = Change
-  { -- | The change to 'telling'
+  { -- | The change to 'direction'
+    turn :: Maybe Direction,
+    -- | The change to 'telling'
     tellingChange :: Maybe String,
     -- | The change to 'x'
     xoffset :: Int,
@@ -96,7 +111,10 @@ data Change = Change
   deriving (Eq, Generic, Ord, Show)
 
 at :: Int -> Int -> Change
-at x y = Change {tellingChange = Nothing, xoffset = x, yoffset = y}
+at x y = Change {turn = Nothing, tellingChange = Nothing, xoffset = x, yoffset = y}
+
+at' :: Direction -> Int -> Int -> Change
+at' dir x y = Change {turn = Just dir, tellingChange = Nothing, xoffset = x, yoffset = y}
 
 down :: Change
 down = at 0 1
@@ -108,7 +126,7 @@ right :: Change
 right = at 1 0
 
 tell :: String -> Change
-tell s = Change {tellingChange = Just s, xoffset = 0, yoffset = 0}
+tell s = Change {turn = Nothing, tellingChange = Just s, xoffset = 0, yoffset = 0}
 
 up :: Change
 up = at 0 (-1)
@@ -120,7 +138,13 @@ initial Scene {duration, mapping = changes} =
     mapping = Map.map initial' changes
 
 initial' :: Change -> State
-initial' Change {..} = State {telling = tellingChange, x = xoffset, y = yoffset}
+initial' Change {..} =
+  State
+    { direction = fromMaybe defaultDirection turn,
+      telling = tellingChange,
+      x = xoffset,
+      y = yoffset
+    }
 
 patch :: Scene Display -> Scene Diff -> Scene Display
 patch

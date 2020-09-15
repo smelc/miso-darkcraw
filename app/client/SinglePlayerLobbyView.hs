@@ -118,7 +118,7 @@ teamButton z chosen team = do
         Just t | t == team -> (Selected, LobbySelectTeam Nothing) -- toggle
         Just _ -> (Disabled, LobbySelectTeam $ Just team)
     tile Human = "24x24_3_0.png"
-    tile Undead = "24x24_1_1.png"
+    tile Undead = "24x24_3_1.png"
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
         img_' $ tile team -- tile

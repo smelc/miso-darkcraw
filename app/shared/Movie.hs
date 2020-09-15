@@ -19,7 +19,7 @@ welcomeMovie :: [Scene Diff]
 welcomeMovie =
   map
     (while 10) -- 10 tenth of seconds: 1 second
-    [ w0 =: at 0 15 <~> w1 =: at 20 11,
+    [ w0 =: at' ToRight 0 15 <~> w1 =: at 20 11,
       w0 =: right <~> w1 =: left,
       w0 =: right <~> w1 =: left,
       w1 =: tell "Haha fresh meat"
