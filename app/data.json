@@ -1,13 +1,13 @@
 {
   "creatures": [
-    { "id": { "name":"spearman",  "team":"human" },  "title":"Spearman",  "hp":2, "attack":1, "moral":3, "victory_points":2, "x":72, "y":0,  "filename":"24x24_1_0.png", "skills":["HitFromBack"] },
-    { "id": { "name":"swordsman", "team":"human" },  "title":"swordsman", "hp":2, "attack":1, "moral":3, "victory_points":2, "x":0, "y":0,   "filename":"24x24_0_0.png" },
-    { "id": { "name":"archer",    "team":"human" },  "title":"archer",    "hp":2, "attack":1, "moral":3, "victory_points":2, "x":144, "y":0, "filename":"24x24_2_0.png", "skills":["Ranged"] },
-    { "id": { "name":"general",   "team":"human" },  "title":"general",   "hp":3, "attack":3, "moral":5, "victory_points":5, "x":216, "y":0, "filename":"24x24_3_0.png", "skills":["Leader", "Unique"] },
-    { "id": { "name":"skeleton",  "team":"undead" }, "title":"skeleton",  "hp":1, "attack":1, "victory_points":1, "x":0, "y":72,   "filename":"24x24_0_1.png" },
-    { "id": { "name":"vampire",   "team":"undead" }, "title":"vampire",   "hp":3, "attack":3, "victory_points":5, "x":72, "y":72,  "filename":"24x24_1_1.png" },
-    { "id": { "name":"archer",    "team":"undead" }, "title":"archer",    "hp":1, "attack":1, "victory_points":1, "x":144, "y":72, "filename":"24x24_2_1.png", "skills":["Ranged"]},
-    { "id": { "name":"mummy",     "team":"undead" }, "title":"mummy",     "hp":5, "attack":2, "victory_points":2, "x":216, "y":72, "filename":"24x24_3_1.png"}
+    { "id": { "name":"spearman",  "team":"human" },  "title":"Spearman",  "hp":2, "attack":1, "moral":3, "victory_points":2, "x":72, "y":0,  "filepath": {"root": "24x24", "x": 1, "y": 0}, "skills":["HitFromBack"] },
+    { "id": { "name":"swordsman", "team":"human" },  "title":"swordsman", "hp":2, "attack":1, "moral":3, "victory_points":2, "x":0, "y":0,   "filepath": {"root": "24x24", "x": 0, "y": 0} },
+    { "id": { "name":"archer",    "team":"human" },  "title":"archer",    "hp":2, "attack":1, "moral":3, "victory_points":2, "x":144, "y":0, "filepath": {"root": "24x24", "x": 2, "y": 0}, "skills":["Ranged"] },
+    { "id": { "name":"general",   "team":"human" },  "title":"general",   "hp":3, "attack":3, "moral":5, "victory_points":5, "x":216, "y":0, "filepath": {"root": "24x24", "x": 3, "y": 0}, "skills":["Leader", "Unique"] },
+    { "id": { "name":"skeleton",  "team":"undead" }, "title":"skeleton",  "hp":1, "attack":1, "victory_points":1, "x":0, "y":72,   "filepath": {"root": "24x24", "x": 0, "y": 1} },
+    { "id": { "name":"vampire",   "team":"undead" }, "title":"vampire",   "hp":3, "attack":3, "victory_points":5, "x":72, "y":72,  "filepath": {"root": "24x24", "x": 1, "y": 1} },
+    { "id": { "name":"archer",    "team":"undead" }, "title":"archer",    "hp":1, "attack":1, "victory_points":1, "x":144, "y":72, "filepath": {"root": "24x24", "x": 2, "y": 1}, "skills":["Ranged"]},
+    { "id": { "name":"mummy",     "team":"undead" }, "title":"mummy",     "hp":5, "attack":2, "victory_points":2, "x":216, "y":72, "filepath": {"root": "24x24", "x": 3, "y": 1}}
   ],
   "neutral": [
     { "name":"health", "title":"Health", "tile":"RedPotion",   "text":"Heals 1 HP" },

@@ -45,6 +45,20 @@ instance ToJSON CreatureID
 instance FromJSON CreatureID where
   parseJSON = genericParseJSON creatureIDOptions
 
+filepathOptions :: Options
+filepathOptions =
+  defaultOptions
+    { fieldLabelModifier = \case
+        "fpX" -> "x"
+        "fpY" -> "y"
+        s -> s
+    }
+
+instance ToJSON Filepath
+
+instance FromJSON Filepath where
+  parseJSON = genericParseJSON filepathOptions
+
 toLowerConstructorOptions :: Options
 toLowerConstructorOptions =
   defaultOptions

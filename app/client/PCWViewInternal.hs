@@ -20,7 +20,7 @@ module PCWViewInternal
   )
 where
 
-import Card (Card (CreatureCard), Creature (..), CreatureID, Phase (..), filename)
+import Card (Card (CreatureCard), Creature (..), CreatureID, Phase (..), filepath, filepathToString)
 import Cinema (Element (..), Phase (..), Scene, Scene (..), State (..))
 import Constants
 import Data.Function ((&))
@@ -70,7 +70,7 @@ cardCreature z creature hover =
     topMargin = cellPixelSize `div` 4
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - cellPixelSize) `div` 2) topMargin
-    pictureCell :: View Action = imgCell $ ms $ filename $ fromJust creature
+    pictureCell = imgCell $ ms $ fromJust creature & filepath & filepathToString
     statsStyle = zpltwh (z + 1) Absolute topMargin top width cellPixelSize
       where
         width = cardPixelWidth - (topMargin * 2)
@@ -144,7 +144,7 @@ createContext z SharedModel {..} =
   Context {..}
   where
     paths = map f sharedCards & catMaybes & Map.fromList
-    f (CreatureCard Creature {..}) = Just (creatureId, ms filename)
+    f (CreatureCard Creature {..}) = Just (creatureId, ms (filepath & filepathToString))
     f _ = Nothing
 
 viewScene :: Int -> SharedModel -> Scene Display -> View a

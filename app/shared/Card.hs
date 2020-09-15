@@ -58,6 +58,17 @@ data CreatureKind
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
 
+data Filepath = Filepath
+  { root :: String,
+    fpX :: Int,
+    fpY :: Int
+  }
+  deriving (Eq, Generic, Ord, Show)
+
+filepathToString :: Filepath -> String
+filepathToString Filepath {..} =
+  root ++ "_" ++ show fpX ++ "_" ++ show fpY ++ ".png"
+
 data Creature (p :: Phase) = Creature
   { creatureId :: CreatureID,
     hp :: Int,
@@ -67,7 +78,7 @@ data Creature (p :: Phase) = Creature
     skills :: Maybe [Skill],
     x :: CoordType p,
     y :: CoordType p,
-    filename :: String
+    filepath :: Filepath
   }
   deriving (Generic)
 
@@ -110,7 +121,7 @@ deriving instance Generic (Card p)
 
 creatureUI2CreatureCore :: Creature UI -> Creature Core
 creatureUI2CreatureCore Creature {..} =
-  Creature creatureId hp attack moral victoryPoints skills () () filename
+  Creature creatureId hp attack moral victoryPoints skills () () filepath
 
 cardUI2CardCore :: Card UI -> Card Core
 cardUI2CardCore card =
