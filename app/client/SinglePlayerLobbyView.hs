@@ -1,5 +1,7 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
@@ -8,7 +10,7 @@
 -- |
 module SinglePlayerLobbyView (viewSinglePlayerLobbyModel) where
 
-import Card (Team (..), allTeams, ppTeam)
+import Card
 import Constants
 import Control.Lens
 import Data.Generics.Labels
@@ -18,13 +20,14 @@ import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (Model (..), SinglePlayerLobbyModel (..))
+import SharedModel (SharedModel (..))
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a 'SinglePlayerLobbyModel'
 viewSinglePlayerLobbyModel :: SinglePlayerLobbyModel -> Styled (View Action)
-viewSinglePlayerLobbyModel m@SinglePlayerLobbyModel {singlePlayerLobbyTeam = maybeTeam} = do
+viewSinglePlayerLobbyModel m@SinglePlayerLobbyModel {..} = do
   chooseTeamDiv <- chooseTeamDivM
   startDiv <- startDivM
   backDiv <- backDivM
@@ -50,8 +53,9 @@ viewSinglePlayerLobbyModel m@SinglePlayerLobbyModel {singlePlayerLobbyTeam = may
     subtitleStyle = textStyle <> "font-size" =: px subtitleFontSize
     pushRight = "margin-right" =: px 64
     pushLeft = "margin-left" =: px 96
+    maybeTeam = singlePlayerLobbyTeam
     chooseTeamDivM = do
-      selectTeam <- selectTeamDiv zpp maybeTeam
+      selectTeam <- selectTeamDiv singlePlayerLobbyShared zpp maybeTeam
       let chooseYourTeam =
             div_
               [style_ $ subtitleStyle <> pushRight]
@@ -88,10 +92,10 @@ viewSinglePlayerLobbyModel m@SinglePlayerLobbyModel {singlePlayerLobbyTeam = may
           "Back"
       return $ div_ [style_ $ "margin-top" =: voffset] [button]
 
-selectTeamDiv :: Int -> Maybe Team -> Styled (View Action)
-selectTeamDiv z chosen = do
+selectTeamDiv :: SharedModel -> Int -> Maybe Team -> Styled (View Action)
+selectTeamDiv smodel z chosen = do
   -- startButtonDiv <- startButtonDivM
-  teamButtons <- sequence [teamButton z chosen t | t <- allTeams]
+  teamButtons <- sequence [teamButton smodel z chosen t | t <- allTeams]
   return $
     div_
       [style_ flexLineStyle]
@@ -101,6 +105,7 @@ selectTeamDiv z chosen = do
       ]
 
 teamButton ::
+  SharedModel ->
   -- The z index
   Int ->
   -- | The selected team, if any
@@ -108,7 +113,7 @@ teamButton ::
   -- The team for which to build the button
   Team ->
   Styled (View Action)
-teamButton z chosen team = do
+teamButton SharedModel {sharedCards} z chosen team = do
   button <- anyButton gui z bState builder
   return $ marginifyhv 2 4 button
   where
@@ -117,11 +122,17 @@ teamButton z chosen team = do
         Nothing -> (Enabled, LobbySelectTeam $ Just team)
         Just t | t == team -> (Selected, LobbySelectTeam Nothing) -- toggle
         Just _ -> (Disabled, LobbySelectTeam $ Just team)
-    tile Human = "24x24_3_0.png"
-    tile Undead = "24x24_3_1.png"
+    creature kind team = unsafeCreatureWithID sharedCards $ CreatureID kind team
+    path team kind = creature kind team & filepath & filepathToString
+    tile team =
+      ( case team of
+          Human -> General
+          Undead -> Vampire
+      )
+        & path team
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
-        img_' $ tile team -- tile
+        img_' $ ms $ tile team
       ]
     onClickAction = SinglePlayerLobbyAction' action
     builder x =
