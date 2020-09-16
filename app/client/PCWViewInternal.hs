@@ -25,9 +25,9 @@ import Cinema (Direction, Element (..), Phase (..), Scene, Scene (..), State (..
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, fromJust, isNothing)
+import Data.Maybe (catMaybes, fromJust, isJust, isNothing, maybeToList)
 import Miso
-import Miso.String hiding (map)
+import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
 import SharedModel (SharedModel (..))
 import Update (Action)
@@ -163,21 +163,37 @@ viewScene z smodel Scene {mapping} =
     $ Map.toList
       mapping
       & map (uncurry (viewEntry context))
+      & concat
   where
     context = createContext z smodel
 
 stateToAttribute :: Int -> State -> Attribute a
 stateToAttribute z State {x, y} =
-  style_ $ pltwh Absolute (x * cps) (y * cps) cps cps
+  style_ $
+    pltwh Absolute (x * cps) (y * cps) cps cps
+      <> "z-index" =: ms z
 
-viewEntry :: Context -> Element -> State -> View a
-viewEntry Context {..} element state@State {direction} =
+viewEntry :: Context -> Element -> State -> [View a]
+viewEntry Context {..} element state@State {direction, telling} =
   case element of
     Actor _ cid ->
-      div_ [stateToAttribute z state] [imgCell path]
+      [div_ [stateToAttribute z state] [imgCell path]]
+        ++ [div_ [bubbleStyle state] $ bubbleText telling & maybeToList]
       where
         path =
           case paths Map.!? cid of
             Nothing -> error $ "CreatureID has no corresponding filename: " ++ show cid
             Just dirToPath -> dirToPath direction
     Tile -> error "Viewing a Tile is unimplemented"
+  where
+    bubbleStyle State {x, y} =
+      style_ $
+        "position" =: "absolute"
+          <> "left" =: px ((x * cps) + cps `div` 2)
+          <> "top" =: px ((y - 1) * cps)
+          <> "transform" =: "translate(-50%, -50%)" -- Center element
+          <> "background-color" =: beigeHTML
+          <> "border-radius" =: px 2 -- rounded corners
+          <> "z-index" =: ms z
+          <> "max-width" =: px (2 * cps)
+    bubbleText t = text . ms <$> t

@@ -43,9 +43,9 @@ viewWelcomeModel WelcomeModel {welcomeSceneModel = SceneModel {displayed}, ..} =
           -- top level flex, layout things in a column
           [titleDiv, singlePlayerDiv, multiPlayerDiv]
       ]
-      ++ [viewScene z welcomeShared $ fromJust displayed | isJust displayed]
+      ++ [viewScene zpppp welcomeShared $ fromJust displayed | isJust displayed]
   where
-    (z, zpp) = (0, z + 1)
+    (z, zpp, zpppp) = (0, z + 1, zpp + 1)
     bgStyle =
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "welcome.png"

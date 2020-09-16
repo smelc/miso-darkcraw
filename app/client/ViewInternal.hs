@@ -271,13 +271,11 @@ zplt z pos left top =
 -- | the left margin, the width, and the height. All sizes are in pixels
 pltwh :: Position -> Int -> Int -> Int -> Int -> Map.Map MisoString MisoString
 pltwh pos left top width height =
-  Map.fromList
-    [ ("position", ms $ show pos),
-      ("left", ms left <> "px"),
-      ("top", ms top <> "px"),
-      ("width", ms width <> "px"),
-      ("height", ms height <> "px")
-    ]
+  "position" =: ms (show pos)
+    <> "left" =: px left
+    <> "top" =: px top
+    <> "width" =: px width
+    <> "height" =: px height
 
 -- | A style specifying the z-index, the position, the left margin,
 -- | the top margin, the width, and the height. All sizes are in pixels

@@ -26,6 +26,7 @@ module Cinema
     down,
     initial,
     left,
+    mkChange,
     patch,
     patch',
     right,
@@ -109,6 +110,9 @@ data Change = Change
     yoffset :: Int
   }
   deriving (Eq, Generic, Ord, Show)
+
+mkChange :: Maybe Direction -> Maybe String -> Int -> Int -> Change
+mkChange turn tellingChange xoffset yoffset = Change {..}
 
 at :: Int -> Int -> Change
 at x y = Change {turn = Nothing, tellingChange = Nothing, xoffset = x, yoffset = y}

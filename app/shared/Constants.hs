@@ -147,6 +147,9 @@ lobbiesPixelWidth = 504
 lobbiesPixelHeight :: Int
 lobbiesPixelHeight = 624
 
+beigeHTML :: MisoString
+beigeHTML = "#F6E795"
+
 greenHTML :: MisoString
 greenHTML = "#00FF00"
 
