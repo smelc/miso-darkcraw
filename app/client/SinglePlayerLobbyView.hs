@@ -1,4 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -11,6 +10,14 @@
 module SinglePlayerLobbyView (viewSinglePlayerLobbyModel) where
 
 import Card
+  ( CreatureID (..),
+    CreatureKind (..),
+    Team (..),
+    allTeams,
+    creatureToFilepath,
+    filepathToString,
+    ppTeam,
+  )
 import Constants
 import Control.Lens
 import Data.Generics.Labels
@@ -20,7 +27,7 @@ import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (Model (..), SinglePlayerLobbyModel (..))
-import SharedModel (SharedModel (..))
+import SharedModel (SharedModel (..), identToCard, identToCreature)
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
@@ -113,7 +120,7 @@ teamButton ::
   -- The team for which to build the button
   Team ->
   Styled (View Action)
-teamButton SharedModel {sharedCards} z chosen team = do
+teamButton smodel z chosen team = do
   button <- anyButton gui z bState builder
   return $ marginifyhv 2 4 button
   where
@@ -122,8 +129,9 @@ teamButton SharedModel {sharedCards} z chosen team = do
         Nothing -> (Enabled, LobbySelectTeam $ Just team)
         Just t | t == team -> (Selected, LobbySelectTeam Nothing) -- toggle
         Just _ -> (Disabled, LobbySelectTeam $ Just team)
-    creature kind team = unsafeCreatureWithID sharedCards $ CreatureID kind team
-    path team kind = creature kind team & filepath & filepathToString
+    creature kind team = identToCreature smodel $ CreatureID kind team
+    path team kind =
+      creature kind team & creatureToFilepath & filepathToString
     tile team =
       ( case team of
           Human -> General

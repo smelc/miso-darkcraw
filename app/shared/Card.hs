@@ -65,6 +65,14 @@ data Filepath = Filepath
   }
   deriving (Eq, Generic, Ord, Show)
 
+-- | The default 24x24 asset shown when an asset is not found.
+-- | This makes 'creatureToFilepath' total.
+defaultFilepath :: Filepath
+defaultFilepath = Filepath {root = "24x24", fpX = 2, fpY = 3}
+
+creatureToFilepath :: Maybe (Creature p) -> Filepath
+creatureToFilepath creature = maybe defaultFilepath filepath creature
+
 filepathToString :: Filepath -> String
 filepathToString Filepath {..} =
   root ++ "_" ++ show fpX ++ "_" ++ show fpY ++ ".png"

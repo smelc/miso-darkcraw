@@ -9,17 +9,18 @@
 -- |
 module SharedModel
   ( identToCard,
+    identToCreature,
     SharedModel (..),
     unsafeIdentToCard,
   )
 where
 
-import Card (Card (..), CardIdentifier (..), CardIdentifier, Creature (..), Creature, Phase (..))
+import Card (Card (..), CardIdentifier (..), CardIdentifier, Creature (..), Creature, CreatureID, Phase (..))
 import Data.Foldable (asum)
+import Data.Function ((&))
 import Data.Maybe (fromJust)
 import GHC.Generics (Generic)
 import System.Random
-import Data.Function ((&))
 
 instance Eq StdGen where
   std1 == std2 = show std1 == show std2
@@ -38,6 +39,14 @@ identToCard :: SharedModel -> CardIdentifier -> Maybe (Card UI)
 identToCard SharedModel {sharedCards} cid =
   asum $ map (identToCard' cid) sharedCards
 
+-- Could type level computations make this function superseded
+-- by identToCard? I mean if you pass a 'IDC' CardIdentifier to identToCard,
+-- you're sure to get a Just (CreatureCard _) value
+-- (Just (NeutralCard _) is impossible)
+identToCreature :: SharedModel -> CreatureID -> Maybe (Creature UI)
+identToCreature SharedModel {sharedCards} cid =
+  asum $ map (identToCreature' cid) sharedCards
+
 unsafeIdentToCard :: SharedModel -> CardIdentifier -> Card UI
 unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
 
@@ -48,3 +57,7 @@ identToCard' cid card =
     (IDN n2, NeutralCard n1) | n1 == n2 -> Just card
     (IDI i2, ItemCard i1) | i1 == i2 -> Just card
     _ -> Nothing
+
+identToCreature' :: CreatureID -> Card p -> Maybe (Creature p)
+identToCreature' cid (CreatureCard c@Creature {creatureId = cid1}) | cid1 == cid = Just c
+identToCreature' _ _ = Nothing
