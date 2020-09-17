@@ -22,5 +22,11 @@ welcomeMovie =
     [ w0 =: at' ToRight 0 15 <~> w1 =: at 20 11,
       w0 =: right <~> w1 =: left,
       w0 =: right <~> w1 =: left,
-      w1 =: tell "Fresh meat!"
+      w1 =: tell "Fresh meat!",
+      w0 =: Leave
     ]
+    ++ map
+      (while 10)
+      [ w1 =: shutup,
+        w1 =: tell "Intriguing.."
+      ]

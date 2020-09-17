@@ -10,13 +10,14 @@
 
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
-  ( Change,
+  ( Change (Leave),
     Direction (..),
     Element (..),
     Phase (..),
     Scene (..),
     Shooting (..),
     State (..),
+    StayChange,
     (=:),
     (<~>),
     at,
@@ -31,6 +32,7 @@ module Cinema
     patch',
     right,
     shoot,
+    shutup,
     tell,
     up,
     while,
@@ -43,6 +45,7 @@ import Data.Kind (Constraint, Type)
 import Data.List (find)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust)
+import qualified Data.Set as Set
 import GHC.Generics
 import SharedModel (SharedModel (..))
 
@@ -99,7 +102,7 @@ deriving instance Forall Ord p => Ord (Scene p)
 deriving instance Forall Show p => Show (Scene p)
 
 -- | The change to an actor's 'State'
-data Change = Change
+data StayChange = StayChange
   { -- | The change to 'direction'
     turn :: Maybe Direction,
     -- | The change to 'telling'
@@ -111,14 +114,21 @@ data Change = Change
   }
   deriving (Eq, Generic, Ord, Show)
 
+data Change
+  = -- | Actor leaves the stage
+    Leave
+  | -- | Actor stays on stage, but moves or says something
+    Stay StayChange
+  deriving (Eq, Generic, Ord, Show)
+
 mkChange :: Maybe Direction -> Maybe String -> Int -> Int -> Change
-mkChange turn tellingChange xoffset yoffset = Change {..}
+mkChange turn tellingChange xoffset yoffset = Stay StayChange {..}
 
 at :: Int -> Int -> Change
-at x y = Change {turn = Nothing, tellingChange = Nothing, xoffset = x, yoffset = y}
+at x y = Stay StayChange {turn = Nothing, tellingChange = Nothing, xoffset = x, yoffset = y}
 
 at' :: Direction -> Int -> Int -> Change
-at' dir x y = Change {turn = Just dir, tellingChange = Nothing, xoffset = x, yoffset = y}
+at' dir x y = Stay StayChange {turn = Just dir, tellingChange = Nothing, xoffset = x, yoffset = y}
 
 down :: Change
 down = at 0 1
@@ -129,8 +139,11 @@ left = at (-1) 0
 right :: Change
 right = at 1 0
 
+shutup :: Change
+shutup = Stay StayChange {turn = Nothing, tellingChange = Nothing, xoffset = 0, yoffset = 0}
+
 tell :: String -> Change
-tell s = Change {turn = Nothing, tellingChange = Just s, xoffset = 0, yoffset = 0}
+tell s = Stay StayChange {turn = Nothing, tellingChange = Just s, xoffset = 0, yoffset = 0}
 
 up :: Change
 up = at 0 (-1)
@@ -139,35 +152,43 @@ initial :: Scene Diff -> Scene Display
 initial Scene {duration, mapping = changes} =
   Scene {..}
   where
-    mapping = Map.map initial' changes
+    mapping = Map.map initial' changes & Map.mapMaybe id
 
-initial' :: Change -> State
-initial' Change {..} =
-  State
-    { direction = fromMaybe defaultDirection turn,
-      telling = tellingChange,
-      x = xoffset,
-      y = yoffset
-    }
+initial' :: Change -> Maybe State
+initial' (Stay StayChange {..}) =
+  Just $
+    State
+      { direction = fromMaybe defaultDirection turn,
+        telling = tellingChange,
+        x = xoffset,
+        y = yoffset
+      }
+initial' Leave = Nothing
 
 patch :: Scene Display -> Scene Diff -> Scene Display
 patch
   Scene {mapping = prev}
   Scene {duration, mapping = diff} =
     -- Take duration from Diff: ignore old duration
-    Scene {..}
+    Scene {mapping = mapping'', ..}
     where
-      mapping = Map.toList diff & map buildState & Map.fromList
-      buildState (e, c) =
+      -- Compute elements that make it to the next scene
+      elements = Map.keys prev ++ Map.keys diff & Set.fromList
+      mapping' = Set.map buildState elements & Set.toList & Map.fromList
+      buildState e =
         ( e,
-          case prev Map.!? e of
-            Nothing -> initial' c -- No previous state, take diff as absolute
-            Just prev -> patch' prev c -- Apply diff
+          case (prev Map.!? e, diff Map.!? e) of
+            (_, Just Leave) -> Nothing
+            (Nothing, Just c) -> initial' c -- No previous state, consider diff as absolute
+            (Just p, Just c) -> patch' p c -- Apply diff
+            (p, Nothing) -> p -- No diff: keep previous state
         )
+      mapping'' = Map.mapMaybe id mapping'
 
-patch' :: State -> Change -> State
-patch' s@State {x, y} Change {..} =
-  s {telling = tellingChange, x = x + xoffset, y = y + yoffset}
+patch' :: State -> Change -> Maybe State
+patch' s@State {x, y} (Stay StayChange {..}) =
+  Just $ s {telling = tellingChange, x = x + xoffset, y = y + yoffset}
+patch' _ Leave = Nothing
 
 (=:) :: Element -> Change -> MappingType Diff
 (=:) = Map.singleton

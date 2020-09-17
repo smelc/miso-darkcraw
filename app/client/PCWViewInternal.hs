@@ -178,7 +178,9 @@ viewEntry Context {..} element state@State {direction, telling} =
   case element of
     Actor _ cid ->
       [div_ [stateToAttribute z state] [imgCell path]]
-        ++ [div_ [bubbleStyle state] $ bubbleText telling & maybeToList]
+        ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
+             | isJust telling
+           ]
       where
         path =
           case paths Map.!? cid of
@@ -195,5 +197,5 @@ viewEntry Context {..} element state@State {direction, telling} =
           <> "background-color" =: beigeHTML
           <> "border-radius" =: px 2 -- rounded corners
           <> "z-index" =: ms z
-          <> "max-width" =: px (2 * cps)
-    bubbleText t = text . ms <$> t
+
+-- <> "min-width" =: px 0
