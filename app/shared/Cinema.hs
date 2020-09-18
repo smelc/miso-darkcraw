@@ -1,8 +1,8 @@
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -15,7 +15,7 @@ module Cinema
     Direction (..),
     DirectionChange,
     Element (..),
-    MappingType(..),
+    MappingType (..),
     Phase (..),
     Scene (..),
     Shooting (..),
@@ -49,7 +49,7 @@ import Data.List (find)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import qualified Data.Set as Set
-import GHC.Generics ( Generic )
+import GHC.Generics (Generic)
 import SharedModel (SharedModel (..))
 
 data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clasing with Either
@@ -88,7 +88,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (MappingValueType p)
   )
 
-newtype MappingType p = MappingType { unMappingType :: Map.Map Element (MappingValueType p) }
+newtype MappingType p = MappingType {unMappingType :: Map.Map Element (MappingValueType p)}
   deriving (Generic)
 
 deriving instance Forall Eq p => Eq (MappingType p)
@@ -150,7 +150,7 @@ data StayChange = StayChange
 
 instance Semigroup StayChange where
   (StayChange turn1 tell1 dx1 dy1) <> (StayChange turn2 tell2 dx2 dy2) =
-    StayChange (turn1 <> turn2) (tell1 <> tell2) (dx1+dx2) (dy1+dy2)
+    StayChange (turn1 <> turn2) (tell1 <> tell2) (dx1 + dx2) (dy1 + dy2)
 
 instance Monoid StayChange where
   mempty = StayChange mempty mempty 0 0
@@ -179,7 +179,6 @@ at' dir x y = Stay StayChange {turn = turnFrom dir, tellingChange = mempty, xoff
   where
     turnFrom ToRight = TurnRight
     turnFrom ToLeft = TurnLeft
-
 
 down :: Change
 down = at 0 1
@@ -244,18 +243,20 @@ patch
 
 patch' :: State -> Change -> Maybe State
 patch' s@State {..} (Stay StayChange {..}) =
-  Just $ s {
-    direction = applyDirectionChange direction turn
-    , telling = applyTellingChange telling tellingChange
-    , x = x + xoffset
-    , y = y + yoffset}
- where
-   applyDirectionChange dir NoDirectionChange = dir
-   applyDirectionChange _ TurnRight = ToRight
-   applyDirectionChange _ TurnLeft = ToLeft
-   applyTellingChange telling NoTellChange = telling
-   applyTellingChange _ (Tell s) = Just s
-   applyTellingChange _ ShutUp = Nothing
+  Just $
+    s
+      { direction = applyDirectionChange direction turn,
+        telling = applyTellingChange telling tellingChange,
+        x = x + xoffset,
+        y = y + yoffset
+      }
+  where
+    applyDirectionChange dir NoDirectionChange = dir
+    applyDirectionChange _ TurnRight = ToRight
+    applyDirectionChange _ TurnLeft = ToLeft
+    applyTellingChange telling NoTellChange = telling
+    applyTellingChange _ (Tell s) = Just s
+    applyTellingChange _ ShutUp = Nothing
 patch' _ Leave = Nothing
 
 (=:) :: Element -> Change -> MappingType Diff
