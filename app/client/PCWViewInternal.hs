@@ -21,7 +21,7 @@ module PCWViewInternal
 where
 
 import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString)
-import Cinema (Direction, Element (..), Phase (..), Scene, Scene (..), State (..), defaultDirection)
+import Cinema (Direction, Element (..), MappingType(..), Phase (..), Scene, Scene (..), State (..), defaultDirection)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -160,8 +160,9 @@ viewScene :: Int -> SharedModel -> Scene Display -> View a
 viewScene z smodel Scene {mapping} =
   div_
     []
-    $ Map.toList
-      mapping
+    $ mapping
+      & unMappingType
+      & Map.toList
       & map (uncurry (viewEntry context))
       & concat
   where

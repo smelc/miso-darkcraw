@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -12,14 +13,16 @@
 module Cinema
   ( Change (Leave),
     Direction (..),
+    DirectionChange,
     Element (..),
+    MappingType(..),
     Phase (..),
     Scene (..),
     Shooting (..),
     State (..),
     StayChange,
+    TellChange,
     (=:),
-    (<~>),
     at,
     at',
     defaultDirection,
@@ -46,7 +49,7 @@ import Data.List (find)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import qualified Data.Set as Set
-import GHC.Generics
+import GHC.Generics ( Generic )
 import SharedModel (SharedModel (..))
 
 data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clasing with Either
@@ -85,7 +88,14 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (MappingValueType p)
   )
 
-type MappingType p = Map.Map Element (MappingValueType p)
+newtype MappingType p = MappingType { unMappingType :: Map.Map Element (MappingValueType p) }
+  deriving (Generic)
+
+deriving instance Forall Eq p => Eq (MappingType p)
+
+deriving instance Forall Ord p => Ord (MappingType p)
+
+deriving instance Forall Show p => Show (MappingType p)
 
 data Scene (p :: Phase) = Scene
   { -- | The duration of a scene, in tenth of seconds
@@ -101,18 +111,49 @@ deriving instance Forall Ord p => Ord (Scene p)
 
 deriving instance Forall Show p => Show (Scene p)
 
+data DirectionChange = TurnRight | TurnLeft | NoDirectionChange
+  deriving (Eq, Generic, Ord, Show)
+
+instance Semigroup DirectionChange where
+  TurnLeft <> TurnRight = NoDirectionChange
+  TurnLeft <> _ = TurnLeft
+  TurnRight <> TurnLeft = NoDirectionChange
+  TurnRight <> _ = TurnRight
+  NoDirectionChange <> change = change
+
+instance Monoid DirectionChange where
+  mempty = NoDirectionChange
+
+data TellChange = Tell String | ShutUp | NoTellChange
+  deriving (Eq, Generic, Ord, Show)
+
+-- last change wins
+instance Semigroup TellChange where
+  change <> NoTellChange = change
+  _ <> change = change
+
+instance Monoid TellChange where
+  mempty = NoTellChange
+
 -- | The change to an actor's 'State'
 data StayChange = StayChange
   { -- | The change to 'direction'
-    turn :: Maybe Direction,
+    turn :: DirectionChange,
     -- | The change to 'telling'
-    tellingChange :: Maybe String,
+    tellingChange :: TellChange,
     -- | The change to 'x'
     xoffset :: Int,
     -- | The change to 'y'
     yoffset :: Int
   }
   deriving (Eq, Generic, Ord, Show)
+
+instance Semigroup StayChange where
+  (StayChange turn1 tell1 dx1 dy1) <> (StayChange turn2 tell2 dx2 dy2) =
+    StayChange (turn1 <> turn2) (tell1 <> tell2) (dx1+dx2) (dy1+dy2)
+
+instance Monoid StayChange where
+  mempty = StayChange mempty mempty 0 0
 
 data Change
   = -- | Actor leaves the stage
@@ -121,14 +162,24 @@ data Change
     Stay StayChange
   deriving (Eq, Generic, Ord, Show)
 
-mkChange :: Maybe Direction -> Maybe String -> Int -> Int -> Change
+instance Semigroup Change where
+  _ <> change = change
+
+instance Monoid Change where
+  mempty = Stay mempty
+
+mkChange :: DirectionChange -> TellChange -> Int -> Int -> Change
 mkChange turn tellingChange xoffset yoffset = Stay StayChange {..}
 
 at :: Int -> Int -> Change
-at x y = Stay StayChange {turn = Nothing, tellingChange = Nothing, xoffset = x, yoffset = y}
+at x y = Stay StayChange {turn = mempty, tellingChange = mempty, xoffset = x, yoffset = y}
 
 at' :: Direction -> Int -> Int -> Change
-at' dir x y = Stay StayChange {turn = Just dir, tellingChange = Nothing, xoffset = x, yoffset = y}
+at' dir x y = Stay StayChange {turn = turnFrom dir, tellingChange = mempty, xoffset = x, yoffset = y}
+  where
+    turnFrom ToRight = TurnRight
+    turnFrom ToLeft = TurnLeft
+
 
 down :: Change
 down = at 0 1
@@ -140,37 +191,43 @@ right :: Change
 right = at 1 0
 
 shutup :: Change
-shutup = Stay StayChange {turn = Nothing, tellingChange = Nothing, xoffset = 0, yoffset = 0}
+shutup = Stay StayChange {turn = mempty, tellingChange = ShutUp, xoffset = 0, yoffset = 0}
 
 tell :: String -> Change
-tell s = Stay StayChange {turn = Nothing, tellingChange = Just s, xoffset = 0, yoffset = 0}
+tell s = Stay StayChange {turn = mempty, tellingChange = Tell s, xoffset = 0, yoffset = 0}
 
 up :: Change
 up = at 0 (-1)
 
 initial :: Scene Diff -> Scene Display
-initial Scene {duration, mapping = changes} =
+initial Scene {duration, mapping = MappingType changes} =
   Scene {..}
   where
-    mapping = Map.map initial' changes & Map.mapMaybe id
+    mapping = Map.map initial' changes & Map.mapMaybe id & MappingType
 
 initial' :: Change -> Maybe State
 initial' (Stay StayChange {..}) =
   Just $
     State
-      { direction = fromMaybe defaultDirection turn,
-        telling = tellingChange,
+      { direction = fromDirectionChange turn,
+        telling = fromTellChange tellingChange,
         x = xoffset,
         y = yoffset
       }
+  where
+    fromDirectionChange TurnLeft = ToLeft
+    fromDirectionChange TurnRight = ToRight
+    fromDirectionChange NoDirectionChange = defaultDirection
+    fromTellChange (Tell s) = Just s
+    fromTellChange _ = Nothing
 initial' Leave = Nothing
 
 patch :: Scene Display -> Scene Diff -> Scene Display
 patch
-  Scene {mapping = prev}
-  Scene {duration, mapping = diff} =
+  Scene {mapping = MappingType prev}
+  Scene {duration, mapping = MappingType diff} =
     -- Take duration from Diff: ignore old duration
-    Scene {mapping = mapping'', ..}
+    Scene {mapping = MappingType mapping'', ..}
     where
       -- Compute elements that make it to the next scene
       elements = Map.keys prev ++ Map.keys diff & Set.fromList
@@ -186,19 +243,26 @@ patch
       mapping'' = Map.mapMaybe id mapping'
 
 patch' :: State -> Change -> Maybe State
-patch' s@State {x, y} (Stay StayChange {..}) =
-  Just $ s {telling = tellingChange, x = x + xoffset, y = y + yoffset}
+patch' s@State {..} (Stay StayChange {..}) =
+  Just $ s {
+    direction = applyDirectionChange direction turn
+    , telling = applyTellingChange telling tellingChange
+    , x = x + xoffset
+    , y = y + yoffset}
+ where
+   applyDirectionChange dir NoDirectionChange = dir
+   applyDirectionChange _ TurnRight = ToRight
+   applyDirectionChange _ TurnLeft = ToLeft
+   applyTellingChange telling NoTellChange = telling
+   applyTellingChange _ (Tell s) = Just s
+   applyTellingChange _ ShutUp = Nothing
 patch' _ Leave = Nothing
 
 (=:) :: Element -> Change -> MappingType Diff
-(=:) = Map.singleton
+k =: v = MappingType (Map.singleton k v)
 
-infixr 6 <~>
-
-(<~>) :: MappingType Diff -> MappingType Diff -> MappingType Diff
-(<~>) = Map.unionWithKey checkDisjoint
-  where
-    checkDisjoint k a b = error $ "Duplicate diff for element: " ++ show k
+instance Semigroup (MappingType Diff) where
+  (MappingType m1) <> (MappingType m2) = MappingType (Map.unionWith (<>) m1 m2)
 
 -- | Given a duration and a mapping, builds a 'Scene'
 while :: Int -> MappingType p -> Scene p

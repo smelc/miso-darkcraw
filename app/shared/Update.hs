@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (Change, Direction, Element, Phase (..), Scene (..), Shooting (..), State, StayChange, shoot)
+import Cinema (Change, Direction, DirectionChange, Element, MappingType, Phase (..), Scene (..), Shooting (..), State, StayChange, shoot, TellChange)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -115,6 +115,11 @@ instance ToExpr Cinema.Element
 
 instance ToExpr (Scene Diff)
 
+instance ToExpr Cinema.DirectionChange
+instance ToExpr Cinema.TellChange
+
+instance ToExpr (Cinema.MappingType Display)
+instance ToExpr (Cinema.MappingType Diff)
 instance ToExpr (Scene Display)
 
 instance ToExpr SceneModel

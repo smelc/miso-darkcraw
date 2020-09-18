@@ -73,7 +73,7 @@ testSceneInvariant (idx, Scene {..}) =
     values `shouldBe` values'
   where
     stateToXY State {..} = (x, y)
-    values = Map.filterWithKey isActor mapping & Map.elems & List.sort
+    values = Map.filterWithKey isActor (unMappingType mapping) & Map.elems & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
     isActor (Actor _ _) _ = True
     isActor Tile _ = False
