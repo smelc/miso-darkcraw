@@ -198,5 +198,4 @@ viewEntry Context {..} element state@State {direction, telling} =
           <> "background-color" =: beigeHTML
           <> "border-radius" =: px 2 -- rounded corners
           <> "z-index" =: ms z
-
--- <> "min-width" =: px 0
+          <> "width" =: "fit-content" -- make box exactly the size of the text
