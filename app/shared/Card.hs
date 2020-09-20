@@ -125,14 +125,14 @@ deriving instance Forall Show p => Show (Card p)
 
 deriving instance Generic (Card p)
 
-creatureUI2CreatureCore :: Creature UI -> Creature Core
-creatureUI2CreatureCore Creature {..} =
+unliftCreature :: Creature UI -> Creature Core
+unliftCreature Creature {..} =
   Creature creatureId hp attack moral victoryPoints skills ()
 
-cardUI2CardCore :: Card UI -> Card Core
-cardUI2CardCore card =
+unliftCard :: Card UI -> Card Core
+unliftCard card =
   case card of
-    CreatureCard creature -> CreatureCard $ creatureUI2CreatureCore creature
+    CreatureCard creature -> CreatureCard $ unliftCreature creature
     NeutralCard n -> NeutralCard n
     ItemCard i -> ItemCard i
 
@@ -168,7 +168,7 @@ unsafeCreatureWithID cards id =
   head $ filter (\c -> creatureId c == id) creatures
   where
     creatures :: [Creature Core] =
-      cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore
+      cards ^.. folded . #_CreatureCard . to unliftCreature
 
 unsafeCardToCreature :: Card p -> Creature p
 unsafeCardToCreature (CreatureCard creature) = creature
@@ -189,7 +189,7 @@ initialDeck cards t =
       Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
   where
     creatures :: Map.Map CreatureKind (Creature Core) =
-      (cards ^.. folded . #_CreatureCard . to creatureUI2CreatureCore)
+      (cards ^.. folded . #_CreatureCard . to unliftCreature)
         & filter (\c -> (creatureId c & team) == t)
         & map ((creatureKind . creatureId) &&& id)
         & Map.fromList

@@ -29,6 +29,7 @@ import Miso hiding (at)
 import Miso.String hiding (concat)
 import Model -- XXX tighten the imports?
 import PCWViewInternal (cardBoxShadowStyle, cardCreature, cardPositionStyle, cardPositionStyle')
+import SharedModel (liftCreature)
 import Update
 import Utils (style1_)
 import ViewBlocks (dummyOn)
@@ -96,7 +97,7 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
                   ++ death
                   ++ heart
           | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
-            let maybeCreatureUI = maybeCreature >>= creatureCoreToCreatureUI m,
+            let maybeCreatureUI = maybeCreature >>= liftCreature gameShared,
             let upOrDown =
                   case pSpot of
                     PlayerTop -> False -- down
@@ -126,7 +127,7 @@ boardToInHandCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
+boardToInHandCells z m@GameModel {board, interaction, gameShared, playingPlayer} = do
   stacks <- traverse (stackView m z) [Discarded, Stacked]
   return $
     [ div_
@@ -140,7 +141,7 @@ boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
         ]
         [cardCreature z creatureUI beingHovered | not beingDragged]
       | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
-        let creatureUI = creatureCoreToCreatureUI m creature,
+        let creatureUI = liftCreature gameShared creature,
         let x = pixelsXOffset (unHandIndex i),
         let y = 2 * cellPixelSize,
         let (beingHovered, beingDragged) =

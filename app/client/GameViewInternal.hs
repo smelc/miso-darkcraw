@@ -12,7 +12,6 @@
 -- |
 module GameViewInternal
   ( borderWidth,
-    creatureCoreToCreatureUI,
     deathFadeout,
     errView,
     heartWobble,
@@ -187,7 +186,7 @@ stackView m@GameModel {anims, board, playingPlayer, gameShared} z stackType = do
       Stacked -> (#stack, "Stack", "right", False)
       Discarded -> (#discarded, "Discarded", "left", True)
     deck :: [Card Core] =
-      board ^. pLens . getter & map (unsafeIdentToCard gameShared) & map cardUI2CardCore
+      board ^. pLens . getter & map (unsafeIdentToCard gameShared) & map unliftCard
     stackSize = length deck
     playingPlayerAttackEffects :: Map.Map CardSpot AttackEffect =
       anims ^. spotToLens playingPlayer . #inPlace & unAttackEffects
@@ -235,12 +234,6 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
     emptyPlayingPlayerSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
-
-creatureCoreToCreatureUI :: GameModel -> Creature Core -> Maybe (Creature UI)
-creatureCoreToCreatureUI m@GameModel {gameShared} creature =
-  identToCreature gameShared cid
-  where
-    IDC cid = creatureToIdentifier creature
 
 deathFadeout :: AttackEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae x y =

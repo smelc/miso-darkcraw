@@ -10,12 +10,13 @@
 module SharedModel
   ( identToCard,
     identToCreature,
+    liftCreature,
     SharedModel (..),
     unsafeIdentToCard,
   )
 where
 
-import Card (Card (..), CardIdentifier (..), CardIdentifier, Creature (..), Creature, CreatureID, Phase (..))
+import Card (Card (..), CardIdentifier (..), CardIdentifier, Creature (..), Creature, CreatureID, Phase (..), creatureToIdentifier)
 import Data.Foldable (asum)
 import Data.Function ((&))
 import Data.Maybe (fromJust)
@@ -61,3 +62,9 @@ identToCard' cid card =
 identToCreature' :: CreatureID -> Card p -> Maybe (Creature p)
 identToCreature' cid (CreatureCard c@Creature {creatureId = cid1}) | cid1 == cid = Just c
 identToCreature' _ _ = Nothing
+
+liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
+liftCreature shared creature =
+  identToCreature shared cid
+  where
+    IDC cid = creatureToIdentifier creature
