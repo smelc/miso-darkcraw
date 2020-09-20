@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 -- |
@@ -55,7 +56,7 @@ cardCreature ::
   -- | The z index
   Int ->
   -- | Whether a card should be drawn or solely a placeholder for drag target
-  Maybe (Creature Core) ->
+  Maybe (Creature UI) ->
   -- | Whether this card is being hovered
   Bool ->
   View Action

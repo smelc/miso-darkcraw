@@ -37,12 +37,12 @@ data Skill
 
 data Phase = UI | Core
 
-type family CoordType (p :: Phase) where
-  CoordType UI = Int
-  CoordType Core = ()
+type family FilepathType (p :: Phase) where
+  FilepathType UI = Filepath
+  FilepathType Core = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (CoordType p)
+  ( c (FilepathType p)
   )
 
 data CreatureKind
@@ -70,7 +70,7 @@ data Filepath = Filepath
 defaultFilepath :: Filepath
 defaultFilepath = Filepath {root = "24x24", fpX = 2, fpY = 3}
 
-creatureToFilepath :: Maybe (Creature p) -> Filepath
+creatureToFilepath :: Maybe (Creature UI) -> Filepath
 creatureToFilepath creature = maybe defaultFilepath filepath creature
 
 filepathToString :: Filepath -> String
@@ -84,9 +84,7 @@ data Creature (p :: Phase) = Creature
     moral :: Maybe Int,
     victoryPoints :: Int,
     skills :: Maybe [Skill],
-    x :: CoordType p,
-    y :: CoordType p,
-    filepath :: Filepath
+    filepath :: FilepathType p
   }
   deriving (Generic)
 
@@ -129,7 +127,7 @@ deriving instance Generic (Card p)
 
 creatureUI2CreatureCore :: Creature UI -> Creature Core
 creatureUI2CreatureCore Creature {..} =
-  Creature creatureId hp attack moral victoryPoints skills () () filepath
+  Creature creatureId hp attack moral victoryPoints skills ()
 
 cardUI2CardCore :: Card UI -> Card Core
 cardUI2CardCore card =

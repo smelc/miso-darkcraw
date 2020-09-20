@@ -12,6 +12,7 @@
 -- |
 module GameViewInternal
   ( borderWidth,
+    creatureCoreToCreatureUI,
     deathFadeout,
     errView,
     heartWobble,
@@ -30,13 +31,13 @@ import Constants
 import Control.Lens
 import Data.List
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import Event
 import Game (enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
-import SharedModel (unsafeIdentToCard)
+import SharedModel (identToCreature, unsafeIdentToCard)
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
@@ -234,6 +235,12 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
     emptyPlayingPlayerSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
+
+creatureCoreToCreatureUI :: GameModel -> Creature Core -> Maybe (Creature UI)
+creatureCoreToCreatureUI m@GameModel {gameShared} creature =
+  identToCreature gameShared cid
+  where
+    IDC cid = creatureToIdentifier creature
 
 deathFadeout :: AttackEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae x y =

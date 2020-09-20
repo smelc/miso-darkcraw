@@ -63,7 +63,7 @@ boardToInPlaceCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInPlaceCells z m@GameModel {anims, board, interaction} = do
+boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
@@ -92,10 +92,11 @@ boardToInPlaceCells z m@GameModel {anims, board, interaction} = do
               death <- deathFadeout attackEffect x y
               heart <- heartWobble (z + 1) attackEffect x y
               return $
-                [cardCreature z maybeCreature beingHovered | isJust maybeCreature]
+                [cardCreature z maybeCreatureUI beingHovered | isJust maybeCreature]
                   ++ death
                   ++ heart
           | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
+            let maybeCreatureUI = maybeCreature >>= creatureCoreToCreatureUI m,
             let upOrDown =
                   case pSpot of
                     PlayerTop -> False -- down
@@ -137,8 +138,9 @@ boardToInHandCells z m@GameModel {board, interaction, playingPlayer} = do
           onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
           onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
         ]
-        [cardCreature z (Just creature) beingHovered | not beingDragged]
+        [cardCreature z creatureUI beingHovered | not beingDragged]
       | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
+        let creatureUI = creatureCoreToCreatureUI m creature,
         let x = pixelsXOffset (unHandIndex i),
         let y = 2 * cellPixelSize,
         let (beingHovered, beingDragged) =
