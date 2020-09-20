@@ -18,6 +18,9 @@ w01 = Actor 2 $ CreatureID Spearman Human
 w02 :: Element
 w02 = Actor 2 $ CreatureID Archer Human
 
+allw0right :: MappingType Diff
+allw0right = w0 =: right <> w01 =: right <> w02 =: right
+
 w1 :: Element
 w1 = Actor 1 $ CreatureID Vampire Undead
 
@@ -32,7 +35,13 @@ welcomeMovie =
       w0 =: right <> w01 =: right <> w02 =: at' ToRight 0 15,
       w1 =: shutup,
       w0 =: right <> w01 =: right <> w01 =: up <> w02 =: right,
-      w0 =: right <> w01 =: right <> w02 =: right,
-      w0 =: right <> w01 =: right <> w02 =: right,
-      w1 =: tell "Intriguing.."
+      allw0right,
+      allw0right,
+      allw0right,
+      allw0right <> w1 =: left,
+      allw0right <> w1 =: left,
+      allw0right <> w1 =: left,
+      allw0right <> w1 =: left,
+      w0 =: up <> w01 =: right <> w02 =: right,
+      w0 =: up <> w01 =: right <> w01 =: up <> w02 =: right <> w02 =: up
     ]
