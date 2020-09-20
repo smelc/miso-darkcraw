@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
 -- |
@@ -10,9 +11,12 @@
 module SharedModel
   ( identToCard,
     identToCreature,
+    liftCard,
     liftCreature,
     SharedModel (..),
     unsafeIdentToCard,
+    unsafeLiftCard,
+    unsafeLiftCreature,
   )
 where
 
@@ -63,8 +67,20 @@ identToCreature' :: CreatureID -> Card p -> Maybe (Creature p)
 identToCreature' cid (CreatureCard c@Creature {creatureId = cid1}) | cid1 == cid = Just c
 identToCreature' _ _ = Nothing
 
+liftCard :: SharedModel -> Card Core -> Maybe (Card UI)
+liftCard shared = \case
+  CreatureCard creature -> CreatureCard <$> liftCreature shared creature
+  NeutralCard n -> Just $ NeutralCard n
+  ItemCard i -> Just $ ItemCard i
+
 liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
 liftCreature shared creature =
   identToCreature shared cid
   where
     IDC cid = creatureToIdentifier creature
+
+unsafeLiftCard :: SharedModel -> Card Core -> Card UI
+unsafeLiftCard s c = liftCard s c & fromJust
+
+unsafeLiftCreature :: SharedModel -> Creature Core -> Creature UI
+unsafeLiftCreature s c = liftCreature s c & fromJust

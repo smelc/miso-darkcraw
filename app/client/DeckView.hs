@@ -14,29 +14,31 @@ import Constants
 import Data.Function ((&))
 import Data.List
 import qualified Data.Map.Strict as Map
-import Debug.Trace (trace, traceId, traceShowId)
 import Miso (View, div_, onClick, style_)
 import Miso.String (ms)
 import Miso.Util ((=:))
 import Model (DeckModel (..))
 import PCWViewInternal (cardCreature, cardPositionStyle)
+import SharedModel (unsafeLiftCard)
 import Update (Action (DeckBack), Action)
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 
 viewDeck :: DeckModel -> Styled (View Action)
-viewDeck DeckModel {deck, deckBack, deckPlayer} = do
+viewDeck DeckModel {deck, deckBack, deckPlayer, deckShared} = do
   backDiv <- backDivM
   return
     $ div_
       [style_ bgStyle]
-    $ [backDiv] ++ cardsDiver 0 0 cards
+    $ [backDiv] ++ cardsDiver 0 0 cards'
   where
     (z, zpp) = (0, z + 1)
     bgStyle =
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "deck.png"
     cards = groupCards deck & Map.toList & sort
+    cards' = map (\(i, cs) -> (i, unsafeLiftCards cs)) cards
+    unsafeLiftCards = map $ unsafeLiftCard deckShared
     -- Terminal case
     cardsDiver x y _ | x == 4 && y == 3 = []
     -- Go to new line
