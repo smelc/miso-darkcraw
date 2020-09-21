@@ -46,12 +46,12 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
         The maximum of return codes of calls to the considered tool on `files`
     """
     if staged_or_modified:
-        # If we're dealing with staged files, we don't want to call
-        # ocamlformat if the file has unstaged modifications; because
+        # If we're dealing with staged files, we don't want to format
+        # if the file has unstaged modifications; because
         # adding (in git) the file after having formatted would stage
         # those modifications
-        cmd = ["git", "diff", "--name-only"]
-        modified_files_result = subprocess.run(cmd,
+        git_cmd = ["git", "diff", "--name-only"]
+        modified_files_result = subprocess.run(git_cmd,
                                                check=True,
                                                stdout=subprocess.PIPE,
                                                universal_newlines=True)
@@ -70,10 +70,9 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
         files = trimmed_files
     return_code = 0
     for file_ in files:
-        cmd = list(cmd)  # Copy to be safe
-        cmd.append(file_)
-        print(" ".join(cmd))
-        subprocess.run(cmd, check=True)
+        tool_cmd = cmd + [file_]
+        print(" ".join(tool_cmd))
+        subprocess.run(tool_cmd, check=True)
         if staged_or_modified:
             # Readd file, so that formatting makes it to the commit
             # This is safe, because of the previous check having
@@ -83,9 +82,9 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
             # On another topic, we have no way to know if ocamlformat did
             # a modification. Hence we're always readding. If we had
             # this information, we would be able to avoid these calls.
-            cmd = ["git", "add", file_]
-            print(" ".join(cmd))
-            subprocess.run(cmd, check=True)
+            git_cmd = ["git", "add", file_]
+            print(" ".join(git_cmd))
+            subprocess.run(git_cmd, check=True)
     return return_code
 
 
