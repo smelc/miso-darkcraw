@@ -14,8 +14,6 @@ data Tile
 
 data TileUI = TileUI
   { filename :: String,
-    tile :: Tile,
-    x :: Int,
-    y :: Int
+    tile :: Tile
   }
   deriving (Eq, Generic, Show)
