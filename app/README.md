@@ -1,7 +1,21 @@
+# Prepare Build
+
+At the repo's root:
+
+```bash
+mkdir -p app/assets
+./scripts/GenAssets.hs
+./scripts/dl-large-assets.sh
+```
+
+You only need to that the first time you build the project. If `GenAssets.hs`
+or `dl-large-assets.sh` need to be executed again, it'll be specified
+in commits messages (read them when you `fetch`).
+
 # Build
 
-Build release with `rm .ghc.environment.* -Rf; nix-build`. This puts
-the result in `result-2/bin/app.jsexe/`.
+Build release with `rm .ghc.environment.* -Rf; nix-build` (from the `app`
+directory). This puts the result in `result-2/bin/app.jsexe/`.
 
 # neovim integration
 
@@ -26,8 +40,7 @@ with my usual configuration, nice!
 
   `./load-n-reload.sh release`
 
-  Contrary to the previous item, this script uses your default browser. It
-  is faster than doing `nix-build` because it uses incremental compilation.
+  It is faster than doing `nix-build` because it uses incremental compilation.
 * To reexecute tests upon modifying them, execute:
 
   `./load-n-reload.sh test`
