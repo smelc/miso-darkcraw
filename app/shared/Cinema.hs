@@ -77,8 +77,6 @@ data Element
   | TileElement Tile
   deriving (Eq, Generic, Ord, Show)
 
-type Changes = Map.Map Element Change
-
 data Phase = Diff | Display
 
 type family MappingValueType (p :: Phase) where
