@@ -171,10 +171,10 @@ mkChange :: DirectionChange -> TellChange -> Int -> Int -> Change
 mkChange turn tellingChange xoffset yoffset = Stay StayChange {..}
 
 at :: Int -> Int -> Change
-at x y = Stay StayChange {turn = mempty, tellingChange = mempty, xoffset = x, yoffset = y}
+at x y = Stay mempty {xoffset = x, yoffset = y}
 
 at' :: Direction -> Int -> Int -> Change
-at' dir x y = Stay StayChange {turn = turnFrom dir, tellingChange = mempty, xoffset = x, yoffset = y}
+at' dir x y = Stay mempty {xoffset = x, yoffset = y}
   where
     turnFrom ToRight = TurnRight
     turnFrom ToLeft = TurnLeft
@@ -189,10 +189,10 @@ right :: Change
 right = at 1 0
 
 shutup :: Change
-shutup = Stay StayChange {turn = mempty, tellingChange = ShutUp, xoffset = 0, yoffset = 0}
+shutup = Stay mempty {tellingChange = ShutUp}
 
 tell :: String -> Change
-tell s = Stay StayChange {turn = mempty, tellingChange = Tell s, xoffset = 0, yoffset = 0}
+tell s = Stay mempty {tellingChange = Tell s}
 
 up :: Change
 up = at 0 (-1)
