@@ -17,13 +17,16 @@ w01 :: Element
 w01 = Actor 2 $ CreatureID Spearman Human
 
 w02 :: Element
-w02 = Actor 2 $ CreatureID Archer Human
+w02 = Actor 3 $ CreatureID Archer Human
 
 allw0right :: MappingType Diff
 allw0right = w0 =: right <> w01 =: right <> w02 =: right
 
 w1 :: Element
 w1 = Actor 1 $ CreatureID Vampire Undead
+
+w10 :: Element
+w10 = Actor 4 $ CreatureID Skeleton Undead
 
 whiteAppears :: Int -> Int -> [MappingType Diff]
 whiteAppears x y =
@@ -52,5 +55,8 @@ welcomeMovie =
       w0 =: up <> w01 =: right <> w02 =: right,
       w0 =: up <> w01 =: right <> w01 =: up <> w02 =: right <> w02 =: up
     ]
-
--- ++ map (while 2) (whiteAppears 12 11)
+    ++ [ while 5 (w1 =: tell "iugp9b7"),
+         while 1 (w1 =: shutup)
+       ]
+    ++ map (while 2) (whiteAppears 12 11)
+    ++ [while 10 (w10 =: at 12 11)]

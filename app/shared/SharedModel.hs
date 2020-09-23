@@ -14,6 +14,7 @@ module SharedModel
     liftCard,
     liftCreature,
     SharedModel (..),
+    tileToFilepath,
     unsafeIdentToCard,
     unsafeLiftCard,
     unsafeLiftCreature,

@@ -30,7 +30,7 @@ import Data.Maybe (catMaybes, fromJust, isJust, isNothing, maybeToList)
 import Miso
 import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
-import SharedModel (SharedModel (..))
+import SharedModel (SharedModel (..), tileToFilepath)
 import Update (Action)
 import ViewInternal
 
@@ -137,11 +137,12 @@ cardPositionStyle' xPixelsOffset yPixelsOffset =
 -- Now come functions that are about building the view of a Scene
 data Context = Context
   { z :: Int,
-    paths :: Map.Map CreatureID (Direction -> MisoString)
+    paths :: Map.Map CreatureID (Direction -> MisoString),
+    shared :: SharedModel
   }
 
 createContext :: Int -> SharedModel -> Context
-createContext z SharedModel {..} =
+createContext z shared@SharedModel {..} =
   Context {..}
   where
     paths = map f sharedCards & catMaybes & Map.fromList
@@ -191,7 +192,7 @@ viewEntry Context {..} element state@State {direction, telling} =
     TileElement tile ->
       [div_ [stateToAttribute z state] [imgCell path]]
       where
-        path = undefined -- FIXME smelc continue here
+        path = tileToFilepath shared tile & filepathToString & ms
   where
     bubbleStyle State {x, y} =
       style_ $
