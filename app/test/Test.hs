@@ -76,7 +76,7 @@ testSceneInvariant (idx, Scene {..}) =
     values = Map.filterWithKey isActor (unMappingType mapping) & Map.elems & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
     isActor (Actor _ _) _ = True
-    isActor Tile _ = False
+    isActor (TileElement _) _ = False
 
 testScenesInvariant :: String -> [Scene Diff] -> Spec
 testScenesInvariant name diffs =
@@ -91,15 +91,15 @@ testScenesInvariant name diffs =
 
 main :: IO ()
 main = hspec $ do
-  let eitherCards = loadJson
-  let cards = eitherCards ^?! _Right
+  let eitherCardsNTiles = loadJson
+  let (cards, _) = eitherCardsNTiles ^?! _Right
   let allDecks = getAllDecks cards
   let allCreatures = mapMaybe cardToCreature $ concat allDecks
   let board = exampleBoard cards
   let (turn, turn') = (initialTurn, nextTurn turn)
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
-      is _Right eitherCards -- should be the first test, others depend on it
+      is _Right eitherCardsNTiles -- should be the first test, others depend on it
     it "all decks are initially of the same size" $
       all (\l -> length l == length (head allDecks)) allDecks
     it "all hit points are initially > 0" $

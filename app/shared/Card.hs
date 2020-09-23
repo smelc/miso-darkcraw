@@ -67,11 +67,16 @@ data Filepath = Filepath
 
 -- | The default 24x24 asset shown when an asset is not found.
 -- | This makes 'creatureToFilepath' total.
-defaultFilepath :: Filepath
-defaultFilepath = Filepath {root = "24x24", fpX = 2, fpY = 3}
+default24Filepath :: Filepath
+default24Filepath = Filepath {root = "24x24", fpX = 2, fpY = 3}
+
+-- | The default 16x16 asset shown when an asset is not found.
+-- | This makes 'creatureToFilepath' total.
+default16Filepath :: Filepath
+default16Filepath = Filepath {root = "16x16", fpX = 2, fpY = 1}
 
 creatureToFilepath :: Maybe (Creature UI) -> Filepath
-creatureToFilepath creature = maybe defaultFilepath filepath creature
+creatureToFilepath creature = maybe default24Filepath filepath creature
 
 filepathToString :: Filepath -> String
 filepathToString Filepath {..} =

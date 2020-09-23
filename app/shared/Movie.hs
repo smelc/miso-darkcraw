@@ -8,6 +8,7 @@ module Movie (welcomeMovie) where
 
 import Card (CreatureID (..), CreatureKind (..), Team (..))
 import Cinema
+import Tile
 
 w0 :: Element
 w0 = Actor 0 $ CreatureID General Human
@@ -23,6 +24,12 @@ allw0right = w0 =: right <> w01 =: right <> w02 =: right
 
 w1 :: Element
 w1 = Actor 1 $ CreatureID Vampire Undead
+
+whiteAppears :: Int -> Int -> [MappingType Diff]
+whiteAppears x y =
+  map f [WhiteAppears0, WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
+  where
+    f tile = TileElement tile =: at x y
 
 welcomeMovie :: [Scene Diff]
 welcomeMovie =
@@ -45,3 +52,5 @@ welcomeMovie =
       w0 =: up <> w01 =: right <> w02 =: right,
       w0 =: up <> w01 =: right <> w01 =: up <> w02 =: right <> w02 =: up
     ]
+
+-- ++ map (while 2) (whiteAppears 12 11)

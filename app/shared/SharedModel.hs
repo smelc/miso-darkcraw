@@ -20,12 +20,13 @@ module SharedModel
   )
 where
 
-import Card (Card (..), CardIdentifier (..), CardIdentifier, Creature (..), Creature, CreatureID, Phase (..), creatureToIdentifier)
-import Data.Foldable (asum)
+import Card (Card (..), CardIdentifier (..), CardIdentifier, Creature (..), Creature, CreatureID, Filepath, Phase (..), creatureToIdentifier, default24Filepath)
+import Data.Foldable (asum, find)
 import Data.Function ((&))
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, listToMaybe)
 import GHC.Generics (Generic)
 import System.Random
+import Tile (Tile, TileUI (..))
 
 instance Eq StdGen where
   std1 == std2 = show std1 == show std2
@@ -35,6 +36,7 @@ instance Eq StdGen where
 data SharedModel = SharedModel
   { -- | Data obtained at load time, that never changes
     sharedCards :: [Card UI],
+    sharedTiles :: [TileUI],
     -- | RNG obtained at load time, to be user whenever randomness is needed
     sharedStdGen :: StdGen
   }
@@ -84,3 +86,9 @@ unsafeLiftCard s c = liftCard s c & fromJust
 
 unsafeLiftCreature :: SharedModel -> Creature Core -> Creature UI
 unsafeLiftCreature s c = liftCreature s c & fromJust
+
+tileToFilepath :: SharedModel -> Tile -> Filepath
+tileToFilepath SharedModel {sharedTiles} tile =
+  case find (\TileUI {tile = t} -> t == tile) sharedTiles of
+    Nothing -> Card.default24Filepath
+    Just TileUI {Tile.filepath} -> filepath

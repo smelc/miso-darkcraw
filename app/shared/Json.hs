@@ -11,6 +11,7 @@
 
 module Json
   ( loadJson,
+    LoadedJson,
   )
 where
 
@@ -143,19 +144,21 @@ instance ToJSON (AllData UI)
 
 instance FromJSON (AllData UI)
 
+type LoadedJson = ([Card UI], [TileUI])
+
 parseJson ::
   -- | The content of data.json
   ByteString ->
-  Either String [Card UI]
+  Either String LoadedJson
 parseJson json = do
   AllData creatures neutral items tiles <- eitherDecode json
   let creatureCards = Prelude.map CreatureCard creatures
       neutralCards = Prelude.map (NeutralCard . Card.neutral) neutral
       itemCards = Prelude.map (ItemCard . Card.item) items
       allCards = creatureCards ++ neutralCards ++ itemCards
-  return allCards
+  return (allCards, tiles)
 
-loadJson :: Either String [Card UI]
+loadJson :: Either String LoadedJson
 loadJson =
   parseJson bs
   where

@@ -188,7 +188,10 @@ viewEntry Context {..} element state@State {direction, telling} =
           case paths Map.!? cid of
             Nothing -> error $ "CreatureID has no corresponding filename: " ++ show cid
             Just dirToPath -> dirToPath direction
-    Tile -> error "Viewing a Tile is unimplemented"
+    TileElement tile ->
+      [div_ [stateToAttribute z state] [imgCell path]]
+      where
+        path = undefined -- FIXME smelc continue here
   where
     bubbleStyle State {x, y} =
       style_ $

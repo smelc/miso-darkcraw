@@ -39,6 +39,7 @@ import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import Text.Printf
+import Tile (Tile, TileUI)
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
 
 instance ToExpr CreatureKind
@@ -95,6 +96,8 @@ instance ToExpr Turn
 
 instance ToExpr StdGen where toExpr = defaultExprViaShow
 
+instance ToExpr Tile.TileUI
+
 instance ToExpr SharedModel
 
 instance ToExpr GameModel
@@ -110,6 +113,8 @@ instance ToExpr Cinema.StayChange
 instance ToExpr Cinema.Direction
 
 instance ToExpr Cinema.State
+
+instance ToExpr Tile.Tile
 
 instance ToExpr Cinema.Element
 

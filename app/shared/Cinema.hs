@@ -51,8 +51,9 @@ import Data.Maybe (fromJust, fromMaybe, isJust)
 import qualified Data.Set as Set
 import GHC.Generics (Generic)
 import SharedModel (SharedModel (..))
+import Tile (Tile)
 
-data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clasing with Either
+data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clashing with Either
   deriving (Eq, Generic, Ord, Show)
 
 defaultDirection :: Direction
@@ -73,7 +74,7 @@ data State = State
 data Element
   = -- The actor's unique identifier, and its tile
     Actor Int CreatureID
-  | Tile
+  | TileElement Tile
   deriving (Eq, Generic, Ord, Show)
 
 type Changes = Map.Map Element Change

@@ -17,11 +17,16 @@
     { "name":"crown", "title":"Crown", "tile":"crown", "text":"Leadership +2" }
   ],
   "tiles": [
-    { "tile":"Heart",        "filename":"16x16_0_0.png" },
-    { "tile":"Sword",        "filename":"16x16_1_0.png" },
-    { "tile":"RedPotion",    "filename":"16x16_2_0.png" },
-    { "tile":"GreenPotion",  "filename":"16x16_3_0.png" },
-    { "tile":"Crown",        "filename":"16x16_0_1.png" }
+    { "tile":"Heart",         "filepath": { "root": "16x16", "x":0, "y":0 } },
+    { "tile":"Sword",         "filepath": { "root": "16x16", "x":1, "y":0 } },
+    { "tile":"RedPotion",     "filepath": { "root": "16x16", "x":2, "y":0 } },
+    { "tile":"GreenPotion",   "filepath": { "root": "16x16", "x":3, "y":0 } },
+    { "tile":"Crown",         "filepath": { "root": "16x16", "x":0, "y":1 } },
+    { "tile":"WhiteAppears0", "filepath": { "root": "24x24", "x":0, "y":5 } },
+    { "tile":"WhiteAppears1", "filepath": { "root": "24x24", "x":1, "y":5 } },
+    { "tile":"WhiteAppears2", "filepath": { "root": "24x24", "x":2, "y":5 } },
+    { "tile":"WhiteAppears3", "filepath": { "root": "24x24", "x":3, "y":5 } },
+    { "tile":"WhiteAppears4", "filepath": { "root": "24x24", "x":4, "y":5 } }
   ],
   "skills": [
     { "name":"HitFromBack", "title":"back hit",   "text":"hits 2 cells away when in the back line"},

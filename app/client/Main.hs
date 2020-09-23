@@ -21,7 +21,7 @@ import Control.Monad.IO.Class
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
 import qualified Data.Text as Text
-import Json (loadJson)
+import Json (LoadedJson, loadJson)
 import JsonData
 import Miso
 import Miso.String
@@ -48,7 +48,7 @@ runApp :: IO () -> IO ()
 runApp app = app
 #endif
 
-loadJson' :: IO [Card UI]
+loadJson' :: IO LoadedJson
 loadJson' =
   case loadJson of
     Left errMsg -> do
@@ -67,10 +67,10 @@ logTeam cards t = do
 -- | Entry point for a miso application
 main :: IO ()
 main = do
-  cards :: [Card UI] <- loadJson'
+  (cards, tiles) <- loadJson'
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
-  let shared = SharedModel {sharedCards = cards, sharedStdGen = stdGen}
+  let shared = SharedModel {sharedCards = cards, sharedTiles = tiles, sharedStdGen = stdGen}
   let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
   runApp $ startApp App {..}
   where
