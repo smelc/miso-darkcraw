@@ -4,10 +4,14 @@
 
 rm -Rf "$TMP_PATH"  # Erase previous run if any
 
+function restore_config() {
+  git checkout "app/client/Configuration.hs"
+}
+
 # Compile
-./scripts/change-config.sh "Legendary" "Itch" || { echo "change-config.sh failed"; exit 1; }
-(cd app && rm -Rf .ghc.environment.* -Rf && nix-build -A release) || { echo "compilation failed"; exit 1; }
-git checkout "app/client/Configuration.hs"
+./scripts/change-config.sh "Legendary" "Itch" "$(git rev-parse --short=7 HEAD)" || { echo "change-config.sh failed"; exit 1; }
+(cd app && rm -Rf .ghc.environment.* -Rf && nix-build -A release) || { echo "compilation failed"; restore_config; exit 1; }
+restore_config
 
 [[ "$1" != "--no-push" ]] || { echo "--no-push spcecified: exiting"; exit 0; }
 

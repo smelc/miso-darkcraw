@@ -64,7 +64,7 @@ viewWelcomeModel WelcomeModel {welcomeSceneModel = SceneModel {displayed}, ..} =
         <> "z-index" =: ms zpp
     multiplayerEnabled =
       case configuration of
-        Configuration _ Itch -> False
+        Configuration _ Itch _ -> False
         _ -> True
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "choose your team -> start"]
@@ -104,13 +104,13 @@ torchesDiv z =
     duration x = if x then "2s" else "2.5s"
 
 versionDiv :: Int -> Configuration -> View Action
-versionDiv z (Configuration edition location) =
+versionDiv z (Configuration edition location maybeHash) =
   div_
     [style_ $ style <> textStyle, style_ flexLineStyle]
     $ [text $ ms txt]
       ++ [img_ [src_ (assetsPath assetFilenameCrown)] | legendary]
   where
-    txt = "Version: " ++ showLocation location ++ ", " ++ show edition
+    txt = "Version: " ++ showLocation location ++ hashString ++ ", " ++ show edition
     textStyle = Map.fromList textRawStyle
     showLocation Dev = "dev"
     showLocation Itch = "Itch"
@@ -118,6 +118,10 @@ versionDiv z (Configuration edition location) =
       case edition of
         Legendary -> True
         Vanilla -> False
+    hashString =
+      case maybeHash of
+        Nothing -> ""
+        Just hash -> ", " ++ hash
     x = cps
     y = lobbiesPixelHeight - cps
     style = zplt z Absolute x y

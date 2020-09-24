@@ -17,8 +17,10 @@ data Location
     Itch
   deriving (Show)
 
-data Configuration = Configuration Edition Location
+type Hash = Maybe String
+
+data Configuration = Configuration Edition Location Hash
 
 -- | The current configuration
 configuration :: Configuration
-configuration = Configuration Legendary Dev
+configuration = Configuration Legendary Dev Nothing
