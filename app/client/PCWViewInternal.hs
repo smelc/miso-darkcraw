@@ -22,7 +22,7 @@ module PCWViewInternal
 where
 
 import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString)
-import Cinema (Direction, Element (..), MappingType (..), Phase (..), Scene, Scene (..), State (..), defaultDirection)
+import Cinema (ActorState (..), Direction, Element (..), Frame (..), Scene, Scene (..), defaultDirection)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -158,26 +158,26 @@ createContext z shared@SharedModel {..} =
     dirToFilename f@Filepath {..} _ =
       dirToFilename f {fpY = fpY + 1} defaultDirection
 
-viewScene :: Int -> SharedModel -> Scene Display -> View a
-viewScene z smodel Scene {mapping} =
+viewScene :: Int -> SharedModel -> Scene ActorState -> View a
+viewScene z smodel Scene {frame} =
   div_
     []
-    $ mapping
-      & unMappingType
+    $ frame
+      & unFrame
       & Map.toList
       & map (uncurry (viewEntry context))
       & concat
   where
     context = createContext z smodel
 
-stateToAttribute :: Int -> State -> Attribute a
-stateToAttribute z State {x, y} =
+stateToAttribute :: Int -> ActorState -> Attribute a
+stateToAttribute z ActorState {x, y} =
   style_ $
     pltwh Absolute (x * cps) (y * cps) cps cps
       <> "z-index" =: ms z
 
-viewEntry :: Context -> Element -> State -> [View a]
-viewEntry Context {..} element state@State {direction, telling} =
+viewEntry :: Context -> Element -> ActorState -> [View a]
+viewEntry Context {..} element state@ActorState {direction, telling} =
   case element of
     Actor _ cid ->
       [div_ [stateToAttribute z state] [imgCell path]]
@@ -194,7 +194,7 @@ viewEntry Context {..} element state@State {direction, telling} =
       where
         path = tileToFilepath shared tile & filepathToString & ms
   where
-    bubbleStyle State {x, y} =
+    bubbleStyle ActorState {x, y} =
       style_ $
         "position" =: "absolute"
           <> "left" =: px ((x * cps) + cps `div` 2)

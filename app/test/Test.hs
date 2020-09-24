@@ -66,22 +66,22 @@ testAIRanged cards turn =
         $ CreatureID Archer Undead
     board = emptyInPlaceBoard cards [archer]
 
-testSceneInvariant :: (Int, Scene Display) -> Spec
+testSceneInvariant :: (Int, Scene ActorState) -> Spec
 testSceneInvariant (idx, Scene {..}) =
   -- Check no two Element are in the same spot
-  it ("Scene Diff invariant " ++ show idx) $
+  it ("Scene Change invariant " ++ show idx) $
     values `shouldBe` values'
   where
-    stateToXY State {..} = (x, y)
-    values = Map.filterWithKey isActor (unMappingType mapping) & Map.elems & List.sort
+    stateToXY ActorState {..} = (x, y)
+    values = Map.filterWithKey isActor (unFrame frame) & Map.elems & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
     isActor (Actor _ _) _ = True
     isActor (TileElement _) _ = False
 
-testScenesInvariant :: String -> [Scene Diff] -> Spec
+testScenesInvariant :: String -> [Scene ActorChange] -> Spec
 testScenesInvariant name diffs =
-  describe ("Scene Diff " ++ name) $ do
-    it "length([Scene Diff]) == length(display [Scene Diff])" $
+  describe ("Scene ActorChange " ++ name) $ do
+    it "length([Scene ActorChange]) == length(display [Scene ActorChange])" $
       length
         diffs
         `shouldBe` length displays
@@ -99,18 +99,18 @@ testParallelSceneComposition =
     w0 = Actor 0 $ CreatureID Skeleton Undead
     w1 :: Element
     w1 = Actor 1 $ CreatureID Skeleton Undead
-    scenes1 :: [Scene Diff]
+    scenes1 :: [Scene ActorChange]
     scenes1 =
       [ while 1 (w0 =: Cinema.at 0 0),
         while 3 (w0 =: right),
         while 1 (w0 =: left)
       ]
-    scenes2 :: [Scene Diff]
+    scenes2 :: [Scene ActorChange]
     scenes2 =
       [ while 2 (w1 =: Cinema.at 1 1),
         while 4 (w1 =: right)
       ]
-    expectedMergedScenes :: [Scene Diff]
+    expectedMergedScenes :: [Scene ActorChange]
     expectedMergedScenes =
       [ while 1 (w0 =: Cinema.at 0 0 <> w1 =: Cinema.at 1 1),
         while 1 (w0 =: right),

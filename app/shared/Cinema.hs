@@ -5,21 +5,18 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
-  ( Change (Leave),
+  ( ActorChange (Leave),
     Direction (..),
     DirectionChange,
     Element (..),
-    MappingType (..),
-    Phase (..),
+    Frame (..),
     Scene (..),
     Shooting (..),
-    State (..),
+    ActorState (..),
     StayChange,
     TellChange,
     (=:),
@@ -60,7 +57,7 @@ data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clashing with Eit
 defaultDirection :: Direction
 defaultDirection = ToLeft -- How sprite are in oryx' set
 
-data State = State
+data ActorState = ActorState
   { -- | In which direction the sprite is looking at
     direction :: Direction,
     -- | Whether the element says something
@@ -78,38 +75,16 @@ data Element
   | TileElement Tile
   deriving (Eq, Generic, Ord, Show)
 
-data Phase = Diff | Display
+newtype Frame a = Frame {unFrame :: Map.Map Element a}
+  deriving (Eq, Ord, Show, Generic)
 
-type family MappingValueType (p :: Phase) where
-  MappingValueType Diff = Change
-  MappingValueType Display = State
-
-type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (MappingValueType p)
-  )
-
-newtype MappingType p = MappingType {unMappingType :: Map.Map Element (MappingValueType p)}
-  deriving (Generic)
-
-deriving instance Forall Eq p => Eq (MappingType p)
-
-deriving instance Forall Ord p => Ord (MappingType p)
-
-deriving instance Forall Show p => Show (MappingType p)
-
-data Scene (p :: Phase) = Scene
+data Scene a = Scene
   { -- | The duration of a scene, in tenth of seconds
     duration :: Int,
     -- | The scene's elements
-    mapping :: MappingType p
+    frame :: Frame a
   }
-  deriving (Generic)
-
-deriving instance Forall Eq p => Eq (Scene p)
-
-deriving instance Forall Ord p => Ord (Scene p)
-
-deriving instance Forall Show p => Show (Scene p)
+  deriving (Eq, Ord, Show, Generic)
 
 data DirectionChange = TurnRight | TurnLeft | NoDirectionChange
   deriving (Eq, Generic, Ord, Show)
@@ -135,7 +110,7 @@ instance Semigroup TellChange where
 instance Monoid TellChange where
   mempty = NoTellChange
 
--- | The change to an actor's 'State'
+-- | The change to an actor's 'ActorState'
 data StayChange = StayChange
   { -- | The change to 'direction'
     turn :: DirectionChange,
@@ -155,59 +130,59 @@ instance Semigroup StayChange where
 instance Monoid StayChange where
   mempty = StayChange mempty mempty 0 0
 
-data Change
+data ActorChange
   = -- | Actor leaves the stage
     Leave
   | -- | Actor stays on stage, but moves or says something
     Stay StayChange
   deriving (Eq, Generic, Ord, Show)
 
-instance Semigroup Change where
+instance Semigroup ActorChange where
   _ <> change = change
 
-instance Monoid Change where
+instance Monoid ActorChange where
   mempty = Stay mempty
 
-mkChange :: DirectionChange -> TellChange -> Int -> Int -> Change
+mkChange :: DirectionChange -> TellChange -> Int -> Int -> ActorChange
 mkChange turn tellingChange xoffset yoffset = Stay StayChange {..}
 
-at :: Int -> Int -> Change
+at :: Int -> Int -> ActorChange
 at x y = Stay mempty {xoffset = x, yoffset = y}
 
-at' :: Direction -> Int -> Int -> Change
+at' :: Direction -> Int -> Int -> ActorChange
 at' dir x y = Stay mempty {turn = turnFrom dir, xoffset = x, yoffset = y}
   where
     turnFrom ToRight = TurnRight
     turnFrom ToLeft = TurnLeft
 
-down :: Change
+down :: ActorChange
 down = at 0 1
 
-left :: Change
+left :: ActorChange
 left = at (-1) 0
 
-right :: Change
+right :: ActorChange
 right = at 1 0
 
-shutup :: Change
+shutup :: ActorChange
 shutup = Stay mempty {tellingChange = ShutUp}
 
-tell :: String -> Change
+tell :: String -> ActorChange
 tell s = Stay mempty {tellingChange = Tell s}
 
-up :: Change
+up :: ActorChange
 up = at 0 (-1)
 
-initial :: Scene Diff -> Scene Display
-initial Scene {duration, mapping = MappingType changes} =
+initial :: Scene ActorChange -> Scene ActorState
+initial Scene {duration, frame = Frame changes} =
   Scene {..}
   where
-    mapping = Map.map initial' changes & Map.mapMaybe id & MappingType
+    frame = Map.map initial' changes & Map.mapMaybe id & Frame
 
-initial' :: Change -> Maybe State
+initial' :: ActorChange -> Maybe ActorState
 initial' (Stay StayChange {..}) =
   Just $
-    State
+    ActorState
       { direction = fromDirectionChange turn,
         telling = fromTellChange tellingChange,
         x = xoffset,
@@ -221,17 +196,17 @@ initial' (Stay StayChange {..}) =
     fromTellChange _ = Nothing
 initial' Leave = Nothing
 
-patch :: Scene Display -> Scene Diff -> Scene Display
+patch :: Scene ActorState -> Scene ActorChange -> Scene ActorState
 patch
-  Scene {mapping = MappingType prev}
-  Scene {duration, mapping = MappingType diff} =
-    -- Take duration from Diff: ignore old duration
-    Scene {mapping = MappingType mapping'', ..}
+  Scene {frame = Frame prev}
+  Scene {duration, frame = Frame diff} =
+    -- Take duration from Change: ignore old duration
+    Scene {frame = Frame frame'', ..}
     where
       -- Compute elements that make it to the next scene
       elements = Map.keys prev ++ Map.keys diff & Set.fromList
-      mapping' = Set.map buildState elements & Set.toList & Map.fromList
-      buildState e =
+      frame' = Set.map buildActorState elements & Set.toList & Map.fromList
+      buildActorState e =
         ( e,
           case (prev Map.!? e, diff Map.!? e) of
             (_, Just Leave) -> Nothing
@@ -239,10 +214,10 @@ patch
             (Just p, Just c) -> patch' p c -- Apply diff
             (p, Nothing) -> p -- No diff: keep previous state
         )
-      mapping'' = Map.mapMaybe id mapping'
+      frame'' = Map.mapMaybe id frame'
 
-patch' :: State -> Change -> Maybe State
-patch' s@State {..} (Stay StayChange {..}) =
+patch' :: ActorState -> ActorChange -> Maybe ActorState
+patch' s@ActorState {..} (Stay StayChange {..}) =
   Just $
     s
       { direction = applyDirectionChange direction turn,
@@ -259,41 +234,41 @@ patch' s@State {..} (Stay StayChange {..}) =
     applyTellingChange _ ShutUp = Nothing
 patch' _ Leave = Nothing
 
-(=:) :: Element -> Change -> MappingType Diff
-k =: v = MappingType (Map.singleton k v)
+(=:) :: Element -> ActorChange -> Frame ActorChange
+k =: v = Frame (Map.singleton k v)
 
-instance Semigroup (MappingType Diff) where
-  (MappingType m1) <> (MappingType m2) = MappingType (Map.unionWith (<>) m1 m2)
+instance Semigroup (Frame ActorChange) where
+  (Frame m1) <> (Frame m2) = Frame (Map.unionWith (<>) m1 m2)
 
-instance Monoid (MappingType Diff) where
-  mempty = MappingType mempty
+instance Monoid (Frame ActorChange) where
+  mempty = Frame mempty
 
--- | Given a duration and a mapping, builds a 'Scene'
-while :: Int -> MappingType p -> Scene p
-while i m = Scene {duration = i, mapping = m}
+-- | Given a duration and a frame, builds a 'Scene'
+while :: Int -> Frame p -> Scene p
+while i m = Scene {duration = i, frame = m}
 
 type Date = Int
 
-type DatedMappings =
-  ( [(Date, MappingType Diff)],
+type DatedFrames =
+  ( [(Date, Frame ActorChange)],
     Date -- end date of the last diff
   )
 
-(|||) :: [Scene Diff] -> [Scene Diff] -> [Scene Diff]
+(|||) :: [Scene ActorChange] -> [Scene ActorChange] -> [Scene ActorChange]
 ss1 ||| ss2 = fromDates (merge (toDates ss1) (toDates ss2))
   where
-    toDates :: [Scene Diff] -> DatedMappings
+    toDates :: [Scene ActorChange] -> DatedFrames
     toDates = go [] 0
       where
         go acc t [] = (reverse acc, t)
-        go acc t (Scene {duration, mapping} : scenes) = go ((t, mapping) : acc) (t + duration) scenes
-    fromDates :: DatedMappings -> [Scene Diff]
-    fromDates (mappings, endDate) = go mappings
+        go acc t (Scene {duration, frame} : scenes) = go ((t, frame) : acc) (t + duration) scenes
+    fromDates :: DatedFrames -> [Scene ActorChange]
+    fromDates (frames, endDate) = go frames
       where
         go [] = []
-        go [(t, mapping)] = [Scene (endDate - t) mapping]
-        go ((t1, mapping) : mappings@((t2, _) : _)) = Scene (t2 - t1) mapping : go mappings
-    merge :: DatedMappings -> DatedMappings -> DatedMappings
+        go [(t, frame)] = [Scene (endDate - t) frame]
+        go ((t1, frame) : frames@((t2, _) : _)) = Scene (t2 - t1) frame : go frames
+    merge :: DatedFrames -> DatedFrames -> DatedFrames
     merge (ms1, endDate1) (ms2, endDate2) = (go ms1 ms2, max endDate1 endDate2)
       where
         go ms1 [] = ms1
@@ -305,28 +280,28 @@ ss1 ||| ss2 = fromDates (merge (toDates ss1) (toDates ss2))
 
 -- | Builds a list of displays from a list of diffs. Interprets the
 -- | first diff as an absolute scene (i.e. not as a diff).
-display :: [Scene Diff] -> [Scene Display]
+display :: [Scene ActorChange] -> [Scene ActorState]
 display [] = []
 display (absolute : diffs) =
-  firstDisplay : display' firstDisplay diffs
+  firstActorState : display' firstActorState diffs
   where
-    firstDisplay = initial absolute
+    firstActorState = initial absolute
     display' _ [] = []
-    display' display (firstDiff : nextDiffs) =
-      let nextDisplay = patch display firstDiff
-       in nextDisplay : display' nextDisplay nextDiffs
+    display' display (firstChange : nextChanges) =
+      let nextActorState = patch display firstChange
+       in nextActorState : display' nextActorState nextChanges
 
 data Shooting = Shooting
-  { scene :: Maybe (Scene Display),
-    rest :: [Scene Diff]
+  { scene :: Maybe (Scene ActorState),
+    rest :: [Scene ActorChange]
   }
 
 shoot ::
   SharedModel ->
   -- | The previous scene that was returned, or Nothing if the first call
-  Maybe (Scene Display) ->
+  Maybe (Scene ActorState) ->
   -- | The remaing scenes to apply
-  [Scene Diff] ->
+  [Scene ActorChange] ->
   Shooting
 shoot _ _ [] = Shooting {scene = Nothing, rest = []}
 shoot shared prev (diff : rest) =

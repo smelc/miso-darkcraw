@@ -20,7 +20,7 @@ w01 = Actor 2 $ CreatureID Spearman Human
 w02 :: Element
 w02 = Actor 3 $ CreatureID Archer Human
 
-allw0right :: MappingType Diff
+allw0right :: Frame ActorChange
 allw0right = w0 =: right <> w01 =: right <> w02 =: right
 
 w1 :: Element
@@ -29,13 +29,13 @@ w1 = Actor 1 $ CreatureID Vampire Undead
 w10 :: Element
 w10 = Actor 4 $ CreatureID Skeleton Undead
 
-whiteAppears :: Int -> Int -> [MappingType Diff]
+whiteAppears :: Int -> Int -> [Frame ActorChange]
 whiteAppears x y =
   map f [WhiteAppears0, WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
   where
     f tile = TileElement tile =: at x y
 
-welcomeGhostMovie1 :: [Scene Diff]
+welcomeGhostMovie1 :: [Scene ActorChange]
 welcomeGhostMovie1 =
   [ while 9 $ g =: at' ToRight 1 0,
     while 8 $ g =: down,
@@ -53,7 +53,7 @@ welcomeGhostMovie1 =
   where
     g = Actor 5 $ CreatureID Ghost Undead
 
-welcomeGhostMovie2 :: [Scene Diff]
+welcomeGhostMovie2 :: [Scene ActorChange]
 welcomeGhostMovie2 =
   [ while 15 $ g =: at (lobbiesCellWidth - 3) 0,
     while 10 $ g =: down,
@@ -73,7 +73,7 @@ welcomeGhostMovie2 =
   where
     g = Actor 6 $ CreatureID Ghost Undead
 
-welcomeFightMovie :: [Scene Diff]
+welcomeFightMovie :: [Scene ActorChange]
 welcomeFightMovie =
   map
     (while 10) -- 10 tenth of seconds: 1 second
@@ -100,5 +100,5 @@ welcomeFightMovie =
     ++ map (while 2) (whiteAppears 12 11)
     ++ [while 10 (w10 =: at 12 11)]
 
-welcomeMovie :: [Scene Diff]
+welcomeMovie :: [Scene ActorChange]
 welcomeMovie = welcomeGhostMovie1 ||| welcomeGhostMovie2 ||| welcomeFightMovie

@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (Change, Direction, DirectionChange, Element, MappingType, Phase (..), Scene (..), Shooting (..), State, StayChange, TellChange, shoot)
+import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), Shooting (..), StayChange, TellChange, shoot)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -106,29 +106,25 @@ instance ToExpr PlayingMode
 
 instance ToExpr SinglePlayerLobbyModel
 
-instance ToExpr Cinema.Change
+instance ToExpr Cinema.ActorChange
 
 instance ToExpr Cinema.StayChange
 
 instance ToExpr Cinema.Direction
 
-instance ToExpr Cinema.State
+instance ToExpr Cinema.ActorState
 
 instance ToExpr Tile.Tile
 
 instance ToExpr Cinema.Element
 
-instance ToExpr (Scene Diff)
+instance ToExpr a => ToExpr (Scene a)
 
 instance ToExpr Cinema.DirectionChange
 
 instance ToExpr Cinema.TellChange
 
-instance ToExpr (Cinema.MappingType Display)
-
-instance ToExpr (Cinema.MappingType Diff)
-
-instance ToExpr (Scene Display)
+instance ToExpr a => ToExpr (Cinema.Frame a)
 
 instance ToExpr SceneModel
 
@@ -138,9 +134,9 @@ instance ToExpr MultiPlayerLobbyModel
 
 instance ToExpr MultiPlayerLobbyError
 
-instance ToExpr InvitationState
+instance ToExpr InvitationActorState
 
-instance ToExpr InvitedState
+instance ToExpr InvitedActorState
 
 instance ToExpr DeckModel
 

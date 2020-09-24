@@ -6,7 +6,7 @@ module Model where
 
 import Board
 import Card
-import Cinema (Phase (..), Scene (..))
+import Cinema (ActorChange, ActorState, Scene (..))
 import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Text as Text
@@ -78,9 +78,9 @@ data PlayingMode
 
 data SceneModel = SceneModel
   { -- The previous scene displayed (if any)
-    displayed :: Maybe (Scene Display),
+    displayed :: Maybe (Scene ActorState),
     -- The next scenes to show
-    upcomings :: [Scene Diff]
+    upcomings :: [Scene ActorChange]
   }
   deriving (Eq, Generic, Show)
 
@@ -111,18 +111,18 @@ data MultiPlayerLobbyModel
   = CollectingUserName UserName
   | WaitingForNameSubmission UserName
   | DisplayingUserList (Maybe MultiPlayerLobbyError) UserName [UserName]
-  | InvitingUser UserName [UserName] UserName InvitationState
-  | Invited UserName [UserName] UserName InvitedState
+  | InvitingUser UserName [UserName] UserName InvitationActorState
+  | Invited UserName [UserName] UserName InvitedActorState
   | GameStarted UserName UserName
   deriving (Eq, Generic, Show)
 
-data InvitationState
+data InvitationActorState
   = WaitingForUserInvitationAck
   | WaitingForRSVP
   | WaitingForInvitationDropAck
   deriving (Eq, Generic, Show)
 
-data InvitedState
+data InvitedActorState
   = CollectingUserRSVP
   | WaitingForRejectionAck
   | WaitingForAcceptanceAck
