@@ -21,7 +21,7 @@ import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (PlayingMode (..), SceneModel (..), WelcomeModel (..))
-import PCWViewInternal (viewScene)
+import PCWViewInternal (viewTimedFrame)
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
@@ -43,7 +43,7 @@ viewWelcomeModel WelcomeModel {welcomeSceneModel = SceneModel {displayed}, ..} =
           -- top level flex, layout things in a column
           [titleDiv, singlePlayerDiv, multiPlayerDiv]
       ]
-      ++ [viewScene zpppp welcomeShared $ fromJust displayed | isJust displayed]
+      ++ [viewTimedFrame zpppp welcomeShared $ fromJust displayed | isJust displayed]
   where
     (z, zpp, zpppp) = (0, z + 1, zpp + 1)
     bgStyle =

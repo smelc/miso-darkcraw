@@ -35,47 +35,49 @@ whiteAppears x y =
   where
     f tile = TileElement tile =: at x y
 
-welcomeGhostMovie1 :: [Scene ActorChange]
+welcomeGhostMovie1 :: Scene ActorChange
 welcomeGhostMovie1 =
-  [ while 9 $ g =: at' ToRight 1 0,
-    while 8 $ g =: down,
-    while 15 $ g =: right,
-    while 8 $ g =: down,
-    while 12 $ g =: right,
-    while 7 $ g =: down,
-    while 8 $ g =: right,
-    while 10 $ g =: down,
-    while 20 $ g =: down,
-    while 15 $ g =: right,
-    while 8 $ g =: right,
-    while 15 $ g =: right
-  ]
+  mconcat
+    [ while 9 $ g =: at' ToRight 1 0,
+      while 8 $ g =: down,
+      while 15 $ g =: right,
+      while 8 $ g =: down,
+      while 12 $ g =: right,
+      while 7 $ g =: down,
+      while 8 $ g =: right,
+      while 10 $ g =: down,
+      while 20 $ g =: down,
+      while 15 $ g =: right,
+      while 8 $ g =: right,
+      while 15 $ g =: right
+    ]
   where
     g = Actor 5 $ CreatureID Ghost Undead
 
-welcomeGhostMovie2 :: [Scene ActorChange]
+welcomeGhostMovie2 :: Scene ActorChange
 welcomeGhostMovie2 =
-  [ while 15 $ g =: at (lobbiesCellWidth - 3) 0,
-    while 10 $ g =: down,
-    while 12 $ g =: left,
-    while 18 $ g =: down,
-    while 12 $ g =: left,
-    while 7 $ g =: down,
-    while 8 $ g =: left,
-    while 10 $ g =: left,
-    while 10 $ g =: up,
-    while 14 $ g =: up,
-    while 20 $ g =: up,
-    while 15 $ g =: left,
-    while 8 $ g =: right,
-    while 15 $ g =: right
-  ]
+  mconcat
+    [ while 15 $ g =: at (lobbiesCellWidth - 3) 0,
+      while 10 $ g =: down,
+      while 12 $ g =: left,
+      while 18 $ g =: down,
+      while 12 $ g =: left,
+      while 7 $ g =: down,
+      while 8 $ g =: left,
+      while 10 $ g =: left,
+      while 10 $ g =: up,
+      while 14 $ g =: up,
+      while 20 $ g =: up,
+      while 15 $ g =: left,
+      while 8 $ g =: right,
+      while 15 $ g =: right
+    ]
   where
     g = Actor 6 $ CreatureID Ghost Undead
 
-welcomeFightMovie :: [Scene ActorChange]
+welcomeFightMovie :: Scene ActorChange
 welcomeFightMovie =
-  map
+  foldMap
     (while 10) -- 10 tenth of seconds: 1 second
     [ w0 =: at' ToRight 0 15 <> w1 =: at (lobbiesCellWidth - 1) 11,
       w0 =: right <> w1 =: left,
@@ -94,11 +96,10 @@ welcomeFightMovie =
       w0 =: up <> w01 =: right <> w02 =: right,
       w0 =: up <> w01 =: right <> w01 =: up <> w02 =: right <> w02 =: up
     ]
-    ++ [ while 5 (w1 =: tell "iugp9b7"),
-         while 1 (w1 =: shutup)
-       ]
-    ++ map (while 2) (whiteAppears 12 11)
-    ++ [while 10 (w10 =: at 12 11)]
+    <> while 5 (w1 =: tell "iugp9b7")
+    <> while 1 (w1 =: shutup)
+    <> foldMap (while 2) (whiteAppears 12 11)
+    <> while 10 (w10 =: at 12 11)
 
-welcomeMovie :: [Scene ActorChange]
+welcomeMovie :: Scene ActorChange
 welcomeMovie = welcomeGhostMovie1 ||| welcomeGhostMovie2 ||| welcomeFightMovie

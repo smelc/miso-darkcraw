@@ -6,7 +6,7 @@ module Model where
 
 import Board
 import Card
-import Cinema (ActorChange, ActorState, Scene (..))
+import Cinema (ActorChange, ActorState, Scene (..), TimedFrame)
 import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Text as Text
@@ -78,9 +78,9 @@ data PlayingMode
 
 data SceneModel = SceneModel
   { -- The previous scene displayed (if any)
-    displayed :: Maybe (Scene ActorState),
+    displayed :: Maybe (TimedFrame ActorState),
     -- The next scenes to show
-    upcomings :: [Scene ActorChange]
+    upcomings :: [TimedFrame ActorChange]
   }
   deriving (Eq, Generic, Show)
 

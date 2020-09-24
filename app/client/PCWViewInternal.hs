@@ -17,12 +17,12 @@ module PCWViewInternal
     cardCreature,
     cardPositionStyle,
     cardPositionStyle',
-    viewScene,
+    viewTimedFrame,
   )
 where
 
 import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString)
-import Cinema (ActorState (..), Direction, Element (..), Frame (..), Scene, Scene (..), defaultDirection)
+import Cinema (ActorState (..), Direction, Element (..), Frame (..), Scene (..), TimedFrame (..), defaultDirection)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -158,8 +158,8 @@ createContext z shared@SharedModel {..} =
     dirToFilename f@Filepath {..} _ =
       dirToFilename f {fpY = fpY + 1} defaultDirection
 
-viewScene :: Int -> SharedModel -> Scene ActorState -> View a
-viewScene z smodel Scene {frame} =
+viewTimedFrame :: Int -> SharedModel -> TimedFrame ActorState -> View a
+viewTimedFrame z smodel TimedFrame {frame} =
   div_
     []
     $ frame

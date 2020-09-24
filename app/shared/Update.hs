@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), Shooting (..), StayChange, TellChange, shoot)
+import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), Shooting (..), StayChange, TellChange, TimedFrame (..), shoot)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -117,6 +117,8 @@ instance ToExpr Cinema.ActorState
 instance ToExpr Tile.Tile
 
 instance ToExpr Cinema.Element
+
+instance ToExpr a => ToExpr (TimedFrame a)
 
 instance ToExpr a => ToExpr (Scene a)
 
@@ -512,7 +514,7 @@ updateModel
       Just duration | duration == 0 -> error "duration of scene should NOT be 0"
       Just duration -> delayActions m' [(duration, StepScene)]
     where
-      s@Shooting {scene} = Cinema.shoot welcomeShared displayed upcomings
+      s@Shooting {scene} = Cinema.shoot welcomeShared displayed (Scene upcomings)
       d = tenthToSecs . duration <$> scene
       m' = WelcomeModel' $ wm {welcomeSceneModel = toSceneModel s}
 -- Actions that do not change the page delegate to more specialized versions
@@ -557,6 +559,6 @@ initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =
   WelcomeModel
     { welcomeSceneModel =
-        SceneModel {displayed = Nothing, upcomings = Movie.welcomeMovie},
+        SceneModel {displayed = Nothing, upcomings = frames Movie.welcomeMovie},
       ..
     }

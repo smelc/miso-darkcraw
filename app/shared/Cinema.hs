@@ -14,11 +14,12 @@ module Cinema
     DirectionChange,
     Element (..),
     Frame (..),
-    Scene (..),
     Shooting (..),
     ActorState (..),
+    Scene (..),
     StayChange,
     TellChange,
+    TimedFrame (..),
     (=:),
     (|||),
     at,
@@ -78,13 +79,22 @@ data Element
 newtype Frame a = Frame {unFrame :: Map.Map Element a}
   deriving (Eq, Ord, Show, Generic)
 
-data Scene a = Scene
+data TimedFrame a = TimedFrame
   { -- | The duration of a scene, in tenth of seconds
     duration :: Int,
     -- | The scene's elements
     frame :: Frame a
   }
   deriving (Eq, Ord, Show, Generic)
+
+newtype Scene a = Scene {frames :: [TimedFrame a]}
+  deriving (Eq, Ord, Show, Generic)
+
+instance Semigroup (Scene a) where
+  (Scene frames1) <> (Scene frames2) = Scene (frames1 <> frames2)
+
+instance Monoid (Scene a) where
+  mempty = Scene []
 
 data DirectionChange = TurnRight | TurnLeft | NoDirectionChange
   deriving (Eq, Generic, Ord, Show)
@@ -173,9 +183,9 @@ tell s = Stay mempty {tellingChange = Tell s}
 up :: ActorChange
 up = at 0 (-1)
 
-initial :: Scene ActorChange -> Scene ActorState
-initial Scene {duration, frame = Frame changes} =
-  Scene {..}
+initial :: TimedFrame ActorChange -> TimedFrame ActorState
+initial TimedFrame {duration, frame = Frame changes} =
+  TimedFrame {..}
   where
     frame = Map.map initial' changes & Map.mapMaybe id & Frame
 
@@ -196,12 +206,12 @@ initial' (Stay StayChange {..}) =
     fromTellChange _ = Nothing
 initial' Leave = Nothing
 
-patch :: Scene ActorState -> Scene ActorChange -> Scene ActorState
+patch :: TimedFrame ActorState -> TimedFrame ActorChange -> TimedFrame ActorState
 patch
-  Scene {frame = Frame prev}
-  Scene {duration, frame = Frame diff} =
+  TimedFrame {frame = Frame prev}
+  TimedFrame {duration, frame = Frame diff} =
     -- Take duration from Change: ignore old duration
-    Scene {frame = Frame frame'', ..}
+    TimedFrame {frame = Frame frame'', ..}
     where
       -- Compute elements that make it to the next scene
       elements = Map.keys prev ++ Map.keys diff & Set.fromList
@@ -243,9 +253,9 @@ instance Semigroup (Frame ActorChange) where
 instance Monoid (Frame ActorChange) where
   mempty = Frame mempty
 
--- | Given a duration and a frame, builds a 'Scene'
-while :: Int -> Frame p -> Scene p
-while i m = Scene {duration = i, frame = m}
+-- | Given a duration and a frame, builds a 'TimedFrame'
+while :: Int -> Frame a -> Scene a
+while i m = Scene [TimedFrame {duration = i, frame = m}]
 
 type Date = Int
 
@@ -254,20 +264,20 @@ type DatedFrames =
     Date -- end date of the last diff
   )
 
-(|||) :: [Scene ActorChange] -> [Scene ActorChange] -> [Scene ActorChange]
-ss1 ||| ss2 = fromDates (merge (toDates ss1) (toDates ss2))
+(|||) :: Scene ActorChange -> Scene ActorChange -> Scene ActorChange
+(Scene ss1) ||| (Scene ss2) = Scene (fromDates (merge (toDates ss1) (toDates ss2)))
   where
-    toDates :: [Scene ActorChange] -> DatedFrames
+    toDates :: [TimedFrame ActorChange] -> DatedFrames
     toDates = go [] 0
       where
         go acc t [] = (reverse acc, t)
-        go acc t (Scene {duration, frame} : scenes) = go ((t, frame) : acc) (t + duration) scenes
-    fromDates :: DatedFrames -> [Scene ActorChange]
+        go acc t (TimedFrame {duration, frame} : scenes) = go ((t, frame) : acc) (t + duration) scenes
+    fromDates :: DatedFrames -> [TimedFrame ActorChange]
     fromDates (frames, endDate) = go frames
       where
         go [] = []
-        go [(t, frame)] = [Scene (endDate - t) frame]
-        go ((t1, frame) : frames@((t2, _) : _)) = Scene (t2 - t1) frame : go frames
+        go [(t, frame)] = [TimedFrame (endDate - t) frame]
+        go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
     merge :: DatedFrames -> DatedFrames -> DatedFrames
     merge (ms1, endDate1) (ms2, endDate2) = (go ms1 ms2, max endDate1 endDate2)
       where
@@ -280,10 +290,10 @@ ss1 ||| ss2 = fromDates (merge (toDates ss1) (toDates ss2))
 
 -- | Builds a list of displays from a list of diffs. Interprets the
 -- | first diff as an absolute scene (i.e. not as a diff).
-display :: [Scene ActorChange] -> [Scene ActorState]
-display [] = []
-display (absolute : diffs) =
-  firstActorState : display' firstActorState diffs
+display :: Scene ActorChange -> Scene ActorState
+display (Scene []) = Scene []
+display (Scene (absolute : diffs)) =
+  Scene (firstActorState : display' firstActorState diffs)
   where
     firstActorState = initial absolute
     display' _ [] = []
@@ -292,19 +302,19 @@ display (absolute : diffs) =
        in nextActorState : display' nextActorState nextChanges
 
 data Shooting = Shooting
-  { scene :: Maybe (Scene ActorState),
-    rest :: [Scene ActorChange]
+  { scene :: Maybe (TimedFrame ActorState),
+    rest :: [TimedFrame ActorChange]
   }
 
 shoot ::
   SharedModel ->
   -- | The previous scene that was returned, or Nothing if the first call
-  Maybe (Scene ActorState) ->
+  Maybe (TimedFrame ActorState) ->
   -- | The remaing scenes to apply
-  [Scene ActorChange] ->
+  Scene ActorChange ->
   Shooting
-shoot _ _ [] = Shooting {scene = Nothing, rest = []}
-shoot shared prev (diff : rest) =
+shoot _ _ (Scene []) = Shooting {scene = Nothing, rest = []}
+shoot shared prev (Scene (diff : rest)) =
   let scene = Just $
         case prev of
           -- Building the first scene, 'diff' gets interpreted
