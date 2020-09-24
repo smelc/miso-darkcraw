@@ -139,9 +139,13 @@ subtitleFontSize = (cps + titleFontSize) `div` 3
 titleFontSize :: Int
 titleFontSize = cps + (cps `div` 2)
 
+-- | The width of the backgrounds of non-board view, in cells
+lobbiesCellWidth :: Int
+lobbiesCellWidth = boardCellWidth
+
 -- | The width of the backgrounds of non-board view, in pixels
 lobbiesPixelWidth :: Int
-lobbiesPixelWidth = 504
+lobbiesPixelWidth = lobbiesCellWidth * cps
 
 -- | The height of the backgrounds of non-board view, in pixels
 lobbiesPixelHeight :: Int

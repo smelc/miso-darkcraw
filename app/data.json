@@ -7,7 +7,8 @@
     { "id": { "name":"skeleton",  "team":"undead" }, "title":"skeleton",  "hp":1, "attack":1, "victory_points":1, "filepath": {"root": "24x24", "x": 0, "y": 3} },
     { "id": { "name":"vampire",   "team":"undead" }, "title":"vampire",   "hp":3, "attack":3, "victory_points":5, "filepath": {"root": "24x24", "x": 1, "y": 3} },
     { "id": { "name":"archer",    "team":"undead" }, "title":"archer",    "hp":1, "attack":1, "victory_points":1, "filepath": {"root": "24x24", "x": 2, "y": 3}, "skills":["Ranged"]},
-    { "id": { "name":"mummy",     "team":"undead" }, "title":"mummy",     "hp":5, "attack":2, "victory_points":2, "filepath": {"root": "24x24", "x": 3, "y": 3}}
+    { "id": { "name":"mummy",     "team":"undead" }, "title":"mummy",     "hp":5, "attack":2, "victory_points":2, "filepath": {"root": "24x24", "x": 3, "y": 3}},
+    { "id": { "name":"ghost",     "team":"undead" }, "title":"ghost",     "hp":1, "attack":0, "victory_points":0, "filepath": {"root": "24x24", "x": 5, "y": 3}}
   ],
   "neutral": [
     { "name":"health", "title":"Health", "tile":"RedPotion",   "text":"Heals 1 HP" },

@@ -23,6 +23,7 @@ module Cinema
     StayChange,
     TellChange,
     (=:),
+    (|||),
     at,
     at',
     defaultDirection,
@@ -31,7 +32,6 @@ module Cinema
     initial,
     left,
     mkChange,
-    parallel,
     patch,
     patch',
     right,
@@ -279,8 +279,8 @@ type DatedMappings =
     Date -- end date of the last diff
   )
 
-parallel :: [Scene Diff] -> [Scene Diff] -> [Scene Diff]
-parallel ss1 ss2 = fromDates (merge (toDates ss1) (toDates ss2))
+(|||) :: [Scene Diff] -> [Scene Diff] -> [Scene Diff]
+ss1 ||| ss2 = fromDates (merge (toDates ss1) (toDates ss2))
   where
     toDates :: [Scene Diff] -> DatedMappings
     toDates = go [] 0

@@ -8,6 +8,7 @@ module Movie (welcomeMovie) where
 
 import Card (CreatureID (..), CreatureKind (..), Team (..))
 import Cinema
+import Constants
 import Tile
 
 w0 :: Element
@@ -34,11 +35,49 @@ whiteAppears x y =
   where
     f tile = TileElement tile =: at x y
 
-welcomeMovie :: [Scene Diff]
-welcomeMovie =
+welcomeGhostMovie1 :: [Scene Diff]
+welcomeGhostMovie1 =
+  [ while 9 $ g =: at' ToRight 1 0,
+    while 8 $ g =: down,
+    while 15 $ g =: right,
+    while 8 $ g =: down,
+    while 12 $ g =: right,
+    while 7 $ g =: down,
+    while 8 $ g =: right,
+    while 10 $ g =: down,
+    while 20 $ g =: down,
+    while 15 $ g =: right,
+    while 8 $ g =: right,
+    while 15 $ g =: right
+  ]
+  where
+    g = Actor 5 $ CreatureID Ghost Undead
+
+welcomeGhostMovie2 :: [Scene Diff]
+welcomeGhostMovie2 =
+  [ while 15 $ g =: at (lobbiesCellWidth - 3) 0,
+    while 10 $ g =: down,
+    while 12 $ g =: left,
+    while 18 $ g =: down,
+    while 12 $ g =: left,
+    while 7 $ g =: down,
+    while 8 $ g =: left,
+    while 10 $ g =: left,
+    while 10 $ g =: up,
+    while 14 $ g =: up,
+    while 20 $ g =: up,
+    while 15 $ g =: left,
+    while 8 $ g =: right,
+    while 15 $ g =: right
+  ]
+  where
+    g = Actor 6 $ CreatureID Ghost Undead
+
+welcomeFightMovie :: [Scene Diff]
+welcomeFightMovie =
   map
     (while 10) -- 10 tenth of seconds: 1 second
-    [ w0 =: at' ToRight 0 15 <> w1 =: at 20 11,
+    [ w0 =: at' ToRight 0 15 <> w1 =: at (lobbiesCellWidth - 1) 11,
       w0 =: right <> w1 =: left,
       w0 =: right <> w0 =: tell "Come on guys!" <> w1 =: left,
       w0 =: right <> w0 =: shutup <> w01 =: at' ToRight 0 15 <> w1 =: tell "Fresh meat!",
@@ -60,3 +99,6 @@ welcomeMovie =
        ]
     ++ map (while 2) (whiteAppears 12 11)
     ++ [while 10 (w10 =: at 12 11)]
+
+welcomeMovie :: [Scene Diff]
+welcomeMovie = welcomeGhostMovie1 ||| welcomeGhostMovie2 ||| welcomeFightMovie

@@ -91,9 +91,9 @@ testScenesInvariant name diffs =
 
 testParallelSceneComposition :: Spec
 testParallelSceneComposition =
-  describe "Cinema.parallel"
+  describe "Cinema.|||"
     $ it "interleaves events in the expected order"
-    $ Cinema.parallel scenes1 scenes2 `shouldBe` expectedMergedScenes
+    $ scenes1 ||| scenes2 `shouldBe` expectedMergedScenes
   where
     w0 :: Element
     w0 = Actor 0 $ CreatureID Skeleton Undead

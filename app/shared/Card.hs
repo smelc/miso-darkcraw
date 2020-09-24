@@ -46,13 +46,14 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
   )
 
 data CreatureKind
-  = Spearman
-  | Swordsman
-  | Archer
+  = Archer
   | General
-  | Skeleton
-  | Vampire
+  | Ghost
   | Mummy
+  | Skeleton
+  | Spearman
+  | Swordsman
+  | Vampire
   deriving (Enum, Eq, Generic, Ord, Show)
 
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
