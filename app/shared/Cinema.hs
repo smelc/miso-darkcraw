@@ -175,7 +175,7 @@ at :: Int -> Int -> Change
 at x y = Stay mempty {xoffset = x, yoffset = y}
 
 at' :: Direction -> Int -> Int -> Change
-at' dir x y = Stay mempty {xoffset = x, yoffset = y}
+at' dir x y = Stay mempty {turn = turnFrom dir, xoffset = x, yoffset = y}
   where
     turnFrom ToRight = TurnRight
     turnFrom ToLeft = TurnLeft
