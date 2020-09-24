@@ -31,6 +31,7 @@ module Cinema
     initial,
     left,
     mkChange,
+    parallel,
     patch,
     patch',
     right,
@@ -264,9 +265,43 @@ k =: v = MappingType (Map.singleton k v)
 instance Semigroup (MappingType Diff) where
   (MappingType m1) <> (MappingType m2) = MappingType (Map.unionWith (<>) m1 m2)
 
+instance Monoid (MappingType Diff) where
+  mempty = MappingType mempty
+
 -- | Given a duration and a mapping, builds a 'Scene'
 while :: Int -> MappingType p -> Scene p
 while i m = Scene {duration = i, mapping = m}
+
+type Date = Int
+
+type DatedMappings =
+  ( [(Date, MappingType Diff)],
+    Date -- end date of the last diff
+  )
+
+parallel :: [Scene Diff] -> [Scene Diff] -> [Scene Diff]
+parallel ss1 ss2 = fromDates (merge (toDates ss1) (toDates ss2))
+  where
+    toDates :: [Scene Diff] -> DatedMappings
+    toDates = go [] 0
+      where
+        go acc t [] = (reverse acc, t)
+        go acc t (Scene {duration, mapping} : scenes) = go ((t, mapping) : acc) (t + duration) scenes
+    fromDates :: DatedMappings -> [Scene Diff]
+    fromDates (mappings, endDate) = go mappings
+      where
+        go [] = []
+        go [(t, mapping)] = [Scene (endDate - t) mapping]
+        go ((t1, mapping) : mappings@((t2, _) : _)) = Scene (t2 - t1) mapping : go mappings
+    merge :: DatedMappings -> DatedMappings -> DatedMappings
+    merge (ms1, endDate1) (ms2, endDate2) = (go ms1 ms2, max endDate1 endDate2)
+      where
+        go ms1 [] = ms1
+        go [] ms2 = ms2
+        go ms1@((t1, m1) : ms1') ms2@((t2, m2) : ms2')
+          | t1 < t2 = (t1, m1) : go ms1' ms2
+          | t1 > t2 = (t2, m2) : go ms1 ms2'
+          | otherwise = (t1, m1 <> m2) : go ms1' ms2'
 
 -- | Builds a list of displays from a list of diffs. Interprets the
 -- | first diff as an absolute scene (i.e. not as a diff).

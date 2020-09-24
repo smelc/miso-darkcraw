@@ -89,6 +89,35 @@ testScenesInvariant name diffs =
   where
     displays = display diffs
 
+testParallelSceneComposition :: Spec
+testParallelSceneComposition =
+  describe "Cinema.parallel"
+    $ it "interleaves events in the expected order"
+    $ Cinema.parallel scenes1 scenes2 `shouldBe` expectedMergedScenes
+  where
+    w0 :: Element
+    w0 = Actor 0 $ CreatureID Skeleton Undead
+    w1 :: Element
+    w1 = Actor 1 $ CreatureID Skeleton Undead
+    scenes1 :: [Scene Diff]
+    scenes1 =
+      [ while 1 (w0 =: Cinema.at 0 0),
+        while 3 (w0 =: right),
+        while 1 (w0 =: left)
+      ]
+    scenes2 :: [Scene Diff]
+    scenes2 =
+      [ while 2 (w1 =: Cinema.at 1 1),
+        while 4 (w1 =: right)
+      ]
+    expectedMergedScenes :: [Scene Diff]
+    expectedMergedScenes =
+      [ while 1 (w0 =: Cinema.at 0 0 <> w1 =: Cinema.at 1 1),
+        while 1 (w0 =: right),
+        while 2 (w1 =: right),
+        while 2 (w0 =: left)
+      ]
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -122,3 +151,4 @@ main = hspec $ do
         (\(_, cSpot, _) -> inTheBack cSpot)
         (boardToCardsInPlace $ testAIRanged cards initialTurn)
   testScenesInvariant "welcomeMovie" welcomeMovie
+  testParallelSceneComposition
