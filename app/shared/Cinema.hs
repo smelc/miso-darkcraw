@@ -14,7 +14,6 @@ module Cinema
     DirectionChange,
     Element (..),
     Frame (..),
-    Shooting (..),
     ActorState (..),
     Scene (..),
     StayChange,
@@ -33,9 +32,9 @@ module Cinema
     patch,
     patch',
     right,
-    shoot,
     shutup,
     tell,
+    uncons,
     up,
     while,
   )
@@ -301,25 +300,6 @@ display (Scene (absolute : diffs)) =
       let nextActorState = patch display firstChange
        in nextActorState : display' nextActorState nextChanges
 
-data Shooting = Shooting
-  { scene :: Maybe (TimedFrame ActorState),
-    rest :: [TimedFrame ActorChange]
-  }
-
-shoot ::
-  SharedModel ->
-  -- | The previous scene that was returned, or Nothing if the first call
-  Maybe (TimedFrame ActorState) ->
-  -- | The remaing scenes to apply
-  Scene ActorChange ->
-  Shooting
-shoot _ _ (Scene []) = Shooting {scene = Nothing, rest = []}
-shoot shared prev (Scene (diff : rest)) =
-  let scene = Just $
-        case prev of
-          -- Building the first scene, 'diff' gets interpreted
-          -- as absolute, not a diff.
-          Nothing -> initial diff
-          -- Patching previous scene
-          Just prev -> patch prev diff
-   in Shooting {..}
+uncons :: Scene ActorState -> Maybe (TimedFrame ActorState, Scene ActorState)
+uncons (Scene []) = Nothing
+uncons (Scene (frame : frames)) = Just (frame, Scene frames)

@@ -6,7 +6,7 @@ module Model where
 
 import Board
 import Card
-import Cinema (ActorChange, ActorState, Scene (..), TimedFrame)
+import Cinema (ActorChange, ActorState, Frame (..), Scene (..), TimedFrame)
 import Control.Lens
 import Data.Generics.Labels
 import qualified Data.Text as Text
@@ -76,12 +76,10 @@ data PlayingMode
   | SinglePlayerTeam Team
   deriving (Eq, Generic, Show)
 
-data SceneModel = SceneModel
-  { -- The previous scene displayed (if any)
-    displayed :: Maybe (TimedFrame ActorState),
-    -- The next scenes to show
-    upcomings :: [TimedFrame ActorChange]
-  }
+data SceneModel
+  = SceneNotStarted [TimedFrame ActorState]
+  | ScenePlaying (Frame ActorState) [TimedFrame ActorState]
+  | SceneComplete
   deriving (Eq, Generic, Show)
 
 -- | The model of the welcome page

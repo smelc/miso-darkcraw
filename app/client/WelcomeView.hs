@@ -1,4 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -21,14 +20,14 @@ import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (PlayingMode (..), SceneModel (..), WelcomeModel (..))
-import PCWViewInternal (viewTimedFrame)
+import PCWViewInternal (viewFrame)
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> Styled (View Action)
-viewWelcomeModel WelcomeModel {welcomeSceneModel = SceneModel {displayed}, ..} = do
+viewWelcomeModel WelcomeModel {..} = do
   multiPlayerDiv <-
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-
@@ -43,7 +42,7 @@ viewWelcomeModel WelcomeModel {welcomeSceneModel = SceneModel {displayed}, ..} =
           -- top level flex, layout things in a column
           [titleDiv, singlePlayerDiv, multiPlayerDiv]
       ]
-      ++ [viewTimedFrame zpppp welcomeShared $ fromJust displayed | isJust displayed]
+      ++ viewWelcomeScene welcomeSceneModel
   where
     (z, zpp, zpppp) = (0, z + 1, zpp + 1)
     bgStyle =
@@ -82,6 +81,8 @@ viewWelcomeModel WelcomeModel {welcomeSceneModel = SceneModel {displayed}, ..} =
           case dest of
             SinglePlayerDestination -> True
             MultiPlayerDestination -> multiplayerEnabled
+    viewWelcomeScene (ScenePlaying frame _) = [viewFrame zpppp welcomeShared frame]
+    viewWelcomeScene _ = []
 
 torchesDiv :: Int -> View Action
 torchesDiv z =

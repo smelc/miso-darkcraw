@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), Shooting (..), StayChange, TellChange, TimedFrame (..), shoot)
+import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), StayChange, TellChange, TimedFrame (..), display)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -439,7 +439,7 @@ updateMultiPlayerLobbyModel a m =
   noEff $ traceShow (a, m) m
 
 -- Function courtesy of @dmjio!
-delayActions :: Model -> [(Int, Action)] -> Effect Action Model
+delayActions :: m -> [(Int, Action)] -> Effect Action m
 delayActions m actions =
   Effect
     m
@@ -449,8 +449,8 @@ delayActions m actions =
       | (i, action) <- actions
     ]
 
-toSceneModel :: Shooting -> SceneModel
-toSceneModel Shooting {..} = SceneModel {displayed = scene, upcomings = rest}
+toSceneModel :: Scene ActorState -> SceneModel
+toSceneModel (Scene frames) = SceneNotStarted frames
 
 -- | Seconds to scheduling delay
 toSecs :: Int -> Int
@@ -508,15 +508,18 @@ updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
 -- Action that does not change the page: StepScene
 updateModel
   StepScene
-  (WelcomeModel' wm@WelcomeModel {welcomeSceneModel = s@SceneModel {..}, ..}) =
-    case d of
-      Nothing -> noEff m'
-      Just duration | duration == 0 -> error "duration of scene should NOT be 0"
-      Just duration -> delayActions m' [(duration, StepScene)]
+  (WelcomeModel' wm@WelcomeModel {welcomeSceneModel}) = do
+    newWelcomeSceneModel <-
+      case welcomeSceneModel of
+        SceneNotStarted [] -> noEff SceneComplete
+        SceneNotStarted (tframe : tframes) -> playFrame tframe tframes
+        ScenePlaying _ [] -> noEff SceneComplete
+        ScenePlaying _ (tframe : tframes) -> playFrame tframe tframes
+        SceneComplete -> noEff SceneComplete
+    return (WelcomeModel' wm {welcomeSceneModel = newWelcomeSceneModel})
     where
-      s@Shooting {scene} = Cinema.shoot welcomeShared displayed (Scene upcomings)
-      d = tenthToSecs . duration <$> scene
-      m' = WelcomeModel' $ wm {welcomeSceneModel = toSceneModel s}
+      playFrame (TimedFrame duration frame) tframes =
+        delayActions (ScenePlaying frame tframes) [(tenthToSecs duration, StepScene)]
 -- Actions that do not change the page delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
@@ -558,7 +561,6 @@ initialGameModel shared =
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =
   WelcomeModel
-    { welcomeSceneModel =
-        SceneModel {displayed = Nothing, upcomings = frames Movie.welcomeMovie},
+    { welcomeSceneModel = toSceneModel (Cinema.display Movie.welcomeMovie),
       ..
     }
