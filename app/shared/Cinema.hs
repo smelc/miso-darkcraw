@@ -30,7 +30,7 @@ module Cinema
     left,
     mkChange,
     patch,
-    patch',
+    patchActorState,
     right,
     shutup,
     tell,
@@ -67,6 +67,15 @@ data ActorState = ActorState
     y :: Int
   }
   deriving (Eq, Generic, Ord, Show)
+
+defaultActorState :: ActorState
+defaultActorState =
+  ActorState
+    { direction = defaultDirection,
+      telling = Nothing,
+      x = 0,
+      y = 0
+    }
 
 data Element
   = -- The actor's unique identifier, and its tile
@@ -182,27 +191,7 @@ up :: ActorChange
 up = at 0 (-1)
 
 initial :: TimedFrame ActorChange -> TimedFrame ActorState
-initial TimedFrame {duration, frame = Frame changes} =
-  TimedFrame {..}
-  where
-    frame = Map.map initial' changes & Map.mapMaybe id & Frame
-
-initial' :: ActorChange -> Maybe ActorState
-initial' (Stay StayChange {..}) =
-  Just $
-    ActorState
-      { direction = fromDirectionChange turn,
-        telling = fromTellingChange tellingChange,
-        x = xoffset,
-        y = yoffset
-      }
-  where
-    fromDirectionChange TurnLeft = ToLeft
-    fromDirectionChange TurnRight = ToRight
-    fromDirectionChange NoDirectionChange = defaultDirection
-    fromTellingChange (Tell s) = Just s
-    fromTellingChange _ = Nothing
-initial' Leave = Nothing
+initial tframe = patch (TimedFrame 0 (Frame mempty)) tframe
 
 patch :: TimedFrame ActorState -> TimedFrame ActorChange -> TimedFrame ActorState
 patch
@@ -218,14 +207,14 @@ patch
         ( e,
           case (prev Map.!? e, diff Map.!? e) of
             (_, Just Leave) -> Nothing
-            (Nothing, Just c) -> initial' c -- No previous state, consider diff as absolute
-            (Just p, Just c) -> patch' p c -- Apply diff
+            (Nothing, Just c) -> patchActorState defaultActorState c -- No previous state, consider diff as absolute
+            (Just p, Just c) -> patchActorState p c -- Apply diff
             (p, Nothing) -> p -- No diff: keep previous state
         )
       frame'' = Map.mapMaybe id frame'
 
-patch' :: ActorState -> ActorChange -> Maybe ActorState
-patch' s@ActorState {..} (Stay StayChange {..}) =
+patchActorState :: ActorState -> ActorChange -> Maybe ActorState
+patchActorState s@ActorState {..} (Stay StayChange {..}) =
   Just $
     s
       { direction = applyDirectionChange direction turn,
@@ -240,7 +229,7 @@ patch' s@ActorState {..} (Stay StayChange {..}) =
     applyTellingChange telling NoTellingChange = telling
     applyTellingChange _ (Tell s) = Just s
     applyTellingChange _ ShutUp = Nothing
-patch' _ Leave = Nothing
+patchActorState _ Leave = Nothing
 
 (=:) :: Element -> ActorChange -> Frame ActorChange
 k =: v = Frame (Map.singleton k v)
