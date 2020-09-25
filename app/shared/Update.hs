@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (Change, Direction, DirectionChange, Element, MappingType, Phase (..), Scene (..), Shooting (..), State, StayChange, TellChange, shoot)
+import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), StayChange, TellingChange, TimedFrame (..), display)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -106,29 +106,27 @@ instance ToExpr PlayingMode
 
 instance ToExpr SinglePlayerLobbyModel
 
-instance ToExpr Cinema.Change
+instance ToExpr Cinema.ActorChange
 
 instance ToExpr Cinema.StayChange
 
 instance ToExpr Cinema.Direction
 
-instance ToExpr Cinema.State
+instance ToExpr Cinema.ActorState
 
 instance ToExpr Tile.Tile
 
 instance ToExpr Cinema.Element
 
-instance ToExpr (Scene Diff)
+instance ToExpr a => ToExpr (TimedFrame a)
+
+instance ToExpr a => ToExpr (Scene a)
 
 instance ToExpr Cinema.DirectionChange
 
-instance ToExpr Cinema.TellChange
+instance ToExpr Cinema.TellingChange
 
-instance ToExpr (Cinema.MappingType Display)
-
-instance ToExpr (Cinema.MappingType Diff)
-
-instance ToExpr (Scene Display)
+instance ToExpr a => ToExpr (Cinema.Frame a)
 
 instance ToExpr SceneModel
 
@@ -138,9 +136,9 @@ instance ToExpr MultiPlayerLobbyModel
 
 instance ToExpr MultiPlayerLobbyError
 
-instance ToExpr InvitationState
+instance ToExpr InvitationActorState
 
-instance ToExpr InvitedState
+instance ToExpr InvitedActorState
 
 instance ToExpr DeckModel
 
@@ -441,7 +439,7 @@ updateMultiPlayerLobbyModel a m =
   noEff $ traceShow (a, m) m
 
 -- Function courtesy of @dmjio!
-delayActions :: Model -> [(Int, Action)] -> Effect Action Model
+delayActions :: m -> [(Int, Action)] -> Effect Action m
 delayActions m actions =
   Effect
     m
@@ -451,8 +449,8 @@ delayActions m actions =
       | (i, action) <- actions
     ]
 
-toSceneModel :: Shooting -> SceneModel
-toSceneModel Shooting {..} = SceneModel {displayed = scene, upcomings = rest}
+toSceneModel :: Scene ActorState -> SceneModel
+toSceneModel (Scene frames) = SceneNotStarted frames
 
 -- | Seconds to scheduling delay
 toSecs :: Int -> Int
@@ -510,15 +508,18 @@ updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
 -- Action that does not change the page: StepScene
 updateModel
   StepScene
-  (WelcomeModel' wm@WelcomeModel {welcomeSceneModel = s@SceneModel {..}, ..}) =
-    case d of
-      Nothing -> noEff m'
-      Just duration | duration == 0 -> error "duration of scene should NOT be 0"
-      Just duration -> delayActions m' [(duration, StepScene)]
+  (WelcomeModel' wm@WelcomeModel {welcomeSceneModel}) = do
+    newWelcomeSceneModel <-
+      case welcomeSceneModel of
+        SceneNotStarted [] -> noEff SceneComplete
+        SceneNotStarted (tframe : tframes) -> playFrame tframe tframes
+        ScenePlaying _ [] -> noEff SceneComplete
+        ScenePlaying _ (tframe : tframes) -> playFrame tframe tframes
+        SceneComplete -> noEff SceneComplete
+    return (WelcomeModel' wm {welcomeSceneModel = newWelcomeSceneModel})
     where
-      s@Shooting {scene} = Cinema.shoot welcomeShared displayed upcomings
-      d = tenthToSecs . duration <$> scene
-      m' = WelcomeModel' $ wm {welcomeSceneModel = toSceneModel s}
+      playFrame (TimedFrame duration frame) tframes =
+        delayActions (ScenePlaying frame tframes) [(tenthToSecs duration, StepScene)]
 -- Actions that do not change the page delegate to more specialized versions
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
@@ -560,7 +561,6 @@ initialGameModel shared =
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =
   WelcomeModel
-    { welcomeSceneModel =
-        SceneModel {displayed = Nothing, upcomings = Movie.welcomeMovie},
+    { welcomeSceneModel = toSceneModel (Cinema.display Movie.welcomeMovie),
       ..
     }
