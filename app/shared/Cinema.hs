@@ -34,7 +34,6 @@ module Cinema
     right,
     shutup,
     tell,
-    uncons,
     up,
     while,
   )
@@ -299,7 +298,3 @@ display (Scene (absolute : diffs)) =
     display' display (firstChange : nextChanges) =
       let nextActorState = patch display firstChange
        in nextActorState : display' nextActorState nextChanges
-
-uncons :: Scene ActorState -> Maybe (TimedFrame ActorState, Scene ActorState)
-uncons (Scene []) = Nothing
-uncons (Scene (frame : frames)) = Just (frame, Scene frames)
