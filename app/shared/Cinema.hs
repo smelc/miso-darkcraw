@@ -17,7 +17,7 @@ module Cinema
     ActorState (..),
     Scene (..),
     StayChange,
-    TellChange,
+    TellingChange,
     TimedFrame (..),
     (=:),
     (|||),
@@ -78,9 +78,9 @@ newtype Frame a = Frame {unFrame :: Map.Map Element a}
   deriving (Eq, Ord, Show, Generic)
 
 data TimedFrame a = TimedFrame
-  { -- | The duration of a scene, in tenth of seconds
+  { -- | The duration of a frame, in tenth of seconds
     duration :: Int,
-    -- | The scene's elements
+    -- | The frame
     frame :: Frame a
   }
   deriving (Eq, Ord, Show, Generic)
@@ -107,23 +107,23 @@ instance Semigroup DirectionChange where
 instance Monoid DirectionChange where
   mempty = NoDirectionChange
 
-data TellChange = Tell String | ShutUp | NoTellChange
+data TellingChange = Tell String | ShutUp | NoTellingChange
   deriving (Eq, Generic, Ord, Show)
 
 -- last change wins
-instance Semigroup TellChange where
-  change <> NoTellChange = change
+instance Semigroup TellingChange where
+  change <> NoTellingChange = change
   _ <> change = change
 
-instance Monoid TellChange where
-  mempty = NoTellChange
+instance Monoid TellingChange where
+  mempty = NoTellingChange
 
 -- | The change to an actor's 'ActorState'
 data StayChange = StayChange
   { -- | The change to 'direction'
     turn :: DirectionChange,
     -- | The change to 'telling'
-    tellingChange :: TellChange,
+    tellingChange :: TellingChange,
     -- | The change to 'x'
     xoffset :: Int,
     -- | The change to 'y'
@@ -151,7 +151,7 @@ instance Semigroup ActorChange where
 instance Monoid ActorChange where
   mempty = Stay mempty
 
-mkChange :: DirectionChange -> TellChange -> Int -> Int -> ActorChange
+mkChange :: DirectionChange -> TellingChange -> Int -> Int -> ActorChange
 mkChange turn tellingChange xoffset yoffset = Stay StayChange {..}
 
 at :: Int -> Int -> ActorChange
@@ -192,7 +192,7 @@ initial' (Stay StayChange {..}) =
   Just $
     ActorState
       { direction = fromDirectionChange turn,
-        telling = fromTellChange tellingChange,
+        telling = fromTellingChange tellingChange,
         x = xoffset,
         y = yoffset
       }
@@ -200,8 +200,8 @@ initial' (Stay StayChange {..}) =
     fromDirectionChange TurnLeft = ToLeft
     fromDirectionChange TurnRight = ToRight
     fromDirectionChange NoDirectionChange = defaultDirection
-    fromTellChange (Tell s) = Just s
-    fromTellChange _ = Nothing
+    fromTellingChange (Tell s) = Just s
+    fromTellingChange _ = Nothing
 initial' Leave = Nothing
 
 patch :: TimedFrame ActorState -> TimedFrame ActorChange -> TimedFrame ActorState
@@ -237,7 +237,7 @@ patch' s@ActorState {..} (Stay StayChange {..}) =
     applyDirectionChange dir NoDirectionChange = dir
     applyDirectionChange _ TurnRight = ToRight
     applyDirectionChange _ TurnLeft = ToLeft
-    applyTellingChange telling NoTellChange = telling
+    applyTellingChange telling NoTellingChange = telling
     applyTellingChange _ (Tell s) = Just s
     applyTellingChange _ ShutUp = Nothing
 patch' _ Leave = Nothing
@@ -286,7 +286,7 @@ type DatedFrames =
           | t1 > t2 = (t2, m2) : go ms1 ms2'
           | otherwise = (t1, m1 <> m2) : go ms1' ms2'
 
--- | Builds a list of displays from a list of diffs. Interprets the
+-- | Builds a scene of states from a scene of changes. Interprets the
 -- | first diff as an absolute scene (i.e. not as a diff).
 display :: Scene ActorChange -> Scene ActorState
 display (Scene []) = Scene []
