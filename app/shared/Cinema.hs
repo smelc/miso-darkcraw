@@ -43,6 +43,7 @@ import Card (CreatureID)
 import Data.Function ((&))
 import Data.Kind (Constraint, Type)
 import Data.List (find)
+import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import qualified Data.Set as Set
@@ -195,23 +196,18 @@ initial tframe = patch (TimedFrame 0 (Frame mempty)) tframe
 
 patch :: TimedFrame ActorState -> TimedFrame ActorChange -> TimedFrame ActorState
 patch
-  TimedFrame {frame = Frame prev}
+  TimedFrame {frame = Frame oldState}
   TimedFrame {duration, frame = Frame diff} =
     -- Take duration from Change: ignore old duration
-    TimedFrame {frame = Frame frame'', ..}
+    TimedFrame {frame = Frame newState, ..}
     where
-      -- Compute elements that make it to the next scene
-      elements = Map.keys prev ++ Map.keys diff & Set.fromList
-      frame' = Set.map buildActorState elements & Set.toList & Map.fromList
-      buildActorState e =
-        ( e,
-          case (prev Map.!? e, diff Map.!? e) of
-            (_, Just Leave) -> Nothing
-            (Nothing, Just c) -> patchActorState defaultActorState c -- No previous state, consider diff as absolute
-            (Just p, Just c) -> patchActorState p c -- Apply diff
-            (p, Nothing) -> p -- No diff: keep previous state
-        )
-      frame'' = Map.mapMaybe id frame'
+      newState =
+        Map.merge
+          Map.preserveMissing
+          (Map.mapMaybeMissing (\_ -> patchActorState defaultActorState))
+          (Map.zipWithMaybeMatched (\_ -> patchActorState))
+          oldState
+          diff
 
 patchActorState :: ActorState -> ActorChange -> Maybe ActorState
 patchActorState s@ActorState {..} (Stay StayChange {..}) =
