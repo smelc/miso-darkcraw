@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), StayChange, TellingChange, TimedFrame (..), display)
+import Cinema (ActorChange, ActorState, Direction, DirectionChange, Element, Frame, Scene (..), StayChange, TellingChange, TimedFrame (..), render)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except (runExcept)
@@ -119,8 +119,6 @@ instance ToExpr Tile.Tile
 instance ToExpr Cinema.Element
 
 instance ToExpr a => ToExpr (TimedFrame a)
-
-instance ToExpr a => ToExpr (Scene a)
 
 instance ToExpr Cinema.DirectionChange
 
@@ -449,8 +447,8 @@ delayActions m actions =
       | (i, action) <- actions
     ]
 
-toSceneModel :: Scene ActorState -> SceneModel
-toSceneModel (Scene frames) = SceneNotStarted frames
+toSceneModel :: Scene () -> SceneModel
+toSceneModel scene = SceneNotStarted (Cinema.render scene)
 
 -- | Seconds to scheduling delay
 toSecs :: Int -> Int
@@ -561,6 +559,6 @@ initialGameModel shared =
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =
   WelcomeModel
-    { welcomeSceneModel = toSceneModel (Cinema.display Movie.welcomeMovie),
+    { welcomeSceneModel = toSceneModel Movie.welcomeMovie,
       ..
     }

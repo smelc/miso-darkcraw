@@ -3,7 +3,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -12,7 +14,7 @@ module Cinema
   ( ActorChange (Leave),
     Direction (..),
     DirectionChange,
-    Element (..),
+    Element (TileElement, Actor_),
     Frame (..),
     ActorState (..),
     Scene (..),
@@ -23,8 +25,9 @@ module Cinema
     (|||),
     at,
     at',
+    newActor,
     defaultDirection,
-    display,
+    render,
     down,
     initial,
     left,
@@ -32,6 +35,7 @@ module Cinema
     patch,
     patchActorState,
     right,
+    runScene,
     shutup,
     tell,
     up,
@@ -40,6 +44,8 @@ module Cinema
 where
 
 import Card (CreatureID)
+import Control.Monad.Operational
+import Control.Monad.State
 import Data.Function ((&))
 import Data.Kind (Constraint, Type)
 import Data.List (find)
@@ -78,31 +84,70 @@ defaultActorState =
       y = 0
     }
 
+{-# COMPLETE TileElement, Actor_ #-}
+
 data Element
   = -- The actor's unique identifier, and its tile
     Actor Int CreatureID
   | TileElement Tile
   deriving (Eq, Generic, Ord, Show)
 
+-- We define a pattern synonym for Actor so that we can export
+-- Actor as "read-only": creating a new Actor is only allowed
+-- via newActor.
+pattern Actor_ :: Int -> CreatureID -> Element
+pattern Actor_ id cid <- Actor id cid
+
 newtype Frame a = Frame {unFrame :: Map.Map Element a}
   deriving (Eq, Ord, Show, Generic)
 
 data TimedFrame a = TimedFrame
   { -- | The duration of a frame, in tenth of seconds
-    duration :: Int,
+    duration :: Duration,
     -- | The frame
     frame :: Frame a
   }
   deriving (Eq, Ord, Show, Generic)
 
-newtype Scene a = Scene {frames :: [TimedFrame a]}
-  deriving (Eq, Ord, Show, Generic)
+type Duration = Int
 
-instance Semigroup (Scene a) where
-  (Scene frames1) <> (Scene frames2) = Scene (frames1 <> frames2)
+data SceneInstruction a where
+  CreateActor :: CreatureID -> SceneInstruction Element
+  AddTimedFrame :: Duration -> Frame ActorChange -> SceneInstruction ()
+  RunInParallel :: Scene () -> Scene () -> SceneInstruction ()
 
-instance Monoid (Scene a) where
-  mempty = Scene []
+type Scene a = Program SceneInstruction a
+
+newActor :: CreatureID -> Scene Element
+newActor = singleton . CreateActor
+
+-- | Given a duration and a frame, builds a 'TimedFrame'
+while :: Duration -> Frame ActorChange -> Scene ()
+while i m = singleton (AddTimedFrame i m)
+
+(|||) :: Scene () -> Scene () -> Scene ()
+s1 ||| s2 = singleton (RunInParallel s1 s2)
+
+runScene :: Scene () -> [TimedFrame ActorChange]
+runScene m = evalState (go m) (0 :: Int)
+  where
+    go :: Scene () -> State Int [TimedFrame ActorChange]
+    go scene = eval (view scene)
+    eval :: ProgramView SceneInstruction () -> State Int [TimedFrame ActorChange]
+    eval (Return ()) = return []
+    eval (CreateActor cid :>>= k) = do
+      i <- get
+      let actor = Actor i cid
+      modify (const (i + 1))
+      go (k actor)
+    eval (AddTimedFrame duration diff :>>= k) = do
+      timedFrames <- go (k ())
+      return (TimedFrame duration diff : timedFrames)
+    eval (RunInParallel scene1 scene2 :>>= k) = do
+      frames1 <- go scene1
+      frames2 <- go scene2
+      tail <- go (k ())
+      return $ (parallelize frames1 frames2) ++ tail
 
 data DirectionChange = TurnRight | TurnLeft | NoDirectionChange
   deriving (Eq, Generic, Ord, Show)
@@ -192,22 +237,18 @@ up :: ActorChange
 up = at 0 (-1)
 
 initial :: TimedFrame ActorChange -> TimedFrame ActorState
-initial tframe = patch (TimedFrame 0 (Frame mempty)) tframe
+initial (TimedFrame duration frame) = TimedFrame duration (patch (Frame mempty) frame)
 
-patch :: TimedFrame ActorState -> TimedFrame ActorChange -> TimedFrame ActorState
-patch
-  TimedFrame {frame = Frame oldState}
-  TimedFrame {duration, frame = Frame diff} =
-    -- Take duration from Change: ignore old duration
-    TimedFrame {frame = Frame newState, ..}
-    where
-      newState =
-        Map.merge
-          Map.preserveMissing
-          (Map.mapMaybeMissing (\_ -> patchActorState defaultActorState))
-          (Map.zipWithMaybeMatched (\_ -> patchActorState))
-          oldState
-          diff
+patch :: Frame ActorState -> Frame ActorChange -> Frame ActorState
+patch (Frame oldState) (Frame diff) = Frame newState
+  where
+    newState =
+      Map.merge
+        Map.preserveMissing
+        (Map.mapMaybeMissing (\_ -> patchActorState defaultActorState))
+        (Map.zipWithMaybeMatched (\_ -> patchActorState))
+        oldState
+        diff
 
 patchActorState :: ActorState -> ActorChange -> Maybe ActorState
 patchActorState s@ActorState {..} (Stay StayChange {..}) =
@@ -236,32 +277,28 @@ instance Semigroup (Frame ActorChange) where
 instance Monoid (Frame ActorChange) where
   mempty = Frame mempty
 
--- | Given a duration and a frame, builds a 'TimedFrame'
-while :: Int -> Frame a -> Scene a
-while i m = Scene [TimedFrame {duration = i, frame = m}]
-
 type Date = Int
 
-type DatedFrames =
-  ( [(Date, Frame ActorChange)],
+type DatedFrames a =
+  ( [(Date, Frame a)],
     Date -- end date of the last diff
   )
 
-(|||) :: Scene ActorChange -> Scene ActorChange -> Scene ActorChange
-(Scene ss1) ||| (Scene ss2) = Scene (fromDates (merge (toDates ss1) (toDates ss2)))
+parallelize :: Semigroup (Frame a) => [TimedFrame a] -> [TimedFrame a] -> [TimedFrame a]
+parallelize ss1 ss2 = fromDates (merge (toDates ss1) (toDates ss2))
   where
-    toDates :: [TimedFrame ActorChange] -> DatedFrames
+    toDates :: [TimedFrame a] -> DatedFrames a
     toDates = go [] 0
       where
         go acc t [] = (reverse acc, t)
         go acc t (TimedFrame {duration, frame} : scenes) = go ((t, frame) : acc) (t + duration) scenes
-    fromDates :: DatedFrames -> [TimedFrame ActorChange]
+    fromDates :: DatedFrames a -> [TimedFrame a]
     fromDates (frames, endDate) = go frames
       where
         go [] = []
         go [(t, frame)] = [TimedFrame (endDate - t) frame]
         go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
-    merge :: DatedFrames -> DatedFrames -> DatedFrames
+    merge :: Semigroup (Frame a) => DatedFrames a -> DatedFrames a -> DatedFrames a
     merge (ms1, endDate1) (ms2, endDate2) = (go ms1 ms2, max endDate1 endDate2)
       where
         go ms1 [] = ms1
@@ -271,15 +308,10 @@ type DatedFrames =
           | t1 > t2 = (t2, m2) : go ms1 ms2'
           | otherwise = (t1, m1 <> m2) : go ms1' ms2'
 
--- | Builds a scene of states from a scene of changes. Interprets the
--- | first diff as an absolute scene (i.e. not as a diff).
-display :: Scene ActorChange -> Scene ActorState
-display (Scene []) = Scene []
-display (Scene (absolute : diffs)) =
-  Scene (firstActorState : display' firstActorState diffs)
+render :: Scene () -> [TimedFrame ActorState]
+render scene = go (Frame mempty) (runScene scene)
   where
-    firstActorState = initial absolute
-    display' _ [] = []
-    display' display (firstChange : nextChanges) =
-      let nextActorState = patch display firstChange
-       in nextActorState : display' nextActorState nextChanges
+    go _ [] = []
+    go frame (TimedFrame duration diff : tdiffs) = TimedFrame duration newFrame : go newFrame tdiffs
+      where
+        newFrame = patch frame diff

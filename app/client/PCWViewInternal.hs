@@ -178,7 +178,7 @@ stateToAttribute z ActorState {x, y} =
 viewEntry :: Context -> Element -> ActorState -> [View a]
 viewEntry Context {..} element state@ActorState {direction, telling} =
   case element of
-    Actor _ cid ->
+    Actor_ _ cid ->
       [div_ [stateToAttribute z state] [imgCell path]]
         ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
              | isJust telling

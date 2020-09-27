@@ -66,8 +66,8 @@ testAIRanged cards turn =
         $ CreatureID Archer Undead
     board = emptyInPlaceBoard cards [archer]
 
-testSceneInvariant :: (Int, TimedFrame ActorState) -> Spec
-testSceneInvariant (idx, TimedFrame {..}) =
+testSceneInvariant :: Int -> TimedFrame ActorState -> Spec
+testSceneInvariant idx TimedFrame {..} =
   -- Check no two Element are in the same spot
   it ("Scene Change invariant " ++ show idx) $
     values `shouldBe` values'
@@ -75,49 +75,44 @@ testSceneInvariant (idx, TimedFrame {..}) =
     stateToXY ActorState {..} = (x, y)
     values = Map.filterWithKey isActor (unFrame frame) & Map.elems & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
-    isActor (Actor _ _) _ = True
+    isActor (Actor_ _ _) _ = True
     isActor (TileElement _) _ = False
 
-testScenesInvariant :: String -> Scene ActorChange -> Spec
-testScenesInvariant name diffs =
-  describe ("Scene ActorChange " ++ name) $ do
-    it "length(scene) == length(display scene)" $
-      length (frames diffs) `shouldBe` length (frames displays)
-    forM_ (zip [0 ..] (frames displays)) testSceneInvariant
-  where
-    displays = display diffs
+testScenesInvariant :: String -> Scene () -> Spec
+testScenesInvariant name scene =
+  describe ("Scene ActorChange " ++ name) $
+    zipWithM_ testSceneInvariant [0 ..] (render scene)
 
 testParallelSceneComposition :: Spec
 testParallelSceneComposition =
   describe "Cinema.|||"
     $ it "interleaves events in the expected order"
-    $ scenes1 ||| scenes2 `shouldBe` expectedMergedScenes
+    $ runScene actualMergedScene `shouldBe` runScene expectedMergedScene
   where
-    w0 :: Element
-    w0 = Actor 0 $ CreatureID Skeleton Undead
-    w1 :: Element
-    w1 = Actor 1 $ CreatureID Skeleton Undead
-    scenes1 :: Scene ActorChange
-    scenes1 =
-      mconcat
-        [ while 1 (w0 =: Cinema.at 0 0),
-          while 3 (w0 =: right),
-          while 1 (w0 =: left)
-        ]
-    scenes2 :: Scene ActorChange
-    scenes2 =
-      mconcat
-        [ while 2 (w1 =: Cinema.at 1 1),
-          while 4 (w1 =: right)
-        ]
-    expectedMergedScenes :: Scene ActorChange
-    expectedMergedScenes =
-      mconcat
-        [ while 1 (w0 =: Cinema.at 0 0 <> w1 =: Cinema.at 1 1),
-          while 1 (w0 =: right),
-          while 2 (w1 =: right),
-          while 2 (w0 =: left)
-        ]
+    newSkeleton :: Scene Element
+    newSkeleton = newActor (CreatureID Skeleton Undead)
+    scene1 :: Element -> Scene ()
+    scene1 w0 = do
+      while 1 (w0 =: Cinema.at 0 0)
+      while 3 (w0 =: right)
+      while 1 (w0 =: left)
+    scene2 :: Element -> Scene ()
+    scene2 w1 = do
+      while 2 (w1 =: Cinema.at 1 1)
+      while 4 (w1 =: right)
+    actualMergedScene :: Scene ()
+    actualMergedScene = do
+      w0 <- newSkeleton
+      w1 <- newSkeleton
+      (scene1 w0 ||| scene2 w1)
+    expectedMergedScene :: Scene ()
+    expectedMergedScene = do
+      w0 <- newSkeleton
+      w1 <- newSkeleton
+      while 1 (w0 =: Cinema.at 0 0 <> w1 =: Cinema.at 1 1)
+      while 1 (w0 =: right)
+      while 2 (w1 =: right)
+      while 2 (w0 =: left)
 
 main :: IO ()
 main = hspec $ do

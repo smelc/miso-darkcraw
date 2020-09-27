@@ -19,6 +19,8 @@ common client-server-shared
     Json
     Model
     ServerMessages
+    SharedModel
+    Tile
     Turn
     Update
     Utils
@@ -36,6 +38,7 @@ common client-server-shared
     lens,
     miso,
     mtl,
+    operational,
     pretty-simple,
     random,
     text,
@@ -103,6 +106,8 @@ Test-Suite test-darkcraw
     Json
     JsonData
     Movie
+    SharedModel
+    Tile
     Turn
   hs-source-dirs:
     shared,
@@ -121,6 +126,7 @@ Test-Suite test-darkcraw
     lens,
     miso,
     mtl,
+    operational,
     random,
     text
   default-language:
