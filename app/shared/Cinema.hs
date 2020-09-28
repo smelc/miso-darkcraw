@@ -6,7 +6,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -15,7 +14,7 @@ module Cinema
   ( ActorChange (Leave),
     Direction (..),
     DirectionChange,
-    Element (..),
+    Element (),
     Frame (..),
     ActorState (..),
     Scene (..),
@@ -98,17 +97,9 @@ defaultActorState sprite =
       y = 0
     }
 
-{-# COMPLETE Element #-}
-
 -- An actor's unique identifier
-newtype Element = Element {unElement :: Int}
+newtype Element = Element Int
   deriving (Eq, Generic, Ord, Show)
-
--- We define a pattern synonym for Actor so that we can export
--- Actor as "read-only": creating a new Actor is only allowed
--- via newActor.
-pattern Element_ :: Int -> Element
-pattern Element_ id <- Element id
 
 newtype Frame a = Frame {unFrame :: Map.Map Element a}
   deriving (Eq, Ord, Show, Generic)
