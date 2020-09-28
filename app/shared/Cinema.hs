@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -41,8 +42,8 @@ module Cinema
 where
 
 import Card (CreatureID)
-import Control.Monad.Operational
-import Control.Monad.State
+import qualified Control.Monad.State.Strict as MTL
+import qualified Control.Monad.Writer.Strict as MTL
 import Data.Function ((&))
 import Data.Kind (Constraint, Type)
 import Data.List (find)
@@ -108,43 +109,29 @@ data TimedFrame a = TimedFrame
 
 type Duration = Int
 
-data SceneInstruction a where
-  CreateActor :: CreatureID -> SceneInstruction Element
-  AddTimedFrame :: Duration -> Frame ActorChange -> SceneInstruction ()
-  RunInParallel :: Scene () -> Scene () -> SceneInstruction ()
-
-type Scene a = Program SceneInstruction a
+newtype Scene a = Scene (MTL.WriterT [TimedFrame ActorChange] (MTL.State Int) a)
+  deriving (Functor, Applicative, Monad)
 
 newActor :: CreatureID -> Scene Element
-newActor = singleton . CreateActor
+newActor cid = Scene $ do
+  i <- MTL.get
+  MTL.modify (const (i + 1))
+  return $ Actor i cid
 
 -- | Given a duration and a frame, builds a 'TimedFrame'
 while :: Duration -> Frame ActorChange -> Scene ()
-while i m = singleton (AddTimedFrame i m)
+while duration frame =
+  Scene $
+    MTL.tell [TimedFrame duration frame]
 
 (|||) :: Scene () -> Scene () -> Scene ()
-s1 ||| s2 = singleton (RunInParallel s1 s2)
+(Scene s1) ||| (Scene s2) = Scene $ do
+  frames1 <- MTL.lift (MTL.execWriterT s1)
+  frames2 <- MTL.lift (MTL.execWriterT s2)
+  MTL.tell (parallelize frames1 frames2)
 
 runScene :: Scene () -> [TimedFrame ActorChange]
-runScene m = evalState (go m) (0 :: Int)
-  where
-    go :: Scene () -> State Int [TimedFrame ActorChange]
-    go scene = eval (view scene)
-    eval :: ProgramView SceneInstruction () -> State Int [TimedFrame ActorChange]
-    eval (Return ()) = return []
-    eval (CreateActor cid :>>= k) = do
-      i <- get
-      let actor = Actor i cid
-      modify (const (i + 1))
-      go (k actor)
-    eval (AddTimedFrame duration diff :>>= k) = do
-      timedFrames <- go (k ())
-      return (TimedFrame duration diff : timedFrames)
-    eval (RunInParallel scene1 scene2 :>>= k) = do
-      frames1 <- go scene1
-      frames2 <- go scene2
-      tail <- go (k ())
-      return $ (parallelize frames1 frames2) ++ tail
+runScene (Scene m) = MTL.evalState (MTL.execWriterT m) 0
 
 data DirectionChange = TurnRight | TurnLeft | NoDirectionChange
   deriving (Eq, Generic, Ord, Show)
