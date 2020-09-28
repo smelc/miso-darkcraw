@@ -227,7 +227,7 @@ patch (Frame oldState) (Frame diff) = Frame newState
       Map.merge
         Map.preserveMissing
         (Map.mapMaybeMissing (\_ -> patchActorState defaultActorState))
-        (Map.zipWithMaybeMatched (\_ -> patchActorState))
+        (Map.zipWithMaybeMatched (const patchActorState))
         oldState
         diff
 

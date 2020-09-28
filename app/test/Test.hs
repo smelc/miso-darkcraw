@@ -104,7 +104,7 @@ testParallelSceneComposition =
     actualMergedScene = do
       w0 <- newSkeleton
       w1 <- newSkeleton
-      (scene1 w0 ||| scene2 w1)
+      scene1 w0 ||| scene2 w1
     expectedMergedScene :: Scene ()
     expectedMergedScene = do
       w0 <- newSkeleton
