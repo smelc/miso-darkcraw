@@ -29,11 +29,8 @@ module Cinema
     defaultDirection,
     render,
     down,
-    initial,
     left,
     mkChange,
-    patch,
-    patchActorState,
     right,
     runScene,
     shutup,
@@ -235,9 +232,6 @@ tell s = Stay mempty {tellingChange = Tell s}
 
 up :: ActorChange
 up = at 0 (-1)
-
-initial :: TimedFrame ActorChange -> TimedFrame ActorState
-initial (TimedFrame duration frame) = TimedFrame duration (patch (Frame mempty) frame)
 
 patch :: Frame ActorState -> Frame ActorChange -> Frame ActorState
 patch (Frame oldState) (Frame diff) = Frame newState
