@@ -14,16 +14,18 @@ import Tile
 allRight :: [Element] -> Frame ActorChange
 allRight actors = mconcat [a =: right | a <- actors]
 
-whiteAppears :: Int -> Int -> [Frame ActorChange]
-whiteAppears x y =
-  map f [WhiteAppears0, WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
+whiteAppears :: Element -> Int -> Int -> [Frame ActorChange]
+whiteAppears e x y =
+  [e =: at (tileSprite WhiteAppears0) x y]
+    ++ map f [WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
+    ++ [e =: Leave]
   where
-    f tile = TileElement tile =: at x y
+    f tile = e =: dress (tileSprite tile)
 
 welcomeGhostMovie1 :: Scene ()
 welcomeGhostMovie1 = do
-  g <- newActor (CreatureID Ghost Undead)
-  while 9 $ g =: at' ToRight 1 0
+  g <- newActor
+  while 9 $ g =: at' (creatureSprite $ CreatureID Ghost Undead) ToRight 1 0
   while 8 $ g =: down
   while 15 $ g =: right
   while 8 $ g =: down
@@ -38,8 +40,8 @@ welcomeGhostMovie1 = do
 
 welcomeGhostMovie2 :: Scene ()
 welcomeGhostMovie2 = do
-  g <- newActor (CreatureID Ghost Undead)
-  while 15 $ g =: at (lobbiesCellWidth - 3) 0
+  g <- newActor
+  while 15 $ g =: at (creatureSprite $ CreatureID Ghost Undead) (lobbiesCellWidth - 3) 0
   while 10 $ g =: down
   while 12 $ g =: left
   while 18 $ g =: down
@@ -56,19 +58,21 @@ welcomeGhostMovie2 = do
 
 welcomeFightMovie :: Scene ()
 welcomeFightMovie = do
-  w0 <- newActor (CreatureID General Human)
-  w01 <- newActor (CreatureID Spearman Human)
-  w02 <- newActor (CreatureID Archer Human)
+  w0 <- newActor
+  w01 <- newActor
+  w02 <- newActor
   let allw0right = allRight [w0, w01, w02]
-  w1 <- newActor (CreatureID Vampire Undead)
-  w10 <- newActor (CreatureID Skeleton Undead)
+  w1 <- newActor
+  w10 <- newActor
+  t0 <- newActor
   mapM_
     (while 10)
-    [ w0 =: at' ToRight 0 15 <> w1 =: at (lobbiesCellWidth - 1) 11,
+    [ w0 =: at' (creatureSprite $ CreatureID General Human) ToRight 0 15
+        <> w1 =: at (creatureSprite $ CreatureID Vampire Undead) (lobbiesCellWidth - 1) 11,
       w0 =: right <> w1 =: left,
       w0 =: right <> w0 =: tell "Come on guys!" <> w1 =: left,
-      w0 =: right <> w0 =: shutup <> w01 =: at' ToRight 0 15 <> w1 =: tell "Fresh meat!",
-      w0 =: right <> w01 =: right <> w02 =: at' ToRight 0 15,
+      w0 =: right <> w0 =: shutup <> w01 =: at' (creatureSprite $ CreatureID Spearman Human) ToRight 0 15 <> w1 =: tell "Fresh meat!",
+      w0 =: right <> w01 =: right <> w02 =: at' (creatureSprite $ CreatureID Archer Human) ToRight 0 15,
       w1 =: shutup,
       w0 =: right <> w01 =: right <> w01 =: up <> w02 =: right,
       allw0right,
@@ -83,8 +87,8 @@ welcomeFightMovie = do
     ]
   while 5 (w1 =: tell "iugp9b7")
   while 1 (w1 =: shutup)
-  mapM_ (while 2) (whiteAppears 12 11)
-  while 10 (w10 =: at 12 11)
+  mapM_ (while 2) (whiteAppears t0 12 11)
+  while 10 (w10 =: at (creatureSprite $ CreatureID Skeleton Undead) 12 11)
 
 welcomeMovie :: Scene ()
 welcomeMovie = welcomeGhostMovie1 ||| welcomeGhostMovie2 ||| welcomeFightMovie

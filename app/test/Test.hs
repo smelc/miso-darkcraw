@@ -73,10 +73,8 @@ testSceneInvariant idx TimedFrame {..} =
     values `shouldBe` values'
   where
     stateToXY ActorState {..} = (x, y)
-    values = Map.filterWithKey isActor (unFrame frame) & Map.elems & List.sort
+    values = unFrame frame & Map.keys & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
-    isActor (Actor_ _ _) _ = True
-    isActor (TileElement _) _ = False
 
 testScenesInvariant :: String -> Scene () -> Spec
 testScenesInvariant name scene =
@@ -90,15 +88,16 @@ testParallelSceneComposition =
     $ runScene actualMergedScene `shouldBe` runScene expectedMergedScene
   where
     newSkeleton :: Scene Element
-    newSkeleton = newActor (CreatureID Skeleton Undead)
+    newSkeleton = newActor
+    sprite = creatureSprite $ CreatureID Skeleton Undead
     scene1 :: Element -> Scene ()
     scene1 w0 = do
-      while 1 (w0 =: Cinema.at 0 0)
+      while 1 (w0 =: Cinema.at sprite 0 0)
       while 3 (w0 =: right)
       while 1 (w0 =: left)
     scene2 :: Element -> Scene ()
     scene2 w1 = do
-      while 2 (w1 =: Cinema.at 1 1)
+      while 2 (w1 =: Cinema.at sprite 1 1)
       while 4 (w1 =: right)
     actualMergedScene :: Scene ()
     actualMergedScene = do
@@ -109,7 +108,7 @@ testParallelSceneComposition =
     expectedMergedScene = do
       w0 <- newSkeleton
       w1 <- newSkeleton
-      while 1 (w0 =: Cinema.at 0 0 <> w1 =: Cinema.at 1 1)
+      while 1 (w0 =: Cinema.at sprite 0 0 <> w1 =: Cinema.at sprite 1 1)
       while 1 (w0 =: right)
       while 2 (w1 =: right)
       while 2 (w0 =: left)
