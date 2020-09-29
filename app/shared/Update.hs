@@ -476,37 +476,65 @@ tenthToSecs x = x * 100000
 updateSceneModel :: SceneAction -> SceneModel -> Effect Action SceneModel
 updateSceneModel StepScene sceneModel =
   case sceneModel of
-    SceneNotStarted [] -> noEff $ SceneComplete []
-    SceneNotStarted (tframe : tframes) -> playFrame [] tframe tframes
-    ScenePlaying pastFrames currentFrame [] -> noEff $ SceneComplete (currentFrame : pastFrames)
-    ScenePlaying pastFrames currentFrame (futureFrame : futureFrames) -> playFrame (currentFrame : pastFrames) futureFrame futureFrames
-    completeOrPaused -> noEff completeOrPaused
+    SceneNotStarted [] ->
+      noEff $ SceneComplete []
+    SceneNotStarted (tframe : tframes) ->
+      playFrame [] tframe tframes
+    ScenePlaying pastFrames currentFrame [] ->
+      noEff $ SceneComplete (currentFrame : pastFrames)
+    ScenePlaying pastFrames currentFrame (futureFrame : futureFrames) ->
+      playFrame (currentFrame : pastFrames) futureFrame futureFrames
+    completeOrPaused ->
+      noEff completeOrPaused
   where
     playFrame pastFrames frame@TimedFrame {duration} futureFrames =
-      delayActions (ScenePlaying pastFrames frame futureFrames) [(tenthToSecs duration, SceneAction' StepScene)]
+      delayActions
+        (ScenePlaying pastFrames frame futureFrames)
+        [(tenthToSecs duration, SceneAction' StepScene)]
 updateSceneModel PauseOrResumeSceneForDebugging sceneModel =
   case sceneModel of
-    SceneNotStarted (tframe : tframes) -> noEff $ ScenePausedForDebugging [] tframe tframes
-    ScenePlaying pastFrames currentFrame futureFrames -> noEff $ ScenePausedForDebugging pastFrames currentFrame futureFrames
-    SceneComplete (pastFrame : pastFrames) -> noEff $ ScenePausedForDebugging pastFrames pastFrame []
-    ScenePausedForDebugging pastFrames currentFrame futureFrames -> ScenePlaying pastFrames currentFrame futureFrames <# return (SceneAction' StepScene)
-    anyOtherState -> noEff anyOtherState
+    SceneNotStarted (tframe : tframes) ->
+      noEff $ ScenePausedForDebugging [] tframe tframes
+    ScenePlaying pastFrames currentFrame futureFrames ->
+      noEff $ ScenePausedForDebugging pastFrames currentFrame futureFrames
+    SceneComplete (pastFrame : pastFrames) ->
+      noEff $ ScenePausedForDebugging pastFrames pastFrame []
+    ScenePausedForDebugging pastFrames currentFrame futureFrames ->
+      ScenePlaying pastFrames currentFrame futureFrames <# return (SceneAction' StepScene)
+    anyOtherState ->
+      noEff anyOtherState
 updateSceneModel StepSceneForwardForDebugging sceneModel =
   case sceneModel of
-    (ScenePausedForDebugging pastFrames currentFrame (futureFrame : futureFrames)) -> noEff $ ScenePausedForDebugging (currentFrame : pastFrames) futureFrame futureFrames
-    anyOtherState -> noEff anyOtherState
+    (ScenePausedForDebugging pastFrames currentFrame (futureFrame : futureFrames)) ->
+      noEff $ ScenePausedForDebugging (currentFrame : pastFrames) futureFrame futureFrames
+    anyOtherState ->
+      noEff anyOtherState
 updateSceneModel StepSceneBakwardsForDebugging sceneModel =
   case sceneModel of
-    (ScenePausedForDebugging (pastFrame : pastFrames) currentFrame futureFrames) -> noEff $ ScenePausedForDebugging pastFrames pastFrame (currentFrame : futureFrames)
-    anyOtherState -> noEff anyOtherState
+    (ScenePausedForDebugging (pastFrame : pastFrames) currentFrame futureFrames) ->
+      noEff $ ScenePausedForDebugging pastFrames pastFrame (currentFrame : futureFrames)
+    anyOtherState ->
+      noEff anyOtherState
 updateSceneModel JumpToLastSceneFrameForDebugging sceneModel =
   case sceneModel of
-    (ScenePausedForDebugging pastFrames currentFrame futureFrames@(_ : _)) -> noEff $ ScenePausedForDebugging (reverse (init futureFrames) ++ [currentFrame] ++ pastFrames) (last futureFrames) []
-    anyOtherState -> noEff anyOtherState
+    (ScenePausedForDebugging pastFrames currentFrame futureFrames@(_ : _)) ->
+      noEff $
+        ScenePausedForDebugging
+          (reverse (init futureFrames) ++ [currentFrame] ++ pastFrames)
+          (last futureFrames)
+          []
+    anyOtherState ->
+      noEff anyOtherState
 updateSceneModel JumpToFirstSceneFrameForDebugging sceneModel =
   case sceneModel of
-    (ScenePausedForDebugging pastFrames@(_ : _) currentFrame futureFrames) -> noEff $ ScenePausedForDebugging [] (last pastFrames) (reverse (init pastFrames) ++ [currentFrame] ++ futureFrames)
-    anyOtherState -> noEff anyOtherState
+    (ScenePausedForDebugging pastFrames@(_ : _) currentFrame futureFrames) ->
+      noEff $
+        ScenePausedForDebugging
+          []
+          (last pastFrames)
+          (reverse (init pastFrames) ++ [currentFrame] ++ futureFrames)
+    anyOtherState ->
+      noEff anyOtherState
 
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
