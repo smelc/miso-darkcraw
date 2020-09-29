@@ -21,6 +21,7 @@ import Control.Monad.Except (runExcept)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as DataBifunctor
 import Data.Char (ord)
+import Data.Foldable (asum, toList)
 import Data.Function ((&))
 import Data.Maybe (fromJust, isJust, maybeToList)
 import Data.Set (Set)
@@ -228,6 +229,8 @@ data SceneAction
   | PauseOrResumeSceneForDebugging
   | StepSceneForwardForDebugging
   | StepSceneBakwardsForDebugging
+  | JumpToLastSceneFrameForDebugging
+  | JumpToFirstSceneFrameForDebugging
   deriving (Show, Eq)
 
 logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a
@@ -496,6 +499,14 @@ updateSceneModel StepSceneBakwardsForDebugging sceneModel =
   case sceneModel of
     (ScenePausedForDebugging (pastFrame : pastFrames) currentFrame futureFrames) -> noEff $ ScenePausedForDebugging pastFrames pastFrame (currentFrame : futureFrames)
     anyOtherState -> noEff anyOtherState
+updateSceneModel JumpToLastSceneFrameForDebugging sceneModel =
+  case sceneModel of
+    (ScenePausedForDebugging pastFrames currentFrame futureFrames@(_ : _)) -> noEff $ ScenePausedForDebugging (reverse (init futureFrames) ++ [currentFrame] ++ pastFrames) (last futureFrames) []
+    anyOtherState -> noEff anyOtherState
+updateSceneModel JumpToFirstSceneFrameForDebugging sceneModel =
+  case sceneModel of
+    (ScenePausedForDebugging pastFrames@(_ : _) currentFrame futureFrames) -> noEff $ ScenePausedForDebugging [] (last pastFrames) (reverse (init pastFrames) ++ [currentFrame] ++ futureFrames)
+    anyOtherState -> noEff anyOtherState
 
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
@@ -546,17 +557,19 @@ updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
 updateModel (SceneAction' action) (WelcomeModel' wm@WelcomeModel {welcomeSceneModel}) = do
   newWelcomeSceneModel <- updateSceneModel action welcomeSceneModel
   return (WelcomeModel' wm {welcomeSceneModel = newWelcomeSceneModel})
-updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown}) =
-  WelcomeModel' wm {keysDown = newKeysDown}
-    <# return
-      ( if
-            | ord 'P' `Set.member` diff -> SceneAction' PauseOrResumeSceneForDebugging
-            | 37 `Set.member` diff -> SceneAction' StepSceneBakwardsForDebugging
-            | 39 `Set.member` diff -> SceneAction' StepSceneForwardForDebugging
-            | otherwise -> NoOp
-      )
+updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, welcomeSceneModel}) = do
+  newWelcomeSceneModel <- maybe (return welcomeSceneModel) (`updateSceneModel` welcomeSceneModel) sceneAction
+  return $ WelcomeModel' wm {keysDown = newKeysDown, welcomeSceneModel = newWelcomeSceneModel}
   where
-    diff = Set.difference newKeysDown keysDown
+    sceneAction :: Maybe SceneAction
+    sceneAction = asum (map keyCodeToSceneAction (toList (Set.difference newKeysDown keysDown)))
+    keyCodeToSceneAction :: Int -> Maybe SceneAction
+    keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
+    keyCodeToSceneAction 37 = Just StepSceneBakwardsForDebugging -- left key
+    keyCodeToSceneAction 39 = Just StepSceneForwardForDebugging -- right key
+    keyCodeToSceneAction 35 = Just JumpToLastSceneFrameForDebugging -- end key
+    keyCodeToSceneAction 36 = Just JumpToFirstSceneFrameForDebugging -- home key
+    keyCodeToSceneAction _ = Nothing
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
