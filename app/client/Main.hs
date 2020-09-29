@@ -82,6 +82,6 @@ main = do
 #endif
     view = viewModel -- view function
     events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
-    subs = [] -- empty subscription list
+    subs = [keyboardSub Keyboard]
     mountPoint = Nothing -- mount point for application (Nothing defaults to 'body')
     logLevel = Off

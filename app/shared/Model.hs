@@ -9,6 +9,7 @@ import Card
 import Cinema (ActorChange, ActorState, Frame (..), Scene (..), TimedFrame)
 import Control.Lens
 import Data.Generics.Labels
+import Data.Set (Set)
 import qualified Data.Text as Text
 import GHC.Generics
 import Miso.String
@@ -78,8 +79,9 @@ data PlayingMode
 
 data SceneModel
   = SceneNotStarted [TimedFrame ActorState]
-  | ScenePlaying (Frame ActorState) [TimedFrame ActorState]
-  | SceneComplete
+  | ScenePlaying [TimedFrame ActorState] (TimedFrame ActorState) [TimedFrame ActorState]
+  | ScenePausedForDebugging [TimedFrame ActorState] (TimedFrame ActorState) [TimedFrame ActorState]
+  | SceneComplete [TimedFrame ActorState]
   deriving (Eq, Generic, Show)
 
 -- | The model of the welcome page
@@ -87,7 +89,9 @@ data WelcomeModel = WelcomeModel
   { -- The state of the scene
     welcomeSceneModel :: SceneModel,
     -- | Part of the model shared among all pages
-    welcomeShared :: SharedModel
+    welcomeShared :: SharedModel,
+    -- | Keys currently down
+    keysDown :: Set Int
   }
   deriving (Eq, Generic, Show)
 

@@ -20,8 +20,11 @@ import Control.Lens
 import Control.Monad.Except (runExcept)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as DataBifunctor
+import Data.Char (ord)
 import Data.Function ((&))
 import Data.Maybe (fromJust, isJust, maybeToList)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import Data.Text (Text)
 import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
@@ -214,10 +217,17 @@ data Action
     SinglePlayerBack
   | -- Leave 'SinglePlayerView', start game
     SinglePlayerGo
-  | -- Make the current scene progress
-    StepScene
+  | SceneAction' SceneAction
+  | Keyboard (Set Int)
   | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
     WelcomeGo WelcomeDestination
+  deriving (Show, Eq)
+
+data SceneAction
+  = StepScene
+  | PauseOrResumeSceneForDebugging
+  | StepSceneForwardForDebugging
+  | StepSceneBakwardsForDebugging
   deriving (Show, Eq)
 
 logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a
@@ -460,6 +470,33 @@ toSecs x = x * 1000000
 tenthToSecs :: Int -> Int
 tenthToSecs x = x * 100000
 
+updateSceneModel :: SceneAction -> SceneModel -> Effect Action SceneModel
+updateSceneModel StepScene sceneModel =
+  case sceneModel of
+    SceneNotStarted [] -> noEff $ SceneComplete []
+    SceneNotStarted (tframe : tframes) -> playFrame [] tframe tframes
+    ScenePlaying pastFrames currentFrame [] -> noEff $ SceneComplete (currentFrame : pastFrames)
+    ScenePlaying pastFrames currentFrame (futureFrame : futureFrames) -> playFrame (currentFrame : pastFrames) futureFrame futureFrames
+    completeOrPaused -> noEff completeOrPaused
+  where
+    playFrame pastFrames frame@TimedFrame {duration} futureFrames =
+      delayActions (ScenePlaying pastFrames frame futureFrames) [(tenthToSecs duration, SceneAction' StepScene)]
+updateSceneModel PauseOrResumeSceneForDebugging sceneModel =
+  case sceneModel of
+    SceneNotStarted (tframe : tframes) -> noEff $ ScenePausedForDebugging [] tframe tframes
+    ScenePlaying pastFrames currentFrame futureFrames -> noEff $ ScenePausedForDebugging pastFrames currentFrame futureFrames
+    SceneComplete (pastFrame : pastFrames) -> noEff $ ScenePausedForDebugging pastFrames pastFrame []
+    ScenePausedForDebugging pastFrames currentFrame futureFrames -> ScenePlaying pastFrames currentFrame futureFrames <# return (SceneAction' StepScene)
+    anyOtherState -> noEff anyOtherState
+updateSceneModel StepSceneForwardForDebugging sceneModel =
+  case sceneModel of
+    (ScenePausedForDebugging pastFrames currentFrame (futureFrame : futureFrames)) -> noEff $ ScenePausedForDebugging (currentFrame : pastFrames) futureFrame futureFrames
+    anyOtherState -> noEff anyOtherState
+updateSceneModel StepSceneBakwardsForDebugging sceneModel =
+  case sceneModel of
+    (ScenePausedForDebugging (pastFrame : pastFrames) currentFrame futureFrames) -> noEff $ ScenePausedForDebugging pastFrames pastFrame (currentFrame : futureFrames)
+    anyOtherState -> noEff anyOtherState
+
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
 -- | and is the only one to handle page changes. A page change event
@@ -472,7 +509,7 @@ updateModel :: Action -> Model -> Effect Action Model
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m =
   -- Say hello and start scene stepping
-  m <# do consoleLog "miso-darkcraw says hello" >> pure StepScene
+  m <# do consoleLog "miso-darkcraw says hello" >> pure (SceneAction' StepScene)
 -- Actions that change the page
 -- Leave 'DeckView'
 updateModel DeckBack m@(DeckModel' DeckModel {..}) =
@@ -505,22 +542,21 @@ updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
   where
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
--- Action that does not change the page: StepScene
-updateModel
-  StepScene
-  (WelcomeModel' wm@WelcomeModel {welcomeSceneModel}) = do
-    newWelcomeSceneModel <-
-      case welcomeSceneModel of
-        SceneNotStarted [] -> noEff SceneComplete
-        SceneNotStarted (tframe : tframes) -> playFrame tframe tframes
-        ScenePlaying _ [] -> noEff SceneComplete
-        ScenePlaying _ (tframe : tframes) -> playFrame tframe tframes
-        SceneComplete -> noEff SceneComplete
-    return (WelcomeModel' wm {welcomeSceneModel = newWelcomeSceneModel})
-    where
-      playFrame (TimedFrame duration frame) tframes =
-        delayActions (ScenePlaying frame tframes) [(tenthToSecs duration, StepScene)]
 -- Actions that do not change the page delegate to more specialized versions
+updateModel (SceneAction' action) (WelcomeModel' wm@WelcomeModel {welcomeSceneModel}) = do
+  newWelcomeSceneModel <- updateSceneModel action welcomeSceneModel
+  return (WelcomeModel' wm {welcomeSceneModel = newWelcomeSceneModel})
+updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown}) =
+  WelcomeModel' wm {keysDown = newKeysDown}
+    <# return
+      ( if
+            | ord 'P' `Set.member` diff -> SceneAction' PauseOrResumeSceneForDebugging
+            | 37 `Set.member` diff -> SceneAction' StepSceneBakwardsForDebugging
+            | 39 `Set.member` diff -> SceneAction' StepSceneForwardForDebugging
+            | otherwise -> NoOp
+      )
+  where
+    diff = Set.difference newKeysDown keysDown
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
@@ -537,8 +573,6 @@ updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
   noEff $ SinglePlayerLobbyModel' $ updateSinglePlayerLobbyModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
   MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
--- Ignore uninterpreted Scene transitions
-updateModel StepScene m = noEff m
 updateModel a m =
   error $ Text.unpack $
     "Unhandled case in updateModel with the model being:\n"
@@ -562,5 +596,6 @@ initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =
   WelcomeModel
     { welcomeSceneModel = toSceneModel Movie.welcomeMovie,
+      keysDown = mempty,
       ..
     }

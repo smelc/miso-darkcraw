@@ -1,7 +1,9 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
 
 -- |
 -- Module to display the initial view of the game, i.e. the one
@@ -10,12 +12,15 @@
 module WelcomeView (viewWelcomeModel) where
 
 import Card (Team (..), allTeams, ppTeam)
+import Cinema (TimedFrame (..))
 import Configuration
 import Constants
 import Control.Lens
+import Data.Char
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, isJust)
+import Debug.Trace
 import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
@@ -81,8 +86,18 @@ viewWelcomeModel WelcomeModel {..} = do
           case dest of
             SinglePlayerDestination -> True
             MultiPlayerDestination -> multiplayerEnabled
-    viewWelcomeScene (ScenePlaying frame _) = [viewFrame zpppp welcomeShared frame]
+    viewWelcomeScene :: SceneModel -> [View Action]
+    viewWelcomeScene (ScenePlaying _ TimedFrame {frame} _) = [viewFrame zpppp welcomeShared frame]
+    viewWelcomeScene (ScenePausedForDebugging _ TimedFrame {frame} _) = [viewFrame zpppp welcomeShared frame]
     viewWelcomeScene _ = []
+    keyCodeToAction :: KeyCode -> Action
+    keyCodeToAction code | traceShow code False = undefined
+    keyCodeToAction (KeyCode (chr -> 'p')) = SceneAction' PauseOrResumeSceneForDebugging
+    -- left arrow
+    keyCodeToAction (KeyCode 37) = SceneAction' StepSceneBakwardsForDebugging
+    -- right arrow
+    keyCodeToAction (KeyCode 39) = SceneAction' StepSceneForwardForDebugging
+    keyCodeToAction _ = NoOp
 
 torchesDiv :: Int -> View Action
 torchesDiv z =
