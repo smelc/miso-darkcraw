@@ -3,7 +3,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE ViewPatterns #-}
 
 -- |
 -- Module to display the initial view of the game, i.e. the one
@@ -90,14 +89,6 @@ viewWelcomeModel WelcomeModel {..} = do
     viewWelcomeScene (ScenePlaying _ TimedFrame {frame} _) = [viewFrame zpppp welcomeShared frame]
     viewWelcomeScene (ScenePausedForDebugging _ TimedFrame {frame} _) = [viewFrame zpppp welcomeShared frame]
     viewWelcomeScene _ = []
-    keyCodeToAction :: KeyCode -> Action
-    keyCodeToAction code | traceShow code False = undefined
-    keyCodeToAction (KeyCode (chr -> 'p')) = SceneAction' PauseOrResumeSceneForDebugging
-    -- left arrow
-    keyCodeToAction (KeyCode 37) = SceneAction' StepSceneBakwardsForDebugging
-    -- right arrow
-    keyCodeToAction (KeyCode 39) = SceneAction' StepSceneForwardForDebugging
-    keyCodeToAction _ = NoOp
 
 torchesDiv :: Int -> View Action
 torchesDiv z =
