@@ -585,6 +585,7 @@ updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
 updateModel (SceneAction' action) (WelcomeModel' wm@WelcomeModel {welcomeSceneModel}) = do
   newWelcomeSceneModel <- updateSceneModel action welcomeSceneModel
   return (WelcomeModel' wm {welcomeSceneModel = newWelcomeSceneModel})
+updateModel (SceneAction' _) model = noEff model
 updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, welcomeSceneModel}) = do
   newWelcomeSceneModel <- maybe (return welcomeSceneModel) (`updateSceneModel` welcomeSceneModel) sceneAction
   return $ WelcomeModel' wm {keysDown = newKeysDown, welcomeSceneModel = newWelcomeSceneModel}
@@ -598,6 +599,7 @@ updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, wel
     keyCodeToSceneAction 35 = Just JumpToLastSceneFrameForDebugging -- end key
     keyCodeToSceneAction 36 = Just JumpToFirstSceneFrameForDebugging -- home key
     keyCodeToSceneAction _ = Nothing
+updateModel (Keyboard _) model = noEff model
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
