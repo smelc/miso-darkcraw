@@ -11,6 +11,9 @@ import Cinema
 import Constants
 import Tile
 
+allLeft :: [Element] -> Frame ActorChange
+allLeft actors = mconcat [a =: left | a <- actors]
+
 allRight :: [Element] -> Frame ActorChange
 allRight actors = mconcat [a =: right | a <- actors]
 
@@ -64,7 +67,12 @@ welcomeFightMovie = do
   let allw0right = allRight [w0, w01, w02]
   w1 <- newActor
   w10 <- newActor
+  w11 <- newActor
+  w12 <- newActor
+  let allw1left = allLeft [w1, w10, w11, w12]
   t0 <- newActor
+  t1 <- newActor
+  t2 <- newActor
   mapM_
     (while 10)
     [ w0 =: at' (creatureSprite $ CreatureID General Human) ToRight 0 15
@@ -87,8 +95,15 @@ welcomeFightMovie = do
     ]
   while 5 (w1 =: tell "iugp9b7")
   while 1 (w1 =: shutup)
-  mapM_ (while 2) (whiteAppears t0 12 11)
-  while 10 (w10 =: at (creatureSprite $ CreatureID Skeleton Undead) 12 11)
+  let (appearsUp, appears, appearsDown) = ((12, 10), (12, 11), (12, 12))
+  let appearsUpScene = mapM_ (while 2) (uncurry (whiteAppears t0) appearsUp)
+  let appearsScene = mapM_ (while 2) (uncurry (whiteAppears t1) appears)
+  let appearsDownScene = mapM_ (while 2) (uncurry (whiteAppears t2) appearsDown)
+  appearsUpScene ||| appearsScene ||| appearsDownScene
+  while 10 (w10 =: uncurry (at (creatureSprite $ CreatureID Archer Undead)) appearsUp)
+    ||| while 10 (w11 =: uncurry (at (creatureSprite $ CreatureID Warrior Undead)) appears)
+    ||| while 10 (w12 =: uncurry (at (creatureSprite $ CreatureID Warrior Undead)) appearsDown)
+  while 1 allw0right ||| while 1 allw1left
 
 welcomeMovie :: Scene ()
 welcomeMovie = welcomeGhostMovie1 ||| welcomeGhostMovie2 ||| welcomeFightMovie

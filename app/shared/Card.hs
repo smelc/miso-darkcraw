@@ -51,9 +51,11 @@ data CreatureKind
   | Ghost
   | Mummy
   | Skeleton
+  | Shade
   | Spearman
   | Swordsman
   | Vampire
+  | Warrior
   deriving (Enum, Eq, Generic, Ord, Show)
 
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}

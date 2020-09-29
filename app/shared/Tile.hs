@@ -10,7 +10,11 @@ import Card (Filepath (..))
 import GHC.Generics (Generic)
 
 data Tile
-  = Crown
+  = BlackAppears0
+  | BlackAppears1
+  | BlackAppears2
+  | BlackAppears3
+  | Crown
   | GreenPotion
   | Heart
   | Sword
