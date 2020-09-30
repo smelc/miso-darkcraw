@@ -11,6 +11,8 @@ import Control.Lens
 import Data.Generics.Labels
 import Data.Set (Set)
 import qualified Data.Text as Text
+import Data.Vector (Vector)
+import qualified Data.Vector as V
 import GHC.Generics
 import Miso.String
 import ServerMessages
@@ -77,11 +79,13 @@ data PlayingMode
   | SinglePlayerTeam Team
   deriving (Eq, Generic, Show)
 
+type TimedFrames = V.Vector (TimedFrame ActorState)
+
 data SceneModel
-  = SceneNotStarted [TimedFrame ActorState]
-  | ScenePlaying [TimedFrame ActorState] (TimedFrame ActorState) [TimedFrame ActorState]
-  | ScenePausedForDebugging [TimedFrame ActorState] (TimedFrame ActorState) [TimedFrame ActorState]
-  | SceneComplete [TimedFrame ActorState]
+  = SceneNotStarted TimedFrames
+  | ScenePlaying TimedFrames Int
+  | ScenePausedForDebugging TimedFrames Int
+  | SceneComplete TimedFrames
   deriving (Eq, Generic, Show)
 
 -- | The model of the welcome page

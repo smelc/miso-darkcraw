@@ -19,11 +19,13 @@ import Data.Char
 import Data.Generics.Labels
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, isJust)
+import Data.Vector (Vector)
+import qualified Data.Vector as V
 import Debug.Trace
 import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
-import Model (PlayingMode (..), SceneModel (..), WelcomeModel (..))
+import Model (PlayingMode (..), SceneModel (..), TimedFrames, WelcomeModel (..))
 import PCWViewInternal (viewFrame)
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
@@ -47,6 +49,7 @@ viewWelcomeModel WelcomeModel {..} = do
           [titleDiv, singlePlayerDiv, multiPlayerDiv]
       ]
       ++ viewWelcomeScene welcomeSceneModel
+      ++ debugSlider
   where
     (z, zpp, zpppp) = (0, z + 1, zpp + 1)
     bgStyle =
@@ -85,10 +88,29 @@ viewWelcomeModel WelcomeModel {..} = do
           case dest of
             SinglePlayerDestination -> True
             MultiPlayerDestination -> multiplayerEnabled
+    debugSlider :: [View Action]
+    debugSlider
+      | (ScenePausedForDebugging frames i) <- welcomeSceneModel =
+        [ input_
+            [ type_ "range",
+              min_ "0",
+              max_ (ms $ length frames - 1),
+              step_ "1'",
+              value_ (ms i),
+              onInput (SceneAction' . JumpToFrameForDebugging . read . fromMisoString),
+              autofocus_ True,
+              style_ ("position" =: "absolute" <> "top" =: "650px" <> "width" =: "500px")
+            ]
+        ]
+      | otherwise = []
     viewWelcomeScene :: SceneModel -> [View Action]
-    viewWelcomeScene (ScenePlaying _ TimedFrame {frame} _) = [viewFrame zpppp welcomeShared frame]
-    viewWelcomeScene (ScenePausedForDebugging _ TimedFrame {frame} _) = [viewFrame zpppp welcomeShared frame]
+    viewWelcomeScene (ScenePlaying frames i) = viewFrameAt frames i
+    viewWelcomeScene (ScenePausedForDebugging frames i) = viewFrameAt frames i
     viewWelcomeScene _ = []
+    viewFrameAt :: TimedFrames -> Int -> [View Action]
+    viewFrameAt frames i =
+      let TimedFrame {frame} = frames V.! i
+       in [viewFrame zpppp welcomeShared frame]
 
 torchesDiv :: Int -> View Action
 torchesDiv z =

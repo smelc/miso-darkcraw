@@ -29,6 +29,7 @@ import qualified Data.Set as Set
 import Data.Text (Text)
 import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
+import qualified Data.Vector as V
 import Debug.Trace
 import Formatting ((%), format, hex, sformat)
 import Game (GamePlayEvent (..), nextAttackSpot)
@@ -227,10 +228,7 @@ data Action
 data SceneAction
   = StepScene
   | PauseOrResumeSceneForDebugging
-  | StepSceneForwardForDebugging
-  | StepSceneBakwardsForDebugging
-  | JumpToLastSceneFrameForDebugging
-  | JumpToFirstSceneFrameForDebugging
+  | JumpToFrameForDebugging Int
   deriving (Show, Eq)
 
 logUpdates :: (Monad m, Eq a, ToExpr a) => (Action -> a -> m a) -> Action -> a -> m a
@@ -463,7 +461,7 @@ delayActions m actions =
     ]
 
 toSceneModel :: Scene () -> SceneModel
-toSceneModel scene = SceneNotStarted (Cinema.render scene)
+toSceneModel scene = SceneNotStarted (V.fromList (Cinema.render scene))
 
 -- | Seconds to scheduling delay
 toSecs :: Int -> Int
@@ -476,65 +474,44 @@ tenthToSecs x = x * 100000
 updateSceneModel :: SceneAction -> SceneModel -> Effect Action SceneModel
 updateSceneModel StepScene sceneModel =
   case sceneModel of
-    SceneNotStarted [] ->
-      noEff $ SceneComplete []
-    SceneNotStarted (tframe : tframes) ->
-      playFrame [] tframe tframes
-    ScenePlaying pastFrames currentFrame [] ->
-      noEff $ SceneComplete (currentFrame : pastFrames)
-    ScenePlaying pastFrames currentFrame (futureFrame : futureFrames) ->
-      playFrame (currentFrame : pastFrames) futureFrame futureFrames
-    completeOrPaused ->
-      noEff completeOrPaused
+    SceneNotStarted frames
+      | V.null frames -> noEff $ SceneComplete frames
+      | otherwise -> playFrame frames 0
+    ScenePlaying frames i
+      | i < length frames -> playFrame frames i
+      | otherwise -> noEff $ SceneComplete frames
+    completeOrPaused -> noEff completeOrPaused
   where
-    playFrame pastFrames frame@TimedFrame {duration} futureFrames =
-      delayActions
-        (ScenePlaying pastFrames frame futureFrames)
-        [(tenthToSecs duration, SceneAction' StepScene)]
+    playFrame frames i =
+      let TimedFrame {duration} = frames V.! i
+       in delayActions
+            (ScenePlaying frames (i + 1))
+            [(tenthToSecs duration, SceneAction' StepScene)]
 updateSceneModel PauseOrResumeSceneForDebugging sceneModel =
   case sceneModel of
-    SceneNotStarted (tframe : tframes) ->
-      noEff $ ScenePausedForDebugging [] tframe tframes
-    ScenePlaying pastFrames currentFrame futureFrames ->
-      noEff $ ScenePausedForDebugging pastFrames currentFrame futureFrames
-    SceneComplete (pastFrame : pastFrames) ->
-      noEff $ ScenePausedForDebugging pastFrames pastFrame []
-    ScenePausedForDebugging pastFrames currentFrame futureFrames ->
-      ScenePlaying pastFrames currentFrame futureFrames <# return (SceneAction' StepScene)
-    anyOtherState ->
-      noEff anyOtherState
-updateSceneModel StepSceneForwardForDebugging sceneModel =
+    SceneNotStarted frames ->
+      noEff $ ScenePausedForDebugging frames 0
+    ScenePlaying frames i ->
+      noEff $ ScenePausedForDebugging frames i
+    SceneComplete frames ->
+      noEff $ ScenePausedForDebugging frames (length frames - 1)
+    ScenePausedForDebugging frames i ->
+      ScenePlaying frames i <# return (SceneAction' StepScene)
+updateSceneModel (JumpToFrameForDebugging i) sceneModel =
   case sceneModel of
-    (ScenePausedForDebugging pastFrames currentFrame (futureFrame : futureFrames)) ->
-      noEff $ ScenePausedForDebugging (currentFrame : pastFrames) futureFrame futureFrames
+    SceneNotStarted frames
+      | indexWithinBounds frames ->
+        noEff $ ScenePausedForDebugging frames i
+    SceneComplete frames
+      | indexWithinBounds frames ->
+        noEff $ ScenePausedForDebugging frames i
+    ScenePausedForDebugging frames _
+      | indexWithinBounds frames ->
+        noEff $ ScenePausedForDebugging frames i
     anyOtherState ->
       noEff anyOtherState
-updateSceneModel StepSceneBakwardsForDebugging sceneModel =
-  case sceneModel of
-    (ScenePausedForDebugging (pastFrame : pastFrames) currentFrame futureFrames) ->
-      noEff $ ScenePausedForDebugging pastFrames pastFrame (currentFrame : futureFrames)
-    anyOtherState ->
-      noEff anyOtherState
-updateSceneModel JumpToLastSceneFrameForDebugging sceneModel =
-  case sceneModel of
-    (ScenePausedForDebugging pastFrames currentFrame futureFrames@(_ : _)) ->
-      noEff $
-        ScenePausedForDebugging
-          (reverse (init futureFrames) ++ [currentFrame] ++ pastFrames)
-          (last futureFrames)
-          []
-    anyOtherState ->
-      noEff anyOtherState
-updateSceneModel JumpToFirstSceneFrameForDebugging sceneModel =
-  case sceneModel of
-    (ScenePausedForDebugging pastFrames@(_ : _) currentFrame futureFrames) ->
-      noEff $
-        ScenePausedForDebugging
-          []
-          (last pastFrames)
-          (reverse (init pastFrames) ++ [currentFrame] ++ futureFrames)
-    anyOtherState ->
-      noEff anyOtherState
+  where
+    indexWithinBounds frames = i >= 0 && i < length frames
 
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
@@ -594,10 +571,6 @@ updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, wel
     sceneAction = asum (map keyCodeToSceneAction (toList (Set.difference newKeysDown keysDown)))
     keyCodeToSceneAction :: Int -> Maybe SceneAction
     keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
-    keyCodeToSceneAction 37 = Just StepSceneBakwardsForDebugging -- left key
-    keyCodeToSceneAction 39 = Just StepSceneForwardForDebugging -- right key
-    keyCodeToSceneAction 35 = Just JumpToLastSceneFrameForDebugging -- end key
-    keyCodeToSceneAction 36 = Just JumpToFirstSceneFrameForDebugging -- home key
     keyCodeToSceneAction _ = Nothing
 updateModel (Keyboard _) model = noEff model
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =

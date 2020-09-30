@@ -41,7 +41,8 @@ common client-server-shared
     pretty-simple,
     random,
     text,
-    tree-diff
+    tree-diff,
+    vector
   ghc-options:
     -Wincomplete-patterns
     -Werror
