@@ -478,14 +478,14 @@ updateSceneModel StepScene sceneModel =
       | V.null frames -> noEff $ SceneComplete frames
       | otherwise -> playFrame frames 0
     ScenePlaying frames i
-      | i < length frames -> playFrame frames i
+      | i < length frames - 1 -> playFrame frames (i + 1)
       | otherwise -> noEff $ SceneComplete frames
     completeOrPaused -> noEff completeOrPaused
   where
     playFrame frames i =
       let TimedFrame {duration} = frames V.! i
        in delayActions
-            (ScenePlaying frames (i + 1))
+            (ScenePlaying frames i)
             [(tenthToSecs duration, SceneAction' StepScene)]
 updateSceneModel PauseOrResumeSceneForDebugging sceneModel =
   case sceneModel of
