@@ -39,6 +39,7 @@ module Cinema
     shutup,
     tell,
     tileSprite,
+    turnAround,
     up,
     while,
   )
@@ -138,14 +139,19 @@ while duration frame =
 runScene :: Scene () -> [TimedFrame ActorChange]
 runScene (Scene m) = MTL.evalState (MTL.execWriterT m) 0
 
-data DirectionChange = TurnRight | TurnLeft | NoDirectionChange
+data DirectionChange = NoDirectionChange | ToggleDir | TurnRight | TurnLeft
   deriving (Eq, Generic, Ord, Show)
 
 instance Semigroup DirectionChange where
   TurnLeft <> TurnRight = NoDirectionChange
+  TurnLeft <> ToggleDir = NoDirectionChange
   TurnLeft <> _ = TurnLeft
   TurnRight <> TurnLeft = NoDirectionChange
+  TurnRight <> ToggleDir = NoDirectionChange
   TurnRight <> _ = TurnRight
+  ToggleDir <> TurnLeft = NoDirectionChange
+  ToggleDir <> TurnRight = NoDirectionChange
+  ToggleDir <> _ = ToggleDir
   NoDirectionChange <> change = change
 
 instance Monoid DirectionChange where
@@ -244,6 +250,9 @@ shutup = Stay mempty {tellingChange = ShutUp}
 tell :: String -> ActorChange
 tell s = Stay mempty {tellingChange = Tell s}
 
+turnAround :: ActorChange
+turnAround = Stay mempty {turn = ToggleDir}
+
 up :: ActorChange
 up = shift 0 (-1)
 
@@ -261,7 +270,7 @@ patch (Frame oldState) (Frame diff) = Frame newState
     mapRight k Leave = Nothing
     mapRight k c@(Stay StayChange {..}) =
       case spriteChange of
-        NoSpriteChange -> error $ "Element " ++ show k ++ " has no sprite"
+        NoSpriteChange -> error $ show k ++ " has no sprite"
         SetSprite sprite -> patchActorState (defaultActorState sprite) c
 
 patchActorState :: ActorState -> ActorChange -> Maybe ActorState
@@ -276,6 +285,7 @@ patchActorState s@ActorState {..} (Stay StayChange {..}) =
       }
   where
     applyDirectionChange dir NoDirectionChange = dir
+    applyDirectionChange dir ToggleDir = otherDir dir
     applyDirectionChange _ TurnRight = ToRight
     applyDirectionChange _ TurnLeft = ToLeft
     applySpriteChange _ (SetSprite s) = s
@@ -283,6 +293,8 @@ patchActorState s@ActorState {..} (Stay StayChange {..}) =
     applyTellingChange telling NoTellingChange = telling
     applyTellingChange _ (Tell s) = Just s
     applyTellingChange _ ShutUp = Nothing
+    otherDir ToRight = ToLeft
+    otherDir ToLeft = ToRight
 patchActorState _ Leave = Nothing
 
 (=:) :: Element -> ActorChange -> Frame ActorChange
