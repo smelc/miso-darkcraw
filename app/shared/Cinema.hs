@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -11,18 +12,18 @@
 
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
-  ( ActorChange (Leave),
-    Direction (..),
+  ( Direction (..),
     DirectionChange,
     Element (),
     Frame (..),
+    FrameDiff (),
     ActorState (..),
     Scene (..),
     SpriteChange,
     StayChange,
     TellingChange,
     TimedFrame (..),
-    (=:),
+    (+=),
     (|||),
     at,
     at',
@@ -31,6 +32,7 @@ module Cinema
     dress,
     down,
     fork,
+    leave,
     left,
     mkChange,
     newActor,
@@ -43,6 +45,7 @@ module Cinema
     turnAround,
     up,
     while,
+    during,
   )
 where
 
@@ -104,6 +107,9 @@ defaultActorState sprite =
 newtype Element = Element Int
   deriving (Eq, Generic, Ord, Show)
 
+newtype FrameDiff a = FrameDiff {unFrameDiff :: MTL.Writer (Map.Map Element ActorChange) a}
+  deriving (Eq, Show, Functor, Applicative, Monad)
+
 newtype Frame a = Frame {unFrame :: Map.Map Element a}
   deriving (Eq, Ord, Show, Generic)
 
@@ -130,6 +136,9 @@ newActor = singleton NewActor
 
 while :: Duration -> Frame ActorChange -> Scene ()
 while duration frame = singleton (While duration frame)
+
+during :: Duration -> FrameDiff () -> Scene ()
+during duration (FrameDiff m) = singleton (While duration (Frame (MTL.execWriter m)))
 
 (|||) :: Scene () -> Scene () -> Scene ()
 s1 ||| s2 = singleton (Parallelize s1 s2)
@@ -247,44 +256,47 @@ mkChange :: Sprite -> DirectionChange -> TellingChange -> Int -> Int -> ActorCha
 mkChange sprite turn tellingChange xoffset yoffset =
   Stay StayChange {spriteChange = SetSprite sprite, ..}
 
--- | Use this function to initialize an 'Element'
+(+=) :: Element -> ActorChange -> FrameDiff ()
+actor += change = FrameDiff (MTL.tell (Map.singleton actor change))
+
 at :: Sprite -> Int -> Int -> ActorChange
 at sprite x y = Stay mempty {spriteChange = SetSprite sprite, xoffset = x, yoffset = y}
 
--- | Use this function to initialize an 'Element'
 at' :: Sprite -> Direction -> Int -> Int -> ActorChange
-at' sprite dir x y =
-  Stay mempty {spriteChange = SetSprite sprite, turn = turnFrom dir, xoffset = x, yoffset = y}
+at' sprite dir x y = Stay mempty {spriteChange = SetSprite sprite, turn = turnFrom dir, xoffset = x, yoffset = y}
   where
     turnFrom ToRight = TurnRight
     turnFrom ToLeft = TurnLeft
 
-dress :: Sprite -> ActorChange
-dress sprite = Stay mempty {spriteChange = SetSprite sprite}
+dress :: Element -> Sprite -> FrameDiff ()
+dress actor sprite = actor += Stay mempty {spriteChange = SetSprite sprite}
 
-shift :: Int -> Int -> ActorChange
-shift x y = Stay mempty {xoffset = x, yoffset = y}
+shift :: Element -> Int -> Int -> FrameDiff ()
+shift actor x y = actor += Stay mempty {xoffset = x, yoffset = y}
 
-down :: ActorChange
-down = shift 0 1
+down :: Element -> FrameDiff ()
+down actor = shift actor 0 1
 
-left :: ActorChange
-left = shift (-1) 0
+left :: Element -> FrameDiff ()
+left actor = shift actor (-1) 0
 
-right :: ActorChange
-right = shift 1 0
+right :: Element -> FrameDiff ()
+right actor = shift actor 1 0
 
-shutup :: ActorChange
-shutup = Stay mempty {tellingChange = ShutUp}
+shutup :: Element -> FrameDiff ()
+shutup actor = actor += Stay mempty {tellingChange = ShutUp}
 
-tell :: String -> ActorChange
-tell s = Stay mempty {tellingChange = Tell s}
+tell :: Element -> String -> FrameDiff ()
+tell actor s = actor += Stay mempty {tellingChange = Tell s}
 
-turnAround :: ActorChange
-turnAround = Stay mempty {turn = ToggleDir}
+turnAround :: Element -> FrameDiff ()
+turnAround actor = actor += Stay mempty {turn = ToggleDir}
 
-up :: ActorChange
-up = shift 0 (-1)
+up :: Element -> FrameDiff ()
+up actor = shift actor 0 (-1)
+
+leave :: Element -> FrameDiff ()
+leave actor = actor += Leave
 
 patch :: Frame ActorState -> Frame ActorChange -> Frame ActorState
 patch (Frame oldState) (Frame diff) = Frame newState
@@ -326,9 +338,6 @@ patchActorState s@ActorState {..} (Stay StayChange {..}) =
     otherDir ToRight = ToLeft
     otherDir ToLeft = ToRight
 patchActorState _ Leave = Nothing
-
-(=:) :: Element -> ActorChange -> Frame ActorChange
-k =: v = Frame (Map.singleton k v)
 
 instance Semigroup (Frame ActorChange) where
   (Frame m1) <> (Frame m2) = Frame (Map.unionWith (<>) m1 m2)

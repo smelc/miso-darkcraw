@@ -11,53 +11,51 @@ import Cinema
 import Constants
 import Tile
 
-allLeft :: [Element] -> Frame ActorChange
-allLeft actors = mconcat [a =: left | a <- actors]
+allLeft :: [Element] -> FrameDiff ()
+allLeft actors = mapM_ left actors
 
-allRight :: [Element] -> Frame ActorChange
-allRight actors = mconcat [a =: right | a <- actors]
+allRight :: [Element] -> FrameDiff ()
+allRight actors = mapM_ right actors
 
-whiteAppears :: Element -> Int -> Int -> [Frame ActorChange]
+whiteAppears :: Element -> Int -> Int -> [FrameDiff ()]
 whiteAppears e x y =
-  [e =: at (tileSprite WhiteAppears0) x y]
-    ++ map f [WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
-    ++ [e =: Leave]
-  where
-    f tile = e =: dress (tileSprite tile)
+  [e += at (tileSprite WhiteAppears0) x y]
+    <> map (dress e . tileSprite) [WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
+    <> [leave e]
 
 welcomeGhostMovie1 :: Scene ()
 welcomeGhostMovie1 = do
   g <- newActor
-  while 9 $ g =: at' (creatureSprite $ CreatureID Ghost Undead) ToRight 1 0
-  while 8 $ g =: down
-  while 15 $ g =: right
-  while 8 $ g =: down
-  while 12 $ g =: right
-  while 7 $ g =: down
-  while 8 $ g =: right
-  while 10 $ g =: down
-  while 20 $ g =: down
-  while 15 $ g =: right
-  while 8 $ g =: right
-  while 15 $ g =: right
+  during 9 $ g += at' (creatureSprite $ CreatureID Ghost Undead) ToRight 1 0
+  during 8 $ down g
+  during 15 $ right g
+  during 8 $ down g
+  during 12 $ right g
+  during 7 $ down g
+  during 8 $ right g
+  during 10 $ down g
+  during 20 $ down g
+  during 15 $ right g
+  during 8 $ right g
+  during 15 $ right g
 
 welcomeGhostMovie2 :: Scene ()
 welcomeGhostMovie2 = do
   g <- newActor
-  while 15 $ g =: at (creatureSprite $ CreatureID Ghost Undead) (lobbiesCellWidth - 3) 0
-  while 10 $ g =: down
-  while 12 $ g =: left
-  while 18 $ g =: down
-  while 12 $ g =: left
-  while 7 $ g =: down
-  while 8 $ g =: left
-  while 10 $ g =: left
-  while 10 $ g =: up
-  while 14 $ g =: up
-  while 20 $ g =: up
-  while 15 $ g =: left
-  while 8 $ g =: right <> g =: turnAround
-  while 15 $ g =: right
+  during 15 $ g += at (creatureSprite $ CreatureID Ghost Undead) (lobbiesCellWidth - 3) 0
+  during 10 $ down g
+  during 12 $ left g
+  during 18 $ down g
+  during 12 $ left g
+  during 7 $ down g
+  during 8 $ left g
+  during 10 $ left g
+  during 10 $ up g
+  during 14 $ up g
+  during 20 $ up g
+  during 15 $ left g
+  during 8 $ do right g; turnAround g
+  during 15 $ right g
 
 welcomeFightMovie :: Scene ()
 welcomeFightMovie = do
@@ -74,74 +72,116 @@ welcomeFightMovie = do
   t1 <- newActor
   t2 <- newActor
   mapM_
-    (while 10)
-    [ w0 =: at' (creatureSprite $ CreatureID General Human) ToRight 0 15
-        <> w1 =: at (creatureSprite $ CreatureID Vampire Undead) (lobbiesCellWidth - 1) 11,
-      w0 =: right <> w1 =: left,
-      w0 =: right <> w0 =: tell "Come on guys!" <> w1 =: left,
-      w0 =: right <> w0 =: shutup <> w01 =: at' humanSpearman ToRight 0 15 <> w1 =: tell "Fresh meat!",
-      w0 =: right <> w01 =: right <> w02 =: at' humanArcher ToRight 0 15,
-      w1 =: shutup,
-      w0 =: right <> w01 =: right <> w01 =: up <> w02 =: right,
+    (during 10)
+    [ do
+        w0 += at' humanGeneral ToRight 0 15
+        w1 += at undeadVampire (lobbiesCellWidth - 1) 11,
+      do
+        right w0
+        left w1,
+      do
+        right w0
+        tell w0 "Come on guys!"
+        left w1,
+      do
+        right w0
+        shutup w0
+        w01 += at' humanSpearman ToRight 0 15
+        tell w1 "Fresh meat!",
+      do
+        right w0
+        right w01
+        w02 += at' humanArcher ToRight 0 15,
+      shutup w1,
+      do
+        right w0
+        right w01
+        up w01
+        right w02,
       allw0right,
       allw0right,
       allw0right,
-      allw0right <> w1 =: left,
-      allw0right <> w1 =: left,
-      allw0right <> w1 =: left,
-      allw0right <> w1 =: left,
-      w0 =: up <> w01 =: right <> w02 =: right,
-      w0 =: up <> w01 =: right <> w01 =: up <> w02 =: right <> w02 =: up
+      do
+        allw0right
+        left w1,
+      do
+        allw0right
+        left w1,
+      do
+        allw0right
+        left w1,
+      do
+        up w0
+        right w01
+        right w02,
+      do
+        up w0
+        right w01
+        up w01
+        right w02
+        up w02
     ]
-  while 5 (w1 =: tell "iugp9b7")
-  while 1 (w1 =: shutup)
+  during 5 $ tell w1 "iugp9b7"
+  during 1 $ shutup w1
   let (appearsUp, appears, appearsDown) = ((12, 10), (12, 11), (12, 12))
-  let appearsUpScene = mapM_ (while 2) (uncurry (whiteAppears t0) appearsUp)
-  let appearsScene = mapM_ (while 2) (uncurry (whiteAppears t1) appears)
-  let appearsDownScene = mapM_ (while 2) (uncurry (whiteAppears t2) appearsDown)
+  let appearsUpScene = mapM_ (during 2) (uncurry (whiteAppears t0) appearsUp)
+  let appearsScene = mapM_ (during 2) (uncurry (whiteAppears t1) appears)
+  let appearsDownScene = mapM_ (during 2) (uncurry (whiteAppears t2) appearsDown)
   appearsUpScene ||| appearsScene ||| appearsDownScene
-  while 10 (w10 =: uncurry (at undeadArcher) appearsUp)
-    ||| while 10 (w11 =: uncurry (at undeadWarrior) appears)
-    ||| while 10 (w12 =: uncurry (at undeadWarrior) appearsDown)
-  while 1 allw0right ||| while 1 allw1left
-  while 5 (w01 =: up) ||| while 5 (w11 =: left)
-  while 2 (w12 =: Leave)
+  during 10 $ do
+    (\(x, y) -> w10 += at undeadArcher x y) appearsUp
+    (\(x, y) -> w11 += at undeadWarrior x y) appears
+    (\(x, y) -> w12 += at undeadWarrior x y) appearsDown
+  during 1 $ do
+    allw0right
+    allw1left
+  during 5 $ do
+    up w01
+    left w11
+  during 2 $ leave w12
   bonesw12 <- newActor
-  while 2 $ bonesw12 =: at (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
-  while 5 (w1 =: tell "iugp8b4")
-  while 1 (w1 =: shutup)
+  during 2 $ bonesw12 += at (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
+  during 5 $ tell w1 "iugp8b4"
+  during 1 $ shutup w1
   w20 <- newActor
   w21 <- newActor
   w22 <- newActor
   let (newAppearsUp, newAppears, newAppearsDown) = ((11, 12), (10, 13), (11, 14))
-  let newAppearsUpScene = mapM_ (while 2) (uncurry (whiteAppears t0) newAppearsUp)
-  let newAppearsScene = mapM_ (while 2) (uncurry (whiteAppears t1) newAppears)
-  let newAppearsDownScene = mapM_ (while 2) (uncurry (whiteAppears t2) newAppearsDown)
+  let newAppearsUpScene = mapM_ (during 2) (uncurry (whiteAppears t0) newAppearsUp)
+  let newAppearsScene = mapM_ (during 2) (uncurry (whiteAppears t1) newAppears)
+  let newAppearsDownScene = mapM_ (during 2) (uncurry (whiteAppears t2) newAppearsDown)
   newAppearsUpScene ||| newAppearsScene ||| newAppearsDownScene
-  while 10 (w20 =: uncurry (at undeadWarrior) newAppearsUp)
-    ||| while 10 (w21 =: uncurry (at undeadWarrior) newAppears)
-    ||| while 10 (w22 =: uncurry (at undeadWarrior) newAppearsDown)
-  while 0 (w02 =: Leave)
+  during 10 $ do
+    (\(x, y) -> w20 += at undeadWarrior x y) newAppearsUp
+    (\(x, y) -> w21 += at undeadWarrior x y) newAppears
+    (\(x, y) -> w22 += at undeadWarrior x y) newAppearsDown
+  during 0 $ leave w02
   blood02 <- newActor
-  while 1 (blood02 =: at (tileSprite Blood2) 10 14)
-  while 5 (w11 =: Leave)
+  during 1 $ blood02 += at (tileSprite Blood2) 10 14
+  during 5 $ leave w11
   bonesw11 <- newActor
-  while 1 (bonesw11 =: at (tileSprite Bones1) 10 11)
-  while 5 (w01 =: Leave)
+  during 1 $ bonesw11 += at (tileSprite Bones1) 10 11
+  during 5 $ leave w01
   blood01 <- newActor
-  while 1 (blood01 =: at (tileSprite Blood2) 10 12)
-  while 0 (w0 =: Leave)
+  during 1 $ blood01 += at (tileSprite Blood2) 10 12
+  during 0 $ leave w0
   blood0 <- newActor
   sword0 <- newActor
-  while 10 (blood0 =: at (tileSprite Blood3) 11 13)
-    ||| while 10 (sword0 =: at (tileSprite Sword2) 11 13)
-  while 5 (w1 =: left <> w1 =: down <> w10 =: left <> w10 =: down) -- vampire and archer
-  -- while 5 (w12 =: left <> w21 =: down <> w21 =: left <> w22 =: left)
+  during 10 $ do
+    blood0 += at (tileSprite Blood3) 11 13
+    sword0 += at (tileSprite Sword2) 11 13
+  during 5 $ do
+    left w1
+    down w1
+    left w10
+    down w10
   where
+    humanGeneral = creatureSprite $ CreatureID General Human
     humanArcher = creatureSprite $ CreatureID Archer Human
     humanSpearman = creatureSprite $ CreatureID Spearman Human
     undeadArcher = creatureSprite $ CreatureID Archer Undead
     undeadWarrior = creatureSprite $ CreatureID Warrior Undead
+    undeadVampire = creatureSprite $ CreatureID Vampire Undead
 
 welcomeMovie :: Scene ()
 welcomeMovie = welcomeGhostMovie1 ||| welcomeGhostMovie2 ||| welcomeFightMovie
