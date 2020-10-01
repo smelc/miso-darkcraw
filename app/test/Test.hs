@@ -81,6 +81,41 @@ testScenesInvariant name scene =
   describe ("Scene ActorChange " ++ name) $
     zipWithM_ testSceneInvariant [0 ..] (render scene)
 
+testForkScene :: Spec
+testForkScene =
+  describe "Cinema.fork"
+    $ it "interleaces events as expected"
+    $ runScene actualScene `shouldBe` runScene expectedScene
+  where
+    newSkeleton :: Scene Element
+    newSkeleton = newActor
+    sprite = creatureSprite $ CreatureID Skeleton Undead
+    scene1 :: Element -> Element -> Scene ()
+    scene1 w0 w1 = do
+      while 1 (w0 =: up)
+      fork $ do
+        while 1 (w1 =: down)
+        while 1 (w1 =: down)
+        while 1 (w1 =: down)
+      while 1 (w0 =: up)
+    scene2 :: Element -> Scene ()
+    scene2 w0 =
+      while 1 (w0 =: up)
+    actualScene :: Scene ()
+    actualScene = do
+      w0 <- newSkeleton
+      w1 <- newSkeleton
+      scene1 w0 w1
+      scene2 w0
+    expectedScene :: Scene ()
+    expectedScene = do
+      w0 <- newSkeleton
+      w1 <- newSkeleton
+      while 1 (w0 =: up)
+      while 1 (w0 =: up <> w1 =: down)
+      while 1 (w0 =: up <> w1 =: down)
+      while 1 (w1 =: down)
+
 testParallelSceneComposition :: Spec
 testParallelSceneComposition =
   describe "Cinema.|||"
@@ -147,3 +182,4 @@ main = hspec $ do
         (boardToCardsInPlace $ testAIRanged cards initialTurn)
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
+  testForkScene
