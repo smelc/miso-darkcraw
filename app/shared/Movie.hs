@@ -73,53 +73,21 @@ welcomeFightMovie = do
   t2 <- newActor
   mapM_
     (during 10)
-    [ do
-        w0 += at' humanGeneral ToRight 0 15
-        w1 += at undeadVampire (lobbiesCellWidth - 1) 11,
-      do
-        right w0
-        left w1,
-      do
-        right w0
-        tell w0 "Come on guys!"
-        left w1,
-      do
-        right w0
-        shutup w0
-        w01 += at' humanSpearman ToRight 0 15
-        tell w1 "Fresh meat!",
-      do
-        right w0
-        right w01
-        w02 += at' humanArcher ToRight 0 15,
+    [ do w0 += at' humanGeneral ToRight 0 15; w1 += at undeadVampire (lobbiesCellWidth - 1) 11,
+      do right w0; left w1,
+      do right w0; tell w0 "Come on guys!"; left w1,
+      do right w0; shutup w0; w01 += at' humanSpearman ToRight 0 15; tell w1 "Fresh meat!",
+      do right w0; right w01; w02 += at' humanArcher ToRight 0 15,
       shutup w1,
-      do
-        right w0
-        right w01
-        up w01
-        right w02,
+      do right w0; right w01; up w01; right w02,
       allw0right,
       allw0right,
       allw0right,
-      do
-        allw0right
-        left w1,
-      do
-        allw0right
-        left w1,
-      do
-        allw0right
-        left w1,
-      do
-        up w0
-        right w01
-        right w02,
-      do
-        up w0
-        right w01
-        up w01
-        right w02
-        up w02
+      do allw0right; left w1,
+      do allw0right; left w1,
+      do allw0right; left w1,
+      do up w0; right w01; right w02,
+      do up w0; right w01; up w01; right w02; up w02
     ]
   during 5 $ tell w1 "iugp9b7"
   during 1 $ shutup w1
@@ -132,12 +100,8 @@ welcomeFightMovie = do
     (\(x, y) -> w10 += at undeadArcher x y) appearsUp
     (\(x, y) -> w11 += at undeadWarrior x y) appears
     (\(x, y) -> w12 += at undeadWarrior x y) appearsDown
-  during 1 $ do
-    allw0right
-    allw1left
-  during 5 $ do
-    up w01
-    left w11
+  during 1 $ do allw0right; allw1left
+  during 5 $ do up w01; left w11
   during 2 $ leave w12
   bonesw12 <- newActor
   during 2 $ bonesw12 += at (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
@@ -170,11 +134,7 @@ welcomeFightMovie = do
   during 10 $ do
     blood0 += at (tileSprite Blood3) 11 13
     sword0 += at (tileSprite Sword2) 11 13
-  during 5 $ do
-    left w1
-    down w1
-    left w10
-    down w10
+  during 5 $ do left w1; down w1; left w10; down w10
   where
     humanGeneral = creatureSprite $ CreatureID General Human
     humanArcher = creatureSprite $ CreatureID Archer Human
