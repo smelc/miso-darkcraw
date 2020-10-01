@@ -208,7 +208,9 @@ data ActorChange
   deriving (Eq, Generic, Ord, Show)
 
 instance Semigroup ActorChange where
-  _ <> change = change
+  Leave <> _ = Leave
+  _ <> Leave = Leave
+  Stay change1 <> Stay change2 = Stay (change1 <> change2)
 
 instance Monoid ActorChange where
   mempty = Stay mempty

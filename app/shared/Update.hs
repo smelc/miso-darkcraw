@@ -521,6 +521,7 @@ updateSceneModel (JumpToFrameForDebugging i) sceneModel =
 -- | (SpecializedAction -> SpecializedModel -> SpecializedModel),
 -- | it needs to be in `Action -> Model -> Model`.
 updateModel :: Action -> Model -> Effect Action Model
+updateModel action _ | traceShow action False = undefined
 -- Generic actions
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m =
