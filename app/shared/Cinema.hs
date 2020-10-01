@@ -4,7 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -30,6 +30,7 @@ module Cinema
     defaultDirection,
     dress,
     down,
+    fork,
     left,
     mkChange,
     newActor,
@@ -46,6 +47,7 @@ module Cinema
 where
 
 import Card (CreatureID)
+import Control.Monad.Operational
 import qualified Control.Monad.State.Strict as MTL
 import qualified Control.Monad.Writer.Strict as MTL
 import Data.Function ((&))
@@ -115,29 +117,55 @@ data TimedFrame a = TimedFrame
 
 type Duration = Int
 
-newtype Scene a = Scene (MTL.WriterT [TimedFrame ActorChange] (MTL.State Int) a)
-  deriving (Functor, Applicative, Monad)
+data SceneInstruction :: * -> * where
+  NewActor :: SceneInstruction Element
+  While :: Duration -> Frame ActorChange -> SceneInstruction ()
+  Parallelize :: Scene () -> Scene () -> SceneInstruction ()
+  Fork :: Scene () -> SceneInstruction ()
+
+type Scene = Program SceneInstruction
 
 newActor :: Scene Element
-newActor = Scene $ do
-  i <- MTL.get
-  MTL.modify (const (i + 1))
-  return $ Element i
+newActor = singleton NewActor
 
--- | Given a duration and a frame, builds a 'TimedFrame'
 while :: Duration -> Frame ActorChange -> Scene ()
-while duration frame =
-  Scene $
-    MTL.tell [TimedFrame duration frame]
+while duration frame = singleton (While duration frame)
 
 (|||) :: Scene () -> Scene () -> Scene ()
-(Scene s1) ||| (Scene s2) = Scene $ do
-  frames1 <- MTL.lift (MTL.execWriterT s1)
-  frames2 <- MTL.lift (MTL.execWriterT s2)
-  MTL.tell (parallelize frames1 frames2)
+s1 ||| s2 = singleton (Parallelize s1 s2)
+
+fork :: Scene () -> Scene ()
+fork scene = singleton (Fork scene)
+
+type LowLevelScene a = MTL.WriterT [TimedFrame ActorChange] (MTL.State Int) a
+
+lower :: Scene () -> LowLevelScene ()
+lower scene = go scene
+  where
+    go :: Scene () -> LowLevelScene ()
+    go scene = eval (view scene)
+    eval :: ProgramView SceneInstruction () -> LowLevelScene ()
+    eval (Return a) = return a
+    eval (NewActor :>>= k) = do
+      i <- MTL.get
+      MTL.modify (const (i + 1))
+      go (k (Element i))
+    eval (While duration frame :>>= k) = do
+      MTL.tell [TimedFrame duration frame]
+      go (k ())
+    eval (Parallelize s1 s2 :>>= k) = do
+      parallelizeLowLevelScenes (lower s1) (lower s2)
+      go (k ())
+    eval (Fork scene :>>= k) =
+      parallelizeLowLevelScenes (lower scene) (go (k ()))
+    parallelizeLowLevelScenes :: LowLevelScene () -> LowLevelScene () -> LowLevelScene ()
+    parallelizeLowLevelScenes s1 s2 = do
+      frames1 <- MTL.lift (MTL.execWriterT s1)
+      frames2 <- MTL.lift (MTL.execWriterT s2)
+      MTL.tell (parallelize frames1 frames2)
 
 runScene :: Scene () -> [TimedFrame ActorChange]
-runScene (Scene m) = MTL.evalState (MTL.execWriterT m) 0
+runScene scene = MTL.evalState (MTL.execWriterT (lower scene)) 0
 
 data DirectionChange = NoDirectionChange | ToggleDir | TurnRight | TurnLeft
   deriving (Eq, Generic, Ord, Show)

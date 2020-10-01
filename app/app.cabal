@@ -38,6 +38,7 @@ common client-server-shared
     lens,
     miso,
     mtl,
+    operational,
     pretty-simple,
     random,
     text,
@@ -126,6 +127,7 @@ Test-Suite test-darkcraw
     lens,
     miso,
     mtl,
+    operational,
     random,
     text
   default-language:
