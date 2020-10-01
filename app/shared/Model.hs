@@ -6,7 +6,7 @@ module Model where
 
 import Board
 import Card
-import Cinema (ActorChange, ActorState, Frame (..), Scene (..), TimedFrame)
+import Cinema (ActorState, Frame (..), Scene (..), TimedFrame)
 import Control.Lens
 import Data.Generics.Labels
 import Data.Set (Set)

@@ -16,7 +16,7 @@ import Board
 import Card
 import Cinema
 import Constants
-import Control.Lens
+import Control.Lens hiding ((+=), at)
 import Control.Lens.Extras
 import Control.Monad
 import Control.Monad.Except (runExcept)
@@ -92,15 +92,15 @@ testForkScene =
     sprite = creatureSprite $ CreatureID Skeleton Undead
     scene1 :: Element -> Element -> Scene ()
     scene1 w0 w1 = do
-      while 1 (w0 =: up)
+      during 1 (up w0)
       fork $ do
-        while 1 (w1 =: down)
-        while 1 (w1 =: down)
-        while 1 (w1 =: down)
-      while 1 (w0 =: up)
+        during 1 (down w1)
+        during 1 (down w1)
+        during 1 (down w1)
+      during 1 (up w0)
     scene2 :: Element -> Scene ()
     scene2 w0 =
-      while 1 (w0 =: up)
+      during 1 (up w0)
     actualScene :: Scene ()
     actualScene = do
       w0 <- newSkeleton
@@ -111,10 +111,10 @@ testForkScene =
     expectedScene = do
       w0 <- newSkeleton
       w1 <- newSkeleton
-      while 1 (w0 =: up)
-      while 1 (w0 =: up <> w1 =: down)
-      while 1 (w0 =: up <> w1 =: down)
-      while 1 (w1 =: down)
+      during 1 (up w0)
+      during 1 (do up w0; down w1)
+      during 1 (do up w0; down w1)
+      during 1 (down w1)
 
 testParallelSceneComposition :: Spec
 testParallelSceneComposition =
@@ -127,13 +127,13 @@ testParallelSceneComposition =
     sprite = creatureSprite $ CreatureID Skeleton Undead
     scene1 :: Element -> Scene ()
     scene1 w0 = do
-      while 1 (w0 =: Cinema.at sprite 0 0)
-      while 3 (w0 =: right)
-      while 1 (w0 =: left)
+      during 1 (w0 += at sprite 0 0)
+      during 3 (right w0)
+      during 1 (left w0)
     scene2 :: Element -> Scene ()
     scene2 w1 = do
-      while 2 (w1 =: Cinema.at sprite 1 1)
-      while 4 (w1 =: right)
+      during 2 (w1 += at sprite 1 1)
+      during 4 (right w1)
     actualMergedScene :: Scene ()
     actualMergedScene = do
       w0 <- newSkeleton
@@ -143,10 +143,10 @@ testParallelSceneComposition =
     expectedMergedScene = do
       w0 <- newSkeleton
       w1 <- newSkeleton
-      while 1 (w0 =: Cinema.at sprite 0 0 <> w1 =: Cinema.at sprite 1 1)
-      while 1 (w0 =: right)
-      while 2 (w1 =: right)
-      while 2 (w0 =: left)
+      during 1 (do w0 += at sprite 0 0; w1 += at sprite 1 1)
+      during 1 (right w0)
+      during 2 (right w1)
+      during 2 (left w0)
 
 main :: IO ()
 main = hspec $ do
