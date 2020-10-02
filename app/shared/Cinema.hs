@@ -107,7 +107,7 @@ defaultActorState sprite =
 newtype Element = Element Int
   deriving (Eq, Generic, Ord, Show)
 
-newtype FrameDiff a = FrameDiff {unFrameDiff :: MTL.Writer (Map.Map Element ActorChange) a}
+newtype FrameDiff a = FrameDiff {unFrameDiff :: MTL.Writer (Frame ActorChange) a}
   deriving (Eq, Show, Functor, Applicative, Monad)
 
 newtype Frame a = Frame {unFrame :: Map.Map Element a}
@@ -138,7 +138,7 @@ while :: Duration -> Frame ActorChange -> Scene ()
 while duration frame = singleton (While duration frame)
 
 during :: Duration -> FrameDiff () -> Scene ()
-during duration (FrameDiff m) = singleton (While duration (Frame (MTL.execWriter m)))
+during duration (FrameDiff m) = singleton (While duration (MTL.execWriter m))
 
 (|||) :: Scene () -> Scene () -> Scene ()
 s1 ||| s2 = singleton (Parallelize s1 s2)
@@ -257,7 +257,7 @@ mkChange sprite turn tellingChange xoffset yoffset =
   Stay StayChange {spriteChange = SetSprite sprite, ..}
 
 (+=) :: Element -> ActorChange -> FrameDiff ()
-actor += change = FrameDiff (MTL.tell (Map.singleton actor change))
+actor += change = FrameDiff (MTL.tell (Frame (Map.singleton actor change)))
 
 at :: Sprite -> Int -> Int -> ActorChange
 at sprite x y = Stay mempty {spriteChange = SetSprite sprite, xoffset = x, yoffset = y}
