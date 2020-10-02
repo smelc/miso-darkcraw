@@ -12,7 +12,8 @@
 
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
-  ( Direction (..),
+  ( ActorKind (..),
+    Direction (..),
     DirectionChange,
     Element (),
     Frame (..),
@@ -40,6 +41,7 @@ module Cinema
     right,
     runScene,
     shutup,
+    spriteToKind,
     tell,
     tileSprite,
     turnAround,
@@ -76,8 +78,15 @@ creatureSprite = Left
 tileSprite :: Tile -> Sprite
 tileSprite = Right
 
+data ActorKind = CreatureKind | TileKind
+  deriving (Eq, Ord, Show)
+
 -- Sufficient data to obtain a sprite
 type Sprite = Either CreatureID Tile
+
+spriteToKind :: Sprite -> ActorKind
+spriteToKind (Left _) = CreatureKind
+spriteToKind _ = TileKind
 
 data ActorState = ActorState
   { -- | In which direction the sprite is looking at

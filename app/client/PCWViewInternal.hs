@@ -22,7 +22,7 @@ module PCWViewInternal
 where
 
 import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString)
-import Cinema (ActorState (..), Direction, Element (..), Frame (..), Frame (..), Scene (..), defaultDirection)
+import Cinema (ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), Frame (..), Scene (..), defaultDirection, spriteToKind)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -177,11 +177,12 @@ stateToAttribute z ActorState {x, y} =
 
 viewEntry :: Context -> Element -> ActorState -> [View a]
 viewEntry Context {..} element state@ActorState {direction, telling, sprite} =
-  [div_ [stateToAttribute z state] [imgCell path]]
+  [div_ [stateToAttribute (zFor state) state] [imgCell path]]
     ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
          | isJust telling
        ]
   where
+    (zpp, zpppp, zppPP) = (z + 1, zpp + 1, zpppp + 1)
     path = case sprite of
       Left cid ->
         case paths Map.!? cid of
@@ -196,5 +197,9 @@ viewEntry Context {..} element state@ActorState {direction, telling, sprite} =
           <> "transform" =: "translate(-50%, -50%)" -- Center element
           <> "background-color" =: beigeHTML
           <> "border-radius" =: px 2 -- rounded corners
-          <> "z-index" =: ms z
+          <> "z-index" =: ms zppPP -- on top of everything
           <> "width" =: "fit-content" -- make box exactly the size of the text
+    zFor ActorState {sprite} =
+      case spriteToKind sprite of
+        CreatureKind -> zpppp
+        TileKind -> zpp

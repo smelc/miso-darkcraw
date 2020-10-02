@@ -100,12 +100,13 @@ welcomeFightMovie = do
     (\(x, y) -> w10 += at undeadArcher x y) appearsUp
     (\(x, y) -> w11 += at undeadWarrior x y) appears
     (\(x, y) -> w12 += at undeadWarrior x y) appearsDown
-  during 1 $ do allw0right; allw1left
-  during 5 $ do up w01; left w1; left w11
-  during 2 $ leave w12
+  mapM_
+    (during 10)
+    [ do allw0right; allw1left,
+      do up w01; left w1; left w11
+    ]
   bonesw12 <- newActor
-  during 2 $ bonesw12 += at (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
-  during 5 $ tell w1 "iugp8b4"
+  during 5 $ do leave w12; bonesw12 += at (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown); tell w1 "iugp8b4"
   during 1 $ shutup w1
   w20 <- newActor
   w21 <- newActor
@@ -119,21 +120,18 @@ welcomeFightMovie = do
     (\(x, y) -> w20 += at undeadWarrior x y) newAppearsUp
     (\(x, y) -> w21 += at undeadWarrior x y) newAppears
     (\(x, y) -> w22 += at undeadWarrior x y) newAppearsDown
-  during 0 $ leave w02
   blood02 <- newActor
-  during 1 $ blood02 += at (tileSprite Blood2) 10 14
-  during 5 $ leave w11
   bonesw11 <- newActor
-  during 1 $ bonesw11 += at (tileSprite Bones1) 10 11
-  during 5 $ leave w01
   blood01 <- newActor
-  during 1 $ blood01 += at (tileSprite Blood2) 10 12
-  during 0 $ leave w0
+  mapM_
+    (during 10)
+    [ do leave w02; blood02 += at (tileSprite Blood2) 10 14,
+      do leave w11; bonesw11 += at (tileSprite Bones1) 10 11,
+      do leave w01; blood01 += at (tileSprite Blood2) 10 12
+    ]
   blood0 <- newActor
   sword0 <- newActor
-  during 1 $ do
-    blood0 += at (tileSprite Blood3) 11 13
-    sword0 += at (tileSprite Sword2) 11 13
+  during 5 $ do leave w0; blood0 += at (tileSprite Blood3) 11 13; sword0 += at (tileSprite Sword2) 11 13
   mapM_
     (during 10)
     [ do left w1; down w1, -- vampire

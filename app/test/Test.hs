@@ -77,11 +77,9 @@ testSceneInvariant idx TimedFrame {..} =
     stateToXY ActorState {..} = (x, y)
     values = unFrame frame & Map.elems & filter isCreature & map toPos & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
-    isCreature ActorState {sprite = s} | isLeft s = True
+    isCreature ActorState {sprite = s} | spriteToKind s == CreatureKind = True
     isCreature _ = False
     toPos ActorState {x, y} = (x, y)
-    isLeft (Left _) = True
-    isLeft _ = False
 
 testScenesInvariant :: String -> Scene () -> Spec
 testScenesInvariant name scene =
