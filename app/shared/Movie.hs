@@ -27,6 +27,10 @@ blackAppears :: Element -> Int -> Int -> [FrameDiff ()]
 blackAppears =
   animation [BlackAppears0, BlackAppears1, BlackAppears2, BlackAppears3]
 
+blackDisappears :: Element -> Int -> Int -> [FrameDiff ()]
+blackDisappears =
+  animation $ reverse [BlackAppears0, BlackAppears1, BlackAppears2, BlackAppears3]
+
 whiteAppears :: Element -> Int -> Int -> [FrameDiff ()]
 whiteAppears =
   animation [WhiteAppears0, WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
@@ -52,6 +56,12 @@ welcomeGhostMovie1 = do
   during 10 $ do right g; up g
   during 8 $ right g
   during 17 $ do right g; up g
+  during 12 $ do turnAround g; left g
+  during 14 $ do left g; up g
+  during 18 $ do left g; up g
+  during 14 $ do left g; up g
+  during 18 $ do left g; up g
+  during 1 $ leave g
 
 welcomeGhostMovie2 :: Scene ()
 welcomeGhostMovie2 = do
@@ -75,6 +85,9 @@ welcomeGhostMovie2 = do
   during 18 $ do right g; down g
   fork welcomeShade
   during 15 $ do turnAround g; left g
+  during 12 $ left g
+  during 18 $ do left g; up g
+  during 1 $ leave g
 
 welcomeShade :: Scene ()
 welcomeShade = do
@@ -84,6 +97,29 @@ welcomeShade = do
   mapM_ (during 2) $ blackAppears a startX startY
   during 6 $ s += at (creatureSprite $ CreatureID Shade Undead) startX startY
   during 5 $ left s
+  during 5 $ do left s; down s
+  during 6 $ do left s; up s
+  during 6 $ left s
+  d <- newActor
+  mapM_ (during 2) $ blackDisappears d 15 2
+  during 7 $ left s
+  during 6 $ left s
+  during 5 $ do left s; up s
+  during 6 $ do left s; up s
+  during 5 $ do left s; down s
+  during 6 $ do left s; down s
+  during 8 $ do left s; down s
+  during 5 $ do left s; down s
+  during 7 $ do left s; down s
+  during 6 $ do left s; down s
+  during 6 $ left s
+  during 5 $ do left s; down s
+  during 6 $ do left s; down s
+  during 8 $ left s
+  during 5 $ do left s; down s
+  during 7 $ do left s; down s
+  during 6 $ down s
+  during 1 $ leave s
 
 welcomeFightMovie :: Scene ()
 welcomeFightMovie = do
@@ -167,7 +203,20 @@ welcomeFightMovie = do
       do tell w1 "Perfect for my collection"; down w10; left w10, -- vampire and archer
       do down w1; left w1; shutup w1; leave sword0; left w20; left w21; down w21; left w22; down w22,
       do left w20; down w20; left w21; down w21; left w22,
-      do down w1; left w1; down w10; down w20; left w20; left w21; left w22
+      do down w1; left w1; down w10; down w20; left w20; left w21; left w22,
+      do down w1; left w1; down w10; left w20; left w21; left w22,
+      do left w1; down w10; left w10; left w20; left w21; left w22,
+      do left w1; left w10; left w20; left w21; left w22,
+      do left w1; left w10; left w20; left w21; left w22,
+      do left w1; left w10; left w20; left w21; left w22,
+      do left w1; left w10; left w20; left w21; left w22,
+      do left w1; left w10; left w20; left w21; left w22,
+      do left w1; left w10; left w20; leave w21; left w22,
+      do left w1; leave w20; leave w22,
+      do left w1; left w10,
+      do leave w1; left w10,
+      do left w10; down w10,
+      leave w10
     ]
   where
     humanGeneral = creatureSprite $ CreatureID General Human
