@@ -74,7 +74,6 @@ testSceneInvariant idx TimedFrame {..} =
   it ("Scene Change invariant " ++ show idx) $
     values `shouldBe` values'
   where
-    stateToXY ActorState {..} = (x, y)
     values = unFrame frame & Map.elems & filter isCreature & map toPos & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
     isCreature ActorState {sprite = s} | spriteToKind s == CreatureKind = True
@@ -94,7 +93,6 @@ testForkScene =
   where
     newSkeleton :: Scene Element
     newSkeleton = newActor
-    sprite = creatureSprite $ CreatureID Skeleton Undead
     scene1 :: Element -> Element -> Scene ()
     scene1 w0 w1 = do
       during 1 (up w0)

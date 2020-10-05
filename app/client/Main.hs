@@ -14,23 +14,17 @@ import qualified Network.Wai.Handler.Warp as Warp
 import           Network.WebSockets
 #endif
 
-import Board (exampleBoard, startingPlayerSpot)
 import Card
 import Control.Monad (forM_)
-import Control.Monad.IO.Class
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
-import qualified Data.Text as Text
 import Json (LoadedJson, loadJson)
-import JsonData
 import Miso
-import Miso.String
 import Model
 import SharedModel (SharedModel (..))
 import System.Exit
 import System.IO (hPutStrLn, stderr)
-import System.Random (StdGen, getStdGen)
-import Turn (initialTurn)
+import System.Random (getStdGen)
 import Update (Action (..), initialWelcomeModel, logUpdates, updateModel)
 import View (viewModel)
 

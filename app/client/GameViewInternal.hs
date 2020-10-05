@@ -28,22 +28,20 @@ import Board
 import Card
 import Constants
 import Control.Lens
-import Data.List
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust)
-import Event
+import Data.Maybe (fromMaybe, isJust)
 import Game (enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
-import SharedModel (identToCreature, unsafeIdentToCard)
+import SharedModel (unsafeIdentToCard)
 import Turn (turnToInt, turnToPlayerSpot)
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
 errView :: GameModel -> Int -> [View Action]
-errView model@GameModel {interaction} z =
+errView GameModel {interaction} z =
   case interaction of
     GameShowErrorInteraction msg ->
       [div_ [style_ errViewStyle] $ textView msg : feedbackViews]
@@ -158,7 +156,7 @@ data StackType
 
 -- | The widget showing the number of cards in the stack/discarded stack
 stackView :: GameModel -> Int -> StackType -> Styled [View Action]
-stackView m@GameModel {anims, board, playingPlayer, gameShared} z stackType = do
+stackView GameModel {anims, board, playingPlayer, gameShared} z stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
   plus <- keyframed plusBuilder plusFrames animData
   return $
@@ -236,7 +234,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
 
 deathFadeout :: AttackEffect -> Int -> Int -> Styled [View Action]
-deathFadeout ae x y =
+deathFadeout ae _ _ =
   sequence
     [ keyframed
         builder
@@ -257,7 +255,7 @@ deathFadeout ae x y =
         }
 
 heartWobble :: Int -> AttackEffect -> Int -> Int -> Styled [View Action]
-heartWobble z ae x y =
+heartWobble z ae _ _ =
   sequence
     [ keyframed
         builder

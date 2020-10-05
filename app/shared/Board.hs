@@ -45,12 +45,12 @@ import Card
 import Constants (handSize)
 import Control.Lens
 import Control.Monad.Except (MonadError, throwError)
-import Data.Generics.Labels
+import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
-import Formatting ((%), format, hex, sformat)
+import Formatting ((%), hex, sformat)
 import GHC.Generics (Generic)
 
 -- | The spot of a card, as visible from the top of the screen. For the
@@ -284,7 +284,7 @@ boardToInPlaceCreature board player cSpot =
 -- | A board with nothing in place, and solely the following
 -- | hand for the top player. For testing.
 emptyInPlaceBoard :: [Card UI] -> InHandType Core -> Board Core
-emptyInPlaceBoard cards topHand =
+emptyInPlaceBoard _ topHand =
   Board topPlayer botPlayer
   where
     (topCards, topStack) = (Map.empty, [])

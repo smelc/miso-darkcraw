@@ -15,15 +15,13 @@
 -- |
 module ViewInternal where
 
-import Constants (assetsPath, borderSize, cellPixelSize)
+import Constants (assetsPath, cellPixelSize)
 import Control.Lens
 import Control.Monad.Writer
 import Data.Function ((&))
-import Data.Generics.Labels
 import Data.List
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
-import GHC.Generics (Generic)
 import Miso hiding (at)
 import Miso.String hiding (length, map, take, zip)
 import Miso.Util ((=:))
