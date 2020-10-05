@@ -10,26 +10,68 @@
 -- |
 module WelcomeView (viewWelcomeModel) where
 
-import Card (Team (..), allTeams, ppTeam)
 import Cinema (TimedFrame (..))
 import Configuration
+  ( Configuration (..),
+    Edition (Legendary, Vanilla),
+    Location (Dev, Itch),
+    configuration,
+  )
 import Constants
-import Control.Lens
-import Data.Char
-import Data.Generics.Labels
+  ( assetFilenameCrown,
+    assetsPath,
+    assetsUrl,
+    cps,
+    gameTitle,
+    lobbiesPixelHeight,
+    lobbiesPixelWidth,
+    subtitleFontSize,
+    titleFontSize,
+  )
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, isJust)
-import Data.Vector (Vector)
 import qualified Data.Vector as V
-import Debug.Trace
 import Miso
-import Miso.String hiding (concat, length, map)
+  ( View,
+    autofocus_,
+    div_,
+    img_,
+    input_,
+    max_,
+    min_,
+    nodeHtml,
+    onClick,
+    onInput,
+    src_,
+    step_,
+    style_,
+    text,
+    type_,
+    value_,
+  )
+import Miso.String (fromMisoString, ms)
 import Miso.Util ((=:))
-import Model (PlayingMode (..), SceneModel (..), TimedFrames, WelcomeModel (..))
+import Model (SceneModel (..), TimedFrames, WelcomeModel (..))
 import PCWViewInternal (viewFrame)
 import Update
-import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
+  ( Action (SceneAction', WelcomeGo),
+    SceneAction (JumpToFrameForDebugging),
+    WelcomeDestination
+      ( MultiPlayerDestination,
+        SinglePlayerDestination
+      ),
+  )
+import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
+  ( Position (Absolute, Relative),
+    Styled,
+    flexColumnStyle,
+    flexLineStyle,
+    px,
+    textRawStyle,
+    tilezprb,
+    zplt,
+    zpltwh,
+  )
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> Styled (View Action)

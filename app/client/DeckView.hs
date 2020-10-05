@@ -25,7 +25,7 @@ import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 
 viewDeck :: DeckModel -> Styled (View Action)
-viewDeck DeckModel {deck, deckBack, deckPlayer, deckShared} = do
+viewDeck DeckModel {deck, deckPlayer, deckShared} = do
   backDiv <- backDivM
   return
     $ div_
@@ -48,7 +48,7 @@ viewDeck DeckModel {deck, deckBack, deckPlayer, deckShared} = do
     -- No card associated to ID, should not happen; but needed for completness
     cardsDiver x y ((_, []) : rest) = cardsDiver x y rest
     -- Regular cards to draw case; then iterate
-    cardsDiver x y ((ident, card : _) : rest) =
+    cardsDiver x y ((_, card : _) : rest) =
       cardDiver x y card : cardsDiver (x + 1) y rest
     xoffset x = 3 + (x * (cardCellWidth + 1))
     yoffset y = 3 + (y * (cardCellHeight + 1))

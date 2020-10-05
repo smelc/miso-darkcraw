@@ -26,17 +26,14 @@ import Card
 import Control.Lens
 import Control.Monad.Except
 import Control.Monad.Writer
-import Data.Bifunctor
 import Data.Foldable
-import Data.Generics.Labels
 import Data.List (elemIndex)
 import Data.List.Index (deleteAt)
 import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, listToMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import SharedModel (SharedModel (..))
 
 data GamePlayEvent
   = -- | A player finishes its turn, resolving it in a single card spot.
@@ -114,11 +111,6 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     hand :: [Card Core] = boardToHand board $ spotToLens pSpot
     hand' :: [Card Core] = deleteAt handi hand
 
--- | Events to schedule when a turn is finished, either when the player
--- | pressed "End Turn" or when the AI is finished.
-allEndTurnEvents :: PlayerSpot -> [GamePlayEvent]
-allEndTurnEvents pSpot = map (EndTurn pSpot) $ attackOrder pSpot
-
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
   MonadWriter (Board UI) m =>
@@ -142,7 +134,6 @@ attack board pSpot cSpot =
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
       let hit = Card.attack hitter
-      let pScore :: Int = board ^. spotToLens pSpot . #score
       reportEffect pSpot cSpot $
         createAttackEffect Nothing (Just True) Nothing (Just hit)
       return (board & spotToLens pSpot . #score +~ hit)

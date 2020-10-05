@@ -13,7 +13,7 @@ viewMultiPlayerLobbyModel :: MultiPlayerLobbyModel -> View Action
 viewMultiPlayerLobbyModel = fmap MultiPlayerLobbyAction' . viewLobby
 
 viewLobby :: MultiPlayerLobbyModel -> View MultiPlayerLobbyAction
-viewLobby (CollectingUserName userName) =
+viewLobby (CollectingUserName _) =
   div_
     []
     [ text "user name",
@@ -44,20 +44,20 @@ viewLobby (DisplayingUserList merror me users)
         )
   where
     otherUsers = delete me users
-viewLobby (InvitingUser me users user WaitingForUserInvitationAck) =
+viewLobby (InvitingUser me _ user WaitingForUserInvitationAck) =
   whoAmIFrame me $
     text ("sending invitation to " <> ms user)
-viewLobby (InvitingUser me users user WaitingForRSVP) =
+viewLobby (InvitingUser me _ user WaitingForRSVP) =
   whoAmIFrame me $
     div_
       []
       [ text ("waiting for user " <> ms user <> " to accept the invitation"),
         button_ [onClick CancelInvitationClicked] [text "Cancel invitation"]
       ]
-viewLobby (InvitingUser me users user WaitingForInvitationDropAck) =
+viewLobby (InvitingUser me _ user WaitingForInvitationDropAck) =
   whoAmIFrame me $
     text ("cancelling invitation to " <> ms user)
-viewLobby (Invited me users user CollectingUserRSVP) =
+viewLobby (Invited me _ user CollectingUserRSVP) =
   whoAmIFrame me $
     div_
       []
@@ -65,10 +65,10 @@ viewLobby (Invited me users user CollectingUserRSVP) =
         button_ [onClick AcceptInvitationClicked] [text "Accept"],
         button_ [onClick RejectInvitationClicked] [text "Reject"]
       ]
-viewLobby (Invited me users user WaitingForRejectionAck) =
+viewLobby (Invited me _ user WaitingForRejectionAck) =
   whoAmIFrame me $
     text ("rejecting invitation from " <> ms user)
-viewLobby (Invited me users user WaitingForAcceptanceAck) =
+viewLobby (Invited me _ user WaitingForAcceptanceAck) =
   whoAmIFrame me $
     text ("accepting invitation from " <> ms user)
 viewLobby (GameStarted me user) =
