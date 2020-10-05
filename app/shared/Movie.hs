@@ -17,11 +17,19 @@ allLeft actors = mapM_ left actors
 allRight :: [Element] -> FrameDiff ()
 allRight actors = mapM_ right actors
 
-whiteAppears :: Element -> Int -> Int -> [FrameDiff ()]
-whiteAppears e x y =
-  [e += at (tileSprite WhiteAppears0) x y]
-    <> map (dress e . tileSprite) [WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
+animation :: [Tile] -> Element -> Int -> Int -> [FrameDiff ()]
+animation frames e x y =
+  [e += at (tileSprite $ head frames) x y]
+    <> map (dress e . tileSprite) (tail frames)
     <> [leave e]
+
+blackAppears :: Element -> Int -> Int -> [FrameDiff ()]
+blackAppears =
+  animation [BlackAppears0, BlackAppears1, BlackAppears2, BlackAppears3]
+
+whiteAppears :: Element -> Int -> Int -> [FrameDiff ()]
+whiteAppears =
+  animation [WhiteAppears0, WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
 
 welcomeGhostMovie1 :: Scene ()
 welcomeGhostMovie1 = do
@@ -38,6 +46,12 @@ welcomeGhostMovie1 = do
   during 15 $ right g
   during 8 $ right g
   during 15 $ right g
+  during 12 $ do right g; down g
+  during 10 $ do right g; up g
+  during 13 $ do right g; down g
+  during 10 $ do right g; up g
+  during 8 $ right g
+  during 17 $ do right g; up g
 
 welcomeGhostMovie2 :: Scene ()
 welcomeGhostMovie2 = do
@@ -56,6 +70,20 @@ welcomeGhostMovie2 = do
   during 15 $ left g
   during 8 $ do right g; turnAround g
   during 15 $ right g
+  during 20 $ do right g; down g
+  during 15 $ do right g; down g
+  during 18 $ do right g; down g
+  fork welcomeShade
+  during 15 $ do turnAround g; left g
+
+welcomeShade :: Scene ()
+welcomeShade = do
+  a <- newActor
+  s <- newActor
+  let (startX, startY) = (lobbiesCellWidth - 1, 2)
+  mapM_ (during 2) $ blackAppears a startX startY
+  during 6 $ s += at (creatureSprite $ CreatureID Shade Undead) startX startY
+  during 5 $ left s
 
 welcomeFightMovie :: Scene ()
 welcomeFightMovie = do
