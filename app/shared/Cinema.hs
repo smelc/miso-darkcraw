@@ -13,12 +13,13 @@
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
   ( ActorKind (..),
+    ActorChange (),
+    ActorState (..),
     Direction (..),
     DirectionChange,
     Element (),
     Frame (..),
     FrameDiff (),
-    ActorState (..),
     Scene (..),
     SpriteChange,
     StayChange,

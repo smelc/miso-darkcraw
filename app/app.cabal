@@ -104,6 +104,7 @@ Test-Suite test-darkcraw
     Cinema
     Constants
     Game
+    Generators
     Json
     JsonData
     Movie
@@ -122,12 +123,14 @@ Test-Suite test-darkcraw
     file-embed,
     formatting,
     generic-lens,
+    generic-random,
     hspec,
     ilist,
     lens,
     miso,
     mtl,
     operational,
+    QuickCheck,
     random,
     text
   default-language:
