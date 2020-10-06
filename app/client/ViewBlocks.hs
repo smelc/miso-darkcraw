@@ -9,7 +9,6 @@
 module ViewBlocks (ButtonState (..), dummyOn, gui, GUI (..)) where
 
 import Constants (borderSize, greenHTML, yellowHTML)
-import Data.List
 import qualified Data.Map.Strict as Map
 import Miso
 import Miso.String
@@ -35,7 +34,7 @@ gui = _captivatingGUI
 _captivatingGUI :: GUI a
 _captivatingGUI = GUI {..}
   where
-    anyButton z bState f =
+    anyButton _ bState f =
       case bState of
         Enabled ->
           keyframed
@@ -64,7 +63,7 @@ _captivatingGUI = GUI {..}
 _simpleGUI :: GUI a
 _simpleGUI = GUI {..}
   where
-    anyButton z bState f = return $ f [buttonStyle bState True]
+    anyButton _ bState f = return $ f [buttonStyle bState True]
     textButton z bState attrs text =
       return $
         button_

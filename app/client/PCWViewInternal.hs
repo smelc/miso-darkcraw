@@ -22,11 +22,11 @@ module PCWViewInternal
 where
 
 import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString)
-import Cinema (ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), Frame (..), Scene (..), defaultDirection, spriteToKind)
+import Cinema (ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), Frame (..), defaultDirection, spriteToKind)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, fromJust, isJust, isNothing, maybeToList)
+import Data.Maybe (catMaybes, fromJust, isJust, isNothing)
 import Miso
 import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
@@ -176,7 +176,7 @@ stateToAttribute z ActorState {x, y} =
       <> "z-index" =: ms z
 
 viewEntry :: Context -> Element -> ActorState -> [View a]
-viewEntry Context {..} element state@ActorState {direction, telling, sprite} =
+viewEntry Context {..} _ state@ActorState {direction, telling, sprite} =
   [div_ [stateToAttribute (zFor state) state] [imgCell path]]
     ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
          | isJust telling

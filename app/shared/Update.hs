@@ -20,22 +20,19 @@ import Control.Lens
 import Control.Monad.Except (runExcept)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as DataBifunctor
-import Data.Char (ord)
 import Data.Foldable (asum, toList)
 import Data.Function ((&))
-import Data.Maybe (fromJust, isJust, maybeToList)
+import Data.Maybe (maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Data.Text (Text)
 import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import Formatting ((%), format, hex, sformat)
 import Game (GamePlayEvent (..), nextAttackSpot)
 import qualified Game
 import Miso
-import Miso.String (MisoString, fromMisoString, ms)
+import Miso.String (MisoString, fromMisoString)
 import Model
 import Movie (welcomeMovie)
 import ServerMessages
@@ -43,7 +40,6 @@ import SharedModel (SharedModel (..))
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
-import Text.Printf
 import Tile (Tile, TileUI)
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
 
@@ -414,7 +410,7 @@ updateMultiPlayerLobbyModel
     noEff $ DisplayingUserList (Just (InvitationRejectedError user)) me users
 updateMultiPlayerLobbyModel
   (LobbyServerMessage InvitationAccepted)
-  (InvitingUser me users user WaitingForRSVP) =
+  (InvitingUser me _ user WaitingForRSVP) =
     noEff $ GameStarted me user
 updateMultiPlayerLobbyModel
   (LobbyServerMessage (IncomingInvitation user))
@@ -527,7 +523,7 @@ updateModel SayHelloWorld m =
   m <# do consoleLog "miso-darkcraw says hello" >> pure (SceneAction' StepScene)
 -- Actions that change the page
 -- Leave 'DeckView'
-updateModel DeckBack m@(DeckModel' DeckModel {..}) =
+updateModel DeckBack (DeckModel' DeckModel {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
 updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
@@ -535,21 +531,21 @@ updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack
-  m@(SinglePlayerLobbyModel' SinglePlayerLobbyModel {..}) =
+  (SinglePlayerLobbyModel' SinglePlayerLobbyModel {..}) =
     noEff $ WelcomeModel' $ initialWelcomeModel singlePlayerLobbyShared
 updateModel
   SinglePlayerGo
-  m@( SinglePlayerLobbyModel'
-        SinglePlayerLobbyModel
-          { singlePlayerLobbyTeam = Just team,
-            singlePlayerLobbyShared = shared
-          }
-      ) =
+  ( SinglePlayerLobbyModel'
+      SinglePlayerLobbyModel
+        { singlePlayerLobbyTeam = Just _,
+          singlePlayerLobbyShared = shared
+        }
+    ) =
     noEff $ GameModel' $ initialGameModel shared
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
-  m@(WelcomeModel' WelcomeModel {welcomeShared}) =
+  (WelcomeModel' WelcomeModel {welcomeShared}) =
     noEff $ SinglePlayerLobbyModel' $ SinglePlayerLobbyModel Nothing welcomeShared
 updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
   effectSub (MultiPlayerLobbyModel' (CollectingUserName "")) $

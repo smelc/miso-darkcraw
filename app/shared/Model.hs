@@ -6,18 +6,14 @@ module Model where
 
 import Board
 import Card
-import Cinema (ActorState, Frame (..), Scene (..), TimedFrame)
-import Control.Lens
-import Data.Generics.Labels
+import Cinema (ActorState, TimedFrame)
+import Data.Generics.Labels ()
 import Data.Set (Set)
 import qualified Data.Text as Text
-import Data.Vector (Vector)
 import qualified Data.Vector as V
 import GHC.Generics
-import Miso.String
 import ServerMessages
 import SharedModel (SharedModel (..))
-import System.Random
 import Turn (Turn, turnToPlayerSpot)
 
 -- | An interaction happening in the game page

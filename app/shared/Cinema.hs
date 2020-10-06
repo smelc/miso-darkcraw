@@ -55,15 +55,9 @@ import Card (CreatureID)
 import Control.Monad.Operational
 import qualified Control.Monad.State.Strict as MTL
 import qualified Control.Monad.Writer.Strict as MTL
-import Data.Function ((&))
-import Data.Kind (Constraint, Type)
-import Data.List (find)
 import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust)
-import qualified Data.Set as Set
 import GHC.Generics (Generic)
-import SharedModel (SharedModel (..))
 import Tile (Tile)
 
 data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clashing with Either
@@ -318,7 +312,7 @@ patch (Frame oldState) (Frame diff) = Frame newState
         oldState
         diff
     mapRight :: Element -> ActorChange -> Maybe ActorState
-    mapRight k Leave = Nothing
+    mapRight _ Leave = Nothing
     mapRight k c@(Stay StayChange {..}) =
       case spriteChange of
         NoSpriteChange -> error $ show k ++ " has no sprite"

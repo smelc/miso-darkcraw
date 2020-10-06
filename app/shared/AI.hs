@@ -13,13 +13,12 @@ import Card
 import Control.Lens hiding (snoc)
 import Control.Monad.Except (MonadError)
 import Control.Monad.Writer (WriterT (runWriterT))
-import Data.Generics.Labels
+import Data.Generics.Labels ()
 import Data.List (sortBy)
-import Data.List.Extra (snoc)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, fromJust, fromMaybe, isJust, isNothing)
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Data.Text (Text)
-import Game (GamePlayEvent (..), allEnemySpots, play, playM)
+import Game (GamePlayEvent (..), allEnemySpots, playM)
 import Turn (Turn, turnToPlayerSpot)
 
 -- | """Smart""" play events
@@ -31,7 +30,6 @@ aiPlay ::
 aiPlay board turn =
   helper board []
   where
-    pSpot = turnToPlayerSpot turn
     helper ::
       MonadError Text m => Board Core -> [GamePlayEvent] -> m [GamePlayEvent]
     helper board' actions =

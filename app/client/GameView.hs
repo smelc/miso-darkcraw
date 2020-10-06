@@ -17,13 +17,11 @@ import Board
 import Card
 import Constants
 import Control.Lens
-import Data.Generics.Labels
+import Data.Generics.Labels ()
 import Data.Generics.Product
-import Data.List
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, mapMaybe, maybeToList)
+import Data.Maybe (isJust)
 import Event
-import Game (enemySpots)
 import GameViewInternal
 import Miso hiding (at)
 import Miso.String hiding (concat)
@@ -31,13 +29,12 @@ import Model -- XXX tighten the imports?
 import PCWViewInternal (cardBoxShadowStyle, cardCreature, cardPositionStyle, cardPositionStyle')
 import SharedModel (liftCreature)
 import Update
-import Utils (style1_)
 import ViewBlocks (dummyOn)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: GameModel -> Styled (View Action)
-viewGameModel model@GameModel {board, interaction} = do
+viewGameModel model = do
   boardDiv <- boardDivM
   handDiv <- handDivM
   return $ div_ [] $ [boardDiv, handDiv] ++ errView model zpp

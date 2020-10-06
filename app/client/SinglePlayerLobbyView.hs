@@ -20,21 +20,19 @@ import Card
   )
 import Constants
 import Control.Lens
-import Data.Generics.Labels
-import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust)
 import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
-import Model (Model (..), SinglePlayerLobbyModel (..))
-import SharedModel (SharedModel (..), identToCard, identToCreature)
+import Model (SinglePlayerLobbyModel (..))
+import SharedModel (SharedModel (..), identToCreature)
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a 'SinglePlayerLobbyModel'
 viewSinglePlayerLobbyModel :: SinglePlayerLobbyModel -> Styled (View Action)
-viewSinglePlayerLobbyModel m@SinglePlayerLobbyModel {..} = do
+viewSinglePlayerLobbyModel SinglePlayerLobbyModel {..} = do
   chooseTeamDiv <- chooseTeamDivM
   startDiv <- startDivM
   backDiv <- backDivM
