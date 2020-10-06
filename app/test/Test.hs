@@ -27,10 +27,14 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
 import qualified Data.Set as Set
 import Data.Text (Text)
+import Debug.Trace
 import Game (GamePlayEvent, attackOrder, playAll)
+import Generators
 import Json
 import Movie
 import Test.Hspec
+import Test.Hspec.QuickCheck
+import Test.QuickCheck
 import Turn (Turn, initialTurn, nextTurn)
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
@@ -186,3 +190,8 @@ main = hspec $ do
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
   testForkScene
+  modifyMaxSize (const 50) $ describe "Cinema.fork"
+    $ prop "it should behave like ||| with rest of program"
+    $ \ast1 ast2 ast3 ->
+      let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
+       in runScene (do scene1; fork scene2; scene3) == runScene (do scene1; scene2 ||| scene3)
