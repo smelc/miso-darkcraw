@@ -314,21 +314,23 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
         Nothing -> GameIncrTurn -- no more attack, change turn
         Just cSpot -> GamePlay $ EndTurn pSpot cSpot
 updateGameModel m@GameModel {board, playingPlayer, turn} GameIncrTurn _ =
-  if turnToPlayerSpot turn' == playingPlayer
-    then (m', [])
-    else -- next turn is AI
-    case aiPlay board turn' & runExcept of
-      Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
-      Right events ->
-        -- schedule its actions, then simulate pressing "End Turn"
-        (m', snoc events' (1, GameEndTurnPressed))
-        where
-          -- We want a one second delay, it's make it easier to understand
-          -- what's going on
-          events' = zip (repeat 1) $ map GamePlay events
+  (m'', events)
   where
     turn' = nextTurn turn
     m' = m {turn = turn'}
+    (m'', events) =
+      if turnToPlayerSpot turn' == playingPlayer
+        then (m', [])
+        else -- next turn is AI
+        case aiPlay board turn' & runExcept of
+          Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
+          Right events ->
+            -- schedule its actions, then simulate pressing "End Turn"
+            (m', snoc events' (1, GameEndTurnPressed))
+            where
+              -- We want a one second delay, it's make it easier to understand
+              -- what's going on
+              events' = zip (repeat 1) $ map GamePlay events
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
   withInteraction m $ GameHoverInteraction $ Hovering i
