@@ -176,8 +176,9 @@ stateToAttribute z ActorState {x, y} =
       <> "z-index" =: ms z
 
 viewEntry :: Context -> Element -> ActorState -> [View a]
-viewEntry Context {..} _ state@ActorState {direction, telling, sprite} =
-  [div_ [stateToAttribute (zFor state) state] [imgCell path]]
+viewEntry _ _ ActorState {sprite = Nothing} = []
+viewEntry Context {..} _ state@ActorState {direction, telling, sprite = Just sprite} =
+  [div_ [stateToAttribute (zFor sprite) state] [imgCell path]]
     ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
          | isJust telling
        ]
@@ -199,7 +200,7 @@ viewEntry Context {..} _ state@ActorState {direction, telling, sprite} =
           <> "border-radius" =: px 2 -- rounded corners
           <> "z-index" =: ms zppPP -- on top of everything
           <> "width" =: "fit-content" -- make box exactly the size of the text
-    zFor ActorState {sprite} =
+    zFor sprite =
       case spriteToKind sprite of
         CreatureKind -> zpppp
         TileKind -> zpp

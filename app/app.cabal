@@ -108,6 +108,7 @@ Test-Suite test-darkcraw
     Json
     JsonData
     Movie
+    SceneEquivalence
     SharedModel
     Tile
     Turn

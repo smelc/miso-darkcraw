@@ -32,6 +32,7 @@ import Game (GamePlayEvent, attackOrder, playAll)
 import Generators
 import Json
 import Movie
+import SceneEquivalence
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
@@ -80,7 +81,7 @@ testSceneInvariant idx TimedFrame {..} =
   where
     values = unFrame frame & Map.elems & filter isCreature & map toPos & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
-    isCreature ActorState {sprite = s} | spriteToKind s == CreatureKind = True
+    isCreature ActorState {sprite = Just s} | spriteToKind s == CreatureKind = True
     isCreature _ = False
     toPos ActorState {x, y} = (x, y)
 
@@ -93,7 +94,7 @@ testForkScene :: Spec
 testForkScene =
   describe "Cinema.fork"
     $ it "interleaces events as expected"
-    $ runScene actualScene `shouldBe` runScene expectedScene
+    $ actualScene ~= expectedScene
   where
     newSkeleton :: Scene Element
     newSkeleton = newActor
@@ -127,7 +128,7 @@ testParallelSceneComposition :: Spec
 testParallelSceneComposition =
   describe "Cinema.|||"
     $ it "interleaves events in the expected order"
-    $ runScene actualMergedScene `shouldBe` runScene expectedMergedScene
+    $ actualMergedScene ~= expectedMergedScene
   where
     newSkeleton :: Scene Element
     newSkeleton = newActor
@@ -190,8 +191,13 @@ main = hspec $ do
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
   testForkScene
-  modifyMaxSize (const 50) $ describe "Cinema.fork"
+  modifyMaxSize (const 40) $ describe "Cinema.fork"
     $ prop "it should behave like ||| with rest of program"
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
-       in runScene (do scene1; fork scene2; scene3) == runScene (do scene1; scene2 ||| scene3)
+       in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
+  modifyMaxSize (const 40) $ describe "Cinema.|||"
+    $ prop "should be commutative"
+    $ \ast1 ast2 ->
+      let [scene1, scene2] = map astToScene [ast1, ast2]
+       in (scene1 ||| scene2) ~= (scene2 ||| scene1)

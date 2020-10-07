@@ -16,14 +16,13 @@ module Cinema
     ActorChange (),
     ActorState (..),
     Direction (..),
-    DirectionChange,
+    DirectionChange (),
     Element (),
     Frame (..),
     FrameDiff (),
     Scene (..),
-    SpriteChange,
-    StayChange,
-    TellingChange,
+    SpriteChange (),
+    TellingChange (),
     TimedFrame (..),
     (+=),
     (|||),
@@ -87,7 +86,7 @@ data ActorState = ActorState
   { -- | In which direction the sprite is looking at
     direction :: Direction,
     -- | How to draw this actor
-    sprite :: Sprite,
+    sprite :: Maybe Sprite,
     -- | Whether the element says something
     telling :: Maybe String,
     -- | 0 means on the left
@@ -97,11 +96,11 @@ data ActorState = ActorState
   }
   deriving (Eq, Generic, Ord, Show)
 
-defaultActorState :: Sprite -> ActorState
-defaultActorState sprite =
+defaultActorState :: ActorState
+defaultActorState =
   ActorState
     { direction = defaultDirection,
-      sprite = sprite,
+      sprite = Nothing,
       telling = Nothing,
       x = 0,
       y = 0
@@ -209,11 +208,11 @@ instance Semigroup TellingChange where
 instance Monoid TellingChange where
   mempty = NoTellingChange
 
-data SpriteChange = SetSprite Sprite | NoSpriteChange
+data SpriteChange = SetSprite Sprite | HideSprite | NoSpriteChange
   deriving (Eq, Generic, Ord, Show)
 
 -- | The change to an actor's 'ActorState'
-data StayChange = StayChange
+data ActorChange = ActorChange
   { -- | The change to 'direction'
     turn :: DirectionChange,
     -- | The change to the sprite
@@ -234,49 +233,34 @@ instance Semigroup SpriteChange where
 instance Monoid SpriteChange where
   mempty = NoSpriteChange
 
-instance Semigroup StayChange where
-  (StayChange turn1 sprite1 tell1 dx1 dy1) <> (StayChange turn2 sprite2 tell2 dx2 dy2) =
-    StayChange (turn1 <> turn2) (sprite1 <> sprite2) (tell1 <> tell2) (dx1 + dx2) (dy1 + dy2)
-
-instance Monoid StayChange where
-  mempty = StayChange mempty mempty mempty 0 0
-
-data ActorChange
-  = -- | Actor leaves the stage
-    Leave
-  | -- | Actor stays on stage, but moves or says something
-    Stay StayChange
-  deriving (Eq, Generic, Ord, Show)
-
 instance Semigroup ActorChange where
-  Leave <> _ = Leave
-  _ <> Leave = Leave
-  Stay change1 <> Stay change2 = Stay (change1 <> change2)
+  (ActorChange turn1 sprite1 tell1 dx1 dy1) <> (ActorChange turn2 sprite2 tell2 dx2 dy2) =
+    ActorChange (turn1 <> turn2) (sprite1 <> sprite2) (tell1 <> tell2) (dx1 + dx2) (dy1 + dy2)
 
 instance Monoid ActorChange where
-  mempty = Stay mempty
+  mempty = ActorChange mempty mempty mempty 0 0
 
 mkChange :: Sprite -> DirectionChange -> TellingChange -> Int -> Int -> ActorChange
 mkChange sprite turn tellingChange xoffset yoffset =
-  Stay StayChange {spriteChange = SetSprite sprite, ..}
+  ActorChange {spriteChange = SetSprite sprite, ..}
 
 (+=) :: Element -> ActorChange -> FrameDiff ()
 actor += change = FrameDiff (MTL.tell (Frame (Map.singleton actor change)))
 
 at :: Sprite -> Int -> Int -> ActorChange
-at sprite x y = Stay mempty {spriteChange = SetSprite sprite, xoffset = x, yoffset = y}
+at sprite x y = mempty {spriteChange = SetSprite sprite, xoffset = x, yoffset = y}
 
 at' :: Sprite -> Direction -> Int -> Int -> ActorChange
-at' sprite dir x y = Stay mempty {spriteChange = SetSprite sprite, turn = turnFrom dir, xoffset = x, yoffset = y}
+at' sprite dir x y = mempty {spriteChange = SetSprite sprite, turn = turnFrom dir, xoffset = x, yoffset = y}
   where
     turnFrom ToRight = TurnRight
     turnFrom ToLeft = TurnLeft
 
 dress :: Element -> Sprite -> FrameDiff ()
-dress actor sprite = actor += Stay mempty {spriteChange = SetSprite sprite}
+dress actor sprite = actor += mempty {spriteChange = SetSprite sprite}
 
 shift :: Element -> Int -> Int -> FrameDiff ()
-shift actor x y = actor += Stay mempty {xoffset = x, yoffset = y}
+shift actor x y = actor += mempty {xoffset = x, yoffset = y}
 
 down :: Element -> FrameDiff ()
 down actor = shift actor 0 1
@@ -288,19 +272,19 @@ right :: Element -> FrameDiff ()
 right actor = shift actor 1 0
 
 shutup :: Element -> FrameDiff ()
-shutup actor = actor += Stay mempty {tellingChange = ShutUp}
+shutup actor = actor += mempty {tellingChange = ShutUp}
 
 tell :: Element -> String -> FrameDiff ()
-tell actor s = actor += Stay mempty {tellingChange = Tell s}
+tell actor s = actor += mempty {tellingChange = Tell s}
 
 turnAround :: Element -> FrameDiff ()
-turnAround actor = actor += Stay mempty {turn = ToggleDir}
+turnAround actor = actor += mempty {turn = ToggleDir}
 
 up :: Element -> FrameDiff ()
 up actor = shift actor 0 (-1)
 
 leave :: Element -> FrameDiff ()
-leave actor = actor += Leave
+leave actor = actor += mempty {spriteChange = HideSprite}
 
 patch :: Frame ActorState -> Frame ActorChange -> Frame ActorState
 patch (Frame oldState) (Frame diff) = Frame newState
@@ -308,40 +292,33 @@ patch (Frame oldState) (Frame diff) = Frame newState
     newState =
       Map.merge
         Map.preserveMissing
-        (Map.mapMaybeMissing mapRight)
-        (Map.zipWithMaybeMatched (const patchActorState))
+        (Map.mapMissing (const (patchActorState defaultActorState)))
+        (Map.zipWithMatched (const patchActorState))
         oldState
         diff
-    mapRight :: Element -> ActorChange -> Maybe ActorState
-    mapRight _ Leave = Nothing
-    mapRight k c@(Stay StayChange {..}) =
-      case spriteChange of
-        NoSpriteChange -> error $ show k ++ " has no sprite"
-        SetSprite sprite -> patchActorState (defaultActorState sprite) c
 
-patchActorState :: ActorState -> ActorChange -> Maybe ActorState
-patchActorState s@ActorState {..} (Stay StayChange {..}) =
-  Just $
-    s
-      { direction = applyDirectionChange direction turn,
-        sprite = applySpriteChange sprite spriteChange,
-        telling = applyTellingChange telling tellingChange,
-        x = x + xoffset,
-        y = y + yoffset
-      }
+patchActorState :: ActorState -> ActorChange -> ActorState
+patchActorState s@ActorState {..} ActorChange {..} =
+  s
+    { direction = applyDirectionChange direction turn,
+      sprite = applySpriteChange sprite spriteChange,
+      telling = applyTellingChange telling tellingChange,
+      x = x + xoffset,
+      y = y + yoffset
+    }
   where
     applyDirectionChange dir NoDirectionChange = dir
     applyDirectionChange dir ToggleDir = otherDir dir
     applyDirectionChange _ TurnRight = ToRight
     applyDirectionChange _ TurnLeft = ToLeft
-    applySpriteChange _ (SetSprite s) = s
+    applySpriteChange _ (SetSprite s) = Just s
+    applySpriteChange _ HideSprite = Nothing
     applySpriteChange s NoSpriteChange = s
     applyTellingChange telling NoTellingChange = telling
     applyTellingChange _ (Tell s) = Just s
     applyTellingChange _ ShutUp = Nothing
     otherDir ToRight = ToLeft
     otherDir ToLeft = ToRight
-patchActorState _ Leave = Nothing
 
 instance Semigroup (Frame ActorChange) where
   (Frame m1) <> (Frame m2) = Frame (Map.unionWith (<>) m1 m2)
