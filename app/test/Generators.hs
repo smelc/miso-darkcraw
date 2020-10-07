@@ -101,9 +101,9 @@ genSceneAst i = do
           (:)
             <$> (During <$> (getPositive <$> arbitrary) <*> genFrameDiffAst i)
             <*> go (n -1) i,
-          (:)
-            <$> ((:|||:) <$> subSequence i <*> subSequence i)
-            <*> go (n -1) i,
+          --          (:)
+          --            <$> ((:|||:) <$> subSequence i <*> subSequence i)
+          --            <*> go (n -1) i,
           (:)
             <$> (Fork <$> subSequence i)
             <*> go (n -1) i

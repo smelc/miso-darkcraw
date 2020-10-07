@@ -227,3 +227,8 @@ main = hspec $ do
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
+  modifyMaxSize (const 35) $ describe "Cinema.newRender"
+    $ prop "agrees with render"
+    $ \ast ->
+      let scene = astToScene ast
+       in map forgetKeys (newRender scene) `shouldBe` map forgetKeys (render scene)

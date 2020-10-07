@@ -38,6 +38,7 @@ module Cinema
     mkChange,
     newActor,
     render,
+    newRender,
     right,
     runScene,
     shutup,
@@ -55,10 +56,12 @@ import Card (CreatureID)
 import Control.Monad.Operational
 import qualified Control.Monad.State.Strict as MTL
 import qualified Control.Monad.Writer.Strict as MTL
+import Data.Foldable (foldlM)
 import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
 import GHC.Generics (Generic)
 import Tile (Tile)
+import Debug.Trace (traceShow)
 
 data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clashing with Either
   deriving (Eq, Generic, Ord, Show)
@@ -148,6 +151,58 @@ s1 ||| s2 = singleton (Parallelize s1 s2)
 
 fork :: Scene () -> Scene ()
 fork scene = singleton (Fork scene)
+
+data Thread = Thread {threadDate :: Date, threadState :: ProgramView SceneInstruction ()}
+
+getMin :: [Thread] -> Maybe Date
+getMin [] = Nothing
+getMin threads = Just $ minimum (map threadDate threads)
+
+type Schedule a = MTL.State Int a
+
+schedule :: Scene () -> DatedFrames ActorState
+schedule scene = MTL.evalState (go 0 (Frame mempty) [Thread 0 (view scene)]) 0
+  where
+    go :: Date -> Frame ActorState -> [Thread] -> Schedule (DatedFrames ActorState)
+ --   go lastDate frame threads | traceShow (lastDate, frame, map threadDate threads) False = undefined
+    go lastDate frame threads =
+      case getMin threads of
+        Nothing -> return ([], lastDate)
+        Just date -> do
+          (mdiff, newThreads) <- applyAll date threads
+          case mdiff of
+            Just diff -> do
+              let newFrame = patch frame diff
+              (timedFrames, newLastDate) <- go date newFrame newThreads
+              return ((date, newFrame) : timedFrames, newLastDate)
+            Nothing ->
+              go date frame newThreads
+    applyAll :: Date -> [Thread] -> Schedule (Maybe (Frame ActorChange), [Thread])
+    applyAll date threads = foldlM step (Nothing, []) threads
+      where
+        step (diff, threads) thread = do
+          (newDiff, newThreads) <- apply date thread
+          return (diff <> newDiff, threads ++ newThreads)
+    apply :: Date -> Thread -> Schedule (Maybe (Frame ActorChange), [Thread])
+    apply now thread@(Thread date state)
+      | date == now =
+        case state of
+          Return () ->
+            return (Nothing, [])
+          NewActor :>>= k -> do
+            i <- MTL.get
+            MTL.modify (+ 1)
+            apply date (Thread date (view (k (Element i))))
+          While duration diff :>>= k ->
+            return (Just diff, [Thread (date + duration) (view (k ()))])
+          Fork scene :>>= k ->
+            applyAll date [Thread date (view scene), Thread date (view (k ()))]
+          Parallelize _ _ :>>= k ->
+            error "not supported yet"
+      | otherwise = return (Nothing, [thread])
+
+newRender :: Scene () -> [TimedFrame ActorState]
+newRender scene = fromDates (schedule scene)
 
 type LowLevelScene a = MTL.WriterT [TimedFrame ActorChange] (MTL.State Int) a
 
@@ -333,6 +388,13 @@ type DatedFrames a =
     Date -- end date of the last diff
   )
 
+fromDates :: DatedFrames a -> [TimedFrame a]
+fromDates (frames, endDate) = go frames
+  where
+    go [] = []
+    go [(t, frame)] = [TimedFrame (endDate - t) frame]
+    go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
+
 parallelize :: Semigroup (Frame a) => [TimedFrame a] -> [TimedFrame a] -> [TimedFrame a]
 parallelize ss1 ss2 = fromDates (merge (toDates ss1) (toDates ss2))
   where
@@ -341,12 +403,6 @@ parallelize ss1 ss2 = fromDates (merge (toDates ss1) (toDates ss2))
       where
         go acc t [] = (reverse acc, t)
         go acc t (TimedFrame {duration, frame} : scenes) = go ((t, frame) : acc) (t + duration) scenes
-    fromDates :: DatedFrames a -> [TimedFrame a]
-    fromDates (frames, endDate) = go frames
-      where
-        go [] = []
-        go [(t, frame)] = [TimedFrame (endDate - t) frame]
-        go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
     merge :: Semigroup (Frame a) => DatedFrames a -> DatedFrames a -> DatedFrames a
     merge (ms1, endDate1) (ms2, endDate2) = (go ms1 ms2, max endDate1 endDate2)
       where

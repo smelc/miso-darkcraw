@@ -39,6 +39,7 @@ common client-server-shared
     miso,
     mtl,
     operational,
+    pqueue,
     pretty-simple,
     random,
     text,
