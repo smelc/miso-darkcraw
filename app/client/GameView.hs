@@ -27,7 +27,7 @@ import Miso hiding (at)
 import Miso.String hiding (concat)
 import Model -- XXX tighten the imports?
 import PCWViewInternal (cardBoxShadowStyle, cardCreature, cardPositionStyle, cardPositionStyle')
-import SharedModel (liftCreature)
+import SharedModel
 import Update
 import ViewBlocks (dummyOn)
 import ViewInternal
@@ -90,11 +90,13 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
               death <- deathFadeout attackEffect x y
               heart <- heartWobble (z + 1) attackEffect x y
               return $
-                [cardCreature z maybeCreatureUI beingHovered | isJust maybeCreature]
+                [cardCreature z toDraw beingHovered | isJust maybeCreature]
                   ++ death
                   ++ heart
           | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
-            let maybeCreatureUI = maybeCreature >>= liftCreature gameShared,
+            let toDraw =
+                  (\c -> (c, unsafeLiftCreature gameShared c & filepath))
+                    <$> maybeCreature,
             let upOrDown =
                   case pSpot of
                     PlayerTop -> False -- down
@@ -136,9 +138,9 @@ boardToInHandCells z m@GameModel {board, interaction, gameShared, playingPlayer}
           onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
           onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
         ]
-        [cardCreature z creatureUI beingHovered | not beingDragged]
+        [cardCreature z toDraw beingHovered | not beingDragged]
       | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
-        let creatureUI = liftCreature gameShared creature,
+        let toDraw = Just (creature, unsafeLiftCreature gameShared creature & filepath),
         let x = pixelsXOffset (unHandIndex i),
         let y = 2 * cellPixelSize,
         let (beingHovered, beingDragged) =
