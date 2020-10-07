@@ -32,6 +32,7 @@ data Skill
   = HitFromBack
   | Leader
   | Ranged
+  | Stubborn
   | Unique
   deriving (Eq, Generic, Ord, Show)
 
@@ -49,6 +50,7 @@ data CreatureKind
   = Archer
   | General
   | Ghost
+  | Knight
   | Mummy
   | Skeleton
   | Shade
@@ -193,8 +195,12 @@ initialDeck ::
 initialDeck cards t =
   map CreatureCard $
     case t of
-      Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Spearman ++ 1 * General
-      Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
+      Human -> base ++ base ++ 1 * General
+        where
+          base = 3 * Spearman ++ 2 * Archer ++ 1 * Knight
+      Undead -> base ++ base ++ 1 * Vampire
+        where
+          base = 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy
   where
     creatures :: Map.Map CreatureKind (Creature Core) =
       (cards ^.. folded . #_CreatureCard . to unliftCreature)
