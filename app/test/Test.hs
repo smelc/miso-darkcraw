@@ -156,6 +156,26 @@ testParallelSceneComposition =
       during 2 (right w1)
       during 2 (left w0)
 
+{- HLINT ignore testSceneReturn -}
+testSceneReturn =
+  modifyMaxSize (const 35) $ describe "Scene.return" $ do
+    prop "left neutral for >>" $
+      \ast ->
+        let scene = astToScene ast
+         in (return () >> scene) ~= scene
+    prop "right neutral for >>" $
+      \ast ->
+        let scene = astToScene ast
+         in (scene >> return ()) ~= scene
+    prop "left neutral for |||" $
+      \ast ->
+        let scene = astToScene ast
+         in (return () ||| scene) ~= scene
+    prop "right neutral for |||" $
+      \ast ->
+        let scene = astToScene ast
+         in (scene ||| return ()) ~= scene
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -191,13 +211,19 @@ main = hspec $ do
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
   testForkScene
-  modifyMaxSize (const 40) $ describe "Cinema.fork"
-    $ prop "it should behave like ||| with rest of program"
+  modifyMaxSize (const 35) $ describe "Cinema.fork"
+    $ prop "should behave like ||| with rest of program"
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
-  modifyMaxSize (const 40) $ describe "Cinema.|||"
+  modifyMaxSize (const 35) $ describe "Cinema.|||"
     $ prop "should be commutative"
     $ \ast1 ast2 ->
       let [scene1, scene2] = map astToScene [ast1, ast2]
        in (scene1 ||| scene2) ~= (scene2 ||| scene1)
+  modifyMaxSize (const 35) $ describe "Scene.>>"
+    $ prop "should be associtive"
+    $ \ast1 ast2 ast3 ->
+      let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
+       in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
+  testSceneReturn
