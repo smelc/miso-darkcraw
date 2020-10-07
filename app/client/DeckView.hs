@@ -18,7 +18,7 @@ import Miso (View, div_, onClick, style_)
 import Miso.String (ms)
 import Miso.Util ((=:))
 import Model (DeckModel (..))
-import PCWViewInternal (cardCreature, cardPositionStyle)
+import PCWViewInternal
 import SharedModel (unsafeLiftCard)
 import Update (Action (DeckBack), Action)
 import ViewBlocks (ButtonState (..), gui, textButton)
@@ -56,7 +56,7 @@ viewDeck DeckModel {deck, deckPlayer, deckShared} = do
     cardDiver x y card =
       div_
         [style_ $ cardPositionStyle (xoffset x) (yoffset y)]
-        [cardCreature z (Just $ unsafeCardToCreature card) False]
+        [cardCreatureUI z (unsafeCardToCreature card) False]
     -- Create background of slot
     slotDiver x y =
       div_

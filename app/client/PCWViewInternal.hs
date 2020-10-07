@@ -15,18 +15,19 @@
 module PCWViewInternal
   ( cardBoxShadowStyle,
     cardCreature,
+    cardCreatureUI,
     cardPositionStyle,
     cardPositionStyle',
     viewFrame,
   )
 where
 
-import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString)
+import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString, unliftCreature)
 import Cinema (ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), Frame (..), defaultDirection, spriteToKind)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, fromJust, isJust, isNothing)
+import Data.Maybe
 import Miso
 import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
@@ -51,47 +52,57 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
         ("transition-timing-function", timingFunction)
       ]
 
+-- | A convenience wrapper over [cardCreature]
+cardCreatureUI ::
+  -- | The z index
+  Int ->
+  -- | Whether a card should be drawn or solely a placeholder for drag target
+  Creature UI ->
+  -- | Whether this card is being hovered
+  Bool ->
+  View Action
+cardCreatureUI z ui hover =
+  cardCreature z (Just (core, filepath ui)) hover
+  where
+    core = unliftCreature ui
+
 -- | Div displaying a card
 cardCreature ::
   -- | The z index
   Int ->
   -- | Whether a card should be drawn or solely a placeholder for drag target
-  Maybe (Creature UI) ->
+  Maybe (Creature Core, Filepath) ->
   -- | Whether this card is being hovered
   Bool ->
   View Action
-cardCreature z creature hover =
+cardCreature z Nothing hover = cardBackground z hover
+cardCreature z (Just (creature, filepath)) hover =
   div_
     []
-    $ [div_ [style_ pictureStyle] [pictureCell] | not placeholder]
-      ++ [div_ [style_ statsStyle] [statsCell] | not placeholder]
+    $ [div_ [style_ pictureStyle] [pictureCell]]
+      ++ [div_ [style_ statsStyle] [statsCell]]
       ++ [cardBackground z hover]
   where
-    placeholder = isNothing creature
-    topMargin = cellPixelSize `div` 4
+    topMargin = cps `div` 4
     pictureStyle =
-      zplt (z + 1) Absolute ((cardPixelWidth - cellPixelSize) `div` 2) topMargin
-    pictureCell = imgCell $ ms $ fromJust creature & filepath & filepathToString
-    statsStyle = zpltwh (z + 1) Absolute topMargin top width cellPixelSize
+      zplt (z + 1) Absolute ((cardPixelWidth - cps) `div` 2) topMargin
+    pictureCell = imgCell $ ms $ filepathToString filepath
+    statsStyle = zpltwh (z + 1) Absolute topMargin top width cps
       where
         width = cardPixelWidth - (topMargin * 2)
-        top = topMargin + cellPixelSize + topMargin
+        top = topMargin + cps + topMargin
     inStatsStyle =
-      Map.union flexLineStyle $
-        Map.fromList
-          [ ("font-size", ms (cellPixelSize `div` 2) <> "px"),
-            ("font-family", "serif")
-          ]
+      flexLineStyle
+        <> "font-size" =: (ms (cps `div` 2) <> "px")
+        <> "font-family" =: "serif"
     statsCell :: View Action =
       div_
         [style_ inStatsStyle]
-        [ text $ ms $ hp c,
+        [ text $ ms $ hp creature,
           imgCell assetFilenameHeart,
-          text $ ms $ attack c,
+          text $ ms $ attack creature,
           imgCell assetFilenameSword
         ]
-      where
-        c = fromJust creature
 
 cardBackground ::
   -- | The z index
