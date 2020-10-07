@@ -152,8 +152,6 @@ astToScene (SceneAst actions) = go [] actions
     go _ [] = return ()
     go actors (NewActor : k) = do
       actor <- newActor
-      -- actors without sprites won't render
-      during 0 (dress actor (tileSprite Heart))
       go (actor : actors) k
     go actors (During duration frameDiffAst : k) = do
       during duration (astToFrameDiff actors frameDiffAst)
