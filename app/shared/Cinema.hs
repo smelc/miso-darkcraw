@@ -8,6 +8,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Module containing the base for animating scenes in lobbies
@@ -59,9 +60,9 @@ import qualified Control.Monad.Writer.Strict as MTL
 import Data.Foldable (foldlM)
 import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
+import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
 import Tile (Tile)
-import Debug.Trace (traceShow)
 
 data Direction = ToLeft | ToRight -- Suffix with 'To' to avoid clashing with Either
   deriving (Eq, Generic, Ord, Show)
@@ -135,6 +136,17 @@ data SceneInstruction :: * -> * where
   Parallelize :: Scene () -> Scene () -> SceneInstruction ()
   Fork :: Scene () -> SceneInstruction ()
 
+instance Show (Scene ()) where
+  show scene = show (runScene scene)
+
+deriving instance Show (SceneInstruction a)
+
+deriving instance Show Thread
+
+instance Show (ProgramView SceneInstruction ()) where
+  show (i :>>= _) = "(" ++ show i ++ " :>>= k)"
+  show (Return ()) = "(Return ())"
+
 type Scene = Program SceneInstruction
 
 newActor :: Scene Element
@@ -161,45 +173,43 @@ getMin threads = Just $ minimum (map threadDate threads)
 type Schedule a = MTL.State Int a
 
 schedule :: Scene () -> DatedFrames ActorState
-schedule scene = MTL.evalState (go 0 (Frame mempty) [Thread 0 (view scene)]) 0
+schedule scene = flip MTL.evalState 0 $ do
+  (frames, lastDate) <- go 0 (Frame mempty) [Thread 0 (view scene)]
+  return (init frames, lastDate)
   where
     go :: Date -> Frame ActorState -> [Thread] -> Schedule (DatedFrames ActorState)
- --   go lastDate frame threads | traceShow (lastDate, frame, map threadDate threads) False = undefined
+    go lastDate frame threads | traceShow (lastDate, frame, threads) False = undefined
     go lastDate frame threads =
       case getMin threads of
         Nothing -> return ([], lastDate)
         Just date -> do
-          (mdiff, newThreads) <- applyAll date threads
-          case mdiff of
-            Just diff -> do
-              let newFrame = patch frame diff
-              (timedFrames, newLastDate) <- go date newFrame newThreads
-              return ((date, newFrame) : timedFrames, newLastDate)
-            Nothing ->
-              go date frame newThreads
-    applyAll :: Date -> [Thread] -> Schedule (Maybe (Frame ActorChange), [Thread])
-    applyAll date threads = foldlM step (Nothing, []) threads
+          (diff, newThreads) <- applyAll date threads
+          let newFrame = patch frame diff
+          (timedFrames, newLastDate) <- go date newFrame newThreads
+          return ((date, newFrame) : timedFrames, newLastDate)
+    applyAll :: Date -> [Thread] -> Schedule (Frame ActorChange, [Thread])
+    applyAll date threads = foldlM step (mempty, []) threads
       where
         step (diff, threads) thread = do
           (newDiff, newThreads) <- apply date thread
           return (diff <> newDiff, threads ++ newThreads)
-    apply :: Date -> Thread -> Schedule (Maybe (Frame ActorChange), [Thread])
+    apply :: Date -> Thread -> Schedule (Frame ActorChange, [Thread])
     apply now thread@(Thread date state)
       | date == now =
         case state of
           Return () ->
-            return (Nothing, [])
+            return (mempty, [])
           NewActor :>>= k -> do
             i <- MTL.get
             MTL.modify (+ 1)
             apply date (Thread date (view (k (Element i))))
           While duration diff :>>= k ->
-            return (Just diff, [Thread (date + duration) (view (k ()))])
+            return (diff, [Thread (date + duration) (view (k ()))])
           Fork scene :>>= k ->
             applyAll date [Thread date (view scene), Thread date (view (k ()))]
           Parallelize _ _ :>>= k ->
             error "not supported yet"
-      | otherwise = return (Nothing, [thread])
+      | otherwise = return (mempty, [thread])
 
 newRender :: Scene () -> [TimedFrame ActorState]
 newRender scene = fromDates (schedule scene)
