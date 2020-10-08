@@ -5,6 +5,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
@@ -38,6 +39,8 @@ module Board
     PlayerSpot (..),
     startingPlayerSpot,
     spotToLens,
+    boardToStack,
+    boardSetStack,
   )
 where
 
@@ -257,6 +260,12 @@ boardSetPart :: Board p -> PlayerSpot -> PlayerPart p -> Board p
 boardSetPart board PlayerTop part = board {playerTop = part}
 boardSetPart board PlayerBottom part = board {playerBottom = part}
 
+boardSetStack :: Board p -> PlayerSpot -> StackType p -> Board p
+boardSetStack board pSpot stack =
+  boardSetPart board pSpot $ part {stack = stack}
+  where
+    part = boardToPart board pSpot
+
 boardToCardsInPlace :: Board Core -> [(PlayerSpot, CardSpot, Maybe (Creature Core))]
 boardToCardsInPlace board =
   [ (pSpot, cSpot, maybeCreature)
@@ -272,6 +281,14 @@ boardToInHandCreaturesToDraw board player =
 boardToHand :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Card Core]
 boardToHand board player =
   board ^. player . #inHand
+
+boardToPart :: Board p -> PlayerSpot -> PlayerPart p
+boardToPart Board {playerTop} PlayerTop = playerTop
+boardToPart Board {playerBottom} PlayerBottom = playerBottom
+
+boardToStack :: Board p -> Lens' (Board p) (PlayerPart p) -> StackType p
+boardToStack board player =
+  board ^. player & stack
 
 boardToInPlaceCreature ::
   Board Core ->
