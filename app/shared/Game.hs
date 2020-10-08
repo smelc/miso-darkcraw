@@ -18,11 +18,13 @@ module Game
     play,
     playAll,
     playM,
+    nbCardsToDraw,
   )
 where
 
 import Board
 import Card
+import Constants
 import Control.Lens
 import Control.Monad.Except
 import Control.Monad.Writer
@@ -262,3 +264,10 @@ nextAttackSpot board pSpot cSpot =
   where
     spots :: [CardSpot] = attackOrder pSpot
     hasCreature c = isJust $ boardToInPlaceCreature board (spotToLens pSpot) c
+
+nbCardsToDraw :: Board Core -> PlayerSpot -> Int
+nbCardsToDraw board pSpot =
+  min (handSize - length hand) (length stack)
+  where
+    hand = boardToHand board $ spotToLens pSpot
+    stack = board ^. (spotToLens pSpot . #stack)
