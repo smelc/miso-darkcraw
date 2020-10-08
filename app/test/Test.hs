@@ -230,7 +230,7 @@ main = hspec $ do
   foo
 
 foo =
-  modifyMaxSize (const 35) $ describe "Cinema.newRender"
+  modifyMaxSuccess (const 100000) $ modifyMaxSize (const 11) $ describe "Cinema.newRender"
     $ prop "agrees with render"
     $ \ast ->
       let scene = astToScene ast

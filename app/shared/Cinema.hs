@@ -14,16 +14,16 @@
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
   ( ActorKind (..),
-    ActorChange (),
+    ActorChange (..),
     ActorState (..),
     Direction (..),
-    DirectionChange (),
-    Element (),
+    DirectionChange (..),
+    Element (..),
     Frame (..),
-    FrameDiff (),
+    FrameDiff (..),
     Scene (..),
-    SpriteChange (),
-    TellingChange (),
+    SpriteChange (..),
+    TellingChange (..),
     TimedFrame (..),
     (+=),
     (|||),
@@ -60,7 +60,7 @@ import qualified Control.Monad.Writer.Strict as MTL
 import Data.Foldable (foldlM)
 import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
-import Debug.Trace (traceShow)
+import Debug.Trace (traceShow, traceShowId)
 import GHC.Generics (Generic)
 import Tile (Tile)
 
@@ -141,7 +141,7 @@ instance Show (Scene ()) where
 
 deriving instance Show (SceneInstruction a)
 
-deriving instance Show Thread
+deriving instance Show Suspension
 
 instance Show (ProgramView SceneInstruction ()) where
   show (i :>>= _) = "(" ++ show i ++ " :>>= k)"
@@ -164,55 +164,56 @@ s1 ||| s2 = singleton (Parallelize s1 s2)
 fork :: Scene () -> Scene ()
 fork scene = singleton (Fork scene)
 
-data Thread = Thread {threadDate :: Date, threadState :: ProgramView SceneInstruction ()}
+type Prog = ProgramView SceneInstruction ()
 
-getMin :: [Thread] -> Maybe Date
-getMin [] = Nothing
-getMin threads = Just $ minimum (map threadDate threads)
+data Suspension = WaitingForDate Date Prog
 
-type Schedule a = MTL.State Int a
-
-schedule :: Scene () -> DatedFrames ActorState
-schedule scene = flip MTL.evalState 0 $ do
-  (frames, lastDate) <- go 0 (Frame mempty) [Thread 0 (view scene)]
-  return (init frames, lastDate)
-  where
-    go :: Date -> Frame ActorState -> [Thread] -> Schedule (DatedFrames ActorState)
-    go lastDate frame threads | traceShow (lastDate, frame, threads) False = undefined
-    go lastDate frame threads =
-      case getMin threads of
-        Nothing -> return ([], lastDate)
-        Just date -> do
-          (diff, newThreads) <- applyAll date threads
-          let newFrame = patch frame diff
-          (timedFrames, newLastDate) <- go date newFrame newThreads
-          return ((date, newFrame) : timedFrames, newLastDate)
-    applyAll :: Date -> [Thread] -> Schedule (Frame ActorChange, [Thread])
-    applyAll date threads = foldlM step (mempty, []) threads
-      where
-        step (diff, threads) thread = do
-          (newDiff, newThreads) <- apply date thread
-          return (diff <> newDiff, threads ++ newThreads)
-    apply :: Date -> Thread -> Schedule (Frame ActorChange, [Thread])
-    apply now thread@(Thread date state)
-      | date == now =
-        case state of
-          Return () ->
-            return (mempty, [])
-          NewActor :>>= k -> do
-            i <- MTL.get
-            MTL.modify (+ 1)
-            apply date (Thread date (view (k (Element i))))
-          While duration diff :>>= k ->
-            return (diff, [Thread (date + duration) (view (k ()))])
-          Fork scene :>>= k ->
-            applyAll date [Thread date (view scene), Thread date (view (k ()))]
-          Parallelize _ _ :>>= k ->
-            error "not supported yet"
-      | otherwise = return (mempty, [thread])
+type Schedule = MTL.State Int
 
 newRender :: Scene () -> [TimedFrame ActorState]
-newRender scene = fromDates (schedule scene)
+newRender scene =
+  fromDates
+    $ flip MTL.evalState 0
+    $ eval 0 (Frame mempty) [WaitingForDate 0 (view scene)]
+  where
+    eval :: Date -> Frame ActorState -> [Suspension] -> Schedule (DatedFrames ActorState)
+    --eval lastDate frame threads | traceShow ("eval", lastDate, frame, threads) False = undefined
+    eval lastDate _ [] = return ([], lastDate)
+    eval _ frame threads = do
+      let date = minimum [date | WaitingForDate date _ <- threads]
+      (mdiff, newThreads) <- stepThreads date threads
+      case mdiff of
+        Just diff -> do
+          let newFrame = patch frame diff
+          (timedFrames, newLastDate) <- eval date newFrame newThreads
+          return ((date, newFrame) : timedFrames, newLastDate)
+        Nothing ->
+          eval date frame newThreads
+    stepThreads :: Date -> [Suspension] -> Schedule (Maybe (Frame ActorChange), [Suspension])
+    stepThreads now threads = foldlM step (mempty, []) threads
+      where
+        step (diff, threads) thread@(WaitingForDate date prog)
+          | now == date = do
+            (newThreads, newDiff) <- MTL.runWriterT $ stepThread now prog
+            return (diff <> newDiff, threads <> newThreads)
+          | otherwise =
+            return (diff, threads <> [thread])
+    stepThread :: Date -> Prog -> MTL.WriterT (Maybe (Frame ActorChange)) Schedule [Suspension]
+    stepThread now prog =
+      case prog of
+        Return () ->
+          return []
+        NewActor :>>= k -> do
+          i <- MTL.get
+          MTL.modify (+ 1)
+          stepThread now (view (k (Element i)))
+        While duration diff :>>= k -> do
+          MTL.tell (Just diff)
+          return [WaitingForDate (now + duration) (view (k ()))]
+        Fork scene :>>= k ->
+          concat <$> sequence [stepThread now (view scene), stepThread now (view (k ()))]
+        Parallelize _ _ :>>= _ ->
+          error "not supported yet"
 
 type LowLevelScene a = MTL.WriterT [TimedFrame ActorChange] (MTL.State Int) a
 
