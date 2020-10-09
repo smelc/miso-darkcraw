@@ -19,7 +19,7 @@ module Game
     playAll,
     playM,
     nbCardsToDraw,
-    drawCard,
+    drawCards,
   )
 where
 
@@ -117,9 +117,24 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     hand :: [Card Core] = boardToHand board pSpot
     hand' :: [Card Core] = deleteAt handi hand
 
+drawCards ::
+  SharedModel ->
+  Board Core ->
+  -- | The player drawing cards
+  PlayerSpot ->
+  -- | The number of cards to draw
+  Int ->
+  Either Text (Board Core, Board UI, SharedModel)
+drawCards shared board _ 0 = Right (board, mempty, shared)
+drawCards shared board pSpot i = do
+  (board', boardui, shared') <- drawCard shared board pSpot
+  (board'', boardui', shared'') <- drawCards shared' board' pSpot (i - 1)
+  return (board'', boardui <> boardui', shared'')
+
 drawCard ::
   SharedModel ->
   Board Core ->
+  -- | The player drawing cards
   PlayerSpot ->
   Either Text (Board Core, Board UI, SharedModel)
 drawCard = undefined -- TODO call drawCardM, @polux> help!
