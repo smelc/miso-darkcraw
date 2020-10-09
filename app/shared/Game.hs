@@ -110,7 +110,7 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     handi = unHandIndex handhi
     pLens = spotToLens pSpot
     base :: PlayerPart Core = board ^. pLens
-    hand :: [Card Core] = boardToHand board $ spotToLens pSpot
+    hand :: [Card Core] = boardToHand board pSpot
     hand' :: [Card Core] = deleteAt handi hand
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
@@ -269,5 +269,5 @@ nbCardsToDraw :: Board Core -> PlayerSpot -> Int
 nbCardsToDraw board pSpot =
   min (handSize - length hand) (length stack)
   where
-    hand = boardToHand board $ spotToLens pSpot
+    hand = boardToHand board pSpot
     stack = board ^. (spotToLens pSpot . #stack)

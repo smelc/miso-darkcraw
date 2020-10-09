@@ -279,9 +279,9 @@ boardToInHandCreaturesToDraw :: Board Core -> Lens' (Board Core) (PlayerPart Cor
 boardToInHandCreaturesToDraw board player =
   board ^.. player . #inHand . folded . #_CreatureCard
 
-boardToHand :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Card Core]
-boardToHand board player =
-  board ^. player . #inHand
+boardToHand :: Board p -> PlayerSpot -> InHandType p
+boardToHand Board {playerTop} PlayerTop = inHand playerTop
+boardToHand Board {playerBottom} PlayerBottom = inHand playerBottom
 
 boardToPart :: Board p -> PlayerSpot -> PlayerPart p
 boardToPart Board {playerTop} PlayerTop = playerTop

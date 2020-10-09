@@ -24,7 +24,7 @@ module GameViewInternal
   )
 where
 
-import Board
+import Board hiding (StackType)
 import Card
 import Constants
 import Control.Lens
