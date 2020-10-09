@@ -37,6 +37,7 @@ module Board
     otherPlayerSpot,
     PlayerPart (..),
     PlayerSpot (..),
+    StackType (..),
     startingPlayerSpot,
     spotToLens,
     boardToStack,
@@ -286,9 +287,9 @@ boardToPart :: Board p -> PlayerSpot -> PlayerPart p
 boardToPart Board {playerTop} PlayerTop = playerTop
 boardToPart Board {playerBottom} PlayerBottom = playerBottom
 
-boardToStack :: Board p -> Lens' (Board p) (PlayerPart p) -> StackType p
-boardToStack board player =
-  board ^. player & stack
+boardToStack :: Board p -> PlayerSpot -> StackType p
+boardToStack Board {playerTop} PlayerTop = stack playerTop
+boardToStack Board {playerBottom} PlayerBottom = stack playerBottom
 
 boardToInPlaceCreature ::
   Board Core ->
