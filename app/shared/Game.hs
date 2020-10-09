@@ -27,15 +27,18 @@ import Card
 import Constants
 import Control.Lens
 import Control.Monad.Except
+import Control.Monad.State
 import Control.Monad.Writer
 import Data.Foldable
 import Data.List (elemIndex)
 import Data.List.Index (deleteAt)
 import Data.Map.Strict ((!?), Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
+import SharedModel
+import System.Random
 
 data GamePlayEvent
   = -- | A player finishes its turn, resolving it in a single card spot.
@@ -112,6 +115,35 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     base :: PlayerPart Core = board ^. pLens
     hand :: [Card Core] = boardToHand board pSpot
     hand' :: [Card Core] = deleteAt handi hand
+
+drawCard ::
+  MonadError Text m =>
+  MonadWriter (Board UI) m =>
+  MonadState StdGen m =>
+  SharedModel ->
+  Board Core ->
+  PlayerSpot ->
+  m (Board Core)
+drawCard shared board pSpot =
+  case bound of
+    0 -> return board
+    _ -> do
+      stdgen <- get
+      let stack :: [CardIdentifier] = boardToStack board pSpot
+      let hand :: [Card Core] = boardToHand board pSpot
+      let (idrawn, stdgen') = randomR (0, bound - 1) stdgen
+      put stdgen'
+      let drawn :: CardIdentifier = stack !! idrawn
+      let maybeDrawnCard = identToCard shared drawn
+      when (isNothing maybeDrawnCard) $ throwError $ Text.pack $ "Identifier " ++ show drawn ++ " cannot be mapped to Card"
+      let drawnCard = fromJust maybeDrawnCard & unliftCard
+      let stack' = deleteAt idrawn stack
+      let hand' = hand ++ [drawnCard]
+      let board' = boardSetStack board pSpot stack'
+      let board'' = boardSetHand board' pSpot hand'
+      return board''
+  where
+    bound = nbCardsToDraw board pSpot
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::

@@ -33,6 +33,7 @@ module Board
     exampleBoard,
     HandIndex (..),
     inTheBack,
+    InHandType (..),
     lookupHand,
     otherPlayerSpot,
     PlayerPart (..),
@@ -42,6 +43,7 @@ module Board
     spotToLens,
     boardToStack,
     boardSetStack,
+    boardSetHand,
   )
 where
 
@@ -256,6 +258,12 @@ instance Semigroup (Board UI) where
 
 instance Monoid (Board UI) where
   mempty = Board mempty mempty
+
+boardSetHand :: Board p -> PlayerSpot -> InHandType p -> Board p
+boardSetHand board pSpot hand =
+  boardSetPart board pSpot $ part {inHand = hand}
+  where
+    part = boardToPart board pSpot
 
 boardSetPart :: Board p -> PlayerSpot -> PlayerPart p -> Board p
 boardSetPart board PlayerTop part = board {playerTop = part}
