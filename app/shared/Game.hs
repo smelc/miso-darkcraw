@@ -19,6 +19,7 @@ module Game
     playAll,
     playM,
     nbCardsToDraw,
+    drawCard,
   )
 where
 
@@ -117,6 +118,13 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     hand' :: [Card Core] = deleteAt handi hand
 
 drawCard ::
+  SharedModel ->
+  Board Core ->
+  PlayerSpot ->
+  Either Text (Board Core, Board UI, SharedModel)
+drawCard = undefined -- TODO call drawCardM, @polux> help!
+
+drawCardM ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
   MonadState StdGen m =>
@@ -124,7 +132,7 @@ drawCard ::
   Board Core ->
   PlayerSpot ->
   m (Board Core)
-drawCard shared board pSpot =
+drawCardM shared board pSpot =
   case bound of
     0 -> return board
     _ -> do
