@@ -163,8 +163,14 @@ data GameAction
     -- | Or a 'EndTurn' 'GamePlayEvent' scheduled because the player
     -- | pressed "End Turn".
     GamePlay GamePlayEvent
+  | -- | Turn was updated previously by 'GameIncrTurn',
+    -- | time to draw cards from the stack. Then the handler of this event
+    -- | will take care of giving the player control back. The Int parameter
+    -- | indicates how many cards can be drawn. Stream of events terminates
+    -- | when it becomes 0 or when hand is full.
+    GameDrawCard Int
   | -- | All actions have been resolved, time to update the turn widget
-    -- | and give the next player the control. This does NOT translate
+    -- | and to schedule 'GameDrawCard'. This does NOT translate
     -- | to a 'GamePlayEvent'.
     GameIncrTurn
   | -- | Dragging card in hand
@@ -254,7 +260,7 @@ playOne m gamePlayEvent =
 -- | need to play this event right away, and then we would have new delayed
 -- | actions to consider which we wouldn't know how to merge with the first ones.
 -- | If you feel like adding a 0 event, you instead need to play this event
--- | right away by doing a recursive call (or using 'playOne')
+-- | right away by doing a recursive call (or use 'playOne')
 updateGameModel ::
   GameModel ->
   GameAction ->
@@ -313,24 +319,43 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
       case nextAttackSpot board pSpot Nothing of
         Nothing -> GameIncrTurn -- no more attack, change turn
         Just cSpot -> GamePlay $ EndTurn pSpot cSpot
-updateGameModel m@GameModel {board, playingPlayer, turn} GameIncrTurn _ =
+-- FIXME smelc Handle GameDrawCard event
+updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
   (m'', events)
   where
     turn' = nextTurn turn
     m' = m {turn = turn'}
+    pSpot = turnToPlayerSpot turn'
+    isPlayerTurn = pSpot == playingPlayer
+    nbDraws = Game.nbCardsToDraw (Model.board m') pSpot
+    drawActions = [nbDraws, nbDraws -1 .. 1] & map GameDrawCard
     (m'', events) =
-      if turnToPlayerSpot turn' == playingPlayer
-        then (m', [])
-        else -- next turn is AI
-        case aiPlay board turn' & runExcept of
-          Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
-          Right events ->
-            -- schedule its actions, then simulate pressing "End Turn"
-            (m', snoc events' (1, GameEndTurnPressed))
-            where
-              -- We want a one second delay, it's make it easier to understand
-              -- what's going on
-              events' = zip (repeat 1) $ map GamePlay events
+      case (isPlayerTurn, drawActions) of
+        -- next turn is player
+        (True, []) -> (m', [])
+        (True, firstDraw : nextDraws) ->
+          -- We wanna handle the first event right away, so that the
+          -- game is responsive.
+          undefined -- FIXME smelc implement me
+          -- next turn is AI
+        (False, draws) ->
+          case runEither (length draws) of
+            Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
+            Right (events, boardui', shared') ->
+              -- schedule its actions, then simulate pressing "End Turn"
+              ( m' {anims = boardui', gameShared = shared'},
+                snoc events' (1, GameEndTurnPressed)
+              )
+              where
+                -- We want a one second delay, it's make it easier to understand
+                -- what's going on
+                events' = zip (repeat 1) $ map GamePlay events
+          where
+            runEither nbDraws = do
+              (board', boardui', shared') <-
+                Game.drawCards (gameShared m') (Model.board m') pSpot nbDraws
+              aiEvents <- aiPlay board' turn'
+              return (aiEvents, boardui', shared')
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
   withInteraction m $ GameHoverInteraction $ Hovering i
