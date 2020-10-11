@@ -125,7 +125,7 @@ drawCards ::
   -- | The number of cards to draw
   Int ->
   Either Text (Board Core, Board UI, SharedModel)
-drawCards shared board _ 0 = Right (board, mempty, shared)
+drawCards shared board _ 0 = return (board, mempty, shared)
 drawCards shared board pSpot i = do
   (board', boardui, shared') <- drawCard shared board pSpot
   (board'', boardui', shared'') <- drawCards shared' board' pSpot (i - 1)
