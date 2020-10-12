@@ -9,6 +9,7 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Module containing the base for animating scenes in lobbies
@@ -60,7 +61,7 @@ import qualified Control.Monad.State.Strict as MTL
 import qualified Control.Monad.Writer.Strict as MTL
 import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
-import Data.Set (Set)
+import Data.Semigroup (Any (..))
 import qualified Data.Set as Set
 import Debug.Trace (traceShow, traceShowId)
 import GHC.Generics (Generic)
@@ -226,23 +227,18 @@ render scene =
       where
         dates = [date | Thread _ (WaitingForDate date) _ <- threads]
     advanceThreads :: Date -> [Thread] -> Stepper [Thread]
-    advanceThreads now threads = loop threads
+    advanceThreads now threads = stepThreads now threads >>= loop
       where
-        loop threads
-          --          | traceShow ("loop", now, threads) False = undefined
-          | any (hasRedex threads) threads = stepThreads now threads >>= loop
-          | otherwise = return threads
-        hasRedex threads (Thread _ condition _)
-          | WaitingForDate date <- condition, now == date = True
-          | WaitingForThreadId i <- condition, not (threads `containThreadId` i) = True
-          | otherwise = False
-    stepThreads :: Date -> [Thread] -> Stepper [Thread]
-    stepThreads now threads = concat <$> mapM step threads
+        loop (Any False, unchangedThreads) = return unchangedThreads
+        loop (Any True, newThreads) = stepThreads now newThreads >>= loop
+    stepThreads :: Date -> [Thread] -> Stepper (Any, [Thread])
+    stepThreads now threads = mconcat <$> mapM step threads
       where
         step thread@(Thread tid condition prog)
-          | WaitingForDate date <- condition, now == date = stepThread now tid prog
-          | WaitingForThreadId i <- condition, not (threads `containThreadId` i) = stepThread now tid prog
-          | otherwise = return [thread]
+          | WaitingForDate date <- condition, now == date = (Any True,) <$> stepThread now tid prog
+          | WaitingForThreadId i <- condition, not (Set.member i threadIds) = (Any True,) <$> stepThread now tid prog
+          | otherwise = return (Any False, [thread])
+        threadIds = Set.fromList (map threadId threads)
     stepThread :: Date -> ThreadId -> Prog -> Stepper [Thread]
     stepThread now tid prog =
       case prog of
@@ -267,8 +263,6 @@ render scene =
         go [] = []
         go [(t, frame)] = [TimedFrame (endDate - t) frame]
         go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
-    containThreadId :: [Thread] -> ThreadId -> Bool
-    containThreadId threads i = any ((== i) . threadId) threads
 
 data DirectionChange = NoDirectionChange | ToggleDir | TurnRight | TurnLeft
   deriving (Eq, Generic, Ord, Show)
