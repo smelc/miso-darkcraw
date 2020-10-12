@@ -6,7 +6,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -34,14 +34,14 @@ module Cinema
     dress,
     down,
     fork,
+    forkWithId,
+    joinThread,
     leave,
     left,
     mkChange,
     newActor,
     render,
-    newRender,
     right,
-    runScene,
     shutup,
     spriteToKind,
     tell,
@@ -54,12 +54,13 @@ module Cinema
 where
 
 import Card (CreatureID)
+import Control.Lens ((%=), use)
 import Control.Monad.Operational
 import qualified Control.Monad.State.Strict as MTL
 import qualified Control.Monad.Writer.Strict as MTL
-import Data.Foldable (foldlM)
 import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
+import qualified Data.Set as Set
 import Debug.Trace (traceShow, traceShowId)
 import GHC.Generics (Generic)
 import Tile (Tile)
@@ -130,16 +131,21 @@ data TimedFrame a = TimedFrame
 
 type Duration = Int
 
+newtype ThreadId = ThreadId Int
+  deriving (Eq, Ord, Show, Generic)
+
 data SceneInstruction :: * -> * where
   NewActor :: SceneInstruction Element
   While :: Duration -> Frame ActorChange -> SceneInstruction ()
-  Parallelize :: Scene () -> Scene () -> SceneInstruction ()
-  Fork :: Scene () -> SceneInstruction ()
+  Fork :: Scene () -> SceneInstruction ThreadId
+  Join :: ThreadId -> SceneInstruction ()
 
 instance Show (Scene ()) where
-  show scene = show (runScene scene)
+  show scene = show (render scene)
 
 deriving instance Show (SceneInstruction a)
+
+deriving instance Show Condition
 
 deriving instance Show Suspension
 
@@ -159,91 +165,108 @@ during :: Duration -> FrameDiff () -> Scene ()
 during duration (FrameDiff m) = singleton (While duration (MTL.execWriter m))
 
 (|||) :: Scene () -> Scene () -> Scene ()
-s1 ||| s2 = singleton (Parallelize s1 s2)
+s1 ||| s2 = do
+  tid <- forkWithId s1
+  s2
+  joinThread tid
+
+forkWithId :: Scene () -> Scene ThreadId
+forkWithId scene = singleton (Fork scene)
 
 fork :: Scene () -> Scene ()
-fork scene = singleton (Fork scene)
+fork scene = do
+  _ <- forkWithId scene
+  return ()
+
+joinThread :: ThreadId -> Scene ()
+joinThread threadId = singleton (Join threadId)
 
 type Prog = ProgramView SceneInstruction ()
 
-data Suspension = WaitingForDate Date Prog
+data Condition = WaitingForDate Date | WaitingForThreadId ThreadId
 
-type Schedule = MTL.State Int
+data Suspension = Suspension ThreadId Condition Prog
 
-newRender :: Scene () -> [TimedFrame ActorState]
-newRender scene =
+data SchedulerState = SchedulerState {actorCounter :: Int, threadCounter :: Int}
+  deriving (Eq, Ord, Show, Generic)
+
+type Schedule = MTL.State SchedulerState
+
+type DatedFrames =
+  ( [(Date, Frame ActorState)],
+    Date -- end date of the last diff
+  )
+
+render :: Scene () -> [TimedFrame ActorState]
+render scene =
   fromDates
-    $ flip MTL.evalState 0
-    $ eval 0 (Frame mempty) [WaitingForDate 0 (view scene)]
+    $ flip MTL.evalState (SchedulerState 0 1)
+    $ eval 0 (Frame mempty) [Suspension (ThreadId 0) (WaitingForDate 0) (view scene)]
   where
-    eval :: Date -> Frame ActorState -> [Suspension] -> Schedule (DatedFrames ActorState)
-    --eval lastDate frame threads | traceShow ("eval", lastDate, frame, threads) False = undefined
+    eval :: Date -> Frame ActorState -> [Suspension] -> Schedule DatedFrames
+    --    eval lastDate frame threads | traceShow ("eval", lastDate, frame, threads) False = undefined
     eval lastDate _ [] = return ([], lastDate)
-    eval _ frame threads = do
-      let date = minimum [date | WaitingForDate date _ <- threads]
-      (mdiff, newThreads) <- stepThreads date threads
-      case mdiff of
-        Just diff -> do
-          let newFrame = patch frame diff
-          (timedFrames, newLastDate) <- eval date newFrame newThreads
-          return ((date, newFrame) : timedFrames, newLastDate)
-        Nothing ->
-          eval date frame newThreads
-    stepThreads :: Date -> [Suspension] -> Schedule (Maybe (Frame ActorChange), [Suspension])
-    stepThreads now threads = foldlM step (mempty, []) threads
+    eval lastDate frame threads
+      | null dates = return ([], lastDate)
+      | otherwise = do
+        let date = minimum dates
+        (newThreads, mdiff) <- MTL.runWriterT (fixedPoint date threads)
+        case mdiff of
+          Just diff -> do
+            let newFrame = patch frame diff
+            (timedFrames, newLastDate) <- eval date newFrame newThreads
+            return ((date, newFrame) : timedFrames, newLastDate)
+          Nothing ->
+            eval date frame newThreads
       where
-        step (diff, threads) thread@(WaitingForDate date prog)
-          | now == date = do
-            (newThreads, newDiff) <- MTL.runWriterT $ stepThread now prog
-            return (diff <> newDiff, threads <> newThreads)
-          | otherwise =
-            return (diff, threads <> [thread])
-    stepThread :: Date -> Prog -> MTL.WriterT (Maybe (Frame ActorChange)) Schedule [Suspension]
-    stepThread now prog =
+        dates = [date | Suspension _ (WaitingForDate date) _ <- threads]
+    threadIds :: [Suspension] -> Set.Set ThreadId
+    threadIds threads = Set.fromList [tid | Suspension tid _ _ <- threads]
+    hasRedex :: Date -> [Suspension] -> Bool
+    hasRedex now threads = any hasRedex' threads
+      where
+        hasRedex' (Suspension _ condition _)
+          | WaitingForDate date <- condition, now == date = True
+          | WaitingForThreadId i <- condition, not (Set.member i (threadIds threads)) = True
+          | otherwise = False
+    fixedPoint :: Date -> [Suspension] -> MTL.WriterT (Maybe (Frame ActorChange)) Schedule [Suspension]
+    fixedPoint now threads = loop threads
+      where
+        loop threads
+          --          | traceShow ("loop", now, threads) False = undefined
+          | hasRedex now threads = stepThreads now threads >>= loop
+          | otherwise = return threads
+    stepThreads :: Date -> [Suspension] -> MTL.WriterT (Maybe (Frame ActorChange)) Schedule [Suspension]
+    stepThreads now threads = concat <$> mapM step threads
+      where
+        step thread@(Suspension tid condition prog)
+          | WaitingForDate date <- condition, now == date = stepThread now tid prog
+          | WaitingForThreadId i <- condition, not (Set.member i (threadIds threads)) = stepThread now tid prog
+          | otherwise = return [thread]
+    stepThread :: Date -> ThreadId -> Prog -> MTL.WriterT (Maybe (Frame ActorChange)) Schedule [Suspension]
+    stepThread now tid prog =
       case prog of
         Return () ->
           return []
         NewActor :>>= k -> do
-          i <- MTL.get
-          MTL.modify (+ 1)
-          stepThread now (view (k (Element i)))
+          i <- use #actorCounter
+          #actorCounter %= (+ 1)
+          stepThread now tid (view (k (Element i)))
         While duration diff :>>= k -> do
           MTL.tell (Just diff)
-          return [WaitingForDate (now + duration) (view (k ()))]
-        Fork scene :>>= k ->
-          concat <$> sequence [stepThread now (view scene), stepThread now (view (k ()))]
-        Parallelize _ _ :>>= _ ->
-          error "not supported yet"
-
-type LowLevelScene a = MTL.WriterT [TimedFrame ActorChange] (MTL.State Int) a
-
-lower :: Scene () -> LowLevelScene ()
-lower scene = go scene
-  where
-    go :: Scene () -> LowLevelScene ()
-    go scene = eval (view scene)
-    eval :: ProgramView SceneInstruction () -> LowLevelScene ()
-    eval (Return a) = return a
-    eval (NewActor :>>= k) = do
-      i <- MTL.get
-      MTL.modify (const (i + 1))
-      go (k (Element i))
-    eval (While duration frame :>>= k) = do
-      MTL.tell [TimedFrame duration frame]
-      go (k ())
-    eval (Parallelize s1 s2 :>>= k) = do
-      parallelizeLowLevelScenes (lower s1) (lower s2)
-      go (k ())
-    eval (Fork scene :>>= k) =
-      parallelizeLowLevelScenes (lower scene) (go (k ()))
-    parallelizeLowLevelScenes :: LowLevelScene () -> LowLevelScene () -> LowLevelScene ()
-    parallelizeLowLevelScenes s1 s2 = do
-      frames1 <- MTL.lift (MTL.execWriterT s1)
-      frames2 <- MTL.lift (MTL.execWriterT s2)
-      MTL.tell (parallelize frames1 frames2)
-
-runScene :: Scene () -> [TimedFrame ActorChange]
-runScene scene = MTL.evalState (MTL.execWriterT (lower scene)) 0
+          return [Suspension tid (WaitingForDate (now + duration)) (view (k ()))]
+        Fork scene :>>= k -> do
+          i <- ThreadId <$> use #threadCounter
+          #threadCounter %= (+ 1)
+          concat <$> sequence [stepThread now i (view scene), stepThread now tid (view (k i))]
+        Join i :>>= k ->
+          return [Suspension tid (WaitingForThreadId i) (view (k ()))]
+    fromDates :: DatedFrames -> [TimedFrame ActorState]
+    fromDates (frames, endDate) = go frames
+      where
+        go [] = []
+        go [(t, frame)] = [TimedFrame (endDate - t) frame]
+        go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
 
 data DirectionChange = NoDirectionChange | ToggleDir | TurnRight | TurnLeft
   deriving (Eq, Generic, Ord, Show)
@@ -385,41 +408,3 @@ instance Monoid (Frame ActorChange) where
   mempty = Frame mempty
 
 type Date = Int
-
-type DatedFrames a =
-  ( [(Date, Frame a)],
-    Date -- end date of the last diff
-  )
-
-fromDates :: DatedFrames a -> [TimedFrame a]
-fromDates (frames, endDate) = go frames
-  where
-    go [] = []
-    go [(t, frame)] = [TimedFrame (endDate - t) frame]
-    go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
-
-parallelize :: Semigroup (Frame a) => [TimedFrame a] -> [TimedFrame a] -> [TimedFrame a]
-parallelize ss1 ss2 = fromDates (merge (toDates ss1) (toDates ss2))
-  where
-    toDates :: [TimedFrame a] -> DatedFrames a
-    toDates = go [] 0
-      where
-        go acc t [] = (reverse acc, t)
-        go acc t (TimedFrame {duration, frame} : scenes) = go ((t, frame) : acc) (t + duration) scenes
-    merge :: Semigroup (Frame a) => DatedFrames a -> DatedFrames a -> DatedFrames a
-    merge (ms1, endDate1) (ms2, endDate2) = (go ms1 ms2, max endDate1 endDate2)
-      where
-        go ms1 [] = ms1
-        go [] ms2 = ms2
-        go ms1@((t1, m1) : ms1') ms2@((t2, m2) : ms2')
-          | t1 < t2 = (t1, m1) : go ms1' ms2
-          | t1 > t2 = (t2, m2) : go ms1 ms2'
-          | otherwise = (t1, m1 <> m2) : go ms1' ms2'
-
-render :: Scene () -> [TimedFrame ActorState]
-render scene = go (Frame mempty) (runScene scene)
-  where
-    go _ [] = []
-    go frame (TimedFrame duration diff : tdiffs) = TimedFrame duration newFrame : go newFrame tdiffs
-      where
-        newFrame = patch frame diff

@@ -233,13 +233,16 @@ main = hspec $ do
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
-  modifyMaxSize (const 35) $ describe "Cinema.|||"
-    $ prop "should be commutative"
-    $ \ast1 ast2 ->
-      let [scene1, scene2] = map astToScene [ast1, ast2]
-       in (scene1 ||| scene2) ~= (scene2 ||| scene1)
+  modifyMaxSize (const 35) $ describe "Cinema.|||" $ do
+    prop "should be commutative" $
+      \ast1 ast2 ->
+        let [scene1, scene2] = map astToScene [ast1, ast2]
+         in (scene1 ||| scene2) ~= (scene2 ||| scene1)
+    it "should not wait for forks to fisish" $
+      render (do (return () ||| fork (while 1 mempty)); while 1 mempty)
+        `shouldBe` [TimedFrame 1 (Frame mempty)]
   modifyMaxSize (const 35) $ describe "Scene.>>"
-    $ prop "should be associtive"
+    $ prop "should be associative"
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
@@ -248,8 +251,3 @@ main = hspec $ do
   monoidLaws "TellingChange" (Proxy @TellingChange)
   monoidLaws "SpriteChange" (Proxy @SpriteChange)
   monoidLaws "ActorChange" (Proxy @ActorChange)
-  modifyMaxSize (const 35) $ describe "Cinema.newRender"
-    $ prop "agrees with render"
-    $ \ast ->
-      let scene = astToScene ast
-       in map forgetKeys (newRender scene) `shouldBe` map forgetKeys (render scene)
