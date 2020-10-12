@@ -8,7 +8,6 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -65,7 +64,6 @@ import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
 import Data.Semigroup (Any (..))
 import qualified Data.Set as Set
-import Debug.Trace (traceShow, traceShowId)
 import GHC.Generics (Generic)
 import Tile (Tile)
 
@@ -145,19 +143,6 @@ data SceneInstruction :: * -> * where
   Join :: ThreadId -> SceneInstruction ()
   GetActorState :: Element -> SceneInstruction ActorState
 
-instance Show (Scene ()) where
-  show scene = show (render scene)
-
-deriving instance Show (SceneInstruction a)
-
-deriving instance Show Condition
-
-deriving instance Show Thread
-
-instance Show (ProgramView SceneInstruction ()) where
-  show (i :>>= _) = "(" ++ show i ++ " :>>= k)"
-  show (Return ()) = "(Return ())"
-
 type Scene = Program SceneInstruction
 
 newActor :: Scene Element
@@ -220,7 +205,6 @@ render scene =
     $ eval 0 (Frame mempty) [Thread (ThreadId 0) (WaitingForDate 0) (view scene)]
   where
     eval :: Date -> Frame ActorState -> [Thread] -> Scheduler DatedFrames
-    --    eval lastDate frame threads | traceShow ("eval", lastDate, frame, threads) False = undefined
     eval lastDate _ [] = return ([], lastDate)
     eval lastDate frame threads
       | null dates = return ([], lastDate)
