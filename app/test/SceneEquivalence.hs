@@ -1,4 +1,4 @@
-module SceneEquivalence ((~=)) where
+module SceneEquivalence ((~=), forgetKeys) where
 
 import Cinema
   ( ActorState,

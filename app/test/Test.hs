@@ -2,6 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Main where
 
@@ -25,6 +26,7 @@ import Control.Monad.Except (runExcept)
 import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
+import Data.Proxy
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Debug.Trace
@@ -157,6 +159,7 @@ testParallelSceneComposition =
       during 2 (left w0)
 
 {- HLINT ignore testSceneReturn -}
+testSceneReturn :: SpecWith ()
 testSceneReturn =
   modifyMaxSize (const 35) $ describe "Scene.return" $ do
     prop "left neutral for >>" $
@@ -175,6 +178,39 @@ testSceneReturn =
       \ast ->
         let scene = astToScene ast
          in (scene ||| return ()) ~= scene
+
+testGetActorState =
+  describe "getActorState"
+    $ it "should read the state of the actor"
+    $ actualScene ~= expectedScene
+  where
+    skeleton = creatureSprite $ CreatureID Skeleton Undead
+    actualScene = do
+      a1 <- newActor
+      during 1 $ a1 += at skeleton 1 2
+      a2 <- newActor
+      a1x <- a1 `dot` x
+      a1y <- a1 `dot` y
+      during 1 $ a2 += at skeleton a1x a1y
+    expectedScene = do
+      a1 <- newActor
+      during 1 $ a1 += at skeleton 1 2
+      a2 <- newActor
+      during 1 $ a2 += at skeleton 1 2
+
+{- HLINT ignore monoidLaws -}
+monoidLaws :: forall a. (Show a, Eq a, Monoid a, Arbitrary a) => String -> Proxy a -> SpecWith ()
+monoidLaws s _ = describe (s ++ " is a monoid") $ do
+  prop "left identity" leftIdentityProp
+  prop "right identity" rightIdentityProp
+  prop "associativity" associativeProp
+  where
+    associativeProp :: a -> a -> a -> Expectation
+    associativeProp x y z = (x <> y) <> z `shouldBe` x <> (y <> z)
+    leftIdentityProp :: a -> Expectation
+    leftIdentityProp x = mempty <> x `shouldBe` x
+    rightIdentityProp :: a -> Expectation
+    rightIdentityProp x = x <> mempty `shouldBe` x
 
 main :: IO ()
 main = hspec $ do
@@ -216,14 +252,22 @@ main = hspec $ do
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
-  modifyMaxSize (const 35) $ describe "Cinema.|||"
-    $ prop "should be commutative"
-    $ \ast1 ast2 ->
-      let [scene1, scene2] = map astToScene [ast1, ast2]
-       in (scene1 ||| scene2) ~= (scene2 ||| scene1)
+  modifyMaxSize (const 35) $ describe "Cinema.|||" $ do
+    prop "should be commutative" $
+      \ast1 ast2 ->
+        let [scene1, scene2] = map astToScene [ast1, ast2]
+         in (scene1 ||| scene2) ~= (scene2 ||| scene1)
+    it "should not wait for forks to fisish" $
+      render (do (return () ||| fork (while 1 mempty)); while 1 mempty)
+        `shouldBe` [TimedFrame 1 (Frame mempty)]
   modifyMaxSize (const 35) $ describe "Scene.>>"
-    $ prop "should be associtive"
+    $ prop "should be associative"
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
+  monoidLaws "DirectionChange" (Proxy @DirectionChange)
+  monoidLaws "TellingChange" (Proxy @TellingChange)
+  monoidLaws "SpriteChange" (Proxy @SpriteChange)
+  monoidLaws "ActorChange" (Proxy @ActorChange)
+  testGetActorState
