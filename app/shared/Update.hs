@@ -16,6 +16,7 @@ import Board
 import Card
 import Cinema (ActorState, Direction, DirectionChange, Element, Frame, Scene (..), SpriteChange, TellingChange, TimedFrame (..), render)
 import Control.Concurrent (threadDelay)
+import Control.Exception
 import Control.Lens
 import Control.Monad.Except (runExcept)
 import Control.Monad.IO.Class (liftIO)
@@ -326,36 +327,35 @@ updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
     turn' = nextTurn turn
     m' = m {turn = turn'}
     pSpot = turnToPlayerSpot turn'
-    isPlayerTurn = pSpot == playingPlayer
+    isAI = pSpot /= playingPlayer
     nbDraws = Game.nbCardsToDraw (Model.board m') pSpot
-    drawActions = [nbDraws, nbDraws -1 .. 1] & map GameDrawCard
+    -- If it's the player turn, we wanna handle draw the first card right away,
+    -- so that the game feels responsive.
+    nbDraws' = if isAI then nbDraws else max 1 nbDraws
     (m'', events) =
-      case (isPlayerTurn, drawActions) of
-        -- next turn is player
-        (True, []) -> (m', [])
-        (True, firstDraw : nextDraws) ->
-          -- We wanna handle the first event right away, so that the
-          -- game is responsive.
-          undefined -- FIXME smelc implement me
-          -- next turn is AI
-        (False, draws) ->
-          case runEither (length draws) of
-            Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
-            Right (events, boardui', shared') ->
-              -- schedule its actions, then simulate pressing "End Turn"
-              ( m' {anims = boardui', gameShared = shared'},
-                snoc events' (1, GameEndTurnPressed)
-              )
-              where
-                -- We want a one second delay, it's make it easier to understand
-                -- what's going on
-                events' = zip (repeat 1) $ map GamePlay events
-          where
-            runEither nbDraws = do
-              (board', boardui', shared') <-
-                Game.drawCards (gameShared m') (Model.board m') pSpot nbDraws
-              aiEvents <- aiPlay board' turn'
-              return (aiEvents, boardui', shared')
+      case runEither of
+        Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
+        Right (events, boardui', shared') ->
+          ( m' {anims = boardui', gameShared = shared'},
+            -- We want a one second delay, it's make it easier to understand
+            -- what's going on
+            zip (repeat 1) $
+              if isAI
+                then -- AI: after drawing cards and playing its events
+                -- press "End Turn"
+                  snoc (map GamePlay events) GameEndTurnPressed
+                else -- player: we drew the first card already
+                -- (see nbDraws'), hence starting from nbDraws-1
+                  assert (null events) ([nbDraws - 1, nbDraws -2 .. 1] & map GameDrawCard)
+          )
+      where
+        -- AI: draw all cards, compute its events
+        -- player: draw first card
+        runEither = do
+          (board', boardui', shared') <-
+            Game.drawCards (gameShared m') (Model.board m') pSpot nbDraws'
+          aiEvents <- if isAI then aiPlay board' turn' else Right []
+          return (aiEvents, boardui', shared')
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
   withInteraction m $ GameHoverInteraction $ Hovering i
