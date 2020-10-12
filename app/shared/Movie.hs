@@ -37,8 +37,8 @@ whiteAppears =
 
 welcomeGhostMovie1 :: Scene ()
 welcomeGhostMovie1 = do
-  g <- newActor
-  during 9 $ g += at' (creatureSprite $ CreatureID Ghost Undead) ToRight 1 0
+  g <- newActorAt' (creatureSprite $ CreatureID Ghost Undead) ToRight 1 0
+  during 9 $ return ()
   during 8 $ down g
   during 15 $ right g
   during 8 $ down g
@@ -65,8 +65,8 @@ welcomeGhostMovie1 = do
 
 welcomeGhostMovie2 :: Scene ()
 welcomeGhostMovie2 = do
-  g <- newActor
-  during 15 $ g += at (creatureSprite $ CreatureID Ghost Undead) (lobbiesCellWidth - 3) 0
+  g <- newActorAt (creatureSprite $ CreatureID Ghost Undead) (lobbiesCellWidth - 3) 0
+  during 15 $ return ()
   during 10 $ down g
   during 12 $ left g
   during 18 $ down g

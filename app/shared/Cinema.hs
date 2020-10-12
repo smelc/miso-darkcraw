@@ -27,8 +27,6 @@ module Cinema
     TimedFrame (..),
     (+=),
     (|||),
-    at,
-    at',
     creatureSprite,
     defaultDirection,
     dress,
@@ -40,8 +38,10 @@ module Cinema
     left,
     mkChange,
     newActor,
-    patch,
+    newActorAt,
+    newActorAt',
     render,
+    patch,
     right,
     shutup,
     spriteToKind,
@@ -57,7 +57,8 @@ module Cinema
 where
 
 import Card (CreatureID)
-import Control.Lens ((%=), use)
+import Control.Lens ((%=), (?=), use)
+import qualified Control.Lens as Lens
 import Control.Monad.Operational
 import qualified Control.Monad.State.Strict as MTL
 import qualified Control.Monad.Writer.Strict as MTL
@@ -138,7 +139,7 @@ newtype ThreadId = ThreadId Int
   deriving (Eq, Ord, Show, Generic)
 
 data SceneInstruction :: * -> * where
-  NewActor :: SceneInstruction Element
+  NewActor :: ActorState -> SceneInstruction Element
   While :: Duration -> Frame ActorChange -> SceneInstruction ()
   Fork :: Scene () -> SceneInstruction ThreadId
   Join :: ThreadId -> SceneInstruction ()
@@ -146,8 +147,14 @@ data SceneInstruction :: * -> * where
 
 type Scene = Program SceneInstruction
 
-newActor :: Scene Element
-newActor = singleton NewActor
+newActorAt :: Sprite -> Int -> Int -> Scene Element
+newActorAt sprite x y = newActor $ ActorState {direction = defaultDirection, sprite = Just sprite, telling = Nothing, x = x, y = y}
+
+newActorAt' :: Sprite -> Direction -> Int -> Int -> Scene Element
+newActorAt' sprite direction x y = newActor $ ActorState {direction = direction, sprite = Just sprite, telling = Nothing, x = x, y = y}
+
+newActor :: ActorState -> Scene Element
+newActor state = singleton (NewActor state)
 
 while :: Duration -> Frame ActorChange -> Scene ()
 while duration frame = singleton (While duration frame)
@@ -192,7 +199,7 @@ data SchedulerState = SchedulerState {actorCounter :: Int, threadCounter :: Int}
 
 type Scheduler = MTL.State SchedulerState
 
-type Stepper = MTL.WriterT (Maybe (Frame ActorChange)) Scheduler
+type Stepper = MTL.WriterT Any (MTL.StateT (Frame ActorState) Scheduler)
 
 type DatedFrames =
   ( [(Date, Frame ActorState)],
@@ -211,14 +218,12 @@ render scene =
       | null dates = return ([], lastDate)
       | otherwise = do
         let date = minimum dates
-        (newThreads, mdiff) <- MTL.runWriterT (advanceThreads frame date threads)
-        case mdiff of
-          Just diff -> do
-            let newFrame = patch frame diff
+        ((newThreads, Any patched), newFrame) <- MTL.runStateT (MTL.runWriterT (advanceThreads frame date threads)) frame
+        if patched
+          then do
             (timedFrames, newLastDate) <- eval date newFrame newThreads
             return ((date, newFrame) : timedFrames, newLastDate)
-          Nothing ->
-            eval date frame newThreads
+          else eval date frame newThreads
       where
         dates = [date | Thread _ (WaitingForDate date) _ <- threads]
     advanceThreads :: Frame ActorState -> Date -> [Thread] -> Stepper [Thread]
@@ -239,16 +244,18 @@ render scene =
       case prog of
         Return () ->
           return []
-        NewActor :>>= k -> do
-          i <- use #actorCounter
-          #actorCounter %= (+ 1)
-          stepThread frame now tid (view (k (Element i)))
+        NewActor state :>>= k -> do
+          i <- Element <$> (MTL.lift $ MTL.lift $ use #actorCounter)
+          MTL.lift $ MTL.lift $ #actorCounter %= (+ 1)
+          #unFrame . Lens.at i ?= state
+          stepThread frame now tid (view (k i))
         While duration diff :>>= k -> do
-          MTL.tell (Just diff)
+          MTL.modify (`patch` diff)
+          MTL.tell (Any True)
           return [Thread tid (WaitingForDate (now + duration)) (view (k ()))]
         Fork scene :>>= k -> do
-          i <- ThreadId <$> use #threadCounter
-          #threadCounter %= (+ 1)
+          i <- MTL.lift $ MTL.lift $ ThreadId <$> use #threadCounter
+          MTL.lift $ MTL.lift $ #threadCounter %= (+ 1)
           concat <$> sequence [stepThread frame now i (view scene), stepThread frame now tid (view (k i))]
         Join i :>>= k ->
           return [Thread tid (WaitingForThreadId i) (view (k ()))]
@@ -323,15 +330,6 @@ mkChange sprite turn tellingChange xoffset yoffset =
 
 (+=) :: Element -> ActorChange -> FrameDiff ()
 actor += change = FrameDiff (MTL.tell (Frame (Map.singleton actor change)))
-
-at :: Sprite -> Int -> Int -> ActorChange
-at sprite x y = mempty {spriteChange = SetSprite sprite, xoffset = x, yoffset = y}
-
-at' :: Sprite -> Direction -> Int -> Int -> ActorChange
-at' sprite dir x y = mempty {spriteChange = SetSprite sprite, turn = turnFrom dir, xoffset = x, yoffset = y}
-  where
-    turnFrom ToRight = TurnRight
-    turnFrom ToLeft = TurnLeft
 
 dress :: Element -> Sprite -> FrameDiff ()
 dress actor sprite = actor += mempty {spriteChange = SetSprite sprite}
