@@ -51,6 +51,8 @@ module Cinema
     up,
     while,
     during,
+    getActorState,
+    dot,
   )
 where
 
@@ -141,6 +143,7 @@ data SceneInstruction :: * -> * where
   While :: Duration -> Frame ActorChange -> SceneInstruction ()
   Fork :: Scene () -> SceneInstruction ThreadId
   Join :: ThreadId -> SceneInstruction ()
+  GetActorState :: Element -> SceneInstruction ActorState
 
 instance Show (Scene ()) where
   show scene = show (render scene)
@@ -183,6 +186,13 @@ fork scene = do
 joinThread :: ThreadId -> Scene ()
 joinThread threadId = singleton (Join threadId)
 
+getActorState :: Element -> Scene ActorState
+getActorState element = singleton (GetActorState element)
+
+-- | Typical usage: archerX <- archer `dot` x
+dot :: Element -> (ActorState -> a) -> Scene a
+dot element proj = proj <$> getActorState element
+
 type Date = Int
 
 type Prog = ProgramView SceneInstruction ()
@@ -216,7 +226,7 @@ render scene =
       | null dates = return ([], lastDate)
       | otherwise = do
         let date = minimum dates
-        (newThreads, mdiff) <- MTL.runWriterT (advanceThreads date threads)
+        (newThreads, mdiff) <- MTL.runWriterT (advanceThreads frame date threads)
         case mdiff of
           Just diff -> do
             let newFrame = patch frame diff
@@ -226,37 +236,39 @@ render scene =
             eval date frame newThreads
       where
         dates = [date | Thread _ (WaitingForDate date) _ <- threads]
-    advanceThreads :: Date -> [Thread] -> Stepper [Thread]
-    advanceThreads now threads = stepThreads now threads >>= loop
+    advanceThreads :: Frame ActorState -> Date -> [Thread] -> Stepper [Thread]
+    advanceThreads frame now threads = stepThreads frame now threads >>= loop
       where
         loop (Any False, unchangedThreads) = return unchangedThreads
-        loop (Any True, newThreads) = stepThreads now newThreads >>= loop
-    stepThreads :: Date -> [Thread] -> Stepper (Any, [Thread])
-    stepThreads now threads = mconcat <$> mapM step threads
+        loop (Any True, newThreads) = stepThreads frame now newThreads >>= loop
+    stepThreads :: Frame ActorState -> Date -> [Thread] -> Stepper (Any, [Thread])
+    stepThreads frame now threads = mconcat <$> mapM step threads
       where
         step thread@(Thread tid condition prog)
-          | WaitingForDate date <- condition, now == date = (Any True,) <$> stepThread now tid prog
-          | WaitingForThreadId i <- condition, not (Set.member i threadIds) = (Any True,) <$> stepThread now tid prog
+          | WaitingForDate date <- condition, now == date = (Any True,) <$> stepThread frame now tid prog
+          | WaitingForThreadId i <- condition, not (Set.member i threadIds) = (Any True,) <$> stepThread frame now tid prog
           | otherwise = return (Any False, [thread])
         threadIds = Set.fromList (map threadId threads)
-    stepThread :: Date -> ThreadId -> Prog -> Stepper [Thread]
-    stepThread now tid prog =
+    stepThread :: Frame ActorState -> Date -> ThreadId -> Prog -> Stepper [Thread]
+    stepThread frame@(Frame actors) now tid prog =
       case prog of
         Return () ->
           return []
         NewActor :>>= k -> do
           i <- use #actorCounter
           #actorCounter %= (+ 1)
-          stepThread now tid (view (k (Element i)))
+          stepThread frame now tid (view (k (Element i)))
         While duration diff :>>= k -> do
           MTL.tell (Just diff)
           return [Thread tid (WaitingForDate (now + duration)) (view (k ()))]
         Fork scene :>>= k -> do
           i <- ThreadId <$> use #threadCounter
           #threadCounter %= (+ 1)
-          concat <$> sequence [stepThread now i (view scene), stepThread now tid (view (k i))]
+          concat <$> sequence [stepThread frame now i (view scene), stepThread frame now tid (view (k i))]
         Join i :>>= k ->
           return [Thread tid (WaitingForThreadId i) (view (k ()))]
+        GetActorState aid :>>= k ->
+          stepThread frame now tid (view (k (actors Map.! aid)))
     datesToDurations :: DatedFrames -> [TimedFrame ActorState]
     datesToDurations (frames, endDate) = go frames
       where

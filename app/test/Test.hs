@@ -179,6 +179,25 @@ testSceneReturn =
         let scene = astToScene ast
          in (scene ||| return ()) ~= scene
 
+testGetActorState =
+  describe "getActorState"
+    $ it "should read the state of the actor"
+    $ actualScene ~= expectedScene
+  where
+    skeleton = creatureSprite $ CreatureID Skeleton Undead
+    actualScene = do
+      a1 <- newActor
+      during 1 $ a1 += at skeleton 1 2
+      a2 <- newActor
+      a1x <- a1 `dot` x
+      a1y <- a1 `dot` y
+      during 1 $ a2 += at skeleton a1x a1y
+    expectedScene = do
+      a1 <- newActor
+      during 1 $ a1 += at skeleton 1 2
+      a2 <- newActor
+      during 1 $ a2 += at skeleton 1 2
+
 {- HLINT ignore monoidLaws -}
 monoidLaws :: forall a. (Show a, Eq a, Monoid a, Arbitrary a) => String -> Proxy a -> SpecWith ()
 monoidLaws s _ = describe (s ++ " is a monoid") $ do
@@ -251,3 +270,4 @@ main = hspec $ do
   monoidLaws "TellingChange" (Proxy @TellingChange)
   monoidLaws "SpriteChange" (Proxy @SpriteChange)
   monoidLaws "ActorChange" (Proxy @ActorChange)
+  testGetActorState
