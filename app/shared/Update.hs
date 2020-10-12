@@ -307,6 +307,16 @@ updateGameModel m@GameModel {board} (GamePlay gameEvent) _ =
               Nothing -> Just GameIncrTurn -- no more attack, change turn
               Just cSpot' -> Just $ GamePlay $ EndTurn pSpot cSpot'
           _ -> Nothing
+updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
+  case Game.drawCards gameShared board pSpot 1 of
+    Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
+    Right (board', boardui', shared') ->
+      ( m {board = board', anims = boardui', gameShared = shared'},
+        -- enqueue next event (if any)
+        [(1, GameDrawCard $ n - 1) | n - 1 >= 1]
+      )
+  where
+    pSpot = assert (n >= 1) $ turnToPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
   -- We don't want any delay so that the game feels responsive
@@ -320,7 +330,6 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
       case nextAttackSpot board pSpot Nothing of
         Nothing -> GameIncrTurn -- no more attack, change turn
         Just cSpot -> GamePlay $ EndTurn pSpot cSpot
--- FIXME smelc Handle GameDrawCard event
 updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
   (m'', events)
   where
@@ -331,22 +340,20 @@ updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
     nbDraws = Game.nbCardsToDraw (Model.board m') pSpot
     -- If it's the player turn, we wanna handle draw the first card right away,
     -- so that the game feels responsive.
-    nbDraws' = if isAI then nbDraws else max 1 nbDraws
+    nbDraws' = if isAI then nbDraws else min 1 nbDraws
     (m'', events) =
       case runEither of
         Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
-        Right (events, boardui', shared') ->
-          ( m' {anims = boardui', gameShared = shared'},
-            -- We want a one second delay, it's make it easier to understand
-            -- what's going on
-            zip (repeat 1) $
-              if isAI
-                then -- AI: after drawing cards and playing its events
-                -- press "End Turn"
-                  snoc (map GamePlay events) GameEndTurnPressed
-                else -- player: we drew the first card already
-                -- (see nbDraws'), hence starting from nbDraws-1
-                  assert (null events) ([nbDraws - 1, nbDraws -2 .. 1] & map GameDrawCard)
+        Right (events, board', boardui', shared') ->
+          ( m' {anims = boardui', board = board', gameShared = shared'},
+            if isAI
+              then -- AI: after drawing cards and playing its events
+              -- press "End Turn". We want a one second delay, it makes
+              -- it easier to understand what's going on
+                zip (repeat 1) $ snoc (map GamePlay events) GameEndTurnPressed
+              else -- player: we drew the first card already (see nbDraws')
+              -- enqueue next event (if any)
+                assert (null events) [(1, GameDrawCard $ nbDraws - 1) | nbDraws -1 >= 1]
           )
       where
         -- AI: draw all cards, compute its events
@@ -355,7 +362,7 @@ updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
           (board', boardui', shared') <-
             Game.drawCards (gameShared m') (Model.board m') pSpot nbDraws'
           aiEvents <- if isAI then aiPlay board' turn' else Right []
-          return (aiEvents, boardui', shared')
+          return (aiEvents, board', boardui', shared')
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
   withInteraction m $ GameHoverInteraction $ Hovering i
