@@ -137,26 +137,33 @@ drawCard ::
   -- | The player drawing cards
   PlayerSpot ->
   Either Text (Board Core, Board UI, SharedModel)
-drawCard = undefined -- TODO call drawCardM, @polux> help!
+drawCard shared board pSpot =
+  drawCardM board pSpot
+    & runWriterT
+    & flip runStateT shared
+    & runExcept
+    & fmap flatten
+  where
+    flatten ((x, y), z) = (x, y, z)
 
 drawCardM ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
-  MonadState StdGen m =>
-  SharedModel ->
+  MonadState SharedModel m =>
   Board Core ->
   PlayerSpot ->
   m (Board Core)
-drawCardM shared board pSpot =
+drawCardM board pSpot =
   case bound of
     0 -> return board
     _ -> do
-      stdgen <- get
       let stack :: [CardIdentifier] = boardToStack board pSpot
       let hand :: [Card Core] = boardToHand board pSpot
+      stdgen <- use #sharedStdGen
       let (idrawn, stdgen') = randomR (0, bound - 1) stdgen
-      put stdgen'
+      #sharedStdGen .= stdgen'
       let drawn :: CardIdentifier = stack !! idrawn
+      shared <- get
       let maybeDrawnCard = identToCard shared drawn
       when (isNothing maybeDrawnCard) $ throwError $ Text.pack $ "Identifier " ++ show drawn ++ " cannot be mapped to Card"
       let drawnCard = fromJust maybeDrawnCard & unliftCard
