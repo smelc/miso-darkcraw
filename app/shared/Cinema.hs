@@ -40,6 +40,7 @@ module Cinema
     left,
     mkChange,
     newActor,
+    patch,
     render,
     right,
     shutup,
@@ -265,6 +266,9 @@ data DirectionChange = NoDirectionChange | ToggleDir | TurnRight | TurnLeft
 
 instance Semigroup DirectionChange where
   change <> NoDirectionChange = change
+  TurnLeft <> ToggleDir = TurnRight
+  TurnRight <> ToggleDir = TurnLeft
+  ToggleDir <> ToggleDir = NoDirectionChange
   _ <> change = change
 
 instance Monoid DirectionChange where

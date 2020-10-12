@@ -271,3 +271,7 @@ main = hspec $ do
   monoidLaws "SpriteChange" (Proxy @SpriteChange)
   monoidLaws "ActorChange" (Proxy @ActorChange)
   testGetActorState
+  describe "Cinema.patch"
+    $ prop "distributes over ActorChange.<>"
+    $ \state diff1 diff2 ->
+      patch (patch state diff1) diff2 `shouldBe` patch state (diff1 <> diff2)

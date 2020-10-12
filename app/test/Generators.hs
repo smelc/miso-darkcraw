@@ -162,3 +162,19 @@ astToScene (SceneAst actions) = go [] actions
     go actors (Fork (SceneAst actions1) : k) = do
       fork (go actors actions1)
       go actors k
+
+instance Arbitrary a => Arbitrary (Frame a) where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Element where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary ActorState where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Direction where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
