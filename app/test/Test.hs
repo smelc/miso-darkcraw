@@ -2,6 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Main where
 
@@ -25,6 +26,7 @@ import Control.Monad.Except (runExcept)
 import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
+import Data.Proxy
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Debug.Trace
@@ -157,6 +159,7 @@ testParallelSceneComposition =
       during 2 (left w0)
 
 {- HLINT ignore testSceneReturn -}
+testSceneReturn :: SpecWith ()
 testSceneReturn =
   modifyMaxSize (const 35) $ describe "Scene.return" $ do
     prop "left neutral for >>" $
@@ -175,6 +178,20 @@ testSceneReturn =
       \ast ->
         let scene = astToScene ast
          in (scene ||| return ()) ~= scene
+
+{- HLINT ignore monoidLaws -}
+monoidLaws :: forall a. (Show a, Eq a, Monoid a, Arbitrary a) => String -> Proxy a -> SpecWith ()
+monoidLaws s _ = describe (s ++ " is a monoid") $ do
+  prop "left identity" leftIdentityProp
+  prop "right identity" rightIdentityProp
+  prop "associativity" associativeProp
+  where
+    associativeProp :: a -> a -> a -> Expectation
+    associativeProp x y z = (x <> y) <> z `shouldBe` x <> (y <> z)
+    leftIdentityProp :: a -> Expectation
+    leftIdentityProp x = mempty <> x `shouldBe` x
+    rightIdentityProp :: a -> Expectation
+    rightIdentityProp x = x <> mempty `shouldBe` x
 
 main :: IO ()
 main = hspec $ do
@@ -227,10 +244,11 @@ main = hspec $ do
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
-  foo
-
-foo =
-  modifyMaxSuccess (const 100000) $ modifyMaxSize (const 11) $ describe "Cinema.newRender"
+  monoidLaws "DirectionChange" (Proxy @DirectionChange)
+  monoidLaws "TellingChange" (Proxy @TellingChange)
+  monoidLaws "SpriteChange" (Proxy @SpriteChange)
+  monoidLaws "ActorChange" (Proxy @ActorChange)
+  modifyMaxSize (const 35) $ describe "Cinema.newRender"
     $ prop "agrees with render"
     $ \ast ->
       let scene = astToScene ast

@@ -249,16 +249,8 @@ data DirectionChange = NoDirectionChange | ToggleDir | TurnRight | TurnLeft
   deriving (Eq, Generic, Ord, Show)
 
 instance Semigroup DirectionChange where
-  TurnLeft <> TurnRight = NoDirectionChange
-  TurnLeft <> ToggleDir = NoDirectionChange
-  TurnLeft <> _ = TurnLeft
-  TurnRight <> TurnLeft = NoDirectionChange
-  TurnRight <> ToggleDir = NoDirectionChange
-  TurnRight <> _ = TurnRight
-  ToggleDir <> TurnLeft = NoDirectionChange
-  ToggleDir <> TurnRight = NoDirectionChange
-  ToggleDir <> _ = ToggleDir
-  NoDirectionChange <> change = change
+  change <> NoDirectionChange = change
+  _ <> change = change
 
 instance Monoid DirectionChange where
   mempty = NoDirectionChange
