@@ -129,7 +129,7 @@ astToScene (SceneAst actions) = go [] actions
       fork (go actors actions1)
       go actors k
 
-instance Arbitrary a => Arbitrary (Frame a) where
+instance Arbitrary Frame where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

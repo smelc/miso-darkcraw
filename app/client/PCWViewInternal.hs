@@ -169,7 +169,7 @@ createContext z shared@SharedModel {..} =
     dirToFilename f@Filepath {..} _ =
       dirToFilename f {fpY = fpY + 1} defaultDirection
 
-viewFrame :: Int -> SharedModel -> Frame ActorState -> View a
+viewFrame :: Int -> SharedModel -> Frame -> View a
 viewFrame z smodel (Frame mapping) =
   div_
     []

@@ -114,9 +114,9 @@ instance ToExpr Tile.Tile
 
 instance ToExpr Cinema.Element
 
-instance ToExpr a => ToExpr (TimedFrame a)
+instance ToExpr TimedFrame
 
-instance ToExpr a => ToExpr (Cinema.Frame a)
+instance ToExpr Cinema.Frame
 
 instance ToExpr SceneModel
 

@@ -7,6 +7,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Module containing the base for animating scenes in lobbies
@@ -54,12 +55,14 @@ module Cinema
 where
 
 import Card (CreatureID)
-import Control.Lens ((%=), (%~), (&), (+~), (.~), (?=), (?~), use)
-import qualified Control.Lens as Lens
-import Control.Monad.Operational
-import qualified Control.Monad.State.Strict as MTL
-import qualified Control.Monad.Writer.Strict as MTL
-import qualified Data.Map.Strict as Map
+import qualified Control.Effect as E
+import Control.Effect.Lens (assign, modifying, use)
+import qualified Control.Effect.State as E
+import qualified Control.Effect.Writer as E
+import Control.Lens ((%~), (&), (+~), (.~), (?~), at)
+import Control.Monad.Operational (Program, ProgramView, ProgramViewT (..), singleton, view)
+import qualified Data.Map as Map
+import Data.Maybe (fromJust)
 import Data.Semigroup (Any (..))
 import qualified Data.Set as Set
 import GHC.Generics (Generic)
@@ -105,14 +108,14 @@ data ActorState = ActorState
 newtype Element = Element Int
   deriving (Eq, Generic, Ord, Show)
 
-newtype Frame a = Frame {unFrame :: Map.Map Element a}
+newtype Frame = Frame {unFrame :: Map.Map Element ActorState}
   deriving (Eq, Ord, Show, Generic)
 
-data TimedFrame a = TimedFrame
+data TimedFrame = TimedFrame
   { -- | The duration of a frame, in tenth of seconds
     duration :: Duration,
     -- | The frame
-    frame :: Frame a
+    frame :: Frame
   }
   deriving (Eq, Ord, Show, Generic)
 
@@ -165,28 +168,33 @@ data Thread = Thread {threadId :: ThreadId, threadCondition :: Condition, thread
 data SchedulerState = SchedulerState {actorCounter :: Int, threadCounter :: Int}
   deriving (Eq, Ord, Show, Generic)
 
-type Scheduler = MTL.State SchedulerState
+type SchedulerSig sig = (E.Member (E.State SchedulerState) sig, E.Effect sig)
 
-type Stepper = MTL.WriterT Any (MTL.StateT (Frame ActorState) Scheduler)
+type SchedulerMonad sig m = (SchedulerSig sig, E.Carrier sig m, Monad m)
+
+type StepperSig sig = (E.Member (E.Writer Any) sig, E.Member (E.State Frame) sig, SchedulerSig sig)
+
+type StepperMonad sig m = (StepperSig sig, E.Carrier sig m, Monad m)
 
 type DatedFrames =
-  ( [(Date, Frame ActorState)],
+  ( [(Date, Frame)],
     Date -- end date of the last diff
   )
 
-render :: Scene () -> [TimedFrame ActorState]
+render :: Scene () -> [TimedFrame]
 render scene =
-  datesToDurations
-    $ flip MTL.evalState (SchedulerState 0 1)
-    $ eval 0 (Frame mempty) [Thread (ThreadId 0) (WaitingForDate 0) (view scene)]
+  eval 0 (Frame mempty) [Thread (ThreadId 0) (WaitingForDate 0) (view scene)]
+    & E.evalState (SchedulerState 0 1)
+    & E.run
+    & datesToDurations
   where
-    eval :: Date -> Frame ActorState -> [Thread] -> Scheduler DatedFrames
+    eval :: SchedulerMonad sig m => Date -> Frame -> [Thread] -> m DatedFrames
     eval lastDate _ [] = return ([], lastDate)
     eval lastDate frame threads
       | null dates = return ([], lastDate)
       | otherwise = do
         let date = minimum dates
-        ((newThreads, Any patched), newFrame) <- MTL.runStateT (MTL.runWriterT (advanceThreads date threads)) frame
+        (newFrame, (Any patched, newThreads)) <- E.runState frame (E.runWriter (advanceThreads date threads))
         if patched
           then do
             (timedFrames, newLastDate) <- eval date newFrame newThreads
@@ -194,12 +202,12 @@ render scene =
           else eval date frame newThreads
       where
         dates = [date | Thread _ (WaitingForDate date) _ <- threads]
-    advanceThreads :: Date -> [Thread] -> Stepper [Thread]
+    advanceThreads :: StepperMonad sig m => Date -> [Thread] -> m [Thread]
     advanceThreads now threads = stepThreads now threads >>= loop
       where
         loop (Any False, unchangedThreads) = return unchangedThreads
         loop (Any True, newThreads) = stepThreads now newThreads >>= loop
-    stepThreads :: Date -> [Thread] -> Stepper (Any, [Thread])
+    stepThreads :: StepperMonad sig m => Date -> [Thread] -> m (Any, [Thread])
     stepThreads now threads = mconcat <$> mapM step threads
       where
         step thread@(Thread tid condition prog)
@@ -207,33 +215,33 @@ render scene =
           | WaitingForThreadId i <- condition, not (Set.member i threadIds) = (Any True,) <$> stepThread now tid prog
           | otherwise = return (Any False, [thread])
         threadIds = Set.fromList (map threadId threads)
-    stepThread :: Date -> ThreadId -> Prog -> Stepper [Thread]
+    stepThread :: StepperMonad sig m => Date -> ThreadId -> Prog -> m [Thread]
     stepThread now tid prog =
       case prog of
         Return () ->
           return []
         NewActor state :>>= k -> do
-          aid <- Element <$> (MTL.lift $ MTL.lift $ use #actorCounter)
-          MTL.lift $ MTL.lift $ #actorCounter %= (+ 1)
-          #unFrame . Lens.at aid ?= state
-          MTL.tell (Any True)
-          stepThread now tid (view (k aid))
+          element <- Element <$> use @SchedulerState #actorCounter
+          modifying @SchedulerState #actorCounter (+ 1)
+          assign @Frame (#unFrame . at element) (Just state)
+          E.tell (Any True)
+          stepThread now tid (view (k element))
         SetActorState element state :>>= k -> do
-          #unFrame . Lens.at element ?= state
-          MTL.tell (Any True)
+          assign @Frame (#unFrame . at element) (Just state)
+          E.tell (Any True)
           concat <$> sequence [stepThread now tid (view (k ()))]
         Fork scene :>>= k -> do
-          i <- MTL.lift $ MTL.lift $ ThreadId <$> use #threadCounter
-          MTL.lift $ MTL.lift $ #threadCounter %= (+ 1)
+          i <- ThreadId <$> use @SchedulerState #threadCounter
+          modifying @SchedulerState #threadCounter (+ 1)
           concat <$> sequence [stepThread now i (view scene), stepThread now tid (view (k i))]
         Join i :>>= k ->
           return [Thread tid (WaitingForThreadId i) (view (k ()))]
-        GetActorState aid :>>= k -> do
-          state <- MTL.gets ((Map.! aid) . unFrame)
+        GetActorState element :>>= k -> do
+          state <- fromJust <$> use @Frame (#unFrame . at element)
           stepThread now tid (view (k state))
         Wait duration :>>= k ->
           return [Thread tid (WaitingForDate (now + duration)) (view (k ()))]
-    datesToDurations :: DatedFrames -> [TimedFrame ActorState]
+    datesToDurations :: DatedFrames -> [TimedFrame]
     datesToDurations (frames, endDate) = go frames
       where
         go [] = []

@@ -71,7 +71,7 @@ testAIRanged cards turn =
         $ CreatureID Archer Undead
     board = emptyInPlaceBoard cards [archer]
 
-testSceneInvariant :: Int -> TimedFrame ActorState -> Spec
+testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
   -- Check no two Element are in the same spot
   it ("Scene Change invariant " ++ show idx) $

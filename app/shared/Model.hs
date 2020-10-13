@@ -6,7 +6,7 @@ module Model where
 
 import Board
 import Card
-import Cinema (ActorState, TimedFrame)
+import Cinema (TimedFrame)
 import Data.Generics.Labels ()
 import Data.Set (Set)
 import qualified Data.Text as Text
@@ -75,7 +75,7 @@ data PlayingMode
   | SinglePlayerTeam Team
   deriving (Eq, Generic, Show)
 
-type TimedFrames = V.Vector (TimedFrame ActorState)
+type TimedFrames = V.Vector TimedFrame
 
 data SceneModel
   = SceneNotStarted TimedFrames
