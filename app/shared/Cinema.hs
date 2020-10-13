@@ -55,11 +55,11 @@ module Cinema
 where
 
 import Card (CreatureID)
-import qualified Control.Effect as E
-import Control.Effect.Lens (assign, modifying, use)
-import qualified Control.Effect.State as E
-import qualified Control.Effect.Writer as E
 import Control.Lens ((%~), (&), (+~), (.~), (?~), at)
+import qualified Control.Lens as Lens
+import qualified Control.Monad.Freer as E
+import qualified Control.Monad.Freer.State as E
+import qualified Control.Monad.Freer.Writer as E
 import Control.Monad.Operational (Program, ProgramView, ProgramViewT (..), singleton, view)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
@@ -168,13 +168,9 @@ data Thread = Thread {threadId :: ThreadId, threadCondition :: Condition, thread
 data SchedulerState = SchedulerState {actorCounter :: Int, threadCounter :: Int}
   deriving (Eq, Ord, Show, Generic)
 
-type SchedulerSig sig = (E.Member (E.State SchedulerState) sig, E.Effect sig)
+type Scheduler = E.Eff '[E.State SchedulerState]
 
-type SchedulerMonad sig m = (SchedulerSig sig, E.Carrier sig m, Monad m)
-
-type StepperSig sig = (E.Member (E.Writer Any) sig, E.Member (E.State Frame) sig, SchedulerSig sig)
-
-type StepperMonad sig m = (StepperSig sig, E.Carrier sig m, Monad m)
+type Stepper = E.Eff '[E.Writer Any, E.State Frame, E.State SchedulerState]
 
 type DatedFrames =
   ( [(Date, Frame)],
@@ -188,13 +184,13 @@ render scene =
     & E.run
     & datesToDurations
   where
-    eval :: SchedulerMonad sig m => Date -> Frame -> [Thread] -> m DatedFrames
+    eval :: Date -> Frame -> [Thread] -> Scheduler DatedFrames
     eval lastDate _ [] = return ([], lastDate)
     eval lastDate frame threads
       | null dates = return ([], lastDate)
       | otherwise = do
         let date = minimum dates
-        (newFrame, (Any patched, newThreads)) <- E.runState frame (E.runWriter (advanceThreads date threads))
+        ((newThreads, Any patched), newFrame) <- E.runState frame (E.runWriter (advanceThreads date threads))
         if patched
           then do
             (timedFrames, newLastDate) <- eval date newFrame newThreads
@@ -202,12 +198,12 @@ render scene =
           else eval date frame newThreads
       where
         dates = [date | Thread _ (WaitingForDate date) _ <- threads]
-    advanceThreads :: StepperMonad sig m => Date -> [Thread] -> m [Thread]
+    advanceThreads :: Date -> [Thread] -> Stepper [Thread]
     advanceThreads now threads = stepThreads now threads >>= loop
       where
         loop (Any False, unchangedThreads) = return unchangedThreads
         loop (Any True, newThreads) = stepThreads now newThreads >>= loop
-    stepThreads :: StepperMonad sig m => Date -> [Thread] -> m (Any, [Thread])
+    stepThreads :: Date -> [Thread] -> Stepper (Any, [Thread])
     stepThreads now threads = mconcat <$> mapM step threads
       where
         step thread@(Thread tid condition prog)
@@ -215,29 +211,29 @@ render scene =
           | WaitingForThreadId i <- condition, not (Set.member i threadIds) = (Any True,) <$> stepThread now tid prog
           | otherwise = return (Any False, [thread])
         threadIds = Set.fromList (map threadId threads)
-    stepThread :: StepperMonad sig m => Date -> ThreadId -> Prog -> m [Thread]
+    stepThread :: Date -> ThreadId -> Prog -> Stepper [Thread]
     stepThread now tid prog =
       case prog of
         Return () ->
           return []
         NewActor state :>>= k -> do
-          element <- Element <$> use @SchedulerState #actorCounter
-          modifying @SchedulerState #actorCounter (+ 1)
-          assign @Frame (#unFrame . at element) (Just state)
+          element <- Element <$> E.gets actorCounter
+          E.modify @SchedulerState (#actorCounter +~ 1)
+          E.modify @Frame (#unFrame . at element ?~ state)
           E.tell (Any True)
           stepThread now tid (view (k element))
         SetActorState element state :>>= k -> do
-          assign @Frame (#unFrame . at element) (Just state)
+          E.modify @Frame (#unFrame . at element ?~ state)
           E.tell (Any True)
           concat <$> sequence [stepThread now tid (view (k ()))]
         Fork scene :>>= k -> do
-          i <- ThreadId <$> use @SchedulerState #threadCounter
-          modifying @SchedulerState #threadCounter (+ 1)
+          i <- ThreadId <$> E.gets threadCounter
+          E.modify @SchedulerState (#threadCounter +~ 1)
           concat <$> sequence [stepThread now i (view scene), stepThread now tid (view (k i))]
         Join i :>>= k ->
           return [Thread tid (WaitingForThreadId i) (view (k ()))]
         GetActorState element :>>= k -> do
-          state <- fromJust <$> use @Frame (#unFrame . at element)
+          state <- fromJust <$> E.gets @Frame (Lens.view (#unFrame . at element))
           stepThread now tid (view (k state))
         Wait duration :>>= k ->
           return [Thread tid (WaitingForDate (now + duration)) (view (k ()))]
