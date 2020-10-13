@@ -4,65 +4,61 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE OverloadedLabels #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
   ( ActorKind (..),
-    ActorChange (),
     ActorState (..),
     Direction (..),
-    DirectionChange (),
     Element (),
     Frame (..),
-    FrameDiff (),
-    Scene (..),
-    SpriteChange (),
-    TellingChange (),
+    Scene (),
     TimedFrame (..),
-    (+=),
     (|||),
     creatureSprite,
     defaultDirection,
     dress,
     down,
+    dot,
+    getActorState,
     fork,
     forkWithId,
     joinThread,
-    leave,
+    hide,
     left,
-    mkChange,
     newActor,
     newActorAt,
     newActorAt',
     render,
-    patch,
     right,
+    setActorState,
     shutup,
     spriteToKind,
     tell,
     tileSprite,
     turnAround,
     up,
-    while,
     during,
-    getActorState,
-    dot,
+    (=:),
+    newHiddenActor,
+    moveTo,
+    resetAt,
+    turnTo,
+    resetAt',
+    wait,
   )
 where
 
 import Card (CreatureID)
-import Control.Lens ((%=), (?=), use)
+import Control.Lens ((%=), (%~), (&), (+~), (.~), (?=), (?~), use)
 import qualified Control.Lens as Lens
 import Control.Monad.Operational
 import qualified Control.Monad.State.Strict as MTL
 import qualified Control.Monad.Writer.Strict as MTL
-import qualified Data.Map.Merge.Strict as Map
 import qualified Data.Map.Strict as Map
 import Data.Semigroup (Any (..))
 import qualified Data.Set as Set
@@ -105,22 +101,9 @@ data ActorState = ActorState
   }
   deriving (Eq, Generic, Ord, Show)
 
-defaultActorState :: ActorState
-defaultActorState =
-  ActorState
-    { direction = defaultDirection,
-      sprite = Nothing,
-      telling = Nothing,
-      x = 0,
-      y = 0
-    }
-
 -- An actor's unique identifier
 newtype Element = Element Int
   deriving (Eq, Generic, Ord, Show)
-
-newtype FrameDiff a = FrameDiff {unFrameDiff :: MTL.Writer (Frame ActorChange) a}
-  deriving (Eq, Show, Functor, Applicative, Monad)
 
 newtype Frame a = Frame {unFrame :: Map.Map Element a}
   deriving (Eq, Ord, Show, Generic)
@@ -140,33 +123,16 @@ newtype ThreadId = ThreadId Int
 
 data SceneInstruction :: * -> * where
   NewActor :: ActorState -> SceneInstruction Element
-  While :: Duration -> Frame ActorChange -> SceneInstruction ()
   Fork :: Scene () -> SceneInstruction ThreadId
   Join :: ThreadId -> SceneInstruction ()
   GetActorState :: Element -> SceneInstruction ActorState
+  Wait :: Duration -> SceneInstruction ()
+  SetActorState :: Element -> ActorState -> SceneInstruction ()
 
 type Scene = Program SceneInstruction
 
-newActorAt :: Sprite -> Int -> Int -> Scene Element
-newActorAt sprite x y = newActor $ ActorState {direction = defaultDirection, sprite = Just sprite, telling = Nothing, x = x, y = y}
-
-newActorAt' :: Sprite -> Direction -> Int -> Int -> Scene Element
-newActorAt' sprite direction x y = newActor $ ActorState {direction = direction, sprite = Just sprite, telling = Nothing, x = x, y = y}
-
 newActor :: ActorState -> Scene Element
 newActor state = singleton (NewActor state)
-
-while :: Duration -> Frame ActorChange -> Scene ()
-while duration frame = singleton (While duration frame)
-
-during :: Duration -> FrameDiff () -> Scene ()
-during duration (FrameDiff m) = singleton (While duration (MTL.execWriter m))
-
-(|||) :: Scene () -> Scene () -> Scene ()
-s1 ||| s2 = do
-  tid <- forkWithId s1
-  s2
-  joinThread tid
 
 forkWithId :: Scene () -> Scene ThreadId
 forkWithId scene = singleton (Fork scene)
@@ -182,9 +148,11 @@ joinThread threadId = singleton (Join threadId)
 getActorState :: Element -> Scene ActorState
 getActorState element = singleton (GetActorState element)
 
--- | Typical usage: archerX <- archer `dot` x
-dot :: Element -> (ActorState -> a) -> Scene a
-dot element proj = proj <$> getActorState element
+setActorState :: Element -> ActorState -> Scene ()
+setActorState element state = singleton (SetActorState element state)
+
+wait :: Duration -> Scene ()
+wait duration = singleton (Wait duration)
 
 type Date = Int
 
@@ -218,7 +186,7 @@ render scene =
       | null dates = return ([], lastDate)
       | otherwise = do
         let date = minimum dates
-        ((newThreads, Any patched), newFrame) <- MTL.runStateT (MTL.runWriterT (advanceThreads frame date threads)) frame
+        ((newThreads, Any patched), newFrame) <- MTL.runStateT (MTL.runWriterT (advanceThreads date threads)) frame
         if patched
           then do
             (timedFrames, newLastDate) <- eval date newFrame newThreads
@@ -226,41 +194,45 @@ render scene =
           else eval date frame newThreads
       where
         dates = [date | Thread _ (WaitingForDate date) _ <- threads]
-    advanceThreads :: Frame ActorState -> Date -> [Thread] -> Stepper [Thread]
-    advanceThreads frame now threads = stepThreads frame now threads >>= loop
+    advanceThreads :: Date -> [Thread] -> Stepper [Thread]
+    advanceThreads now threads = stepThreads now threads >>= loop
       where
         loop (Any False, unchangedThreads) = return unchangedThreads
-        loop (Any True, newThreads) = stepThreads frame now newThreads >>= loop
-    stepThreads :: Frame ActorState -> Date -> [Thread] -> Stepper (Any, [Thread])
-    stepThreads frame now threads = mconcat <$> mapM step threads
+        loop (Any True, newThreads) = stepThreads now newThreads >>= loop
+    stepThreads :: Date -> [Thread] -> Stepper (Any, [Thread])
+    stepThreads now threads = mconcat <$> mapM step threads
       where
         step thread@(Thread tid condition prog)
-          | WaitingForDate date <- condition, now == date = (Any True,) <$> stepThread frame now tid prog
-          | WaitingForThreadId i <- condition, not (Set.member i threadIds) = (Any True,) <$> stepThread frame now tid prog
+          | WaitingForDate date <- condition, now == date = (Any True,) <$> stepThread now tid prog
+          | WaitingForThreadId i <- condition, not (Set.member i threadIds) = (Any True,) <$> stepThread now tid prog
           | otherwise = return (Any False, [thread])
         threadIds = Set.fromList (map threadId threads)
-    stepThread :: Frame ActorState -> Date -> ThreadId -> Prog -> Stepper [Thread]
-    stepThread frame@(Frame actors) now tid prog =
+    stepThread :: Date -> ThreadId -> Prog -> Stepper [Thread]
+    stepThread now tid prog =
       case prog of
         Return () ->
           return []
         NewActor state :>>= k -> do
-          i <- Element <$> (MTL.lift $ MTL.lift $ use #actorCounter)
+          aid <- Element <$> (MTL.lift $ MTL.lift $ use #actorCounter)
           MTL.lift $ MTL.lift $ #actorCounter %= (+ 1)
-          #unFrame . Lens.at i ?= state
-          stepThread frame now tid (view (k i))
-        While duration diff :>>= k -> do
-          MTL.modify (`patch` diff)
+          #unFrame . Lens.at aid ?= state
           MTL.tell (Any True)
-          return [Thread tid (WaitingForDate (now + duration)) (view (k ()))]
+          stepThread now tid (view (k aid))
+        SetActorState element state :>>= k -> do
+          #unFrame . Lens.at element ?= state
+          MTL.tell (Any True)
+          concat <$> sequence [stepThread now tid (view (k ()))]
         Fork scene :>>= k -> do
           i <- MTL.lift $ MTL.lift $ ThreadId <$> use #threadCounter
           MTL.lift $ MTL.lift $ #threadCounter %= (+ 1)
-          concat <$> sequence [stepThread frame now i (view scene), stepThread frame now tid (view (k i))]
+          concat <$> sequence [stepThread now i (view scene), stepThread now tid (view (k i))]
         Join i :>>= k ->
           return [Thread tid (WaitingForThreadId i) (view (k ()))]
-        GetActorState aid :>>= k ->
-          stepThread frame now tid (view (k (actors Map.! aid)))
+        GetActorState aid :>>= k -> do
+          state <- MTL.gets ((Map.! aid) . unFrame)
+          stepThread now tid (view (k state))
+        Wait duration :>>= k ->
+          return [Thread tid (WaitingForDate (now + duration)) (view (k ()))]
     datesToDurations :: DatedFrames -> [TimedFrame ActorState]
     datesToDurations (frames, endDate) = go frames
       where
@@ -268,135 +240,90 @@ render scene =
         go [(t, frame)] = [TimedFrame (endDate - t) frame]
         go ((t1, frame) : frames@((t2, _) : _)) = TimedFrame (t2 - t1) frame : go frames
 
-data DirectionChange = NoDirectionChange | ToggleDir | TurnRight | TurnLeft
-  deriving (Eq, Generic, Ord, Show)
+during :: Duration -> Scene a -> Scene a
+during duration scene = do
+  x <- scene
+  wait duration
+  return x
 
-instance Semigroup DirectionChange where
-  change <> NoDirectionChange = change
-  TurnLeft <> ToggleDir = TurnRight
-  TurnRight <> ToggleDir = TurnLeft
-  ToggleDir <> ToggleDir = NoDirectionChange
-  _ <> change = change
+(|||) :: Scene () -> Scene () -> Scene ()
+s1 ||| s2 = do
+  tid <- forkWithId s1
+  s2
+  joinThread tid
 
-instance Monoid DirectionChange where
-  mempty = NoDirectionChange
+(=:) :: Element -> ActorState -> Scene ()
+(=:) = setActorState
 
-data TellingChange = Tell String | ShutUp | NoTellingChange
-  deriving (Eq, Generic, Ord, Show)
+-- | Typical usage: archerX <- archer `dot` x
+dot :: Element -> (ActorState -> a) -> Scene a
+dot element proj = proj <$> getActorState element
 
--- last change wins
-instance Semigroup TellingChange where
-  change <> NoTellingChange = change
-  _ <> change = change
+modifyActorState :: Element -> (ActorState -> ActorState) -> Scene ()
+modifyActorState element f = do
+  state <- getActorState element
+  setActorState element (f state)
 
-instance Monoid TellingChange where
-  mempty = NoTellingChange
+newHiddenActor :: Scene Element
+newHiddenActor = newActor $ ActorState {direction = defaultDirection, sprite = Nothing, telling = Nothing, x = 0, y = 0}
 
-data SpriteChange = SetSprite Sprite | HideSprite | NoSpriteChange
-  deriving (Eq, Generic, Ord, Show)
+newActorAt :: Sprite -> Int -> Int -> Scene Element
+newActorAt sprite x y = do
+  actor <- newHiddenActor
+  actor & resetAt sprite x y
+  return actor
 
--- | The change to an actor's 'ActorState'
-data ActorChange = ActorChange
-  { -- | The change to 'direction'
-    turn :: DirectionChange,
-    -- | The change to the sprite
-    spriteChange :: SpriteChange,
-    -- | The change to 'telling'
-    tellingChange :: TellingChange,
-    -- | The change to 'x'
-    xoffset :: Int,
-    -- | The change to 'y'
-    yoffset :: Int
-  }
-  deriving (Eq, Generic, Ord, Show)
+newActorAt' :: Sprite -> Direction -> Int -> Int -> Scene Element
+newActorAt' sprite direction x y = do
+  actor <- newHiddenActor
+  actor & resetAt' sprite direction x y
+  return actor
 
-instance Semigroup SpriteChange where
-  s <> NoSpriteChange = s
-  _ <> s = s
+resetAt :: Sprite -> Int -> Int -> Element -> Scene ()
+resetAt sprite x y actor = do
+  actor & dress sprite
+  actor & moveTo x y
 
-instance Monoid SpriteChange where
-  mempty = NoSpriteChange
+resetAt' :: Sprite -> Direction -> Int -> Int -> Element -> Scene ()
+resetAt' sprite direction x y actor = do
+  actor & turnTo direction
+  actor & resetAt sprite x y
 
-instance Semigroup ActorChange where
-  (ActorChange turn1 sprite1 tell1 dx1 dy1) <> (ActorChange turn2 sprite2 tell2 dx2 dy2) =
-    ActorChange (turn1 <> turn2) (sprite1 <> sprite2) (tell1 <> tell2) (dx1 + dx2) (dy1 + dy2)
+dress :: Sprite -> Element -> Scene ()
+dress sprite actor = modifyActorState actor (#sprite ?~ sprite)
 
-instance Monoid ActorChange where
-  mempty = ActorChange mempty mempty mempty 0 0
+moveTo :: Int -> Int -> Element -> Scene ()
+moveTo x y actor = modifyActorState actor ((#x +~ x) . (#y +~ y))
 
-mkChange :: Sprite -> DirectionChange -> TellingChange -> Int -> Int -> ActorChange
-mkChange sprite turn tellingChange xoffset yoffset =
-  ActorChange {spriteChange = SetSprite sprite, ..}
+shift :: Int -> Int -> Element -> Scene ()
+shift dx dy actor = modifyActorState actor ((#x +~ dx) . (#y +~ dy))
 
-(+=) :: Element -> ActorChange -> FrameDiff ()
-actor += change = FrameDiff (MTL.tell (Frame (Map.singleton actor change)))
+up :: Element -> Scene ()
+up = shift 0 (-1)
 
-dress :: Element -> Sprite -> FrameDiff ()
-dress actor sprite = actor += mempty {spriteChange = SetSprite sprite}
+down :: Element -> Scene ()
+down = shift 0 1
 
-shift :: Element -> Int -> Int -> FrameDiff ()
-shift actor x y = actor += mempty {xoffset = x, yoffset = y}
+left :: Element -> Scene ()
+left = shift (-1) 0
 
-down :: Element -> FrameDiff ()
-down actor = shift actor 0 1
+right :: Element -> Scene ()
+right = shift 1 0
 
-left :: Element -> FrameDiff ()
-left actor = shift actor (-1) 0
+shutup :: Element -> Scene ()
+shutup actor = modifyActorState actor (#telling .~ Nothing)
 
-right :: Element -> FrameDiff ()
-right actor = shift actor 1 0
+tell :: String -> Element -> Scene ()
+tell s actor = modifyActorState actor (#telling ?~ s)
 
-shutup :: Element -> FrameDiff ()
-shutup actor = actor += mempty {tellingChange = ShutUp}
+turnTo :: Direction -> Element -> Scene ()
+turnTo direction actor = modifyActorState actor (#direction .~ direction)
 
-tell :: Element -> String -> FrameDiff ()
-tell actor s = actor += mempty {tellingChange = Tell s}
-
-turnAround :: Element -> FrameDiff ()
-turnAround actor = actor += mempty {turn = ToggleDir}
-
-up :: Element -> FrameDiff ()
-up actor = shift actor 0 (-1)
-
-leave :: Element -> FrameDiff ()
-leave actor = actor += mempty {spriteChange = HideSprite}
-
-patch :: Frame ActorState -> Frame ActorChange -> Frame ActorState
-patch (Frame oldState) (Frame diff) = Frame newState
+turnAround :: Element -> Scene ()
+turnAround actor = modifyActorState actor (#direction %~ flipDirection)
   where
-    newState =
-      Map.merge
-        Map.preserveMissing
-        (Map.mapMissing (const (patchActorState defaultActorState)))
-        (Map.zipWithMatched (const patchActorState))
-        oldState
-        diff
+    flipDirection ToLeft = ToRight
+    flipDirection ToRight = ToLeft
 
-patchActorState :: ActorState -> ActorChange -> ActorState
-patchActorState s@ActorState {..} ActorChange {..} =
-  s
-    { direction = applyDirectionChange direction turn,
-      sprite = applySpriteChange sprite spriteChange,
-      telling = applyTellingChange telling tellingChange,
-      x = x + xoffset,
-      y = y + yoffset
-    }
-  where
-    applyDirectionChange dir NoDirectionChange = dir
-    applyDirectionChange dir ToggleDir = otherDir dir
-    applyDirectionChange _ TurnRight = ToRight
-    applyDirectionChange _ TurnLeft = ToLeft
-    applySpriteChange _ (SetSprite s) = Just s
-    applySpriteChange _ HideSprite = Nothing
-    applySpriteChange s NoSpriteChange = s
-    applyTellingChange telling NoTellingChange = telling
-    applyTellingChange _ (Tell s) = Just s
-    applyTellingChange _ ShutUp = Nothing
-    otherDir ToRight = ToLeft
-    otherDir ToLeft = ToRight
-
-instance Semigroup (Frame ActorChange) where
-  (Frame m1) <> (Frame m2) = Frame (Map.unionWith (<>) m1 m2)
-
-instance Monoid (Frame ActorChange) where
-  mempty = Frame mempty
+hide :: Element -> Scene ()
+hide actor = modifyActorState actor (#sprite .~ Nothing)

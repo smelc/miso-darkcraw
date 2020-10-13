@@ -14,15 +14,13 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (ActorState, Direction, DirectionChange, Element, Frame, Scene (..), SpriteChange, TellingChange, TimedFrame (..), render)
+import Cinema (ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
 import Control.Concurrent (threadDelay)
 import Control.Exception
 import Control.Lens
-import Control.Monad.Except (runExcept)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as DataBifunctor
 import Data.Foldable (asum, toList)
-import Data.Function ((&))
 import Data.Maybe (maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -108,8 +106,6 @@ instance ToExpr PlayingMode
 
 instance ToExpr SinglePlayerLobbyModel
 
-instance ToExpr Cinema.SpriteChange
-
 instance ToExpr Cinema.Direction
 
 instance ToExpr Cinema.ActorState
@@ -119,10 +115,6 @@ instance ToExpr Tile.Tile
 instance ToExpr Cinema.Element
 
 instance ToExpr a => ToExpr (TimedFrame a)
-
-instance ToExpr Cinema.DirectionChange
-
-instance ToExpr Cinema.TellingChange
 
 instance ToExpr a => ToExpr (Cinema.Frame a)
 
