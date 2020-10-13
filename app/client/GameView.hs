@@ -35,17 +35,18 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: GameModel -> Styled (View Action)
-viewGameModel model = do
+viewGameModel model@GameModel {playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
   return $ div_ [] $ [boardDiv, handDiv] ++ errView model zpp
   where
     (z, zpp) = (0, z + 1)
+    enemySpot = otherPlayerSpot playingPlayer
     boardCardsM = boardToInPlaceCells zpp model
     boardDivM = do
       stacks <-
         if hashless
-          then traverse (stackView model z GameViewInternal.Board) [Discarded, Stacked]
+          then traverse (stackView model z enemySpot GameViewInternal.Board) [Discarded, Stacked]
           else return []
       turn <- turnView model zpp
       let scores = scoreViews model zpp
@@ -132,7 +133,7 @@ boardToInHandCells ::
   GameModel ->
   Styled [View Action]
 boardToInHandCells z m@GameModel {board, interaction, gameShared, playingPlayer} = do
-  stacks <- traverse (stackView m z Hand) [Discarded, Stacked]
+  stacks <- traverse (stackView m z playingPlayer Hand) [Discarded, Stacked]
   return $
     [ div_
         [ style_ $ cardPositionStyle' x y,

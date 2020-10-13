@@ -167,8 +167,8 @@ data StackWidgetType
   | Plus
 
 -- | The widget showing the number of cards in the stack/discarded stack
-stackView :: GameModel -> Int -> StackPosition -> StackType -> Styled [View Action]
-stackView GameModel {anims, board, playingPlayer, gameShared} z stackPos stackType = do
+stackView :: GameModel -> Int -> PlayerSpot -> StackPosition -> StackType -> Styled [View Action]
+stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
   plus <- keyframed plusBuilder plusFrames animData
   return $
@@ -198,15 +198,14 @@ stackView GameModel {anims, board, playingPlayer, gameShared} z stackPos stackTy
           <> "height" =: px plusFontSize
           -- Tell the element to stay in place
           <> "transform" =: "translate(-50%, -50%)"
-    pLens = spotToLens playingPlayer
     (getter, label, marginSide, showPlus) = case stackType of
       Stacked -> (#stack, "Stack", "right", False)
       Discarded -> (#discarded, "Discarded", "left", True)
     deck :: [Card Core] =
-      board ^. pLens . getter & map (unsafeIdentToCard gameShared) & map unliftCard
+      board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
     stackSize = length deck
     playingPlayerAttackEffects :: Map.Map CardSpot AttackEffect =
-      anims ^. spotToLens playingPlayer . #inPlace & unAttackEffects
+      anims ^. spotToLens pSpot . #inPlace & unAttackEffects
     nbPlayingPlayerDeaths =
       Map.foldr (\ae i -> i + (if death ae then 1 else 0)) 0 playingPlayerAttackEffects
     animName = "stackPlus"
