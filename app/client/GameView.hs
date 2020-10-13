@@ -15,6 +15,7 @@ module GameView where
 
 import Board
 import Card
+import Configuration (hashless)
 import Constants
 import Control.Lens
 import Data.Generics.Labels ()
@@ -42,10 +43,14 @@ viewGameModel model = do
     (z, zpp) = (0, z + 1)
     boardCardsM = boardToInPlaceCells zpp model
     boardDivM = do
+      stacks <-
+        if hashless
+          then traverse (stackView model z GameViewInternal.Board) [Discarded, Stacked]
+          else return []
       turn <- turnView model zpp
       let scores = scoreViews model zpp
       boardCards <- boardCardsM
-      return $ div_ [style_ boardStyle] $ [turn] ++ scores ++ boardCards
+      return $ div_ [style_ boardStyle] $ concat stacks ++ [turn] ++ scores ++ boardCards
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl "forest.png"
@@ -127,7 +132,7 @@ boardToInHandCells ::
   GameModel ->
   Styled [View Action]
 boardToInHandCells z m@GameModel {board, interaction, gameShared, playingPlayer} = do
-  stacks <- traverse (stackView m z) [Discarded, Stacked]
+  stacks <- traverse (stackView m z Hand) [Discarded, Stacked]
   return $
     [ div_
         [ style_ $ cardPositionStyle' x y,

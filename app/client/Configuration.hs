@@ -21,6 +21,12 @@ type Hash = Maybe String
 
 data Configuration = Configuration Edition Location Hash
 
+hashless :: Bool
+hashless =
+  case configuration of
+    Configuration _ _ Nothing -> True
+    _ -> False
+
 -- | The current configuration
 configuration :: Configuration
 configuration = Configuration Legendary Dev Nothing

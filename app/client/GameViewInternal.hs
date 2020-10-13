@@ -18,6 +18,7 @@ module GameViewInternal
     keyframes,
     noDrag,
     scoreViews,
+    StackPosition (..),
     StackType (..),
     stackView,
     turnView,
@@ -150,13 +151,24 @@ turnView model@GameModel {turn} z = do
         ]
         "End Turn"
 
+data StackPosition
+  = -- | Stack/discarded widget in board (enemy), only in hashless Configuration
+    Board
+  | -- | Stack/discarded widget in hand (playing player)
+    -- | Always visible
+    Hand
+
 data StackType
   = Stacked
   | Discarded
 
+data StackWidgetType
+  = Button
+  | Plus
+
 -- | The widget showing the number of cards in the stack/discarded stack
-stackView :: GameModel -> Int -> StackType -> Styled [View Action]
-stackView GameModel {anims, board, playingPlayer, gameShared} z stackType = do
+stackView :: GameModel -> Int -> StackPosition -> StackType -> Styled [View Action]
+stackView GameModel {anims, board, playingPlayer, gameShared} z stackPos stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
   plus <- keyframed plusBuilder plusFrames animData
   return $
@@ -164,16 +176,23 @@ stackView GameModel {anims, board, playingPlayer, gameShared} z stackType = do
       ++ [div_ [plusStyle] [plus] | showPlus && nbPlayingPlayerDeaths > 0]
   where
     commonStyle = "z-index" =: ms z <> "position" =: "absolute"
+    verticalMargin GameViewInternal.Board _ = "top" =: px (scoreMarginTop PlayerTop)
+    verticalMargin Hand Button = "bottom" =: px (cps `div` 2)
+    verticalMargin Hand Plus = "bottom" =: px (- (cps `div` 2))
+    horizontalMargin GameViewInternal.Board Button = px (cps * 4)
+    horizontalMargin GameViewInternal.Board Plus = px (cps * 8)
+    horizontalMargin Hand Button = px (cps * 4)
+    horizontalMargin Hand Plus = px (cps * 8)
     buttonStyle =
       style_ $
         commonStyle
-          <> marginSide =: px (cps * 4)
-          <> "bottom" =: px (cps `div` 2)
+          <> marginSide =: horizontalMargin stackPos Button
+          <> verticalMargin stackPos Button
     plusStyle =
       style_ $
         commonStyle
-          <> marginSide =: px (cps * 8)
-          <> "bottom" =: px (- (cps `div` 2))
+          <> marginSide =: horizontalMargin stackPos Plus
+          <> verticalMargin stackPos Button
           -- Specify size, for element to stay in place
           <> "width" =: px plusFontSize
           <> "height" =: px plusFontSize
