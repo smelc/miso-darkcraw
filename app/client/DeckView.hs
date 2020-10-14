@@ -27,10 +27,11 @@ import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 viewDeck :: DeckModel -> Styled (View Action)
 viewDeck DeckModel {deck, deckPlayer, deckShared} = do
   backDiv <- backDivM
+  cardsDiv <- cardsDiver 0 0 cards'
   return
     $ div_
       [style_ bgStyle]
-    $ [backDiv] ++ cardsDiver 0 0 cards'
+    $ [backDiv] ++ cardsDiv
   where
     (z, zpp) = (0, z + 1)
     bgStyle =
@@ -40,23 +41,27 @@ viewDeck DeckModel {deck, deckPlayer, deckShared} = do
     cards' = map (\(i, cs) -> (i, unsafeLiftCards cs)) cards
     unsafeLiftCards = map $ unsafeLiftCard deckShared
     -- Terminal case
-    cardsDiver x y _ | x == 4 && y == 3 = []
+    cardsDiver x y _ | x == 4 && y == 3 = return []
     -- Go to new line
     cardsDiver x y cards | x == 4 = cardsDiver 0 (y + 1) cards
     -- No more cards, draw slot; then iterate
-    cardsDiver x y [] = slotDiver x y : cardsDiver (x + 1) y []
+    cardsDiver x y [] = do
+      let hd = slotDiver x y
+      rest <- cardsDiver (x + 1) y []
+      return $ hd : rest
     -- No card associated to ID, should not happen; but needed for completness
     cardsDiver x y ((_, []) : rest) = cardsDiver x y rest
     -- Regular cards to draw case; then iterate
-    cardsDiver x y ((_, card : _) : rest) =
-      cardDiver x y card : cardsDiver (x + 1) y rest
+    cardsDiver x y ((_, card : _) : rest) = do
+      start <- cardDiver x y card
+      end <- cardsDiver (x + 1) y rest
+      return $ start : end
     xoffset x = 3 + (x * (cardCellWidth + 1))
     yoffset y = 3 + (y * (cardCellHeight + 1))
     -- Create div of a single card
-    cardDiver x y card =
-      div_
-        [style_ $ cardPositionStyle (xoffset x) (yoffset y)]
-        [cardCreatureUI z (unsafeCardToCreature card) mempty]
+    cardDiver x y card = do
+      card <- cardCreatureUI z (unsafeCardToCreature card) mempty
+      return $ div_ [style_ $ cardPositionStyle (xoffset x) (yoffset y)] [card]
     -- Create background of slot
     slotDiver x y =
       div_

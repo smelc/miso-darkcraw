@@ -21,7 +21,7 @@ import Control.Lens
 import Data.Generics.Labels ()
 import Data.Generics.Product
 import qualified Data.Map.Strict as Map
-import Data.Maybe (isJust)
+import Data.Maybe (catMaybes, isJust)
 import Event
 import GameViewInternal
 import Miso hiding (at)
@@ -95,10 +95,10 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
             <$> do
               death <- deathFadeout attackEffect x y
               heart <- heartWobble (z + 1) attackEffect x y
-              return $
-                [cardCreature z toDraw (mempty {hover = beingHovered}) | isJust maybeCreature]
-                  ++ death
-                  ++ heart
+              cards <-
+                sequence
+                  [cardCreature z toDraw (mempty {hover = beingHovered}) | isJust maybeCreature]
+              return $ cards ++ death ++ heart
           | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
             let toDraw =
                   (\c -> (c, unsafeLiftCreature gameShared c & filepath))
@@ -132,36 +132,27 @@ boardToInHandCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInHandCells z m@GameModel {board, interaction, gameShared, playingPlayer} = do
+boardToInHandCells z m@GameModel {anims, board, interaction, gameShared, playingPlayer} = do
   stacks <- traverse (stackView m z playingPlayer Hand) [Discarded, Stacked]
-  return $
-    [ div_
-        [ style_ $ cardPositionStyle' x y,
-          prop "draggable" True,
-          onDragStart (GameAction' $ GameDragStart i),
-          onDragEnd $ GameAction' GameDrop,
-          class_ "card",
-          onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
-          onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
-        ]
-        [cardCreature z toDraw (mempty {hover = beingHovered}) | not beingDragged]
-      | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
-        let toDraw = Just (creature, unsafeLiftCreature gameShared creature & filepath),
-        let x = pixelsXOffset (unHandIndex i),
-        let y = 2 * cellPixelSize,
-        let (beingHovered, beingDragged) =
-              case interaction of
-                GameHoverInteraction Hovering {hoveredCard} ->
-                  (hoveredCard == i, False)
-                GameDragInteraction Dragging {draggedCard} ->
-                  (False, draggedCard == i)
-                GameShowErrorInteraction _ -> (False, False)
-                _ -> (False, False)
-    ]
-      ++ concat stacks
+  cards <- traverse (boardToInHandCell z m) icreatures
+  return $ catMaybes cards ++ concat stacks
   where
-    pLens = spotToLens playingPlayer
-    cards :: [Creature Core] = boardToInHandCreaturesToDraw board pLens
+    cards = boardToInHandCreaturesToDraw board $ spotToLens playingPlayer
+    icreatures = Prelude.zip cards [HandIndex 0 ..]
+
+boardToInHandCell ::
+  -- | The z index
+  Int ->
+  GameModel ->
+  (Creature Core, HandIndex) ->
+  Styled (Maybe (View Action))
+boardToInHandCell z m@GameModel {interaction, gameShared} (creature, i) =
+  if beingDragged
+    then return Nothing
+    else do
+      card <- cardCreature z toDraw (mempty {hover = beingHovered, fadeIn})
+      return $ Just $ div_ attrs [card]
+  where
     pixelsXOffset i
       | i == 0 = (boardPixelWidth - cardPixelWidth) `div` 2 -- center
       | i == 1 = pixelsXOffset 0 - xshift -- shift to the left compared to the center
@@ -170,6 +161,27 @@ boardToInHandCells z m@GameModel {board, interaction, gameShared, playingPlayer}
       | otherwise = pixelsXOffset (i - 2) - xshift -- iterate
       where
         xshift = cardCellWidth * cellPixelSize + (cardHCellGap * cellPixelSize) `div` 2
+    (beingHovered, beingDragged) =
+      case interaction of
+        GameHoverInteraction Hovering {hoveredCard} ->
+          (hoveredCard == i, False)
+        GameDragInteraction Dragging {draggedCard} ->
+          (False, draggedCard == i)
+        GameShowErrorInteraction _ -> (False, False)
+        _ -> (False, False)
+    x = pixelsXOffset (unHandIndex i)
+    y = 2 * cellPixelSize
+    fadeIn = False -- TODO smelc
+    attrs =
+      [ style_ $ cardPositionStyle' x y,
+        prop "draggable" True,
+        onDragStart (GameAction' $ GameDragStart i),
+        onDragEnd $ GameAction' GameDrop,
+        class_ "card",
+        onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
+        onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
+      ]
+    toDraw = Just (creature, unsafeLiftCreature gameShared creature & filepath)
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =

@@ -74,7 +74,7 @@ cardCreatureUI ::
   -- | Whether a card should be drawn or solely a placeholder for drag target
   Creature UI ->
   CardDrawStyle ->
-  View Action
+  Styled (View Action)
 cardCreatureUI z ui cdsty =
   cardCreature z (Just (core, filepath ui)) cdsty
   where
@@ -87,14 +87,17 @@ cardCreature ::
   -- | Whether a card should be drawn or solely a placeholder for drag target
   Maybe (Creature Core, Filepath) ->
   CardDrawStyle ->
-  View Action
-cardCreature z Nothing cdsty = cardBackground z cdsty
-cardCreature z (Just (creature, filepath)) hover =
-  div_
-    []
-    $ [div_ [style_ pictureStyle] [pictureCell]]
-      ++ [div_ [style_ statsStyle] [statsCell]]
-      ++ [cardBackground z hover]
+  Styled (View Action)
+cardCreature z Nothing cdsty = pure $ cardBackground z cdsty
+cardCreature z (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn, hover} =
+  if fadeIn
+    then
+      undefined
+        `seq` keyframed
+          builder
+          (keyframes (animDataName animData) "opacity: 0;" [] "opacity: 1;")
+          animData
+    else pure $ builder []
   where
     topMargin = cps `div` 4
     pictureStyle =
@@ -116,6 +119,15 @@ cardCreature z (Just (creature, filepath)) hover =
           text $ ms $ attack creature,
           imgCell assetFilenameSword
         ]
+    builder attrs =
+      div_ attrs $
+        [div_ [style_ pictureStyle] [pictureCell]]
+          ++ [div_ [style_ statsStyle] [statsCell]]
+          ++ [cardBackground z cdsty]
+    animData =
+      (animationData "handCardFadein" "1s" "ease")
+        { animDataFillMode = Just "forwards"
+        }
 
 cardBackground ::
   -- | The z index
