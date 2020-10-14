@@ -19,6 +19,7 @@ module PCWViewInternal
     cardPositionStyle,
     cardPositionStyle',
     viewFrame,
+    CardDrawStyle (..),
   )
 where
 
@@ -34,6 +35,20 @@ import Miso.Util ((=:))
 import SharedModel (SharedModel (..), tileToFilepath)
 import Update (Action)
 import ViewInternal
+
+data CardDrawStyle = CardDrawStyle
+  { -- | Whether the card should fade in
+    fadeIn :: Bool,
+    -- | Whether the card is being hovered
+    hover :: Bool
+  }
+
+instance Semigroup CardDrawStyle where
+  CardDrawStyle fadeIn1 hover1 <> CardDrawStyle fadeIn2 hover2 =
+    CardDrawStyle (fadeIn1 || fadeIn2) (hover1 || hover2)
+
+instance Monoid CardDrawStyle where
+  mempty = CardDrawStyle False False
 
 cardBoxShadowStyle ::
   -- | The (r, g, b) of the border
@@ -58,11 +73,10 @@ cardCreatureUI ::
   Int ->
   -- | Whether a card should be drawn or solely a placeholder for drag target
   Creature UI ->
-  -- | Whether this card is being hovered
-  Bool ->
+  CardDrawStyle ->
   View Action
-cardCreatureUI z ui hover =
-  cardCreature z (Just (core, filepath ui)) hover
+cardCreatureUI z ui cdsty =
+  cardCreature z (Just (core, filepath ui)) cdsty
   where
     core = unliftCreature ui
 
@@ -72,10 +86,9 @@ cardCreature ::
   Int ->
   -- | Whether a card should be drawn or solely a placeholder for drag target
   Maybe (Creature Core, Filepath) ->
-  -- | Whether this card is being hovered
-  Bool ->
+  CardDrawStyle ->
   View Action
-cardCreature z Nothing hover = cardBackground z hover
+cardCreature z Nothing cdsty = cardBackground z cdsty
 cardCreature z (Just (creature, filepath)) hover =
   div_
     []
@@ -107,10 +120,9 @@ cardCreature z (Just (creature, filepath)) hover =
 cardBackground ::
   -- | The z index
   Int ->
-  -- | Whether the card is being hovered
-  Bool ->
+  CardDrawStyle ->
   View Action
-cardBackground z hover =
+cardBackground z cdsty =
   div_
     [style_ cardStyle']
     [ img_
@@ -123,7 +135,7 @@ cardBackground z hover =
   where
     cardStyle = zpwh z Absolute cardPixelWidth cardPixelHeight
     cardStyle' =
-      if hover
+      if hover cdsty
         then Map.insert "outline" (ms borderSize <> "px solid red") cardStyle
         else cardStyle
 

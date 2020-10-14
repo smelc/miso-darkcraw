@@ -27,7 +27,7 @@ import GameViewInternal
 import Miso hiding (at)
 import Miso.String hiding (concat)
 import Model -- XXX tighten the imports?
-import PCWViewInternal (cardBoxShadowStyle, cardCreature, cardPositionStyle, cardPositionStyle')
+import PCWViewInternal
 import SharedModel
 import Update
 import ViewBlocks (dummyOn)
@@ -96,7 +96,7 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
               death <- deathFadeout attackEffect x y
               heart <- heartWobble (z + 1) attackEffect x y
               return $
-                [cardCreature z toDraw beingHovered | isJust maybeCreature]
+                [cardCreature z toDraw (mempty {hover = beingHovered}) | isJust maybeCreature]
                   ++ death
                   ++ heart
           | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
@@ -144,7 +144,7 @@ boardToInHandCells z m@GameModel {board, interaction, gameShared, playingPlayer}
           onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
           onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
         ]
-        [cardCreature z toDraw beingHovered | not beingDragged]
+        [cardCreature z toDraw (mempty {hover = beingHovered}) | not beingDragged]
       | (creature, i) <- Prelude.zip cards [HandIndex 0 ..],
         let toDraw = Just (creature, unsafeLiftCreature gameShared creature & filepath),
         let x = pixelsXOffset (unHandIndex i),

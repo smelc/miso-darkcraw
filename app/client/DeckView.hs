@@ -56,7 +56,7 @@ viewDeck DeckModel {deck, deckPlayer, deckShared} = do
     cardDiver x y card =
       div_
         [style_ $ cardPositionStyle (xoffset x) (yoffset y)]
-        [cardCreatureUI z (unsafeCardToCreature card) False]
+        [cardCreatureUI z (unsafeCardToCreature card) mempty]
     -- Create background of slot
     slotDiver x y =
       div_
