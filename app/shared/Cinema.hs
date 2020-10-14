@@ -225,7 +225,7 @@ render scene =
         SetActorState element state :>>= k -> do
           E.modify @Frame (#unFrame . at element ?~ state)
           E.tell (Any True)
-          concat <$> sequence [stepThread now tid (view (k ()))]
+          stepThread now tid (view (k ()))
         Fork scene :>>= k -> do
           i <- ThreadId <$> E.gets threadCounter
           E.modify @SchedulerState (#threadCounter +~ 1)
