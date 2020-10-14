@@ -14,7 +14,7 @@ import Test.Hspec (Expectation, shouldBe)
 data TimedRenderedFrame = TimedRenderedFrame Int (S.Set ActorState)
   deriving (Eq, Show)
 
-forgetKeys :: TimedFrame ActorState -> TimedRenderedFrame
+forgetKeys :: TimedFrame -> TimedRenderedFrame
 forgetKeys (TimedFrame duration (Frame mapping)) = TimedRenderedFrame duration (S.fromList (M.elems mapping))
 
 (~=) :: Scene () -> Scene () -> Expectation

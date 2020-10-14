@@ -2,7 +2,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Main where
 
@@ -26,10 +25,8 @@ import Control.Monad.Except (runExcept)
 import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
-import Data.Proxy
 import qualified Data.Set as Set
 import Data.Text (Text)
-import Debug.Trace
 import Game (GamePlayEvent, attackOrder, playAll)
 import Generators
 import Json
@@ -37,7 +34,6 @@ import Movie
 import SceneEquivalence
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Test.QuickCheck
 import Turn (Turn, initialTurn, nextTurn)
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
@@ -75,7 +71,7 @@ testAIRanged cards turn =
         $ CreatureID Archer Undead
     board = emptyInPlaceBoard cards [archer]
 
-testSceneInvariant :: Int -> TimedFrame ActorState -> Spec
+testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
   -- Check no two Element are in the same spot
   it ("Scene Change invariant " ++ show idx) $
@@ -95,11 +91,9 @@ testScenesInvariant name scene =
 testForkScene :: Spec
 testForkScene =
   describe "Cinema.fork"
-    $ it "interleaces events as expected"
+    $ it "interleaves events as expected"
     $ actualScene ~= expectedScene
   where
-    newSkeleton :: Scene Element
-    newSkeleton = newActor
     scene1 :: Element -> Element -> Scene ()
     scene1 w0 w1 = do
       during 1 (up w0)
@@ -113,14 +107,14 @@ testForkScene =
       during 1 (up w0)
     actualScene :: Scene ()
     actualScene = do
-      w0 <- newSkeleton
-      w1 <- newSkeleton
+      w0 <- newHiddenActor
+      w1 <- newHiddenActor
       scene1 w0 w1
       scene2 w0
     expectedScene :: Scene ()
     expectedScene = do
-      w0 <- newSkeleton
-      w1 <- newSkeleton
+      w0 <- newHiddenActor
+      w1 <- newHiddenActor
       during 1 (up w0)
       during 1 (do up w0; down w1)
       during 1 (do up w0; down w1)
@@ -132,28 +126,25 @@ testParallelSceneComposition =
     $ it "interleaves events in the expected order"
     $ actualMergedScene ~= expectedMergedScene
   where
-    newSkeleton :: Scene Element
-    newSkeleton = newActor
-    sprite = creatureSprite $ CreatureID Skeleton Undead
     scene1 :: Element -> Scene ()
     scene1 w0 = do
-      during 1 (w0 += at sprite 0 0)
+      during 1 (w0 & moveTo 0 0)
       during 3 (right w0)
       during 1 (left w0)
     scene2 :: Element -> Scene ()
     scene2 w1 = do
-      during 2 (w1 += at sprite 1 1)
+      during 2 (w1 & moveTo 1 1)
       during 4 (right w1)
     actualMergedScene :: Scene ()
     actualMergedScene = do
-      w0 <- newSkeleton
-      w1 <- newSkeleton
+      w0 <- newHiddenActor
+      w1 <- newHiddenActor
       scene1 w0 ||| scene2 w1
     expectedMergedScene :: Scene ()
     expectedMergedScene = do
-      w0 <- newSkeleton
-      w1 <- newSkeleton
-      during 1 (do w0 += at sprite 0 0; w1 += at sprite 1 1)
+      w0 <- newHiddenActor
+      w1 <- newHiddenActor
+      during 1 (do w0 & moveTo 0 0; w1 & moveTo 1 1)
       during 1 (right w0)
       during 2 (right w1)
       during 2 (left w0)
@@ -186,31 +177,15 @@ testGetActorState =
   where
     skeleton = creatureSprite $ CreatureID Skeleton Undead
     actualScene = do
-      a1 <- newActor
-      during 1 $ a1 += at skeleton 1 2
-      a2 <- newActor
+      a1 <- newActorAt skeleton 1 2
       a1x <- a1 `dot` x
       a1y <- a1 `dot` y
-      during 1 $ a2 += at skeleton a1x a1y
+      newActorAt skeleton a1x a1y
+      wait 1
     expectedScene = do
-      a1 <- newActor
-      during 1 $ a1 += at skeleton 1 2
-      a2 <- newActor
-      during 1 $ a2 += at skeleton 1 2
-
-{- HLINT ignore monoidLaws -}
-monoidLaws :: forall a. (Show a, Eq a, Monoid a, Arbitrary a) => String -> Proxy a -> SpecWith ()
-monoidLaws s _ = describe (s ++ " is a monoid") $ do
-  prop "left identity" leftIdentityProp
-  prop "right identity" rightIdentityProp
-  prop "associativity" associativeProp
-  where
-    associativeProp :: a -> a -> a -> Expectation
-    associativeProp x y z = (x <> y) <> z `shouldBe` x <> (y <> z)
-    leftIdentityProp :: a -> Expectation
-    leftIdentityProp x = mempty <> x `shouldBe` x
-    rightIdentityProp :: a -> Expectation
-    rightIdentityProp x = x <> mempty `shouldBe` x
+      newActorAt skeleton 1 2
+      newActorAt skeleton 1 2
+      wait 1
 
 main :: IO ()
 main = hspec $ do
@@ -252,26 +227,10 @@ main = hspec $ do
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
-  modifyMaxSize (const 35) $ describe "Cinema.|||" $ do
-    prop "should be commutative" $
-      \ast1 ast2 ->
-        let [scene1, scene2] = map astToScene [ast1, ast2]
-         in (scene1 ||| scene2) ~= (scene2 ||| scene1)
-    it "should not wait for forks to fisish" $
-      render (do (return () ||| fork (while 1 mempty)); while 1 mempty)
-        `shouldBe` [TimedFrame 1 (Frame mempty)]
   modifyMaxSize (const 35) $ describe "Scene.>>"
     $ prop "should be associative"
     $ \ast1 ast2 ast3 ->
       let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
        in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
-  monoidLaws "DirectionChange" (Proxy @DirectionChange)
-  monoidLaws "TellingChange" (Proxy @TellingChange)
-  monoidLaws "SpriteChange" (Proxy @SpriteChange)
-  monoidLaws "ActorChange" (Proxy @ActorChange)
   testGetActorState
-  describe "Cinema.patch"
-    $ prop "distributes over ActorChange.<>"
-    $ \state diff1 diff2 ->
-      patch (patch state diff1) diff2 `shouldBe` patch state (diff1 <> diff2)

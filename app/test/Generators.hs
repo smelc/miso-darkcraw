@@ -9,6 +9,7 @@ import GHC.Generics
 import Generic.Random
 import Test.QuickCheck
 import Tile
+import Unsafe.Coerce (unsafeCoerce)
 
 newtype SceneAst = SceneAst [SceneAction]
   deriving (Eq, Show, Generic)
@@ -19,25 +20,18 @@ newtype SceneAst = SceneAst [SceneAction]
 numSceneInstructions :: SceneAst -> Int
 numSceneInstructions (SceneAst actions) = sum (map count actions)
   where
-    count NewActor = 1
-    count (During _ frameDiffAst) = 1 + numFrameDiffInstructions frameDiffAst
+    count (NewActor _) = 1
     count (scene1 :|||: scene2) = 1 + numSceneInstructions scene1 + numSceneInstructions scene2
     count (Fork scene) = 1 + numSceneInstructions scene
-
-numFrameDiffInstructions :: FrameDiffAst -> Int
-numFrameDiffInstructions (FrameDiffAst actions) = length actions
+    count (Wait _) = 1
+    count (SetActorState _ _) = 1
 
 data SceneAction
-  = NewActor
-  | During Int FrameDiffAst
+  = NewActor ActorState
+  | Wait Int
+  | SetActorState Int ActorState
   | SceneAst :|||: SceneAst
   | Fork SceneAst
-  deriving (Eq, Show, Generic)
-
-data FrameDiffAction = FrameDiffAction Int ActorChange
-  deriving (Eq, Show, Generic)
-
-newtype FrameDiffAst = FrameDiffAst [FrameDiffAction]
   deriving (Eq, Show, Generic)
 
 instance Arbitrary CreatureKind where
@@ -56,37 +50,6 @@ instance Arbitrary Tile where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary SpriteChange where
-  arbitrary = genericArbitraryU
-  shrink = genericShrink
-
-instance Arbitrary DirectionChange where
-  arbitrary = genericArbitraryU
-  shrink = genericShrink
-
-instance Arbitrary TellingChange where
-  arbitrary = genericArbitraryU
-  shrink = genericShrink
-
-instance Arbitrary ActorChange where
-  arbitrary = genericArbitraryU
-  shrink = genericShrink
-
-genFrameDiffAction :: Int -> Gen FrameDiffAction
-genFrameDiffAction n = FrameDiffAction <$> choose (0, n -1) <*> arbitrary
-
-instance Arbitrary FrameDiffAction where
-  arbitrary = error "Arbitrary instance only exists to provide shrink"
-  shrink = genericShrink
-
-genFrameDiffAst :: Int -> Gen FrameDiffAst
-genFrameDiffAst 0 = return (FrameDiffAst [])
-genFrameDiffAst n = FrameDiffAst <$> listOf (genFrameDiffAction n)
-
-instance Arbitrary FrameDiffAst where
-  arbitrary = error "Arbitrary instance only exists to provide shrink"
-  shrink = genericShrink
-
 genSceneAst :: Int -> Gen SceneAst
 genSceneAst i = do
   n <- getSize
@@ -97,15 +60,20 @@ genSceneAst i = do
     go 0 _ = return []
     go n i =
       oneof
-        [ (NewActor :) <$> go (n -1) (i + 1),
-          (:)
-            <$> (During <$> (getPositive <$> arbitrary) <*> genFrameDiffAst i)
-            <*> go (n -1) i,
+        [ (:)
+            <$> (NewActor <$> arbitrary)
+            <*> go (n -1) (i + 1),
           (:)
             <$> ((:|||:) <$> subSequence i <*> subSequence i)
             <*> go (n -1) i,
           (:)
             <$> (Fork <$> subSequence i)
+            <*> go (n -1) i,
+          (:)
+            <$> (Wait <$> (getPositive <$> arbitrary))
+            <*> go (n -1) i,
+          (:)
+            <$> (SetActorState <$> choose (0, n -1) <*> arbitrary)
             <*> go (n -1) i
         ]
       where
@@ -119,18 +87,18 @@ instance Arbitrary SceneAction where
 deleteOrphanInstructions :: SceneAst -> SceneAst
 deleteOrphanInstructions (SceneAst actions) = SceneAst (go 0 actions)
   where
-    go i (NewActor : k) =
-      NewActor : go (i + 1) k
-    go i (During duration (FrameDiffAst frameActions) : k) =
-      During duration (FrameDiffAst (concatMap (prune i) frameActions)) : go i k
+    go i (NewActor s : k) =
+      NewActor s : go (i + 1) k
+    go i (Wait d : k) =
+      Wait d : go i k
+    go i (SetActorState j s : k)
+      | j < i = SetActorState j s : go i k
+      | otherwise = go i k
     go i ((SceneAst actions1 :|||: SceneAst actions2) : k) =
       (SceneAst (go i actions1) :|||: SceneAst (go i actions2)) : go i k
     go i (Fork (SceneAst actions1) : k) =
       Fork (SceneAst (go i actions1)) : go i k
     go _ [] = []
-    prune i frame@(FrameDiffAction j _)
-      | j < i = [frame]
-      | otherwise = []
 
 instance Arbitrary SceneAst where
   arbitrary = genSceneAst 0
@@ -141,20 +109,18 @@ instance Arbitrary SceneAst where
   -- that only produces well-formed scenes.
   shrink = map deleteOrphanInstructions . genericShrink
 
-astToFrameDiff :: [Element] -> FrameDiffAst -> FrameDiff ()
-astToFrameDiff actors (FrameDiffAst actions) = mapM_ interpret actions
-  where
-    interpret (FrameDiffAction i actorChange) = (actors !! i) += actorChange
-
 astToScene :: SceneAst -> Scene ()
 astToScene (SceneAst actions) = go [] actions
   where
     go _ [] = return ()
-    go actors (NewActor : k) = do
-      actor <- newActor
+    go actors (NewActor s : k) = do
+      actor <- newActor s
       go (actor : actors) k
-    go actors (During duration frameDiffAst : k) = do
-      during duration (astToFrameDiff actors frameDiffAst)
+    go actors (Wait d : k) = do
+      wait d
+      go actors k
+    go actors (SetActorState a s : k) = do
+      setActorState (unsafeCoerce a) s
       go actors k
     go actors ((SceneAst actions1 :|||: SceneAst actions2) : k) = do
       go actors actions1 ||| go actors actions2
@@ -163,7 +129,7 @@ astToScene (SceneAst actions) = go [] actions
       fork (go actors actions1)
       go actors k
 
-instance Arbitrary a => Arbitrary (Frame a) where
+instance Arbitrary Frame where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
