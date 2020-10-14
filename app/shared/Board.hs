@@ -44,6 +44,7 @@ module Board
     boardToStack,
     boardSetStack,
     boardSetHand,
+    boardAddToHand,
   )
 where
 
@@ -163,9 +164,12 @@ type family InPlaceType (p :: Phase) where
   InPlaceType Core = CardsOnTable
   InPlaceType UI = AttackEffects
 
+type family HandElemType (p :: Phase) where
+  HandElemType Core = Card Core
+  HandElemType UI = CardIdentifier
+
 type family InHandType (p :: Phase) where
-  InHandType Core = [Card Core]
-  InHandType UI = ()
+  InHandType p = [HandElemType p]
 
 type family ScoreType (p :: Phase) where
   ScoreType Core = Int
@@ -180,7 +184,8 @@ type family DiscardedType (p :: Phase) where
   DiscardedType UI = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (InPlaceType p),
+  ( c (HandElemType p),
+    c (InPlaceType p),
     c (InHandType p),
     c (ScoreType p),
     c (StackType p),
@@ -204,8 +209,8 @@ deriving instance Board.Forall Eq p => Eq (PlayerPart p)
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
 instance Semigroup (PlayerPart UI) where
-  PlayerPart inPlace1 () () () () <> PlayerPart inPlace2 () () () () =
-    PlayerPart (inPlace1 <> inPlace2) () () () ()
+  PlayerPart inPlace1 inHand1 () () () <> PlayerPart inPlace2 inHand2 () () () =
+    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) () () ()
 
 instance Monoid (PlayerPart UI) where
   mempty = PlayerPart mempty mempty mempty mempty mempty
@@ -258,6 +263,14 @@ instance Semigroup (Board UI) where
 
 instance Monoid (Board UI) where
   mempty = Board mempty mempty
+
+boardAddToHand :: Board p -> PlayerSpot -> HandElemType p -> Board p
+boardAddToHand board pSpot handElem =
+  boardSetPart board pSpot $ part {inHand = hand'}
+  where
+    part = boardToPart board pSpot
+    hand = inHand part
+    hand' = snoc hand handElem
 
 boardSetHand :: Board p -> PlayerSpot -> InHandType p -> Board p
 boardSetHand board pSpot hand =

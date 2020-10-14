@@ -68,8 +68,8 @@ reportEffect pSpot cSpot effect =
       case pSpot of
         PlayerBottom -> (effectfull, effectless)
         PlayerTop -> (effectless, effectfull)
-    pTop :: PlayerPart UI = PlayerPart topInPlace () () () ()
-    pBot :: PlayerPart UI = PlayerPart botInPlace () () () ()
+    pTop :: PlayerPart UI = PlayerPart topInPlace mempty () () ()
+    pBot :: PlayerPart UI = PlayerPart botInPlace mempty () () ()
 
 play :: Board Core -> GamePlayEvent -> Either Text (Board Core, Board UI)
 play board action =
@@ -169,6 +169,7 @@ drawCardM board pSpot =
       let drawnCard = fromJust maybeDrawnCard & unliftCard
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [drawnCard]
+      tell $ boardAddToHand mempty pSpot $ cardToIdentifier drawnCard
       let board' = boardSetStack board pSpot stack'
       let board'' = boardSetHand board' pSpot hand'
       return board''
