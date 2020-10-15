@@ -215,12 +215,11 @@ stateToAttribute z ActorState {x, y} =
 
 viewEntry :: DisplayMode -> Context -> Element -> Actor -> [View a]
 viewEntry _ _ _ (Actor _ ActorState {sprite = Nothing}) = []
-viewEntry mode Context {..} _ (Actor name state@ActorState {direction, telling, sprite = Just sprite}) =
-  [div_ [stateToAttribute (zFor sprite) state] [imgCell path]]
+viewEntry mode Context {..} _ (Actor mname state@ActorState {direction, telling, sprite = Just sprite}) =
+  [div_ ([stateToAttribute (zFor sprite) state] ++ nameTooltip) [imgCell path]]
     ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
          | isJust telling
        ]
-    ++ nameForDebugging mode name
   where
     (zpp, zpppp, zppPP) = (z + 1, zpp + 1, zpppp + 1)
     path = case sprite of
@@ -239,19 +238,10 @@ viewEntry mode Context {..} _ (Actor name state@ActorState {direction, telling, 
           <> "border-radius" =: px 2 -- rounded corners
           <> "z-index" =: ms zppPP -- on top of everything
           <> "width" =: "fit-content" -- make box exactly the size of the text
-    hintStyle ActorState {x, y} =
-      style_ $
-        "position" =: "absolute"
-          <> "left" =: px ((x * cps) + cps `div` 2)
-          <> "top" =: px ((y + 1) * cps)
-          <> "transform" =: "translate(-50%, -50%)" -- Center element
-          <> "background-color" =: "#dedede80"
-          <> "border-radius" =: px 1 -- rounded corners
-          <> "z-index" =: ms zppPP -- on top of everything
-          <> "width" =: "fit-content" -- make box exactly the size of the text
     zFor sprite =
       case spriteToKind sprite of
         CreatureKind -> zpppp
         TileKind -> zpp
-    nameForDebugging DebugMode (Just name) = [div_ [hintStyle state] [text $ ms name]]
-    nameForDebugging _ _ = []
+    nameTooltip
+      | Just name <- mname = [title_ (ms name)]
+      | otherwise = []
