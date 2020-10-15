@@ -221,6 +221,9 @@ main = hspec $ do
         (boardToCardsInPlace $ testAIRanged cards initialTurn)
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
+  describe "Cinema.|||"
+    $ it "does not create artificial intermediary frames"
+    $ (wait 1 ||| wait 2) ~= wait 2
   testForkScene
   modifyMaxSize (const 35) $ describe "Cinema.fork"
     $ prop "should behave like ||| with rest of program"
