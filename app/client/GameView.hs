@@ -21,7 +21,7 @@ import Control.Lens
 import Data.Generics.Labels ()
 import Data.Generics.Product
 import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, isJust)
+import Data.Maybe
 import Event
 import GameViewInternal
 import Miso hiding (at)
@@ -132,10 +132,10 @@ boardToInHandCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInHandCells z m@GameModel {anims, board, interaction, gameShared, playingPlayer} = do
+boardToInHandCells z m@GameModel {board, playingPlayer} = do
   stacks <- traverse (stackView m z playingPlayer Hand) [Discarded, Stacked]
   cards <- traverse (boardToInHandCell z m) icreatures
-  return $ catMaybes cards ++ concat stacks
+  return $ cards ++ concat stacks
   where
     cards = boardToInHandCreaturesToDraw board $ spotToLens playingPlayer
     icreatures = Prelude.zip cards [HandIndex 0 ..]
@@ -145,13 +145,10 @@ boardToInHandCell ::
   Int ->
   GameModel ->
   (Creature Core, HandIndex) ->
-  Styled (Maybe (View Action))
-boardToInHandCell z m@GameModel {interaction, gameShared} (creature, i) =
-  if beingDragged
-    then return Nothing
-    else do
-      card <- cardCreature z toDraw (mempty {hover = beingHovered, fadeIn})
-      return $ Just $ div_ attrs [card]
+  Styled (View Action)
+boardToInHandCell z m@GameModel {interaction, gameShared} (creature, i) = do
+  card <- cardCreature z toDraw (mempty {hover = beingHovered, fadeIn})
+  return $ div_ attrs [card | not beingDragged]
   where
     pixelsXOffset i
       | i == 0 = (boardPixelWidth - cardPixelWidth) `div` 2 -- center
