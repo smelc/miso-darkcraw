@@ -16,7 +16,7 @@ import Control.Monad.Writer (WriterT (runWriterT))
 import Data.Generics.Labels ()
 import Data.List (sortBy)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
+import Data.Maybe
 import Data.Text (Text)
 import Game (GamePlayEvent (..), allEnemySpots, playM)
 import Turn (Turn, turnToPlayerSpot)
@@ -42,11 +42,9 @@ aiPlay board turn =
 -- | Crafts a play action for the player whose turn it is, or 'Nothing'
 -- | if done.
 aiPlay' :: Board Core -> Turn -> Maybe GamePlayEvent
-aiPlay' board turn
-  | null hand || null candidates = Nothing -- hand is empty
-  | otherwise =
-    let (handi, cSpot, _) = head candidates
-     in Just $ Place pSpot cSpot $ HandIndex handi
+aiPlay' board turn =
+  map (\(i, cSpot, _) -> Place pSpot cSpot $ HandIndex i) candidates
+    & listToMaybe
   where
     pSpot = turnToPlayerSpot turn
     hand :: [(Int, Card Core)] =
