@@ -20,7 +20,7 @@ import Miso.Util ((=:))
 import Model (DeckModel (..))
 import PCWViewInternal
 import SharedModel (unsafeLiftCard)
-import Update (Action (DeckBack), Action)
+import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 
@@ -28,10 +28,10 @@ viewDeck :: DeckModel -> Styled (View Action)
 viewDeck DeckModel {deck, deckPlayer, deckShared} = do
   backDiv <- backDivM
   cardsDiv <- cardsDiver 0 0 cards'
-  return
-    $ div_
+  return $
+    div_
       [style_ bgStyle]
-    $ [backDiv] ++ cardsDiv
+      $ [backDiv] ++ cardsDiv
   where
     (z, zpp) = (0, z + 1)
     bgStyle =

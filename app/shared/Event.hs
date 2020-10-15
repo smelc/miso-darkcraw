@@ -7,10 +7,10 @@ module Event
 where
 
 import Data.Aeson
+import Data.Text (Text)
 import Miso
 import Miso.String
 import Update
-import Data.Text (Text)
 
 -- | Extracts the class name of the target from an event.
 classNameDecoder :: Decoder Value

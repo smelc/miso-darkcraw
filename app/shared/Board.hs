@@ -57,7 +57,7 @@ import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
-import Formatting ((%), hex, sformat)
+import Formatting (hex, sformat, (%))
 import GHC.Generics (Generic)
 
 -- | The spot of a card, as visible from the top of the screen. For the

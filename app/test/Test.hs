@@ -18,7 +18,7 @@ import Board
 import Card
 import Cinema
 import Constants
-import Control.Lens hiding ((+=), at)
+import Control.Lens hiding (at, (+=))
 import Control.Lens.Extras
 import Control.Monad
 import Control.Monad.Except (runExcept)
@@ -66,9 +66,9 @@ testAIRanged cards turn =
         Right (board', _) -> board'
   where
     archer =
-      CreatureCard
-        $ unsafeCreatureWithID cards
-        $ CreatureID Archer Undead
+      CreatureCard $
+        unsafeCreatureWithID cards $
+          CreatureID Archer Undead
     board = emptyInPlaceBoard cards [archer]
 
 testSceneInvariant :: Int -> TimedFrame -> Spec
@@ -90,9 +90,9 @@ testScenesInvariant name scene =
 
 testForkScene :: Spec
 testForkScene =
-  describe "Cinema.fork"
-    $ it "interleaves events as expected"
-    $ actualScene ~= expectedScene
+  describe "Cinema.fork" $
+    it "interleaves events as expected" $
+      actualScene ~= expectedScene
   where
     scene1 :: Element -> Element -> Scene ()
     scene1 w0 w1 = do
@@ -122,9 +122,9 @@ testForkScene =
 
 testParallelSceneComposition :: Spec
 testParallelSceneComposition =
-  describe "Cinema.|||"
-    $ it "interleaves events in the expected order"
-    $ actualMergedScene ~= expectedMergedScene
+  describe "Cinema.|||" $
+    it "interleaves events in the expected order" $
+      actualMergedScene ~= expectedMergedScene
   where
     scene1 :: Element -> Scene ()
     scene1 w0 = do
@@ -152,28 +152,29 @@ testParallelSceneComposition =
 {- HLINT ignore testSceneReturn -}
 testSceneReturn :: SpecWith ()
 testSceneReturn =
-  modifyMaxSize (const 35) $ describe "Scene.return" $ do
-    prop "left neutral for >>" $
-      \ast ->
-        let scene = astToScene ast
-         in (return () >> scene) ~= scene
-    prop "right neutral for >>" $
-      \ast ->
-        let scene = astToScene ast
-         in (scene >> return ()) ~= scene
-    prop "left neutral for |||" $
-      \ast ->
-        let scene = astToScene ast
-         in (return () ||| scene) ~= scene
-    prop "right neutral for |||" $
-      \ast ->
-        let scene = astToScene ast
-         in (scene ||| return ()) ~= scene
+  modifyMaxSize (const 35) $
+    describe "Scene.return" $ do
+      prop "left neutral for >>" $
+        \ast ->
+          let scene = astToScene ast
+           in (return () >> scene) ~= scene
+      prop "right neutral for >>" $
+        \ast ->
+          let scene = astToScene ast
+           in (scene >> return ()) ~= scene
+      prop "left neutral for |||" $
+        \ast ->
+          let scene = astToScene ast
+           in (return () ||| scene) ~= scene
+      prop "right neutral for |||" $
+        \ast ->
+          let scene = astToScene ast
+           in (scene ||| return ()) ~= scene
 
 testGetActorState =
-  describe "getActorState"
-    $ it "should read the state of the actor"
-    $ actualScene ~= expectedScene
+  describe "getActorState" $
+    it "should read the state of the actor" $
+      actualScene ~= expectedScene
   where
     skeleton = creatureSprite $ CreatureID Skeleton Undead
     actualScene = do
@@ -208,10 +209,11 @@ main = hspec $ do
       boardPixelWidth `shouldBe` lobbiesPixelWidth
     it "lobbies and board backgrounds agree in height" $
       boardPixelHeight `shouldBe` lobbiesPixelHeight
-  describe "exactly all spots are used" $ it "attackOrder" $
-    all
-      (\pSpot -> length allCardsSpots == length (attackOrder pSpot))
-      allPlayersSpots
+  describe "exactly all spots are used" $
+    it "attackOrder" $
+      all
+        (\pSpot -> length allCardsSpots == length (attackOrder pSpot))
+        allPlayersSpots
   describe "AI.hs" $ do
     it "AI terminates" $
       all (is _Right . testAI board) [turn, turn']
@@ -221,19 +223,21 @@ main = hspec $ do
         (boardToCardsInPlace $ testAIRanged cards initialTurn)
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
-  describe "Cinema.|||"
-    $ it "does not create artificial intermediary frames"
-    $ (wait 1 ||| wait 2) ~= wait 2
+  describe "Cinema.|||" $
+    it "does not create artificial intermediary frames" $
+      (wait 1 ||| wait 2) ~= wait 2
   testForkScene
-  modifyMaxSize (const 35) $ describe "Cinema.fork"
-    $ prop "should behave like ||| with rest of program"
-    $ \ast1 ast2 ast3 ->
-      let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
-       in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
-  modifyMaxSize (const 35) $ describe "Scene.>>"
-    $ prop "should be associative"
-    $ \ast1 ast2 ast3 ->
-      let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
-       in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
+  modifyMaxSize (const 35) $
+    describe "Cinema.fork" $
+      prop "should behave like ||| with rest of program" $
+        \ast1 ast2 ast3 ->
+          let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
+           in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
+  modifyMaxSize (const 35) $
+    describe "Scene.>>" $
+      prop "should be associative" $
+        \ast1 ast2 ast3 ->
+          let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
+           in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
   testGetActorState

@@ -52,12 +52,12 @@ errView GameModel {interaction} z =
     left = (boardPixelWidth - width) `div` 2
     top = boardPixelHeight `div` 2
     errViewStyle =
-      Map.union (zpltwh z Relative left top width height)
-        $ Map.union flexColumnStyle
-        $ Map.fromList
-          [ ("justify-content", "center"),
-            ("background-image", assetsUrl "errbox.png")
-          ]
+      Map.union (zpltwh z Relative left top width height) $
+        Map.union flexColumnStyle $
+          Map.fromList
+            [ ("justify-content", "center"),
+              ("background-image", assetsUrl "errbox.png")
+            ]
     textView msg = div_ [style_ textStylePairs] [text $ ms msg]
     textWidth = width - (cellPixelSize * 2)
     textWidthAttr = ("width", ms textWidth <> "px")

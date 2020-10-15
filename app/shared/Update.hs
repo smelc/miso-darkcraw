@@ -611,11 +611,12 @@ updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
   MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
 updateModel a m =
-  error $ Text.unpack $
-    "Unhandled case in updateModel with the model being:\n"
-      <> pShowNoColor m
-      <> "\nand the action being:\n"
-      <> pShowNoColor a
+  error $
+    Text.unpack $
+      "Unhandled case in updateModel with the model being:\n"
+        <> pShowNoColor m
+        <> "\nand the action being:\n"
+        <> pShowNoColor a
 
 initialGameModel :: SharedModel -> GameModel
 initialGameModel shared =

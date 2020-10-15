@@ -33,7 +33,7 @@ import Control.Monad.Writer
 import Data.Foldable
 import Data.List (elemIndex)
 import Data.List.Index (deleteAt)
-import Data.Map.Strict ((!?), Map)
+import Data.Map.Strict (Map, (!?))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)

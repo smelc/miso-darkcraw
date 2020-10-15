@@ -25,7 +25,7 @@ module PCWViewInternal
 where
 
 import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString, unliftCreature)
-import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), Frame (..), defaultDirection, spriteToKind)
+import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), defaultDirection, spriteToKind)
 import Constants
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map

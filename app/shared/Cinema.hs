@@ -56,7 +56,7 @@ module Cinema
 where
 
 import Card (CreatureID)
-import Control.Lens ((%~), (&), (+~), (.~), (?~), at, ix)
+import Control.Lens (at, ix, (%~), (&), (+~), (.~), (?~))
 import qualified Control.Lens as Lens
 import qualified Control.Monad.Freer as E
 import qualified Control.Monad.Freer.State as E

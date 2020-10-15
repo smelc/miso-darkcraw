@@ -21,7 +21,7 @@ module SharedModel
   )
 where
 
-import Card (Card (..), CardIdentifier (..), CardIdentifier, Creature (..), Creature, CreatureID, Filepath, Phase (..), creatureToIdentifier, default24Filepath)
+import Card (Card (..), CardIdentifier (..), Creature (..), CreatureID, Filepath, Phase (..), creatureToIdentifier, default24Filepath)
 import Data.Foldable (asum, find)
 import Data.Function ((&))
 import Data.Maybe (fromJust)

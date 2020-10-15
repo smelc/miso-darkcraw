@@ -31,18 +31,18 @@ viewWelcomeModel WelcomeModel {..} = do
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-
     createButtonDivM singlePlayerMargin SinglePlayerDestination "Single Player"
-  return
-    $ div_
+  return $
+    div_
       [style_ bgStyle]
-    $ [ torchesDiv zpp, -- Absolute placement
-        versionDiv zpp configuration, -- Absolute placement
-        div_
-          [style_ flexColumnStyle]
-          -- top level flex, layout things in a column
-          [titleDiv, singlePlayerDiv, multiPlayerDiv]
-      ]
-      ++ viewWelcomeScene welcomeSceneModel
-      ++ debugSlider
+      $ [ torchesDiv zpp, -- Absolute placement
+          versionDiv zpp configuration, -- Absolute placement
+          div_
+            [style_ flexColumnStyle]
+            -- top level flex, layout things in a column
+            [titleDiv, singlePlayerDiv, multiPlayerDiv]
+        ]
+        ++ viewWelcomeScene welcomeSceneModel
+        ++ debugSlider
   where
     (z, zpp, zpppp) = (0, z + 1, zpp + 1)
     bgStyle =
