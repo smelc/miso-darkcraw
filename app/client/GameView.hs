@@ -99,7 +99,7 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
                 sequence
                   [cardCreature z toDraw (mempty {hover = beingHovered}) | isJust maybeCreature]
               return $ cards ++ death ++ heart
-          | (pSpot, cSpot, maybeCreature) <- boardToCardsInPlace board,
+          | (pSpot, cSpot, maybeCreature) <- boardToHoleyInPlace board,
             let toDraw =
                   (\c -> (c, unsafeLiftCreature gameShared c & filepath))
                     <$> maybeCreature,

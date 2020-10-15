@@ -212,7 +212,7 @@ main = hspec $ do
     xit "AI puts Ranged creature in back line" $
       all
         (\(_, cSpot, _) -> inTheBack cSpot)
-        (boardToCardsInPlace $ testAIRanged cards initialTurn)
+        (boardToHoleyInPlace $ testAIRanged cards initialTurn)
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
   describe "Cinema.|||" $

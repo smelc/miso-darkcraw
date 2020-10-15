@@ -22,7 +22,7 @@ module Board
     AttackEffects (..),
     bottomSpotOfTopVisual,
     boardSetPart,
-    boardToCardsInPlace,
+    boardToHoleyInPlace,
     boardToInHandCreaturesToDraw,
     boardToInPlaceCreature,
     boardToHand,
@@ -297,8 +297,8 @@ boardSetStack board pSpot stack =
   where
     part = boardToPart board pSpot
 
-boardToCardsInPlace :: Board Core -> [(PlayerSpot, CardSpot, Maybe (Creature Core))]
-boardToCardsInPlace board =
+boardToHoleyInPlace :: Board Core -> [(PlayerSpot, CardSpot, Maybe (Creature Core))]
+boardToHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- allPlayersSpots,
       cSpot <- allCardsSpots,
