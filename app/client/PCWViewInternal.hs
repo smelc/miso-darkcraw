@@ -215,8 +215,13 @@ stateToAttribute z ActorState {x, y} =
 
 viewEntry :: DisplayMode -> Context -> Element -> Actor -> [View a]
 viewEntry _ _ _ (Actor _ ActorState {sprite = Nothing}) = []
-viewEntry mode Context {..} _ (Actor mname state@ActorState {direction, telling, sprite = Just sprite}) =
-  [div_ ([stateToAttribute (zFor sprite) state] ++ nameTooltip) [imgCell path]]
+viewEntry mode Context {..} element (Actor mname state@ActorState {direction, telling, sprite = Just sprite}) =
+  [ nodeHtmlKeyed
+      "div"
+      (Key (ms (show element)))
+      ([stateToAttribute (zFor sprite) state] ++ nameTooltip)
+      [imgCell path]
+  ]
     ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
          | isJust telling
        ]
