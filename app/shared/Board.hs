@@ -9,6 +9,7 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -29,7 +30,6 @@ module Board
     CardSpot (..),
     createAttackEffect,
     endingPlayerSpot,
-    emptyInPlaceBoard,
     exampleBoard,
     HandIndex (..),
     inTheBack,
@@ -45,6 +45,8 @@ module Board
     boardSetStack,
     boardSetHand,
     boardAddToHand,
+    emptyBoard,
+    boardSetCreature,
   )
 where
 
@@ -272,6 +274,13 @@ boardAddToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
+boardSetCreature :: Board Core -> PlayerSpot -> CardSpot -> Creature Core -> Board Core
+boardSetCreature board pSpot cSpot creature =
+  boardSetPart board pSpot part'
+  where
+    part = boardToPart board pSpot
+    part' = part & #inPlace . at cSpot ?~ creature
+
 boardSetHand :: Board p -> PlayerSpot -> InHandType p -> Board p
 boardSetHand board pSpot hand =
   boardSetPart board pSpot $ part {inHand = hand}
@@ -320,15 +329,18 @@ boardToInPlaceCreature ::
 boardToInPlaceCreature board player cSpot =
   board ^. player . #inPlace . at cSpot
 
--- | A board with nothing in place, and solely the following
--- | hand for the top player. For testing.
-emptyInPlaceBoard :: [Card UI] -> InHandType Core -> Board Core
-emptyInPlaceBoard _ topHand =
-  Board topPlayer botPlayer
+emptyBoard :: Board Core
+emptyBoard =
+  Board {playerTop = emptyPlayerPart, playerBottom = emptyPlayerPart}
+
+emptyPlayerPart :: PlayerPart Core
+emptyPlayerPart = PlayerPart {..}
   where
-    (topCards, topStack) = (Map.empty, [])
-    topPlayer = PlayerPart topCards topHand 0 topStack []
-    botPlayer = PlayerPart Map.empty [] 0 [] []
+    inPlace = Map.empty
+    inHand = []
+    score = 0
+    stack = []
+    discarded = []
 
 exampleBoard :: [Card UI] -> Board Core
 exampleBoard cards =

@@ -7,14 +7,6 @@ module Main where
 
 import AI (aiPlay)
 import Board
-  ( Board,
-    allCardsSpots,
-    allPlayersSpots,
-    boardToCardsInPlace,
-    emptyInPlaceBoard,
-    exampleBoard,
-    inTheBack,
-  )
 import Card
 import Cinema
 import Constants
@@ -34,7 +26,7 @@ import Movie
 import SceneEquivalence
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Turn (Turn, initialTurn, nextTurn)
+import Turn
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
 creatureSum cards getter = sum (map getter cards)
@@ -69,7 +61,7 @@ testAIRanged cards turn =
       CreatureCard $
         unsafeCreatureWithID cards $
           CreatureID Archer Undead
-    board = emptyInPlaceBoard cards [archer]
+    board = boardAddToHand emptyBoard (turnToPlayerSpot turn) archer
 
 testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
