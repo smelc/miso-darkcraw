@@ -243,5 +243,5 @@ viewEntry mode Context {..} _ (Actor mname state@ActorState {direction, telling,
         CreatureKind -> zpppp
         TileKind -> zpp
     nameTooltip
-      | Just name <- mname = [title_ (ms name)]
+      | Just name <- mname, DebugMode <- mode = [title_ (ms name)]
       | otherwise = []
