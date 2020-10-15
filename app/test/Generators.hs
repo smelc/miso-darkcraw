@@ -20,14 +20,14 @@ newtype SceneAst = SceneAst [SceneAction]
 numSceneInstructions :: SceneAst -> Int
 numSceneInstructions (SceneAst actions) = sum (map count actions)
   where
-    count (NewActor _) = 1
+    count (NewActor _ _) = 1
     count (scene1 :|||: scene2) = 1 + numSceneInstructions scene1 + numSceneInstructions scene2
     count (Fork scene) = 1 + numSceneInstructions scene
     count (Wait _) = 1
     count (SetActorState _ _) = 1
 
 data SceneAction
-  = NewActor ActorState
+  = NewActor (Maybe String) ActorState
   | Wait Int
   | SetActorState Int ActorState
   | SceneAst :|||: SceneAst
@@ -61,7 +61,7 @@ genSceneAst i = do
     go n i =
       oneof
         [ (:)
-            <$> (NewActor <$> arbitrary)
+            <$> (NewActor <$> arbitrary <*> arbitrary)
             <*> go (n -1) (i + 1),
           (:)
             <$> ((:|||:) <$> subSequence i <*> subSequence i)
@@ -87,8 +87,8 @@ instance Arbitrary SceneAction where
 deleteOrphanInstructions :: SceneAst -> SceneAst
 deleteOrphanInstructions (SceneAst actions) = SceneAst (go 0 actions)
   where
-    go i (NewActor s : k) =
-      NewActor s : go (i + 1) k
+    go i (NewActor n s : k) =
+      NewActor n s : go (i + 1) k
     go i (Wait d : k) =
       Wait d : go i k
     go i (SetActorState j s : k)
@@ -113,8 +113,8 @@ astToScene :: SceneAst -> Scene ()
 astToScene (SceneAst actions) = go [] actions
   where
     go _ [] = return ()
-    go actors (NewActor s : k) = do
-      actor <- newActor s
+    go actors (NewActor n s : k) = do
+      actor <- newActor n s
       go (actor : actors) k
     go actors (Wait d : k) = do
       wait d
@@ -128,6 +128,10 @@ astToScene (SceneAst actions) = go [] actions
     go actors (Fork (SceneAst actions1) : k) = do
       fork (go actors actions1)
       go actors k
+
+instance Arbitrary Actor where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
 
 instance Arbitrary Frame where
   arbitrary = genericArbitraryU

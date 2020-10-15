@@ -14,7 +14,7 @@ module Update where
 import AI (aiPlay)
 import Board
 import Card
-import Cinema (ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
+import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
 import Control.Concurrent (threadDelay)
 import Control.Exception
 import Control.Lens
@@ -115,6 +115,8 @@ instance ToExpr Tile.Tile
 instance ToExpr Cinema.Element
 
 instance ToExpr TimedFrame
+
+instance ToExpr Cinema.Actor
 
 instance ToExpr Cinema.Frame
 

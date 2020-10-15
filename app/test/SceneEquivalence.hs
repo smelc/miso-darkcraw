@@ -1,7 +1,7 @@
 module SceneEquivalence ((~=), forgetKeys) where
 
 import Cinema
-  ( ActorState,
+  ( Actor,
     Frame (Frame),
     Scene,
     TimedFrame (TimedFrame),
@@ -13,7 +13,7 @@ import qualified Data.Text.Lazy as T
 import Test.Hspec (Expectation, shouldBe)
 import Text.Pretty.Simple (pShowNoColor)
 
-data TimedRenderedFrame = TimedRenderedFrame Int (S.Set ActorState)
+data TimedRenderedFrame = TimedRenderedFrame Int (S.Set Actor)
   deriving (Eq, Show)
 
 forgetKeys :: TimedFrame -> TimedRenderedFrame

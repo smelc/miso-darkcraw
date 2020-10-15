@@ -77,7 +77,7 @@ testSceneInvariant idx TimedFrame {..} =
   it ("Scene Change invariant " ++ show idx) $
     values `shouldBe` values'
   where
-    values = unFrame frame & Map.elems & filter isCreature & map toPos & List.sort
+    values = unFrame frame & Map.elems & map actorState & filter isCreature & map toPos & List.sort
     values' = values & Set.fromList & Set.toList & List.sort
     isCreature ActorState {sprite = Just s} | spriteToKind s == CreatureKind = True
     isCreature _ = False
@@ -107,14 +107,14 @@ testForkScene =
       during 1 (up w0)
     actualScene :: Scene ()
     actualScene = do
-      w0 <- newHiddenActor
-      w1 <- newHiddenActor
+      w0 <- newHiddenActor "w0"
+      w1 <- newHiddenActor "w1"
       scene1 w0 w1
       scene2 w0
     expectedScene :: Scene ()
     expectedScene = do
-      w0 <- newHiddenActor
-      w1 <- newHiddenActor
+      w0 <- newHiddenActor "w0"
+      w1 <- newHiddenActor "w1"
       during 1 (up w0)
       during 1 (do up w0; down w1)
       during 1 (do up w0; down w1)
@@ -137,13 +137,13 @@ testParallelSceneComposition =
       during 4 (right w1)
     actualMergedScene :: Scene ()
     actualMergedScene = do
-      w0 <- newHiddenActor
-      w1 <- newHiddenActor
+      w0 <- newHiddenActor "w0"
+      w1 <- newHiddenActor "w1"
       scene1 w0 ||| scene2 w1
     expectedMergedScene :: Scene ()
     expectedMergedScene = do
-      w0 <- newHiddenActor
-      w1 <- newHiddenActor
+      w0 <- newHiddenActor "w0"
+      w1 <- newHiddenActor "w1"
       during 1 (do w0 & moveTo 0 0; w1 & moveTo 1 1)
       during 1 (right w0)
       during 2 (right w1)
@@ -177,14 +177,14 @@ testGetActorState =
   where
     skeleton = creatureSprite $ CreatureID Skeleton Undead
     actualScene = do
-      a1 <- newActorAt skeleton 1 2
+      a1 <- newActorAt "a1" skeleton 1 2
       a1x <- a1 `dot` x
       a1y <- a1 `dot` y
-      newActorAt skeleton a1x a1y
+      newActorAt "a2" skeleton a1x a1y
       wait 1
     expectedScene = do
-      newActorAt skeleton 1 2
-      newActorAt skeleton 1 2
+      newActorAt "a1" skeleton 1 2
+      newActorAt "a2" skeleton 1 2
       wait 1
 
 main :: IO ()

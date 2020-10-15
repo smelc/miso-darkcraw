@@ -12,7 +12,8 @@
 
 -- | Module containing the base for animating scenes in lobbies
 module Cinema
-  ( ActorKind (..),
+  ( Actor (..),
+    ActorKind (..),
     ActorState (..),
     Direction (..),
     Element (),
@@ -55,7 +56,7 @@ module Cinema
 where
 
 import Card (CreatureID)
-import Control.Lens ((%~), (&), (+~), (.~), (?~), at)
+import Control.Lens ((%~), (&), (+~), (.~), (?~), at, ix)
 import qualified Control.Lens as Lens
 import qualified Control.Monad.Freer as E
 import qualified Control.Monad.Freer.State as E
@@ -106,7 +107,10 @@ data ActorState = ActorState
 newtype Element = Element Int
   deriving (Eq, Generic, Ord, Show)
 
-newtype Frame = Frame {unFrame :: Map.Map Element ActorState}
+data Actor = Actor {actorName :: Maybe String, actorState :: ActorState}
+  deriving (Eq, Ord, Show, Generic)
+
+newtype Frame = Frame {unFrame :: Map.Map Element Actor}
   deriving (Eq, Ord, Show, Generic)
 
 data TimedFrame = TimedFrame
@@ -123,7 +127,7 @@ newtype ThreadId = ThreadId Int
   deriving (Eq, Ord, Show, Generic)
 
 data SceneInstruction :: * -> * where
-  NewActor :: ActorState -> SceneInstruction Element
+  NewActor :: Maybe String -> ActorState -> SceneInstruction Element
   Fork :: Scene () -> SceneInstruction ThreadId
   Join :: ThreadId -> SceneInstruction ()
   GetActorState :: Element -> SceneInstruction ActorState
@@ -132,8 +136,8 @@ data SceneInstruction :: * -> * where
 
 type Scene = Program SceneInstruction
 
-newActor :: ActorState -> Scene Element
-newActor state = singleton (NewActor state)
+newActor :: Maybe String -> ActorState -> Scene Element
+newActor name state = singleton (NewActor name state)
 
 forkWithId :: Scene () -> Scene ThreadId
 forkWithId scene = singleton (Fork scene)
@@ -223,13 +227,13 @@ render scene =
       case prog of
         Return () ->
           return []
-        NewActor state :>>= k -> do
+        NewActor name state :>>= k -> do
           element <- Element <$> E.gets actorCounter
           E.modify @SchedulerState (#actorCounter +~ 1)
-          E.modify @Frame (#unFrame . at element ?~ state)
+          E.modify @Frame (#unFrame . at element ?~ (Actor name state))
           stepThread now tid (view (k element))
         SetActorState element state :>>= k -> do
-          E.modify @Frame (#unFrame . at element ?~ state)
+          E.modify @Frame (#unFrame . ix element . #actorState .~ state)
           stepThread now tid (view (k ()))
         Fork scene :>>= k -> do
           i <- ThreadId <$> E.gets threadCounter
@@ -238,7 +242,7 @@ render scene =
         Join i :>>= k ->
           return [Thread tid (WaitingForThreadId i) (view (k ()))]
         GetActorState element :>>= k -> do
-          state <- fromJust <$> E.gets @Frame (Lens.view (#unFrame . at element))
+          state <- fromJust <$> E.gets @Frame (Lens.preview (#unFrame . ix element . #actorState))
           stepThread now tid (view (k state))
         Wait duration :>>= k ->
           return [Thread tid (WaitingForDate (now + duration)) (view (k ()))]
@@ -279,18 +283,18 @@ modifyActorState element f = do
   state <- getActorState element
   setActorState element (f state)
 
-newHiddenActor :: Scene Element
-newHiddenActor = newActor $ ActorState {direction = defaultDirection, sprite = Nothing, telling = Nothing, x = 0, y = 0}
+newHiddenActor :: String -> Scene Element
+newHiddenActor name = newActor (Just name) $ ActorState {direction = defaultDirection, sprite = Nothing, telling = Nothing, x = 0, y = 0}
 
-newActorAt :: Sprite -> Int -> Int -> Scene Element
-newActorAt sprite x y = do
-  actor <- newHiddenActor
+newActorAt :: String -> Sprite -> Int -> Int -> Scene Element
+newActorAt name sprite x y = do
+  actor <- newHiddenActor name
   actor & resetAt sprite x y
   return actor
 
-newActorAt' :: Sprite -> Direction -> Int -> Int -> Scene Element
-newActorAt' sprite direction x y = do
-  actor <- newHiddenActor
+newActorAt' :: String -> Sprite -> Direction -> Int -> Int -> Scene Element
+newActorAt' name sprite direction x y = do
+  actor <- newHiddenActor name
   actor & resetAt' sprite direction x y
   return actor
 

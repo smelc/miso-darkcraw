@@ -19,7 +19,7 @@ import Miso
 import Miso.String (fromMisoString, ms)
 import Miso.Util ((=:))
 import Model (SceneModel (..), TimedFrames, WelcomeModel (..))
-import PCWViewInternal (viewFrame)
+import PCWViewInternal (DisplayMode (..), viewFrame)
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
@@ -97,13 +97,13 @@ viewWelcomeModel WelcomeModel {..} = do
         ]
       | otherwise = []
     viewWelcomeScene :: SceneModel -> [View Action]
-    viewWelcomeScene (ScenePlaying frames i) = viewFrameAt frames i
-    viewWelcomeScene (ScenePausedForDebugging frames i) = viewFrameAt frames i
+    viewWelcomeScene (ScenePlaying frames i) = viewFrameAt NormalMode frames i
+    viewWelcomeScene (ScenePausedForDebugging frames i) = viewFrameAt DebugMode frames i
     viewWelcomeScene _ = []
-    viewFrameAt :: TimedFrames -> Int -> [View Action]
-    viewFrameAt frames i =
+    viewFrameAt :: DisplayMode -> TimedFrames -> Int -> [View Action]
+    viewFrameAt mode frames i =
       let TimedFrame {frame} = frames V.! i
-       in [viewFrame zpppp welcomeShared frame]
+       in [viewFrame mode zpppp welcomeShared frame]
 
 torchesDiv :: Int -> View Action
 torchesDiv z =

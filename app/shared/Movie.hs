@@ -38,7 +38,7 @@ whiteAppears =
 
 welcomeGhostMovie1 :: Scene ()
 welcomeGhostMovie1 = do
-  g <- during 9 $ newActorAt' (creatureSprite $ CreatureID Ghost Undead) ToRight 1 0
+  g <- during 9 $ newActorAt' "g1" (creatureSprite $ CreatureID Ghost Undead) ToRight 1 0
   during 8 $ down g
   during 15 $ right g
   during 8 $ down g
@@ -65,7 +65,7 @@ welcomeGhostMovie1 = do
 
 welcomeGhostMovie2 :: Scene ()
 welcomeGhostMovie2 = do
-  g <- during 15 $ newActorAt (creatureSprite $ CreatureID Ghost Undead) (lobbiesCellWidth - 3) 0
+  g <- during 15 $ newActorAt "g2" (creatureSprite $ CreatureID Ghost Undead) (lobbiesCellWidth - 3) 0
   during 10 $ down g
   during 12 $ left g
   during 18 $ down g
@@ -91,14 +91,14 @@ welcomeGhostMovie2 = do
 welcomeShade :: Scene ()
 welcomeShade = do
   let (startX, startY) = (lobbiesCellWidth - 1, 2)
-  a <- newHiddenActor
+  a <- newHiddenActor "a"
   mapM_ (during 2) $ blackAppears a startX startY
-  s <- during 6 $ newActorAt (creatureSprite $ CreatureID Shade Undead) startX startY
+  s <- during 6 $ newActorAt "s" (creatureSprite $ CreatureID Shade Undead) startX startY
   during 5 $ left s
   during 5 $ do left s; down s
   during 6 $ do left s; up s
   during 6 $ left s
-  d <- newHiddenActor
+  d <- newHiddenActor "d"
   mapM_ (during 2) $ blackDisappears d 15 2
   during 7 $ left s
   during 6 $ left s
@@ -121,18 +121,18 @@ welcomeShade = do
 
 welcomeFightMovie :: Scene ()
 welcomeFightMovie = do
-  w0 <- newActorAt' humanGeneral ToRight 0 15
-  w01 <- newHiddenActor
-  w02 <- newHiddenActor
+  w0 <- newActorAt' "w0" humanGeneral ToRight 0 15
+  w01 <- newHiddenActor "w01"
+  w02 <- newHiddenActor "w02"
   let allw0right = allRight [w0, w01, w02]
-  w1 <- newActorAt undeadVampire (lobbiesCellWidth - 1) 11
-  w10 <- newHiddenActor
-  w11 <- newHiddenActor
-  w12 <- newHiddenActor
+  w1 <- newActorAt "w1" undeadVampire (lobbiesCellWidth - 1) 11
+  w10 <- newHiddenActor "w10"
+  w11 <- newHiddenActor "w11"
+  w12 <- newHiddenActor "w12"
   let allw1left = allLeft [w1, w10, w11, w12]
-  t0 <- newHiddenActor
-  t1 <- newHiddenActor
-  t2 <- newHiddenActor
+  t0 <- newHiddenActor "t0"
+  t1 <- newHiddenActor "t1"
+  t2 <- newHiddenActor "t2"
   mapM_
     (during 10)
     [ do right w0; left w1,
@@ -166,12 +166,12 @@ welcomeFightMovie = do
     [ do allw0right; allw1left,
       do up w01; left w1; left w11
     ]
-  newActorAt (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
+  newActorAt "bones" (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
   during 5 $ do hide w12; w1 & tell "iugp8b4"
   during 1 $ shutup w1
-  w20 <- newHiddenActor
-  w21 <- newHiddenActor
-  w22 <- newHiddenActor
+  w20 <- newHiddenActor "w20"
+  w21 <- newHiddenActor "w21"
+  w22 <- newHiddenActor "w22"
   let (newAppearsUp, newAppears, newAppearsDown) = ((11, 12), (10, 13), (11, 14))
   let newAppearsUpScene = mapM_ (during 2) (uncurry (whiteAppears t0) newAppearsUp)
   let newAppearsScene = mapM_ (during 2) (uncurry (whiteAppears t1) newAppears)
@@ -181,17 +181,17 @@ welcomeFightMovie = do
     (\(x, y) -> w20 & resetAt undeadWarrior x y) newAppearsUp
     (\(x, y) -> w21 & resetAt undeadWarrior x y) newAppears
     (\(x, y) -> w22 & resetAt undeadWarrior x y) newAppearsDown
-  blood02 <- newHiddenActor
-  bonesw11 <- newHiddenActor
-  blood01 <- newHiddenActor
+  blood02 <- newHiddenActor "blood02"
+  bonesw11 <- newHiddenActor "bonesw11"
+  blood01 <- newHiddenActor "blood01"
   mapM_
     (during 10)
     [ do hide w02; blood02 & resetAt (tileSprite Blood2) 10 14,
       do hide w11; bonesw11 & resetAt (tileSprite Bones1) 10 11,
       do hide w01; blood01 & resetAt (tileSprite Blood2) 10 12
     ]
-  blood0 <- newHiddenActor
-  sword0 <- newHiddenActor
+  blood0 <- newHiddenActor "blood0"
+  sword0 <- newHiddenActor "sword0"
   during 5 $ do hide w0; blood0 & resetAt (tileSprite Blood3) 11 13; sword0 & resetAt (tileSprite Sword2) 11 13
   mapM_
     (during 10)
