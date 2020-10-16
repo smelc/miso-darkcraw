@@ -16,7 +16,7 @@ import Control.Monad
 import Control.Monad.Except (runExcept)
 import Data.List as List
 import qualified Data.Map.Strict as Map
-import Data.Maybe (mapMaybe)
+import Data.Maybe
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Game (GamePlayEvent, attackOrder, playAll)
@@ -209,10 +209,12 @@ main = hspec $ do
   describe "AI.hs" $ do
     it "AI terminates" $
       all (is _Right . testAI board) [turn, turn']
-    xit "AI puts Ranged creature in back line" $
-      all
-        (\(_, cSpot, _) -> inTheBack cSpot)
-        (boardToHoleyInPlace $ testAIRanged cards initialTurn)
+    it "AI puts Ranged creature in back line" $
+      let occupiedSpots =
+            boardToHoleyInPlace (testAIRanged cards initialTurn)
+              & filter (\(_, _, maybeCreature) -> isJust maybeCreature)
+       in all (\(_, cSpot, maybeCreature) -> inTheBack cSpot) occupiedSpots
+            && not (null occupiedSpots)
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
   describe "Cinema.|||" $
