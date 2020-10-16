@@ -168,7 +168,7 @@ type family InPlaceType (p :: Phase) where
 
 type family HandElemType (p :: Phase) where
   HandElemType Core = Card Core
-  HandElemType UI = CardIdentifier
+  HandElemType UI = Int
 
 type family InHandType (p :: Phase) where
   InHandType p = [HandElemType p]

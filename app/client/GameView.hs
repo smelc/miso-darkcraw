@@ -26,7 +26,7 @@ import Event
 import GameViewInternal
 import Miso hiding (at)
 import Miso.String hiding (concat)
-import Model -- XXX tighten the imports?
+import Model
 import PCWViewInternal
 import SharedModel
 import Update
@@ -146,7 +146,7 @@ boardToInHandCell ::
   GameModel ->
   (Creature Core, HandIndex) ->
   Styled (View Action)
-boardToInHandCell z m@GameModel {interaction, gameShared} (creature, i) = do
+boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (creature, i) = do
   card <- cardCreature z toDraw (mempty {hover = beingHovered, fadeIn})
   return $ div_ attrs [card | not beingDragged]
   where
@@ -168,7 +168,7 @@ boardToInHandCell z m@GameModel {interaction, gameShared} (creature, i) = do
         _ -> (False, False)
     x = pixelsXOffset (unHandIndex i)
     y = 2 * cellPixelSize
-    fadeIn = False -- TODO smelc
+    fadeIn = unHandIndex i `elem` boardToHand anims playingPlayer
     attrs =
       [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,

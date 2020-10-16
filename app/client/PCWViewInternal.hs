@@ -92,14 +92,13 @@ cardCreature ::
   CardDrawStyle ->
   Styled (View Action)
 cardCreature z Nothing cdsty = pure $ cardBackground z cdsty
-cardCreature z (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn, hover} =
+cardCreature z (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
-      undefined
-        `seq` keyframed
-          builder
-          (keyframes (animDataName animData) "opacity: 0;" [] "opacity: 1;")
-          animData
+      keyframed
+        builder
+        (keyframes (animDataName animData) "opacity: 0;" [] "opacity: 1;")
+        animData
     else pure $ builder []
   where
     topMargin = cps `div` 4

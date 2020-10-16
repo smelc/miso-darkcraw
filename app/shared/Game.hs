@@ -169,7 +169,7 @@ drawCardM board pSpot =
       let drawnCard = fromJust maybeDrawnCard & unliftCard
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [drawnCard]
-      tell $ boardAddToHand mempty pSpot $ cardToIdentifier drawnCard
+      tell $ boardAddToHand mempty pSpot $ length hand
       let board' = boardSetStack board pSpot stack'
       let board'' = boardSetHand board' pSpot hand'
       return board''
