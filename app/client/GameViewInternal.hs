@@ -169,51 +169,52 @@ data StackWidgetType
 -- | The widget showing the number of cards in the stack/discarded stack
 stackView :: GameModel -> Int -> PlayerSpot -> StackPosition -> StackType -> Styled [View Action]
 stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
-  button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show stackSize)
+  button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show atColonSize)
   plus <- keyframed plusBuilder plusFrames animData
   return $
     [div_ [buttonStyle, onClick $ DeckGo deck] [button]]
-      ++ [div_ [plusStyle] [plus] | showPlus && nbPlayingPlayerDeaths > 0]
+      ++ [div_ [plusStyle] [plus] | plusValue > 0]
   where
     commonStyle = "z-index" =: ms z <> "position" =: "absolute"
     verticalMargin GameViewInternal.Board _ = "top" =: px (scoreMarginTop PlayerTop)
     verticalMargin Hand Button = "bottom" =: px (cps `div` 2)
     verticalMargin Hand Plus = "bottom" =: px (- (cps `div` 2))
-    horizontalMargin GameViewInternal.Board Button = px (cps * 4)
-    horizontalMargin GameViewInternal.Board Plus = px (cps * 8)
-    horizontalMargin Hand Button = px (cps * 4)
-    horizontalMargin Hand Plus = px (cps * 8)
+    horizontalMargin GameViewInternal.Board _ Button = px (cps * 4)
+    horizontalMargin GameViewInternal.Board Discarded Plus = px (cps * 8)
+    horizontalMargin GameViewInternal.Board Stacked Plus = px (cps * 2)
+    horizontalMargin Hand _ Button = px (cps * 4)
+    horizontalMargin Hand Discarded Plus = px (cps * 8)
+    horizontalMargin Hand Stacked Plus = px (cps * 2)
     buttonStyle =
       style_ $
         commonStyle
-          <> marginSide =: horizontalMargin stackPos Button
+          <> marginSide =: horizontalMargin stackPos stackType Button
           <> verticalMargin stackPos Button
     plusStyle =
       style_ $
         commonStyle
-          <> marginSide =: horizontalMargin stackPos Plus
+          <> marginSide =: horizontalMargin stackPos stackType Plus
           <> verticalMargin stackPos Button
           -- Specify size, for element to stay in place
           <> "width" =: px plusFontSize
           <> "height" =: px plusFontSize
           -- Tell the element to stay in place
           <> "transform" =: "translate(-50%, -50%)"
-    (getter, label, marginSide, showPlus) = case stackType of
-      Stacked -> (#stack, "Stack", "right", False)
-      Discarded -> (#discarded, "Discarded", "left", True)
-    deck :: [Card Core] =
-      board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
-    stackSize = length deck
-    playingPlayerAttackEffects :: Map.Map CardSpot AttackEffect =
-      anims ^. spotToLens pSpot . #inPlace & unAttackEffects
-    nbPlayingPlayerDeaths =
-      Map.foldr (\ae i -> i + (if death ae then 1 else 0)) 0 playingPlayerAttackEffects
+    (getter, label, marginSide) = case stackType of
+      Stacked -> (#stack, "Stack", "right")
+      Discarded -> (#discarded, "Discarded", "left")
+    plusValue = case stackType of
+      Stacked -> boardToStack anims pSpot
+      Discarded -> boardToDiscarded anims pSpot + nbDeaths
+    deck :: [Card Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
+    atColonSize = length deck
+    attackEffects = anims ^. spotToLens pSpot . #inPlace & unAttackEffects
+    nbDeaths = Map.foldr (\ae i -> i + (if death ae then 1 else 0)) 0 attackEffects
     animName = "stackPlus"
     animData =
       (animationData animName "1s" "linear")
         { animDataFillMode = Just "forwards"
         }
-    plusText :: MisoString = ("+" :: MisoString) <> ms (show nbPlayingPlayerDeaths)
     (plusFontSize, plusFontSize') =
       (defaultFontSize * 2, defaultFontSize) -- stard, end
     plusFrames =
@@ -221,7 +222,7 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
         animName
         (plusFontSize, "#FF0000", False)
         (plusFontSize', "#FFFFFF", True)
-    plusBuilder x = div_ x [text plusText]
+    plusBuilder x = div_ x [text $ ms ("+" :: MisoString) <> ms (show plusValue)]
 
 -- draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
