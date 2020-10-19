@@ -350,13 +350,15 @@ updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
                 assert (null events) [(1, GameDrawCard $ nbDraws - 1) | nbDraws -1 >= 1]
           )
       where
+        -- both: transfer cards from discarded stack to stack, if necessary
         -- AI: draw all cards, compute its events
         -- player: draw first card
         runEither = do
-          (board', boardui', shared') <-
-            Game.drawCards (gameShared m') (Model.board m') pSpot nbDraws'
-          aiEvents <- if isAI then aiPlay board' turn' else Right []
-          return (aiEvents, board', boardui', shared')
+          let (board', boardui') = Game.transferCards (Model.board m') pSpot
+          (board'', boardui'', shared'') <-
+            Game.drawCards (gameShared m') board' pSpot nbDraws'
+          aiEvents <- if isAI then aiPlay board'' turn' else Right []
+          return (aiEvents, board'', boardui' <> boardui'', shared'')
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
   withInteraction m $ GameHoverInteraction $ Hovering i

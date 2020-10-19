@@ -26,6 +26,7 @@ module Board
     boardToInHandCreaturesToDraw,
     boardToInPlaceCreature,
     boardToHand,
+    boardToPart,
     Board (..),
     CardSpot (..),
     createAttackEffect,
@@ -47,6 +48,8 @@ module Board
     boardAddToHand,
     emptyBoard,
     boardSetCreature,
+    boardToDiscarded,
+    boardSetDiscarded,
   )
 where
 
@@ -179,11 +182,11 @@ type family ScoreType (p :: Phase) where
 
 type family StackType (p :: Phase) where
   StackType Core = [CardIdentifier]
-  StackType UI = ()
+  StackType UI = Int -- Discarded->Stack transfer
 
 type family DiscardedType (p :: Phase) where
   DiscardedType Core = [CardIdentifier]
-  DiscardedType UI = ()
+  DiscardedType UI = Int -- Discarded->Stack transfer
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (HandElemType p),
@@ -211,11 +214,11 @@ deriving instance Board.Forall Eq p => Eq (PlayerPart p)
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
 instance Semigroup (PlayerPart UI) where
-  PlayerPart inPlace1 inHand1 () () () <> PlayerPart inPlace2 inHand2 () () () =
-    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) () () ()
+  PlayerPart inPlace1 inHand1 () s1 d1 <> PlayerPart inPlace2 inHand2 () s2 d2 =
+    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) () (s1 + s2) (d1 + d2)
 
 instance Monoid (PlayerPart UI) where
-  mempty = PlayerPart mempty mempty mempty mempty mempty
+  mempty = PlayerPart mempty mempty mempty 0 0
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
@@ -281,6 +284,12 @@ boardSetCreature board pSpot cSpot creature =
     part = boardToPart board pSpot
     part' = part & #inPlace . at cSpot ?~ creature
 
+boardSetDiscarded :: Board p -> PlayerSpot -> DiscardedType p -> Board p
+boardSetDiscarded board pSpot discarded =
+  boardSetPart board pSpot $ part {discarded = discarded}
+  where
+    part = boardToPart board pSpot
+
 boardSetHand :: Board p -> PlayerSpot -> InHandType p -> Board p
 boardSetHand board pSpot hand =
   boardSetPart board pSpot $ part {inHand = hand}
@@ -308,6 +317,10 @@ boardToHoleyInPlace board =
 boardToInHandCreaturesToDraw :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Creature Core]
 boardToInHandCreaturesToDraw board player =
   board ^.. player . #inHand . folded . #_CreatureCard
+
+boardToDiscarded :: Board p -> PlayerSpot -> DiscardedType p
+boardToDiscarded Board {playerTop} PlayerTop = discarded playerTop
+boardToDiscarded Board {playerBottom} PlayerBottom = discarded playerBottom
 
 boardToHand :: Board p -> PlayerSpot -> InHandType p
 boardToHand Board {playerTop} PlayerTop = inHand playerTop

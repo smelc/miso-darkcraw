@@ -20,12 +20,14 @@ module Game
     playM,
     nbCardsToDraw,
     drawCards,
+    transferCards,
   )
 where
 
 import Board
 import Card
 import Constants
+import Control.Exception (assert)
 import Control.Lens
 import Control.Monad.Except
 import Control.Monad.State
@@ -68,8 +70,8 @@ reportEffect pSpot cSpot effect =
       case pSpot of
         PlayerBottom -> (effectfull, effectless)
         PlayerTop -> (effectless, effectfull)
-    pTop :: PlayerPart UI = PlayerPart topInPlace mempty () () ()
-    pBot :: PlayerPart UI = PlayerPart botInPlace mempty () () ()
+    pTop :: PlayerPart UI = mempty {inPlace = topInPlace}
+    pBot :: PlayerPart UI = mempty {inPlace = botInPlace}
 
 play :: Board Core -> GamePlayEvent -> Either Text (Board Core, Board UI)
 play board action =
@@ -175,6 +177,36 @@ drawCardM board pSpot =
       return board''
   where
     bound = nbCardsToDraw board pSpot
+
+transferCards ::
+  Board Core ->
+  PlayerSpot ->
+  (Board Core, Board UI)
+transferCards board pSpot =
+  transferCardsM board pSpot & runWriter
+
+-- | Transfer cards from the discarded stack to the other stack
+transferCardsM ::
+  MonadWriter (Board UI) m =>
+  Board Core ->
+  PlayerSpot ->
+  m (Board Core)
+transferCardsM board pSpot =
+  if not needTransfer
+    then pure board
+    else do
+      tell $ boardSetDiscarded mempty pSpot (- length discarded)
+      tell $ boardSetStack mempty pSpot (length discarded)
+      return $ boardSetPart board pSpot part'
+  where
+    (hand, actualHandSize) = (boardToHand board pSpot, length hand)
+    cardsToDraw = assert (actualHandSize <= handSize) $ handSize - actualHandSize
+    (stack, stackSize) = (boardToStack board pSpot, length stack)
+    needTransfer = cardsToDraw > stackSize
+    discarded = boardToDiscarded board pSpot
+    (discarded', stack') = ([], stack ++ discarded)
+    part = boardToPart board pSpot
+    part' = part {discarded = discarded', stack = stack'}
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
