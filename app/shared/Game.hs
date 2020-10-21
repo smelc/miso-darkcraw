@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -30,6 +31,7 @@ import Constants
 import Control.Exception (assert)
 import Control.Lens
 import Control.Monad.Except
+import Control.Monad.Random
 import Control.Monad.State
 import Control.Monad.Writer
 import Data.Foldable
@@ -42,6 +44,7 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 import SharedModel
 import System.Random
+import System.Random.Shuffle (shuffleM)
 
 data GamePlayEvent
   = -- | A player finishes its turn, resolving it in a single card spot.
@@ -179,14 +182,29 @@ drawCardM board pSpot =
     bound = nbCardsToDraw board pSpot
 
 transferCards ::
+  SharedModel ->
   Board Core ->
   PlayerSpot ->
-  (Board Core, Board UI)
-transferCards board pSpot =
-  transferCardsM board pSpot & runWriter
+  (SharedModel, Board Core, Board UI)
+transferCards shared@SharedModel {sharedStdGen} board pSpot =
+  (shared {sharedStdGen = stdgen'}, board', boardui')
+  where
+    (board', boardui', stdgen') =
+      transferCards' sharedStdGen board pSpot
+
+transferCards' ::
+  StdGen ->
+  Board Core ->
+  PlayerSpot ->
+  (Board Core, Board UI, StdGen)
+transferCards' stdgen board pSpot =
+  transferCardsM board pSpot & flip runRandT stdgen & runWriter & reorg
+  where
+    reorg ((b, s), bui) = (b, bui, s)
 
 -- | Transfer cards from the discarded stack to the other stack
 transferCardsM ::
+  MonadRandom m =>
   MonadWriter (Board UI) m =>
   Board Core ->
   PlayerSpot ->
@@ -197,6 +215,8 @@ transferCardsM board pSpot =
     else do
       tell $ boardSetDiscarded mempty pSpot (- length discarded)
       tell $ boardSetStack mempty pSpot (length discarded)
+      discarded' <- shuffleM discarded
+      let part' = part {discarded = [], stack = stack ++ discarded'}
       return $ boardSetPart board pSpot part'
   where
     (hand, actualHandSize) = (boardToHand board pSpot, length hand)
@@ -204,9 +224,7 @@ transferCardsM board pSpot =
     (stack, stackSize) = (boardToStack board pSpot, length stack)
     needTransfer = cardsToDraw > stackSize
     discarded = boardToDiscarded board pSpot
-    (discarded', stack') = ([], stack ++ discarded)
     part = boardToPart board pSpot
-    part' = part {discarded = discarded', stack = stack'}
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::

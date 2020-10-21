@@ -354,9 +354,10 @@ updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
         -- AI: draw all cards, compute its events
         -- player: draw first card
         runEither = do
-          let (board', boardui') = Game.transferCards (Model.board m') pSpot
+          let (shared', board', boardui') =
+                Game.transferCards (Model.gameShared m') (Model.board m') pSpot
           (board'', boardui'', shared'') <-
-            Game.drawCards (gameShared m') board' pSpot nbDraws'
+            Game.drawCards shared' board' pSpot nbDraws'
           aiEvents <- if isAI then aiPlay board'' turn' else Right []
           return (aiEvents, board'', boardui' <> boardui'', shared'')
 -- Hovering in hand cards

@@ -38,10 +38,12 @@ common client-server-shared
     ilist,
     lens,
     miso,
+    MonadRandom,
     mtl,
     operational,
     pretty-simple,
     random,
+    random-shuffle,
     text,
     tree-diff,
     vector
@@ -131,10 +133,12 @@ Test-Suite test-darkcraw
     ilist,
     lens,
     miso,
+    MonadRandom,
     mtl,
     operational,
     QuickCheck,
     random,
+    random-shuffle,
     text,
     pretty-simple
   default-language:
