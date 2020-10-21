@@ -31,7 +31,7 @@ module Board
     CardSpot (..),
     createAttackEffect,
     endingPlayerSpot,
-    exampleBoard,
+    startingBoard,
     HandIndex (..),
     inTheBack,
     InHandType (..),
@@ -54,7 +54,7 @@ module Board
 where
 
 import Card
-import Constants (handSize)
+import Constants
 import Control.Lens
 import Control.Monad.Except (MonadError, throwError)
 import Data.Generics.Labels ()
@@ -85,9 +85,8 @@ type CardsOnTable = Map.Map CardSpot (Creature Core)
 -- | A convenience constructor to create the bottom part of a board
 -- | by using the CardSpot that you see instead of having to consider
 -- | the 180 degrees rotation mentioned in CardSpot
-makeBottomCardsOnTable :: CardsOnTable -> CardsOnTable
-makeBottomCardsOnTable =
-  Map.mapKeys bottomSpotOfTopVisual
+_makeBottomCardsOnTable :: CardsOnTable -> CardsOnTable
+_makeBottomCardsOnTable = Map.mapKeys bottomSpotOfTopVisual
 
 -- | Returns a bottom position, by taking a position that makes sense visually
 -- | I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]
@@ -355,34 +354,22 @@ emptyPlayerPart = PlayerPart {..}
     stack = []
     discarded = []
 
-exampleBoard :: [Card UI] -> Board Core
-exampleBoard cards =
+startingBoard :: [Card UI] -> Board Core
+startingBoard cards =
   Board topPlayer botPlayer
   where
-    humanArcher = unsafeCreatureWithID cards (CreatureID Archer Human)
-    humanGeneral = unsafeCreatureWithID cards (CreatureID General Human)
-    humanSpearman = unsafeCreatureWithID cards (CreatureID Spearman Human)
-    undeadArcher = unsafeCreatureWithID cards (CreatureID Archer Undead)
-    undeadMummy = unsafeCreatureWithID cards (CreatureID Mummy Undead)
-    undeadVampire = unsafeCreatureWithID cards (CreatureID Vampire Undead)
-    topCards :: CardsOnTable =
-      Map.fromList
-        [ (TopLeft, undeadArcher),
-          (Bottom, undeadVampire),
-          (BottomRight, undeadMummy)
-        ]
-    (topHand, topStack) = splitAt handSize $ initialDeck cards Undead
+    _humanArcher = unsafeCreatureWithID cards (CreatureID Archer Human)
+    _humanGeneral = unsafeCreatureWithID cards (CreatureID General Human)
+    _humanSpearman = unsafeCreatureWithID cards (CreatureID Spearman Human)
+    _undeadArcher = unsafeCreatureWithID cards (CreatureID Archer Undead)
+    _undeadMummy = unsafeCreatureWithID cards (CreatureID Mummy Undead)
+    _undeadVampire = unsafeCreatureWithID cards (CreatureID Vampire Undead)
+    topCards :: CardsOnTable = Map.empty
+    (topHand, topStack) = splitAt initialHandSize $ initialDeck cards Undead
     topStack' = map cardToIdentifier topStack
     topPlayer = PlayerPart topCards topHand 0 topStack' []
-    botCards :: CardsOnTable =
-      makeBottomCardsOnTable $
-        Map.fromList
-          [ (TopLeft, humanArcher),
-            (Top, humanSpearman),
-            (TopRight, humanGeneral),
-            (BottomLeft, humanArcher)
-          ]
-    (botHand, botStack) = splitAt handSize $ initialDeck cards Human
+    botCards :: CardsOnTable = Map.empty
+    (botHand, botStack) = splitAt initialHandSize $ initialDeck cards Human
     botStack' = map cardToIdentifier botStack
     botPlayer = PlayerPart botCards botHand 0 botStack' []
 

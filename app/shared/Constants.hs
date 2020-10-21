@@ -70,9 +70,15 @@ handPixelHeight = 192
 handPixelWidth :: Int
 handPixelWidth = boardPixelWidth
 
--- | The maximum number of cards in the hand
-handSize :: Int
-handSize = 5
+-- | The initial number of cards in the hand
+initialHandSize :: Int
+initialHandSize = 5
+
+-- | The maximum number of cards to draw from the stack at the start
+-- | of a turn. This effectively limits the hand's size after the initial
+-- | start (where it's at [initialHandSize])
+maxHandSizeAtRefill :: Int
+maxHandSizeAtRefill = 3
 
 -- | A card's height, in cells
 cardCellHeight :: Int

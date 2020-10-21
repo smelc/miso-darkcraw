@@ -631,7 +631,7 @@ initialGameModel shared =
     initialTurn
     mempty
   where
-    board = exampleBoard $ sharedCards shared
+    board = startingBoard $ sharedCards shared
 
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =

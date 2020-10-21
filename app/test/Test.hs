@@ -186,7 +186,7 @@ main = hspec $ do
   let (cards, _) = eitherCardsNTiles ^?! _Right
   let allDecks = getAllDecks cards
   let allCreatures = mapMaybe cardToCreature $ concat allDecks
-  let board = exampleBoard cards
+  let board = startingBoard cards
   let (turn, turn') = (initialTurn, nextTurn turn)
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $

@@ -43,7 +43,6 @@ import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
 import SharedModel
-import System.Random
 import System.Random.Shuffle (shuffleM)
 
 data GamePlayEvent
@@ -159,7 +158,7 @@ drawCardM ::
   PlayerSpot ->
   m (Board Core)
 drawCardM board pSpot =
-  case bound of
+  case assert (bound >= 0) bound of
     0 -> return board
     _ -> do
       let stack :: [CardIdentifier] = boardToStack board pSpot
@@ -220,7 +219,7 @@ transferCardsM board pSpot =
       return $ boardSetPart board pSpot part'
   where
     (hand, actualHandSize) = (boardToHand board pSpot, length hand)
-    cardsToDraw = assert (actualHandSize <= handSize) $ handSize - actualHandSize
+    cardsToDraw = assert (actualHandSize <= initialHandSize) $ maxHandSizeAtRefill - actualHandSize
     (stack, stackSize) = (boardToStack board pSpot, length stack)
     needTransfer = cardsToDraw > stackSize
     discarded = boardToDiscarded board pSpot
@@ -380,7 +379,10 @@ nextAttackSpot board pSpot cSpot =
 
 nbCardsToDraw :: Board Core -> PlayerSpot -> Int
 nbCardsToDraw board pSpot =
-  min (handSize - length hand) (length stack)
+  assert (0 <= result' && result' <= maxHandSizeAtRefill) result'
   where
-    hand = boardToHand board pSpot
-    stack = board ^. (spotToLens pSpot . #stack)
+    handLen = length $ boardToHand board pSpot
+    stackLen = length $ boardToStack board pSpot
+    result = min (maxHandSizeAtRefill - handLen) stackLen
+    result' = max 0 result -- Needed because initial hand size is greater
+    -- than maxHandSizeAtRefill
