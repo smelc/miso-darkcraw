@@ -6,12 +6,13 @@
 -- |
 -- This module defines how the AI plays
 -- |
-module AI (aiPlay) where
+module AI (aiPlay, placeCards) where
 
 import Board
 import Card
+import Control.Exception
 import Control.Lens hiding (snoc)
-import Control.Monad.Except (MonadError)
+import Control.Monad.Except
 import Control.Monad.Writer (WriterT (runWriterT))
 import Data.Generics.Labels ()
 import Data.List (sortBy)
@@ -20,6 +21,21 @@ import Data.Maybe
 import Data.Text (Text)
 import Game (GamePlayEvent (..), allEnemySpots, playM)
 import Turn (Turn, turnToPlayerSpot)
+
+placeCards ::
+  MonadError Text m =>
+  Board Core ->
+  Turn ->
+  m [GamePlayEvent]
+placeCards board turn = do
+  events <- aiPlay board turn
+  -- Will fail once when we do more stuff in aiPlay. It's OK, I'll
+  -- adapt when this happens.
+  return $ assert (all isPlaceEvent events) events
+  where
+    isPlaceEvent EndTurn {} = False
+    isPlaceEvent NoPlayEvent = False
+    isPlaceEvent Place {} = True
 
 -- | """Smart""" play events
 aiPlay ::
@@ -40,7 +56,7 @@ aiPlay board turn =
           helper board'' $ action : actions
 
 -- | Crafts a play action for the player whose turn it is, or 'Nothing'
--- | if done.
+-- if done.
 aiPlay' :: Board Core -> Turn -> Maybe GamePlayEvent
 aiPlay' board turn =
   map (\(i, cSpot, _) -> Place pSpot cSpot $ HandIndex i) candidates

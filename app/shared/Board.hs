@@ -50,6 +50,7 @@ module Board
     boardSetCreature,
     boardToDiscarded,
     boardSetDiscarded,
+    boardSetInPlace,
   )
 where
 
@@ -286,6 +287,12 @@ boardSetCreature board pSpot cSpot creature =
 boardSetDiscarded :: Board p -> PlayerSpot -> DiscardedType p -> Board p
 boardSetDiscarded board pSpot discarded =
   boardSetPart board pSpot $ part {discarded = discarded}
+  where
+    part = boardToPart board pSpot
+
+boardSetInPlace :: Board p -> PlayerSpot -> InPlaceType p -> Board p
+boardSetInPlace board pSpot inPlace =
+  boardSetPart board pSpot $ part {inPlace = inPlace}
   where
     part = boardToPart board pSpot
 

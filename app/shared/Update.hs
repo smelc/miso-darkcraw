@@ -11,7 +11,7 @@
 
 module Update where
 
-import AI (aiPlay)
+import AI
 import Board
 import Card
 import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
@@ -21,6 +21,7 @@ import Control.Lens
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as DataBifunctor
 import Data.Foldable (asum, toList)
+import qualified Data.Map.Strict as Map
 import Data.Maybe (maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -249,13 +250,13 @@ playOne m gamePlayEvent =
   updateGameModel m (GamePlay gamePlayEvent) GameNoInteraction
 
 -- | We MUST return GameAction as the second element (as opposed to
--- | 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
--- | The second element must only contain delayed stuff, it's invalid
--- | to return a list whose first element has 0. If we did that, we would
--- | need to play this event right away, and then we would have new delayed
--- | actions to consider which we wouldn't know how to merge with the first ones.
--- | If you feel like adding a 0 event, you instead need to play this event
--- | right away by doing a recursive call (or use 'playOne')
+-- 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
+-- The second element must only contain delayed stuff, it's invalid
+-- to return a list whose first element has 0. If we did that, we would
+-- need to play this event right away, and then we would have new delayed
+-- actions to consider which we wouldn't know how to merge with the first ones.
+-- If you feel like adding a 0 event, you instead need to play this event
+-- right away by doing a recursive call (or use 'playOne')
 updateGameModel ::
   GameModel ->
   GameAction ->
@@ -313,17 +314,32 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
     pSpot = assert (n >= 1) $ turnToPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
-  -- We don't want any delay so that the game feels responsive
-  -- when the player presses "End Turn", hence the recursive call.
-  updateGameModel m' event GameNoInteraction
+  case em' of
+    Left err -> withInteraction m $ GameShowErrorInteraction err
+    Right m'@GameModel {board = board'} ->
+      -- We don't want any delay so that the game feels responsive
+      -- when the player presses "End Turn", hence the recursive call.
+      updateGameModel m' event GameNoInteraction
+      where
+        event =
+          -- schedule resolving first attack
+          case nextAttackSpot board' pSpot Nothing of
+            Nothing -> GameIncrTurn -- no more attack, change turn
+            Just cSpot -> GamePlay $ EndTurn pSpot cSpot
   where
-    m' = m {interaction = GameNoInteraction}
     pSpot = turnToPlayerSpot turn
-    event =
-      -- schedule resolving first attack
-      case nextAttackSpot board pSpot Nothing of
-        Nothing -> GameIncrTurn -- no more attack, change turn
-        Just cSpot -> GamePlay $ EndTurn pSpot cSpot
+    em' =
+      if turn == initialTurn
+        then do
+          -- End Turn pressed at the end of the player's first turn, make the AI
+          -- place its card in a state where the player did not put its
+          -- card yet, then place them all at once; and then continue
+          -- Do not reveal player placement to AI
+          let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
+          placements <- AI.placeCards emptyPlayerInPlaceBoard $ nextTurn turn
+          (board', boardui') <- Game.playAll board placements
+          return $ m {anims = boardui', board = board'}
+        else Right m
 updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
   (m'', events)
   where
