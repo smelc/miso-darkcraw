@@ -29,7 +29,6 @@ module Board
     boardToPart,
     Board (..),
     CardSpot (..),
-    createInPlaceEffect,
     endingPlayerSpot,
     startingBoard,
     HandIndex (..),
@@ -61,7 +60,6 @@ import Control.Monad.Except (MonadError, throwError)
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
-import Data.Maybe
 import Data.Text (Text)
 import Formatting (hex, sformat, (%))
 import GHC.Generics (Generic)
@@ -119,26 +117,6 @@ data InPlaceEffect = InPlaceEffect
     scoreChange :: Int
   }
   deriving (Eq, Generic, Show)
-
--- | How to build instances of [InPlaceEffect] values
-createInPlaceEffect ::
-  -- | The [death] field
-  Maybe Bool ->
-  -- | The [attackBump] field
-  Maybe Bool ->
-  -- | The [hitPointsChange] field
-  Maybe Int ->
-  -- | The [scoreChange] field
-  Maybe Int ->
-  InPlaceEffect
-createInPlaceEffect mDeath mAttackBump mHitPointsChange mScoreChange =
-  InPlaceEffect
-    (fromMaybe (death neutral) mDeath)
-    (fromMaybe (attackBump neutral) mAttackBump)
-    (fromMaybe (hitPointsChange neutral) mHitPointsChange)
-    (fromMaybe (scoreChange neutral) mScoreChange)
-  where
-    neutral :: InPlaceEffect = mempty
 
 instance Semigroup InPlaceEffect where
   InPlaceEffect {death = d1, attackBump = ab1, hitPointsChange = hp1, scoreChange = c1}

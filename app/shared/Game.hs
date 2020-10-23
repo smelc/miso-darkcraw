@@ -241,15 +241,13 @@ attack board pSpot cSpot =
       let effect = singleAttack hitter hittee
           board' = applyInPlaceEffectOnBoard effect board (attackeePSpot, hitSpot, hittee)
        in do
-            reportEffect pSpot cSpot $ -- attacker bumps
-              createInPlaceEffect Nothing (Just True) Nothing Nothing
+            reportEffect pSpot cSpot $ mempty {attackBump = True}
             reportEffect attackeePSpot hitSpot effect -- hittee
             return board'
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
       let hit = Card.attack hitter
-      reportEffect pSpot cSpot $
-        createInPlaceEffect Nothing (Just True) Nothing (Just hit)
+      reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
   where
     pSpotLens = spotToLens pSpot
@@ -306,8 +304,8 @@ applyInPlaceEffect effect creature@Creature {..} =
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> InPlaceEffect
 singleAttack attacker defender
-  | hps' <= 0 = createInPlaceEffect (Just True) Nothing Nothing Nothing
-  | otherwise = createInPlaceEffect Nothing Nothing (Just $ - hit) Nothing
+  | hps' <= 0 = mempty {death = True}
+  | otherwise = mempty {hitPointsChange = - hit}
   where
     hit = Card.attack attacker
     hps' = Card.hp defender - hit
