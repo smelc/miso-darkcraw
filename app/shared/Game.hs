@@ -61,13 +61,13 @@ reportEffect ::
   MonadWriter (Board UI) m =>
   PlayerSpot ->
   CardSpot ->
-  AttackEffect ->
+  InPlaceEffect ->
   m ()
 reportEffect pSpot cSpot effect =
   tell $ Board {playerTop = pTop, playerBottom = pBot}
   where
-    effectfull = AttackEffects $ Map.singleton cSpot effect
-    effectless = AttackEffects Map.empty
+    effectfull = InPlaceEffects $ Map.singleton cSpot effect
+    effectless = InPlaceEffects Map.empty
     (botInPlace, topInPlace) =
       case pSpot of
         PlayerBottom -> (effectfull, effectless)
@@ -239,17 +239,17 @@ attack board pSpot cSpot =
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed
       let effect = singleAttack hitter hittee
-          board' = applyAttackEffectOnBoard effect board (attackeePSpot, hitSpot, hittee)
+          board' = applyInPlaceEffectOnBoard effect board (attackeePSpot, hitSpot, hittee)
        in do
             reportEffect pSpot cSpot $ -- attacker bumps
-              createAttackEffect Nothing (Just True) Nothing Nothing
+              createInPlaceEffect Nothing (Just True) Nothing Nothing
             reportEffect attackeePSpot hitSpot effect -- hittee
             return board'
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
       let hit = Card.attack hitter
       reportEffect pSpot cSpot $
-        createAttackEffect Nothing (Just True) Nothing (Just hit)
+        createInPlaceEffect Nothing (Just True) Nothing (Just hit)
       return (board & spotToLens pSpot . #score +~ hit)
   where
     pSpotLens = spotToLens pSpot
@@ -272,42 +272,42 @@ attack board pSpot cSpot =
     attackee :: Maybe (CardSpot, Creature Core) =
       asum [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots]
 
-applyAttackEffectOnBoard ::
+applyInPlaceEffectOnBoard ::
   -- | The effect of the attacker on the hittee
-  AttackEffect ->
+  InPlaceEffect ->
   -- | The input board
   Board Core ->
   -- | The creature being hit
   (PlayerSpot, CardSpot, Creature Core) ->
   -- | The updated board
   Board Core
-applyAttackEffectOnBoard effect board (pSpot, cSpot, hittee) =
+applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee) =
   case hittee' of
     Just _ -> board'
     Nothing ->
       board' & spotToLens pSpot . #discarded <>~ [creatureToIdentifier hittee]
   where
-    hittee' = applyAttackEffect effect hittee
+    hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:
     board' = board & spotToLens pSpot . #inPlace . at cSpot .~ hittee'
 
-applyAttackEffect ::
+applyInPlaceEffect ::
   -- | The effect of the attacker on the hittee
-  AttackEffect ->
+  InPlaceEffect ->
   -- | The creature being hit
   Creature Core ->
   -- | The creature being hit, after applying the effect; or None if dead
   Maybe (Creature Core)
-applyAttackEffect effect creature@Creature {..} =
+applyInPlaceEffect effect creature@Creature {..} =
   case effect of
-    AttackEffect {death = True} -> Nothing
-    AttackEffect {hitPointsChange = i} -> Just $ creature {hp = hp + i}
+    InPlaceEffect {death = True} -> Nothing
+    InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = hp + i}
 
 -- The effect of an attack on the defender
-singleAttack :: Creature Core -> Creature Core -> AttackEffect
+singleAttack :: Creature Core -> Creature Core -> InPlaceEffect
 singleAttack attacker defender
-  | hps' <= 0 = createAttackEffect (Just True) Nothing Nothing Nothing
-  | otherwise = createAttackEffect Nothing Nothing (Just $ - hit) Nothing
+  | hps' <= 0 = createInPlaceEffect (Just True) Nothing Nothing Nothing
+  | otherwise = createInPlaceEffect Nothing Nothing (Just $ - hit) Nothing
   where
     hit = Card.attack attacker
     hps' = Card.hp defender - hit

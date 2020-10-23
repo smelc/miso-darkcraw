@@ -208,7 +208,7 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
       Discarded -> boardToDiscarded anims pSpot + nbDeaths
     deck :: [Card Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
     atColonSize = length deck
-    attackEffects = anims ^. spotToLens pSpot . #inPlace & unAttackEffects
+    attackEffects = anims ^. spotToLens pSpot . #inPlace & unInPlaceEffects
     nbDeaths = Map.foldr (\ae i -> i + (if death ae then 1 else 0)) 0 attackEffects
     animName = "stackPlus"
     animData =
@@ -252,7 +252,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
     emptyPlayingPlayerSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
 
-deathFadeout :: AttackEffect -> Int -> Int -> Styled [View Action]
+deathFadeout :: InPlaceEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae _ _ =
   sequence
     [ keyframed
@@ -273,7 +273,7 @@ deathFadeout ae _ _ =
         { animDataFillMode = Just "forwards"
         }
 
-heartWobble :: Int -> AttackEffect -> Int -> Int -> Styled [View Action]
+heartWobble :: Int -> InPlaceEffect -> Int -> Int -> Styled [View Action]
 heartWobble z ae _ _ =
   sequence
     [ keyframed

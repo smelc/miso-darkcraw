@@ -18,8 +18,8 @@
 module Board
   ( allCardsSpots,
     allPlayersSpots,
-    AttackEffect (..),
-    AttackEffects (..),
+    InPlaceEffect (..),
+    InPlaceEffects (..),
     bottomSpotOfTopVisual,
     boardSetPart,
     boardToHoleyInPlace,
@@ -29,7 +29,7 @@ module Board
     boardToPart,
     Board (..),
     CardSpot (..),
-    createAttackEffect,
+    createInPlaceEffect,
     endingPlayerSpot,
     startingBoard,
     HandIndex (..),
@@ -105,7 +105,10 @@ bottomSpotOfTopVisual = \case
 -- It is a bit unfortunate to have these types defined here
 -- as they are UI only. However we need them to define the InPlaceType family
 
-data AttackEffect = AttackEffect
+-- | Initially this type was for displaying animations only. However
+-- Game.hs also uses for Core stuff internally. Unfortunate :-(
+-- So be careful when changing related code.
+data InPlaceEffect = InPlaceEffect
   { -- | Creature dies
     death :: Bool,
     -- | Creature attacked (value used solely for animations)
@@ -117,8 +120,8 @@ data AttackEffect = AttackEffect
   }
   deriving (Eq, Generic, Show)
 
--- | How to build instances of [AttackEffect] values
-createAttackEffect ::
+-- | How to build instances of [InPlaceEffect] values
+createInPlaceEffect ::
   -- | The [death] field
   Maybe Bool ->
   -- | The [attackBump] field
@@ -127,47 +130,47 @@ createAttackEffect ::
   Maybe Int ->
   -- | The [scoreChange] field
   Maybe Int ->
-  AttackEffect
-createAttackEffect mDeath mAttackBump mHitPointsChange mScoreChange =
-  AttackEffect
+  InPlaceEffect
+createInPlaceEffect mDeath mAttackBump mHitPointsChange mScoreChange =
+  InPlaceEffect
     (fromMaybe (death neutral) mDeath)
     (fromMaybe (attackBump neutral) mAttackBump)
     (fromMaybe (hitPointsChange neutral) mHitPointsChange)
     (fromMaybe (scoreChange neutral) mScoreChange)
   where
-    neutral :: AttackEffect = mempty
+    neutral :: InPlaceEffect = mempty
 
-instance Semigroup AttackEffect where
-  AttackEffect {death = d1, attackBump = ab1, hitPointsChange = hp1, scoreChange = c1}
-    <> AttackEffect {death = d2, attackBump = ab2, hitPointsChange = hp2, scoreChange = c2} =
-      AttackEffect
+instance Semigroup InPlaceEffect where
+  InPlaceEffect {death = d1, attackBump = ab1, hitPointsChange = hp1, scoreChange = c1}
+    <> InPlaceEffect {death = d2, attackBump = ab2, hitPointsChange = hp2, scoreChange = c2} =
+      InPlaceEffect
         { death = d1 || d2,
           attackBump = ab1 || ab2,
           hitPointsChange = hp1 + hp2,
           scoreChange = c1 + c2
         }
 
-instance Monoid AttackEffect where
+instance Monoid InPlaceEffect where
   mempty =
-    AttackEffect
+    InPlaceEffect
       { death = False,
         attackBump = False,
         hitPointsChange = 0,
         scoreChange = 0
       }
 
-newtype AttackEffects = AttackEffects {unAttackEffects :: Map.Map CardSpot AttackEffect}
+newtype InPlaceEffects = InPlaceEffects {unInPlaceEffects :: Map.Map CardSpot InPlaceEffect}
   deriving (Eq, Generic, Show)
 
-instance Semigroup AttackEffects where
-  AttackEffects m1 <> AttackEffects m2 = AttackEffects (Map.unionWith (<>) m1 m2)
+instance Semigroup InPlaceEffects where
+  InPlaceEffects m1 <> InPlaceEffects m2 = InPlaceEffects (Map.unionWith (<>) m1 m2)
 
-instance Monoid AttackEffects where
-  mempty = AttackEffects mempty
+instance Monoid InPlaceEffects where
+  mempty = InPlaceEffects mempty
 
 type family InPlaceType (p :: Phase) where
   InPlaceType Core = CardsOnTable
-  InPlaceType UI = AttackEffects
+  InPlaceType UI = InPlaceEffects
 
 type family HandElemType (p :: Phase) where
   HandElemType Core = Card Core

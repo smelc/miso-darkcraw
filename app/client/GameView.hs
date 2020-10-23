@@ -110,7 +110,7 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
             let (x, y) = cardCellsBoardOffset pSpot cSpot,
             let beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot,
             let attackEffect =
-                  anims ^. spotToLens pSpot . field' @"inPlace" . #unAttackEffects . ix cSpot,
+                  anims ^. spotToLens pSpot . field' @"inPlace" . #unInPlaceEffects . ix cSpot,
             let bounceStyle =
                   [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
                     | attackBump attackEffect

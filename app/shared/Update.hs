@@ -67,9 +67,9 @@ instance ToExpr (Card UI)
 
 instance ToExpr PlayerSpot
 
-instance ToExpr AttackEffect
+instance ToExpr InPlaceEffect
 
-instance ToExpr AttackEffects
+instance ToExpr InPlaceEffects
 
 instance ToExpr CardIdentifier
 
