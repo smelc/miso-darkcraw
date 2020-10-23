@@ -317,9 +317,13 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
   case em' of
     Left err -> withInteraction m $ GameShowErrorInteraction err
     Right m'@GameModel {board = board'} ->
-      -- We don't want any delay so that the game feels responsive
-      -- when the player presses "End Turn", hence the recursive call.
-      updateGameModel m' event GameNoInteraction
+      if isInitialTurn
+        then -- We want a one second delay, to see clearly that the opponent
+        -- put its cards, and then proceed with resolving attacks
+          (m', [(1, event)])
+        else -- We don't want any delay so that the game feels responsive
+        -- when the player presses "End Turn", hence the recursive call.
+          updateGameModel m' event GameNoInteraction
       where
         event =
           -- schedule resolving first attack
@@ -328,8 +332,9 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
             Just cSpot -> GamePlay $ EndTurn pSpot cSpot
   where
     pSpot = turnToPlayerSpot turn
+    isInitialTurn = turn == initialTurn
     em' =
-      if turn == initialTurn
+      if isInitialTurn
         then do
           -- End Turn pressed at the end of the player's first turn, make the AI
           -- place its card in a state where the player did not put its
