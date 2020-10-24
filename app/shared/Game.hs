@@ -113,6 +113,7 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     else do
       let inPlace' = Map.insert cSpot (unsafeCardToCreature card) onTable
       let part' = base {inPlace = inPlace', inHand = hand'}
+      reportEffect pSpot cSpot $ mempty {fadeIn = True}
       return $ boardSetPart board pSpot part'
   where
     handi = unHandIndex handhi

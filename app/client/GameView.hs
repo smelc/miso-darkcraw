@@ -97,7 +97,16 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
               heart <- heartWobble (z + 1) attackEffect x y
               cards <-
                 sequence
-                  [cardCreature z toDraw (mempty {hover = beingHovered}) | isJust maybeCreature]
+                  [ cardCreature
+                      z
+                      toDraw
+                      ( mempty
+                          { hover = beingHovered,
+                            PCWViewInternal.fadeIn = Board.fadeIn attackEffect
+                          }
+                      )
+                    | isJust maybeCreature
+                  ]
               return $ cards ++ death ++ heart
           | (pSpot, cSpot, maybeCreature) <- boardToHoleyInPlace board,
             let toDraw =
@@ -147,7 +156,7 @@ boardToInHandCell ::
   (Creature Core, HandIndex) ->
   Styled (View Action)
 boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (creature, i) = do
-  card <- cardCreature z toDraw (mempty {hover = beingHovered, fadeIn})
+  card <- cardCreature z toDraw (mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn})
   return $ div_ attrs [card | not beingDragged]
   where
     pixelsXOffset i

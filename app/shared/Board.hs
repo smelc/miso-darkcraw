@@ -113,18 +113,21 @@ data InPlaceEffect = InPlaceEffect
     attackBump :: Bool,
     -- | Hits points changed
     hitPointsChange :: Int,
+    -- | Fade-in card
+    fadeIn :: Bool,
     -- | Score changed
     scoreChange :: Int
   }
   deriving (Eq, Generic, Show)
 
 instance Semigroup InPlaceEffect where
-  InPlaceEffect {death = d1, attackBump = ab1, hitPointsChange = hp1, scoreChange = c1}
-    <> InPlaceEffect {death = d2, attackBump = ab2, hitPointsChange = hp2, scoreChange = c2} =
+  InPlaceEffect {death = d1, attackBump = ab1, hitPointsChange = hp1, fadeIn = f1, scoreChange = c1}
+    <> InPlaceEffect {death = d2, attackBump = ab2, hitPointsChange = hp2, fadeIn = f2, scoreChange = c2} =
       InPlaceEffect
         { death = d1 || d2,
           attackBump = ab1 || ab2,
           hitPointsChange = hp1 + hp2,
+          fadeIn = f1 || f2,
           scoreChange = c1 + c2
         }
 
@@ -134,6 +137,7 @@ instance Monoid InPlaceEffect where
       { death = False,
         attackBump = False,
         hitPointsChange = 0,
+        fadeIn = False,
         scoreChange = 0
       }
 
