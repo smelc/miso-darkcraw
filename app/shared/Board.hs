@@ -50,6 +50,7 @@ module Board
     boardToDiscarded,
     boardSetDiscarded,
     boardSetInPlace,
+    boardToInPlace,
   )
 where
 
@@ -302,7 +303,7 @@ boardToHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- allPlayersSpots,
       cSpot <- allCardsSpots,
-      let maybeCreature = boardToInPlaceCreature board (spotToLens pSpot) cSpot
+      let maybeCreature = boardToInPlaceCreature board pSpot cSpot
   ]
 
 boardToInHandCreaturesToDraw :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Creature Core]
@@ -317,6 +318,10 @@ boardToHand :: Board p -> PlayerSpot -> InHandType p
 boardToHand Board {playerTop} PlayerTop = inHand playerTop
 boardToHand Board {playerBottom} PlayerBottom = inHand playerBottom
 
+boardToInPlace :: Board p -> PlayerSpot -> InPlaceType p
+boardToInPlace Board {playerTop} PlayerTop = inPlace playerTop
+boardToInPlace Board {playerBottom} PlayerBottom = inPlace playerBottom
+
 boardToPart :: Board p -> PlayerSpot -> PlayerPart p
 boardToPart Board {playerTop} PlayerTop = playerTop
 boardToPart Board {playerBottom} PlayerBottom = playerBottom
@@ -327,11 +332,12 @@ boardToStack Board {playerBottom} PlayerBottom = stack playerBottom
 
 boardToInPlaceCreature ::
   Board Core ->
-  Lens' (Board Core) (PlayerPart Core) ->
+  PlayerSpot ->
   CardSpot ->
   Maybe (Creature Core)
-boardToInPlaceCreature board player cSpot =
-  board ^. player . #inPlace . at cSpot
+boardToInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
+  where
+    inPlace = boardToInPlace board pSpot
 
 emptyBoard :: Board Core
 emptyBoard =

@@ -374,7 +374,7 @@ nextAttackSpot board pSpot cSpot =
                in find hasCreature spots'
   where
     spots :: [CardSpot] = attackOrder pSpot
-    hasCreature c = isJust $ boardToInPlaceCreature board (spotToLens pSpot) c
+    hasCreature c = isJust $ boardToInPlaceCreature board pSpot c
 
 nbCardsToDraw :: Board Core -> PlayerSpot -> Int
 nbCardsToDraw board pSpot =

@@ -235,7 +235,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
     GameDragInteraction _ | emptyPlayingPlayerSpot -> 3
     GameHoverInteraction _ | emptyPlayingPlayerSpot -> 3
     GameHoverInPlaceInteraction pSpot' cSpotHovered ->
-      let attacker = boardToInPlaceCreature board (spotToLens pSpot') cSpotHovered
+      let attacker = boardToInPlaceCreature board pSpot' cSpotHovered
        in let skills' =
                 case attacker of
                   Nothing -> [] -- case should not happen but we handle it
