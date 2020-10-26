@@ -67,7 +67,7 @@ boardToInPlaceCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
+boardToInPlaceCells z m@GameModel {board} = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
@@ -75,59 +75,8 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
   where
     mainM =
       sequence
-        [ div_
-            ( [ style_ $ Map.fromList bounceStyle <> cardPositionStyle x y, -- Absolute positioning
-                class_ "card",
-                cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
-              ]
-                ++ case maybeCreature of
-                  Just _ ->
-                    [ onMouseEnter' "card" $ GameAction' $ GameInPlaceMouseEnter pSpot cSpot,
-                      onMouseLeave' "card" $ GameAction' $ GameInPlaceMouseLeave pSpot cSpot
-                    ]
-                  Nothing ->
-                    [ onDragEnter (GameAction' $ GameDragEnter cSpot),
-                      onDragLeave (GameAction' $ GameDragLeave cSpot),
-                      onDrop (AllowDrop True) $ GameAction' GameDrop,
-                      dummyOn "dragover"
-                    ]
-            )
-            <$> do
-              death <- deathFadeout attackEffect x y
-              heart <- heartWobble (z + 1) attackEffect x y
-              cards <-
-                sequence
-                  [ cardCreature
-                      z
-                      toDraw
-                      ( mempty
-                          { hover = beingHovered,
-                            PCWViewInternal.fadeIn = Board.fadeIn attackEffect
-                          }
-                      )
-                    | isJust maybeCreature
-                  ]
-              return $ cards ++ death ++ heart
-          | (pSpot, cSpot, maybeCreature) <- boardToHoleyInPlace board,
-            let toDraw =
-                  (\c -> (c, unsafeLiftCreature gameShared c & filepath))
-                    <$> maybeCreature,
-            let upOrDown =
-                  case pSpot of
-                    PlayerTop -> False -- down
-                    PlayerBottom -> True, -- up
-            let (x, y) = cardCellsBoardOffset pSpot cSpot,
-            let beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot,
-            let attackEffect =
-                  anims ^. spotToLens pSpot . field' @"inPlace" . #unInPlaceEffects . ix cSpot,
-            let bounceStyle =
-                  [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
-                    | attackBump attackEffect
-                  ],
-            let (r, g, b) =
-                  case interaction of
-                    GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
-                    _ -> greenRGB
+        [ boardToInPlaceCell z m pSpot cSpot
+          | (pSpot, cSpot, _) <- boardToHoleyInPlace board
         ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     bumpInit = "transform: translateY(0px);"
@@ -135,6 +84,63 @@ boardToInPlaceCells z m@GameModel {anims, board, gameShared, interaction} = do
     bump50 upOrDown = "transform: translateY(" ++ sign upOrDown ++ show cellPixelSize ++ "px);"
     bumpKeyFrames upOrDown =
       keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
+
+boardToInPlaceCell :: Int -> GameModel -> PlayerSpot -> CardSpot -> Styled (View Action)
+boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot cSpot =
+  div_
+    ( [ style_ $ Map.fromList bounceStyle <> cardPositionStyle x y, -- Absolute positioning
+        class_ "card",
+        cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
+      ]
+        ++ eventsAttrs GameAction'
+    )
+    <$> do
+      death <- deathFadeout attackEffect x y
+      heart <- heartWobble (z + 1) attackEffect x y
+      cards <-
+        sequence
+          [ cardCreature
+              z
+              toDraw
+              ( mempty
+                  { hover = beingHovered,
+                    PCWViewInternal.fadeIn = Board.fadeIn attackEffect
+                  }
+              )
+            | isJust maybeCreature
+          ]
+      return $ cards ++ death ++ heart
+  where
+    maybeCreature = boardToInPlaceCreature board pSpot cSpot
+    eventsAttrs lift =
+      if isJust maybeCreature
+        then
+          [ event "card" $ lift $ GameInPlaceMouseEnter pSpot cSpot
+            | event <- [onMouseEnter', onMouseLeave']
+          ]
+        else
+          [event (lift $ GameDragEnter cSpot) | event <- [onDragEnter, onDragLeave]]
+            ++ [ onDrop (AllowDrop True) $ lift GameDrop, dummyOn "dragover" ]
+    bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
+    toDraw =
+      (\c -> (c, unsafeLiftCreature gameShared c & filepath))
+        <$> maybeCreature
+    upOrDown =
+      case pSpot of
+        PlayerTop -> False -- down
+        PlayerBottom -> True -- up
+    (x, y) = cardCellsBoardOffset pSpot cSpot
+    beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot
+    attackEffect =
+      anims ^. spotToLens pSpot . field' @"inPlace" . #unInPlaceEffects . ix cSpot
+    bounceStyle =
+      [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
+        | attackBump attackEffect
+      ]
+    (r, g, b) =
+      case interaction of
+        GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
+        _ -> greenRGB
 
 boardToInHandCells ::
   -- | The z index
