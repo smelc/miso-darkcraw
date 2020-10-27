@@ -113,7 +113,7 @@ cardCreature z (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
       flexLineStyle
         <> "font-size" =: (ms (cps `div` 2) <> "px")
         <> "font-family" =: "serif"
-    statsCell :: View Action =
+    statsCell =
       div_
         [style_ inStatsStyle]
         [ text $ ms $ hp creature,

@@ -61,10 +61,16 @@ logTeam cards t = do
 -- | Entry point for a miso application
 main :: IO ()
 main = do
-  (cards, tiles) <- loadJson'
+  (cards, skills, tiles) <- loadJson'
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
-  let shared = SharedModel {sharedCards = cards, sharedTiles = tiles, sharedStdGen = stdGen}
+  let shared =
+        SharedModel
+          { sharedCards = cards,
+            sharedSkills = skills,
+            sharedTiles = tiles,
+            sharedStdGen = stdGen
+          }
   let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
   runApp $ startApp App {..}
   where

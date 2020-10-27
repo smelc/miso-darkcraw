@@ -183,7 +183,7 @@ testGetActorState =
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
-  let (cards, _) = eitherCardsNTiles ^?! _Right
+  let (cards, _, _) = eitherCardsNTiles ^?! _Right
   let allDecks = getAllDecks cards
   let allCreatures = mapMaybe cardToCreature $ concat allDecks
   let board = startingBoard cards

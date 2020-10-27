@@ -99,6 +99,8 @@ instance ToExpr StdGen where toExpr = defaultExprViaShow
 
 instance ToExpr Tile.TileUI
 
+instance ToExpr Card.SkillUI
+
 instance ToExpr SharedModel
 
 instance ToExpr GameModel

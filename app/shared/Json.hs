@@ -97,6 +97,16 @@ itemObjectOptions =
     impl "item" = "name"
     impl s = s
 
+skillUIOptions :: Options
+skillUIOptions =
+  defaultOptions
+    { fieldLabelModifier = impl
+    }
+  where
+    impl "skillText" = "text"
+    impl "skillTitle" = "title"
+    impl s = s
+
 instance ToJSON (Creature UI)
 
 instance FromJSON (Creature UI) where
@@ -130,10 +140,16 @@ instance ToJSON TileUI
 
 instance FromJSON TileUI
 
+instance ToJSON SkillUI
+
+instance FromJSON SkillUI where
+  parseJSON = genericParseJSON skillUIOptions
+
 data AllData (p :: Phase) = AllData
   { creatures :: [Creature p],
     neutral :: [NeutralObject],
     items :: [ItemObject],
+    skills :: [SkillUI],
     tiles :: [TileUI]
   }
   deriving (Generic)
@@ -144,19 +160,19 @@ instance ToJSON (AllData UI)
 
 instance FromJSON (AllData UI)
 
-type LoadedJson = ([Card UI], [TileUI])
+type LoadedJson = ([Card UI], [SkillUI], [TileUI])
 
 parseJson ::
   -- | The content of data.json
   ByteString ->
   Either String LoadedJson
 parseJson json = do
-  AllData creatures neutral items tiles <- eitherDecode json
+  AllData creatures neutral items skills tiles <- eitherDecode json
   let creatureCards = Prelude.map CreatureCard creatures
       neutralCards = Prelude.map (NeutralCard . Card.neutral) neutral
       itemCards = Prelude.map (ItemCard . Card.item) items
       allCards = creatureCards ++ neutralCards ++ itemCards
-  return (allCards, tiles)
+  return (allCards, skills, tiles)
 
 loadJson :: Either String LoadedJson
 loadJson =

@@ -36,6 +36,13 @@ data Skill
   | Unique
   deriving (Eq, Generic, Ord, Show)
 
+data SkillUI = SkillUI
+  { skill :: Skill,
+    skillText :: String,
+    skillTitle :: String
+  }
+  deriving (Eq, Generic, Show)
+
 data Phase = UI | Core
 
 type family FilepathType (p :: Phase) where

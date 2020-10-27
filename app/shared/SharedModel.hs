@@ -21,7 +21,7 @@ module SharedModel
   )
 where
 
-import Card (Card (..), CardIdentifier (..), Creature (..), CreatureID, Filepath, Phase (..), creatureToIdentifier, default24Filepath)
+import Card
 import Data.Foldable (asum, find)
 import Data.Function ((&))
 import Data.Maybe (fromJust)
@@ -37,6 +37,7 @@ instance Eq StdGen where
 data SharedModel = SharedModel
   { -- | Data obtained at load time, that never changes
     sharedCards :: [Card UI],
+    sharedSkills :: [SkillUI],
     sharedTiles :: [TileUI],
     -- | RNG obtained at load time, to be user whenever randomness is needed
     sharedStdGen :: StdGen
