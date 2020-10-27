@@ -119,12 +119,15 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
     eventsAttrs lift =
       if isJust maybeCreature
         then
-          [ event "card" $ lift $ GameInPlaceMouseEnter pSpot cSpot
-            | event <- [onMouseEnter', onMouseLeave']
+          [ onMouseEnter' "card" $ lift $ GameInPlaceMouseEnter pSpot cSpot,
+            onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave pSpot cSpot
           ]
         else
-          [event (lift $ GameDragEnter cSpot) | event <- [onDragEnter, onDragLeave]]
-            ++ [onDrop (AllowDrop True) $ lift GameDrop, dummyOn "dragover"]
+          [ onDragEnter $ lift $ GameDragEnter cSpot,
+            onDragLeave $ lift $ GameDragLeave cSpot,
+            onDrop (AllowDrop True) $ lift GameDrop,
+            dummyOn "dragover"
+          ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     toDraw =
       (\c -> (c, unsafeLiftCreature gameShared c & filepath))
