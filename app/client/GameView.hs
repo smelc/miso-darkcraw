@@ -20,12 +20,13 @@ import Constants
 import Control.Lens
 import Data.Generics.Labels ()
 import Data.Generics.Product
+import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Event
 import GameViewInternal
 import Miso hiding (at)
-import Miso.String hiding (concat)
+import Miso.String hiding (concat, intersperse, map)
 import Model
 import PCWViewInternal
 import SharedModel
@@ -87,7 +88,9 @@ boardToInPlaceCells z m@GameModel {board} = do
 
 boardToInPlaceCell :: Int -> GameModel -> PlayerSpot -> CardSpot -> Styled (View Action)
 boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot cSpot =
-  div_
+  nodeHtmlKeyed
+    "div"
+    (Key $ ms key)
     ( [ style_ $ Map.fromList bounceStyle <> cardPositionStyle x y, -- Absolute positioning
         class_ "card",
         cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
@@ -111,6 +114,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
           ]
       return $ cards ++ death ++ heart
   where
+    key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = boardToInPlaceCreature board pSpot cSpot
     eventsAttrs lift =
       if isJust maybeCreature
@@ -120,7 +124,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
           ]
         else
           [event (lift $ GameDragEnter cSpot) | event <- [onDragEnter, onDragLeave]]
-            ++ [ onDrop (AllowDrop True) $ lift GameDrop, dummyOn "dragover" ]
+            ++ [onDrop (AllowDrop True) $ lift GameDrop, dummyOn "dragover"]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     toDraw =
       (\c -> (c, unsafeLiftCreature gameShared c & filepath))
