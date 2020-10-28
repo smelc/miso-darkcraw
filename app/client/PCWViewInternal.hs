@@ -24,7 +24,7 @@ module PCWViewInternal
   )
 where
 
-import Card (Card (CreatureCard), Creature (..), CreatureID, Filepath (..), Phase (..), filepath, filepathToString, unliftCreature)
+import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), defaultDirection, spriteToKind)
 import Constants
 import Data.Function ((&))
@@ -33,7 +33,7 @@ import Data.Maybe
 import Miso
 import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
-import SharedModel (SharedModel (..), tileToFilepath)
+import SharedModel
 import Update (Action)
 import ViewInternal
 
@@ -74,12 +74,13 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
 cardCreatureUI ::
   -- | The z index
   Int ->
+  SharedModel ->
   -- | Whether a card should be drawn or solely a placeholder for drag target
   Creature UI ->
   CardDrawStyle ->
   Styled (View Action)
-cardCreatureUI z ui cdsty =
-  cardCreature z (Just (core, filepath ui)) cdsty
+cardCreatureUI z shared ui cdsty =
+  cardCreature z shared (Just (core, filepath ui)) cdsty
   where
     core = unliftCreature ui
 
@@ -87,12 +88,13 @@ cardCreatureUI z ui cdsty =
 cardCreature ::
   -- | The z index
   Int ->
+  SharedModel ->
   -- | Whether a card should be drawn or solely a placeholder for drag target
   Maybe (Creature Core, Filepath) ->
   CardDrawStyle ->
   Styled (View Action)
-cardCreature z Nothing cdsty = pure $ cardBackground z cdsty
-cardCreature z (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
+cardCreature z _ Nothing cdsty = pure $ cardBackground z cdsty
+cardCreature z shared (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed
@@ -101,18 +103,18 @@ cardCreature z (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
         animData
     else pure $ builder []
   where
-    topMargin = cps `div` 4
+    (topMargin, leftMargin) = (cps `div` 4, topMargin)
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - cps) `div` 2) topMargin
     pictureCell = imgCell $ ms $ filepathToString filepath
-    statsStyle = zpltwh (z + 1) Absolute topMargin top width cps
-      where
-        width = cardPixelWidth - (topMargin * 2)
-        top = topMargin + cps + topMargin
-    inStatsStyle =
-      flexLineStyle
-        <> "font-size" =: (ms (cps `div` 2) <> "px")
+    statsTopMargin = topMargin * 2 + cps
+    statsStyle = zpltwh (z + 1) Absolute leftMargin statsTopMargin width cps
+    fontSize = cps `div` 2
+    fontStyle =
+      "font-size" =: px fontSize
         <> "font-family" =: "serif"
+    width = cardPixelWidth - (topMargin * 2)
+    inStatsStyle = flexLineStyle <> fontStyle
     statsCell =
       div_
         [style_ inStatsStyle]
@@ -121,10 +123,22 @@ cardCreature z (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
           text $ ms $ attack creature,
           imgCell assetFilenameSword
         ]
+    skills = fromMaybe [] $ Card.skills creature
+    skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)
+    skillsHeight = cps * length skills
+    skillsStyle =
+      "display" =: "flex"
+        <> "flex-direction" =: "column"
+        <> "align-items" =: "flex-start" -- left
+        <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
+        <> fontStyle
+    skillDiv skill = div_ [] [liftSkill shared skill & skillTitle & ms & text]
+    skillsDivs = map skillDiv skills
     builder attrs =
       div_ attrs $
         [div_ [style_ pictureStyle] [pictureCell]]
           ++ [div_ [style_ statsStyle] [statsCell]]
+          ++ [div_ [style_ skillsStyle] skillsDivs]
           ++ [cardBackground z cdsty]
     animData =
       (animationData "handCardFadein" "1s" "ease")

@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 -- |
 -- This module contains the subset of the model that is needed by 'Game'
@@ -18,13 +19,14 @@ module SharedModel
     unsafeIdentToCard,
     unsafeLiftCard,
     unsafeLiftCreature,
+    liftSkill,
   )
 where
 
 import Card
 import Data.Foldable (asum, find)
 import Data.Function ((&))
-import Data.Maybe (fromJust)
+import Data.Maybe
 import GHC.Generics (Generic)
 import System.Random
 import Tile (Tile, TileUI (..))
@@ -82,6 +84,16 @@ liftCreature shared creature =
   identToCreature shared cid
   where
     IDC cid = creatureToIdentifier creature
+
+liftSkill :: SharedModel -> Skill -> SkillUI
+liftSkill SharedModel {sharedSkills} skill =
+  fromMaybe
+    default_
+    $ find (\SkillUI {skill = sk} -> sk == skill) sharedSkills
+  where
+    default_ = SkillUI {skill = HitFromBack, ..}
+    skillText = show skill ++ " not found!"
+    skillTitle = skillText
 
 unsafeLiftCard :: SharedModel -> Card Core -> Card UI
 unsafeLiftCard s c = liftCard s c & fromJust

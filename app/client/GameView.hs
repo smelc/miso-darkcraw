@@ -104,6 +104,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
         sequence
           [ cardCreature
               z
+              gameShared
               toDraw
               ( mempty
                   { hover = beingHovered,
@@ -169,7 +170,7 @@ boardToInHandCell ::
   (Creature Core, HandIndex) ->
   Styled (View Action)
 boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (creature, i) = do
-  card <- cardCreature z toDraw (mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn})
+  card <- cardCreature z gameShared toDraw (mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn})
   return $ div_ attrs [card | not beingDragged]
   where
     pixelsXOffset i

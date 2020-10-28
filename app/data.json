@@ -49,10 +49,10 @@
     { "tile":"WhiteAppears4", "filepath": { "root": "24x24", "x":4, "y":5 } }
   ],
   "skills": [
-    { "skill":"HitFromBack", "title":"back hit",   "text":"hits 2 cells away when in the back line"},
-    { "skill":"Leader",      "title":"leadership", "text":"adjacent allies get +2 moral upon arrival"},
-    { "skill":"Ranged",      "title":"ranged",     "text":"hits any enemy in its column"},
-    { "skill":"Stubborn",    "title":"stubborn",   "text":"if alone, ignores first wound every turn"},
-    { "skill":"Unique",      "title":"unique",     "text":"discarded after kill"}
+    { "skill":"HitFromBack", "title":"Hit from back",   "text":"hits 2 cells away when in the back line"},
+    { "skill":"Leader",      "title":"Leadership", "text":"adjacent allies get +2 moral upon arrival"},
+    { "skill":"Ranged",      "title":"Ranged",     "text":"hits any enemy in its column"},
+    { "skill":"Stubborn",    "title":"Stubborn",   "text":"if alone, ignores first wound every turn"},
+    { "skill":"Unique",      "title":"Unique",     "text":"discarded after kill"}
   ]
 }
