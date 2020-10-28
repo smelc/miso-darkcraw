@@ -262,7 +262,7 @@ attack board pSpot cSpot =
     attacker :: Maybe (Creature Core) = attackersInPlace !? cSpot
     attackerSkills :: [Skill] = attacker >>= skills & fromMaybe []
     allyBlocker :: Maybe (Creature Core) =
-      if any (`elem` attackerSkills) [Ranged, HitFromBack]
+      if any (`elem` attackerSkills) [Ranged, LongReach]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
     attackedSpots :: [CardSpot] = enemySpots attackerSkills cSpot
@@ -342,7 +342,7 @@ enemySpots skills cSpot =
   map bottomSpotOfTopVisual $
     if
         | Ranged `elem` skills -> spotsInSight
-        | inTheBack cSpot -> if HitFromBack `elem` skills then take 1 spotsInSight else []
+        | inTheBack cSpot -> if LongReach `elem` skills then take 1 spotsInSight else []
         | otherwise -> take 1 spotsInSight
   where
     spotsInSight =

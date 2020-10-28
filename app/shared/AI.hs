@@ -116,7 +116,7 @@ scorePlace board (pSpot, cSpot) card =
     enemiesInPlace :: Map.Map CardSpot (Creature Core) =
       board ^. otherPLens . #inPlace
     cSkills :: [Skill] = skills card & fromMaybe []
-    prefersBack = Ranged `elem` cSkills || HitFromBack `elem` cSkills
+    prefersBack = Ranged `elem` cSkills || LongReach `elem` cSkills
     backMalus :: Int = if prefersBack && not (inTheBack cSpot) then 1 else 0
     enemySpots' :: [CardSpot] = allEnemySpots cSpot
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'

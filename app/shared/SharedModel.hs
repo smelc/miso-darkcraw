@@ -91,7 +91,7 @@ liftSkill SharedModel {sharedSkills} skill =
     default_
     $ find (\SkillUI {skill = sk} -> sk == skill) sharedSkills
   where
-    default_ = SkillUI {skill = HitFromBack, ..}
+    default_ = SkillUI {skill = LongReach, ..}
     skillText = show skill ++ " not found!"
     skillTitle = skillText
 

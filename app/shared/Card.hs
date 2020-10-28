@@ -29,7 +29,7 @@ allTeams :: [Team]
 allTeams = [Human ..]
 
 data Skill
-  = HitFromBack
+  = LongReach
   | Leader
   | Ranged
   | Stubborn

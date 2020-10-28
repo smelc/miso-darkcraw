@@ -1,6 +1,6 @@
 {
   "creatures": [
-    { "id": { "name":"spearman",  "team":"human" },  "title":"Spearman",  "hp":2, "attack":1, "moral":3, "victory_points":2, "filepath": {"root": "24x24", "x": 1, "y": 0}, "skills":["HitFromBack"] },
+    { "id": { "name":"spearman",  "team":"human" },  "title":"Spearman",  "hp":2, "attack":1, "moral":3, "victory_points":2, "filepath": {"root": "24x24", "x": 1, "y": 0}, "skills":["LongReach"] },
     { "id": { "name":"swordsman", "team":"human" },  "title":"swordsman", "hp":2, "attack":1, "moral":3, "victory_points":2, "filepath": {"root": "24x24", "x": 0, "y": 0} },
     { "id": { "name":"archer",    "team":"human" },  "title":"archer",    "hp":2, "attack":1, "moral":3, "victory_points":2, "filepath": {"root": "24x24", "x": 2, "y": 0}, "skills":["Ranged"] },
     { "id": { "name":"general",   "team":"human" },  "title":"general",   "hp":3, "attack":3, "moral":5, "victory_points":5, "filepath": {"root": "24x24", "x": 3, "y": 0}, "skills":["Leader", "Unique"] },
@@ -49,7 +49,7 @@
     { "tile":"WhiteAppears4", "filepath": { "root": "24x24", "x":4, "y":5 } }
   ],
   "skills": [
-    { "skill":"HitFromBack", "title":"Hit from back",   "text":"hits 2 cells away when in the back line"},
+    { "skill":"LongReach",   "title":"Long reach", "text":"hits 2 cells away when in the back line"},
     { "skill":"Leader",      "title":"Leadership", "text":"adjacent allies get +2 moral upon arrival"},
     { "skill":"Ranged",      "title":"Ranged",     "text":"hits any enemy in its column"},
     { "skill":"Stubborn",    "title":"Stubborn",   "text":"if alone, ignores first wound every turn"},
