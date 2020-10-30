@@ -52,18 +52,16 @@ errView GameModel {interaction} z =
     left = (boardPixelWidth - width) `div` 2
     top = boardPixelHeight `div` 2
     errViewStyle =
-      Map.union (zpltwh z Relative left top width height) $
-        Map.union flexColumnStyle $
-          Map.fromList
-            [ ("justify-content", "center"),
-              ("background-image", assetsUrl "errbox.png")
-            ]
+      zpltwh z Relative left top width height
+        <> flexColumnStyle
+        <> "justify-content" =: "center"
+        <> "background-image" =: assetsUrl "errbox.png"
     textView msg = div_ [style_ textStylePairs] [text $ ms msg]
     textWidth = width - (cellPixelSize * 2)
-    textWidthAttr = ("width", ms textWidth <> "px")
+    textWidthAttr = "width" =: px textWidth
     -- XXX It'd be better to center the error message (like the feedback text).
     -- This is the case if the width is NOT specified.
-    textStylePairs = Map.fromList [("color", "#FF0000"), textWidthAttr]
+    textStylePairs = "color" =: "#FF0000" <> textWidthAttr
     feedbackViews :: [View Action] =
       [ br_ [],
         text "Please copy/paste this error in a comment of ",
