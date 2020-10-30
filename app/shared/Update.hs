@@ -492,8 +492,8 @@ updateMultiPlayerLobbyModel
   (LobbyServerMessage IncomingInvitationAcceptanceAck)
   (Invited me _ user WaitingForAcceptanceAck) =
     noEff $ GameStarted me user
-updateMultiPlayerLobbyModel a m =
-  noEff $ traceShow (a, m) m
+updateMultiPlayerLobbyModel _ m =
+  noEff m
 
 -- Function courtesy of @dmjio!
 delayActions :: m -> [(Int, Action)] -> Effect Action m
@@ -567,7 +567,6 @@ updateSceneModel (JumpToFrameForDebugging i) sceneModel =
 -- | (SpecializedAction -> SpecializedModel -> SpecializedModel),
 -- | it needs to be in `Action -> Model -> Model`.
 updateModel :: Action -> Model -> Effect Action Model
-updateModel action _ | traceShow action False = undefined
 -- Generic actions
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m =
