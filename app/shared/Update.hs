@@ -171,6 +171,10 @@ data GameAction
     -- | and to schedule 'GameDrawCard'. This does NOT translate
     -- | to a 'GamePlayEvent'.
     GameIncrTurn
+  | -- | Dragging card in hand ends. When a successful drop is done,
+    -- this event is fired right after GameDrop. We rely on that. If GameDrop
+    -- was fired last, we would miss it. Be careful on untested browsers.
+    GameDragEnd
   | -- | Dragging card in hand
     GameDragStart HandIndex
   | -- | This can play the 'GamePlayEvent' 'Place'
@@ -268,6 +272,7 @@ updateGameModel ::
 updateGameModel m action (GameShowErrorInteraction _) =
   updateGameModel m action GameNoInteraction -- clear error message
   -- Now onto "normal" stuff:
+updateGameModel m GameDragEnd _ = withInteraction m GameNoInteraction
 updateGameModel m (GameDragStart i) _
   | isPlayerTurn m =
     withInteraction m $ GameDragInteraction $ Dragging i Nothing

@@ -196,8 +196,8 @@ boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (c
     attrs =
       [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,
-        onDragStart (GameAction' $ GameDragStart i),
-        onDragEnd $ GameAction' GameDrop,
+        onDragStart $ GameAction' $ GameDragStart i,
+        onDragEnd $ GameAction' GameDragEnd,
         class_ "card",
         onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
         onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
