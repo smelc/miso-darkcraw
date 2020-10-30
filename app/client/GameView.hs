@@ -39,12 +39,13 @@ viewGameModel :: GameModel -> Styled (View Action)
 viewGameModel model@GameModel {playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
-  return $ div_ [] $ [boardDiv, handDiv] ++ errView model zpp
+  return $ div_ [] [boardDiv, handDiv]
   where
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
     boardCardsM = boardToInPlaceCells zpp model
     boardDivM = do
+      let errs = errView model zpp & maybeToList
       stacks <-
         if hashless
           then traverse (stackView model z enemySpot GameViewInternal.Board) [Discarded, Stacked]
@@ -52,7 +53,7 @@ viewGameModel model@GameModel {playingPlayer} = do
       turn <- turnView model zpp
       let scores = scoreViews model zpp
       boardCards <- boardCardsM
-      return $ div_ [style_ boardStyle] $ concat stacks ++ [turn] ++ scores ++ boardCards
+      return $ div_ [style_ boardStyle] $ concat stacks ++ [turn] ++ errs ++ scores ++ boardCards
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl "forest.png"

@@ -41,12 +41,12 @@ import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
-errView :: GameModel -> Int -> [View Action]
+errView :: GameModel -> Int -> Maybe (View Action)
 errView GameModel {interaction} z =
   case interaction of
     GameShowErrorInteraction msg ->
-      [div_ [style_ errViewStyle] $ textView msg : feedbackViews]
-    _ -> []
+      Just $ div_ [style_ errViewStyle] $ [textView msg] ++ feedbackViews
+    _ -> Nothing
   where
     (width, height) = (504, 168)
     left = (boardPixelWidth - width) `div` 2
