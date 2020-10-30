@@ -15,6 +15,7 @@ import           Network.WebSockets
 #endif
 
 import Card
+import Configuration (hashless)
 import Control.Monad (forM_)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
@@ -73,7 +74,10 @@ main = do
             sharedStdGen = stdGen
           }
   let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
-  runApp $ startApp $ debugApp NoOp $ App {..}
+  runApp $
+    if hashless
+      then startApp $ debugApp NoOp App {..}
+      else startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
     update = updateModel
