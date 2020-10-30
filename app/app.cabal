@@ -13,6 +13,7 @@ common client-server-shared
     Board
     Card
     Constants
+    Debugging
     Event
     Game
     JsonData

@@ -18,6 +18,7 @@ import Card
 import Control.Monad (forM_)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
+import Debugging
 import Json (LoadedJson, loadJson)
 import Miso
 import Model
@@ -72,14 +73,10 @@ main = do
             sharedStdGen = stdGen
           }
   let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
-  runApp $ startApp App {..}
+  runApp $ startApp $ debugApp NoOp $ App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-#ifndef __GHCJS__
-    update = logUpdates updateModel -- log events in dev mode
-#else
     update = updateModel
-#endif
     view = viewModel -- view function
     events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
     subs = [keyboardSub Keyboard]
