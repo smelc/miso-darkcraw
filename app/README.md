@@ -29,6 +29,14 @@ nvim Main.hs
 It seems [coc.nvim](https://github.com/neoclide/coc.nvim) works
 with my usual configuration, nice!
 
+# repl
+
+To launch a repl, do:
+
+```
+cabal repl app.cabal:app
+```
+
 # Fast feedback
 
 * To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal

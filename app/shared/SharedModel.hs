@@ -16,6 +16,7 @@ module SharedModel
     liftCreature,
     SharedModel (..),
     tileToFilepath,
+    unsafeGet,
     unsafeIdentToCard,
     unsafeLiftCard,
     unsafeLiftCreature,
@@ -28,6 +29,7 @@ import Data.Foldable (asum, find)
 import Data.Function ((&))
 import Data.Maybe
 import GHC.Generics (Generic)
+import Json (loadJson)
 import System.Random
 import Tile (Tile, TileUI (..))
 
@@ -45,6 +47,16 @@ data SharedModel = SharedModel
     sharedStdGen :: StdGen
   }
   deriving (Eq, Generic, Show)
+
+-- | An instance of 'SharedModel' that is fine for debugging. Don't use
+-- it in production!
+unsafeGet :: SharedModel
+unsafeGet =
+  case loadJson of
+    Left err -> error err
+    Right (sharedCards, sharedSkills, sharedTiles) ->
+      let sharedStdGen = mkStdGen 42
+       in SharedModel {..}
 
 identToCard :: SharedModel -> CardIdentifier -> Maybe (Card UI)
 identToCard SharedModel {sharedCards} cid =

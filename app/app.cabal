@@ -10,6 +10,7 @@ extra-source-files:
 common client-server-shared
   other-modules:
     AI
+    Ascii
     Board
     Card
     Constants

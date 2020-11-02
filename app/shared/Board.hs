@@ -51,6 +51,8 @@ module Board
     boardSetDiscarded,
     boardSetInPlace,
     boardToInPlace,
+    topSpots,
+    botSpots,
   )
 where
 
@@ -377,6 +379,12 @@ inTheBack TopLeft = True
 inTheBack Top = True
 inTheBack TopRight = True
 inTheBack _ = False
+
+botSpots :: [CardSpot]
+botSpots = filter (not . inTheBack) allCardsSpots
+
+topSpots :: [CardSpot]
+topSpots = filter inTheBack allCardsSpots
 
 -- | The other spot
 otherPlayerSpot :: PlayerSpot -> PlayerSpot

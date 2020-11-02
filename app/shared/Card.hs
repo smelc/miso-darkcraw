@@ -22,6 +22,7 @@ import GHC.Generics (Generic)
 data Team = Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
 
+-- >>> show Undead
 ppTeam :: Team -> String
 ppTeam = show
 
