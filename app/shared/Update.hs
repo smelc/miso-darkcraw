@@ -348,7 +348,7 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
-          placements <- AI.placeCards emptyPlayerInPlaceBoard $ nextTurn turn
+          let placements = AI.placeCards emptyPlayerInPlaceBoard $ nextTurn turn
           (board', boardui') <- Game.playAll board placements
           return $ m {anims = boardui', board = board'}
         else Right m
@@ -386,7 +386,7 @@ updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
                 Game.transferCards (Model.gameShared m') (Model.board m') pSpot
           (board'', boardui'', shared'') <-
             Game.drawCards shared' board' pSpot nbDraws'
-          aiEvents <- if isAI then aiPlay board'' turn' else Right []
+          let aiEvents = if isAI then aiPlay board'' turn' else []
           return (aiEvents, board'', boardui' <> boardui'', shared'')
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =

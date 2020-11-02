@@ -41,27 +41,21 @@ testBalance cards =
     humanDeck = initialDeck cards Human
     undeadDeck = initialDeck cards Undead
 
-testAI :: Board Core -> Turn -> Either Text [GamePlayEvent]
-testAI board turn =
-  aiPlay board turn & runExcept
-
 -- XXX smelc group AI tests together
 
 -- | Tests that the AI treats 'Ranged' correctly.
 testAIRanged :: [Card UI] -> Turn -> Board Core
 testAIRanged cards turn =
-  case aiPlay board turn & runExcept of
+  case playAll board events of
     Left _ -> error "AI failed"
-    Right events ->
-      case playAll board events of
-        Left _ -> error "AI failed"
-        Right (board', _) -> board'
+    Right (board', _) -> board'
   where
     archer =
       CreatureCard $
         unsafeCreatureWithID cards $
           CreatureID Archer Undead
     board = boardAddToHand emptyBoard (turnToPlayerSpot turn) archer
+    events = aiPlay board turn
 
 testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
@@ -206,9 +200,7 @@ main = hspec $ do
       all
         (\pSpot -> length allCardsSpots == length (attackOrder pSpot))
         allPlayersSpots
-  describe "AI.hs" $ do
-    it "AI terminates" $
-      all (is _Right . testAI board) [turn, turn']
+  describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
             boardToHoleyInPlace (testAIRanged cards initialTurn)
