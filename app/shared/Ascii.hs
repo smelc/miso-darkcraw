@@ -5,8 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 
 -- |
--- This module provides functions to pretty print boards. ASCII is a misleading
--- name since this module returns strings containing unicode.
+-- This module provides functions to pretty print boards.
 --
 -- This module has more dependencies than required, because I'm writing
 -- functions in it that I use in `cabal repl`. That's okay, this module
@@ -52,7 +51,7 @@ exampleBoardPlayOneToAscii =
 
 boardToASCII :: Board Core -> String
 boardToASCII board =
-  intersperse "\n" lines & concat
+  (intersperse "\n" lines & concat) ++ "\n"
   where
     lines =
       cardsLines board AITop
@@ -103,17 +102,21 @@ type LineNumber = Int
 -- | The line number must be in [0, cardHeight)
 cardLine :: Board Core -> PlayerSpot -> CardSpot -> LineNumber -> String
 cardLine board pSpot cSpot lineNb =
-  case maybeCreature of
-    Nothing -> emptyLine
-    Just creature -> fromMaybe emptyLine $ creatureToAscii creature lineNb
+  case length base of
+    i | i < cardWidth -> base ++ replicate (cardWidth - i) '.'
+    i | i > cardWidth -> take cardWidth base
+    _ -> base
   where
     maybeCreature = boardToInPlace board pSpot Map.!? cSpot
-    emptyLine :: String = replicate cardWidth ' '
+    emptyLine :: String = replicate cardWidth '.'
+    base = case maybeCreature of
+      Nothing -> if lineNb == 0 then show cSpot else emptyLine
+      Just creature -> fromMaybe emptyLine $ creatureToAscii creature lineNb
 
 -- | The n-th line of a creature card, or None
 creatureToAscii :: Creature Core -> LineNumber -> Maybe String
 creatureToAscii Creature {creatureId = CreatureID {..}} 0 =
   Just $ show team ++ " " ++ show creatureKind
 creatureToAscii Creature {..} 1 =
-  Just $ show hp ++ "❤️" ++ show attack ++ "⚔️"
+  Just $ show hp ++ "<3 " ++ show attack ++ "X"
 creatureToAscii _ _ = Nothing
