@@ -7,4 +7,13 @@ app/dist
 app/dist-newstyle
 app/result*
 oryx
+th/dist-newstyle
+th/.stack-work
+th/.vscode
+th/main.cabal
+th/stack.yaml.lock
+th/Main.dyn_hi
+th/Main.dyn_o
+th/Main.hi
+th/Main.o
 videos

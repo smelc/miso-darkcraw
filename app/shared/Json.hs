@@ -18,7 +18,9 @@ where
 import Card
 import Data.Aeson
 import Data.ByteString.Lazy
+import Data.Function ((&))
 import Data.List.Extra (lower)
+import qualified Data.Text.Encoding
 import GHC.Generics
 import JsonData
 import Tile
@@ -178,5 +180,4 @@ loadJson :: Either String LoadedJson
 loadJson =
   parseJson bs
   where
-    bs :: Data.ByteString.Lazy.ByteString
-    bs = Data.ByteString.Lazy.fromStrict jsonData
+    bs = Data.Text.Encoding.encodeUtf8 jsonData & Data.ByteString.Lazy.fromStrict

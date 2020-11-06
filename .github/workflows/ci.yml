@@ -23,8 +23,8 @@ jobs:
         sudo apt install jsonlint python3-pip
         # pip install -r $GITHUB_WORKSPACE/hooks/requirements.txt
 
-    - name: jsonlint-php app/data.json
-      run: jsonlint-php $GITHUB_WORKSPACE/app/data.json
+    - name: jsonlint-php th/data.json
+      run: jsonlint-php $GITHUB_WORKSPACE/th/data.json
 
     - name: lint hooks/pre-commit.py
       run: |

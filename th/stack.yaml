@@ -1,0 +1,4 @@
+resolver: lts-14.27 # Must match the version of GHC used by app/.
+packages:
+- .
+extra-deps: []

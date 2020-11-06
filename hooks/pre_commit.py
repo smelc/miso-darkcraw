@@ -10,7 +10,7 @@ staged files. This is useful to apply the hook prior staging.
 
 import subprocess
 import sys
-from typing import List
+from typing import List, Optional
 
 
 def _git_diff(staged_or_modified: bool, extension: str) -> List[str]:
@@ -88,10 +88,17 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
     return return_code
 
 
-def _run_unchecked_cmd(cwd: str, cmd: List[str]) -> int:
+def _run_unchecked_cmd(cwd: Optional[str], cmd: List[str]) -> int:
     """ Executes a command and returns it return code """
-    print(f'{cwd}> {" ".join(cmd)}')
+    prefix = f"{cwd}> " if cwd else ""
+    print(f'{prefix}> {" ".join(cmd)}')
     return subprocess.run(cmd, check=False, cwd=cwd).returncode
+
+
+def _check_jsondata_dot_hs() -> int:
+    """ Checks that ./th/main.py --check returns 0, i.e. that
+        app/shared/JsonData.hs is up-to-date w.r.t to th/data.json """
+    return _run_unchecked_cmd(None, ["./th/main.py", "--check"])
 
 
 def _build() -> int:
@@ -130,6 +137,7 @@ def main() -> int:
         print("No %s *.hs relevant file found, nothing to format" % adjective)
         print("Not calling nix-build/cabal test either")
 
+    return_code = max(return_code, _check_jsondata_dot_hs())
 
     return return_code
 
