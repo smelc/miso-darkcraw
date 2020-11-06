@@ -12,7 +12,6 @@ import Board
 import Card
 import Control.Exception
 import Control.Lens hiding (snoc)
-import Data.Generics.Labels ()
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe

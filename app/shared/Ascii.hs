@@ -20,7 +20,6 @@ import Data.Function
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
-import Data.Text (Text)
 import qualified Data.Text as Text
 import Game
 import SharedModel
