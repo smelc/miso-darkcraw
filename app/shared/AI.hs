@@ -79,16 +79,13 @@ boardScore board turn =
 -- is placed at an optimal position.
 aiPlayHand :: Board Core -> Turn -> [GamePlayEvent]
 aiPlayHand board turn =
-  helper board
-  where
-    helper b =
-      case aiPlayFirst b turn of
-        Nothing -> []
-        Just place ->
-          case Game.play b place of
-            Left msg -> error $ Text.unpack msg -- We shouldn't generate invalid Place actions
-            Right (b', _) ->
-              place : helper b'
+  case aiPlayFirst board turn of
+    Nothing -> []
+    Just place ->
+      case Game.play board place of
+        Left msg -> error $ Text.unpack msg -- We shouldn't generate invalid Place actions
+        Right (b', _) ->
+          place : aiPlayHand b' turn
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
