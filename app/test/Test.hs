@@ -13,13 +13,11 @@ import Constants
 import Control.Lens hiding (at, (+=))
 import Control.Lens.Extras
 import Control.Monad
-import Control.Monad.Except (runExcept)
 import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import Data.Text (Text)
-import Game (GamePlayEvent, attackOrder, playAll)
+import Game (attackOrder, playAll)
 import Generators
 import Json
 import Movie
@@ -38,8 +36,8 @@ testBalance :: [Card UI] -> Int
 testBalance cards =
   undefined
   where
-    humanDeck = initialDeck cards Human
-    undeadDeck = initialDeck cards Undead
+    _humanDeck = initialDeck cards Human
+    _undeadDeck = initialDeck cards Undead
 
 -- XXX smelc group AI tests together
 
@@ -180,8 +178,6 @@ main = hspec $ do
   let (cards, _, _) = eitherCardsNTiles ^?! _Right
   let allDecks = getAllDecks cards
   let allCreatures = mapMaybe cardToCreature $ concat allDecks
-  let board = startingBoard cards
-  let (turn, turn') = (initialTurn, nextTurn turn)
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
       is _Right eitherCardsNTiles -- should be the first test, others depend on it
@@ -205,7 +201,7 @@ main = hspec $ do
       let occupiedSpots =
             boardToHoleyInPlace (testAIRanged cards initialTurn)
               & filter (\(_, _, maybeCreature) -> isJust maybeCreature)
-       in all (\(_, cSpot, maybeCreature) -> inTheBack cSpot) occupiedSpots
+       in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
