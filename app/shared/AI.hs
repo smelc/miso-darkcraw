@@ -43,6 +43,9 @@ aiPlay board turn =
   where
     pSpot = turnToPlayerSpot turn
     hands :: [[Card Core]] = permutations $ boardToHand board pSpot
+    -- FIXME @smelc we're computing [GamePlayEvent] on permutations
+    -- of the hand, but then take the events, as they are. We should
+    -- revert the permutation on then, because they contain HandIndex.
     possibles :: [[GamePlayEvent]] =
       map (\hand -> aiPlayHand (boardSetHand board pSpot hand) turn) hands
     scores :: [(Int, [GamePlayEvent])] =
@@ -71,6 +74,9 @@ boardScore board turn =
         ( \(cSpot, mCreature) ->
             case mCreature of
               Nothing -> 1 -- Empty spot: malus
+              -- FIXME @smelc wrong, 'scorePlace' makes sense before
+              -- playing at (pSpot, cSpot). Here board is filled at this
+              -- position already!
               Just creature -> scorePlace board (pSpot, cSpot) creature
         )
         cSpotAndMayCreatures
@@ -136,6 +142,8 @@ scorePlace board (pSpot, cSpot) card =
     backMalus :: Int = if prefersBack && not (inTheBack cSpot) then 1 else 0
     enemySpots' :: [CardSpot] = allEnemySpots cSpot
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'
+    -- TODO @smelc instead, play EndTurn pSpot cSpot and look at the score
+    -- increase. This will avoid doing an incorrect simulation.
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
     maluses = [backMalus, victoryPointsMalus]
