@@ -128,11 +128,9 @@ scorePlace board (pSpot, cSpot) card =
     Just _ -> 999 -- Target spot is occupied
     _ -> sum maluses
   where
-    pLens = spotToLens pSpot
-    otherPLens = spotToLens $ otherPlayerSpot pSpot
-    inPlace :: Maybe (Creature Core) = board ^. pLens . #inPlace . at cSpot
+    inPlace :: Maybe (Creature Core) = boardToInPlaceCreature board pSpot cSpot
     enemiesInPlace :: Map.Map CardSpot (Creature Core) =
-      board ^. otherPLens . #inPlace
+      boardToInPlace board (otherPlayerSpot pSpot)
     cSkills :: [Skill] = skills card & fromMaybe []
     prefersBack = Ranged `elem` cSkills || LongReach `elem` cSkills
     backMalus :: Int = if prefersBack && not (inTheBack cSpot) then 1 else 0
