@@ -12,6 +12,8 @@ import Board
 import Card
 import Control.Exception
 import Control.Lens hiding (snoc)
+import Data.Either
+import Data.Either.Extra
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -42,12 +44,22 @@ aiPlay board turn =
     (_, events) : _ -> events
   where
     pSpot = turnToPlayerSpot turn
-    hands :: [[Card Core]] = permutations $ boardToHand board pSpot
-    -- FIXME @smelc we're computing [GamePlayEvent] on permutations
-    -- of the hand, but then take the events, as they are. We should
-    -- revert the permutation on then, because they contain HandIndex.
-    possibles :: [[GamePlayEvent]] =
-      map (\hand -> aiPlayHand (boardSetHand board pSpot hand) turn) hands
+    hands :: [[(Int, Card Core)]] = permutations $ zip [0 ..] $ boardToHand board pSpot
+    -- The map contains the translation of hand indices in [GamePlayEvent]
+    -- that makes sense for the initial Board, i.e. 'board'
+    possibles :: [(Map.Map Int Int, [GamePlayEvent])] =
+      map
+        ( \hand ->
+            ( Map.fromList $ zip [0 ..] $ map fst hand,
+              aiPlayHand (boardSetHand board pSpot (map snd hand)) turn
+            )
+        )
+        hands
+    subst map (Place pSpot cSpot (HandIndex i)) =
+      Place pSpot cSpot $ HandIndex $ map Map.! i
+    subst _ gpe = assert False gpe
+    -- Apply substitution, make [GamePlayEvent] meaningful for 'board'
+    possibles' = map (\(m, events) -> map (subst m) events) possibles
     scores :: [(Int, [GamePlayEvent])] =
       map
         ( \events ->
@@ -55,7 +67,7 @@ aiPlay board turn =
               Left msg -> trace ("Unexpected case: " ++ Text.unpack msg) Nothing
               Right board' -> Just (boardScore board' turn, events)
         )
-        possibles
+        possibles'
         & catMaybes
         & sortByFst
     playAll b events = Game.playAll b events <&> fst
@@ -68,16 +80,15 @@ boardScore board turn =
     pSpot = turnToPlayerSpot turn
     cSpotAndMayCreatures =
       boardToHoleyInPlace board & filter (\(pSpot', _, _) -> pSpot == pSpot')
-        & map (\(_, snd, thd) -> (snd, thd))
+        & map (\(_, cSpot, mCreature) -> (cSpot, mCreature))
     scores =
       map
         ( \(cSpot, mCreature) ->
             case mCreature of
-              Nothing -> 1 -- Empty spot: malus
-              -- FIXME @smelc wrong, 'scorePlace' makes sense before
-              -- playing at (pSpot, cSpot). Here board is filled at this
-              -- position already!
-              Just creature -> scorePlace board (pSpot, cSpot) creature
+              Nothing -> 5 -- Empty spot: malus
+              Just _ ->
+                let score = scorePlace board pSpot cSpot
+                 in assert (isJust score) (fromJust score)
         )
         cSpotAndMayCreatures
 
@@ -96,17 +107,24 @@ aiPlayHand board turn =
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
 aiPlayFirst :: Board Core -> Turn -> Maybe GamePlayEvent
-aiPlayFirst board turn = do
-  card <- boardToHand board pSpot & listToMaybe
-  creature <- cardToCreature card
-  let scores = scoresf creature & sortByFst
-  best <- listToMaybe scores
-  return $ Place pSpot (snd best) $ HandIndex 0
+aiPlayFirst board turn =
+  case boardToHand board pSpot of
+    [] -> Nothing
+    _ -> do
+      let scores' = scores & sortByFst
+      best <- listToMaybe scores'
+      return $ Place pSpot (snd best) handIndex
   where
+    handIndex = HandIndex 0
     pSpot = turnToPlayerSpot turn
     possibles = placements board pSpot
-    scoresf creature =
-      [(scorePlace board (pSpot, cSpot) creature, cSpot) | cSpot <- possibles]
+    scores =
+      [ (scorePlace (fromRight' board' & fst) pSpot cSpot, cSpot)
+        | cSpot <- possibles,
+          let place = Place pSpot cSpot handIndex,
+          let board' = Game.play board place,
+          isRight board'
+      ]
 
 placements ::
   Board Core ->
@@ -123,30 +141,28 @@ placements board pSpot =
 -- | The score of placing a card at the given position
 scorePlace ::
   Board Core ->
-  -- | Where to place the card
-  (PlayerSpot, CardSpot) ->
-  -- | The card to place
-  Creature Core ->
-  -- | The score of placing the card, 0 is the best.
-  Int
-scorePlace board (pSpot, cSpot) card =
+  PlayerSpot ->
+  CardSpot ->
+  -- | The score of the card at pSpot cSpot. 0 is the best.
+  Maybe Int
+scorePlace board pSpot cSpot =
   case inPlace of
-    Just _ -> 999 -- Target spot is occupied
-    _ -> sum maluses
+    Just _ -> Just $ sum maluses
+    _ -> Nothing
   where
     inPlace :: Maybe (Creature Core) = boardToInPlaceCreature board pSpot cSpot
     enemiesInPlace :: Map.Map CardSpot (Creature Core) =
       boardToInPlace board (otherPlayerSpot pSpot)
-    cSkills :: [Skill] = skills card & fromMaybe []
+    cSkills :: [Skill] = inPlace >>= skills & fromMaybe []
     prefersBack = Ranged `elem` cSkills || LongReach `elem` cSkills
-    backMalus :: Int = if prefersBack && not (inTheBack cSpot) then 1 else 0
+    lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
     enemySpots' :: [CardSpot] = allEnemySpots cSpot
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'
     -- TODO @smelc instead, play EndTurn pSpot cSpot and look at the score
     -- increase. This will avoid doing an incorrect simulation.
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
-    maluses = [backMalus, victoryPointsMalus]
+    maluses = [lineMalus, victoryPointsMalus]
 
 sortByFst l =
   sortBy sortFst l

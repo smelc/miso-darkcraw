@@ -36,15 +36,24 @@ exampleBoardToAscii =
     SharedModel {sharedCards} = unsafeGet
 
 exampleBoardPlayOneToAscii =
-  case board' of
+  case board'' of
     Left errMsg -> Text.unpack errMsg
-    Right (board', _) -> boardToASCII board'
+    Right (board''', _) -> boardToASCII board'''
   where
     SharedModel {sharedCards} = unsafeGet
-    board = startingBoard sharedCards
+    archer =
+      CreatureCard $
+        unsafeCreatureWithID sharedCards $
+          CreatureID Archer Undead
+    skel =
+      CreatureCard $
+        unsafeCreatureWithID sharedCards $
+          CreatureID Skeleton Undead
+    board = boardAddToHand emptyBoard (turnToPlayerSpot turn') archer
+    board' = boardAddToHand board (turnToPlayerSpot turn') skel
     (turn, turn') = (initialTurn, nextTurn turn)
-    events = AI.placeCards board turn'
-    board' = Game.playAll board events
+    events = AI.placeCards board' turn'
+    board'' = Game.playAll board' events
 
 -- Now the library code starts
 
