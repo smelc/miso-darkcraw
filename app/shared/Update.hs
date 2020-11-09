@@ -593,11 +593,11 @@ updateModel
   SinglePlayerGo
   ( SinglePlayerLobbyModel'
       SinglePlayerLobbyModel
-        { singlePlayerLobbyTeam = Just _,
+        { singlePlayerLobbyTeam = Just team,
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ initialGameModel shared
+    noEff $ GameModel' $ initialGameModel shared team
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -648,17 +648,23 @@ updateModel a m =
         <> "\nand the action being:\n"
         <> pShowNoColor a
 
-initialGameModel :: SharedModel -> GameModel
-initialGameModel shared =
+initialGameModel ::
+  SharedModel ->
+  -- | The team of the playing player
+  Team ->
   GameModel
-    shared
+initialGameModel shared team =
+  GameModel
+    shared'
     board
     GameNoInteraction
     startingPlayerSpot
     initialTurn
     mempty
   where
-    board = startingBoard $ sharedCards shared
+    -- We hardcode the position of the playing player here. No big deal.
+    teams = Teams {topTeam = Undead, botTeam = team}
+    (shared', board) = initialBoard shared teams
 
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =

@@ -30,14 +30,14 @@ creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
 creatureSum cards getter = sum (map getter cards)
 
 getAllDecks :: [Card UI] -> [[Card Core]]
-getAllDecks cards = [initialDeck cards t | t <- allTeams]
+getAllDecks cards = [teamDeck cards t | t <- allTeams]
 
 testBalance :: [Card UI] -> Int
 testBalance cards =
   undefined
   where
-    _humanDeck = initialDeck cards Human
-    _undeadDeck = initialDeck cards Undead
+    _humanDeck = teamDeck cards Human
+    _undeadDeck = teamDeck cards Undead
 
 -- XXX smelc group AI tests together
 

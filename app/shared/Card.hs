@@ -16,7 +16,6 @@ import Control.Lens
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust)
 import GHC.Generics (Generic)
 
 data Team = Human | Undead
@@ -193,27 +192,23 @@ unsafeCardToCreature (CreatureCard creature) = creature
 unsafeCardToCreature (NeutralCard _) = error "neutral card not handled yet"
 unsafeCardToCreature (ItemCard _) = error "item card not handled yet"
 
-initialDeck ::
+teamDeck ::
   -- | The cards as loaded from disk
   [Card UI] ->
   -- | The team for which to build the deck
   Team ->
   -- | The initial deck
   [Card Core]
-initialDeck cards t =
+teamDeck cards t =
   map CreatureCard $
     case t of
-      Human -> base ++ base ++ 1 * General
-        where
-          base = 3 * Spearman ++ 2 * Archer ++ 1 * Knight
-      Undead -> base ++ base ++ 1 * Vampire
-        where
-          base = 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy
+      Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General
+      Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
   where
     creatures :: Map.Map CreatureKind (Creature Core) =
       (cards ^.. folded . #_CreatureCard . to unliftCreature)
         & filter (\c -> (creatureId c & team) == t)
         & map ((creatureKind . creatureId) &&& id)
         & Map.fromList
-    finder x = creatures Map.!? x & fromJust
+    finder x = creatures Map.! x
     (*) i k = replicate i $ finder k

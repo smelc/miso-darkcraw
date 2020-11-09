@@ -27,7 +27,7 @@ import SharedModel (SharedModel (..))
 import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (getStdGen)
-import Update (Action (..), initialWelcomeModel, logUpdates, updateModel)
+import Update (Action (..), initialWelcomeModel, updateModel)
 import View (viewModel)
 
 #ifndef __GHCJS__
@@ -54,7 +54,7 @@ loadJson' =
 
 logTeam :: [Card UI] -> Team -> IO ()
 logTeam cards t = do
-  let deck = mapMaybe cardToCreature $ initialDeck cards t
+  let deck = mapMaybe cardToCreature $ teamDeck cards t
   print t
   print $ "nb cards: " ++ show (Prelude.length deck)
   print $ "attack: " ++ show (sum (Prelude.map attack deck))

@@ -31,9 +31,9 @@ import Turn
 -- >>> exampleBoardToAscii
 exampleBoardToAscii :: String
 exampleBoardToAscii =
-  startingBoard sharedCards & boardToASCII
+  undefined
   where
-    SharedModel {sharedCards} = unsafeGet
+    _shared :: SharedModel = unsafeGet
 
 exampleBoardPlayOneToAscii =
   case board'' of

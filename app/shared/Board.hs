@@ -18,6 +18,7 @@
 module Board
   ( allCardsSpots,
     allPlayersSpots,
+    Teams (..),
     InPlaceEffect (..),
     InPlaceEffects (..),
     bottomSpotOfTopVisual,
@@ -30,7 +31,7 @@ module Board
     Board (..),
     CardSpot (..),
     endingPlayerSpot,
-    startingBoard,
+    initialBoard,
     HandIndex (..),
     inTheBack,
     InHandType (..),
@@ -66,6 +67,7 @@ import qualified Data.Map.Strict as Map
 import Data.Text (Text)
 import Formatting (hex, sformat, (%))
 import GHC.Generics (Generic)
+import SharedModel
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
@@ -354,24 +356,23 @@ emptyPlayerPart = PlayerPart {..}
     stack = []
     discarded = []
 
-startingBoard :: [Card UI] -> Board Core
-startingBoard cards =
-  Board topPlayer botPlayer
+data Teams = Teams
+  { topTeam :: Team,
+    botTeam :: Team
+  }
+
+initialBoard :: SharedModel -> Teams -> (SharedModel, Board Core)
+initialBoard shared@SharedModel {sharedCards = cards} Teams {..} =
+  (smodel'', Board topPart botPart)
   where
-    _humanArcher = unsafeCreatureWithID cards (CreatureID Archer Human)
-    _humanGeneral = unsafeCreatureWithID cards (CreatureID General Human)
-    _humanSpearman = unsafeCreatureWithID cards (CreatureID Spearman Human)
-    _undeadArcher = unsafeCreatureWithID cards (CreatureID Archer Undead)
-    _undeadMummy = unsafeCreatureWithID cards (CreatureID Mummy Undead)
-    _undeadVampire = unsafeCreatureWithID cards (CreatureID Vampire Undead)
-    topCards :: CardsOnTable = Map.empty
-    (topHand, topStack) = splitAt initialHandSize $ initialDeck cards Undead
-    topStack' = map cardToIdentifier topStack
-    topPlayer = PlayerPart topCards topHand 0 topStack' []
-    botCards :: CardsOnTable = Map.empty
-    (botHand, botStack) = splitAt initialHandSize $ initialDeck cards Human
-    botStack' = map cardToIdentifier botStack
-    botPlayer = PlayerPart botCards botHand 0 botStack' []
+    part team smodel = (smodel', PlayerPart Map.empty hand 0 stack' [])
+      where
+        deck = teamDeck cards team
+        (smodel', deck') = shuffle smodel deck
+        (hand, stack) = splitAt initialHandSize deck'
+        stack' = map cardToIdentifier stack
+    (smodel', topPart) = part topTeam shared
+    (smodel'', botPart) = part botTeam smodel'
 
 -- Whether a spot is in the back line
 inTheBack :: CardSpot -> Bool

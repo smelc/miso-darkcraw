@@ -33,7 +33,6 @@ import Data.Function ((&))
 import Data.Maybe
 import GHC.Generics (Generic)
 import Json (loadJson)
-import System.Random
 import System.Random.Shuffle (shuffleM)
 import Tile (Tile, TileUI (..))
 
