@@ -107,14 +107,14 @@ liftSkill SharedModel {sharedSkills} skill =
     skillText = show skill ++ " not found!"
     skillTitle = skillText
 
-unsafeLiftCard :: SharedModel -> Card Core -> Card UI
-unsafeLiftCard s c = liftCard s c & fromJust
-
-unsafeLiftCreature :: SharedModel -> Creature Core -> Creature UI
-unsafeLiftCreature s c = liftCreature s c & fromJust
-
 tileToFilepath :: SharedModel -> Tile -> Filepath
 tileToFilepath SharedModel {sharedTiles} tile =
   case find (\TileUI {tile = t} -> t == tile) sharedTiles of
     Nothing -> Card.default24Filepath
     Just TileUI {Tile.filepath} -> filepath
+
+unsafeLiftCard :: SharedModel -> Card Core -> Card UI
+unsafeLiftCard s c = liftCard s c & fromJust
+
+unsafeLiftCreature :: SharedModel -> Creature Core -> Creature UI
+unsafeLiftCreature s c = liftCreature s c & fromJust
