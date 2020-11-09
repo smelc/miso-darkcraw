@@ -21,16 +21,20 @@ module SharedModel
     unsafeLiftCard,
     unsafeLiftCreature,
     liftSkill,
+    shuffle,
   )
 where
 
 import Card
+import Control.Monad.Identity (Identity (runIdentity))
+import Control.Monad.Random
 import Data.Foldable (asum, find)
 import Data.Function ((&))
 import Data.Maybe
 import GHC.Generics (Generic)
 import Json (loadJson)
 import System.Random
+import System.Random.Shuffle (shuffleM)
 import Tile (Tile, TileUI (..))
 
 instance Eq StdGen where
@@ -106,6 +110,12 @@ liftSkill SharedModel {sharedSkills} skill =
     default_ = SkillUI {skill = LongReach, ..}
     skillText = show skill ++ " not found!"
     skillTitle = skillText
+
+shuffle :: SharedModel -> [a] -> (SharedModel, [a])
+shuffle shared@SharedModel {sharedStdGen} l =
+  (shared {sharedStdGen = stdgen'}, l')
+  where
+    (l', stdgen') = shuffleM l & flip runRandT sharedStdGen & runIdentity
 
 tileToFilepath :: SharedModel -> Tile -> Filepath
 tileToFilepath SharedModel {sharedTiles} tile =
