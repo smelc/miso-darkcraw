@@ -64,12 +64,19 @@ def _get_splice() -> Optional[str]:
         print(" ".join(touch_cmd) + " failed", file=sys.stderr)
         return None
 
-    ghc_cmd = ["stack", "exec", "ghc", "--", "Main.hs", "-ddump-splices"]
+    if os.getenv("IN_NIX_SHELL"):
+        ghc_cmd = ["ghc"]  # Use nix-provided ghc
+    else:
+        ghc_cmd = ["stack", "exec", "ghc", "--"]  # Use stack to provide ghc
+
+    ghc_cmd += ["Main.hs", "-ddump-splices"]
     ghc_cmd_string = " ".join(ghc_cmd)
     res = subprocess.run(ghc_cmd, check=False, cwd="th",
                          capture_output=True, text=True)
     if res.returncode != 0:
-        print(f"{ghc_cmd_string} failed", file=sys.stderr)
+        if res.stderr:
+            print(res.stderr, file=sys.stderr, end='')
+        print(f"{ghc_cmd_string} failed.", file=sys.stderr)
         return None
     raw_output = res.stdout
 
