@@ -28,6 +28,7 @@ data Tile
   | Crown
   | GreenPotion
   | Heart
+  | Loupe
   | Sword1
   | Sword2
   | RedPotion
