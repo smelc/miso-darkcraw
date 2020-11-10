@@ -80,7 +80,7 @@ identToCard' :: CardIdentifier -> Card p -> Maybe (Card p)
 identToCard' cid card =
   case (cid, card) of
     (IDC cid2, CreatureCard Creature {creatureId = cid1}) | cid1 == cid2 -> Just card
-    (IDN n2, NeutralCard n1) | n1 == n2 -> Just card
+    (IDN n2, NeutralCard NeutralObject {neutral = n1}) | n1 == n2 -> Just card
     (IDI i2, ItemCard i1) | i1 == i2 -> Just card
     _ -> Nothing
 
@@ -88,11 +88,25 @@ identToCreature' :: CreatureID -> Card p -> Maybe (Creature p)
 identToCreature' cid (CreatureCard c@Creature {creatureId = cid1}) | cid1 == cid = Just c
 identToCreature' _ _ = Nothing
 
+identToNeutral' :: Neutral -> Card p -> Maybe (NeutralObject p)
+identToNeutral' n1 (NeutralCard n'@NeutralObject {neutral = n2}) | n1 == n2 = Just n'
+identToNeutral' _ _ = Nothing
+
+identToNeutral :: SharedModel -> Neutral -> Maybe (NeutralObject UI)
+identToNeutral SharedModel {sharedCards} n =
+  asum $ map (identToNeutral' n) sharedCards
+
 liftCard :: SharedModel -> Card Core -> Maybe (Card UI)
 liftCard shared = \case
   CreatureCard creature -> CreatureCard <$> liftCreature shared creature
-  NeutralCard n -> Just $ NeutralCard n
+  NeutralCard n -> NeutralCard <$> liftNeutralObject shared n
   ItemCard i -> Just $ ItemCard i
+
+liftNeutralObject :: SharedModel -> NeutralObject Core -> Maybe (NeutralObject UI)
+liftNeutralObject shared no =
+  identToNeutral shared n
+  where
+    IDN n = neutralToIdentifier no
 
 liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
 liftCreature shared creature =

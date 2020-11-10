@@ -88,6 +88,7 @@ neutralObjectOptions =
     }
   where
     impl "neutral" = "name"
+    impl "neutralTeams" = "teams"
     impl s = s
 
 itemObjectOptions :: Options
@@ -119,9 +120,9 @@ instance ToJSON Neutral
 instance FromJSON Neutral where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance ToJSON NeutralObject
+instance ToJSON (NeutralObject UI)
 
-instance FromJSON NeutralObject where
+instance FromJSON (NeutralObject UI) where
   parseJSON = genericParseJSON neutralObjectOptions
 
 instance ToJSON Item
@@ -147,9 +148,10 @@ instance ToJSON SkillUI
 instance FromJSON SkillUI where
   parseJSON = genericParseJSON skillUIOptions
 
+-- TODO @smelc remove Phase parameter, only UI makes sense
 data AllData (p :: Phase) = AllData
   { creatures :: [Creature p],
-    neutral :: [NeutralObject],
+    neutral :: [NeutralObject p],
     items :: [ItemObject],
     skills :: [SkillUI],
     tiles :: [TileUI]
@@ -171,7 +173,7 @@ parseJson ::
 parseJson json = do
   AllData creatures neutral items skills tiles <- eitherDecode json
   let creatureCards = Prelude.map CreatureCard creatures
-      neutralCards = Prelude.map (NeutralCard . Card.neutral) neutral
+      neutralCards = Prelude.map NeutralCard neutral
       itemCards = Prelude.map (ItemCard . Card.item) items
       allCards = creatureCards ++ neutralCards ++ itemCards
   return (allCards, skills, tiles)

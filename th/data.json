@@ -14,8 +14,9 @@
     { "id": { "name":"shade",     "team":"undead" }, "title":"shade",     "hp":1, "attack":2, "victory_points":0, "filepath": {"root": "24x24", "x": 6, "y": 3}}
   ],
   "neutral": [
-    { "name":"health", "title":"Health", "tile":"RedPotion",   "text":"Heals 1 HP" },
-    { "name":"life",   "title":"Life",   "tile":"GreenPotion", "text":"Restores all HP" }
+    { "name":"haste",  "title":"Infernal Haste", "tile":"SkullRedEyes", "text":"All creatures attack now!", "teams": ["undead"] },
+    { "name":"health", "title":"Health",         "tile":"RedPotion",    "text":"Heals 1 HP"               , "teams": ["human"]  },
+    { "name":"life",   "title":"Life",           "tile":"GreenPotion",  "text":"Restores all HP"          , "teams": ["human"]  }
   ],
   "items": [
     { "name":"crown", "title":"Crown", "tile":"crown", "text":"Leadership +2" }
@@ -37,6 +38,7 @@
     { "tile":"Bones5",        "filepath": { "root": "24x24", "x":5, "y":8 } },
     { "tile":"Bones6",        "filepath": { "root": "24x24", "x":6, "y":8 } },
     { "tile":"Heart",         "filepath": { "root": "16x16", "x":0, "y":0 } },
+    { "tile":"SkullRedEyes",  "filepath": { "root": "16x16", "x":1, "y":2 } },
     { "tile":"Sword1",        "filepath": { "root": "16x16", "x":1, "y":0 } },
     { "tile":"Sword2",        "filepath": { "root": "16x16", "x":3, "y":1 } },
     { "tile":"RedPotion",     "filepath": { "root": "16x16", "x":2, "y":0 } },

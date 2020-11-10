@@ -50,7 +50,8 @@ type family FilepathType (p :: Phase) where
   FilepathType Core = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (FilepathType p)
+  ( c (FilepathType p),
+    c (NeutralTeamsType p)
   )
 
 data CreatureKind
@@ -112,13 +113,27 @@ deriving instance Forall Ord p => Ord (Creature p)
 deriving instance Forall Show p => Show (Creature p)
 
 data Neutral
-  = Health
+  = Haste
+  | Health
   | Life
   deriving (Eq, Generic, Ord, Show)
 
-newtype NeutralObject = NeutralObject
-  {neutral :: Neutral}
-  deriving (Eq, Generic, Show)
+type family NeutralTeamsType (p :: Phase) where
+  NeutralTeamsType UI = [Team]
+  NeutralTeamsType Core = ()
+
+data NeutralObject (p :: Phase) = NeutralObject
+  { neutral :: Neutral,
+    -- | The teams to which this neutral card applies
+    neutralTeams :: NeutralTeamsType p
+  }
+  deriving (Generic)
+
+deriving instance Forall Eq p => Eq (NeutralObject p)
+
+deriving instance Forall Ord p => Ord (NeutralObject p)
+
+deriving instance Forall Show p => Show (NeutralObject p)
 
 data Item
   = Crown
@@ -131,7 +146,7 @@ newtype ItemObject = ItemObject
 
 data Card (p :: Phase)
   = CreatureCard (Creature p)
-  | NeutralCard Neutral
+  | NeutralCard (NeutralObject p)
   | ItemCard Item
 
 deriving instance Forall Eq p => Eq (Card p)
@@ -150,8 +165,12 @@ unliftCard :: Card UI -> Card Core
 unliftCard card =
   case card of
     CreatureCard creature -> CreatureCard $ unliftCreature creature
-    NeutralCard n -> NeutralCard n
+    NeutralCard n -> NeutralCard $ unliftNeutralObject n
     ItemCard i -> ItemCard i
+
+unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
+unliftNeutralObject NeutralObject {..} =
+  NeutralObject {neutral, neutralTeams = ()}
 
 cardToCreature :: Card p -> Maybe (Creature p)
 cardToCreature (CreatureCard creature) = Just creature
@@ -169,12 +188,15 @@ data CardIdentifier
 creatureToIdentifier :: Creature p -> CardIdentifier
 creatureToIdentifier Creature {creatureId} = IDC creatureId
 
+neutralToIdentifier :: NeutralObject p -> CardIdentifier
+neutralToIdentifier NeutralObject {neutral} = IDN neutral
+
 cardToIdentifier :: Card p -> CardIdentifier
 cardToIdentifier card =
   case card of
     CreatureCard Creature {..} -> IDC creatureId
     ItemCard i -> IDI i
-    NeutralCard n -> IDN n
+    NeutralCard NeutralObject {..} -> IDN neutral
 
 groupCards :: [Card p] -> Map.Map CardIdentifier [Card p]
 groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]

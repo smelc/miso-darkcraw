@@ -29,6 +29,7 @@ data Tile
   | GreenPotion
   | Heart
   | Loupe
+  | SkullRedEyes
   | Sword1
   | Sword2
   | RedPotion

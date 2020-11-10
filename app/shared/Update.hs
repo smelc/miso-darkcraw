@@ -61,6 +61,10 @@ instance ToExpr (Creature Core)
 
 instance ToExpr (Creature UI)
 
+instance ToExpr (NeutralObject Core)
+
+instance ToExpr (NeutralObject UI)
+
 instance ToExpr (Card Core)
 
 instance ToExpr (Card UI)
@@ -138,8 +142,6 @@ instance ToExpr InvitedActorState
 instance ToExpr DeckModel
 
 instance ToExpr Model
-
--- FIXME smelc move Action* to its own file (to avoid cycles later on)
 
 data MultiPlayerLobbyAction
   = LobbyUpdateUsername MisoString

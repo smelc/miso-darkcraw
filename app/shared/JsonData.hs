@@ -25,8 +25,9 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"filepath\": {\"root\": \"24x24\", \"x\": 6, \"y\": 3}}\n\
          \  ],\n\
          \  \"neutral\": [\n\
-         \    { \"name\":\"health\", \"title\":\"Health\", \"tile\":\"RedPotion\",   \"text\":\"Heals 1 HP\" },\n\
-         \    { \"name\":\"life\",   \"title\":\"Life\",   \"tile\":\"GreenPotion\", \"text\":\"Restores all HP\" }\n\
+         \    { \"name\":\"haste\",  \"title\":\"Infernal Haste\", \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
+         \    { \"name\":\"health\", \"title\":\"Health\",         \"tile\":\"RedPotion\",    \"text\":\"Heals 1 HP\"               , \"teams\": [\"human\"]  },\n\
+         \    { \"name\":\"life\",   \"title\":\"Life\",           \"tile\":\"GreenPotion\",  \"text\":\"Restores all HP\"          , \"teams\": [\"human\"]  }\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"crown\", \"title\":\"Crown\", \"tile\":\"crown\", \"text\":\"Leadership +2\" }\n\
@@ -48,6 +49,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones5\",        \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":8 } },\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
+         \    { \"tile\":\"SkullRedEyes\",  \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":2 } },\n\
          \    { \"tile\":\"Sword1\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"Sword2\",        \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":1 } },\n\
          \    { \"tile\":\"RedPotion\",     \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":0 } },\n\
