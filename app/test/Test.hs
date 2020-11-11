@@ -5,7 +5,7 @@
 
 module Main where
 
-import AI (aiPlay)
+import AI
 import Board
 import Card
 import Cinema
@@ -17,13 +17,14 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import Game (attackOrder, playAll)
+import Game (GamePlayEvent (..), attackOrder, play, playAll)
 import Generators
 import Json
 import Movie
 import SceneEquivalence
 import Test.Hspec
 import Test.Hspec.QuickCheck
+import Test.QuickCheck
 import Turn
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
@@ -172,6 +173,24 @@ testGetActorState =
       newActorAt "a2" skeleton 1 2
       wait 1
 
+testPlaceCommutation =
+  describe "play Place1; play Place2 = play Place2; play Place1" $
+    prop "Place commutes" $
+      \(board, turn) ->
+        let events = AI.placeCards board turn
+         in length events >= 2
+              ==> let (place1, place2) = (head events, events !! 1)
+                   in differ place1 place2
+                        ==> (Game.play board place1 & ignoreErrMsg <&> flip Game.play place2)
+                        `shouldBe` (Game.play board place2 & ignoreErrMsg <&> flip Game.play place1)
+  where
+    ignoreErrMsg (Left _) = Nothing
+    ignoreErrMsg (Right (board', _)) = Just board'
+    -- Is the differ condition really needed?
+    differ (Place pSpot1 cSpot1 hi1) (Place pSpot2 cSpot2 hi2) =
+      pSpot1 /= pSpot2 || cSpot1 /= cSpot2 || hi1 /= hi2
+    differ _ _ = error "Only Place events should have been generated"
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -223,3 +242,5 @@ main = hspec $ do
            in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
   testGetActorState
+
+-- testPlaceCommutation Fails

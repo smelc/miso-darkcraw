@@ -1,14 +1,17 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 
 module Generators where
 
+import Board
 import Card
 import Cinema
 import GHC.Generics
 import Generic.Random
 import Test.QuickCheck
 import Tile
+import Turn
 import Unsafe.Coerce (unsafeCoerce)
 
 newtype SceneAst = SceneAst [SceneAction]
@@ -46,7 +49,57 @@ instance Arbitrary CreatureID where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary Neutral where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary (NeutralObject Core) where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary CardIdentifier where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary CardSpot where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Item where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Skill where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary (Creature Core) where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary (Card Core) where
+  -- Do not generate NeutralCard and ItemCard for now, since they
+  -- arent' supported yet
+  arbitrary = genericArbitrary (1 % 0 % 0 % ())
+  shrink = genericShrink
+
+instance Arbitrary (PlayerPart Core) where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary (Board Core) where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 instance Arbitrary Tile where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary PlayerSpot where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Turn where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
