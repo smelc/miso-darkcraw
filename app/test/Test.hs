@@ -17,6 +17,7 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
+import Debug.Trace (traceShowId)
 import Game (GamePlayEvent (..), attackOrder, play, playAll)
 import Generators
 import Json
@@ -178,12 +179,11 @@ testPlaceCommutation =
   describe "play Place1; play Place2 = play Place2; play Place1" $
     prop "Place commutes" $
       \(Pretty board) (Pretty turn) ->
-        let events = AI.placeCards board turn
-         in length events >= 2
-              ==> let (place1 : place2 : _) = events
-                   in differ place1 place2
-                        ==> Pretty (Game.play board place1 & ignoreErrMsg <&> flip Game.play place2)
-                        `shouldBe` Pretty (Game.play board place2 & ignoreErrMsg <&> flip Game.play place1)
+        let events = traceShowId (AI.placeCards board turn)
+         in length events >= 2 && allDiff events
+              ==> forAll (Test.QuickCheck.elements (permutations events))
+              $ \events' ->
+                Pretty (ignoreErrMsg (playAll board events)) `shouldBe` Pretty (ignoreErrMsg (playAll board events'))
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (board', _)) = Just board'
@@ -193,6 +193,8 @@ testPlaceCommutation =
     differ (Place pSpot1 cSpot1 _) (Place pSpot2 cSpot2 _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     differ _ _ = error "Only Place events should have been generated"
+    allDiff [] = True
+    allDiff (event : events) = all (differ event) events && allDiff events
 
 main :: IO ()
 main = hspec $ do
