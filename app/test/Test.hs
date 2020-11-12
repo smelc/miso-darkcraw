@@ -21,6 +21,7 @@ import Game (GamePlayEvent (..), attackOrder, play, playAll)
 import Generators
 import Json
 import Movie
+import Pretty
 import SceneEquivalence
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -176,13 +177,13 @@ testGetActorState =
 testPlaceCommutation =
   describe "play Place1; play Place2 = play Place2; play Place1" $
     prop "Place commutes" $
-      \(board, turn) ->
+      \(Pretty board) (Pretty turn) ->
         let events = AI.placeCards board turn
          in length events >= 2
-              ==> let (place1, place2) = (head events, events !! 1)
+              ==> let (place1 : place2 : _) = events
                    in differ place1 place2
-                        ==> (Game.play board place1 & ignoreErrMsg <&> flip Game.play place2)
-                        `shouldBe` (Game.play board place2 & ignoreErrMsg <&> flip Game.play place1)
+                        ==> Pretty (Game.play board place1 & ignoreErrMsg <&> flip Game.play place2)
+                        `shouldBe` Pretty (Game.play board place2 & ignoreErrMsg <&> flip Game.play place1)
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (board', _)) = Just board'
