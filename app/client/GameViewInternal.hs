@@ -19,7 +19,6 @@ module GameViewInternal
     noDrag,
     scoreViews,
     StackPosition (..),
-    StackType (..),
     stackView,
     turnView,
   )
@@ -156,16 +155,12 @@ data StackPosition
     -- | Always visible
     Hand
 
-data StackType
-  = Stacked
-  | Discarded
-
 data StackWidgetType
   = Button
   | Plus
 
 -- | The widget showing the number of cards in the stack/discarded stack
-stackView :: GameModel -> Int -> PlayerSpot -> StackPosition -> StackType -> Styled [View Action]
+stackView :: GameModel -> Int -> PlayerSpot -> StackPosition -> StackKind -> Styled [View Action]
 stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show atColonSize)
   plus <- keyframed plusBuilder plusFrames animData

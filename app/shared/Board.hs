@@ -55,6 +55,7 @@ module Board
     topSpots,
     botSpots,
     boardToASCII,
+    StackKind (..),
   )
 where
 
@@ -215,6 +216,10 @@ instance Monoid (PlayerPart UI) where
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
+
+data StackKind
+  = Stacked
+  | Discarded
 
 lookupHand ::
   MonadError Text m =>
