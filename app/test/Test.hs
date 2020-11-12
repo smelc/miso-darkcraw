@@ -186,9 +186,11 @@ testPlaceCommutation =
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (board', _)) = Just board'
-    -- Is the differ condition really needed?
-    differ (Place pSpot1 cSpot1 hi1) (Place pSpot2 cSpot2 hi2) =
-      pSpot1 /= pSpot2 || cSpot1 /= cSpot2 || hi1 /= hi2
+    -- The differ condition is required, because if both place events are
+    -- in the same place, only the first one will have an effect; which
+    -- can differ from the second one, if the cards to place differ.
+    differ (Place pSpot1 cSpot1 _) (Place pSpot2 cSpot2 _) =
+      pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     differ _ _ = error "Only Place events should have been generated"
 
 main :: IO ()

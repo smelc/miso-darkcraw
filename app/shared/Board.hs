@@ -54,6 +54,7 @@ module Board
     boardToInPlace,
     topSpots,
     botSpots,
+    boardToASCII,
   )
 where
 
@@ -63,7 +64,9 @@ import Control.Lens
 import Control.Monad.Except (MonadError, throwError)
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
+import Data.List (intersperse)
 import qualified Data.Map.Strict as Map
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Formatting (hex, sformat, (%))
 import GHC.Generics (Generic)
@@ -397,3 +400,58 @@ spotToLens =
   \case
     PlayerBottom -> #playerBottom
     PlayerTop -> #playerTop
+
+------------------------------
+-- Now onto fancy rendering --
+------------------------------
+
+boardToASCII :: Board Core -> String
+boardToASCII board =
+  (intersperse "\n" lines & concat) ++ "\n"
+  where
+    lines =
+      cardsLines board PlayerTop topSpots
+        ++ ["\n"] -- vertical space between AI lines
+        ++ cardsLines board PlayerTop botSpots
+        ++ ["\n", "\n"] -- vertical space between players
+        ++ cardsLines board PlayerBottom botSpots
+        ++ ["\n"] -- vertical space between player lines
+        ++ cardsLines board PlayerBottom topSpots
+
+cardsLines :: Board Core -> PlayerSpot -> [CardSpot] -> [String]
+cardsLines board pSpot cSpots =
+  map f [0 .. cardHeight - 1]
+  where
+    f lineNb =
+      let pieces = map (\cSpot -> cardLine board pSpot cSpot lineNb) cSpots
+       in intersperse " " pieces & concat -- horizontal space between cards
+
+-- The height of a card, in number of lines
+cardHeight = 1 + 1 + 5
+
+-- The height of a card, in number of characters
+cardWidth = 16
+
+type LineNumber = Int
+
+-- | The line number must be in [0, cardHeight)
+cardLine :: Board Core -> PlayerSpot -> CardSpot -> LineNumber -> String
+cardLine board pSpot cSpot lineNb =
+  case length base of
+    i | i < cardWidth -> base ++ replicate (cardWidth - i) '.'
+    i | i > cardWidth -> take cardWidth base
+    _ -> base
+  where
+    maybeCreature = boardToInPlace board pSpot Map.!? cSpot
+    emptyLine :: String = replicate cardWidth '.'
+    base = case maybeCreature of
+      Nothing -> if lineNb == 0 then show cSpot else emptyLine
+      Just creature -> fromMaybe emptyLine $ creatureToAscii creature lineNb
+
+-- | The n-th line of a creature card, or None
+creatureToAscii :: Creature Core -> LineNumber -> Maybe String
+creatureToAscii Creature {creatureId = CreatureID {..}} 0 =
+  Just $ show team ++ " " ++ show creatureKind
+creatureToAscii Creature {..} 1 =
+  Just $ show hp ++ "<3 " ++ show attack ++ "X"
+creatureToAscii _ _ = Nothing
