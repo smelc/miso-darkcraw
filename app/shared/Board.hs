@@ -56,6 +56,7 @@ module Board
     botSpots,
     boardToASCII,
     StackKind (..),
+    unsafeExampleBoard,
   )
 where
 
@@ -67,7 +68,7 @@ import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import Data.List (intersperse)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Text (Text)
 import Formatting (hex, sformat, (%))
 import GHC.Generics (Generic)
@@ -410,18 +411,61 @@ spotToLens =
 -- Now onto fancy rendering --
 ------------------------------
 
+-- For testing
+unsafeExampleBoard :: Board Core
+unsafeExampleBoard =
+  board'
+  where
+    shared@SharedModel {..} = unsafeGet
+    teams = Teams {topTeam = Undead, botTeam = Human}
+    board = initialBoard shared teams & snd
+    creature team creatureKind = identToCreature shared CreatureID {..} & fromJust & unliftCreature
+    board' = boardSetCreature board PlayerBottom Bottom $ creature Human Archer
+
 boardToASCII :: Board Core -> String
 boardToASCII board =
   (intersperse "\n" lines & concat) ++ "\n"
   where
     lines =
-      cardsLines board PlayerTop topSpots
+      stackLines board PlayerTop ++ []
+        ++ cardsLines board PlayerTop topSpots
         ++ ["\n"] -- vertical space between AI lines
         ++ cardsLines board PlayerTop botSpots
         ++ ["\n", "\n"] -- vertical space between players
         ++ cardsLines board PlayerBottom botSpots
         ++ ["\n"] -- vertical space between player lines
         ++ cardsLines board PlayerBottom topSpots
+        ++ []
+        ++ stackLines board PlayerBottom
+
+stackLines :: Board Core -> PlayerSpot -> [String]
+stackLines board pSpot =
+  map (\s -> replicate 4 ' ' ++ s) $ reverse $ go 0 []
+  where
+    discarded = boardToDiscarded board pSpot
+    stack = boardToStack board pSpot
+    hspace = replicate 8 ' '
+    stackWidth = 16
+    justify s | length s < stackWidth = s ++ replicate (stackWidth - length s) ' '
+    justify s | length s > stackWidth = take stackWidth s
+    justify s = s
+    go i acc =
+      case (stackLine Discarded discarded i, stackLine Stacked stack i) of
+        (Nothing, Nothing) -> acc
+        (d, st) ->
+          let line =
+                justify (fromMaybe blanks d)
+                  ++ hspace
+                  ++ justify (fromMaybe blanks st)
+           in go (i + 1) (line : acc)
+          where
+            blanks = replicate stackWidth ' '
+
+stackLine :: StackKind -> [CardIdentifier] -> LineNumber -> Maybe String
+stackLine Discarded _ 0 = Just "Discarded"
+stackLine Stacked _ 0 = Just "Stack"
+stackLine _ cards i | i > length cards = Nothing
+stackLine _ cards i = Just $ show $ cards !! (i - 1)
 
 cardsLines :: Board Core -> PlayerSpot -> [CardSpot] -> [String]
 cardsLines board pSpot cSpots =
