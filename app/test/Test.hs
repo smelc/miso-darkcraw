@@ -190,9 +190,9 @@ testPlaceCommutation =
     -- The differ condition is required, because if both place events are
     -- in the same place, only the first one will have an effect; which
     -- can differ from the second one, if the cards to place differ.
-    differ (Place pSpot1 cSpot1 _) (Place pSpot2 cSpot2 _) =
+    differ (Place' pSpot1 cSpot1 _) (Place' pSpot2 cSpot2 _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
-    differ _ _ = error "Only Place events should have been generated"
+    differ _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
     allDiff (event : events) = all (differ event) events && allDiff events
 
@@ -247,5 +247,4 @@ main = hspec $ do
            in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
   testGetActorState
-
--- testPlaceCommutation Fails
+  testPlaceCommutation

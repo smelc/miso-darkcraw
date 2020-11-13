@@ -55,6 +55,9 @@ data GamePlayEvent
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board
     Place PlayerSpot CardSpot HandIndex
+  | -- | AI puts a card from his hand. This constructor has better
+    -- testing behavior than 'Place': it makes the generated events commute.
+    Place' PlayerSpot CardSpot CreatureID
   deriving (Eq, Show)
 
 reportEffect ::
@@ -121,6 +124,17 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     base :: PlayerPart Core = board ^. pLens
     hand :: [Card Core] = boardToHand board pSpot
     hand' :: [Card Core] = deleteAt handi hand
+playM' board (Place' pSpot cSpot creatureID) =
+  case idx of
+    Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show creatureID
+    Just i -> playM' board (Place pSpot cSpot i)
+  where
+    idxAndIDs =
+      boardToHand board pSpot
+        & map cardToCreature
+        & map (fmap creatureId)
+        & zip [HandIndex 0 ..]
+    idx = find (\(_, m) -> m == Just creatureID) idxAndIDs <&> fst
 
 drawCards ::
   SharedModel ->

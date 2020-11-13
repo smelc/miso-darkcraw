@@ -35,6 +35,7 @@ placeCards board turn =
     isPlaceEvent EndTurn {} = False
     isPlaceEvent NoPlayEvent = False
     isPlaceEvent Place {} = True
+    isPlaceEvent Place' {} = True
 
 -- | Smart play events
 aiPlay :: Board Core -> Turn -> [GamePlayEvent]
@@ -44,22 +45,11 @@ aiPlay board turn =
     (_, events) : _ -> events
   where
     pSpot = turnToPlayerSpot turn
-    hands :: [[(Int, Card Core)]] = permutations $ zip [0 ..] $ boardToHand board pSpot
-    -- The map contains the translation of hand indices in [GamePlayEvent]
-    -- that makes sense for the initial Board, i.e. 'board'
-    possibles :: [(Map.Map Int Int, [GamePlayEvent])] =
+    hands :: [[Card Core]] = boardToHand board pSpot & permutations
+    possibles =
       map
-        ( \hand ->
-            ( Map.fromList $ zip [0 ..] $ map fst hand,
-              aiPlayHand (boardSetHand board pSpot (map snd hand)) turn
-            )
-        )
+        (\hand -> aiPlayHand (boardSetHand board pSpot hand) turn)
         hands
-    subst map (Place pSpot cSpot (HandIndex i)) =
-      Place pSpot cSpot $ HandIndex $ map Map.! i
-    subst _ gpe = assert False gpe
-    -- Apply substitution, make [GamePlayEvent] meaningful for 'board'
-    possibles' = map (\(m, events) -> map (subst m) events) possibles
     scores :: [(Int, [GamePlayEvent])] =
       map
         ( \events ->
@@ -67,7 +57,7 @@ aiPlay board turn =
               Left msg -> trace ("Unexpected case: " ++ Text.unpack msg) Nothing
               Right board' -> Just (boardScore board' turn, events)
         )
-        possibles'
+        possibles
         & catMaybes
         & sortByFst
     playAll b events = Game.playAll b events <&> fst
@@ -110,10 +100,11 @@ aiPlayFirst :: Board Core -> Turn -> Maybe GamePlayEvent
 aiPlayFirst board turn =
   case boardToHand board pSpot of
     [] -> Nothing
-    _ -> do
+    card : _ -> do
+      let creatureID = unsafeCardToCreature card & creatureId
       let scores' = scores & sortByFst
       best <- listToMaybe scores'
-      return $ Place pSpot (snd best) handIndex
+      return $ Place' pSpot (snd best) creatureID
   where
     handIndex = HandIndex 0
     pSpot = turnToPlayerSpot turn
