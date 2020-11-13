@@ -465,7 +465,16 @@ stackLine :: StackKind -> [CardIdentifier] -> LineNumber -> Maybe String
 stackLine Discarded _ 0 = Just "Discarded"
 stackLine Stacked _ 0 = Just "Stack"
 stackLine _ cards i | i > length cards = Nothing
-stackLine _ cards i = Just $ show $ cards !! (i - 1)
+stackLine _ cards i = Just $ showID $ cards !! (i - 1)
+
+showID :: CardIdentifier -> String
+showID (IDC CreatureID {creatureKind, team}) =
+  showTeamShort team ++ " " ++ show creatureKind
+showID (IDI i) = show i
+showID (IDN n) = show n
+
+showTeamShort Human = "H"
+showTeamShort Undead = "UD"
 
 cardsLines :: Board Core -> PlayerSpot -> [CardSpot] -> [String]
 cardsLines board pSpot cSpots =
