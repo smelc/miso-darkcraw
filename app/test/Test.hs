@@ -18,7 +18,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
 import Debug.Trace (traceShowId)
-import Game (GamePlayEvent (..), attackOrder, play, playAll)
+import Game (GamePlayEvent (..), attackOrder, playAll)
 import Generators
 import Json
 import Movie

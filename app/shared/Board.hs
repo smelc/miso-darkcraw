@@ -66,7 +66,7 @@ import Control.Lens
 import Control.Monad.Except (MonadError, throwError)
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
-import Data.List (intersperse)
+import Data.List (intercalate, intersperse)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe)
 import Data.Text (Text)
@@ -428,6 +428,7 @@ boardToASCII board =
   where
     lines =
       stackLines board PlayerTop ++ []
+        ++ [handLine board PlayerTop]
         ++ cardsLines board PlayerTop topSpots
         ++ ["\n"] -- vertical space between AI lines
         ++ cardsLines board PlayerTop botSpots
@@ -436,6 +437,7 @@ boardToASCII board =
         ++ ["\n"] -- vertical space between player lines
         ++ cardsLines board PlayerBottom topSpots
         ++ []
+        ++ [handLine board PlayerBottom]
         ++ stackLines board PlayerBottom
 
 stackLines :: Board Core -> PlayerSpot -> [String]
@@ -460,6 +462,12 @@ stackLines board pSpot =
            in go (i + 1) (line : acc)
           where
             blanks = replicate stackWidth ' '
+
+handLine :: Board Core -> PlayerSpot -> String
+handLine board pSpot =
+  "Hand: " ++ intercalate ", " (map (showID . cardToIdentifier) hand)
+  where
+    hand = boardToHand board pSpot
 
 stackLine :: StackKind -> [CardIdentifier] -> LineNumber -> Maybe String
 stackLine Discarded _ 0 = Just "Discarded"
