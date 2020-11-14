@@ -181,7 +181,7 @@ testPlaceCommutation =
       \(Pretty board) (Pretty turn) ->
         let events = traceShowId (AI.placeCards board turn)
          in length events >= 2 && allDiff events
-              ==> forAll (Test.QuickCheck.elements (permutations events))
+              ==> forAll (Test.QuickCheck.elements (permutations events & take 16))
               $ \events' ->
                 Pretty (ignoreErrMsg (playAll board events)) `shouldBe` Pretty (ignoreErrMsg (playAll board events'))
   where

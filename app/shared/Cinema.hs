@@ -230,7 +230,7 @@ render scene =
         NewActor name state :>>= k -> do
           element <- Element <$> E.gets actorCounter
           E.modify @SchedulerState (#actorCounter +~ 1)
-          E.modify @Frame (#unFrame . at element ?~ (Actor name state))
+          E.modify @Frame (#unFrame . at element ?~ Actor name state)
           stepThread now tid (view (k element))
         SetActorState element state :>>= k -> do
           E.modify @Frame (#unFrame . ix element . #actorState .~ state)
