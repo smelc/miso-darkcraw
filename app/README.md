@@ -31,10 +31,16 @@ with my usual configuration, nice!
 
 # repl
 
-To launch a repl, do:
+To launch a repl for the application's context, do:
 
 ```
 cabal repl app.cabal:app
+```
+
+For a repl for the test context, do:
+
+```
+cabal repl test-darkcraw
 ```
 
 # Fast feedback

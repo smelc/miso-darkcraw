@@ -206,6 +206,8 @@ data PlayerPart (p :: Phase) = PlayerPart
 
 deriving instance Board.Forall Eq p => Eq (PlayerPart p)
 
+deriving instance Board.Forall Ord p => Ord (PlayerPart p)
+
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
 instance Semigroup (PlayerPart UI) where
@@ -258,6 +260,8 @@ data Board (p :: Phase) = Board
   deriving (Generic)
 
 deriving instance Board.Forall Eq p => Eq (Board p)
+
+deriving instance Board.Forall Ord p => Ord (Board p)
 
 deriving instance Board.Forall Show p => Show (Board p)
 
