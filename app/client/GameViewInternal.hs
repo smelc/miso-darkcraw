@@ -29,7 +29,7 @@ import Card
 import Constants
 import Control.Lens
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (isJust)
 import Game (enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
@@ -229,10 +229,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
     GameHoverInteraction _ | emptyPlayingPlayerSpot -> 3
     GameHoverInPlaceInteraction pSpot' cSpotHovered ->
       let attacker = boardToInPlaceCreature board pSpot' cSpotHovered
-       in let skills' =
-                case attacker of
-                  Nothing -> [] -- case should not happen but we handle it
-                  Just attacker -> fromMaybe [] $ skills attacker
+       in let skills' = maybe [] skills attacker
            in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
                 then borderSize
                 else 0

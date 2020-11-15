@@ -62,15 +62,6 @@ toLowerConstructorOptions =
 
 instance FromJSON Skill
 
-creatureOptions :: Options
-creatureOptions =
-  defaultOptions
-    { fieldLabelModifier = \case
-        "victoryPoints" -> "victory_points"
-        "creatureId" -> "id"
-        s -> s
-    }
-
 neutralObjectOptions :: Options
 neutralObjectOptions =
   defaultOptions
@@ -101,7 +92,15 @@ skillUIOptions =
     impl s = s
 
 instance FromJSON (Creature UI) where
-  parseJSON = genericParseJSON creatureOptions
+  parseJSON = withObject "Creature" $ \v ->
+    Creature
+      <$> v .: "id"
+      <*> v .: "hp"
+      <*> v .: "attack"
+      <*> v .:? "moral"
+      <*> v .: "victory_points"
+      <*> v .:? "skills" .!= []
+      <*> v .: "filepath"
 
 instance FromJSON Neutral where
   parseJSON = genericParseJSON toLowerConstructorOptions

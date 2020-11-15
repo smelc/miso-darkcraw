@@ -101,7 +101,7 @@ data Creature (p :: Phase) = Creature
     attack :: Int,
     moral :: Maybe Int,
     victoryPoints :: Int,
-    skills :: Maybe [Skill],
+    skills :: [Skill],
     filepath :: FilepathType p
   }
   deriving (Generic)

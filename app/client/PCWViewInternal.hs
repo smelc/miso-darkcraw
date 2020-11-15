@@ -123,7 +123,7 @@ cardCreature z shared (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
           text $ ms $ attack creature,
           imgCell assetFilenameSword
         ]
-    skills = fromMaybe [] $ Card.skills creature
+    skills = Card.skills creature
     skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)
     skillsHeight = cps * length skills
     skillsStyle =
