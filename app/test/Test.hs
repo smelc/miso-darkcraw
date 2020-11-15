@@ -247,4 +247,5 @@ main = hspec $ do
            in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
   testGetActorState
-  testPlaceCommutation
+
+-- testPlaceCommutation

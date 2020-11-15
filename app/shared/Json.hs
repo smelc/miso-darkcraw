@@ -25,12 +25,8 @@ import GHC.Generics
 import JsonData
 import Tile
 
-instance ToJSON Team
-
 instance FromJSON Team where
   parseJSON = genericParseJSON toLowerConstructorOptions
-
-instance ToJSON CreatureKind
 
 instance FromJSON CreatureKind where
   parseJSON = genericParseJSON toLowerConstructorOptions
@@ -42,8 +38,6 @@ creatureIDOptions =
         "creatureKind" -> "name"
         s -> s
     }
-
-instance ToJSON CreatureID
 
 instance FromJSON CreatureID where
   parseJSON = genericParseJSON creatureIDOptions
@@ -57,8 +51,6 @@ filepathOptions =
         s -> s
     }
 
-instance ToJSON Filepath
-
 instance FromJSON Filepath where
   parseJSON = genericParseJSON filepathOptions
 
@@ -67,8 +59,6 @@ toLowerConstructorOptions =
   defaultOptions
     { constructorTagModifier = lower
     }
-
-instance ToJSON Skill
 
 instance FromJSON Skill
 
@@ -110,40 +100,24 @@ skillUIOptions =
     impl "skillTitle" = "title"
     impl s = s
 
-instance ToJSON (Creature UI)
-
 instance FromJSON (Creature UI) where
   parseJSON = genericParseJSON creatureOptions
-
-instance ToJSON Neutral
 
 instance FromJSON Neutral where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance ToJSON (NeutralObject UI)
-
 instance FromJSON (NeutralObject UI) where
   parseJSON = genericParseJSON neutralObjectOptions
-
-instance ToJSON Item
 
 instance FromJSON Item where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance ToJSON ItemObject
-
 instance FromJSON ItemObject where
   parseJSON = genericParseJSON itemObjectOptions
 
-instance ToJSON Tile
-
 instance FromJSON Tile
 
-instance ToJSON TileUI
-
 instance FromJSON TileUI
-
-instance ToJSON SkillUI
 
 instance FromJSON SkillUI where
   parseJSON = genericParseJSON skillUIOptions
@@ -159,8 +133,6 @@ data AllData (p :: Phase) = AllData
   deriving (Generic)
 
 deriving instance Forall Show p => Show (AllData p)
-
-instance ToJSON (AllData UI)
 
 instance FromJSON (AllData UI)
 
