@@ -11,7 +11,7 @@
 -- |
 module SharedModel
   ( identToCard,
-    identToCreature,
+    idToCreature,
     liftCard,
     liftCreature,
     SharedModel (..),
@@ -65,16 +65,16 @@ identToCard :: SharedModel -> CardIdentifier -> Maybe (Card UI)
 identToCard SharedModel {sharedCards} cid =
   asum $ map (identToCard' cid) sharedCards
 
+unsafeIdentToCard :: SharedModel -> CardIdentifier -> Card UI
+unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
+
 -- Could type level computations make this function superseded
 -- by identToCard? I mean if you pass a 'IDC' CardIdentifier to identToCard,
 -- you're sure to get a Just (CreatureCard _) value
 -- (Just (NeutralCard _) is impossible)
-identToCreature :: SharedModel -> CreatureID -> Maybe (Creature UI)
-identToCreature SharedModel {sharedCards} cid =
-  asum $ map (identToCreature' cid) sharedCards
-
-unsafeIdentToCard :: SharedModel -> CardIdentifier -> Card UI
-unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
+idToCreature :: SharedModel -> CreatureID -> Maybe (Creature UI)
+idToCreature SharedModel {sharedCards} cid =
+  asum $ map (idToCreature' cid) sharedCards
 
 identToCard' :: CardIdentifier -> Card p -> Maybe (Card p)
 identToCard' cid card =
@@ -84,9 +84,9 @@ identToCard' cid card =
     (IDI i2, ItemCard i1) | i1 == i2 -> Just card
     _ -> Nothing
 
-identToCreature' :: CreatureID -> Card p -> Maybe (Creature p)
-identToCreature' cid (CreatureCard c@Creature {creatureId = cid1}) | cid1 == cid = Just c
-identToCreature' _ _ = Nothing
+idToCreature' :: CreatureID -> Card p -> Maybe (Creature p)
+idToCreature' cid (CreatureCard c@Creature {creatureId = cid1}) | cid1 == cid = Just c
+idToCreature' _ _ = Nothing
 
 identToNeutral' :: Neutral -> Card p -> Maybe (NeutralObject p)
 identToNeutral' n1 (NeutralCard n'@NeutralObject {neutral = n2}) | n1 == n2 = Just n'
@@ -110,7 +110,7 @@ liftNeutralObject shared no =
 
 liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
 liftCreature shared creature =
-  identToCreature shared cid
+  idToCreature shared cid
   where
     IDC cid = creatureToIdentifier creature
 

@@ -25,7 +25,7 @@ import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (SinglePlayerLobbyModel (..))
-import SharedModel (SharedModel (..), identToCreature)
+import SharedModel (SharedModel (..), idToCreature)
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
@@ -127,7 +127,7 @@ teamButton smodel z chosen team = do
         Nothing -> (Enabled, LobbySelectTeam $ Just team)
         Just t | t == team -> (Selected, LobbySelectTeam Nothing) -- toggle
         Just _ -> (Disabled, LobbySelectTeam $ Just team)
-    creature kind team = identToCreature smodel $ CreatureID kind team
+    creature kind team = idToCreature smodel $ CreatureID kind team
     path team kind =
       creature kind team & creatureToFilepath & filepathToString
     tile team =

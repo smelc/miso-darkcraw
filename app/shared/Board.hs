@@ -423,7 +423,7 @@ unsafeExampleBoard =
     shared@SharedModel {..} = unsafeGet
     teams = Teams {topTeam = Undead, botTeam = Human}
     board = initialBoard shared teams & snd
-    creature team creatureKind = identToCreature shared CreatureID {..} & fromJust & unliftCreature
+    creature team creatureKind = idToCreature shared CreatureID {..} & fromJust & unliftCreature
     board' = boardSetCreature board PlayerBottom Bottom $ creature Human Archer
 
 boardToASCII :: Board Core -> String
