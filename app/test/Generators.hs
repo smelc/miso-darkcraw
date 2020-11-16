@@ -7,8 +7,11 @@ module Generators where
 import Board
 import Card
 import Cinema
+import Data.Function ((&))
+import Data.Maybe
 import GHC.Generics
 import Generic.Random
+import qualified SharedModel
 import Test.QuickCheck
 import Tile
 import Turn
@@ -46,7 +49,15 @@ instance Arbitrary Team where
   shrink = genericShrink
 
 instance Arbitrary CreatureID where
-  arbitrary = genericArbitraryU
+  -- Only generated CreatureID that are known to SharedModel, because
+  -- we map them back a lot.
+  arbitrary =
+    elements $
+      SharedModel.unsafeGet
+        & SharedModel.sharedCards
+        & map cardToCreature
+        & catMaybes
+        & map creatureId
   shrink = genericShrink
 
 instance Arbitrary Neutral where
@@ -58,7 +69,9 @@ instance Arbitrary (NeutralObject Core) where
   shrink = genericShrink
 
 instance Arbitrary CardIdentifier where
-  arbitrary = genericArbitraryU
+  -- Do not generate NeutralCard and ItemCard for now, since they
+  -- arent' supported yet
+  arbitrary = IDC <$> arbitrary
   shrink = genericShrink
 
 instance Arbitrary CardSpot where

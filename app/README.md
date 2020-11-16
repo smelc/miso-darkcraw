@@ -43,6 +43,14 @@ For a repl for the test context, do:
 cabal repl test-darkcraw
 ```
 
+Then to execute a single test:
+
+```
+> import Test.Hspec
+> import Main
+> hspec testPlaceCommutation -- for example
+```
+
 # Fast feedback
 
 * To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal

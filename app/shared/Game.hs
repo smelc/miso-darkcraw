@@ -78,38 +78,42 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart UI = mempty {inPlace = botInPlace}
 
-play :: Board Core -> GamePlayEvent -> Either Text (Board Core, Board UI)
-play board action =
-  playM board action
+play :: SharedModel -> Board Core -> GamePlayEvent -> Either Text (Board Core, Board UI)
+play shared board action =
+  playM shared board action
     & runWriterT
     & runExcept
 
-playAll :: Board Core -> [GamePlayEvent] -> Either Text (Board Core, Board UI)
-playAll board [] = Right (board, mempty)
-playAll board (e : events) = do
-  (board', boardui') <- play board e
-  (board'', boardui'') <- playAll board' events
+playAll :: SharedModel -> Board Core -> [GamePlayEvent] -> Either Text (Board Core, Board UI)
+playAll _ board [] = Right (board, mempty)
+playAll shared board (e : events) = do
+  (board', boardui') <- play shared board e
+  (board'', boardui'') <- playAll shared board' events
   return (board'', boardui' <> boardui'')
 
+-- FIXME @smelc: delete me
 playM ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
+  SharedModel ->
   Board Core ->
   GamePlayEvent ->
   m (Board Core)
-playM board gpe =
-  playM' board gpe
+playM shared board gpe =
+  playM' shared board gpe
 
 playM' ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
+  SharedModel ->
   Board Core ->
   GamePlayEvent ->
   m (Board Core)
-playM' board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
-playM' board NoPlayEvent = return board
-playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
-  card <- lookupHand hand handi
+playM' _ board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
+playM' _ board NoPlayEvent = return board
+playM' shared board (Place pSpot cSpot (handhi :: HandIndex)) = do
+  ident <- lookupHand hand handi
+  let card = unsafeIdentToCard shared ident & unliftCard
   let onTable :: Map CardSpot (Creature Core) = inPlace base
   if Map.member cSpot onTable
     then throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
@@ -122,17 +126,16 @@ playM' board (Place pSpot cSpot (handhi :: HandIndex)) = do
     handi = unHandIndex handhi
     pLens = spotToLens pSpot
     base :: PlayerPart Core = board ^. pLens
-    hand :: [Card Core] = boardToHand board pSpot
-    hand' :: [Card Core] = deleteAt handi hand
-playM' board (Place' pSpot cSpot creatureID) =
+    hand = boardToHand board pSpot
+    hand' = deleteAt handi hand
+playM' shared board (Place' pSpot cSpot creatureID) =
   case idx of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show creatureID
-    Just i -> playM' board (Place pSpot cSpot i)
+    Just i -> playM' shared board (Place pSpot cSpot i)
   where
     idxAndIDs =
       boardToHand board pSpot
-        & map cardToCreature
-        & map (fmap creatureId)
+        & map identToId
         & zip [HandIndex 0 ..]
     idx = find (\(_, m) -> m == Just creatureID) idxAndIDs <&> fst
 
@@ -177,17 +180,13 @@ drawCardM board pSpot =
     0 -> return board
     _ -> do
       let stack :: [CardIdentifier] = boardToStack board pSpot
-      let hand :: [Card Core] = boardToHand board pSpot
+      let hand = boardToHand board pSpot
       stdgen <- use #sharedStdGen
       let (idrawn, stdgen') = randomR (0, bound - 1) stdgen
       #sharedStdGen .= stdgen'
-      let drawn :: CardIdentifier = stack !! idrawn
-      shared <- get
-      let maybeDrawnCard = identToCard shared drawn
-      when (isNothing maybeDrawnCard) $ throwError $ Text.pack $ "Identifier " ++ show drawn ++ " cannot be mapped to Card"
-      let drawnCard = fromJust maybeDrawnCard & unliftCard
+      let ident :: CardIdentifier = stack !! idrawn
       let stack' = deleteAt idrawn stack
-      let hand' = hand ++ [drawnCard]
+      let hand' = hand ++ [ident]
       tell $ boardAddToHand mempty pSpot $ length hand
       let board' = boardSetStack board pSpot stack'
       let board'' = boardSetHand board' pSpot hand'

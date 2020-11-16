@@ -295,8 +295,8 @@ updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
   | isPlayerTurn m =
     withInteraction m $ GameDragInteraction $ dragging {dragTarget = Nothing}
 -- A GamePlayEvent to execute
-updateGameModel m@GameModel {board} (GamePlay gameEvent) _ =
-  case Game.play board gameEvent of
+updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
+  case Game.play gameShared board gameEvent of
     Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
     Right (board', anims') ->
       -- There MUST be a delay here, otherwise it means we would need
@@ -322,7 +322,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
   where
     pSpot = assert (n >= 1) $ turnToPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
+updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
   case em' of
     Left err -> withInteraction m $ GameShowErrorInteraction err
     Right m'@GameModel {board = board'} ->
@@ -350,11 +350,11 @@ updateGameModel m@GameModel {board, turn} GameEndTurnPressed _ =
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
-          let placements = AI.placeCards emptyPlayerInPlaceBoard $ nextTurn turn
-          (board', boardui') <- Game.playAll board placements
+          let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ nextTurn turn
+          (board', boardui') <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board'}
         else Right m
-updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
+updateGameModel m@GameModel {gameShared, playingPlayer, turn} GameIncrTurn _ =
   (m'', events)
   where
     turn' = nextTurn turn
@@ -388,7 +388,7 @@ updateGameModel m@GameModel {playingPlayer, turn} GameIncrTurn _ =
                 Game.transferCards (Model.gameShared m') (Model.board m') pSpot
           (board'', boardui'', shared'') <-
             Game.drawCards shared' board' pSpot nbDraws'
-          let aiEvents = if isAI then aiPlay board'' turn' else []
+          let aiEvents = if isAI then aiPlay gameShared board'' turn' else []
           return (aiEvents, board'', boardui' <> boardui'', shared'')
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =

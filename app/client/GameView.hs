@@ -156,12 +156,14 @@ boardToInHandCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInHandCells z m@GameModel {board, playingPlayer} = do
+boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} = do
   stacks <- traverse (stackView m z playingPlayer Hand) [Discarded, Stacked]
   cards <- traverse (boardToInHandCell z m) icreatures
   return $ cards ++ concat stacks
   where
-    cards = boardToInHandCreaturesToDraw board $ spotToLens playingPlayer
+    cards =
+      boardToHand board playingPlayer
+        & map (unsafeCardToCreature . unliftCard . unsafeIdentToCard gameShared)
     icreatures = Prelude.zip cards [HandIndex 0 ..]
 
 boardToInHandCell ::

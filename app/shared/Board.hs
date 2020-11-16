@@ -24,7 +24,6 @@ module Board
     bottomSpotOfTopVisual,
     boardSetPart,
     boardToHoleyInPlace,
-    boardToInHandCreaturesToDraw,
     boardToInPlaceCreature,
     boardToHand,
     boardToPart,
@@ -165,7 +164,7 @@ type family InPlaceType (p :: Phase) where
   InPlaceType UI = InPlaceEffects
 
 type family HandElemType (p :: Phase) where
-  HandElemType Core = Card Core
+  HandElemType Core = CardIdentifier
   HandElemType UI = Int
 
 type family InHandType (p :: Phase) where
@@ -323,10 +322,6 @@ boardToHoleyInPlace board =
       let maybeCreature = boardToInPlaceCreature board pSpot cSpot
   ]
 
-boardToInHandCreaturesToDraw :: Board Core -> Lens' (Board Core) (PlayerPart Core) -> [Creature Core]
-boardToInHandCreaturesToDraw board player =
-  board ^.. player . #inHand . folded . #_CreatureCard
-
 boardToDiscarded :: Board p -> PlayerSpot -> DiscardedType p
 boardToDiscarded Board {playerTop} PlayerTop = discarded playerTop
 boardToDiscarded Board {playerBottom} PlayerBottom = discarded playerBottom
@@ -378,11 +373,12 @@ initialBoard :: SharedModel -> Teams -> (SharedModel, Board Core)
 initialBoard shared@SharedModel {sharedCards = cards} Teams {..} =
   (smodel'', Board topPart botPart)
   where
-    part team smodel = (smodel', PlayerPart Map.empty hand 0 stack' [])
+    part team smodel = (smodel', PlayerPart Map.empty hand' 0 stack' [])
       where
         deck = teamDeck cards team
         (smodel', deck') = shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
+        hand' = map cardToIdentifier hand
         stack' = map cardToIdentifier stack
     (smodel', topPart) = part topTeam shared
     (smodel'', botPart) = part botTeam smodel'
@@ -469,7 +465,7 @@ stackLines board pSpot =
 
 handLine :: Board Core -> PlayerSpot -> String
 handLine board pSpot =
-  "Hand: " ++ intercalate ", " (map (showID . cardToIdentifier) hand)
+  "Hand: " ++ intercalate ", " (map showID hand)
   where
     hand = boardToHand board pSpot
 

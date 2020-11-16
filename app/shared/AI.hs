@@ -20,47 +20,48 @@ import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace (trace)
 import Game
+import SharedModel (SharedModel)
 import Turn (Turn, turnToPlayerSpot)
 
 placeCards ::
+  SharedModel ->
   Board Core ->
   Turn ->
   [GamePlayEvent]
-placeCards board turn =
+placeCards shared board turn =
   -- Will fail once when we do more stuff in aiPlay. It's OK, I'll
   -- adapt when this happens.
   assert (all isPlaceEvent events) events
   where
-    events = aiPlay board turn
+    events = aiPlay shared board turn
     isPlaceEvent EndTurn {} = False
     isPlaceEvent NoPlayEvent = False
     isPlaceEvent Place {} = True
     isPlaceEvent Place' {} = True
 
 -- | Smart play events
-aiPlay :: Board Core -> Turn -> [GamePlayEvent]
-aiPlay board turn =
+aiPlay :: SharedModel -> Board Core -> Turn -> [GamePlayEvent]
+aiPlay shared board turn =
   case scores of
     [] -> []
     (_, events) : _ -> events
   where
     pSpot = turnToPlayerSpot turn
-    hands :: [[Card Core]] = boardToHand board pSpot & permutations
+    hands = boardToHand board pSpot & permutations
     possibles =
       map
-        (\hand -> aiPlayHand (boardSetHand board pSpot hand) turn)
+        (\hand -> aiPlayHand shared (boardSetHand board pSpot hand) turn)
         hands
     scores :: [(Int, [GamePlayEvent])] =
       map
         ( \events ->
-            case playAll board events of
+            case Game.playAll shared board events <&> fst of
               Left msg -> trace ("Unexpected case: " ++ Text.unpack msg) Nothing
               Right board' -> Just (boardScore board' turn, events)
         )
         possibles
         & catMaybes
         & sortByFst
-    playAll b events = Game.playAll b events <&> fst
 
 -- | The score of the given player's in-place cards. 0 is the best.
 boardScore :: Board Core -> Turn -> Int
@@ -84,27 +85,27 @@ boardScore board turn =
 
 -- | Events for playing all cards of the hand, in order. Each card
 -- is placed at an optimal position.
-aiPlayHand :: Board Core -> Turn -> [GamePlayEvent]
-aiPlayHand board turn =
-  case aiPlayFirst board turn of
+aiPlayHand :: SharedModel -> Board Core -> Turn -> [GamePlayEvent]
+aiPlayHand shared board turn =
+  case aiPlayFirst shared board turn of
     Nothing -> []
     Just place ->
-      case Game.play board place of
+      case Game.play shared board place of
         Left msg -> error $ Text.unpack msg -- We shouldn't generate invalid Place actions
         Right (b', _) ->
-          place : aiPlayHand b' turn
+          place : aiPlayHand shared b' turn
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
-aiPlayFirst :: Board Core -> Turn -> Maybe GamePlayEvent
-aiPlayFirst board turn =
+aiPlayFirst :: SharedModel -> Board Core -> Turn -> Maybe GamePlayEvent
+aiPlayFirst shared board turn =
   case boardToHand board pSpot of
     [] -> Nothing
-    card : _ -> do
-      let creatureID = unsafeCardToCreature card & creatureId
+    IDC creatureID : _ -> do
       let scores' = scores & sortByFst
       best <- listToMaybe scores'
       return $ Place' pSpot (snd best) creatureID
+    i : _ -> error $ "Unsupported identifier: " ++ show i
   where
     handIndex = HandIndex 0
     pSpot = turnToPlayerSpot turn
@@ -113,7 +114,7 @@ aiPlayFirst board turn =
       [ (scorePlace (fromRight' board' & fst) pSpot cSpot, cSpot)
         | cSpot <- possibles,
           let place = Place pSpot cSpot handIndex,
-          let board' = Game.play board place,
+          let board' = Game.play shared board place,
           isRight board'
       ]
 

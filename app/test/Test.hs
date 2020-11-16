@@ -17,13 +17,14 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import Debug.Trace (traceShowId)
 import Game (GamePlayEvent (..), attackOrder, playAll)
 import Generators
 import Json
 import Movie
 import Pretty
 import SceneEquivalence
+import SharedModel (SharedModel)
+import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
@@ -45,18 +46,15 @@ testBalance cards =
 -- XXX smelc group AI tests together
 
 -- | Tests that the AI treats 'Ranged' correctly.
-testAIRanged :: [Card UI] -> Turn -> Board Core
-testAIRanged cards turn =
-  case playAll board events of
+testAIRanged :: SharedModel -> Turn -> Board Core
+testAIRanged shared turn =
+  case playAll shared board events of
     Left _ -> error "AI failed"
     Right (board', _) -> board'
   where
-    archer =
-      CreatureCard $
-        unsafeCreatureWithID cards $
-          CreatureID Archer Undead
+    archer = IDC $ CreatureID Archer Undead
     board = boardAddToHand emptyBoard (turnToPlayerSpot turn) archer
-    events = aiPlay board turn
+    events = aiPlay SharedModel.unsafeGet board turn
 
 testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
@@ -175,15 +173,16 @@ testGetActorState =
       newActorAt "a2" skeleton 1 2
       wait 1
 
-testPlaceCommutation =
+testPlaceCommutation shared =
   describe "play Place1; play Place2 = play Place2; play Place1" $
     prop "Place commutes" $
-      \(Pretty board) (Pretty turn) ->
-        let events = traceShowId (AI.placeCards board turn)
-         in length events >= 2 && allDiff events
-              ==> forAll (Test.QuickCheck.elements (permutations events & take 16))
-              $ \events' ->
-                Pretty (ignoreErrMsg (playAll board events)) `shouldBe` Pretty (ignoreErrMsg (playAll board events'))
+      withMaxSuccess 8 $ -- Beyond 8 it's getting slower to find valid values
+        \(Pretty board) (Pretty turn) ->
+          let events = AI.placeCards shared board turn
+           in length events >= 2 && allDiff events
+                ==> forAll (Test.QuickCheck.elements (permutations events & take 16))
+                $ \events' ->
+                  Pretty (ignoreErrMsg (playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (playAll shared board events'))
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (board', _)) = Just board'
@@ -223,7 +222,7 @@ main = hspec $ do
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
-            boardToHoleyInPlace (testAIRanged cards initialTurn)
+            boardToHoleyInPlace (testAIRanged SharedModel.unsafeGet initialTurn)
               & filter (\(_, _, maybeCreature) -> isJust maybeCreature)
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)
@@ -247,5 +246,4 @@ main = hspec $ do
            in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
   testGetActorState
-
--- testPlaceCommutation
+  testPlaceCommutation SharedModel.unsafeGet

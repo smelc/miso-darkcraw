@@ -198,16 +198,12 @@ cardToIdentifier card =
     ItemCard i -> IDI i
     NeutralCard NeutralObject {..} -> IDN neutral
 
+identToId :: CardIdentifier -> Maybe CreatureID
+identToId (IDC cid) = Just cid
+identToId _ = Nothing
+
 groupCards :: [Card p] -> Map.Map CardIdentifier [Card p]
 groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
-
--- | The creature 'id' taken from 'cards'
-unsafeCreatureWithID :: [Card UI] -> CreatureID -> Creature Core
-unsafeCreatureWithID cards id =
-  head $ filter (\c -> creatureId c == id) creatures
-  where
-    creatures :: [Creature Core] =
-      cards ^.. folded . #_CreatureCard . to unliftCreature
 
 unsafeCardToCreature :: Card p -> Creature p
 unsafeCardToCreature (CreatureCard creature) = creature
