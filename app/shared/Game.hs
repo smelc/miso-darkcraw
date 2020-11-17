@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -42,7 +41,8 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
-import SharedModel
+import SharedModel (SharedModel, unsafeIdentToCard)
+import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
 
 data GamePlayEvent
@@ -199,11 +199,11 @@ transferCards ::
   Board Core ->
   PlayerSpot ->
   (SharedModel, Board Core, Board UI)
-transferCards shared@SharedModel {sharedStdGen} board pSpot =
-  (shared {sharedStdGen = stdgen'}, board', boardui')
+transferCards shared board pSpot =
+  (SharedModel.withStdGen shared stdgen', board', boardui')
   where
     (board', boardui', stdgen') =
-      transferCards' sharedStdGen board pSpot
+      transferCards' (SharedModel.getStdGen shared) board pSpot
 
 transferCards' ::
   StdGen ->

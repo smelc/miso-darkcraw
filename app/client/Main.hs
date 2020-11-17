@@ -23,7 +23,7 @@ import Debugging
 import Json (LoadedJson, loadJson)
 import Miso
 import Model
-import SharedModel (SharedModel (..))
+import qualified SharedModel
 import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (getStdGen)
@@ -66,13 +66,7 @@ main = do
   (cards, skills, tiles) <- loadJson'
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
-  let shared =
-        SharedModel
-          { sharedCards = cards,
-            sharedSkills = skills,
-            sharedTiles = tiles,
-            sharedStdGen = stdGen
-          }
+  let shared = SharedModel.create cards skills tiles stdGen
   let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
   runApp $
     if hashless

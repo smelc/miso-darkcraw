@@ -71,7 +71,8 @@ import Data.Maybe (fromJust, fromMaybe)
 import Data.Text (Text)
 import Formatting (hex, sformat, (%))
 import GHC.Generics (Generic)
-import SharedModel
+import SharedModel (SharedModel, idToCreature)
+import qualified SharedModel
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
@@ -370,13 +371,13 @@ data Teams = Teams
   }
 
 initialBoard :: SharedModel -> Teams -> (SharedModel, Board Core)
-initialBoard shared@SharedModel {sharedCards = cards} Teams {..} =
+initialBoard shared Teams {..} =
   (smodel'', Board topPart botPart)
   where
     part team smodel = (smodel', PlayerPart Map.empty hand' 0 stack' [])
       where
-        deck = teamDeck cards team
-        (smodel', deck') = shuffle smodel deck
+        deck = teamDeck (SharedModel.getCards shared) team
+        (smodel', deck') = SharedModel.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
         hand' = map cardToIdentifier hand
         stack' = map cardToIdentifier stack
@@ -416,7 +417,7 @@ unsafeExampleBoard :: Board Core
 unsafeExampleBoard =
   board'
   where
-    shared@SharedModel {..} = unsafeGet
+    shared = SharedModel.unsafeGet
     teams = Teams {topTeam = Undead, botTeam = Human}
     board = initialBoard shared teams & snd
     creature team creatureKind = idToCreature shared CreatureID {..} & fromJust & unliftCreature

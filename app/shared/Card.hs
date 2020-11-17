@@ -177,6 +177,11 @@ cardToCreature (CreatureCard creature) = Just creature
 cardToCreature (NeutralCard _) = Nothing
 cardToCreature (ItemCard _) = Nothing
 
+cardToNeutralObject :: Card p -> Maybe (NeutralObject p)
+cardToNeutralObject (NeutralCard n) = Just n
+cardToNeutralObject (CreatureCard _) = Nothing
+cardToNeutralObject (ItemCard _) = Nothing
+
 -- | The minimal identifier of a card. See 'SharedModel' to obtain
 -- | a full-fledged card from that.
 data CardIdentifier

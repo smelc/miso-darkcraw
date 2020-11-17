@@ -14,7 +14,7 @@ module SharedModel
     idToCreature,
     liftCard,
     liftCreature,
-    SharedModel (..),
+    SharedModel,
     tileToFilepath,
     unsafeGet,
     unsafeIdentToCard,
@@ -22,14 +22,21 @@ module SharedModel
     unsafeLiftCreature,
     liftSkill,
     shuffle,
+    create,
+    SharedModel.getStdGen,
+    getCards,
+    withStdGen,
+    getCardIdentifiers,
   )
 where
 
 import Card
 import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.Random
-import Data.Foldable (asum, find)
+import Data.Foldable (find)
 import Data.Function ((&))
+import Data.Map.Strict (Map)
+import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics (Generic)
 import Json (loadJson)
@@ -44,13 +51,34 @@ instance Eq StdGen where
 data SharedModel = SharedModel
   -- XXX @smelc, turn those into maps, for efficiency
   { -- | Data obtained at load time, that never changes
-    sharedCards :: [Card UI],
-    sharedSkills :: [SkillUI],
-    sharedTiles :: [TileUI],
+    sharedCards :: Map CardIdentifier (Card UI),
+    sharedSkills :: Map Skill SkillUI,
+    sharedTiles :: Map Tile TileUI,
     -- | RNG obtained at load time, to be user whenever randomness is needed
     sharedStdGen :: StdGen
   }
   deriving (Eq, Generic, Show)
+
+create :: [Card UI] -> [SkillUI] -> [TileUI] -> StdGen -> SharedModel
+create cards skills tiles sharedStdGen =
+  SharedModel {..}
+  where
+    groupBy f l = map (\e -> (f e, e)) l & Map.fromList
+    sharedCards = groupBy cardToIdentifier cards
+    sharedSkills = groupBy skill skills
+    sharedTiles = groupBy tile tiles
+
+getCardIdentifiers :: SharedModel -> [CardIdentifier]
+getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards
+
+getCards :: SharedModel -> [Card UI]
+getCards SharedModel {sharedCards} = Map.elems sharedCards
+
+getStdGen :: SharedModel -> StdGen
+getStdGen SharedModel {sharedStdGen} = sharedStdGen
+
+withStdGen :: SharedModel -> StdGen -> SharedModel
+withStdGen shared stdgen = shared {sharedStdGen = stdgen}
 
 -- | An instance of 'SharedModel' that is fine for debugging. Don't use
 -- it in production!
@@ -58,16 +86,10 @@ unsafeGet :: SharedModel
 unsafeGet =
   case loadJson of
     Left err -> error err
-    Right (sharedCards, sharedSkills, sharedTiles) ->
-      let sharedStdGen = mkStdGen 42
-       in SharedModel {..}
+    Right (cards, skills, tiles) -> create cards skills tiles $ mkStdGen 42
 
 identToCard :: SharedModel -> CardIdentifier -> Maybe (Card UI)
-identToCard SharedModel {sharedCards} cid =
-  asum $ map (identToCard' cid) sharedCards
-
-unsafeIdentToCard :: SharedModel -> CardIdentifier -> Card UI
-unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
+identToCard SharedModel {sharedCards} cid = sharedCards Map.!? cid
 
 -- Could type level computations make this function superseded
 -- by identToCard? I mean if you pass a 'IDC' CardIdentifier to identToCard,
@@ -75,27 +97,11 @@ unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
 -- (Just (NeutralCard _) is impossible)
 idToCreature :: SharedModel -> CreatureID -> Maybe (Creature UI)
 idToCreature SharedModel {sharedCards} cid =
-  asum $ map (idToCreature' cid) sharedCards
-
-identToCard' :: CardIdentifier -> Card p -> Maybe (Card p)
-identToCard' cid card =
-  case (cid, card) of
-    (IDC cid2, CreatureCard Creature {creatureId = cid1}) | cid1 == cid2 -> Just card
-    (IDN n2, NeutralCard NeutralObject {neutral = n1}) | n1 == n2 -> Just card
-    (IDI i2, ItemCard i1) | i1 == i2 -> Just card
-    _ -> Nothing
-
-idToCreature' :: CreatureID -> Card p -> Maybe (Creature p)
-idToCreature' cid (CreatureCard c@Creature {creatureId = cid1}) | cid1 == cid = Just c
-idToCreature' _ _ = Nothing
-
-identToNeutral' :: Neutral -> Card p -> Maybe (NeutralObject p)
-identToNeutral' n1 (NeutralCard n'@NeutralObject {neutral = n2}) | n1 == n2 = Just n'
-identToNeutral' _ _ = Nothing
+  sharedCards Map.!? IDC cid >>= cardToCreature
 
 identToNeutral :: SharedModel -> Neutral -> Maybe (NeutralObject UI)
 identToNeutral SharedModel {sharedCards} n =
-  asum $ map (identToNeutral' n) sharedCards
+  sharedCards Map.!? IDN n >>= cardToNeutralObject
 
 liftCard :: SharedModel -> Card Core -> Maybe (Card UI)
 liftCard shared = \case
@@ -136,6 +142,9 @@ tileToFilepath SharedModel {sharedTiles} tile =
   case find (\TileUI {tile = t} -> t == tile) sharedTiles of
     Nothing -> Card.default24Filepath
     Just TileUI {Tile.filepath} -> filepath
+
+unsafeIdentToCard :: SharedModel -> CardIdentifier -> Card UI
+unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
 
 unsafeLiftCard :: SharedModel -> Card Core -> Card UI
 unsafeLiftCard s c = liftCard s c & fromJust

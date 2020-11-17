@@ -33,7 +33,8 @@ import Data.Maybe
 import Miso
 import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
-import SharedModel
+import SharedModel (SharedModel, liftSkill, tileToFilepath)
+import qualified SharedModel
 import Update (Action)
 import ViewInternal
 
@@ -193,10 +194,10 @@ data Context = Context
   }
 
 createContext :: Int -> SharedModel -> Context
-createContext z shared@SharedModel {..} =
+createContext z shared =
   Context {..}
   where
-    paths = map f sharedCards & catMaybes & Map.fromList
+    paths = map f (SharedModel.getCards shared) & catMaybes & Map.fromList
     f (CreatureCard Creature {..}) = Just (creatureId, dirToFilename filepath)
     f _ = Nothing
     -- Leave 24x24_3_0.png untouched if direction is ToLeft

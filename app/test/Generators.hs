@@ -54,10 +54,9 @@ instance Arbitrary CreatureID where
   arbitrary =
     elements $
       SharedModel.unsafeGet
-        & SharedModel.sharedCards
-        & map cardToCreature
+        & SharedModel.getCardIdentifiers
+        & map identToId
         & catMaybes
-        & map creatureId
   shrink = genericShrink
 
 instance Arbitrary Neutral where
