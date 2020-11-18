@@ -176,13 +176,12 @@ testGetActorState =
 testPlaceCommutation shared =
   describe "play Place1; play Place2 = play Place2; play Place1" $
     prop "Place commutes" $
-      withMaxSuccess 8 $ -- Beyond 8 it's getting slower to find valid values
-        \(Pretty board) (Pretty turn) ->
-          let events = AI.placeCards shared board turn
-           in length events >= 2 && allDiff events
-                ==> forAll (Test.QuickCheck.elements (permutations events & take 16))
-                $ \events' ->
-                  Pretty (ignoreErrMsg (playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (playAll shared board events'))
+      \(Pretty board) (Pretty turn) ->
+        let events = AI.placeCards shared board turn
+          in length events >= 2 && allDiff events
+              ==> forAll (Test.QuickCheck.elements (permutations events & take 16))
+              $ \events' ->
+                Pretty (ignoreErrMsg (playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (playAll shared board events'))
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (board', _)) = Just board'

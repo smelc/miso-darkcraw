@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
@@ -21,6 +23,7 @@ import qualified Data.Text as Text
 import Debug.Trace (trace)
 import Game
 import SharedModel (SharedModel)
+import qualified SharedModel
 import Turn (Turn, turnToPlayerSpot)
 
 placeCards ::
@@ -47,7 +50,14 @@ aiPlay shared board turn =
     (_, events) : _ -> events
   where
     pSpot = turnToPlayerSpot turn
-    hands = boardToHand board pSpot & permutations
+    hands =
+      boardToHand board pSpot
+        & map (unliftCard . SharedModel.unsafeIdentToCard shared)
+        & map (\c -> (scoreCard c, c))
+        & sortByFst
+        & take 5 -- To keep complexity low for big hands
+        & map (cardToIdentifier . snd)
+        & permutations -- Try cards in all orders (because aiPlayHand plays first card)
     possibles =
       map
         (\hand -> aiPlayHand shared (boardSetHand board pSpot hand) turn)
@@ -155,6 +165,24 @@ scorePlace board pSpot cSpot =
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
     maluses = [lineMalus, victoryPointsMalus]
+
+-- | The score of a card. Most powerful cards return a smaller value.
+-- Negative values returned.
+scoreCard :: Card Core -> Int
+scoreCard = \case
+  CreatureCard Creature {..} ->
+    sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map scoreSkill skills
+  NeutralCard _ -> error "NeutralCard unsupported"
+  ItemCard _ -> error "ItemCard unsupported"
+
+-- | The score of a skill, smaller values are better. Negative values returned.
+scoreSkill :: Skill -> Int
+scoreSkill = \case
+  LongReach -> -1
+  Leader -> -1
+  Ranged -> -1
+  Stubborn -> -1
+  Unique -> -1
 
 sortByFst l =
   sortBy sortFst l
