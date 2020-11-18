@@ -179,7 +179,7 @@ testPlaceCommutation shared =
       \(Pretty board) (Pretty turn) ->
         let events = AI.placeCards shared board turn
          in length events >= 2 && allDiff events
-              ==> forAll (Test.QuickCheck.elements (permutations events & take 16))
+              ==> forAll (Test.QuickCheck.elements (permutations events))
               $ \events' ->
                 Pretty (ignoreErrMsg (playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (playAll shared board events'))
   where
