@@ -53,10 +53,9 @@ aiPlay shared board turn =
     hands =
       boardToHand board pSpot
         & map (unliftCard . SharedModel.unsafeIdentToCard shared)
-        & map (\c -> (scoreCard c, c))
-        & sortByFst
+        & sortOn scoreCard
+        & map cardToIdentifier
         & take 5 -- To keep complexity low for big hands
-        & map (cardToIdentifier . snd)
         & permutations -- Try cards in all orders (because aiPlayHand plays first card)
     possibles =
       map
