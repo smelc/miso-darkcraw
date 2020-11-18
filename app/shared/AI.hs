@@ -111,7 +111,7 @@ aiPlayFirst shared board turn =
   case boardToHand board pSpot of
     [] -> Nothing
     IDC creatureID : _ -> do
-      let scores' = scores & sortByFst
+      let scores' = scores & map liftFstMaybe & catMaybes & sortByFst
       best <- listToMaybe scores'
       return $ Place' pSpot (snd best) creatureID
     i : _ -> error $ "Unsupported identifier: " ++ show i
@@ -126,6 +126,8 @@ aiPlayFirst shared board turn =
           let board' = Game.play shared board place,
           isRight board'
       ]
+    liftFstMaybe (Nothing, _) = Nothing
+    liftFstMaybe (Just i, a) = Just (i, a)
 
 placements ::
   Board Core ->
@@ -183,6 +185,7 @@ scoreSkill = \case
   Stubborn -> -1
   Unique -> -1
 
+sortByFst :: [(Int, b)] -> [(Int, b)]
 sortByFst l =
   sortBy sortFst l
   where
