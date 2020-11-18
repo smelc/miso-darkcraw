@@ -115,6 +115,14 @@ instance Arbitrary Turn where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary InPlaceEffect where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary InPlaceEffects where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 genSceneAst :: Int -> Gen SceneAst
 genSceneAst i = do
   n <- getSize

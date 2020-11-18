@@ -178,7 +178,7 @@ testPlaceCommutation shared =
     prop "Place commutes" $
       \(Pretty board) (Pretty turn) ->
         let events = AI.placeCards shared board turn
-          in length events >= 2 && allDiff events
+         in length events >= 2 && allDiff events
               ==> forAll (Test.QuickCheck.elements (permutations events & take 16))
               $ \events' ->
                 Pretty (ignoreErrMsg (playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (playAll shared board events'))
@@ -193,6 +193,19 @@ testPlaceCommutation shared =
     differ _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
     allDiff (event : events) = all (differ event) events && allDiff events
+
+{- HLINT ignore testInPlaceEffectsMonoid -}
+testInPlaceEffectsMonoid =
+  describe "InPlaceEffects is a well behaved Monoid" $ do
+    prop "mempty <> effects == effect" $
+      \(effect :: InPlaceEffects) ->
+        mempty <> effect `shouldBe` effect
+    prop "effects <> mempty == effect" $
+      \(effect :: InPlaceEffects) ->
+        effect <> mempty `shouldBe` effect
+    prop "effects <> effects' == effects' <> effects" $
+      \(effect :: InPlaceEffects, effect') ->
+        effect <> effect' `shouldBe` effect' <> effect
 
 main :: IO ()
 main = hspec $ do
@@ -246,3 +259,4 @@ main = hspec $ do
   testSceneReturn
   testGetActorState
   testPlaceCommutation SharedModel.unsafeGet
+  testInPlaceEffectsMonoid
