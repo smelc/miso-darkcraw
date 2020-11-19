@@ -2,6 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Main where
 
@@ -140,21 +141,17 @@ testSceneReturn =
   modifyMaxSize (const 35) $
     describe "Scene.return" $ do
       prop "left neutral for >>" $
-        \ast ->
-          let scene = astToScene ast
-           in (return () >> scene) ~= scene
+        \(astToScene -> scene) ->
+          (return () >> scene) ~= scene
       prop "right neutral for >>" $
-        \ast ->
-          let scene = astToScene ast
-           in (scene >> return ()) ~= scene
+        \(astToScene -> scene) ->
+          (scene >> return ()) ~= scene
       prop "left neutral for |||" $
-        \ast ->
-          let scene = astToScene ast
-           in (return () ||| scene) ~= scene
+        \(astToScene -> scene) ->
+          (return () ||| scene) ~= scene
       prop "right neutral for |||" $
-        \ast ->
-          let scene = astToScene ast
-           in (scene ||| return ()) ~= scene
+        \(astToScene -> scene) ->
+          (scene ||| return ()) ~= scene
 
 testGetActorState =
   describe "getActorState" $
@@ -246,15 +243,18 @@ main = hspec $ do
   modifyMaxSize (const 35) $
     describe "Cinema.fork" $
       prop "should behave like ||| with rest of program" $
-        \ast1 ast2 ast3 ->
-          let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
-           in (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
+        \(astToScene -> scene1) (astToScene -> scene2) (astToScene -> scene3) ->
+          (do scene1; fork scene2; scene3) ~= (do scene1; scene2 ||| scene3)
   modifyMaxSize (const 35) $
-    describe "Scene.>>" $
+    describe "Cinema.>>" $
       prop "should be associative" $
-        \ast1 ast2 ast3 ->
-          let [scene1, scene2, scene3] = map astToScene [ast1, ast2, ast3]
-           in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
+        \(astToScene -> scene1) (astToScene -> scene2) (astToScene -> scene3) ->
+          ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
+  modifyMaxSize (const 35) $
+    describe "Cinema.|||" $
+      prop "should be associative" $
+        \(astToScene -> scene1) (astToScene -> scene2) (astToScene -> scene3) ->
+          ((scene1 ||| scene2) ||| scene3) ~= (scene1 ||| (scene2 ||| scene3))
   testSceneReturn
   testGetActorState
   testAIPlace SharedModel.unsafeGet
