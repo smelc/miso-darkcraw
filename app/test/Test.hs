@@ -173,26 +173,25 @@ testGetActorState =
       newActorAt "a2" skeleton 1 2
       wait 1
 
-testPlaceCommutation shared =
-  describe "play Place1; play Place2 = play Place2; play Place1" $
-    prop "Place commutes" $
+testAIPlace shared =
+  describe "AI.placeCards" $ do
+    prop "placeCards returns events whose spots differ" $
+      \board turn -> allDiff $ AI.placeCards shared board turn
+    prop "placeCards return events that commute" $
       \(Pretty board) (Pretty turn) ->
         let events = AI.placeCards shared board turn
-         in length events >= 2 && allDiff events
+         in length events >= 2
               ==> forAll (Test.QuickCheck.elements (permutations events))
               $ \events' ->
                 Pretty (ignoreErrMsg (playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (playAll shared board events'))
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (board', _)) = Just board'
-    -- The differ condition is required, because if both place events are
-    -- in the same place, only the first one will have an effect; which
-    -- can differ from the second one, if the cards to place differ.
-    differ (Place' pSpot1 cSpot1 _) (Place' pSpot2 cSpot2 _) =
+    spotsDiffer (Place' pSpot1 cSpot1 _) (Place' pSpot2 cSpot2 _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
-    differ _ _ = error "Only Place' events should have been generated"
+    spotsDiffer _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
-    allDiff (event : events) = all (differ event) events && allDiff events
+    allDiff (event : events) = all (spotsDiffer event) events && allDiff events
 
 {- HLINT ignore testInPlaceEffectsMonoid -}
 testInPlaceEffectsMonoid =
@@ -258,5 +257,5 @@ main = hspec $ do
            in ((scene1 >> scene2) >> scene3) ~= (scene1 >> (scene2 >> scene3))
   testSceneReturn
   testGetActorState
-  testPlaceCommutation SharedModel.unsafeGet
+  testAIPlace SharedModel.unsafeGet
   testInPlaceEffectsMonoid
