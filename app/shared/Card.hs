@@ -12,10 +12,11 @@
 module Card where
 
 import Control.Arrow ((&&&))
-import Control.Lens
+import Data.Function ((&))
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
+import Data.Maybe
 import GHC.Generics (Generic)
 
 data Team = Human | Undead
@@ -115,6 +116,7 @@ deriving instance Forall Show p => Show (Creature p)
 data Neutral
   = Haste
   | Health
+  | InfernalHaste
   | Life
   deriving (Eq, Generic, Ord, Show)
 
@@ -223,15 +225,35 @@ teamDeck ::
   -- | The initial deck
   [Card Core]
 teamDeck cards t =
-  map CreatureCard $
-    case t of
-      Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General
-      Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
+  map CreatureCard creatures ++ map NeutralCard neutrals
   where
-    creatures :: Map.Map CreatureKind (Creature Core) =
-      (cards ^.. folded . #_CreatureCard . to unliftCreature)
+    kindToCreature :: Map.Map CreatureKind (Creature Core) =
+      map cardToCreature cards
+        & catMaybes
         & filter (\c -> (creatureId c & team) == t)
+        & map unliftCreature
         & map ((creatureKind . creatureId) &&& id)
         & Map.fromList
-    finder x = creatures Map.! x
-    (*) i k = replicate i $ finder k
+    (*) i k = replicate i $ kindToCreature Map.! k
+    -- Initial creatures:
+    creatures =
+      case t of
+        Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General
+        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
+    kindToNeutral :: Map.Map Neutral (NeutralObject Core) =
+      map cardToNeutralObject cards
+        & catMaybes
+        & filter (\nobj -> t `Prelude.elem` neutralTeams nobj)
+        & map unliftNeutralObject
+        & map (\nobj -> (neutral nobj, nobj))
+        & Map.fromList
+    (**) i k = replicate i $ kindToNeutral Map.! k
+    -- Initial neutral cards:
+    -- FIXME @smelc until neutral cards are handled everywhere:
+    neutrals = []
+
+-- Production
+-- neutrals =
+--   case t of
+--     Human -> 1 ** Health ++ 1 ** Life
+--     Undead -> 1 ** InfernalHaste

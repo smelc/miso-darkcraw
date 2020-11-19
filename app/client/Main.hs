@@ -50,7 +50,7 @@ loadJson' =
     Left errMsg -> do
       hPutStrLn stderr errMsg
       exitWith $ ExitFailure 1
-    Right cards -> return cards
+    Right loadedJson -> return loadedJson
 
 logTeam :: [Card UI] -> Team -> IO ()
 logTeam cards t = do
