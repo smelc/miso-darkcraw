@@ -125,7 +125,6 @@ Test-Suite test-darkcraw
     bytestring,
     containers,
     extra,
-    file-embed,
     formatting,
     freer-simple,
     generic-lens,
