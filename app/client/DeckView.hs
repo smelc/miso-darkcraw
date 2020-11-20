@@ -60,7 +60,7 @@ viewDeck DeckModel {deck, deckPlayer, deckShared} = do
     yoffset y = 3 + (y * (cardCellHeight + 1))
     -- Create div of a single card
     cardDiver x y card = do
-      card <- cardCreatureUI z deckShared (unsafeCardToCreature card) mempty
+      card <- creatureUIView z deckShared (unsafeCardToCreature card) mempty
       return $ div_ [style_ $ cardPositionStyle (xoffset x) (yoffset y)] [card]
     -- Create background of slot
     slotDiver x y =

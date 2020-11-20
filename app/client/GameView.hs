@@ -112,7 +112,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
                                   { hover = beingHovered,
                                     PCWViewInternal.fadeIn = Board.fadeIn attackEffect
                                   }
-                           in cardCreature z gameShared creature path cdsty
+                           in cardView z gameShared (CreatureCard creature) path cdsty
                   )
       return $ cards ++ death ++ heart
   where
@@ -170,7 +170,7 @@ boardToInHandCell ::
   (Creature Core, HandIndex) ->
   Styled (View Action)
 boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (creature, i) = do
-  card <- cardCreature z gameShared creature path cdsty
+  card <- cardView z gameShared (CreatureCard creature) path cdsty
   return $ div_ attrs [card | not beingDragged]
   where
     pixelsXOffset i

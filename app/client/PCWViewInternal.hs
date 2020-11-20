@@ -14,14 +14,14 @@
 -- |
 module PCWViewInternal
   ( cardBoxShadowStyle,
-    cardCreature,
-    cardCreatureUI,
+    cardView,
+    creatureUIView,
     cardPositionStyle,
     cardPositionStyle',
     viewFrame,
     CardDrawStyle (..),
     DisplayMode (..),
-    cardPlaceholder,
+    cardPlaceholderView,
   )
 where
 
@@ -72,8 +72,9 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
         ("transition-timing-function", timingFunction)
       ]
 
--- | A convenience wrapper over [cardCreature]
-cardCreatureUI ::
+-- | Display of a formal card. Don't lift a Creature Core to
+-- call this function, it's incorrect! Call [cardView] instead.
+creatureUIView ::
   -- | The z index
   Int ->
   SharedModel ->
@@ -81,27 +82,27 @@ cardCreatureUI ::
   Creature UI ->
   CardDrawStyle ->
   Styled (View Action)
-cardCreatureUI z shared ui cdsty =
-  cardCreature z shared (unliftCreature ui) (filepath ui) cdsty
+creatureUIView z shared ui cdsty =
+  cardView z shared (CreatureCard $ unliftCreature ui) (filepath ui) cdsty
 
 -- | Div displaying a placeholder for a drag target
-cardPlaceholder ::
+cardPlaceholderView ::
   -- | The z index
   Int ->
   CardDrawStyle ->
   Styled (View Action)
-cardPlaceholder z cdsty = pure $ cardBackground z cdsty
+cardPlaceholderView z cdsty = pure $ cardBackground z cdsty
 
 -- | Div displaying a card
-cardCreature ::
+cardView ::
   -- | The z index
   Int ->
   SharedModel ->
-  Creature Core ->
+  Card Core ->
   Filepath ->
   CardDrawStyle ->
   Styled (View Action)
-cardCreature z shared creature filepath cdsty@CardDrawStyle {fadeIn} =
+cardView z shared card filepath cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed
@@ -110,10 +111,49 @@ cardCreature z shared creature filepath cdsty@CardDrawStyle {fadeIn} =
         animData
     else pure $ builder []
   where
-    (topMargin, leftMargin) = (cps `div` 4, topMargin)
+    topMargin = cps `div` 4
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - cps) `div` 2) topMargin
     pictureCell = imgCell $ ms $ filepathToString filepath
+    builder attrs =
+      div_ attrs $
+        [div_ [style_ pictureStyle] [pictureCell]]
+          ++ cardView' z shared card cdsty
+    animData =
+      (animationData "handCardFadein" "1s" "ease")
+        { animDataFillMode = Just "forwards"
+        }
+
+cardView' :: Int -> SharedModel -> Card p -> CardDrawStyle -> [View Action]
+cardView' z shared card cdsty =
+  case card of
+    (CreatureCard Creature {attack, hp, skills}) ->
+      [div_ [style_ statsStyle] [statsCell]]
+        ++ [div_ [style_ skillsStyle] skillsDivs]
+        ++ [cardBackground z cdsty]
+      where
+        inStatsStyle = flexLineStyle <> fontStyle
+        statsCell =
+          div_
+            [style_ inStatsStyle]
+            [ text $ ms hp,
+              imgCell assetFilenameHeart,
+              text $ ms attack,
+              imgCell assetFilenameSword
+            ]
+        skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)
+        skillsHeight = cps * length skills
+        skillsStyle =
+          "display" =: "flex"
+            <> "flex-direction" =: "column"
+            <> "align-items" =: "flex-start" -- left
+            <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
+            <> fontStyle
+        skillDiv skill = div_ [] [liftSkill shared skill & skillTitle & ms & text]
+        skillsDivs = map skillDiv skills
+    _ -> error "Unhandled card"
+  where
+    (topMargin, leftMargin) = (cps `div` 4, topMargin)
     statsTopMargin = topMargin * 2 + cps
     statsStyle = zpltwh (z + 1) Absolute leftMargin statsTopMargin width cps
     fontSize = cps `div` 2
@@ -121,36 +161,6 @@ cardCreature z shared creature filepath cdsty@CardDrawStyle {fadeIn} =
       "font-size" =: px fontSize
         <> "font-family" =: "serif"
     width = cardPixelWidth - (topMargin * 2)
-    inStatsStyle = flexLineStyle <> fontStyle
-    statsCell =
-      div_
-        [style_ inStatsStyle]
-        [ text $ ms $ hp creature,
-          imgCell assetFilenameHeart,
-          text $ ms $ attack creature,
-          imgCell assetFilenameSword
-        ]
-    skills = Card.skills creature
-    skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)
-    skillsHeight = cps * length skills
-    skillsStyle =
-      "display" =: "flex"
-        <> "flex-direction" =: "column"
-        <> "align-items" =: "flex-start" -- left
-        <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
-        <> fontStyle
-    skillDiv skill = div_ [] [liftSkill shared skill & skillTitle & ms & text]
-    skillsDivs = map skillDiv skills
-    builder attrs =
-      div_ attrs $
-        [div_ [style_ pictureStyle] [pictureCell]]
-          ++ [div_ [style_ statsStyle] [statsCell]]
-          ++ [div_ [style_ skillsStyle] skillsDivs]
-          ++ [cardBackground z cdsty]
-    animData =
-      (animationData "handCardFadein" "1s" "ease")
-        { animDataFillMode = Just "forwards"
-        }
 
 cardBackground ::
   -- | The z index
