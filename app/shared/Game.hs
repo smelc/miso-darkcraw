@@ -115,10 +115,11 @@ playM' shared board (Place pSpot cSpot (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let card = unsafeIdentToCard shared ident & unliftCard
   let onTable :: Map CardSpot (Creature Core) = inPlace base
-  if Map.member cSpot onTable
-    then throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
-    else do
-      let inPlace' = Map.insert cSpot (unsafeCardToCreature card) onTable
+  case (Map.member cSpot onTable, cardToCreature card) of
+    (True, _) -> throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
+    (_, Nothing) -> throwError $ Text.pack $ "Cannot place non-creature card. Received: " ++ show card
+    (_, Just card) -> do
+      let inPlace' = Map.insert cSpot card onTable
       let part' = base {inPlace = inPlace', inHand = hand'}
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       return $ boardSetPart board pSpot part'
