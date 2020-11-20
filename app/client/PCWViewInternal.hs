@@ -21,6 +21,7 @@ module PCWViewInternal
     viewFrame,
     CardDrawStyle (..),
     DisplayMode (..),
+    cardPlaceholder,
   )
 where
 
@@ -81,21 +82,26 @@ cardCreatureUI ::
   CardDrawStyle ->
   Styled (View Action)
 cardCreatureUI z shared ui cdsty =
-  cardCreature z shared (Just (core, filepath ui)) cdsty
-  where
-    core = unliftCreature ui
+  cardCreature z shared (unliftCreature ui) (filepath ui) cdsty
+
+-- | Div displaying a placeholder for a drag target
+cardPlaceholder ::
+  -- | The z index
+  Int ->
+  CardDrawStyle ->
+  Styled (View Action)
+cardPlaceholder z cdsty = pure $ cardBackground z cdsty
 
 -- | Div displaying a card
 cardCreature ::
   -- | The z index
   Int ->
   SharedModel ->
-  -- | Whether a card should be drawn or solely a placeholder for drag target
-  Maybe (Creature Core, Filepath) ->
+  Creature Core ->
+  Filepath ->
   CardDrawStyle ->
   Styled (View Action)
-cardCreature z _ Nothing cdsty = pure $ cardBackground z cdsty
-cardCreature z shared (Just (creature, filepath)) cdsty@CardDrawStyle {fadeIn} =
+cardCreature z shared creature filepath cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed

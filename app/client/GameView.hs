@@ -102,18 +102,18 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
       death <- deathFadeout attackEffect x y
       heart <- heartWobble (z + 1) attackEffect x y
       cards <-
-        sequence
-          [ cardCreature
-              z
-              gameShared
-              toDraw
-              ( mempty
-                  { hover = beingHovered,
-                    PCWViewInternal.fadeIn = Board.fadeIn attackEffect
-                  }
-              )
-            | isJust maybeCreature
-          ]
+        sequence $
+          maybeToList $
+            maybeCreature
+              <&> ( \creature ->
+                      let path = unsafeLiftCreature gameShared creature & filepath
+                       in let cdsty =
+                                mempty
+                                  { hover = beingHovered,
+                                    PCWViewInternal.fadeIn = Board.fadeIn attackEffect
+                                  }
+                           in cardCreature z gameShared creature path cdsty
+                  )
       return $ cards ++ death ++ heart
   where
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
@@ -131,9 +131,6 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
             dummyOn "dragover"
           ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
-    toDraw =
-      (\c -> (c, unsafeLiftCreature gameShared c & filepath))
-        <$> maybeCreature
     upOrDown =
       case pSpot of
         PlayerTop -> False -- down
@@ -173,7 +170,7 @@ boardToInHandCell ::
   (Creature Core, HandIndex) ->
   Styled (View Action)
 boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (creature, i) = do
-  card <- cardCreature z gameShared toDraw (mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn})
+  card <- cardCreature z gameShared creature path cdsty
   return $ div_ attrs [card | not beingDragged]
   where
     pixelsXOffset i
@@ -204,7 +201,8 @@ boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (c
         onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
         onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
       ]
-    toDraw = Just (creature, unsafeLiftCreature gameShared creature & filepath)
+    path = unsafeLiftCreature gameShared creature & filepath
+    cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
