@@ -212,11 +212,6 @@ identToId _ = Nothing
 groupCards :: [Card p] -> Map.Map CardIdentifier [Card p]
 groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
 
-unsafeCardToCreature :: Card p -> Creature p
-unsafeCardToCreature (CreatureCard creature) = creature
-unsafeCardToCreature (NeutralCard _) = error "neutral card not handled yet"
-unsafeCardToCreature (ItemCard _) = error "item card not handled yet"
-
 teamDeck ::
   -- | The cards as loaded from disk
   [Card UI] ->

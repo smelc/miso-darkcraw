@@ -106,13 +106,12 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
           maybeToList $
             maybeCreature
               <&> ( \creature ->
-                      let path = unsafeLiftCreature gameShared creature & filepath
-                       in let cdsty =
-                                mempty
-                                  { hover = beingHovered,
-                                    PCWViewInternal.fadeIn = Board.fadeIn attackEffect
-                                  }
-                           in cardView z gameShared (CreatureCard creature) path cdsty
+                      let cdsty =
+                            mempty
+                              { hover = beingHovered,
+                                PCWViewInternal.fadeIn = Board.fadeIn attackEffect
+                              }
+                       in cardView z gameShared (CreatureCard creature) cdsty
                   )
       return $ cards ++ death ++ heart
   where
@@ -160,17 +159,17 @@ boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} = do
   where
     cards =
       boardToHand board playingPlayer
-        & map (unsafeCardToCreature . unliftCard . unsafeIdentToCard gameShared)
+        & map (unliftCard . unsafeIdentToCard gameShared)
     icreatures = Prelude.zip cards [HandIndex 0 ..]
 
 boardToInHandCell ::
   -- | The z index
   Int ->
   GameModel ->
-  (Creature Core, HandIndex) ->
+  (Card Core, HandIndex) ->
   Styled (View Action)
-boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (creature, i) = do
-  card <- cardView z gameShared (CreatureCard creature) path cdsty
+boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (card, i) = do
+  card <- cardView z gameShared card cdsty
   return $ div_ attrs [card | not beingDragged]
   where
     pixelsXOffset i
@@ -201,7 +200,6 @@ boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (c
         onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
         onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
       ]
-    path = unsafeLiftCreature gameShared creature & filepath
     cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)

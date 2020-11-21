@@ -9,7 +9,7 @@
 module DeckView (viewDeck) where
 
 import Board (PlayerSpot (..))
-import Card (groupCards, unsafeCardToCreature)
+import Card (groupCards)
 import Constants
 import Data.Function ((&))
 import Data.List
@@ -19,7 +19,6 @@ import Miso.String (ms)
 import Miso.Util ((=:))
 import Model (DeckModel (..))
 import PCWViewInternal
-import SharedModel (unsafeLiftCard)
 import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
@@ -27,7 +26,7 @@ import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 viewDeck :: DeckModel -> Styled (View Action)
 viewDeck DeckModel {deck, deckPlayer, deckShared} = do
   backDiv <- backDivM
-  cardsDiv <- cardsDiver 0 0 cards'
+  cardsDiv <- cardsDiver 0 0 cards
   return $
     div_
       [style_ bgStyle]
@@ -38,8 +37,6 @@ viewDeck DeckModel {deck, deckPlayer, deckShared} = do
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "deck.png"
     cards = groupCards deck & Map.toList & sort
-    cards' = map (\(i, cs) -> (i, unsafeLiftCards cs)) cards
-    unsafeLiftCards = map $ unsafeLiftCard deckShared
     -- Terminal case
     cardsDiver x y _ | x == 4 && y == 3 = return []
     -- Go to new line
@@ -60,7 +57,7 @@ viewDeck DeckModel {deck, deckPlayer, deckShared} = do
     yoffset y = 3 + (y * (cardCellHeight + 1))
     -- Create div of a single card
     cardDiver x y card = do
-      card <- creatureUIView z deckShared (unsafeCardToCreature card) mempty
+      card <- cardView z deckShared card mempty
       return $ div_ [style_ $ cardPositionStyle (xoffset x) (yoffset y)] [card]
     -- Create background of slot
     slotDiver x y =

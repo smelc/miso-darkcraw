@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -15,7 +16,6 @@
 module PCWViewInternal
   ( cardBoxShadowStyle,
     cardView,
-    creatureUIView,
     cardPositionStyle,
     cardPositionStyle',
     viewFrame,
@@ -72,19 +72,6 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
         ("transition-timing-function", timingFunction)
       ]
 
--- | Display of a formal card. Don't lift a Creature Core to
--- call this function, it's incorrect! Call [cardView] instead.
-creatureUIView ::
-  -- | The z index
-  Int ->
-  SharedModel ->
-  -- | Whether a card should be drawn or solely a placeholder for drag target
-  Creature UI ->
-  CardDrawStyle ->
-  Styled (View Action)
-creatureUIView z shared ui cdsty =
-  cardView z shared (CreatureCard $ unliftCreature ui) (filepath ui) cdsty
-
 -- | Div displaying a placeholder for a drag target
 cardPlaceholderView ::
   -- | The z index
@@ -99,10 +86,9 @@ cardView ::
   Int ->
   SharedModel ->
   Card Core ->
-  Filepath ->
   CardDrawStyle ->
   Styled (View Action)
-cardView z shared card filepath cdsty@CardDrawStyle {fadeIn} =
+cardView z shared card cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed
@@ -114,6 +100,7 @@ cardView z shared card filepath cdsty@CardDrawStyle {fadeIn} =
     topMargin = cps `div` 4
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - cps) `div` 2) topMargin
+    filepath = SharedModel.unsafeLiftCard shared card & cardToFilepath
     pictureCell = imgCell $ ms $ filepathToString filepath
     builder attrs =
       div_ attrs $
@@ -201,6 +188,12 @@ cardPositionStyle' ::
   Map.Map MisoString MisoString
 cardPositionStyle' xPixelsOffset yPixelsOffset =
   pltwh Absolute xPixelsOffset yPixelsOffset cardPixelWidth cardPixelHeight
+
+cardToFilepath :: Card UI -> FilepathType UI
+cardToFilepath = \case
+  CreatureCard Creature {filepath} -> filepath
+  NeutralCard _ -> error "NeutralCard not supported"
+  ItemCard _ -> error "ItemCard not supported"
 
 -- Now come functions that are about building the view of a Scene
 data Context = Context
