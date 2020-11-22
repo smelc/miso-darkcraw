@@ -40,7 +40,7 @@ import SharedModel (SharedModel (..))
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
-import Tile (Tile, TileUI)
+import Tile
 import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
 
 instance ToExpr CreatureKind

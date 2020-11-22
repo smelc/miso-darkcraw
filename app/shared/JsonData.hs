@@ -11,18 +11,18 @@ import Data.Text
 jsonData :: Text
 jsonData = "{\n\
          \  \"creatures\": [\n\
-         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"filepath\": {\"root\": \"24x24\", \"x\": 1, \"y\": 0}, \"skills\":[\"LongReach\"] },\n\
-         \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"filepath\": {\"root\": \"24x24\", \"x\": 0, \"y\": 0} },\n\
-         \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"filepath\": {\"root\": \"24x24\", \"x\": 2, \"y\": 0}, \"skills\":[\"Ranged\"] },\n\
-         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":3, \"moral\":5, \"victory_points\":5, \"filepath\": {\"root\": \"24x24\", \"x\": 3, \"y\": 0}, \"skills\":[\"Leader\", \"Unique\"] },\n\
-         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"moral\":4, \"victory_points\":5, \"filepath\": {\"root\": \"24x24\", \"x\": 4, \"y\": 0}, \"skills\":[\"Stubborn\"] },\n\
-         \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":1, \"victory_points\":1, \"filepath\": {\"root\": \"24x24\", \"x\": 0, \"y\": 3} },\n\
-         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"filepath\": {\"root\": \"24x24\", \"x\": 1, \"y\": 3} },\n\
-         \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"filepath\": {\"root\": \"24x24\", \"x\": 2, \"y\": 3}, \"skills\":[\"Ranged\"]},\n\
-         \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":2, \"victory_points\":2, \"filepath\": {\"root\": \"24x24\", \"x\": 3, \"y\": 3}},\n\
-         \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"victory_points\":0, \"filepath\": {\"root\": \"24x24\", \"x\": 4, \"y\": 3}},\n\
-         \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"victory_points\":0, \"filepath\": {\"root\": \"24x24\", \"x\": 5, \"y\": 3}},\n\
-         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"filepath\": {\"root\": \"24x24\", \"x\": 6, \"y\": 3}}\n\
+         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSpearman\", \"skills\":[\"LongReach\"] },\n\
+         \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSwordsman\" },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanArcher\",   \"skills\":[\"Ranged\"] },\n\
+         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":3, \"moral\":5, \"victory_points\":5, \"tile\":\"HumanGeneral\",  \"skills\":[\"Leader\", \"Unique\"] },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"moral\":4, \"victory_points\":5, \"tile\":\"HumanKnight\",   \"skills\":[\"Stubborn\"] },\n\
+         \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadSkeleton\" },\n\
+         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\"  },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadArcher\"   },\n\
+         \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":2, \"victory_points\":2, \"tile\":\"UndeadMummy\"    },\n\
+         \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadWarrior\"  },\n\
+         \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadGhost\"    },\n\
+         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadShade\"    }\n\
          \  ],\n\
          \  \"neutral\": [\n\
          \    { \"name\":\"haste\",  \"title\":\"Infernal Haste\", \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
@@ -49,6 +49,11 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones5\",        \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":8 } },\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
+         \    { \"tile\":\"HumanSwordsman\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":0 } },\n\
+         \    { \"tile\":\"HumanSpearman\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":0 } },\n\
+         \    { \"tile\":\"HumanArcher\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":0 } },\n\
+         \    { \"tile\":\"HumanGeneral\",  \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":0 } },\n\
+         \    { \"tile\":\"HumanKnight\",   \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":0 } },\n\
          \    { \"tile\":\"SkullRedEyes\",  \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":2 } },\n\
          \    { \"tile\":\"Sword1\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"Sword2\",        \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":1 } },\n\
@@ -56,6 +61,13 @@ jsonData = "{\n\
          \    { \"tile\":\"GreenPotion\",   \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":0 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":1 } },\n\
          \    { \"tile\":\"Loupe\",         \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":1 } },\n\
+         \    { \"tile\":\"UndeadSkeleton\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadVampire\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadMummy\",   \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadWarrior\", \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadGhost\",   \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadShade\",   \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":3 } },\n\
          \    { \"tile\":\"WhiteAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears1\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears2\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":5 } },\n\

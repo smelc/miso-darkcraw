@@ -10,22 +10,15 @@
 module SinglePlayerLobbyView (viewSinglePlayerLobbyModel) where
 
 import Card
-  ( CreatureID (..),
-    CreatureKind (..),
-    Team (..),
-    allTeams,
-    creatureToFilepath,
-    filepathToString,
-    ppTeam,
-  )
 import Constants
 import Control.Lens
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (SinglePlayerLobbyModel (..))
-import SharedModel (SharedModel (..), idToCreature)
+import SharedModel (SharedModel (..), cardToFilepath, idToCreature)
+import Tile
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
@@ -129,7 +122,11 @@ teamButton smodel z chosen team = do
         Just _ -> (Disabled, LobbySelectTeam $ Just team)
     creature kind team = idToCreature smodel $ CreatureID kind team
     path team kind =
-      creature kind team & creatureToFilepath & filepathToString
+      creature kind team
+        <&> CreatureCard
+        <&> SharedModel.cardToFilepath smodel
+        & fromMaybe default24Filepath
+        & filepathToString
     tile team =
       ( case team of
           Human -> General

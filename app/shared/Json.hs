@@ -100,7 +100,7 @@ instance FromJSON (Creature UI) where
       <*> v .:? "moral"
       <*> v .: "victory_points"
       <*> v .:? "skills" .!= []
-      <*> v .: "filepath"
+      <*> v .: "tile"
 
 instance FromJSON Neutral where
   parseJSON = genericParseJSON toLowerConstructorOptions

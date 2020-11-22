@@ -27,6 +27,7 @@ module SharedModel
     getCards,
     withStdGen,
     getCardIdentifiers,
+    cardToFilepath,
   )
 where
 
@@ -35,13 +36,14 @@ import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.Random
 import Data.Foldable (find)
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics (Generic)
 import Json (loadJson)
 import System.Random.Shuffle (shuffleM)
-import Tile (Tile, TileUI (..))
+import Tile (Filepath, Tile, TileUI (..), default24Filepath)
 
 instance Eq StdGen where
   std1 == std2 = show std1 == show std2
@@ -66,7 +68,14 @@ create cards skills tiles sharedStdGen =
     groupBy f l = map (\e -> (f e, e)) l & Map.fromList
     sharedCards = groupBy cardToIdentifier cards
     sharedSkills = groupBy skill skills
-    sharedTiles = groupBy tile tiles
+    sharedTiles = groupBy Tile.tile tiles
+
+cardToFilepath :: SharedModel -> Card UI -> Filepath
+cardToFilepath SharedModel {..} = \case
+  CreatureCard Creature {tile} ->
+    fromMaybe default24Filepath $ sharedTiles Map.!? tile <&> filepath
+  NeutralCard _ -> error "NeutralCard not supported"
+  ItemCard _ -> error "ItemCard not supported"
 
 getCardIdentifiers :: SharedModel -> [CardIdentifier]
 getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards
@@ -140,7 +149,7 @@ shuffle shared@SharedModel {sharedStdGen} l =
 tileToFilepath :: SharedModel -> Tile -> Filepath
 tileToFilepath SharedModel {sharedTiles} tile =
   case find (\TileUI {tile = t} -> t == tile) sharedTiles of
-    Nothing -> Card.default24Filepath
+    Nothing -> default24Filepath
     Just TileUI {Tile.filepath} -> filepath
 
 unsafeIdentToCard :: SharedModel -> CardIdentifier -> Card UI

@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -36,6 +35,7 @@ import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
 import SharedModel (SharedModel, liftSkill, tileToFilepath)
 import qualified SharedModel
+import Tile
 import Update (Action)
 import ViewInternal
 
@@ -100,7 +100,7 @@ cardView z shared card cdsty@CardDrawStyle {fadeIn} =
     topMargin = cps `div` 4
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - cps) `div` 2) topMargin
-    filepath = SharedModel.unsafeLiftCard shared card & cardToFilepath
+    filepath = SharedModel.unsafeLiftCard shared card & SharedModel.cardToFilepath shared
     pictureCell = imgCell $ ms $ filepathToString filepath
     builder attrs =
       div_ attrs $
@@ -189,12 +189,6 @@ cardPositionStyle' ::
 cardPositionStyle' xPixelsOffset yPixelsOffset =
   pltwh Absolute xPixelsOffset yPixelsOffset cardPixelWidth cardPixelHeight
 
-cardToFilepath :: Card UI -> FilepathType UI
-cardToFilepath = \case
-  CreatureCard Creature {filepath} -> filepath
-  NeutralCard _ -> error "NeutralCard not supported"
-  ItemCard _ -> error "ItemCard not supported"
-
 -- Now come functions that are about building the view of a Scene
 data Context = Context
   { z :: Int,
@@ -207,7 +201,8 @@ createContext z shared =
   Context {..}
   where
     paths = map f (SharedModel.getCards shared) & catMaybes & Map.fromList
-    f (CreatureCard Creature {..}) = Just (creatureId, dirToFilename filepath)
+    f card@(CreatureCard Creature {creatureId}) =
+      Just (creatureId, dirToFilename (SharedModel.cardToFilepath shared card))
     f _ = Nothing
     -- Leave 24x24_3_0.png untouched if direction is ToLeft
     dirToFilename filepath dir

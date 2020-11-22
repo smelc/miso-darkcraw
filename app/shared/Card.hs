@@ -18,6 +18,7 @@ import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics (Generic)
+import Tile
 
 data Team = Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
@@ -44,14 +45,22 @@ data SkillUI = SkillUI
   }
   deriving (Eq, Generic, Show)
 
-data Phase = UI | Core
+data Phase
+  = -- | Phase for data in core algorithms ('AI', 'Game'); not for rendering.
+    -- Creatures in this phase have actual hitpoints, actual attack, etc.
+    Core
+  | -- | Phase for data in UI algorithms: contains more data related
+    -- to drawing cards. Data in this phase is _formal_, i.e. hitpoints
+    -- are the maximum (pristine) hitpoints, attack is formal attack (before
+    -- maluses or bonuses), etc.
+    UI
 
-type family FilepathType (p :: Phase) where
-  FilepathType UI = Filepath
-  FilepathType Core = ()
+type family TileType (p :: Phase) where
+  TileType UI = Tile
+  TileType Core = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (FilepathType p),
+  ( c (TileType p),
     c (NeutralTeamsType p)
   )
 
@@ -72,29 +81,8 @@ data CreatureKind
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
 
-data Filepath = Filepath
-  { root :: String,
-    fpX :: Int,
-    fpY :: Int
-  }
-  deriving (Eq, Generic, Ord, Show)
-
--- | The default 24x24 asset shown when an asset is not found.
--- | This makes 'creatureToFilepath' total.
-default24Filepath :: Filepath
-default24Filepath = Filepath {root = "24x24", fpX = 2, fpY = 3}
-
--- | The default 16x16 asset shown when an asset is not found.
--- | This makes 'creatureToFilepath' total.
-default16Filepath :: Filepath
-default16Filepath = Filepath {root = "16x16", fpX = 2, fpY = 1}
-
-creatureToFilepath :: Maybe (Creature UI) -> Filepath
-creatureToFilepath creature = maybe default24Filepath filepath creature
-
-filepathToString :: Filepath -> String
-filepathToString Filepath {..} =
-  root ++ "_" ++ show fpX ++ "_" ++ show fpY ++ ".png"
+-- creatureToFilepath :: Maybe (Creature UI) -> Filepath
+-- creatureToFilepath creature = maybe default24Filepath filepath creature
 
 data Creature (p :: Phase) = Creature
   { creatureId :: CreatureID,
@@ -103,7 +91,7 @@ data Creature (p :: Phase) = Creature
     moral :: Maybe Int,
     victoryPoints :: Int,
     skills :: [Skill],
-    filepath :: FilepathType p
+    tile :: TileType p
   }
   deriving (Generic)
 

@@ -1,13 +1,30 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE RecordWildCards #-}
 
-module Tile
-  ( Tile (..),
-    TileUI (..),
-  )
-where
+module Tile where
 
-import Card (Filepath (..))
 import GHC.Generics (Generic)
+
+data Filepath = Filepath
+  { root :: String,
+    fpX :: Int,
+    fpY :: Int
+  }
+  deriving (Eq, Generic, Ord, Show)
+
+-- | The default 24x24 asset shown when an asset is not found.
+-- | This makes 'creatureToFilepath' total.
+default24Filepath :: Filepath
+default24Filepath = Filepath {root = "24x24", fpX = 2, fpY = 3}
+
+-- | The default 16x16 asset shown when an asset is not found.
+-- | This makes 'creatureToFilepath' total.
+default16Filepath :: Filepath
+default16Filepath = Filepath {root = "16x16", fpX = 2, fpY = 1}
+
+filepathToString :: Filepath -> String
+filepathToString Filepath {..} =
+  root ++ "_" ++ show fpX ++ "_" ++ show fpY ++ ".png"
 
 data Tile
   = BlackAppears0
@@ -28,11 +45,23 @@ data Tile
   | Crown
   | GreenPotion
   | Heart
+  | HumanArcher
+  | HumanGeneral
+  | HumanKnight
+  | HumanSpearman
+  | HumanSwordsman
   | Loupe
   | SkullRedEyes
   | Sword1
   | Sword2
   | RedPotion
+  | UndeadArcher
+  | UndeadGhost
+  | UndeadMummy
+  | UndeadShade
+  | UndeadSkeleton
+  | UndeadVampire
+  | UndeadWarrior
   | WhiteAppears0
   | WhiteAppears1
   | WhiteAppears2
