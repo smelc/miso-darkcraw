@@ -43,7 +43,7 @@ import Data.Maybe
 import GHC.Generics (Generic)
 import Json (loadJson)
 import System.Random.Shuffle (shuffleM)
-import Tile (Filepath, Tile, TileUI (..), default24Filepath)
+import Tile (Filepath, Tile, TileUI (..), default16Filepath, default24Filepath)
 
 instance Eq StdGen where
   std1 == std2 = show std1 == show std2
@@ -74,7 +74,8 @@ cardToFilepath :: SharedModel -> Card UI -> Filepath
 cardToFilepath SharedModel {..} = \case
   CreatureCard Creature {tile} ->
     fromMaybe default24Filepath $ sharedTiles Map.!? tile <&> filepath
-  NeutralCard _ -> error "NeutralCard not supported"
+  NeutralCard NeutralObject {ntile} ->
+    fromMaybe default16Filepath $ sharedTiles Map.!? ntile <&> filepath
   ItemCard _ -> error "ItemCard not supported"
 
 getCardIdentifiers :: SharedModel -> [CardIdentifier]

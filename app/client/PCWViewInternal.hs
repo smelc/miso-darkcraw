@@ -106,6 +106,7 @@ cardView z shared card cdsty@CardDrawStyle {fadeIn} =
       div_ attrs $
         [div_ [style_ pictureStyle] [pictureCell]]
           ++ cardView' z shared card cdsty
+          ++ [cardBackground z cdsty]
     animData =
       (animationData "handCardFadein" "1s" "ease")
         { animDataFillMode = Just "forwards"
@@ -114,10 +115,10 @@ cardView z shared card cdsty@CardDrawStyle {fadeIn} =
 cardView' :: Int -> SharedModel -> Card p -> CardDrawStyle -> [View Action]
 cardView' z shared card cdsty =
   case card of
+    -- drawing of Creature cards
     (CreatureCard Creature {attack, hp, skills}) ->
       [div_ [style_ statsStyle] [statsCell]]
         ++ [div_ [style_ skillsStyle] skillsDivs]
-        ++ [cardBackground z cdsty]
       where
         inStatsStyle = flexLineStyle <> fontStyle
         statsCell =
@@ -138,6 +139,8 @@ cardView' z shared card cdsty =
             <> fontStyle
         skillDiv skill = div_ [] [liftSkill shared skill & skillTitle & ms & text]
         skillsDivs = map skillDiv skills
+    -- drawing of Neutral cards
+    (NeutralCard NeutralObject {neutral}) -> []
     _ -> error "Unhandled card"
   where
     (topMargin, leftMargin) = (cps `div` 4, topMargin)

@@ -70,6 +70,7 @@ neutralObjectOptions =
   where
     impl "neutral" = "name"
     impl "neutralTeams" = "teams"
+    impl "ntile" = "tile"
     impl s = s
 
 itemObjectOptions :: Options

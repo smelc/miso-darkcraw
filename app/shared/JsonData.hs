@@ -25,7 +25,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadShade\"    }\n\
          \  ],\n\
          \  \"neutral\": [\n\
-         \    { \"name\":\"haste\",  \"title\":\"Infernal Haste\", \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
+         \    { \"name\":\"infernalhaste\",  \"title\":\"Infernal Haste\", \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"health\", \"title\":\"Health\",         \"tile\":\"RedPotion\",    \"text\":\"Heals 1 HP\"               , \"teams\": [\"human\"]  },\n\
          \    { \"name\":\"life\",   \"title\":\"Life\",           \"tile\":\"GreenPotion\",  \"text\":\"Restores all HP\"          , \"teams\": [\"human\"]  }\n\
          \  ],\n\

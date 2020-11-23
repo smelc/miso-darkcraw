@@ -102,8 +102,7 @@ deriving instance Forall Ord p => Ord (Creature p)
 deriving instance Forall Show p => Show (Creature p)
 
 data Neutral
-  = Haste
-  | Health
+  = Health
   | InfernalHaste
   | Life
   deriving (Eq, Generic, Ord, Show)
@@ -112,10 +111,14 @@ type family NeutralTeamsType (p :: Phase) where
   NeutralTeamsType UI = [Team]
   NeutralTeamsType Core = ()
 
+-- It's not super nice to have tile in CreatureCard and ntile in
+-- NeutralObject, but it's either that or an extra indirection in Card.
+
 data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
-    neutralTeams :: NeutralTeamsType p
+    neutralTeams :: NeutralTeamsType p,
+    ntile :: TileType p
   }
   deriving (Generic)
 
@@ -160,7 +163,7 @@ unliftCard card =
 
 unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =
-  NeutralObject {neutral, neutralTeams = ()}
+  NeutralObject {neutral, neutralTeams = (), ntile = ()}
 
 cardToCreature :: Card p -> Maybe (Creature p)
 cardToCreature (CreatureCard creature) = Just creature
@@ -231,12 +234,7 @@ teamDeck cards t =
         & map (\nobj -> (neutral nobj, nobj))
         & Map.fromList
     (**) i k = replicate i $ kindToNeutral Map.! k
-    -- Initial neutral cards:
-    -- FIXME @smelc until neutral cards are handled everywhere:
-    neutrals = []
-
--- Production
--- neutrals =
---   case t of
---     Human -> 1 ** Health ++ 1 ** Life
---     Undead -> 1 ** InfernalHaste
+    neutrals =
+      case t of
+        Human -> 1 ** Health ++ 1 ** Life
+        Undead -> 2 ** InfernalHaste
