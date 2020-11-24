@@ -55,12 +55,17 @@ data Phase
     -- maluses or bonuses), etc.
     UI
 
+type family TextType (p :: Phase) where
+  TextType UI = String
+  TextType Core = ()
+
 type family TileType (p :: Phase) where
   TileType UI = Tile
   TileType Core = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (TileType p),
+  ( c (TextType p),
+    c (TileType p),
     c (NeutralTeamsType p)
   )
 
@@ -111,14 +116,16 @@ type family NeutralTeamsType (p :: Phase) where
   NeutralTeamsType UI = [Team]
   NeutralTeamsType Core = ()
 
--- It's not super nice to have tile in CreatureCard and ntile in
--- NeutralObject, but it's either that or an extra indirection in Card.
+-- If Creature and NeutralObject start having more in common than solely
+-- tile/ntile, a new record can be introduced; to share code.
 
 data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
     neutralTeams :: NeutralTeamsType p,
-    ntile :: TileType p
+    ntext :: TextType p,
+    ntile :: TileType p,
+    ntitle :: TextType p
   }
   deriving (Generic)
 
@@ -163,7 +170,7 @@ unliftCard card =
 
 unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =
-  NeutralObject {neutral, neutralTeams = (), ntile = ()}
+  NeutralObject {neutral, neutralTeams = (), ntext = (), ntile = (), ntitle = ()}
 
 cardToCreature :: Card p -> Maybe (Creature p)
 cardToCreature (CreatureCard creature) = Just creature

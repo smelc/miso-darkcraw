@@ -98,8 +98,13 @@ cardView z shared card cdsty@CardDrawStyle {fadeIn} =
     else pure $ builder []
   where
     topMargin = cps `div` 4
+    picSize =
+      case card of
+        CreatureCard _ -> cps
+        NeutralCard _ -> 16
+        _ -> error $ "Unhandled card: " ++ show card
     pictureStyle =
-      zplt (z + 1) Absolute ((cardPixelWidth - cps) `div` 2) topMargin
+      zplt (z + 1) Absolute ((cardPixelWidth - picSize) `div` 2) topMargin
     filepath =
       SharedModel.unsafeLiftCard shared card
         & SharedModel.cardToFilepath shared
@@ -109,16 +114,20 @@ cardView z shared card cdsty@CardDrawStyle {fadeIn} =
     builder attrs =
       div_ attrs $
         [div_ [style_ pictureStyle] [pictureCell]]
-          ++ cardView' z shared card cdsty
+          ++ cardView' z shared card
           ++ [cardBackground z cdsty]
     animData =
       (animationData "handCardFadein" "1s" "ease")
         { animDataFillMode = Just "forwards"
         }
 
-cardView' :: Int -> SharedModel -> Card p -> CardDrawStyle -> [View Action]
-cardView' z shared card cdsty =
-  case card of
+cardView' :: Int -> SharedModel -> Card Core -> [View Action]
+cardView' z shared card =
+  -- Note that we don't have this function to take a Card UI, despite
+  -- translating 'card' to 'ui' here. The translation is solely for UI
+  -- only fields; we don't want to force callers to do it. That was the point
+  -- of having SharedModel around.
+  case ui of
     -- drawing of Creature cards
     (CreatureCard Creature {attack, hp, skills}) ->
       [div_ [style_ statsStyle] [statsCell]]
@@ -144,9 +153,33 @@ cardView' z shared card cdsty =
         skillDiv skill = div_ [] [liftSkill shared skill & skillTitle & ms & text]
         skillsDivs = map skillDiv skills
     -- drawing of Neutral cards
-    (NeutralCard NeutralObject {neutral}) -> []
+    (NeutralCard NeutralObject {ntitle, ntext}) ->
+      [ div_
+          [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
+            style_ fontStyle
+          ]
+          [ div_
+              [ style_ $
+                  "align" =: "center"
+                    <> "position" =: "absolute"
+                    <> "margin-top" =: "24px"
+                    <> "transform" =: "translate(-50%,0%)"
+                    <> "margin-left" =: "50%"
+                    <> "margin-right" =: "50%"
+              ]
+              [text $ ms ntitle],
+            p_
+              [ style_ $
+                  "position" =: "absolute"
+                    <> "margin-top" =: "40px"
+                    <> "margin-left" =: px leftMargin
+              ]
+              [text $ ms ntext]
+          ]
+      ]
     _ -> error "Unhandled card"
   where
+    ui = SharedModel.unsafeLiftCard shared card
     (topMargin, leftMargin) = (cps `div` 4, topMargin)
     statsTopMargin = topMargin * 2 + cps
     statsStyle = zpltwh (z + 1) Absolute leftMargin statsTopMargin width cps

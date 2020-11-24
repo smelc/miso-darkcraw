@@ -13,7 +13,6 @@ module SharedModel
   ( identToCard,
     idToCreature,
     liftCard,
-    liftCreature,
     SharedModel,
     tileToFilepath,
     unsafeGet,
@@ -125,11 +124,14 @@ liftNeutralObject shared no =
   where
     IDN n = neutralToIdentifier no
 
+-- | Translates a 'Core' 'Creature' into an 'UI' one, keeping its stats
+-- An alternative implementation could return the pristine, formal, UI card.
 liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
-liftCreature shared creature =
-  idToCreature shared cid
-  where
-    IDC cid = creatureToIdentifier creature
+liftCreature SharedModel {sharedCards} c@Creature {..} =
+  case sharedCards Map.!? IDC creatureId of
+    Nothing -> Nothing
+    Just (CreatureCard Creature {tile}) -> Just $ Creature {..}
+    Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
 liftSkill :: SharedModel -> Skill -> SkillUI
 liftSkill SharedModel {sharedSkills} skill =
