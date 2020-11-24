@@ -115,11 +115,15 @@ flexLineStyle =
       ("align-items", "center")
     ]
 
-img_' :: MisoString -> View a
-img_' filename = img_ [src_ $ assetsPath filename, noDrag]
-
 imgCell :: MisoString -> View a
 imgCell filename = img_ [src_ $ assetsPath filename, noDrag]
+
+-- | An image with the given width and height, in pixels
+imgCellwh :: MisoString -> Int -> Int -> View a
+imgCellwh filename w h =
+  -- Don't use 'px x', width and height are always in pixels, it'd
+  -- make them considered as being 0.
+  img_ [src_ $ assetsPath filename, noDrag, width_ $ ms w, height_ $ ms h]
 
 keyframes :: MisoString -> MisoString -> [(Int, String)] -> MisoString -> MisoString
 keyframes name from steps to =

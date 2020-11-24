@@ -135,7 +135,7 @@ teamButton smodel z chosen team = do
         & path team
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
-        img_' $ ms $ tile team
+        imgCell $ ms $ tile team
       ]
     onClickAction = SinglePlayerLobbyAction' action
     builder x =

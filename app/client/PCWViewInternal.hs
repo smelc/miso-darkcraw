@@ -100,8 +100,12 @@ cardView z shared card cdsty@CardDrawStyle {fadeIn} =
     topMargin = cps `div` 4
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - cps) `div` 2) topMargin
-    filepath = SharedModel.unsafeLiftCard shared card & SharedModel.cardToFilepath shared
-    pictureCell = imgCell $ ms $ filepathToString filepath
+    filepath =
+      SharedModel.unsafeLiftCard shared card
+        & SharedModel.cardToFilepath shared
+        & filepathToString
+        & ms
+    pictureCell = imgCell filepath
     builder attrs =
       div_ attrs $
         [div_ [style_ pictureStyle] [pictureCell]]
@@ -159,20 +163,14 @@ cardBackground ::
   View Action
 cardBackground z cdsty =
   div_
-    [style_ cardStyle']
-    [ img_
-        [ src_ $ assetsPath assetFilenameBeigeBG,
-          width_ $ ms cardPixelWidth,
-          height_ $ ms cardPixelHeight,
-          noDrag
-        ]
-    ]
+    [style_ $ sty1 <> sty2]
+    [imgCellwh assetFilenameBeigeBG cardPixelWidth cardPixelHeight]
   where
-    cardStyle = zpwh z Absolute cardPixelWidth cardPixelHeight
-    cardStyle' =
+    sty1 = zpwh z Absolute cardPixelWidth cardPixelHeight
+    sty2 =
       if hover cdsty
-        then Map.insert "outline" (ms borderSize <> "px solid red") cardStyle
-        else cardStyle
+        then "outline" =: (ms borderSize <> "px solid red")
+        else mempty
 
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
