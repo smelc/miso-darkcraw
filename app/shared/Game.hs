@@ -101,7 +101,6 @@ playAll shared board (e : events) = do
   (board'', boardui'') <- playAll shared board' events
   return (board'', boardui' <> boardui'')
 
--- FIXME @smelc: delete me
 playM ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
@@ -109,19 +108,9 @@ playM ::
   Board Core ->
   GamePlayEvent ->
   m (Board Core)
-playM shared board gpe =
-  playM' shared board gpe
-
-playM' ::
-  MonadError Text m =>
-  MonadWriter (Board UI) m =>
-  SharedModel ->
-  Board Core ->
-  GamePlayEvent ->
-  m (Board Core)
-playM' _ board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
-playM' _ board NoPlayEvent = return board
-playM' shared board (Place pTarget (handhi :: HandIndex)) = do
+playM _ board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
+playM _ board NoPlayEvent = return board
+playM shared board (Place pTarget (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let card = unsafeIdentToCard shared ident & unliftCard
   let onTable :: Map CardSpot (Creature Core) = inPlace base
@@ -143,10 +132,10 @@ playM' shared board (Place pTarget (handhi :: HandIndex)) = do
       case pTarget of
         PlayerTarget _ -> error "PlayerTarget unsupported"
         CardTarget p c -> (p, c)
-playM' shared board (Place' pTarget creatureID) =
+playM shared board (Place' pTarget creatureID) =
   case idx of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show creatureID
-    Just i -> playM' shared board (Place pTarget i)
+    Just i -> playM shared board (Place pTarget i)
   where
     pSpot =
       case pTarget of
