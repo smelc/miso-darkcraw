@@ -29,7 +29,7 @@ import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import Game (GamePlayEvent (..), nextAttackSpot)
+import Game (GamePlayEvent (..), PlayTarget (..), nextAttackSpot)
 import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString)
@@ -282,7 +282,7 @@ updateGameModel
   m@GameModel {playingPlayer}
   GameDrop
   (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    playOne m $ Place playingPlayer dragTarget draggedCard
+    playOne m $ Place (CardTarget playingPlayer dragTarget) draggedCard
 updateGameModel m GameDrop _
   | isPlayerTurn m =
     withInteraction m GameNoInteraction

@@ -225,8 +225,8 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
 borderWidth :: GameModel -> PlayerSpot -> CardSpot -> Int
 borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
   case interaction of
-    GameDragInteraction _ | emptyPlayingPlayerSpot -> 3
-    GameHoverInteraction _ | emptyPlayingPlayerSpot -> 3
+    GameDragInteraction _ | cond -> 3
+    GameHoverInteraction _ | cond -> 3
     GameHoverInPlaceInteraction pSpot' cSpotHovered ->
       let attacker = boardToInPlaceCreature board pSpot' cSpotHovered
        in let skills' = maybe [] skills attacker
@@ -241,6 +241,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
     emptyPlayingPlayerSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
+    cond = emptyPlayingPlayerSpot
 
 deathFadeout :: InPlaceEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae _ _ =

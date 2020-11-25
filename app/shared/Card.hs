@@ -245,3 +245,11 @@ teamDeck cards t =
       case t of
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste
+
+-- | Whether a neutral card can be applied to the given creature
+appliesTo :: Neutral -> Creature Core -> Bool
+appliesTo n _ =
+  case n of
+    Health -> True
+    Life -> True
+    InfernalHaste -> False

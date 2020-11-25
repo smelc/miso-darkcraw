@@ -18,7 +18,7 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import Game (GamePlayEvent (..), attackOrder, playAll)
+import Game (GamePlayEvent (..), PlayTarget (..), attackOrder, playAll)
 import Generators
 import Json
 import Movie
@@ -184,7 +184,7 @@ testAIPlace shared =
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (board', _)) = Just board'
-    spotsDiffer (Place' pSpot1 cSpot1 _) (Place' pSpot2 cSpot2 _) =
+    spotsDiffer (Place' (CardTarget pSpot1 cSpot1) _) (Place' (CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"
     allDiff [] = True

@@ -21,6 +21,7 @@ module Game
     nbCardsToDraw,
     drawCards,
     transferCards,
+    PlayTarget (..),
   )
 where
 
@@ -45,6 +46,15 @@ import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
 
+-- | On what a card can be applied
+data PlayTarget
+  = -- | Neutral card applies to all in place cards of a player
+    PlayerTarget PlayerSpot
+  | -- | Creature card placed at given spot
+    -- or Neutral card applies to a given in place card of a player
+    CardTarget PlayerSpot CardSpot
+  deriving (Eq, Show)
+
 data GamePlayEvent
   = -- | A player finishes its turn, resolving it in a single card spot.
     -- | This event is a bit tricky to handle, because every consumer should
@@ -54,10 +64,10 @@ data GamePlayEvent
   | -- | A Nothing case, for convenience
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board
-    Place PlayerSpot CardSpot HandIndex
+    Place PlayTarget HandIndex
   | -- | AI puts a card from his hand. This constructor has better
     -- testing behavior than 'Place': it makes the generated events commute.
-    Place' PlayerSpot CardSpot CreatureID
+    Place' PlayTarget CreatureID
   deriving (Eq, Show)
 
 reportEffect ::
@@ -111,7 +121,7 @@ playM' ::
   m (Board Core)
 playM' _ board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
 playM' _ board NoPlayEvent = return board
-playM' shared board (Place pSpot cSpot (handhi :: HandIndex)) = do
+playM' shared board (Place pTarget (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let card = unsafeIdentToCard shared ident & unliftCard
   let onTable :: Map CardSpot (Creature Core) = inPlace base
@@ -129,11 +139,19 @@ playM' shared board (Place pSpot cSpot (handhi :: HandIndex)) = do
     base :: PlayerPart Core = board ^. pLens
     hand = boardToHand board pSpot
     hand' = deleteAt handi hand
-playM' shared board (Place' pSpot cSpot creatureID) =
+    (pSpot, cSpot) =
+      case pTarget of
+        PlayerTarget _ -> error "PlayerTarget unsupported"
+        CardTarget p c -> (p, c)
+playM' shared board (Place' pTarget creatureID) =
   case idx of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show creatureID
-    Just i -> playM' shared board (Place pSpot cSpot i)
+    Just i -> playM' shared board (Place pTarget i)
   where
+    pSpot =
+      case pTarget of
+        PlayerTarget p -> p
+        CardTarget p _ -> p
     idxAndIDs =
       boardToHand board pSpot
         & map identToId

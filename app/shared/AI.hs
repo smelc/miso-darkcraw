@@ -113,7 +113,7 @@ aiPlayFirst shared board turn =
     IDC creatureID : _ -> do
       let scores' = scores & map liftFstMaybe & catMaybes & sortByFst
       best <- listToMaybe scores'
-      return $ Place' pSpot (snd best) creatureID
+      return $ Place' (CardTarget pSpot (snd best)) creatureID
     i : _ -> error $ "Unsupported identifier: " ++ show i
   where
     handIndex = HandIndex 0
@@ -122,7 +122,7 @@ aiPlayFirst shared board turn =
     scores =
       [ (scorePlace (fromRight' board' & fst) pSpot cSpot, cSpot)
         | cSpot <- possibles,
-          let place = Place pSpot cSpot handIndex,
+          let place = Place (CardTarget pSpot cSpot) handIndex,
           let board' = Game.play shared board place,
           isRight board'
       ]
