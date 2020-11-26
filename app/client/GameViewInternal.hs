@@ -28,8 +28,11 @@ import Board hiding (StackType)
 import Card
 import Constants
 import Control.Lens
+import Control.Monad.Except
 import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust)
+import qualified Data.Text as Text
+import Debug.Trace (trace)
 import Game (enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
@@ -225,8 +228,8 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
 borderWidth :: GameModel -> PlayerSpot -> CardSpot -> Int
 borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
   case interaction of
-    GameDragInteraction _ | cond -> 3
-    GameHoverInteraction _ | cond -> 3
+    GameDragInteraction Dragging {draggedCard} | cond draggedCard -> 3
+    GameHoverInteraction Hovering {hoveredCard} | cond hoveredCard -> 3
     GameHoverInPlaceInteraction pSpot' cSpotHovered ->
       let attacker = boardToInPlaceCreature board pSpot' cSpotHovered
        in let skills' = maybe [] skills attacker
@@ -241,7 +244,15 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
     emptyPlayingPlayerSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
-    cond = emptyPlayingPlayerSpot
+    cond hi =
+      case handCard $ unHandIndex hi of
+        Left errMsg -> trace (Text.unpack errMsg) False
+        Right card ->
+          case card of
+            IDC _ -> emptyPlayingPlayerSpot
+            IDN n -> Board.appliesTo n board pSpot cSpot
+            i -> error $ "Unhandled identifier: " ++ show i
+    handCard i = lookupHand (boardToHand board playingPlayer) i & runExcept
 
 deathFadeout :: InPlaceEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae _ _ =

@@ -56,6 +56,7 @@ module Board
     boardToASCII,
     StackKind (..),
     unsafeExampleBoard,
+    Board.appliesTo,
   )
 where
 
@@ -407,6 +408,12 @@ spotToLens =
   \case
     PlayerBottom -> #playerBottom
     PlayerTop -> #playerTop
+
+appliesTo :: Neutral -> Board Core -> PlayerSpot -> CardSpot -> Bool
+appliesTo n board pSpot cSpot =
+  case boardToInPlaceCreature board pSpot cSpot of
+    Nothing -> False
+    Just creature -> Card.appliesTo n creature
 
 ------------------------------
 -- Now onto fancy rendering --
