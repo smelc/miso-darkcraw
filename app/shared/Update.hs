@@ -91,6 +91,8 @@ instance ToExpr HandIndex
 
 instance ToExpr HandFiddle
 
+instance ToExpr Game.PlayTarget
+
 instance ToExpr Dragging
 
 instance ToExpr Hovering
@@ -181,8 +183,8 @@ data GameAction
     GameDragStart HandIndex
   | -- | This can play the 'GamePlayEvent' 'Place'
     GameDrop
-  | GameDragEnter CardSpot
-  | GameDragLeave CardSpot
+  | GameDragEnter Game.PlayTarget
+  | GameDragLeave Game.PlayTarget
   | -- | End Turn button pressed in turn widget. For player, schedule
     -- | attacks then 'GameIncrTurn'; for AI, compute its actions,
     -- | schedule them, and then schedule attack and 'GameIncrTurn'.
@@ -279,18 +281,18 @@ updateGameModel m (GameDragStart i) _
   | isPlayerTurn m =
     withInteraction m $ GameDragInteraction $ Dragging i Nothing
 updateGameModel
-  m@GameModel {playingPlayer}
+  m
   GameDrop
   (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    playOne m $ Place (CardTarget playingPlayer dragTarget) draggedCard
+    playOne m $ Place dragTarget draggedCard
 updateGameModel m GameDrop _
   | isPlayerTurn m =
     withInteraction m GameNoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
-updateGameModel m (GameDragEnter cSpot) (GameDragInteraction dragging)
+updateGameModel m (GameDragEnter target) (GameDragInteraction dragging)
   | isPlayerTurn m =
-    withInteraction m $ GameDragInteraction $ dragging {dragTarget = Just cSpot}
+    withInteraction m $ GameDragInteraction $ dragging {dragTarget = Just target}
 updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
   | isPlayerTurn m =
     withInteraction m $ GameDragInteraction $ dragging {dragTarget = Nothing}

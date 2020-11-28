@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -43,6 +44,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
+import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
@@ -54,7 +56,7 @@ data PlayTarget
   | -- | Creature card placed at given spot
     -- or Neutral card applies to a given in place card of a player
     CardTarget PlayerSpot CardSpot
-  deriving (Eq, Show)
+  deriving (Eq, Generic, Show)
 
 data GamePlayEvent
   = -- | A player finishes its turn, resolving it in a single card spot.

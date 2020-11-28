@@ -131,11 +131,12 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
             onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave pSpot cSpot
           ]
         else
-          [ onDragEnter $ lift $ GameDragEnter cSpot,
-            onDragLeave $ lift $ GameDragLeave cSpot,
+          [ onDragEnter $ lift $ GameDragEnter target,
+            onDragLeave $ lift $ GameDragLeave target,
             onDrop (AllowDrop True) $ lift GameDrop,
             dummyOn "dragover"
           ]
+    target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBottom -> True
     (x, y) = cardCellsBoardOffset pSpot cSpot
@@ -146,7 +147,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
         | attackBump attackEffect
       ]
-    rgb = borderRGB interaction cSpot
+    rgb = borderRGB interaction (Game.CardTarget pSpot cSpot)
 
 boardToPlayerTarget :: Int -> GameModel -> PlayerSpot -> View Action
 boardToPlayerTarget z m@GameModel {interaction} pSpot =
@@ -163,8 +164,8 @@ boardToPlayerTarget z m@GameModel {interaction} pSpot =
     (w, h) = (cardCellWidth * 3 + cardHCellGap * 2, cardCellHeight * 2 + cardVCellGap)
     posStyle x y = pltwh Absolute (x * cps) (y * cps) (w * cps) (h * cps)
     cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBottom -> BottomRight
-    rgb = borderRGB interaction cSpot
-    bwidth = borderWidth m $ Game.PlayerTarget pSpot
+    playTarget = Game.PlayerTarget pSpot
+    (rgb, bwidth) = (borderRGB interaction playTarget, borderWidth m playTarget)
 
 borderRGB interaction cSpot =
   case interaction of

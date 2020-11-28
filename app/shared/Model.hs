@@ -12,6 +12,7 @@ import Data.Set (Set)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
 import GHC.Generics
+import Game (PlayTarget)
 import ServerMessages
 import SharedModel (SharedModel (..))
 import Turn (Turn, turnToPlayerSpot)
@@ -34,7 +35,7 @@ newtype Hovering = Hovering
 
 data Dragging = Dragging
   { draggedCard :: HandIndex,
-    dragTarget :: Maybe CardSpot
+    dragTarget :: Maybe PlayTarget
   }
   deriving (Eq, Show, Generic)
 
