@@ -24,6 +24,7 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Event
+import qualified Game
 import GameViewInternal
 import Miso hiding (at)
 import Miso.String hiding (concat, intersperse, map)
@@ -69,11 +70,12 @@ boardToInPlaceCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInPlaceCells z m@GameModel {board} = do
+boardToInPlaceCells z m@GameModel {board, playingPlayer} = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
-  return [div_ [] main]
+  let playerTargets = [boardToPlayerTarget playerTargetZ m pSpot | pSpot <- allPlayersSpots]
+  return [div_ [] $ main ++ playerTargets]
   where
     mainM =
       sequence
@@ -86,15 +88,20 @@ boardToInPlaceCells z m@GameModel {board} = do
     bump50 upOrDown = "transform: translateY(" ++ sign upOrDown ++ show cellPixelSize ++ "px);"
     bumpKeyFrames upOrDown =
       keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
+    playerTargetActive = borderWidth m (Game.PlayerTarget playingPlayer) > 0
+    playerTargetZ = if playerTargetActive then z + 1 else z - 1
 
 boardToInPlaceCell :: Int -> GameModel -> PlayerSpot -> CardSpot -> Styled (View Action)
 boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
-    ( [ style_ $ Map.fromList bounceStyle <> cardPositionStyle x y, -- Absolute positioning
+    ( [ style_ $
+          Map.fromList bounceStyle
+            <> cardPositionStyle x y -- Absolute positioning
+            <> "z-index" =: ms z,
         class_ "card",
-        cardBoxShadowStyle (r, g, b) (borderWidth m pSpot cSpot) "ease-in-out"
+        cardBoxShadowStyle rgb (borderWidth m $ Game.CardTarget pSpot cSpot) "ease-in-out"
       ]
         ++ eventsAttrs GameAction'
     )
@@ -130,10 +137,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
             dummyOn "dragover"
           ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
-    upOrDown =
-      case pSpot of
-        PlayerTop -> False -- down
-        PlayerBottom -> True -- up
+    upOrDown = case pSpot of PlayerTop -> False; PlayerBottom -> True
     (x, y) = cardCellsBoardOffset pSpot cSpot
     beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot
     attackEffect =
@@ -142,10 +146,31 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
         | attackBump attackEffect
       ]
-    (r, g, b) =
-      case interaction of
-        GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
-        _ -> greenRGB
+    rgb = borderRGB interaction cSpot
+
+boardToPlayerTarget :: Int -> GameModel -> PlayerSpot -> View Action
+boardToPlayerTarget z m@GameModel {interaction} pSpot =
+  nodeHtmlKeyed
+    "div"
+    (Key $ ms key)
+    [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
+      cardBoxShadowStyle rgb bwidth "ease-in-out"
+    ]
+    []
+  where
+    key = show pSpot ++ "-target"
+    (x, y) = cardCellsBoardOffset pSpot cSpot
+    (w, h) = (cardCellWidth * 3 + cardHCellGap * 2, cardCellHeight * 2 + cardVCellGap)
+    posStyle x y = pltwh Absolute (x * cps) (y * cps) (w * cps) (h * cps)
+    cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBottom -> BottomRight
+    rgb = borderRGB interaction cSpot
+    bwidth = borderWidth m $ Game.PlayerTarget pSpot
+
+borderRGB interaction cSpot =
+  case interaction of
+    -- TODO @smelc change that when highlighting neutral drop on PlayerTarget
+    GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
+    _ -> greenRGB
 
 boardToInHandCells ::
   -- | The z index

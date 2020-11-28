@@ -33,7 +33,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
-import Game (enemySpots)
+import Game (PlayTarget (..), appliesTo, enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
@@ -220,17 +220,17 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
         (plusFontSize', "#FFFFFF", True)
     plusBuilder x = div_ x [text $ ms ("+" :: MisoString) <> ms (show plusValue)]
 
--- draw border around some cards if:
+-- | Draw border around some cards if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
 --    valid drag targets
 -- or 2/ card in place is being hovered -> draw borders around cards
 --       be attacked from this card== playingPlayerSpot,
-borderWidth :: GameModel -> PlayerSpot -> CardSpot -> Int
-borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
-  case interaction of
-    GameDragInteraction Dragging {draggedCard} | cond draggedCard -> 3
-    GameHoverInteraction Hovering {hoveredCard} | cond hoveredCard -> 3
-    GameHoverInPlaceInteraction pSpot' cSpotHovered ->
+borderWidth :: GameModel -> PlayTarget -> Int
+borderWidth GameModel {board, interaction, playingPlayer} pTarget =
+  case (interaction, pTarget) of
+    (GameDragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
+    (GameHoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
+    (GameHoverInPlaceInteraction pSpot' cSpotHovered, CardTarget pSpot cSpot) ->
       let attacker = boardToInPlaceCreature board pSpot' cSpotHovered
        in let skills' = maybe [] skills attacker
            in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
@@ -242,16 +242,17 @@ borderWidth GameModel {board, interaction, playingPlayer} pSpot cSpot =
       boardToHoleyInPlace board
     playingPlayerCardsSpots :: [CardSpot] =
       [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
-    emptyPlayingPlayerSpot =
+    emptyPlayingPlayerSpot pSpot cSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
     cond hi =
       case handCard $ unHandIndex hi of
         Left errMsg -> trace (Text.unpack errMsg) False
         Right card ->
-          case card of
-            IDC _ -> emptyPlayingPlayerSpot
-            IDN n -> Board.appliesTo n board pSpot cSpot
-            i -> error $ "Unhandled identifier: " ++ show i
+          case (card, pTarget) of
+            (IDC _, CardTarget pSpot cSpot) -> emptyPlayingPlayerSpot pSpot cSpot
+            (IDC _, _) -> False
+            (IDN n, _) -> Game.appliesTo board n playingPlayer pTarget
+            (i, _) -> error $ "Unhandled identifier: " ++ show i
     handCard i = lookupHand (boardToHand board playingPlayer) i & runExcept
 
 deathFadeout :: InPlaceEffect -> Int -> Int -> Styled [View Action]

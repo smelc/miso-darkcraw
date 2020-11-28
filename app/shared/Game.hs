@@ -22,6 +22,7 @@ module Game
     drawCards,
     transferCards,
     PlayTarget (..),
+    Game.appliesTo,
   )
 where
 
@@ -246,6 +247,19 @@ transferCardsM board pSpot =
     needTransfer = cardsToDraw > stackSize
     discarded = boardToDiscarded board pSpot
     part = boardToPart board pSpot
+
+-- | board n pSpot target holds iff player at 'pSpot' can play card 'n'
+-- on 'target'
+appliesTo :: Board Core -> Neutral -> PlayerSpot -> PlayTarget -> Bool
+appliesTo board n playingPlayer target =
+  case (target, n) of
+    (PlayerTarget pSpot, InfernalHaste)
+      | pSpot == playingPlayer -> True
+    (CardTarget pSpot cSpot, Health)
+      | pSpot == playingPlayer -> Board.appliesTo n board pSpot cSpot
+    (CardTarget pSpot cSpot, Life)
+      | pSpot == playingPlayer -> Board.appliesTo n board pSpot cSpot
+    (_, _) -> False
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::

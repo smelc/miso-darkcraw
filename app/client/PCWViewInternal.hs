@@ -20,7 +20,6 @@ module PCWViewInternal
     viewFrame,
     CardDrawStyle (..),
     DisplayMode (..),
-    cardPlaceholderView,
   )
 where
 
@@ -71,14 +70,6 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
         ("transition-duration", "0.15s"),
         ("transition-timing-function", timingFunction)
       ]
-
--- | Div displaying a placeholder for a drag target
-cardPlaceholderView ::
-  -- | The z index
-  Int ->
-  CardDrawStyle ->
-  Styled (View Action)
-cardPlaceholderView z cdsty = pure $ cardBackground z cdsty
 
 -- | Div displaying a card
 cardView ::
