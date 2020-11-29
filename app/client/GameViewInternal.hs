@@ -230,10 +230,10 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
     (GameDragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (GameHoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
-    (GameHoverInPlaceInteraction pSpot' cSpotHovered, CardTarget pSpot cSpot) ->
-      let attacker = boardToInPlaceCreature board pSpot' cSpotHovered
+    (GameHoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), CardTarget pSpot cSpot) ->
+      let attacker = boardToInPlaceCreature board pSpotHov cSpotHov
        in let skills' = maybe [] skills attacker
-           in if pSpot /= pSpot' && cSpot `elem` enemySpots skills' cSpotHovered
+           in if pSpot /= pSpotHov && cSpot `elem` enemySpots skills' cSpotHov
                 then borderSize
                 else 0
     _ -> 0

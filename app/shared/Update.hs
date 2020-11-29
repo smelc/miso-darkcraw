@@ -193,10 +193,10 @@ data GameAction
     GameInHandMouseEnter HandIndex
   | -- | Ending hovering card in hand
     GameInHandMouseLeave HandIndex
-  | -- | Starting hovering card in place
-    GameInPlaceMouseEnter PlayerSpot CardSpot
-  | -- | Ending hovering card in place
-    GameInPlaceMouseLeave PlayerSpot CardSpot
+  | -- | Starting hovering a target
+    GameInPlaceMouseEnter Game.PlayTarget
+  | -- | Ending hovering a target
+    GameInPlaceMouseLeave Game.PlayTarget
   deriving (Show, Eq)
 
 -- | To which page to go to, from the welcome page
@@ -398,9 +398,9 @@ updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
 updateGameModel m (GameInHandMouseLeave _) _ =
   withInteraction m GameNoInteraction
 -- Hovering in place cards
-updateGameModel m (GameInPlaceMouseEnter pSpot cSpot) GameNoInteraction =
-  withInteraction m $ GameHoverInPlaceInteraction pSpot cSpot
-updateGameModel m (GameInPlaceMouseLeave _ _) _ =
+updateGameModel m (GameInPlaceMouseEnter target) GameNoInteraction =
+  withInteraction m $ GameHoverInPlaceInteraction target
+updateGameModel m (GameInPlaceMouseLeave _) _ =
   withInteraction m GameNoInteraction
 -- default
 updateGameModel m _ i =

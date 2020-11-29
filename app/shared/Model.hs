@@ -21,8 +21,8 @@ import Turn (Turn, turnToPlayerSpot)
 data GameInteraction
   = -- | Hovering over a card in hand
     GameHoverInteraction Hovering
-  | -- | Hovering over a card in place
-    GameHoverInPlaceInteraction PlayerSpot CardSpot
+  | -- | Hovering over a target
+    GameHoverInPlaceInteraction Game.PlayTarget
   | -- | Dragging a card
     GameDragInteraction Dragging
   | GameNoInteraction

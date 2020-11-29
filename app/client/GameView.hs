@@ -127,20 +127,15 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
     eventsAttrs lift =
       if isJust maybeCreature
         then
-          [ onMouseEnter' "card" $ lift $ GameInPlaceMouseEnter pSpot cSpot,
-            onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave pSpot cSpot
+          [ onMouseEnter' "card" $ lift $ GameInPlaceMouseEnter target,
+            onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave target
           ]
-        else
-          [ onDragEnter $ lift $ GameDragEnter target,
-            onDragLeave $ lift $ GameDragLeave target,
-            onDrop (AllowDrop True) $ lift GameDrop,
-            dummyOn "dragover"
-          ]
+        else onDragEvents target
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBottom -> True
     (x, y) = cardCellsBoardOffset pSpot cSpot
-    beingHovered = interaction == GameHoverInPlaceInteraction pSpot cSpot
+    beingHovered = interaction == GameHoverInPlaceInteraction target
     attackEffect =
       anims ^. spotToLens pSpot . field' @"inPlace" . #unInPlaceEffects . ix cSpot
     bounceStyle =
@@ -154,9 +149,11 @@ boardToPlayerTarget z m@GameModel {interaction} pSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
-    [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
-      cardBoxShadowStyle rgb bwidth "ease-in-out"
-    ]
+    ( [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
+        cardBoxShadowStyle rgb bwidth "ease-in-out"
+      ]
+        ++ onDragEvents target
+    )
     []
   where
     key = show pSpot ++ "-target"
@@ -164,8 +161,19 @@ boardToPlayerTarget z m@GameModel {interaction} pSpot =
     (w, h) = (cardCellWidth * 3 + cardHCellGap * 2, cardCellHeight * 2 + cardVCellGap)
     posStyle x y = pltwh Absolute (x * cps) (y * cps) (w * cps) (h * cps)
     cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBottom -> BottomRight
-    playTarget = Game.PlayerTarget pSpot
-    (rgb, bwidth) = (borderRGB interaction playTarget, borderWidth m playTarget)
+    target = Game.PlayerTarget pSpot
+    (rgb, bwidth) = (borderRGB interaction target, borderWidth m target)
+
+-- | The events for placeholders showing drag targets
+onDragEvents :: Game.PlayTarget -> [Attribute Action]
+onDragEvents target =
+  [ onDragEnter $ lift $ GameDragEnter target,
+    onDragLeave $ lift $ GameDragLeave target,
+    onDrop (AllowDrop True) $ lift GameDrop,
+    dummyOn "dragover"
+  ]
+  where
+    lift = GameAction'
 
 borderRGB interaction cSpot =
   case interaction of
