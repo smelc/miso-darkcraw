@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -120,27 +121,25 @@ playM ::
   m (Board Core)
 playM _ board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
 playM _ board NoPlayEvent = return board
-playM shared board (Place pTarget (handhi :: HandIndex)) = do
+playM shared board (Place target (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let card = unsafeIdentToCard shared ident & unliftCard
-  let onTable :: Map CardSpot (Creature Core) = inPlace base
-  case (Map.member cSpot onTable, cardToCreature card) of
-    (True, _) -> throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
-    (_, Nothing) -> throwError $ Text.pack $ "Cannot place non-creature card. Received: " ++ show card
-    (_, Just card) -> do
-      let inPlace' = Map.insert cSpot card onTable
-      let part' = base {inPlace = inPlace', inHand = hand'}
-      reportEffect pSpot cSpot $ mempty {fadeIn = True}
-      return $ boardSetPart board pSpot part'
+  case (target, card) of
+    (CardTarget pSpot cSpot, CreatureCard card) ->
+      playCardTargetM board' pSpot cSpot card
+    (PlayerTarget _, NeutralCard NeutralObject {neutral}) ->
+      playPlayerTargetM board' playingPlayer pSpot neutral
+    _ -> throwError $ Text.pack $ "Wrong (target, card): (" ++ show target ++ ", " ++ show card ++ ")"
   where
     handi = unHandIndex handhi
-    base :: PlayerPart Core = board ^. spotToLens pSpot
-    hand = boardToHand board pSpot
-    hand' = deleteAt handi hand
-    (pSpot, cSpot) =
-      case pTarget of
-        PlayerTarget _ -> error "PlayerTarget unsupported"
-        CardTarget p c -> (p, c)
+    (hand, hand') = (boardToHand board pSpot, deleteAt handi hand)
+    board' = boardSetHand board pSpot hand'
+    pSpot =
+      -- FIXME @smelc Change me, this will be wrong once there are neutral
+      -- cards that are applied on the opponent's board. GameModel's
+      -- playingPlayer should be passed instead
+      case target of PlayerTarget p -> p; CardTarget p _ -> p
+    playingPlayer = pSpot
 playM shared board (Place' pTarget creatureID) =
   case idx of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show creatureID
@@ -152,6 +151,37 @@ playM shared board (Place' pTarget creatureID) =
         & map identToId
         & zip [HandIndex 0 ..]
     idx = find (\(_, m) -> m == Just creatureID) idxAndIDs <&> fst
+
+playPlayerTargetM ::
+  MonadError Text m =>
+  MonadWriter (Board UI) m =>
+  Board Core ->
+  PlayerSpot ->
+  PlayerSpot ->
+  Neutral ->
+  m (Board Core)
+playPlayerTargetM board playingPlayer pSpot n =
+  undefined
+
+playCardTargetM ::
+  MonadError Text m =>
+  MonadWriter (Board UI) m =>
+  Board Core ->
+  PlayerSpot ->
+  CardSpot ->
+  Creature Core ->
+  m (Board Core)
+playCardTargetM board pSpot cSpot creature =
+  if Map.member cSpot onTable -- @polux: can I use "when" instead (nested in a do block)?
+    then throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
+    else do
+      let inPlace' = Map.insert cSpot creature onTable
+      let part' = base {inPlace = inPlace'}
+      reportEffect pSpot cSpot $ mempty {fadeIn = True}
+      return $ boardSetPart board pSpot part'
+  where
+    base :: PlayerPart Core = board ^. spotToLens pSpot
+    onTable :: Map CardSpot (Creature Core) = inPlace base
 
 drawCards ::
   SharedModel ->
