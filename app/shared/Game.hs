@@ -61,11 +61,12 @@ data Target
   deriving (Eq, Generic, Show)
 
 data Event
-  = -- | A player finishes its turn, resolving it in a single card spot.
-    -- | This event is a bit tricky to handle, because every consumer should
-    -- | take care of scheduling the next event (if any) using 'nextAttackSpot'
-    -- | or scheduling 'GameIncrTurn' if none.
-    EndTurn PlayerSpot CardSpot
+  = -- | A card attacks at the given spot. The first Boolean indicates
+    -- whether the next spot (as defined by 'nextAttackSpot') should
+    -- be enqueued after solving this attack. The second Boolean indicates
+    -- whether 'GameIncrTurn' (change player turn) should be performed
+    -- after solving this attack.
+    Attack PlayerSpot CardSpot Bool Bool
   | -- | A Nothing case, for convenience
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board
@@ -119,7 +120,7 @@ playM ::
   Board Core ->
   Event ->
   m (Board Core)
-playM _ board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
+playM _ board (Attack pSpot cSpot _ _) = Game.attack board pSpot cSpot
 playM _ board NoPlayEvent = return board
 playM shared board (Place target (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi

@@ -38,7 +38,7 @@ placeCards shared board turn =
   assert (all isPlaceEvent events) events
   where
     events = aiPlay shared board turn
-    isPlaceEvent EndTurn {} = False
+    isPlaceEvent Attack {} = False
     isPlaceEvent NoPlayEvent = False
     isPlaceEvent Place {} = True
     isPlaceEvent Place' {} = True

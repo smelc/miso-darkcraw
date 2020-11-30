@@ -306,11 +306,14 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
       where
         m' = m {board = board', anims = anims'}
         event = case gameEvent of
-          Game.EndTurn pSpot cSpot ->
+          Game.Attack pSpot cSpot continue end ->
             -- enqueue resolving next attack if applicable
-            case Game.nextAttackSpot board pSpot (Just cSpot) of
-              Nothing -> Just GameIncrTurn -- no more attack, change turn
-              Just cSpot' -> Just $ GamePlay $ Game.EndTurn pSpot cSpot'
+            case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
+              (False, _) -> terminator
+              (True, Nothing) -> terminator
+              (True, Just cSpot') -> Just $ GamePlay $ Game.Attack pSpot cSpot' True end
+            where
+              terminator = if end then Just GameIncrTurn else Nothing
           _ -> Nothing
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
   case Game.drawCards gameShared board pSpot 1 of
@@ -339,7 +342,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- schedule resolving first attack
           case Game.nextAttackSpot board' pSpot Nothing of
             Nothing -> GameIncrTurn -- no more attack, change turn
-            Just cSpot -> GamePlay $ Game.EndTurn pSpot cSpot
+            Just cSpot -> GamePlay $ Game.Attack pSpot cSpot True True
   where
     pSpot = turnToPlayerSpot turn
     isInitialTurn = turn == initialTurn
