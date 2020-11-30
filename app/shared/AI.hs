@@ -21,7 +21,8 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace (trace)
-import Game
+import Game hiding (Result)
+import qualified Game
 import SharedModel (SharedModel)
 import qualified SharedModel
 import Turn (Turn, turnToPlayerSpot)
@@ -64,9 +65,9 @@ aiPlay shared board turn =
     scores :: [(Int, [GamePlayEvent])] =
       map
         ( \events ->
-            case Game.playAll shared board events <&> fst of
+            case Game.playAll shared board events of
               Left msg -> trace ("Unexpected case: " ++ Text.unpack msg) Nothing
-              Right board' -> Just (boardScore board' turn, events)
+              Right (Game.Result board' _) -> Just (boardScore board' turn, events)
         )
         possibles
         & catMaybes
@@ -101,7 +102,7 @@ aiPlayHand shared board turn =
     Just place ->
       case Game.play shared board place of
         Left msg -> error $ Text.unpack msg -- We shouldn't generate invalid Place actions
-        Right (b', _) ->
+        Right (Game.Result b' _) ->
           place : aiPlayHand shared b' turn
 
 -- | Take the hand's first card (if any) and return a [Place] event
@@ -120,7 +121,7 @@ aiPlayFirst shared board turn =
     pSpot = turnToPlayerSpot turn
     possibles = placements board pSpot
     scores =
-      [ (scorePlace (fromRight' board' & fst) pSpot cSpot, cSpot)
+      [ (scorePlace (fromRight' board' & takeBoard) pSpot cSpot, cSpot)
         | cSpot <- possibles,
           let place = Place (CardTarget pSpot cSpot) handIndex,
           let board' = Game.play shared board place,
@@ -128,6 +129,7 @@ aiPlayFirst shared board turn =
       ]
     liftFstMaybe (Nothing, _) = Nothing
     liftFstMaybe (Just i, a) = Just (i, a)
+    takeBoard (Game.Result b _) = b
 
 placements ::
   Board Core ->

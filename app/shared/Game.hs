@@ -16,6 +16,7 @@ module Game
     nextAttackSpot,
     enemySpots,
     GamePlayEvent (..),
+    Result (..),
     play,
     playAll,
     playM,
@@ -58,6 +59,7 @@ data PlayTarget
     CardTarget PlayerSpot CardSpot
   deriving (Eq, Generic, Show)
 
+-- FIXME @smelc rename me into PlayEvent and use me qualified in imports
 data GamePlayEvent
   = -- | A player finishes its turn, resolving it in a single card spot.
     -- | This event is a bit tricky to handle, because every consumer should
@@ -72,6 +74,8 @@ data GamePlayEvent
     -- testing behavior than 'Place': it makes the generated events commute.
     Place' PlayTarget CreatureID
   deriving (Eq, Show)
+
+data Result = Result (Board Core) (Board UI)
 
 reportEffect ::
   MonadWriter (Board UI) m =>
@@ -91,18 +95,22 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart UI = mempty {inPlace = botInPlace}
 
-play :: SharedModel -> Board Core -> GamePlayEvent -> Either Text (Board Core, Board UI)
+play :: SharedModel -> Board Core -> GamePlayEvent -> Either Text Result
 play shared board action =
   playM shared board action
     & runWriterT
     & runExcept
+    & build
+  where
+    build (Left err) = Left err
+    build (Right (b, a)) = Right $ Result b a
 
-playAll :: SharedModel -> Board Core -> [GamePlayEvent] -> Either Text (Board Core, Board UI)
-playAll _ board [] = Right (board, mempty)
+playAll :: SharedModel -> Board Core -> [GamePlayEvent] -> Either Text Result
+playAll _ board [] = Right $ Result board mempty
 playAll shared board (e : events) = do
-  (board', boardui') <- play shared board e
-  (board'', boardui'') <- playAll shared board' events
-  return (board'', boardui' <> boardui'')
+  Result board' boardui' <- play shared board e
+  Result board'' boardui'' <- playAll shared board' events
+  return $ Result board'' (boardui' <> boardui'')
 
 playM ::
   MonadError Text m =>

@@ -300,7 +300,7 @@ updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
 updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
   case Game.play gameShared board gameEvent of
     Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
-    Right (board', anims') ->
+    Right (Game.Result board' anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
       (m', zip (repeat 1) $ maybeToList event)
@@ -353,7 +353,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
           let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ nextTurn turn
-          (board', boardui') <- Game.playAll gameShared board placements
+          Game.Result board' boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board'}
         else Right m
 updateGameModel m@GameModel {gameShared, playingPlayer, turn} GameIncrTurn _ =
