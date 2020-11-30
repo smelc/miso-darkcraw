@@ -10,6 +10,7 @@ import Cinema
 import Data.Function ((&))
 import Data.Maybe
 import GHC.Generics
+import qualified Game
 import Generic.Random
 import qualified SharedModel
 import Test.QuickCheck
@@ -120,6 +121,18 @@ instance Arbitrary InPlaceEffect where
   shrink = genericShrink
 
 instance Arbitrary InPlaceEffects where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary HandIndex where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Game.Target where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Game.Event where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

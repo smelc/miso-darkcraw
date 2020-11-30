@@ -74,9 +74,10 @@ data Event
   | -- | AI puts a card from his hand. This constructor has better
     -- testing behavior than 'Place': it makes the generated events commute.
     Place' Target CreatureID
-  deriving (Eq, Show)
+  deriving (Eq, Generic, Show)
 
 data Result = Result (Board Core) (Board UI)
+  deriving (Eq, Show)
 
 reportEffect ::
   MonadWriter (Board UI) m =>

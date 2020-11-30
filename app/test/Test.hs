@@ -203,6 +203,14 @@ testInPlaceEffectsMonoid =
       \(effect :: InPlaceEffects, effect') ->
         effect <> effect' `shouldBe` effect' <> effect
 
+testNoPlayEventNeutral shared =
+  describe "Game.NoPlayEvent is neutral w.r.t Game.playAll" $
+    prop "Game.playAll $ [NoPlayEvent] ++ es == Game.playAll $ es ++ [NoPlayEvent]" $
+      \(board, events) ->
+        let left = [Game.NoPlayEvent] ++ events
+         in let right = events ++ [Game.NoPlayEvent]
+             in Game.playAll shared board left `shouldBe` Game.playAll shared board right
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -227,10 +235,11 @@ main = hspec $ do
       all
         (\pSpot -> length allCardsSpots == length (Game.attackOrder pSpot))
         allPlayersSpots
+  let shared = SharedModel.unsafeGet
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
-            boardToHoleyInPlace (testAIRanged SharedModel.unsafeGet initialTurn)
+            boardToHoleyInPlace (testAIRanged shared initialTurn)
               & filter (\(_, _, maybeCreature) -> isJust maybeCreature)
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)
@@ -257,5 +266,6 @@ main = hspec $ do
           ((scene1 ||| scene2) ||| scene3) ~= (scene1 ||| (scene2 ||| scene3))
   testSceneReturn
   testGetActorState
-  testAIPlace SharedModel.unsafeGet
+  testAIPlace shared
   testInPlaceEffectsMonoid
+  testNoPlayEventNeutral shared
