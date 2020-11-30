@@ -21,7 +21,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace (trace)
-import Game hiding (Result)
+import Game hiding (Event, Result)
 import qualified Game
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -31,7 +31,7 @@ placeCards ::
   SharedModel ->
   Board Core ->
   Turn ->
-  [GamePlayEvent]
+  [Game.Event]
 placeCards shared board turn =
   -- Will fail once when we do more stuff in aiPlay. It's OK, I'll
   -- adapt when this happens.
@@ -44,7 +44,7 @@ placeCards shared board turn =
     isPlaceEvent Place' {} = True
 
 -- | Smart play events
-aiPlay :: SharedModel -> Board Core -> Turn -> [GamePlayEvent]
+aiPlay :: SharedModel -> Board Core -> Turn -> [Game.Event]
 aiPlay shared board turn =
   case scores of
     [] -> []
@@ -62,7 +62,7 @@ aiPlay shared board turn =
       map
         (\hand -> aiPlayHand shared (boardSetHand board pSpot hand) turn)
         hands
-    scores :: [(Int, [GamePlayEvent])] =
+    scores :: [(Int, [Game.Event])] =
       map
         ( \events ->
             case Game.playAll shared board events of
@@ -95,7 +95,7 @@ boardScore board turn =
 
 -- | Events for playing all cards of the hand, in order. Each card
 -- is placed at an optimal position.
-aiPlayHand :: SharedModel -> Board Core -> Turn -> [GamePlayEvent]
+aiPlayHand :: SharedModel -> Board Core -> Turn -> [Game.Event]
 aiPlayHand shared board turn =
   case aiPlayFirst shared board turn of
     Nothing -> []
@@ -107,7 +107,7 @@ aiPlayHand shared board turn =
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
-aiPlayFirst :: SharedModel -> Board Core -> Turn -> Maybe GamePlayEvent
+aiPlayFirst :: SharedModel -> Board Core -> Turn -> Maybe Game.Event
 aiPlayFirst shared board turn =
   case boardToHand board pSpot of
     [] -> Nothing

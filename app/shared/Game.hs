@@ -15,7 +15,7 @@ module Game
     attackOrder, -- exported for tests only
     nextAttackSpot,
     enemySpots,
-    GamePlayEvent (..),
+    Event (..),
     Result (..),
     play,
     playAll,
@@ -23,7 +23,7 @@ module Game
     nbCardsToDraw,
     drawCards,
     transferCards,
-    PlayTarget (..),
+    Target (..),
     Game.appliesTo,
   )
 where
@@ -51,7 +51,7 @@ import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
 
 -- | On what a card can be applied
-data PlayTarget
+data Target
   = -- | Neutral card applies to all in place cards of a player
     PlayerTarget PlayerSpot
   | -- | Creature card placed at given spot
@@ -59,8 +59,7 @@ data PlayTarget
     CardTarget PlayerSpot CardSpot
   deriving (Eq, Generic, Show)
 
--- FIXME @smelc rename me into PlayEvent and use me qualified in imports
-data GamePlayEvent
+data Event
   = -- | A player finishes its turn, resolving it in a single card spot.
     -- | This event is a bit tricky to handle, because every consumer should
     -- | take care of scheduling the next event (if any) using 'nextAttackSpot'
@@ -69,10 +68,10 @@ data GamePlayEvent
   | -- | A Nothing case, for convenience
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board
-    Place PlayTarget HandIndex
+    Place Target HandIndex
   | -- | AI puts a card from his hand. This constructor has better
     -- testing behavior than 'Place': it makes the generated events commute.
-    Place' PlayTarget CreatureID
+    Place' Target CreatureID
   deriving (Eq, Show)
 
 data Result = Result (Board Core) (Board UI)
@@ -95,7 +94,7 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart UI = mempty {inPlace = botInPlace}
 
-play :: SharedModel -> Board Core -> GamePlayEvent -> Either Text Result
+play :: SharedModel -> Board Core -> Event -> Either Text Result
 play shared board action =
   playM shared board action
     & runWriterT
@@ -105,7 +104,7 @@ play shared board action =
     build (Left err) = Left err
     build (Right (b, a)) = Right $ Result b a
 
-playAll :: SharedModel -> Board Core -> [GamePlayEvent] -> Either Text Result
+playAll :: SharedModel -> Board Core -> [Event] -> Either Text Result
 playAll _ board [] = Right $ Result board mempty
 playAll shared board (e : events) = do
   Result board' boardui' <- play shared board e
@@ -117,7 +116,7 @@ playM ::
   MonadWriter (Board UI) m =>
   SharedModel ->
   Board Core ->
-  GamePlayEvent ->
+  Event ->
   m (Board Core)
 playM _ board (EndTurn pSpot cSpot) = Game.attack board pSpot cSpot
 playM _ board NoPlayEvent = return board
@@ -260,7 +259,7 @@ transferCardsM board pSpot =
 
 -- | board n pSpot target holds iff player at 'pSpot' can play card 'n'
 -- on 'target'
-appliesTo :: Board Core -> Neutral -> PlayerSpot -> PlayTarget -> Bool
+appliesTo :: Board Core -> Neutral -> PlayerSpot -> Target -> Bool
 appliesTo board n playingPlayer target =
   case (target, n) of
     (PlayerTarget pSpot, InfernalHaste)

@@ -29,8 +29,7 @@ import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import Game (GamePlayEvent (..), PlayTarget (..), nextAttackSpot)
-import qualified Game
+import qualified Game (Event (..), Result (..), Target (..), drawCards, nbCardsToDraw, nextAttackSpot, play, playAll, transferCards)
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
@@ -91,7 +90,7 @@ instance ToExpr HandIndex
 
 instance ToExpr HandFiddle
 
-instance ToExpr Game.PlayTarget
+instance ToExpr Game.Target
 
 instance ToExpr Dragging
 
@@ -164,7 +163,7 @@ data GameAction
   = -- | Play some game event. It can be an event scheduled by the AI
     -- | Or a 'EndTurn' 'GamePlayEvent' scheduled because the player
     -- | pressed "End Turn".
-    GamePlay GamePlayEvent
+    GamePlay Game.Event
   | -- | Turn was updated previously by 'GameIncrTurn',
     -- | time to draw cards from the stack. Then the handler of this event
     -- | will take care of giving the player control back. The Int parameter
@@ -183,8 +182,8 @@ data GameAction
     GameDragStart HandIndex
   | -- | This can play the 'GamePlayEvent' 'Place'
     GameDrop
-  | GameDragEnter Game.PlayTarget
-  | GameDragLeave Game.PlayTarget
+  | GameDragEnter Game.Target
+  | GameDragLeave Game.Target
   | -- | End Turn button pressed in turn widget. For player, schedule
     -- | attacks then 'GameIncrTurn'; for AI, compute its actions,
     -- | schedule them, and then schedule attack and 'GameIncrTurn'.
@@ -194,9 +193,9 @@ data GameAction
   | -- | Ending hovering card in hand
     GameInHandMouseLeave HandIndex
   | -- | Starting hovering a target
-    GameInPlaceMouseEnter Game.PlayTarget
+    GameInPlaceMouseEnter Game.Target
   | -- | Ending hovering a target
-    GameInPlaceMouseLeave Game.PlayTarget
+    GameInPlaceMouseLeave Game.Target
   deriving (Show, Eq)
 
 -- | To which page to go to, from the welcome page
@@ -255,7 +254,7 @@ type GameActionSeq = [(Int, GameAction)]
 withInteraction :: GameModel -> GameInteraction -> (GameModel, GameActionSeq)
 withInteraction m i = (m {interaction = i}, [])
 
-playOne :: GameModel -> GamePlayEvent -> (GameModel, GameActionSeq)
+playOne :: GameModel -> Game.Event -> (GameModel, GameActionSeq)
 playOne m gamePlayEvent =
   updateGameModel m (GamePlay gamePlayEvent) GameNoInteraction
 
@@ -284,7 +283,7 @@ updateGameModel
   m
   GameDrop
   (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    playOne m $ Place dragTarget draggedCard
+    playOne m $ Game.Place dragTarget draggedCard
 updateGameModel m GameDrop _
   | isPlayerTurn m =
     withInteraction m GameNoInteraction
@@ -307,11 +306,11 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
       where
         m' = m {board = board', anims = anims'}
         event = case gameEvent of
-          EndTurn pSpot cSpot ->
+          Game.EndTurn pSpot cSpot ->
             -- enqueue resolving next attack if applicable
-            case nextAttackSpot board pSpot (Just cSpot) of
+            case Game.nextAttackSpot board pSpot (Just cSpot) of
               Nothing -> Just GameIncrTurn -- no more attack, change turn
-              Just cSpot' -> Just $ GamePlay $ EndTurn pSpot cSpot'
+              Just cSpot' -> Just $ GamePlay $ Game.EndTurn pSpot cSpot'
           _ -> Nothing
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
   case Game.drawCards gameShared board pSpot 1 of
@@ -338,9 +337,9 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
       where
         event =
           -- schedule resolving first attack
-          case nextAttackSpot board' pSpot Nothing of
+          case Game.nextAttackSpot board' pSpot Nothing of
             Nothing -> GameIncrTurn -- no more attack, change turn
-            Just cSpot -> GamePlay $ EndTurn pSpot cSpot
+            Just cSpot -> GamePlay $ Game.EndTurn pSpot cSpot
   where
     pSpot = turnToPlayerSpot turn
     isInitialTurn = turn == initialTurn

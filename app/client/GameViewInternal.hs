@@ -33,7 +33,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
-import Game (PlayTarget (..), appliesTo, enemySpots)
+import qualified Game (Target (..), appliesTo, enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
@@ -225,15 +225,15 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
 --    valid drag targets
 -- or 2/ card in place is being hovered -> draw borders around cards
 --       be attacked from this card== playingPlayerSpot,
-borderWidth :: GameModel -> PlayTarget -> Int
+borderWidth :: GameModel -> Game.Target -> Int
 borderWidth GameModel {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
     (GameDragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (GameHoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
-    (GameHoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), CardTarget pSpot cSpot) ->
+    (GameHoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
       let attacker = boardToInPlaceCreature board pSpotHov cSpotHov
        in let skills' = maybe [] skills attacker
-           in if pSpot /= pSpotHov && cSpot `elem` enemySpots skills' cSpotHov
+           in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots skills' cSpotHov
                 then borderSize
                 else 0
     _ -> 0
@@ -249,7 +249,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
         Left errMsg -> trace (Text.unpack errMsg) False
         Right card ->
           case (card, pTarget) of
-            (IDC _, CardTarget pSpot cSpot) -> emptyPlayingPlayerSpot pSpot cSpot
+            (IDC _, Game.CardTarget pSpot cSpot) -> emptyPlayingPlayerSpot pSpot cSpot
             (IDC _, _) -> False
             (IDN n, _) -> Game.appliesTo board n playingPlayer pTarget
             (i, _) -> error $ "Unhandled identifier: " ++ show i

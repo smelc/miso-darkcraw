@@ -165,7 +165,7 @@ boardToPlayerTarget z m@GameModel {interaction} pSpot =
     (rgb, bwidth) = (borderRGB interaction target, borderWidth m target)
 
 -- | The events for placeholders showing drag targets
-onDragEvents :: Game.PlayTarget -> [Attribute Action]
+onDragEvents :: Game.Target -> [Attribute Action]
 onDragEvents target =
   [ onDragEnter $ lift $ GameDragEnter target,
     onDragLeave $ lift $ GameDragLeave target,

@@ -18,7 +18,7 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import Game (GamePlayEvent (..), PlayTarget (..), Result (..), attackOrder, playAll)
+import qualified Game (Event (..), Result (..), Target (..), attackOrder, playAll)
 import Generators
 import Json
 import Movie
@@ -49,7 +49,7 @@ testBalance cards =
 -- | Tests that the AI treats 'Ranged' correctly.
 testAIRanged :: SharedModel -> Turn -> Board Core
 testAIRanged shared turn =
-  case playAll shared board events of
+  case Game.playAll shared board events of
     Left _ -> error "AI failed"
     Right (Game.Result board' _) -> board'
   where
@@ -180,11 +180,11 @@ testAIPlace shared =
          in length events >= 2
               ==> forAll (Test.QuickCheck.elements (permutations events))
               $ \events' ->
-                Pretty (ignoreErrMsg (playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (playAll shared board events'))
+                Pretty (ignoreErrMsg (Game.playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (Game.playAll shared board events'))
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (Game.Result board' _)) = Just board'
-    spotsDiffer (Place' (CardTarget pSpot1 cSpot1) _) (Place' (CardTarget pSpot2 cSpot2) _) =
+    spotsDiffer (Game.Place' (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
@@ -225,7 +225,7 @@ main = hspec $ do
   describe "exactly all spots are used" $
     it "attackOrder" $
       all
-        (\pSpot -> length allCardsSpots == length (attackOrder pSpot))
+        (\pSpot -> length allCardsSpots == length (Game.attackOrder pSpot))
         allPlayersSpots
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $

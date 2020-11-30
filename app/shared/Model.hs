@@ -12,7 +12,7 @@ import Data.Set (Set)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
 import GHC.Generics
-import Game (PlayTarget)
+import qualified Game (Target)
 import ServerMessages
 import SharedModel (SharedModel (..))
 import Turn (Turn, turnToPlayerSpot)
@@ -22,7 +22,7 @@ data GameInteraction
   = -- | Hovering over a card in hand
     GameHoverInteraction Hovering
   | -- | Hovering over a target
-    GameHoverInPlaceInteraction Game.PlayTarget
+    GameHoverInPlaceInteraction Game.Target
   | -- | Dragging a card
     GameDragInteraction Dragging
   | GameNoInteraction
@@ -35,7 +35,7 @@ newtype Hovering = Hovering
 
 data Dragging = Dragging
   { draggedCard :: HandIndex,
-    dragTarget :: Maybe PlayTarget
+    dragTarget :: Maybe Game.Target
   }
   deriving (Eq, Show, Generic)
 
