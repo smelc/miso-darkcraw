@@ -134,8 +134,7 @@ playM shared board (Place pTarget (handhi :: HandIndex)) = do
       return $ boardSetPart board pSpot part'
   where
     handi = unHandIndex handhi
-    pLens = spotToLens pSpot
-    base :: PlayerPart Core = board ^. pLens
+    base :: PlayerPart Core = board ^. spotToLens pSpot
     hand = boardToHand board pSpot
     hand' = deleteAt handi hand
     (pSpot, cSpot) =
@@ -147,10 +146,7 @@ playM shared board (Place' pTarget creatureID) =
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show creatureID
     Just i -> playM shared board (Place pTarget i)
   where
-    pSpot =
-      case pTarget of
-        PlayerTarget p -> p
-        CardTarget p _ -> p
+    pSpot = case pTarget of PlayerTarget p -> p; CardTarget p _ -> p
     idxAndIDs =
       boardToHand board pSpot
         & map identToId
