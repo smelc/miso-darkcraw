@@ -17,6 +17,7 @@ module Game
     nextAttackSpot,
     enemySpots,
     Event (..),
+    PolyResult (..),
     Result (..),
     play,
     playAll,
@@ -76,8 +77,14 @@ data Event
     Place' Target CreatureID
   deriving (Eq, Generic, Show)
 
-data Result = Result (Board Core) (Board UI)
+-- | The polymorphic version of 'Result'. Used for implementors that
+-- do not return events and hence instantiate 'a' by ()
+data PolyResult a = Result (Board Core) a (Board UI)
   deriving (Eq, Show)
+
+-- | The result of playing an 'Event': an updated board, the next event
+-- (if any), and the animations
+type Result = PolyResult (Maybe Event)
 
 reportEffect ::
   MonadWriter (Board UI) m =>
@@ -105,14 +112,29 @@ play shared board action =
     & build
   where
     build (Left err) = Left err
-    build (Right (b, a)) = Right $ Result b a
+    build (Right ((b, es), a)) = Right $ Result b es a
 
-playAll :: SharedModel -> Board Core -> [Event] -> Either Text Result
-playAll _ board [] = Right $ Result board mempty
-playAll shared board (e : events) = do
-  Result board' boardui' <- play shared board e
-  Result board'' boardui'' <- playAll shared board' events
-  return $ Result board'' (boardui' <> boardui'')
+-- | Please avoid calling this function if you can. Its effect is
+-- difficult to predict because of cards that create events, as these
+-- events are played right away (instead of being enqueued in the main loop
+-- like when playing Infernal Haste interactively). FIXME @smelc
+-- take an additional parameter telling whether to mimic the main loop
+-- (for Game.Attack events).
+playAll :: SharedModel -> Board Core -> [Event] -> Either Text (PolyResult ())
+playAll shared board es = go board mempty es
+  where
+    go b anims [] = Right $ Result b () anims
+    go b anims (e : tl) = do
+      Result board' new anims' <- play shared b e
+      -- /!\ We're enqueueing the event created by playing 'e' i.e. 'new',
+      -- before the rest of the events ('tl'). This means 'tl' will be played in a state
+      -- that is NOT the one planned when building 'e : tl' (except if the
+      -- caller is very smart). We have no way around that: this is caused
+      -- by Infernal Haste that creates events when playing it. But this means
+      -- we shouldn't be too hard with events that yield failures. Maybe
+      -- they are being played in an unexpected context (imagine if
+      -- Infernal Haste clears the opponent's board, next spells may be useless).
+      go board' (anims <> anims') $ maybeToList new ++ tl
 
 playM ::
   MonadError Text m =>
@@ -120,18 +142,21 @@ playM ::
   SharedModel ->
   Board Core ->
   Event ->
-  m (Board Core)
-playM _ board (Attack pSpot cSpot _ _) = Game.attack board pSpot cSpot
-playM _ board NoPlayEvent = return board
+  m (Board Core, Maybe Event)
+playM _ board (Attack pSpot cSpot _ _) = do
+  board' <- Game.attack board pSpot cSpot
+  return (board', Nothing)
+playM _ board NoPlayEvent = return (board, Nothing)
 playM shared board (Place target (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let card = unsafeIdentToCard shared ident & unliftCard
   case (target, card) of
-    (CardTarget pSpot cSpot, CreatureCard card) ->
-      playCardTargetM board' pSpot cSpot card
-    (PlayerTarget _, NeutralCard NeutralObject {neutral}) ->
-      playPlayerTargetM board' playingPlayer pSpot neutral
-    _ -> throwError $ Text.pack $ "Wrong (target, card): (" ++ show target ++ ", " ++ show card ++ ")"
+    (CardTarget pSpot cSpot, CreatureCard card) -> do
+      board'' <- playCardTargetM board' pSpot cSpot card
+      return (board'', Nothing)
+    (_, NeutralCard NeutralObject {neutral}) ->
+      playPlayerTargetM board' playingPlayer target neutral
+    _ -> throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ show target ++ ", " ++ show card ++ ")"
   where
     handi = unHandIndex handhi
     (hand, hand') = (boardToHand board pSpot, deleteAt handi hand)
@@ -159,11 +184,34 @@ playPlayerTargetM ::
   MonadWriter (Board UI) m =>
   Board Core ->
   PlayerSpot ->
-  PlayerSpot ->
+  Target ->
   Neutral ->
-  m (Board Core)
-playPlayerTargetM board playingPlayer pSpot n =
-  undefined
+  m (Board Core, Maybe Event)
+playPlayerTargetM board _playingPlayer target n =
+  case (n, target) of
+    (InfernalHaste, PlayerTarget pSpot) ->
+      return (board, event)
+      where
+        event =
+          nextAttackSpot board pSpot Nothing
+            <&> (\cSpot -> Attack pSpot cSpot True False)
+    (Health, CardTarget pSpot cSpot) -> do
+      board' <- addHitpoints pSpot cSpot 1
+      return (board', Nothing)
+    (Life, CardTarget pSpot cSpot) -> do
+      board' <- addHitpoints pSpot cSpot 3
+      return (board', Nothing)
+    _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
+  where
+    addHitpoints pSpot cSpot hps =
+      case boardToInPlaceCreature board pSpot cSpot of
+        Nothing -> return board
+        Just c@Creature {hp} ->
+          -- FIXME @smelc Generate animation showing hit points increase
+          return board'
+          where
+            c' = c {hp = hp + hps}
+            board' = boardSetCreature board pSpot cSpot c'
 
 playCardTargetM ::
   MonadError Text m =>

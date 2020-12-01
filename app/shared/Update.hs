@@ -29,7 +29,7 @@ import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import qualified Game (Event (..), Result (..), Target (..), drawCards, nbCardsToDraw, nextAttackSpot, play, playAll, transferCards)
+import qualified Game (Event (..), PolyResult (..), Target (..), drawCards, nbCardsToDraw, nextAttackSpot, play, playAll, transferCards)
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
@@ -299,22 +299,25 @@ updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
 updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
   case Game.play gameShared board gameEvent of
     Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
-    Right (Game.Result board' anims') ->
+    Right (Game.Result board' nexts anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
       (m', zip (repeat 1) $ maybeToList event)
       where
         m' = m {board = board', anims = anims'}
-        event = case gameEvent of
-          Game.Attack pSpot cSpot continue end ->
+        event = case (gameEvent, nexts) of
+          (Game.Attack pSpot cSpot continue end, Nothing) ->
             -- enqueue resolving next attack if applicable
             case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
               (False, _) -> terminator
               (True, Nothing) -> terminator
               (True, Just cSpot') -> Just $ GamePlay $ Game.Attack pSpot cSpot' True end
             where
-              terminator = if end then Just GameIncrTurn else Nothing
-          _ -> Nothing
+              terminator = if end then Nothing else Just GameIncrTurn
+          (Game.Attack {}, Just e) ->
+            error $ "Cannot mix Game.Attack and events when enqueuing but got event: " ++ show e
+          (_, Nothing) -> Nothing
+          (_, _) -> event
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
   case Game.drawCards gameShared board pSpot 1 of
     Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
@@ -355,7 +358,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
           let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ nextTurn turn
-          Game.Result board' boardui' <- Game.playAll gameShared board placements
+          Game.Result board' () boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board'}
         else Right m
 updateGameModel m@GameModel {gameShared, playingPlayer, turn} GameIncrTurn _ =

@@ -246,10 +246,14 @@ teamDeck cards t =
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste
 
--- | Whether a neutral card can be applied to the given creature
-appliesTo :: Neutral -> Creature Core -> Bool
-appliesTo n _ =
+-- FIXME @smelc Could I use type-level programming to use Game.Target's
+-- constructors as values instead of this?
+data TargetKind = CardTargetKind | PlayerTargetKind
+
+-- | The kind of Game target a neutral likes
+targetKind :: Neutral -> TargetKind
+targetKind n =
   case n of
-    Health -> True
-    Life -> True
-    InfernalHaste -> False
+    Health -> CardTargetKind
+    Life -> CardTargetKind
+    InfernalHaste -> PlayerTargetKind

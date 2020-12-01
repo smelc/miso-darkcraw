@@ -411,9 +411,9 @@ spotToLens =
 
 appliesTo :: Neutral -> Board Core -> PlayerSpot -> CardSpot -> Bool
 appliesTo n board pSpot cSpot =
-  case boardToInPlaceCreature board pSpot cSpot of
-    Nothing -> False
-    Just creature -> Card.appliesTo n creature
+  case (Card.targetKind n, boardToInPlaceCreature board pSpot cSpot) of
+    (Card.CardTargetKind, Just _) -> True
+    _ -> False
 
 ------------------------------
 -- Now onto fancy rendering --

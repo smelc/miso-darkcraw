@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -20,13 +21,16 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Text as Text
-import Debug.Trace (trace)
+import Debug.Trace (trace, traceShow)
 import Game hiding (Event, Result)
 import qualified Game
 import SharedModel (SharedModel)
 import qualified SharedModel
 import Turn (Turn, turnToPlayerSpot)
 
+-- | Events that place creatures on the board. This function guarantees
+-- that the returned events are solely placements (no neutral cards), so
+-- that playing them with 'Game.playAll' returns an empty list of 'Game.Event'
 placeCards ::
   SharedModel ->
   Board Core ->
@@ -66,8 +70,8 @@ aiPlay shared board turn =
       map
         ( \events ->
             case Game.playAll shared board events of
-              Left msg -> trace ("Unexpected case: " ++ Text.unpack msg) Nothing
-              Right (Game.Result board' _) -> Just (boardScore board' turn, events)
+              Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
+              Right (Game.Result board' () _) -> Just (boardScore board' turn, events)
         )
         possibles
         & catMaybes
@@ -94,16 +98,22 @@ boardScore board turn =
         cSpotAndMayCreatures
 
 -- | Events for playing all cards of the hand, in order. Each card
--- is placed at an optimal position.
+-- is played optimally.
 aiPlayHand :: SharedModel -> Board Core -> Turn -> [Game.Event]
 aiPlayHand shared board turn =
   case aiPlayFirst shared board turn of
     Nothing -> []
-    Just place ->
-      case Game.play shared board place of
-        Left msg -> error $ Text.unpack msg -- We shouldn't generate invalid Place actions
-        Right (Game.Result b' _) ->
-          place : aiPlayHand shared b' turn
+    Just event ->
+      case Game.playAll shared board [event] of
+        Left msg ->
+          traceShow ("Cannot play first card of hand: " ++ Text.unpack msg) $
+            aiPlayHand shared board' turn
+          where
+            pSpot = turnToPlayerSpot turn
+            hand' = boardToHand board pSpot & tail
+            board' = boardSetHand board pSpot hand' -- Skip first card
+        Right (Game.Result b' () _) ->
+          event : aiPlayHand shared b' turn
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
@@ -129,7 +139,7 @@ aiPlayFirst shared board turn =
       ]
     liftFstMaybe (Nothing, _) = Nothing
     liftFstMaybe (Just i, a) = Just (i, a)
-    takeBoard (Game.Result b _) = b
+    takeBoard (Game.Result b _ _) = b
 
 placements ::
   Board Core ->
@@ -170,12 +180,16 @@ scorePlace board pSpot cSpot =
     maluses = [lineMalus, victoryPointsMalus]
 
 -- | The score of a card. Most powerful cards return a smaller value.
--- Negative values returned.
+-- Negative values returned. FIXME @smelc Return positive values
 scoreCard :: Card Core -> Int
 scoreCard = \case
   CreatureCard Creature {..} ->
     sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map scoreSkill skills
-  NeutralCard _ -> error "NeutralCard unsupported"
+  NeutralCard NeutralObject {neutral} ->
+    case neutral of
+      Health -> -1
+      InfernalHaste -> -10
+      Life -> -3
   ItemCard _ -> error "ItemCard unsupported"
 
 -- | The score of a skill, smaller values are better. Negative values returned.
