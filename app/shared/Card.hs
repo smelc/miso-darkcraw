@@ -184,30 +184,30 @@ cardToNeutralObject (ItemCard _) = Nothing
 
 -- | The minimal identifier of a card. See 'SharedModel' to obtain
 -- | a full-fledged card from that.
-data CardIdentifier
+data ID
   = IDC CreatureID
   | IDI Item
   | IDN Neutral
   deriving (Eq, Generic, Ord, Show)
 
-creatureToIdentifier :: Creature p -> CardIdentifier
+creatureToIdentifier :: Creature p -> ID
 creatureToIdentifier Creature {creatureId} = IDC creatureId
 
-neutralToIdentifier :: NeutralObject p -> CardIdentifier
+neutralToIdentifier :: NeutralObject p -> ID
 neutralToIdentifier NeutralObject {neutral} = IDN neutral
 
-cardToIdentifier :: Card p -> CardIdentifier
+cardToIdentifier :: Card p -> ID
 cardToIdentifier card =
   case card of
     CreatureCard Creature {..} -> IDC creatureId
     ItemCard i -> IDI i
     NeutralCard NeutralObject {..} -> IDN neutral
 
-identToId :: CardIdentifier -> Maybe CreatureID
+identToId :: ID -> Maybe CreatureID
 identToId (IDC cid) = Just cid
 identToId _ = Nothing
 
-groupCards :: [Card p] -> Map.Map CardIdentifier [Card p]
+groupCards :: [Card p] -> Map.Map ID [Card p]
 groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
 
 teamDeck ::

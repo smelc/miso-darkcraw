@@ -74,7 +74,7 @@ instance ToExpr InPlaceEffect
 
 instance ToExpr InPlaceEffects
 
-instance ToExpr CardIdentifier
+instance ToExpr Card.ID
 
 instance ToExpr (PlayerPart Core)
 

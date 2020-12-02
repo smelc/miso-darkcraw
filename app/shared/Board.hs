@@ -60,7 +60,8 @@ module Board
   )
 where
 
-import Card
+import Card hiding (ID)
+import qualified Card
 import Constants
 import Control.Lens
 import Control.Monad.Except (MonadError, throwError)
@@ -166,7 +167,7 @@ type family InPlaceType (p :: Phase) where
   InPlaceType UI = InPlaceEffects
 
 type family HandElemType (p :: Phase) where
-  HandElemType Core = CardIdentifier
+  HandElemType Core = Card.ID
   HandElemType UI = Int
 
 type family InHandType (p :: Phase) where
@@ -177,11 +178,11 @@ type family ScoreType (p :: Phase) where
   ScoreType UI = ()
 
 type family StackType (p :: Phase) where
-  StackType Core = [CardIdentifier]
+  StackType Core = [Card.ID]
   StackType UI = Int -- Discarded->Stack transfer
 
 type family DiscardedType (p :: Phase) where
-  DiscardedType Core = [CardIdentifier]
+  DiscardedType Core = [Card.ID]
   DiscardedType UI = Int -- Discarded->Stack transfer
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
@@ -477,13 +478,13 @@ handLine board pSpot =
   where
     hand = boardToHand board pSpot
 
-stackLine :: StackKind -> [CardIdentifier] -> LineNumber -> Maybe String
+stackLine :: StackKind -> [Card.ID] -> LineNumber -> Maybe String
 stackLine Discarded _ 0 = Just "Discarded"
 stackLine Stacked _ 0 = Just "Stack"
 stackLine _ cards i | i > length cards = Nothing
 stackLine _ cards i = Just $ showID $ cards !! (i - 1)
 
-showID :: CardIdentifier -> String
+showID :: Card.ID -> String
 showID (IDC CreatureID {creatureKind, team}) =
   showTeamShort team ++ " " ++ show creatureKind
 showID (IDI i) = show i

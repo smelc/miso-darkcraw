@@ -30,7 +30,8 @@ module SharedModel
   )
 where
 
-import Card
+import Card hiding (ID)
+import qualified Card
 import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.Random
 import Data.Foldable (find)
@@ -52,7 +53,7 @@ instance Eq StdGen where
 data SharedModel = SharedModel
   -- XXX @smelc, turn those into maps, for efficiency
   { -- | Data obtained at load time, that never changes
-    sharedCards :: Map CardIdentifier (Card UI),
+    sharedCards :: Map Card.ID (Card UI),
     sharedSkills :: Map Skill SkillUI,
     sharedTiles :: Map Tile TileUI,
     -- | RNG obtained at load time, to be user whenever randomness is needed
@@ -77,7 +78,7 @@ cardToFilepath SharedModel {..} = \case
     fromMaybe default16Filepath $ sharedTiles Map.!? ntile <&> filepath
   ItemCard _ -> error "ItemCard not supported"
 
-getCardIdentifiers :: SharedModel -> [CardIdentifier]
+getCardIdentifiers :: SharedModel -> [Card.ID]
 getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards
 
 getCards :: SharedModel -> [Card UI]
@@ -97,7 +98,7 @@ unsafeGet =
     Left err -> error err
     Right (cards, skills, tiles) -> create cards skills tiles $ mkStdGen 42
 
-identToCard :: SharedModel -> CardIdentifier -> Maybe (Card UI)
+identToCard :: SharedModel -> Card.ID -> Maybe (Card UI)
 identToCard SharedModel {sharedCards} cid = sharedCards Map.!? cid
 
 -- Could type level computations make this function superseded
@@ -155,7 +156,7 @@ tileToFilepath SharedModel {sharedTiles} tile =
     Nothing -> default24Filepath
     Just TileUI {Tile.filepath} -> filepath
 
-unsafeIdentToCard :: SharedModel -> CardIdentifier -> Card UI
+unsafeIdentToCard :: SharedModel -> Card.ID -> Card UI
 unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
 
 unsafeLiftCard :: SharedModel -> Card Core -> Card UI

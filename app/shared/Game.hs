@@ -31,7 +31,8 @@ module Game
 where
 
 import Board
-import Card
+import Card hiding (ID)
+import qualified Card
 import Constants
 import Control.Exception (assert)
 import Control.Lens
@@ -273,12 +274,12 @@ drawCardM board pSpot =
   case assert (bound >= 0) bound of
     0 -> return board
     _ -> do
-      let stack :: [CardIdentifier] = boardToStack board pSpot
+      let stack :: [Card.ID] = boardToStack board pSpot
       let hand = boardToHand board pSpot
       stdgen <- use #sharedStdGen
       let (idrawn, stdgen') = randomR (0, bound - 1) stdgen
       #sharedStdGen .= stdgen'
-      let ident :: CardIdentifier = stack !! idrawn
+      let ident :: Card.ID = stack !! idrawn
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [ident]
       tell $ boardAddToHand mempty pSpot $ length hand

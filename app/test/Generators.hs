@@ -68,7 +68,7 @@ instance Arbitrary (NeutralObject Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary CardIdentifier where
+instance Arbitrary Card.ID where
   -- Do not generate NeutralCard and ItemCard for now, since they
   -- arent' supported yet
   arbitrary = IDC <$> arbitrary
