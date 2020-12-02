@@ -121,10 +121,10 @@ aiPlayFirst :: SharedModel -> Board Core -> Turn -> Maybe Game.Event
 aiPlayFirst shared board turn =
   case boardToHand board pSpot of
     [] -> Nothing
-    IDC creatureID : _ -> do
+    id@(IDC _) : _ -> do
       let scores' = scores & map liftFstMaybe & catMaybes & sortByFst
       best <- listToMaybe scores'
-      return $ Place' (CardTarget pSpot (snd best)) creatureID
+      return $ Place' (CardTarget pSpot (snd best)) id
     i : _ -> error $ "Unsupported identifier: " ++ show i
   where
     handIndex = HandIndex 0

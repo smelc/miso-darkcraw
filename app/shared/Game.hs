@@ -75,7 +75,7 @@ data Event
     Place Target HandIndex
   | -- | AI puts a card from his hand. This constructor has better
     -- testing behavior than 'Place': it makes the generated events commute.
-    Place' Target CreatureID
+    Place' Target Card.ID
   deriving (Eq, Generic, Show)
 
 -- | The polymorphic version of 'Result'. Used for implementors that
@@ -168,17 +168,15 @@ playM shared board (Place target (handhi :: HandIndex)) = do
       -- playingPlayer should be passed instead
       case target of PlayerTarget p -> p; CardTarget p _ -> p
     playingPlayer = pSpot
-playM shared board (Place' pTarget creatureID) =
+playM shared board (Place' pTarget id) =
   case idx of
-    Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show creatureID
+    Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
     Just i -> playM shared board (Place pTarget i)
   where
     pSpot = case pTarget of PlayerTarget p -> p; CardTarget p _ -> p
-    idxAndIDs =
-      boardToHand board pSpot
-        & map identToId
-        & zip [HandIndex 0 ..]
-    idx = find (\(_, m) -> m == Just creatureID) idxAndIDs <&> fst
+    idxAndIDs :: [(HandIndex, Card.ID)] =
+      boardToHand board pSpot & zip [HandIndex 0 ..]
+    idx = find (\(_, m) -> m == id) idxAndIDs <&> fst
 
 playPlayerTargetM ::
   MonadError Text m =>
