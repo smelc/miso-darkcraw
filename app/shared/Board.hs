@@ -71,7 +71,7 @@ import Data.List (intercalate, intersperse)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe)
 import Data.Text (Text)
-import Formatting (hex, sformat, (%))
+import qualified Data.Text as Text
 import GHC.Generics (Generic)
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
@@ -232,13 +232,11 @@ lookupHand ::
   Int ->
   m a
 lookupHand hand i
-  | i < 0 = throwError $ sformat ("Invalid hand index: " % hex) i
+  | i < 0 = throwError $ Text.pack $ "Invalid hand index: " ++ show i
   | i >= handLength =
     throwError $
-      sformat
-        ("Invalid hand index: " % hex % ". Hand has " % hex % " card(s).")
-        i
-        handLength
+      Text.pack $
+        "Invalid hand index: " ++ show i ++ ". Hand has " ++ show handLength ++ " card(s)."
   | otherwise = return $ hand !! i
   where
     handLength = length hand
