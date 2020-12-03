@@ -246,8 +246,6 @@ teamDeck cards t =
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste
 
--- FIXME @smelc Could I use type-level programming to use Game.Target's
--- constructors as values instead of this?
 data TargetKind = CardTargetKind | PlayerTargetKind
 
 -- | The kind of Game target a neutral likes

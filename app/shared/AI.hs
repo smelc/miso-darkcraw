@@ -71,18 +71,28 @@ aiPlay shared board turn =
         ( \events ->
             case Game.playAll shared board events of
               Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
-              Right (Game.Result board' () _) -> Just (boardScore board' turn, events)
+              Right (Game.Result board' () _) -> Just (boardScore board' pSpot, events)
         )
         possibles
         & catMaybes
         & sortByFst
 
--- | The score of the given player's in-place cards. 0 is the best.
-boardScore :: Board Core -> Turn -> Int
-boardScore board turn =
+-- | The score of a board, from the POV of the given player. Smaller is
+-- the best
+boardScore :: Board Core -> PlayerSpot -> Int
+boardScore board pSpot =
+  -- This is wrong (breaks testAIRanged), I don't get why.
+  -- playerScore (otherPlayerSpot pSpot) - playerScore pSpot
+  -- where
+  --   playerScore pSpot =
+  --     boardPlayerScore board pSpot + (boardToPart board pSpot & score)
+  boardPlayerScore board pSpot
+
+-- | The score of given player's in-place cards. 0 is the best.
+boardPlayerScore :: Board Core -> PlayerSpot -> Int
+boardPlayerScore board pSpot =
   sum scores
   where
-    pSpot = turnToPlayerSpot turn
     cSpotAndMayCreatures =
       boardToHoleyInPlace board & filter (\(pSpot', _, _) -> pSpot == pSpot')
         & map (\(_, cSpot, mCreature) -> (cSpot, mCreature))
@@ -121,37 +131,62 @@ aiPlayFirst :: SharedModel -> Board Core -> Turn -> Maybe Game.Event
 aiPlayFirst shared board turn =
   case boardToHand board pSpot of
     [] -> Nothing
-    id@(IDC _) : _ -> do
-      let scores' = scores & map liftFstMaybe & catMaybes & sortByFst
+    i@(IDI _) : _ -> error $ "Unsupported identifier: " ++ show i
+    id : _ -> do
+      let scores' = scores id & sortByFst
       best <- listToMaybe scores'
-      return $ Place' (CardTarget pSpot (snd best)) id
-    i : _ -> error $ "Unsupported identifier: " ++ show i
+      return $ Place' (snd best) id
   where
     handIndex = HandIndex 0
     pSpot = turnToPlayerSpot turn
-    possibles = placements board pSpot
-    scores =
-      [ (scorePlace (fromRight' board' & takeBoard) pSpot cSpot, cSpot)
-        | cSpot <- possibles,
-          let place = Place (CardTarget pSpot cSpot) handIndex,
-          let board' = Game.play shared board place,
+    possibles id = targets board pSpot id
+    scores id =
+      [ (boardScore (fromRight' board' & takeBoard) pSpot, target)
+        | target <- possibles id,
+          let board' = Game.play shared board $ Place target handIndex,
           isRight board'
       ]
-    liftFstMaybe (Nothing, _) = Nothing
-    liftFstMaybe (Just i, a) = Just (i, a)
     takeBoard (Game.Result b _ _) = b
 
-placements ::
+targets ::
   Board Core ->
   -- | The player placing a card
   PlayerSpot ->
+  -- | The card being played
+  Card.ID ->
   -- | All spots where the card can be put
-  [CardSpot]
-placements board pSpot =
-  [cSpot | cSpot <- allCardsSpots, cSpot `Map.notMember` inPlace]
+  [Target]
+targets board playingPlayer id =
+  case id of
+    IDC _ ->
+      -- Creatures can be placed in the playing player's free spots
+      freeCardTargets playingPlayer
+    IDN n ->
+      case (Card.targetKind n, neutralPlayerTargets n) of
+        (CardTargetKind, Playing) ->
+          freeCardTargets playingPlayer
+        (CardTargetKind, Opponent) ->
+          freeCardTargets $ otherPlayerSpot playingPlayer
+        (PlayerTargetKind, Playing) ->
+          [PlayerTarget playingPlayer]
+        (PlayerTargetKind, Opponent) ->
+          [PlayerTarget $ otherPlayerSpot playingPlayer]
+    _ -> error $ "Unsupported Card.ID: " ++ show id
   where
-    pLens = spotToLens pSpot
-    inPlace :: Map.Map CardSpot (Creature Core) = board ^. pLens . #inPlace
+    freeSpots pSpot =
+      [cSpot | cSpot <- allCardsSpots, cSpot `Map.notMember` boardToInPlace board pSpot]
+    freeCardTargets pSpot =
+      [CardTarget pSpot cSpot | cSpot <- freeSpots pSpot]
+
+-- | Whether the AI tries to play a neutral card on the playing player
+-- or the  opponent. We could even try both, but we don't do that.
+data NeutralPlayerTarget = Playing | Opponent
+
+neutralPlayerTargets :: Neutral -> NeutralPlayerTarget
+neutralPlayerTargets = \case
+  Health -> Playing
+  InfernalHaste -> Playing
+  Life -> Playing
 
 -- | The score of placing a card at the given position
 scorePlace ::
