@@ -211,6 +211,20 @@ testNoPlayEventNeutral shared =
          in let right = events ++ [Game.NoPlayEvent]
              in Game.playAll shared board left `shouldBe` Game.playAll shared board right
 
+testPlayScoreMonotonic shared =
+  describe "boardScore is monotonic w.r.t. Game.play" $
+    prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
+      \(board, turn) ->
+        let (pSpot, score) = (turnToPlayerSpot turn, flip boardScore pSpot)
+         in let (initialScore, events) = (score board, AI.aiPlay shared board turn)
+             in let nextScore = Game.playAll shared board events & takeBoard <&> score
+                 in monotonic initialScore nextScore
+  where
+    takeBoard (Left _) = Nothing
+    takeBoard (Right (Game.Result b _ _)) = Just b
+    monotonic _ Nothing = True -- Nothing to test
+    monotonic i (Just j) = j <= i -- Better score is smaller score
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -269,3 +283,4 @@ main = hspec $ do
   testAIPlace shared
   testInPlaceEffectsMonoid
   testNoPlayEventNeutral shared
+  testPlayScoreMonotonic shared

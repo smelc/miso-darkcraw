@@ -9,7 +9,8 @@
 -- |
 -- This module defines how the AI plays
 -- |
-module AI (aiPlay, placeCards) where
+-- boardScore is exported for tests
+module AI (aiPlay, boardScore, placeCards) where
 
 import Board
 import Card
@@ -48,6 +49,7 @@ placeCards shared board turn =
     isPlaceEvent Place' {} = True
 
 -- | Smart play events
+-- TODO @smelc rename me into 'play'
 aiPlay :: SharedModel -> Board Core -> Turn -> [Game.Event]
 aiPlay shared board turn =
   case scores of
