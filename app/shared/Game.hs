@@ -220,16 +220,14 @@ playCardTargetM ::
   CardSpot ->
   Creature Core ->
   m (Board Core)
-playCardTargetM board pSpot cSpot creature =
-  if Map.member cSpot onTable -- @polux: can I use "when" instead (nested in a do block)?
-    then throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
-    else do
-      let inPlace' = Map.insert cSpot creature onTable
-      let part' = base {inPlace = inPlace'}
-      reportEffect pSpot cSpot $ mempty {fadeIn = True}
-      return $ boardSetPart board pSpot part'
+playCardTargetM board pSpot cSpot creature = do
+  when (Map.member cSpot onTable) $ throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
+  let inPlace' = Map.insert cSpot creature onTable
+  let part' = base {inPlace = inPlace'}
+  reportEffect pSpot cSpot $ mempty {fadeIn = True}
+  return $ boardSetPart board pSpot part'
   where
-    base :: PlayerPart Core = board ^. spotToLens pSpot
+    base :: PlayerPart Core = boardToPart board pSpot
     onTable :: Map CardSpot (Creature Core) = inPlace base
 
 drawCards ::
