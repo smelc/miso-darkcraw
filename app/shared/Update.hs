@@ -306,14 +306,14 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
       where
         m' = m {board = board', anims = anims'}
         event = case (gameEvent, nexts) of
-          (Game.Attack pSpot cSpot continue end, Nothing) ->
+          (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
             -- enqueue resolving next attack if applicable
             case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
               (False, _) -> terminator
               (True, Nothing) -> terminator
-              (True, Just cSpot') -> Just $ GamePlay $ Game.Attack pSpot cSpot' True end
+              (True, Just cSpot') -> Just $ GamePlay $ Game.Attack pSpot cSpot' True changeTurn
             where
-              terminator = if end then Nothing else Just GameIncrTurn
+              terminator = if changeTurn then Just GameIncrTurn else Nothing
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueuing but got event: " ++ show e
           (_, Nothing) -> Nothing
