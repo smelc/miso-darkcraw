@@ -21,6 +21,7 @@ import qualified Data.Set as Set
 import qualified Game (Event (..), PolyResult (..), Target (..), attackOrder, playAll)
 import Generators
 import Json
+import qualified Match
 import Movie
 import Pretty
 import SceneEquivalence
@@ -284,3 +285,5 @@ main = hspec $ do
   testInPlaceEffectsMonoid
   testNoPlayEventNeutral shared
   testPlayScoreMonotonic shared
+
+-- Match.main

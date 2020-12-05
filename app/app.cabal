@@ -109,6 +109,7 @@ Test-Suite test-darkcraw
     Generators
     Json
     JsonData
+    Match
     Movie
     Pretty
     SceneEquivalence
@@ -120,6 +121,7 @@ Test-Suite test-darkcraw
     test
   build-depends:
     aeson,
+    ansi-wl-pprint,
     base >= 4 && < 5,
     bytestring,
     containers,
@@ -138,6 +140,8 @@ Test-Suite test-darkcraw
     pretty-simple,
     random,
     random-shuffle,
-    text
+    text,
+    tree-diff,
+    vector
   default-language:
      Haskell2010
