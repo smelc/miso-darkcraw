@@ -12,6 +12,7 @@ import qualified AI (aiPlay)
 import Board
 import Card
 import Data.Function ((&))
+import Data.Maybe
 import Data.Text (Text)
 import Debug.Trace (traceShow)
 import qualified Game
@@ -70,8 +71,41 @@ playOneTurn :: GameModel -> Either Text GameModel
 playOneTurn m = playPlayerTurn m >>= playPlayerTurn
 
 playPlayerTurn :: GameModel -> Either Text GameModel
-playPlayerTurn m@GameModel {board, gameShared = shared, turn} = do
-  Game.Result board' _ _ <- Game.playAll shared board events
-  return $ m {board = board', turn = nextTurn turn}
+playPlayerTurn m@GameModel {board, gameShared = shared, turn} =
+  go m actions
   where
-    events = AI.aiPlay shared board turn
+    actions =
+      AI.aiPlay shared board turn
+        & map (eventToGameActions board)
+        & concat
+    go model [] = getErr model
+    go model@GameModel {interaction} (action : actions) =
+      let (model', seq) = Update.updateGameModel model action interaction
+       in do
+            getErr model'
+            go model' (map snd seq ++ actions)
+    getErr m@GameModel {interaction} =
+      case interaction of
+        GameShowErrorInteraction err -> Left err
+        _ -> Right m
+
+eventToGameActions ::
+  Board 'Core ->
+  Game.Event ->
+  [Update.GameAction]
+eventToGameActions board event =
+  case event of
+    Game.Attack {} -> [Update.GamePlay event]
+    Game.NoPlayEvent -> []
+    Game.Place target handIndex ->
+      [ Update.GameDragStart handIndex,
+        Update.GameDragEnter target,
+        Update.GameDrop,
+        Update.GameDragEnd
+      ]
+    Game.Place' target _ ->
+      [ Update.GameDragStart $ Game.placePrimeToHandIndex board event & fromJust,
+        Update.GameDragEnter target,
+        Update.GameDrop,
+        Update.GameDragEnd
+      ]

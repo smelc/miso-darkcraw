@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -19,6 +20,7 @@ module Game
     Event (..),
     PolyResult (..),
     Result (..),
+    placePrimeToHandIndex,
     play,
     playAll,
     playM,
@@ -48,6 +50,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
@@ -61,6 +64,10 @@ data Target
     -- or Neutral card applies to a given in place card of a player
     CardTarget PlayerSpot CardSpot
   deriving (Eq, Generic, Show)
+
+targetToPlayerSpot :: Target -> PlayerSpot
+targetToPlayerSpot (PlayerTarget pSpot) = pSpot
+targetToPlayerSpot (CardTarget pSpot _) = pSpot
 
 data Event
   = -- | A card attacks at the given spot. The first Boolean indicates
@@ -168,15 +175,23 @@ playM shared board (Place target (handhi :: HandIndex)) = do
       -- playingPlayer should be passed instead
       case target of PlayerTarget p -> p; CardTarget p _ -> p
     playingPlayer = pSpot
-playM shared board (Place' pTarget id) =
-  case idx of
+playM shared board e@(Place' target id) =
+  case placePrimeToHandIndex board e of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
-    Just i -> playM shared board (Place pTarget i)
+    Just i -> playM shared board (Place target i)
   where
-    pSpot = case pTarget of PlayerTarget p -> p; CardTarget p _ -> p
-    idxAndIDs :: [(HandIndex, Card.ID)] =
+    pSpot = targetToPlayerSpot target
+
+placePrimeToHandIndex :: Board 'Core -> Event -> Maybe HandIndex
+placePrimeToHandIndex board =
+  \case
+    Place' target id -> f target id
+    _ -> Nothing
+  where
+    idxAndIDs pSpot =
       boardToHand board pSpot & zip [HandIndex 0 ..]
-    idx = find (\(_, m) -> m == id) idxAndIDs <&> fst
+    f target id =
+      find (\(_, m) -> m == id) (idxAndIDs $ targetToPlayerSpot target) <&> fst
 
 playPlayerTargetM ::
   MonadError Text m =>

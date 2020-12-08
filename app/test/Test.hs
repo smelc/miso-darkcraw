@@ -285,4 +285,5 @@ main = hspec $ do
   testInPlaceEffectsMonoid
   testNoPlayEventNeutral shared
   testPlayScoreMonotonic shared
-  Match.main shared
+
+-- Match.main shared
