@@ -24,8 +24,6 @@ import Test.Hspec.QuickCheck
 import Turn
 import Update
 
--- TODO @smelc: alternative mode that uses the main loop
-
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Playing a match doesn't return Error" $
