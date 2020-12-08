@@ -5,37 +5,59 @@
 -- |
 -- This module simulates playing an entire game
 -- |
-module Match (main) where
+-- play is exported for debugging with ghci
+module Match (main, play) where
 
 import qualified AI (aiPlay)
 import Board
 import Card
 import Data.Function ((&))
 import Data.Text (Text)
+import Debug.Trace (traceShow)
 import qualified Game
+import Generators ()
 import Model
 import SharedModel
 import Test.Hspec
+import Test.Hspec.QuickCheck
 import Turn
 import Update
 
--- TODO @smelc 1/ implement main
--- 2/ alternative mode that uses the main loop
+-- TODO @smelc: alternative mode that uses the main loop
 
-main :: SpecWith ()
-main = undefined
+main :: SharedModel -> SpecWith ()
+main shared =
+  describe "Playing a match doesn't return Error" $
+    prop "forall t1, t2 :: Team, play shared t1 t2 8 isn't Error" $
+      \(t1, t2) -> not $ isError . matchResult $ play shared t1 t2 8
+  where
+    isError (Error msg) = traceShow msg True
+    isError Draw = False
+    isError (Win _) = False
 
-data Result = Draw | Error Text | Win PlayerSpot
+data MatchResult = Draw | Error Text | Win PlayerSpot
+  deriving (Show)
+
+data Result = Result
+  { boards :: [Board 'Core],
+    matchResult :: MatchResult
+  }
+  deriving (Show)
 
 play :: SharedModel -> Team -> Team -> Int -> Result
 play shared opponent player nbTurns =
-  go $ initialGameModel shared opponent player
+  go (initialGameModel shared opponent player) []
   where
-    go m@GameModel {turn} | turnToInt turn > nbTurns = toResult m
-    go m = playOneTurn m & either Error go
+    go m@GameModel {turn} boards
+      | turnToInt turn > nbTurns =
+        Result (reverse boards) $ toMatchResult m
+    go m boards =
+      case playOneTurn m of
+        Left msg -> Result boards $ Error msg
+        Right m'@GameModel {board} -> go m' $ board : boards
 
-toResult :: GameModel -> Result
-toResult GameModel {board} =
+toMatchResult :: GameModel -> MatchResult
+toMatchResult GameModel {board} =
   if
       | scoreTop == scoreBot -> Draw
       | scoreTop > scoreBot -> Win PlayerTop
