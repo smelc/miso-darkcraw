@@ -12,6 +12,7 @@ import qualified AI (aiPlay)
 import Board
 import Card
 import Data.Function ((&))
+import Data.List
 import Data.Maybe
 import Data.Text (Text)
 import Debug.Trace (traceShow)
@@ -70,12 +71,14 @@ playOneTurn m = playPlayerTurn m >>= playPlayerTurn
 
 playPlayerTurn :: GameModel -> Either Text GameModel
 playPlayerTurn m@GameModel {board, gameShared = shared, turn} =
-  go m actions
+  case AI.aiPlay shared board turn of
+    [] -> go m [Update.GameEndTurnPressed]
+    event : _ -> do
+      -- Taking only the first event avoids the need for _correctHandIndices
+      -- at the "cost" of doing recursion here:
+      m' <- go m $ eventToGameActions board event
+      playPlayerTurn m'
   where
-    actions =
-      AI.aiPlay shared board turn
-        & map (eventToGameActions board)
-        & concat
     go model [] = getErr model
     go model@GameModel {interaction} (action : actions) =
       let (model', seq) = Update.updateGameModel model action interaction
@@ -107,3 +110,18 @@ eventToGameActions board event =
         Update.GameDrop,
         Update.GameDragEnd
       ]
+
+-- After translating the AI's events with eventToGameActions, we need
+-- to handle that the events' translation introduce HandIndex values
+-- which must be corrected to account for events having been played before.
+_correctHandIndices _ [] = []
+_correctHandIndices played (Update.GameDragStart hi@(HandIndex index) : rest) =
+  Update.GameDragStart (shift played hi) : _correctHandIndices ((index : played) & sort & reverse) rest
+  where
+    shift [] hi = hi
+    shift (played' : played_rest) hi@(HandIndex i) =
+      if played' < i
+        then shift played_rest (HandIndex $ i -1)
+        else shift played_rest hi
+_correctHandIndices played (a : rest) =
+  a : _correctHandIndices played rest
