@@ -10,7 +10,7 @@
 -- This module defines how the AI plays
 -- |
 -- boardScore is exported for tests
-module AI (aiPlay, boardScore, placeCards) where
+module AI (AI.play, boardScore, placeCards) where
 
 import Board
 import Card
@@ -42,16 +42,15 @@ placeCards shared board turn =
   -- adapt when this happens.
   assert (all isPlaceEvent events) events
   where
-    events = aiPlay shared board turn
+    events = AI.play shared board turn
     isPlaceEvent Attack {} = False
     isPlaceEvent NoPlayEvent = False
     isPlaceEvent Place {} = True
     isPlaceEvent Place' {} = True
 
 -- | Smart play events
--- TODO @smelc rename me into 'play'
-aiPlay :: SharedModel -> Board Core -> Turn -> [Game.Event]
-aiPlay shared board turn =
+play :: SharedModel -> Board Core -> Turn -> [Game.Event]
+play shared board turn =
   case scores of
     [] -> []
     (_, events) : _ -> events
@@ -66,7 +65,7 @@ aiPlay shared board turn =
         & permutations -- Try cards in all orders (because aiPlayHand plays first card)
     possibles =
       map
-        (\hand -> aiPlayHand shared (boardSetHand board pSpot hand) turn)
+        (\hand -> playHand shared (boardSetHand board pSpot hand) turn)
         hands
     scores :: [(Int, [Game.Event])] =
       map
@@ -111,21 +110,21 @@ boardPlayerScore board pSpot =
 
 -- | Events for playing all cards of the hand, in order. Each card
 -- is played optimally.
-aiPlayHand :: SharedModel -> Board Core -> Turn -> [Game.Event]
-aiPlayHand shared board turn =
+playHand :: SharedModel -> Board Core -> Turn -> [Game.Event]
+playHand shared board turn =
   case aiPlayFirst shared board turn of
     Nothing -> []
     Just event ->
       case Game.playAll shared board [event] of
         Left msg ->
           traceShow ("Cannot play first card of hand: " ++ Text.unpack msg) $
-            aiPlayHand shared board' turn
+            playHand shared board' turn
           where
             pSpot = turnToPlayerSpot turn
             hand' = boardToHand board pSpot & tail
             board' = boardSetHand board pSpot hand' -- Skip first card
         Right (Game.Result b' () _) ->
-          event : aiPlayHand shared b' turn
+          event : playHand shared b' turn
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.

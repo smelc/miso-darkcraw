@@ -56,7 +56,7 @@ testAIRanged shared turn =
   where
     archer = IDC $ CreatureID Archer Undead
     board = boardAddToHand emptyBoard (turnToPlayerSpot turn) archer
-    events = aiPlay SharedModel.unsafeGet board turn
+    events = AI.play SharedModel.unsafeGet board turn
 
 testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
@@ -217,7 +217,7 @@ testPlayScoreMonotonic shared =
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
       \(board, turn) ->
         let (pSpot, score) = (turnToPlayerSpot turn, flip boardScore pSpot)
-         in let (initialScore, events) = (score board, AI.aiPlay shared board turn)
+         in let (initialScore, events) = (score board, AI.play shared board turn)
              in let nextScore = Game.playAll shared board events & takeBoard <&> score
                  in monotonic initialScore nextScore
   where

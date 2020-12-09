@@ -8,7 +8,7 @@
 -- play is exported for debugging with ghci
 module Match (main, play) where
 
-import qualified AI (aiPlay)
+import qualified AI (play)
 import Board
 import Card
 import Data.Function ((&))
@@ -71,7 +71,7 @@ playOneTurn m = playPlayerTurn m >>= playPlayerTurn
 
 playPlayerTurn :: GameModel -> Either Text GameModel
 playPlayerTurn m@GameModel {board, gameShared = shared, turn} =
-  case AI.aiPlay shared board turn of
+  case AI.play shared board turn of
     [] -> go m [Update.GameEndTurnPressed]
     event : _ -> do
       -- Taking only the first event avoids the need for _correctHandIndices

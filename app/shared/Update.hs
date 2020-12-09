@@ -395,7 +395,7 @@ updateGameModel m@GameModel {gameShared, playingPlayer, turn} GameIncrTurn _ =
                 Game.transferCards (Model.gameShared m') (Model.board m') pSpot
           (board'', boardui'', shared'') <-
             Game.drawCards shared' board' pSpot nbDraws'
-          let aiEvents = if isAI then AI.aiPlay gameShared board'' turn' else []
+          let aiEvents = if isAI then AI.play gameShared board'' turn' else []
           return (aiEvents, board'', boardui' <> boardui'', shared'')
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
