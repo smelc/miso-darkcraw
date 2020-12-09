@@ -51,6 +51,14 @@ Then to execute a single test:
 > hspec testPlaceCommutation -- for example
 ```
 
+To profile (for example to debug when it doesn't terminate):
+
+```
+cabal install profiteur  # Creates ~/.cabal/bin/profiteur
+cabal run --enable-profiling test-darkcraw -- +RTS -p
+~/.cabal/bin/profiteur test-darkcraw.prof
+```
+
 # Fast feedback
 
 * To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal

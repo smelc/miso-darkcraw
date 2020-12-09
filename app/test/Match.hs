@@ -15,6 +15,7 @@ import Data.Function ((&))
 import Data.List
 import Data.Maybe
 import Data.Text (Text)
+import qualified Data.Text as Text
 import Debug.Trace (traceShow)
 import qualified Game
 import Generators ()
@@ -67,21 +68,24 @@ toMatchResult GameModel {board} =
     (scoreTop, scoreBot) = (score PlayerTop, score PlayerBottom)
 
 playOneTurn :: GameModel -> Either Text GameModel
-playOneTurn m = playPlayerTurn m >>= playPlayerTurn
-
-playPlayerTurn :: GameModel -> Either Text GameModel
-playPlayerTurn m@GameModel {board, gameShared = shared, turn} =
-  case AI.play shared board turn of
-    [] -> go m [Update.GameEndTurnPressed]
-    event : _ -> do
+playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
+  -- We need to play for the player
+  case (playingPlayer == pSpot, AI.play shared board turn) of
+    (False, _) -> Left $ Text.pack $ "It should be the player turn (" ++ show playingPlayer ++ "), but found: " ++ show pSpot
+    (_, []) ->
+      -- The main loop will take care of playing the opponent when honoring
+      -- this event:
+      go m [Update.GameEndTurnPressed]
+    (_, event : _) -> do
       -- Taking only the first event avoids the need for _correctHandIndices
       -- at the "cost" of doing recursion here:
       m' <- go m $ eventToGameActions board event
-      playPlayerTurn m'
+      playOneTurn m'
   where
+    pSpot = turnToPlayerSpot turn
     go model [] = getErr model
     go model@GameModel {interaction} (action : actions) =
-      let (model', seq) = Update.updateGameModel model action interaction
+      let (model', seq) = traceShow ("action: " ++ show action ++ " interaction: " ++ show interaction) $ Update.updateGameModel model action interaction
        in do
             getErr model'
             go model' (map snd seq ++ actions)
