@@ -316,8 +316,7 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
               terminator = if changeTurn then Just GameIncrTurn else Nothing
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueuing but got event: " ++ show e
-          (_, Nothing) -> Nothing
-          (_, _) -> event
+          (_, _) -> nexts <&> GamePlay
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
   case Game.drawCards gameShared board pSpot 1 of
     Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg

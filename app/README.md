@@ -59,6 +59,22 @@ cabal run --enable-profiling test-darkcraw -- +RTS -p
 ~/.cabal/bin/profiteur test-darkcraw.prof
 ```
 
+To profile when it doesn't terminate, add that to `app.cabal` in the
+the `test-darkcraw` section:
+
+```
+  ghc-options:
+    -fprof-auto
+    -prof
+    -rtsopts
+```
+
+Run a test as follows:
+
+```
+./dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/t/test-darkcraw/build/test-darkcraw/test-darkcraw +RTS -xc
+```
+
 # Fast feedback
 
 * To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal
