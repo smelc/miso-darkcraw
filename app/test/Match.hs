@@ -85,7 +85,7 @@ playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
     pSpot = turnToPlayerSpot turn
     go model [] = getErr model
     go model@GameModel {interaction} (action : actions) =
-      let (model', seq) = traceShow ("action: " ++ show action ++ " interaction: " ++ show interaction) $ Update.updateGameModel model action interaction
+      let (model', seq) = Update.updateGameModel model action interaction
        in do
             getErr model'
             go model' (map snd seq ++ actions)

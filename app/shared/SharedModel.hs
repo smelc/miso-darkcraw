@@ -16,6 +16,7 @@ module SharedModel
     SharedModel,
     tileToFilepath,
     unsafeGet,
+    unsafeGetSeed,
     unsafeIdentToCard,
     unsafeLiftCard,
     unsafeLiftCreature,
@@ -93,18 +94,19 @@ withStdGen shared stdgen = shared {sharedStdGen = stdgen}
 -- | An instance of 'SharedModel' that is fine for debugging. Don't use
 -- it in production!
 unsafeGet :: SharedModel
-unsafeGet =
+unsafeGet = unsafeGetSeed 42
+
+-- | An instance of 'SharedModel' that is fine for debugging. Don't use
+-- it in production!
+unsafeGetSeed :: Int -> SharedModel
+unsafeGetSeed seed =
   case loadJson of
     Left err -> error err
-    Right (cards, skills, tiles) -> create cards skills tiles $ mkStdGen 42
+    Right (cards, skills, tiles) -> create cards skills tiles $ mkStdGen seed
 
 identToCard :: SharedModel -> Card.ID -> Maybe (Card UI)
 identToCard SharedModel {sharedCards} cid = sharedCards Map.!? cid
 
--- Could type level computations make this function superseded
--- by identToCard? I mean if you pass a 'IDC' CardIdentifier to identToCard,
--- you're sure to get a Just (CreatureCard _) value
--- (Just (NeutralCard _) is impossible)
 idToCreature :: SharedModel -> CreatureID -> Maybe (Creature UI)
 idToCreature SharedModel {sharedCards} cid =
   sharedCards Map.!? IDC cid >>= cardToCreature

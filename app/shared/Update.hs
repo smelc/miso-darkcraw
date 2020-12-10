@@ -315,7 +315,7 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
             where
               terminator = if changeTurn then Just GameIncrTurn else Nothing
           (Game.Attack {}, Just e) ->
-            error $ "Cannot mix Game.Attack and events when enqueuing but got event: " ++ show e
+            error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
           (_, _) -> nexts <&> GamePlay
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
   case Game.drawCards gameShared board pSpot 1 of
@@ -656,6 +656,7 @@ updateModel a m =
         <> "\nand the action being:\n"
         <> pShowNoColor a
 
+-- | The initial model, appropriately shuffled with 'SharedModel' rng
 initialGameModel ::
   SharedModel ->
   -- | The team of the other player

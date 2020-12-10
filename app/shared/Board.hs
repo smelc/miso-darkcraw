@@ -370,7 +370,8 @@ data Teams = Teams
     botTeam :: Team
   }
 
-initialBoard :: SharedModel -> Teams -> (SharedModel, Board Core)
+-- | The initial board, appropriately shuffled with 'SharedModel' rng
+initialBoard :: SharedModel -> Teams -> (SharedModel, Board 'Core)
 initialBoard shared Teams {..} =
   (smodel'', Board topPart botPart)
   where
