@@ -125,7 +125,11 @@ liftNeutralObject :: SharedModel -> NeutralObject Core -> Maybe (NeutralObject U
 liftNeutralObject shared no =
   identToNeutral shared n
   where
-    IDN n = neutralToIdentifier no
+    n =
+      case neutralToIdentifier no of
+        IDN n' -> n'
+        IDC _ -> error "Should not happen"
+        IDI _ -> error "Should not happen"
 
 -- | Translates a 'Core' 'Creature' into an 'UI' one, keeping its stats
 -- An alternative implementation could return the pristine, formal, UI card.

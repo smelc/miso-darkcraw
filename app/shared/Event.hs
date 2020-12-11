@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Event
@@ -23,8 +24,10 @@ classNameDecoder =
 -- | Helper function for onMouseEnter' and onMouseLeave'.
 onMouseEvent :: MisoString -> Text -> Action -> Attribute Action
 onMouseEvent eventName className action =
-  on eventName classNameDecoder $ \(String name) ->
-    if name == className then action else NoOp
+  on eventName classNameDecoder $
+    \case
+      String name -> if name == className then action else NoOp
+      _ -> error "Unexpected case"
 
 -- | Like onMouseEnter, but restricts event firing to elements with the
 -- provided class name.
