@@ -57,6 +57,7 @@ module Board
     StackKind (..),
     unsafeExampleBoard,
     Board.appliesTo,
+    boardToScore,
   )
 where
 
@@ -338,6 +339,9 @@ boardToInPlace Board {playerBottom} PlayerBottom = inPlace playerBottom
 boardToPart :: Board p -> PlayerSpot -> PlayerPart p
 boardToPart Board {playerTop} PlayerTop = playerTop
 boardToPart Board {playerBottom} PlayerBottom = playerBottom
+
+boardToScore :: Board p -> PlayerSpot -> ScoreType p
+boardToScore board pSpot = boardToPart board pSpot & score
 
 boardToStack :: Board p -> PlayerSpot -> StackType p
 boardToStack Board {playerTop} PlayerTop = stack playerTop

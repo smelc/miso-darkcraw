@@ -28,6 +28,7 @@ module SharedModel
     withStdGen,
     getCardIdentifiers,
     cardToFilepath,
+    withSeed,
   )
 where
 
@@ -87,6 +88,9 @@ getCards SharedModel {sharedCards} = Map.elems sharedCards
 
 getStdGen :: SharedModel -> StdGen
 getStdGen SharedModel {sharedStdGen} = sharedStdGen
+
+withSeed :: SharedModel -> Int -> SharedModel
+withSeed shared seed = shared {sharedStdGen = mkStdGen seed}
 
 withStdGen :: SharedModel -> StdGen -> SharedModel
 withStdGen shared stdgen = shared {sharedStdGen = stdgen}
