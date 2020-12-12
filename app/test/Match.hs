@@ -64,7 +64,10 @@ main shared =
         scoreBot board = boardToScore board PlayerBottom
         -- TODO @smelc Track teams in Board
         showScore Nothing _ = "?"
-        showScore (Just (board :: Board 'Core)) pSpot = show $ boardToScore board pSpot
+        showScore (Just (board :: Board 'Core)) pSpot =
+          show (boardToPart board pSpot & Board.team)
+            ++ " "
+            ++ show (boardToScore board pSpot)
 
 data MatchResult = Draw | Error Text | Win PlayerSpot
   deriving (Show)

@@ -54,8 +54,9 @@ testAIRanged shared turn =
     Left _ -> error "AI failed"
     Right (Game.Result board' () _) -> board'
   where
-    archer = IDC $ CreatureID Archer Undead
-    board = boardAddToHand emptyBoard (turnToPlayerSpot turn) archer
+    (t, teams) = (Undead, Teams Undead Undead)
+    archer = IDC $ CreatureID Archer t
+    board = boardAddToHand (emptyBoard teams) (turnToPlayerSpot turn) archer
     events = AI.play SharedModel.unsafeGet board turn
 
 testSceneInvariant :: Int -> TimedFrame -> Spec

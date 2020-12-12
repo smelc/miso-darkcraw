@@ -186,13 +186,18 @@ type family DiscardedType (p :: Phase) where
   DiscardedType Core = [Card.ID]
   DiscardedType UI = Int -- Discarded->Stack transfer
 
+type family TeamType (p :: Phase) where
+  TeamType 'Core = Team
+  TeamType 'UI = ()
+
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (HandElemType p),
     c (InPlaceType p),
     c (InHandType p),
     c (ScoreType p),
     c (StackType p),
-    c (DiscardedType p)
+    c (DiscardedType p),
+    c (TeamType p)
   )
 
 data PlayerPart (p :: Phase) = PlayerPart
@@ -203,7 +208,8 @@ data PlayerPart (p :: Phase) = PlayerPart
     -- | The score of this player
     score :: ScoreType p,
     stack :: StackType p,
-    discarded :: DiscardedType p
+    discarded :: DiscardedType p,
+    team :: TeamType p
   }
   deriving (Generic)
 
@@ -214,11 +220,11 @@ deriving instance Board.Forall Ord p => Ord (PlayerPart p)
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
 instance Semigroup (PlayerPart UI) where
-  PlayerPart inPlace1 inHand1 () s1 d1 <> PlayerPart inPlace2 inHand2 () s2 d2 =
-    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) () (s1 + s2) (d1 + d2)
+  PlayerPart inPlace1 inHand1 () s1 d1 () <> PlayerPart inPlace2 inHand2 () s2 d2 () =
+    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) () (s1 + s2) (d1 + d2) ()
 
 instance Monoid (PlayerPart UI) where
-  mempty = PlayerPart mempty mempty mempty 0 0
+  mempty = PlayerPart mempty mempty mempty 0 0 mempty
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
@@ -356,12 +362,12 @@ boardToInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
   where
     inPlace = boardToInPlace board pSpot
 
-emptyBoard :: Board Core
-emptyBoard =
-  Board {playerTop = emptyPlayerPart, playerBottom = emptyPlayerPart}
+emptyBoard :: Teams -> Board Core
+emptyBoard Teams {topTeam, botTeam} =
+  Board {playerTop = emptyPlayerPart topTeam, playerBottom = emptyPlayerPart botTeam}
 
-emptyPlayerPart :: PlayerPart Core
-emptyPlayerPart = PlayerPart {..}
+emptyPlayerPart :: Team -> PlayerPart Core
+emptyPlayerPart team = PlayerPart {..}
   where
     inPlace = Map.empty
     inHand = []
@@ -379,7 +385,7 @@ initialBoard :: SharedModel -> Teams -> (SharedModel, Board 'Core)
 initialBoard shared Teams {..} =
   (smodel'', Board topPart botPart)
   where
-    part team smodel = (smodel', PlayerPart Map.empty hand' 0 stack' [])
+    part team smodel = (smodel', PlayerPart Map.empty hand' 0 stack' [] team)
       where
         deck = teamDeck (SharedModel.getCards shared) team
         (smodel', deck') = SharedModel.shuffle smodel deck
