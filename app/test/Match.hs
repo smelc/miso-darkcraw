@@ -62,7 +62,6 @@ main shared =
         sign Nothing = "?"
         scoreTop board = boardToScore board PlayerTop
         scoreBot board = boardToScore board PlayerBottom
-        -- TODO @smelc Track teams in Board
         showScore Nothing _ = "?"
         showScore (Just (board :: Board 'Core)) pSpot =
           show (boardToPart board pSpot & Board.team)

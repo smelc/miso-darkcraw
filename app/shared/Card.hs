@@ -32,9 +32,7 @@ allTeams = [Human ..]
 
 data Skill
   = LongReach
-  | Leader
   | Ranged
-  | Stubborn
   | Unique
   deriving (Eq, Generic, Ord, Show)
 

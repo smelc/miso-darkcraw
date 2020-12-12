@@ -232,9 +232,7 @@ scoreCard = \case
 scoreSkill :: Skill -> Int
 scoreSkill = \case
   LongReach -> -1
-  Leader -> -1
   Ranged -> -1
-  Stubborn -> -1
   Unique -> -1
 
 sortByFst :: [(Int, b)] -> [(Int, b)]
