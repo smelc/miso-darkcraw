@@ -58,6 +58,8 @@ module Board
     unsafeExampleBoard,
     Board.appliesTo,
     boardToScore,
+    neighbors,
+    Neighborhood (..),
   )
 where
 
@@ -248,6 +250,7 @@ lookupHand hand i
   where
     handLength = length hand
 
+-- FIXME @smelc rename PlayerBottom into PlayerBot
 data PlayerSpot = PlayerBottom | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)
 
@@ -278,6 +281,28 @@ instance Semigroup (Board UI) where
 
 instance Monoid (Board UI) where
   mempty = Board mempty mempty
+
+data Neighborhood = Cardinal | Diagonal | All
+  deriving (Eq, Generic, Show)
+
+neighbors :: Neighborhood -> CardSpot -> [CardSpot]
+neighbors All pSpot = neighbors Diagonal pSpot ++ neighbors Cardinal pSpot
+neighbors Cardinal pSpot =
+  case pSpot of
+    TopLeft -> [Top, BottomLeft]
+    Top -> [TopLeft, TopRight, Bottom]
+    TopRight -> [Top, BottomRight]
+    BottomLeft -> [TopLeft, Bottom]
+    Bottom -> [BottomLeft, Top, BottomRight]
+    BottomRight -> [Bottom, TopRight]
+neighbors Diagonal pSpot =
+  case pSpot of
+    TopLeft -> [Bottom]
+    Top -> [BottomLeft, BottomRight]
+    TopRight -> [Bottom]
+    BottomLeft -> [Top]
+    Bottom -> [TopLeft, TopRight]
+    BottomRight -> [Top]
 
 boardAddToHand :: Board p -> PlayerSpot -> HandElemType p -> Board p
 boardAddToHand board pSpot handElem =

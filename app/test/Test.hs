@@ -59,6 +59,14 @@ testAIRanged shared turn =
     board = boardAddToHand (emptyBoard teams) (turnToPlayerSpot turn) archer
     events = AI.play SharedModel.unsafeGet board turn
 
+testNeighbors :: SpecWith ()
+testNeighbors =
+  describe "Neighbors doesn't return doublons" $
+    prop "forall n::Neighborhood cSpot::CardSpot, neighbors n cSpot doesn't have doublons" $
+      \(n, cSpot) ->
+        let res = neighbors n cSpot
+         in (res & sort) `shouldBe` (res & Set.fromList & Set.toList & sort)
+
 testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
   -- Check no two Element are in the same spot
