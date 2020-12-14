@@ -60,6 +60,7 @@ module Board
     boardToScore,
     neighbors,
     Neighborhood (..),
+    boardToPlayerHoleyInPlace,
   )
 where
 
@@ -352,6 +353,14 @@ boardToHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- allPlayersSpots,
       cSpot <- allCardsSpots,
+      let maybeCreature = boardToInPlaceCreature board pSpot cSpot
+  ]
+
+boardToPlayerHoleyInPlace ::
+  Board Core -> PlayerSpot -> [(CardSpot, Maybe (Creature Core))]
+boardToPlayerHoleyInPlace board pSpot =
+  [ (cSpot, maybeCreature)
+    | cSpot <- allCardsSpots,
       let maybeCreature = boardToInPlaceCreature board pSpot cSpot
   ]
 

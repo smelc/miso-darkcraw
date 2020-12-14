@@ -94,9 +94,7 @@ boardPlayerScore :: Board Core -> PlayerSpot -> Int
 boardPlayerScore board pSpot =
   sum scores
   where
-    cSpotAndMayCreatures =
-      boardToHoleyInPlace board & filter (\(pSpot', _, _) -> pSpot == pSpot')
-        & map (\(_, cSpot, mCreature) -> (cSpot, mCreature))
+    cSpotAndMayCreatures = boardToPlayerHoleyInPlace board pSpot
     scores =
       map
         ( \(cSpot, mCreature) ->

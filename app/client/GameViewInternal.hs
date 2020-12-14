@@ -238,10 +238,10 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
                 else 0
     _ -> 0
   where
-    allInPlace :: [(PlayerSpot, CardSpot, Maybe (Creature Core))] =
-      boardToHoleyInPlace board
+    allInPlace :: [(CardSpot, Maybe (Creature Core))] =
+      boardToPlayerHoleyInPlace board playingPlayer
     playingPlayerCardsSpots :: [CardSpot] =
-      [c | (pSpot, c, m) <- allInPlace, pSpot == playingPlayer, isJust m]
+      [c | (c, m) <- allInPlace, isJust m]
     emptyPlayingPlayerSpot pSpot cSpot =
       cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
     cond hi =

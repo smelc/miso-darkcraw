@@ -17,7 +17,7 @@ import Data.List
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Debug.Trace (traceShow, traceShowId)
+import Debug.Trace (traceShow)
 import qualified Game
 import Generators ()
 import Model
