@@ -42,6 +42,7 @@ import Control.Monad.Except
 import Control.Monad.Random
 import Control.Monad.State
 import Control.Monad.Writer
+import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable
 import Data.List (elemIndex)
 import Data.List.Index (deleteAt)
@@ -50,7 +51,9 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Debug.Trace (traceShowId)
 import GHC.Generics (Generic)
+import GHC.IO (unsafePerformIO)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
@@ -236,13 +239,29 @@ playCardTargetM ::
   m (Board Core)
 playCardTargetM board pSpot cSpot creature = do
   when (Map.member cSpot onTable) $ throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
-  let inPlace' = Map.insert cSpot creature onTable
+  let inPlace' =
+        -- Left-biased union
+        Map.union
+          (Map.fromList disciplinedNeighbors')
+          (Map.insert cSpot creature onTable)
+  -- FIXME @smelc Record animations for discipline boost
   let part' = base {inPlace = inPlace'}
   reportEffect pSpot cSpot $ mempty {fadeIn = True}
   return $ boardSetPart board pSpot part'
   where
     base :: PlayerPart Core = boardToPart board pSpot
     onTable :: Map CardSpot (Creature Core) = inPlace base
+    hasDiscipline c = Discipline `elem` skills c
+    disciplinedNeighbors =
+      boardToNeighbors board pSpot cSpot Board.Cardinal
+        & map liftDisciplinedJust
+        & catMaybes
+    liftDisciplinedJust (cSpot, Just c) | hasDiscipline c = Just (cSpot, c)
+    liftDisciplinedJust _ = Nothing
+    applyDisciplineBoost :: Creature 'Core -> Creature 'Core
+    applyDisciplineBoost Creature {..} = Creature {hp = hp + 1, attack = attack + 1, ..}
+    disciplinedNeighbors' =
+      map (Bifunctor.second applyDisciplineBoost) disciplinedNeighbors
 
 drawCards ::
   SharedModel ->

@@ -124,6 +124,8 @@ then
 
   check_in_nix_shell
 
+  command -v ghcjs &> /dev/null || { echo "ghcjs unavailable, I bet the nix-shell's flavor is wrong. Please enter it as follows: nix-shell -A release.env default.nix"; exit 1; }
+
   if [[ -e "$CABAL_INDEX" ]]
   then
     sensible-browser "$CABAL_INDEX" &

@@ -11,11 +11,11 @@ import Data.Text
 jsonData :: Text
 jsonData = "{\n\
          \  \"creatures\": [\n\
-         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSpearman\", \"skills\":[\"LongReach\"] },\n\
-         \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSwordsman\" },\n\
-         \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanArcher\",   \"skills\":[\"Ranged\"] },\n\
-         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":3, \"moral\":5, \"victory_points\":5, \"tile\":\"HumanGeneral\",  \"skills\":[\"Unique\"] },\n\
-         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"moral\":4, \"victory_points\":5, \"tile\":\"HumanKnight\",   \"skills\":[] },\n\
+         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"LongReach\"] },\n\
+         \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
+         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":3, \"moral\":5, \"victory_points\":5, \"tile\":\"HumanGeneral\",   \"skills\":[\"Unique\"] },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"moral\":4, \"victory_points\":5, \"tile\":\"HumanKnight\",    \"skills\":[] },\n\
          \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadSkeleton\" },\n\
          \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\"  },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadArcher\", \"skills\":[\"Ranged\"]   },\n\
@@ -75,8 +75,9 @@ jsonData = "{\n\
          \    { \"tile\":\"WhiteAppears4\", \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":5 } }\n\
          \  ],\n\
          \  \"skills\": [\n\
+         \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"upon arrival, neighbors with discipline get +1 :health: and +1 :attack:\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"hits 2 cells away when in the back line\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"hits any enemy in its column\"},\n\
-         \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"discarded after kill\"}\n\
+         \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"never goes back to stack\"}\n\
          \  ]\n\
          \}\n"

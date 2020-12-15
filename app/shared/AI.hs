@@ -229,9 +229,10 @@ scoreCard = \case
 -- | The score of a skill, smaller values are better. Negative values returned.
 scoreSkill :: Skill -> Int
 scoreSkill = \case
+  Discipline -> -1
   LongReach -> -1
   Ranged -> -1
-  Unique -> -1
+  Unique -> 0
 
 sortByFst :: [(Int, b)] -> [(Int, b)]
 sortByFst l =

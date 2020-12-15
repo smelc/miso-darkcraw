@@ -184,10 +184,10 @@ testAIPlace shared =
   describe "AI.placeCards" $ do
     prop "placeCards returns events whose spots differ" $
       \board turn -> allDiff $ AI.placeCards shared board turn
-    prop "placeCards return events that commute" $
+    prop "placeCards return events that commute (modulo Discipline)" $
       \(Pretty board) (Pretty turn) ->
-        let events = AI.placeCards shared board turn
-         in length events >= 2
+        let events = AI.placeCards shared board turn & filter (not . hasDiscipline)
+         in (length events >= 2)
               ==> forAll (Test.QuickCheck.elements (permutations events))
               $ \events' ->
                 Pretty (ignoreErrMsg (Game.playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (Game.playAll shared board events'))
@@ -199,6 +199,10 @@ testAIPlace shared =
     spotsDiffer _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
     allDiff (event : events) = all (spotsDiffer event) events && allDiff events
+    hasDiscipline (Game.Place' _ (IDC id)) =
+      Discipline `elem` (SharedModel.idToCreature shared id & fromJust & skills)
+    hasDiscipline (Game.Place' _ _) = False
+    hasDiscipline _ = error "Only Place' events should have been generated"
 
 {- HLINT ignore testInPlaceEffectsMonoid -}
 testInPlaceEffectsMonoid =

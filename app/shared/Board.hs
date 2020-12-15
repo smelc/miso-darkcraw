@@ -61,6 +61,7 @@ module Board
     neighbors,
     Neighborhood (..),
     boardToPlayerHoleyInPlace,
+    boardToNeighbors,
   )
 where
 
@@ -375,6 +376,20 @@ boardToHand Board {playerBottom} PlayerBottom = inHand playerBottom
 boardToInPlace :: Board p -> PlayerSpot -> InPlaceType p
 boardToInPlace Board {playerTop} PlayerTop = inPlace playerTop
 boardToInPlace Board {playerBottom} PlayerBottom = inPlace playerBottom
+
+-- | The neighbors of the card at the given spot, for the given player,
+-- and for the given kind of neighbors.
+boardToNeighbors ::
+  Board 'Core ->
+  PlayerSpot ->
+  CardSpot ->
+  Neighborhood ->
+  [(CardSpot, Maybe (Creature 'Core))]
+boardToNeighbors board pSpot cSpot neighborhood =
+  [ (cSpot, maybeCreature)
+    | cSpot <- neighbors neighborhood cSpot,
+      let maybeCreature = boardToInPlaceCreature board pSpot cSpot
+  ]
 
 boardToPart :: Board p -> PlayerSpot -> PlayerPart p
 boardToPart Board {playerTop} PlayerTop = playerTop

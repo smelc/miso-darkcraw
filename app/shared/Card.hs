@@ -31,7 +31,8 @@ allTeams :: [Team]
 allTeams = [Human ..]
 
 data Skill
-  = LongReach
+  = Discipline
+  | LongReach
   | Ranged
   | Unique
   deriving (Eq, Generic, Ord, Show)
