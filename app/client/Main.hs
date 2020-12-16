@@ -19,6 +19,7 @@ import Configuration (hashless)
 import Control.Monad (forM_)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
+import Debug.Trace (traceShow)
 import Debugging
 import Json (LoadedJson, loadJson)
 import Miso
@@ -74,7 +75,13 @@ main = do
       else startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    update = updateModel
+    updateLog a m =
+      let res = updateModel a m
+       in case a of
+            NoOp -> res
+            _ -> traceShow a res
+    updateProd a m = updateModel a m
+    update = if Configuration.hashless then updateLog else updateProd
     view = viewModel -- view function
     events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
     subs = [keyboardSub Keyboard]
