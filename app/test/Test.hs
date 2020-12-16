@@ -18,7 +18,7 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import qualified Game (Event (..), PolyResult (..), Target (..), attackOrder, playAll)
+import qualified Game (Event (..), PolyResult (..), Target (..), attackOrder, placePrimeToHandIndex, play, playAll)
 import Generators
 import Json
 import qualified Match
@@ -58,6 +58,34 @@ testAIRanged shared turn =
     archer = IDC $ CreatureID Archer t
     board = boardAddToHand (emptyBoard teams) (turnToPlayerSpot turn) archer
     events = AI.play SharedModel.unsafeGet board turn
+
+-- This test fails for now. It acts as a witness of the bug that playing
+-- the last card of the hand prints the following in the console:
+-- "Invalid hand index: 4. Hand has 4 card(s)."
+-- FIXME the test fails because of too many discards at the moment!
+testPlayLastHandCard :: SharedModel -> SpecWith ()
+testPlayLastHandCard shared =
+  describe
+    "Play the last card of the hand"
+    $ prop "doesn't yield an error" $
+      \(Pretty board, Pretty turn) ->
+        let event = AI.placeCards shared board turn & keepLast board turn
+         in isJust event
+              ==> Game.play shared board (fromJust event) `shouldSatisfy` isRight
+  where
+    isRight (Right _) = True
+    isRight (Left _) = False
+    keepLast (board :: Board 'Core) turn events = go events
+      where
+        pSpot = turnToPlayerSpot turn
+        lastIdx = (boardToHand board pSpot & length) - 1
+        go [] = Nothing
+        go (e@Game.Place' {} : tl) =
+          case Game.placePrimeToHandIndex board e of
+            Nothing -> error "Unexpected case"
+            Just (HandIndex i) | i == lastIdx -> Just e
+            _ -> go tl
+        go (e : _) = error $ "Only Place' events should have been generated, but received: " ++ show e
 
 testNeighbors :: SpecWith ()
 testNeighbors =
