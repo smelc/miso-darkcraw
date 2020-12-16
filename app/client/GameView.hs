@@ -18,11 +18,14 @@ import Card
 import Configuration (hashless)
 import Constants
 import Control.Lens
+import Control.Monad.Except
 import Data.Generics.Labels ()
 import Data.Generics.Product
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import qualified Data.Text as Text
+import Debug.Trace (traceShow)
 import Event
 import qualified Game
 import GameViewInternal
@@ -37,14 +40,14 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: GameModel -> Styled (View Action)
-viewGameModel model@GameModel {playingPlayer} = do
+viewGameModel model@GameModel {board, interaction, playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
   return $ div_ [] [boardDiv, handDiv]
   where
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
-    boardCardsM = boardToInPlaceCells zpp model
+    boardCardsM = boardToInPlaceCells zpp model dragTargetKind
     boardDivM = do
       let errs = errView model zpp & maybeToList
       stacks <-
@@ -64,22 +67,31 @@ viewGameModel model@GameModel {playingPlayer} = do
     handStyle =
       zpltwh z Relative 0 0 handPixelWidth handPixelHeight
         <> "background-image" =: assetsUrl "forest-hand.png"
+    dragTargetKind =
+      case interaction of
+        GameDragInteraction (Dragging (HandIndex i) _) ->
+          case boardToHand board playingPlayer & flip lookupHand i & runExcept of
+            Left err -> traceShow (Text.unpack err) Nothing
+            Right id -> Just $ idToTargetKind id
+        _ -> Nothing
 
 boardToInPlaceCells ::
   -- | The z index
   Int ->
   GameModel ->
+  -- | The target to which the card being dragged applies (if any)
+  Maybe TargetKind ->
   Styled [View Action]
-boardToInPlaceCells z m@GameModel {board, playingPlayer} = do
+boardToInPlaceCells z m@GameModel {board, playingPlayer} dragTargetKind = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
-  let playerTargets = [boardToPlayerTarget playerTargetZ m pSpot | pSpot <- allPlayersSpots]
+  let playerTargets = [boardToPlayerTarget playerTargetZ m dragTargetKind pSpot | pSpot <- allPlayersSpots]
   return [div_ [] $ main ++ playerTargets]
   where
     mainM =
       sequence
-        [ boardToInPlaceCell z m pSpot cSpot
+        [ boardToInPlaceCell z m dragTargetKind pSpot cSpot
           | (pSpot, cSpot, _) <- boardToHoleyInPlace board
         ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
@@ -91,8 +103,15 @@ boardToInPlaceCells z m@GameModel {board, playingPlayer} = do
     playerTargetActive = borderWidth m (Game.PlayerTarget playingPlayer) > 0
     playerTargetZ = if playerTargetActive then z + 1 else z - 1
 
-boardToInPlaceCell :: Int -> GameModel -> PlayerSpot -> CardSpot -> Styled (View Action)
-boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot cSpot =
+boardToInPlaceCell ::
+  Int ->
+  GameModel ->
+  -- | The target to which the card being dragged applies (if any)
+  Maybe TargetKind ->
+  PlayerSpot ->
+  CardSpot ->
+  Styled (View Action)
+boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTargetKind pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
@@ -130,7 +149,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
           [ onMouseEnter' "card" $ lift $ GameInPlaceMouseEnter target,
             onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave target
           ]
-        else onDragEvents target
+        else dragDropEvents <$> dragTarget & concat
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBottom -> True
@@ -143,16 +162,25 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} pSpot c
         | attackBump attackEffect
       ]
     rgb = borderRGB interaction (Game.CardTarget pSpot cSpot)
+    dragTarget =
+      case dragTargetKind of
+        Just CardTargetKind -> Just target
+        _ -> Nothing
 
-boardToPlayerTarget :: Int -> GameModel -> PlayerSpot -> View Action
-boardToPlayerTarget z m@GameModel {interaction} pSpot =
+boardToPlayerTarget ::
+  Int ->
+  GameModel ->
+  Maybe TargetKind ->
+  PlayerSpot ->
+  View Action
+boardToPlayerTarget z m@GameModel {interaction} dragTargetKind pSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
     ( [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
         cardBoxShadowStyle rgb bwidth "ease-in-out"
       ]
-        ++ onDragEvents target
+        ++ (dragDropEvents <$> dragTarget & concat)
     )
     []
   where
@@ -163,10 +191,14 @@ boardToPlayerTarget z m@GameModel {interaction} pSpot =
     cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBottom -> BottomRight
     target = Game.PlayerTarget pSpot
     (rgb, bwidth) = (borderRGB interaction target, borderWidth m target)
+    dragTarget =
+      case dragTargetKind of
+        Just PlayerTargetKind -> Just target
+        _ -> Nothing
 
 -- | The events for placeholders showing drag targets
-onDragEvents :: Game.Target -> [Attribute Action]
-onDragEvents target =
+dragDropEvents :: Game.Target -> [Attribute Action]
+dragDropEvents target =
   [ onDragEnter $ lift $ GameDragEnter target,
     onDragLeave $ lift $ GameDragLeave target,
     onDrop (AllowDrop True) $ lift GameDrop,

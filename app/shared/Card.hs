@@ -254,3 +254,10 @@ targetKind n =
     Health -> CardTargetKind
     Life -> CardTargetKind
     InfernalHaste -> PlayerTargetKind
+
+idToTargetKind :: ID -> TargetKind
+idToTargetKind id =
+  case id of
+    IDC _ -> CardTargetKind
+    IDN n -> targetKind n
+    IDI _ -> error $ "Unsupported identifier: " ++ show id

@@ -51,9 +51,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Debug.Trace (traceShowId)
 import GHC.Generics (Generic)
-import GHC.IO (unsafePerformIO)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
