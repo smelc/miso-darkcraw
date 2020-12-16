@@ -73,10 +73,10 @@ errView GameModel {interaction} z =
 scoreViews :: GameModel -> Int -> [View Action]
 scoreViews m@GameModel {board} z =
   [ scoreView m z PlayerTop,
-    scoreView m z PlayerBottom
+    scoreView m z PlayerBot
   ]
     ++ [ scoreLeaderView
-           (if topScore > botScore then PlayerTop else PlayerBottom)
+           (if topScore > botScore then PlayerTop else PlayerBot)
          | topScore /= botScore
        ]
   where
@@ -85,7 +85,7 @@ scoreViews m@GameModel {board} z =
 
 scoreMarginTop :: PlayerSpot -> Int
 scoreMarginTop PlayerTop = cps
-scoreMarginTop PlayerBottom = cps * 24
+scoreMarginTop PlayerBot = cps * 24
 
 scoreView :: GameModel -> Int -> PlayerSpot -> View Action
 scoreView GameModel {board} z pSpot =
@@ -134,7 +134,7 @@ turnView model@GameModel {turn} z = do
     playerImgY =
       case turnToPlayerSpot turn of
         PlayerTop -> "1"
-        PlayerBottom -> "2"
+        PlayerBot -> "2"
     topMargin = cellPixelSize `div` 2
     topMarginAttr = style_ $ "margin-top" =: px topMargin
     line2 :: View Action =

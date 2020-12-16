@@ -107,7 +107,7 @@ reportEffect pSpot cSpot effect =
     effectless = InPlaceEffects Map.empty
     (botInPlace, topInPlace) =
       case pSpot of
-        PlayerBottom -> (effectfull, effectless)
+        PlayerBot -> (effectfull, effectless)
         PlayerTop -> (effectless, effectfull)
     pTop :: PlayerPart UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart UI = mempty {inPlace = botInPlace}
@@ -506,7 +506,7 @@ enemySpots skills cSpot =
 attackOrder :: PlayerSpot -> [CardSpot]
 attackOrder PlayerTop =
   [BottomRight, Bottom, BottomLeft, TopRight, Top, TopLeft]
-attackOrder PlayerBottom =
+attackOrder PlayerBot =
   map bottomSpotOfTopVisual $ reverse $ attackOrder PlayerTop
 
 nextAttackSpot :: Board Core -> PlayerSpot -> Maybe CardSpot -> Maybe CardSpot

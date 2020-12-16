@@ -252,15 +252,14 @@ lookupHand hand i
   where
     handLength = length hand
 
--- FIXME @smelc rename PlayerBottom into PlayerBot
-data PlayerSpot = PlayerBottom | PlayerTop
+data PlayerSpot = PlayerBot | PlayerTop
   deriving (Enum, Eq, Ord, Show, Generic)
 
 allPlayersSpots :: [PlayerSpot]
-allPlayersSpots = [PlayerBottom ..]
+allPlayersSpots = [PlayerBot ..]
 
 startingPlayerSpot :: PlayerSpot
-startingPlayerSpot = PlayerBottom
+startingPlayerSpot = PlayerBot
 
 endingPlayerSpot :: PlayerSpot
 endingPlayerSpot = PlayerTop
@@ -341,7 +340,7 @@ boardSetHand board pSpot hand =
 
 boardSetPart :: Board p -> PlayerSpot -> PlayerPart p -> Board p
 boardSetPart board PlayerTop part = board {playerTop = part}
-boardSetPart board PlayerBottom part = board {playerBottom = part}
+boardSetPart board PlayerBot part = board {playerBottom = part}
 
 boardSetStack :: Board p -> PlayerSpot -> StackType p -> Board p
 boardSetStack board pSpot stack =
@@ -367,15 +366,15 @@ boardToPlayerHoleyInPlace board pSpot =
 
 boardToDiscarded :: Board p -> PlayerSpot -> DiscardedType p
 boardToDiscarded Board {playerTop} PlayerTop = discarded playerTop
-boardToDiscarded Board {playerBottom} PlayerBottom = discarded playerBottom
+boardToDiscarded Board {playerBottom} PlayerBot = discarded playerBottom
 
 boardToHand :: Board p -> PlayerSpot -> InHandType p
 boardToHand Board {playerTop} PlayerTop = inHand playerTop
-boardToHand Board {playerBottom} PlayerBottom = inHand playerBottom
+boardToHand Board {playerBottom} PlayerBot = inHand playerBottom
 
 boardToInPlace :: Board p -> PlayerSpot -> InPlaceType p
 boardToInPlace Board {playerTop} PlayerTop = inPlace playerTop
-boardToInPlace Board {playerBottom} PlayerBottom = inPlace playerBottom
+boardToInPlace Board {playerBottom} PlayerBot = inPlace playerBottom
 
 -- | The neighbors of the card at the given spot, for the given player,
 -- and for the given kind of neighbors.
@@ -393,14 +392,14 @@ boardToNeighbors board pSpot cSpot neighborhood =
 
 boardToPart :: Board p -> PlayerSpot -> PlayerPart p
 boardToPart Board {playerTop} PlayerTop = playerTop
-boardToPart Board {playerBottom} PlayerBottom = playerBottom
+boardToPart Board {playerBottom} PlayerBot = playerBottom
 
 boardToScore :: Board p -> PlayerSpot -> ScoreType p
 boardToScore board pSpot = boardToPart board pSpot & score
 
 boardToStack :: Board p -> PlayerSpot -> StackType p
 boardToStack Board {playerTop} PlayerTop = stack playerTop
-boardToStack Board {playerBottom} PlayerBottom = stack playerBottom
+boardToStack Board {playerBottom} PlayerBot = stack playerBottom
 
 boardToInPlaceCreature ::
   Board Core ->
@@ -459,13 +458,13 @@ topSpots = filter inTheBack allCardsSpots
 
 -- | The other spot
 otherPlayerSpot :: PlayerSpot -> PlayerSpot
-otherPlayerSpot PlayerBottom = PlayerTop
-otherPlayerSpot PlayerTop = PlayerBottom
+otherPlayerSpot PlayerBot = PlayerTop
+otherPlayerSpot PlayerTop = PlayerBot
 
 spotToLens :: PlayerSpot -> Lens' (Board p) (PlayerPart p)
 spotToLens =
   \case
-    PlayerBottom -> #playerBottom
+    PlayerBot -> #playerBottom
     PlayerTop -> #playerTop
 
 appliesTo :: Neutral -> Board Core -> PlayerSpot -> CardSpot -> Bool
@@ -487,7 +486,7 @@ unsafeExampleBoard =
     teams = Teams {topTeam = Undead, botTeam = Human}
     board = initialBoard shared teams & snd
     creature team creatureKind = idToCreature shared CreatureID {..} & fromJust & unliftCreature
-    board' = boardSetCreature board PlayerBottom Bottom $ creature Human Archer
+    board' = boardSetCreature board PlayerBot Bottom $ creature Human Archer
 
 boardToASCII :: Board Core -> String
 boardToASCII board =
@@ -500,12 +499,12 @@ boardToASCII board =
         ++ ["\n"] -- vertical space between AI lines
         ++ cardsLines board PlayerTop botSpots
         ++ ["\n", "\n"] -- vertical space between players
-        ++ cardsLines board PlayerBottom botSpots
+        ++ cardsLines board PlayerBot botSpots
         ++ ["\n"] -- vertical space between player lines
-        ++ cardsLines board PlayerBottom topSpots
+        ++ cardsLines board PlayerBot topSpots
         ++ []
-        ++ [handLine board PlayerBottom]
-        ++ stackLines board PlayerBottom
+        ++ [handLine board PlayerBot]
+        ++ stackLines board PlayerBot
 
 stackLines :: Board Core -> PlayerSpot -> [String]
 stackLines board pSpot =

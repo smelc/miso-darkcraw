@@ -152,7 +152,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
         else dragDropEvents <$> dragTarget & concat
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
-    upOrDown = case pSpot of PlayerTop -> False; PlayerBottom -> True
+    upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
     (x, y) = cardCellsBoardOffset pSpot cSpot
     beingHovered = interaction == GameHoverInPlaceInteraction target
     attackEffect =
@@ -188,7 +188,7 @@ boardToPlayerTarget z m@GameModel {interaction} dragTargetKind pSpot =
     (x, y) = cardCellsBoardOffset pSpot cSpot
     (w, h) = (cardCellWidth * 3 + cardHCellGap * 2, cardCellHeight * 2 + cardVCellGap)
     posStyle x y = pltwh Absolute (x * cps) (y * cps) (w * cps) (h * cps)
-    cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBottom -> BottomRight
+    cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBot -> BottomRight
     target = Game.PlayerTarget pSpot
     (rgb, bwidth) = (borderRGB interaction target, borderWidth m target)
     dragTarget =
@@ -284,7 +284,7 @@ cardCellsBoardOffset PlayerTop cardSpot =
       BottomLeft -> (0, botyShift)
       Bottom -> (xtop, botyShift)
       BottomRight -> (xtopright, botyShift)
-cardCellsBoardOffset PlayerBottom cardSpot =
+cardCellsBoardOffset PlayerBot cardSpot =
   (offsetx + x, offsety + y)
   where
     (offsetx, offsety) =

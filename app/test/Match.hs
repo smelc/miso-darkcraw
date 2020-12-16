@@ -52,7 +52,7 @@ main shared =
         ++ " "
         ++ sign board
         ++ " "
-        ++ showScore board PlayerBottom
+        ++ showScore board PlayerBot
       where
         sign (Just (board :: Board 'Core)) =
           case compare (scoreTop board) (scoreBot board) of
@@ -61,7 +61,7 @@ main shared =
             GT -> ">"
         sign Nothing = "?"
         scoreTop board = boardToScore board PlayerTop
-        scoreBot board = boardToScore board PlayerBottom
+        scoreBot board = boardToScore board PlayerBot
         showScore Nothing _ = "?"
         showScore (Just (board :: Board 'Core)) pSpot =
           show (boardToPart board pSpot & Board.team)
@@ -94,10 +94,10 @@ toMatchResult GameModel {board} =
   if
       | scoreTop == scoreBot -> Draw
       | scoreTop > scoreBot -> Win PlayerTop
-      | otherwise -> Win PlayerBottom
+      | otherwise -> Win PlayerBot
   where
     score pSpot = boardToPart board pSpot & Board.score
-    (scoreTop, scoreBot) = (score PlayerTop, score PlayerBottom)
+    (scoreTop, scoreBot) = (score PlayerTop, score PlayerBot)
 
 playOneTurn :: GameModel -> Either Text GameModel
 playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =

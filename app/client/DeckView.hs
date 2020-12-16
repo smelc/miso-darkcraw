@@ -66,7 +66,7 @@ viewDeck DeckModel {deck, deckPlayer, deckShared} = do
         [imgCell slotPath]
     slotPath = case deckPlayer of
       PlayerTop -> assetSlotRed
-      PlayerBottom -> assetSlotBlue
+      PlayerBot -> assetSlotBlue
     subtitleStyle = textStyle <> "font-size" =: px subtitleFontSize
     backDivM = do
       button <-
