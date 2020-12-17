@@ -18,7 +18,8 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import qualified Game (Event (..), PolyResult (..), Target (..), attackOrder, placePrimeToHandIndex, play, playAll)
+import Game (Target (..))
+import qualified Game (Event (..), PolyResult (..), attackOrder, play, playAll)
 import Generators
 import Json
 import qualified Match
@@ -59,33 +60,41 @@ testAIRanged shared turn =
     board = boardAddToHand (emptyBoard teams) (turnToPlayerSpot turn) archer
     events = AI.play SharedModel.unsafeGet board turn
 
--- This test fails for now. It acts as a witness of the bug that playing
--- the last card of the hand prints the following in the console:
+-- | This test was written in the hope it would reveal why
+-- there are such logs in the console when playing the last card of the hand:
 -- "Invalid hand index: 4. Hand has 4 card(s)."
--- FIXME the test fails because of too many discards at the moment!
+-- Unfortunately, the test passes ^^ so it's a UI only bug. It's a good
+-- test though, so I kept it.
 testPlayLastHandCard :: SharedModel -> SpecWith ()
 testPlayLastHandCard shared =
   describe
     "Play the last card of the hand"
     $ prop "doesn't yield an error" $
       \(Pretty board, Pretty turn) ->
-        let event = AI.placeCards shared board turn & keepLast board turn
+        let event = playLastCardEvent board $ turnToPlayerSpot turn
          in isJust event
               ==> Game.play shared board (fromJust event) `shouldSatisfy` isRight
   where
+    -- Very simple AI-like function
+    playLastCardEvent board pSpot =
+      case lastCardIdx board pSpot of
+        Nothing -> Nothing
+        Just i ->
+          let (id, targetKind) = (boardToHand board pSpot !! i, idToTargetKind id)
+           in case targetKind of
+                PlayerTargetKind -> Just $ Game.Place (PlayerTarget pSpot) $ HandIndex i -- Choosing pSpot is arbitrary
+                CardTargetKind ->
+                  boardToPlayerHoleyInPlace board pSpot
+                    & filter (\(_, creature) -> isNothing creature)
+                    & map fst
+                    & listToMaybe
+                    <&> (\cSpot -> Game.Place (CardTarget pSpot cSpot) $ HandIndex i)
+    lastCardIdx board pSpot =
+      case boardToHand board pSpot of
+        [] -> Nothing
+        l -> Just $ length l - 1
     isRight (Right _) = True
     isRight (Left _) = False
-    keepLast (board :: Board 'Core) turn events = go events
-      where
-        pSpot = turnToPlayerSpot turn
-        lastIdx = (boardToHand board pSpot & length) - 1
-        go [] = Nothing
-        go (e@Game.Place' {} : tl) =
-          case Game.placePrimeToHandIndex board e of
-            Nothing -> error "Unexpected case"
-            Just (HandIndex i) | i == lastIdx -> Just e
-            _ -> go tl
-        go (e : _) = error $ "Only Place' events should have been generated, but received: " ++ show e
 
 testNeighbors :: SpecWith ()
 testNeighbors =
@@ -326,4 +335,5 @@ main = hspec $ do
   testInPlaceEffectsMonoid
   testNoPlayEventNeutral shared
   testPlayScoreMonotonic shared
+  testPlayLastHandCard shared
   Match.main shared
