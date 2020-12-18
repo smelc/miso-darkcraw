@@ -470,7 +470,7 @@ spotToLens =
 appliesTo :: Neutral -> Board Core -> PlayerSpot -> CardSpot -> Bool
 appliesTo n board pSpot cSpot =
   case (Card.targetKind n, boardToInPlaceCreature board pSpot cSpot) of
-    (Card.CardTargetKind, Just _) -> True
+    (Card.CardTargetType, Just _) -> True
     _ -> False
 
 ------------------------------

@@ -245,19 +245,20 @@ teamDeck cards t =
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste
 
-data TargetKind = CardTargetKind | PlayerTargetKind
+data TargetType = CardTargetType | PlayerTargetType
+  deriving (Show)
 
 -- | The kind of Game target a neutral likes
-targetKind :: Neutral -> TargetKind
+targetKind :: Neutral -> TargetType
 targetKind n =
   case n of
-    Health -> CardTargetKind
-    Life -> CardTargetKind
-    InfernalHaste -> PlayerTargetKind
+    Health -> CardTargetType
+    Life -> CardTargetType
+    InfernalHaste -> PlayerTargetType
 
-idToTargetKind :: ID -> TargetKind
-idToTargetKind id =
+idToTargetType :: ID -> TargetType
+idToTargetType id =
   case id of
-    IDC _ -> CardTargetKind
+    IDC _ -> CardTargetType
     IDN n -> targetKind n
     IDI _ -> error $ "Unsupported identifier: " ++ show id

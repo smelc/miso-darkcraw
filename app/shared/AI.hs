@@ -162,13 +162,13 @@ targets board playingPlayer id =
       freeCardTargets playingPlayer
     IDN n ->
       case (Card.targetKind n, neutralPlayerTargets n) of
-        (CardTargetKind, Playing) ->
+        (CardTargetType, Playing) ->
           freeCardTargets playingPlayer
-        (CardTargetKind, Opponent) ->
+        (CardTargetType, Opponent) ->
           freeCardTargets $ otherPlayerSpot playingPlayer
-        (PlayerTargetKind, Playing) ->
+        (PlayerTargetType, Playing) ->
           [PlayerTarget playingPlayer]
-        (PlayerTargetKind, Opponent) ->
+        (PlayerTargetType, Opponent) ->
           [PlayerTarget $ otherPlayerSpot playingPlayer]
     _ -> error $ "Unsupported Card.ID: " ++ show id
   where
