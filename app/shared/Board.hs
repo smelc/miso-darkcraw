@@ -62,6 +62,7 @@ module Board
     Neighborhood (..),
     boardToPlayerHoleyInPlace,
     boardToNeighbors,
+    boardToPlayerCardSpots,
   )
 where
 
@@ -356,6 +357,18 @@ boardToHoleyInPlace board =
       let maybeCreature = boardToInPlaceCreature board pSpot cSpot
   ]
 
+boardToPlayerCardSpots :: Board 'Core -> PlayerSpot -> CardTargetKind -> [CardSpot]
+boardToPlayerCardSpots board pSpot ctk =
+  boardToPlayerHoleyInPlace board pSpot
+    & filter
+      ( \(_, maybeCreature) ->
+          case (ctk, maybeCreature) of
+            (Hole, Nothing) -> True
+            (Occupied, Just _) -> True
+            _ -> False
+      )
+    & map fst
+
 boardToPlayerHoleyInPlace ::
   Board Core -> PlayerSpot -> [(CardSpot, Maybe (Creature Core))]
 boardToPlayerHoleyInPlace board pSpot =
@@ -470,7 +483,8 @@ spotToLens =
 appliesTo :: Neutral -> Board Core -> PlayerSpot -> CardSpot -> Bool
 appliesTo n board pSpot cSpot =
   case (Card.targetKind n, boardToInPlaceCreature board pSpot cSpot) of
-    (Card.CardTargetType, Just _) -> True
+    (Card.CardTargetType Occupied, Just _) -> True
+    (Card.CardTargetType Hole, Nothing) -> True
     _ -> False
 
 ------------------------------

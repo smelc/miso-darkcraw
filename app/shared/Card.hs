@@ -245,20 +245,29 @@ teamDeck cards t =
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste
 
-data TargetType = CardTargetType | PlayerTargetType
+data CardTargetKind
+  = -- | Card targets empty 'CardSpot'
+    Hole
+  | -- | Card targets occupied 'CardSpot'
+    Occupied
   deriving (Show)
+
+data TargetType = CardTargetType CardTargetKind | PlayerTargetType
+  deriving (Show)
+
+-- TODO @smelc rename me into targetType
 
 -- | The kind of Game target a neutral likes
 targetKind :: Neutral -> TargetType
 targetKind n =
   case n of
-    Health -> CardTargetType
-    Life -> CardTargetType
+    Health -> CardTargetType Occupied
+    Life -> CardTargetType Occupied
     InfernalHaste -> PlayerTargetType
 
 idToTargetType :: ID -> TargetType
 idToTargetType id =
   case id of
-    IDC _ -> CardTargetType
+    IDC _ -> CardTargetType Hole
     IDN n -> targetKind n
     IDI _ -> error $ "Unsupported identifier: " ++ show id

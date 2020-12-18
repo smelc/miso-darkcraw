@@ -158,24 +158,22 @@ targets ::
 targets board playingPlayer id =
   case id of
     IDC _ ->
-      -- Creatures can be placed in the playing player's free spots
-      freeCardTargets playingPlayer
+      -- Creatures can be placed in the playing player's free spots:
+      cardTargets playingPlayer Hole
     IDN n ->
       case (Card.targetKind n, neutralPlayerTargets n) of
-        (CardTargetType, Playing) ->
-          freeCardTargets playingPlayer
-        (CardTargetType, Opponent) ->
-          freeCardTargets $ otherPlayerSpot playingPlayer
+        (CardTargetType ctk, Playing) ->
+          cardTargets playingPlayer ctk
+        (CardTargetType ctk, Opponent) ->
+          cardTargets (otherPlayerSpot playingPlayer) ctk
         (PlayerTargetType, Playing) ->
           [PlayerTarget playingPlayer]
         (PlayerTargetType, Opponent) ->
           [PlayerTarget $ otherPlayerSpot playingPlayer]
     _ -> error $ "Unsupported Card.ID: " ++ show id
   where
-    freeSpots pSpot =
-      [cSpot | cSpot <- allCardsSpots, cSpot `Map.notMember` boardToInPlace board pSpot]
-    freeCardTargets pSpot =
-      [CardTarget pSpot cSpot | cSpot <- freeSpots pSpot]
+    cardTargets pSpot ctk =
+      boardToPlayerCardSpots board pSpot ctk & map (CardTarget pSpot)
 
 -- | Whether the AI tries to play a neutral card on the playing player
 -- or the  opponent. We could even try both, but we don't do that.

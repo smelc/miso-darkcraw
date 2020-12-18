@@ -51,6 +51,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
@@ -365,6 +366,8 @@ transferCardsM board pSpot =
 -- on 'target'
 appliesTo :: Board Core -> Neutral -> PlayerSpot -> Target -> Bool
 appliesTo board n playingPlayer target =
+  -- FIXME @smelc refactor me to have exhaustive matching on n
+  -- Otherwise it's a place I'll forget to update when introducing a new Neutral
   case (target, n) of
     (PlayerTarget pSpot, InfernalHaste)
       | pSpot == playingPlayer -> True

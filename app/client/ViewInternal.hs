@@ -82,15 +82,12 @@ animDataToStyle animData =
       & at "animation-name" ?~ animDataName animData
       & at "animation-timing-function" ?~ animDataTimingFunction animData
 
--- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textMainColor :: MisoString
 textMainColor = "#FFFFFF" -- white
 
--- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textRawStyle :: [(MisoString, MisoString)]
 textRawStyle = [("color", textMainColor)]
 
--- TODO smelc carry me over with a monad (or with ViewBlocks?)
 textStyle :: Map.Map MisoString MisoString
 textStyle = Map.fromList textRawStyle
 

@@ -25,7 +25,7 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Text as Text
-import Debug.Trace (traceShow, traceShowId)
+import Debug.Trace (traceShow)
 import Event
 import qualified Game
 import GameViewInternal
@@ -86,7 +86,7 @@ boardToInPlaceCells z m@GameModel {board, playingPlayer} dragTargetType = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
-  let playerTargets = traceShow dragTargetType $ [boardToPlayerTarget playerTargetZ m dragTargetType pSpot | pSpot <- allPlayersSpots]
+  let playerTargets = [boardToPlayerTarget playerTargetZ m dragTargetType pSpot | pSpot <- allPlayersSpots]
   return [div_ [] $ main ++ playerTargets]
   where
     mainM =
@@ -120,9 +120,10 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
             <> cardPositionStyle x y -- Absolute positioning
             <> "z-index" =: ms z,
         class_ "card",
-        cardBoxShadowStyle rgb (borderWidth m $ Game.CardTarget pSpot cSpot) "ease-in-out"
+        cardBoxShadowStyle rgb (borderWidth m target) "ease-in-out"
       ]
-        ++ eventsAttrs GameAction'
+        ++ inPlaceEnterLeaveAttrs GameAction'
+        ++ (dragDropEvents <$> dragTarget maybeCreature & concat)
     )
     <$> do
       death <- deathFadeout attackEffect x y
@@ -143,13 +144,13 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
   where
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = boardToInPlaceCreature board pSpot cSpot
-    eventsAttrs lift =
-      if isJust maybeCreature
-        then
+    inPlaceEnterLeaveAttrs lift =
+      case maybeCreature of
+        Just _ ->
           [ onMouseEnter' "card" $ lift $ GameInPlaceMouseEnter target,
             onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave target
           ]
-        else dragDropEvents <$> dragTarget & concat
+        Nothing -> []
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
@@ -161,10 +162,11 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
         | attackBump attackEffect
       ]
-    rgb = borderRGB interaction (Game.CardTarget pSpot cSpot)
-    dragTarget =
-      case dragTargetType of
-        Just CardTargetType -> Just target
+    rgb = borderRGB interaction target
+    dragTarget maybeCreature =
+      case (dragTargetType, maybeCreature) of
+        (Just (CardTargetType Hole), Nothing) -> Just target
+        (Just (CardTargetType Occupied), Just _) -> Just target
         _ -> Nothing
 
 boardToPlayerTarget ::
@@ -207,10 +209,10 @@ dragDropEvents target =
   where
     lift = GameAction'
 
-borderRGB interaction cSpot =
+borderRGB :: GameInteraction -> Game.Target -> (Int, Int, Int)
+borderRGB interaction target =
   case interaction of
-    -- TODO @smelc change that when highlighting neutral drop on PlayerTarget
-    GameDragInteraction Dragging {dragTarget} | dragTarget == Just cSpot -> yellowRGB
+    GameDragInteraction Dragging {dragTarget} | dragTarget == Just target -> yellowRGB
     _ -> greenRGB
 
 boardToInHandCells ::

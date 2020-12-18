@@ -83,10 +83,8 @@ testPlayLastHandCard shared =
           let (id, targetKind) = (boardToHand board pSpot !! i, idToTargetType id)
            in case targetKind of
                 PlayerTargetType -> Just $ Game.Place (PlayerTarget pSpot) $ HandIndex i -- Choosing pSpot is arbitrary
-                CardTargetType ->
-                  boardToPlayerHoleyInPlace board pSpot
-                    & filter (\(_, creature) -> isNothing creature)
-                    & map fst
+                CardTargetType ctk ->
+                  boardToPlayerCardSpots board pSpot ctk
                     & listToMaybe
                     <&> (\cSpot -> Game.Place (CardTarget pSpot cSpot) $ HandIndex i)
     lastCardIdx board pSpot =
