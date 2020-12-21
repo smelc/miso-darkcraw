@@ -2,6 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ViewPatterns #-}
 
 module Main where
@@ -26,7 +27,7 @@ import qualified Match
 import Movie
 import Pretty
 import SceneEquivalence
-import SharedModel (SharedModel)
+import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -93,6 +94,56 @@ testPlayLastHandCard shared =
         l -> Just $ length l - 1
     isRight (Right _) = True
     isRight (Left _) = False
+
+-- Tests that playing a creature only affects the target spot. Some
+-- creatures are omitted: the ones with Discipline, because it breaks this
+-- property. This test is not plugged yet because it breaks: if you
+-- play a creature close to a creature with Discipline, the creature
+-- with Discipline is affected (whereas it shouldn't be!).
+testPlayFraming :: SharedModel -> SpecWith ()
+testPlayFraming shared =
+  describe
+    "Playing some cards doesn't change"
+    $ prop "other spots of the board" $
+      \(Pretty board, Pretty turn) ->
+        let pSpot = turnToPlayerSpot turn
+         in let pair = pickCardSpot board 0 pSpot
+             in isJust pair
+                  ==> let (i, cSpot) = fromJust pair
+                       in Game.play shared board (Game.Place (Game.CardTarget pSpot cSpot) (HandIndex i))
+                            `shouldSatisfy` relation board pSpot cSpot
+  where
+    -- Very simple AI-like function
+    pickCardSpot (board :: Board 'Core) i pSpot =
+      case boardToHand board pSpot of
+        [] -> Nothing
+        id : hand' ->
+          if breaksFraming id
+            then pickCardSpot (boardSetHand board pSpot hand') (i + 1) pSpot -- try next card
+            else case idToTargetType id of
+              PlayerTargetType -> Nothing
+              CardTargetType ctk ->
+                boardToPlayerCardSpots board pSpot ctk
+                  & listToMaybe
+                  <&> (i,)
+    breaksFraming (IDC id) =
+      -- Playing a card with Discipline may affect neighbors, hereby breaking Framing
+      Discipline `elem` (idToCreature shared id & fromJust & skills)
+    breaksFraming _ = False
+    relation _ _ _ (Left _) = True
+    relation board pSpot cSpot (Right (Game.Result board' _ _)) = boardEq board pSpot [cSpot] board'
+    boardEq (board :: Board 'Core) pSpot cSpots board' =
+      let otherSpot = otherPlayerSpot pSpot
+       in -- Board must be completely equivalent on part of player that doesn't play
+          (boardToPart board otherSpot == boardToPart board' otherSpot)
+            -- and agree w.r.t. partEq on the part of the player that played
+            && partEq (boardToPart board pSpot) (boardToPart board' pSpot) cSpots
+    partEq
+      (PlayerPart {..} :: PlayerPart 'Core)
+      (PlayerPart {inPlace = inPlace', score = score', stack = stack', discarded = discarded', team = team'} :: PlayerPart 'Core)
+      cSpots =
+        score == score' && stack == stack' && discarded == discarded' && team == team'
+          && (Map.withoutKeys inPlace (Set.fromList cSpots) == Map.withoutKeys inPlace' (Set.fromList cSpots))
 
 testNeighbors :: SpecWith ()
 testNeighbors =
