@@ -123,34 +123,33 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
         cardBoxShadowStyle rgb (borderWidth m target) "ease-in-out"
       ]
         ++ inPlaceEnterLeaveAttrs GameAction'
-        ++ (dragDropEvents <$> dragTarget maybeCreature & concat)
+        ++ (dragDropEvents <$> dragTarget & concat)
     )
     <$> do
       death <- deathFadeout attackEffect x y
       heart <- heartWobble (z + 1) attackEffect x y
-      cards <-
-        sequence $
-          maybeToList $
-            maybeCreature
-              <&> ( \creature ->
-                      let cdsty =
-                            mempty
-                              { hover = beingHovered,
-                                PCWViewInternal.fadeIn = Board.fadeIn attackEffect
-                              }
-                       in cardView z gameShared (CreatureCard creature) cdsty
-                  )
-      return $ cards ++ death ++ heart
+      cards <- sequence $
+        case maybeCreature of
+          Nothing -> Nothing
+          Just creature ->
+            let cdsty =
+                  mempty
+                    { hover = beingHovered,
+                      PCWViewInternal.fadeIn = Board.fadeIn attackEffect
+                    }
+             in Just $ cardView z gameShared (CreatureCard creature) cdsty
+      return $ maybeToList cards ++ death ++ heart
   where
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = boardToInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs lift =
-      case maybeCreature of
-        Just _ ->
+      -- If dragging we don't need to handle in place hovering
+      case (maybeCreature, dragTarget) of
+        (Just _, Nothing) ->
           [ onMouseEnter' "card" $ lift $ GameInPlaceMouseEnter target,
             onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave target
           ]
-        Nothing -> []
+        _ -> []
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
@@ -163,7 +162,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
         | attackBump attackEffect
       ]
     rgb = borderRGB interaction target
-    dragTarget maybeCreature =
+    dragTarget =
       case (dragTargetType, maybeCreature) of
         (Just (CardTargetType Hole), Nothing) -> Just target
         (Just (CardTargetType Occupied), Just _) -> Just target
