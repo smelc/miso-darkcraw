@@ -131,13 +131,19 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
       cards <- sequence $
         case maybeCreature of
           Nothing -> Nothing
-          Just creature ->
+          Just creature -> Just $ do
             let cdsty =
                   mempty
                     { hover = beingHovered,
                       PCWViewInternal.fadeIn = Board.fadeIn attackEffect
                     }
-             in Just $ cardView z gameShared (CreatureCard creature) cdsty
+            v <- cardView z gameShared (CreatureCard creature) cdsty
+            -- "pointer-events: none" turns off handling of drag/drog
+            -- events. Without that, on full-fledged cards, children
+            -- would trigger GameDragLeave/GameDragEnter events (because the
+            -- parent 'v' declare them) which would disturb dropping
+            -- of neutral cards
+            return $ div_ [style_ $ "pointer-events" =: "none"] [v]
       return $ maybeToList cards ++ death ++ heart
   where
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
