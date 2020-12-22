@@ -241,7 +241,10 @@ playCardTargetM board pSpot cSpot creature = do
   let inPlace' =
         -- Left-biased union
         Map.union
-          (Map.fromList disciplinedNeighbors')
+          ( if hasDiscipline creature
+              then Map.fromList disciplinedNeighbors'
+              else mempty
+          )
           (Map.insert cSpot creature onTable)
   -- FIXME @smelc Record animations for discipline boost
   let part' = base {inPlace = inPlace'}
@@ -253,10 +256,10 @@ playCardTargetM board pSpot cSpot creature = do
     hasDiscipline c = Discipline `elem` skills c
     disciplinedNeighbors =
       boardToNeighbors board pSpot cSpot Board.Cardinal
-        & map liftDisciplinedJust
+        & map liftJust
         & catMaybes
-    liftDisciplinedJust (cSpot, Just c) | hasDiscipline c = Just (cSpot, c)
-    liftDisciplinedJust _ = Nothing
+    liftJust (f, Just s) = Just (f, s)
+    liftJust _ = Nothing
     applyDisciplineBoost :: Creature 'Core -> Creature 'Core
     applyDisciplineBoost Creature {..} = Creature {hp = hp + 1, attack = attack + 1, ..}
     disciplinedNeighbors' =

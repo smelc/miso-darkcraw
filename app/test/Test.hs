@@ -104,7 +104,7 @@ testPlayFraming :: SharedModel -> SpecWith ()
 testPlayFraming shared =
   describe
     "Playing some cards doesn't change"
-    $ prop "other spots of the board" $
+    $ prop "other spots of the board when placing non-Discipline creature" $
       \(Pretty board, Pretty turn) ->
         let pSpot = turnToPlayerSpot turn
          in let pair = pickCardSpot board 0 pSpot
@@ -386,3 +386,4 @@ main = hspec $ do
   testPlayScoreMonotonic shared
   testPlayLastHandCard shared
   Match.main shared
+  testPlayFraming shared
