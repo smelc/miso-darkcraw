@@ -21,6 +21,7 @@ module GameViewInternal
     StackPosition (..),
     stackView,
     turnView,
+    heartGain,
   )
 where
 
@@ -276,8 +277,8 @@ deathFadeout ae _ _ =
         { animDataFillMode = Just "forwards"
         }
 
-heartWobble :: Int -> InPlaceEffect -> Int -> Int -> Styled [View Action]
-heartWobble z ae _ _ =
+heartWobble :: Int -> InPlaceEffect -> Styled [View Action]
+heartWobble z ae =
   sequence
     [ keyframed
         builder
@@ -292,14 +293,41 @@ heartWobble z ae _ _ =
     delay = 250 -- The delay between each wobbling heart, milliseconds
     delays =
       [delay * (i - 1) | i <- if hpLoss then [1 .. (- hpc)] else []]
-    sty = pltwh Absolute left top imgw imgh <> Map.singleton "z-index" (ms z)
+    sty = pltwh Absolute left top imgw imgh <> "z-index" =: ms z
     (imgw, imgh) :: (Int, Int) = (seize, imgw)
-    left = (cardPixelWidth - imgw) `div` 2
-    top = 0
+    (left, top) = ((cardPixelWidth - imgw) `div` 2, 0)
     builder x =
       img_ $ [src_ (assetsPath assetFilenameHeart), style_ sty] ++ x
     createAnimData delay =
       (animationData "heartWobble" "1s" "linear")
         { animDataFillMode = Just "forwards",
           animDataDelay = Just $ ms delay <> "ms"
+        }
+
+heartGain :: Int -> InPlaceEffect -> Styled [View Action]
+heartGain z ae =
+  sequence
+    [ keyframed
+        (builder x)
+        (grow (animDataName animData) (imgw, imgh) (imgw * 2, imgh * 2))
+        animData
+      | x <- [0 .. hpc - 1],
+        hpc > 0
+    ]
+  where
+    hpc = hitPointsChange ae
+    sty xshift = pltwh Absolute (left + xshift) top imgw imgh <> "z-index" =: ms z
+    (imgw, imgh) :: (Int, Int) = (seize, imgw)
+    (left, top) = (cps `div` 3, 0)
+    builder x rest =
+      img_ $ [src_ (assetsPath assetFilenameHeart), style_ $ sty (xshiftf x hpc)] ++ rest
+    xshiftf 0 1 = 0 -- if there's a single heart, center it
+    xshiftf x 2 = (if odd x then -1 else 1) * cps -- two hearts
+    xshiftf 0 3 = 0 -- three hearts, center
+    xshiftf x 3 | odd x = xshiftf 43 2 -- three hearts, 43 is odd: to the left
+    xshiftf _ 3 = xshiftf 42 2 -- three hearts, 42 is even: to the right
+    xshiftf x total = error $ "xshiftf " ++ show x ++ " " ++ show total ++ " is unsupported"
+    animData =
+      (animationData "heartGain" "1s" "linear")
+        { animDataFillMode = Just "forwards"
         }

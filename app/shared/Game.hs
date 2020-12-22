@@ -51,7 +51,6 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
@@ -211,10 +210,14 @@ playPlayerTargetM board _playingPlayer target n =
           nextAttackSpot board pSpot Nothing
             <&> (\cSpot -> Attack pSpot cSpot True False)
     (Health, CardTarget pSpot cSpot) -> do
-      board' <- addHitpoints pSpot cSpot 1
+      let increase = 1
+      reportEffect pSpot cSpot (mempty {hitPointsChange = increase})
+      board' <- addHitpoints pSpot cSpot increase
       return (board', Nothing)
     (Life, CardTarget pSpot cSpot) -> do
-      board' <- addHitpoints pSpot cSpot 3
+      let increase = 3
+      reportEffect pSpot cSpot (mempty {hitPointsChange = increase})
+      board' <- addHitpoints pSpot cSpot increase
       return (board', Nothing)
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
   where
@@ -222,7 +225,6 @@ playPlayerTargetM board _playingPlayer target n =
       case boardToInPlaceCreature board pSpot cSpot of
         Nothing -> return board
         Just c@Creature {hp} ->
-          -- FIXME @smelc Generate animation showing hit points increase
           return board'
           where
             c' = c {hp = hp + hps}

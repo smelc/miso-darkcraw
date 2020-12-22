@@ -127,7 +127,8 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
     )
     <$> do
       death <- deathFadeout attackEffect x y
-      heart <- heartWobble (z + 1) attackEffect x y
+      heartw <- heartWobble (z + 1) attackEffect
+      heartg <- heartGain (z + 1) attackEffect
       cards <- sequence $
         case maybeCreature of
           Nothing -> Nothing
@@ -141,10 +142,10 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
             -- "pointer-events: none" turns off handling of drag/drog
             -- events. Without that, on full-fledged cards, children
             -- would trigger GameDragLeave/GameDragEnter events (because the
-            -- parent 'v' declare them) which would disturb dropping
-            -- of neutral cards
+            -- parent 'v' declares them) which disturbs dropping
+            -- of neutral cards.
             return $ div_ [style_ $ "pointer-events" =: "none"] [v]
-      return $ maybeToList cards ++ death ++ heart
+      return $ maybeToList cards ++ death ++ heartw ++ heartg
   where
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = boardToInPlaceCreature board pSpot cSpot
