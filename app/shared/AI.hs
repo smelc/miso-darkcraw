@@ -161,7 +161,7 @@ targets board playingPlayer id =
       -- Creatures can be placed in the playing player's free spots:
       cardTargets playingPlayer Hole
     IDN n ->
-      case (Card.targetKind n, neutralPlayerTargets n) of
+      case (Card.targetType n, neutralPlayerTargets n) of
         (CardTargetType ctk, Playing) ->
           cardTargets playingPlayer ctk
         (CardTargetType ctk, Opponent) ->

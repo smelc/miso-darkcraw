@@ -255,11 +255,9 @@ data CardTargetKind
 data TargetType = CardTargetType CardTargetKind | PlayerTargetType
   deriving (Show)
 
--- TODO @smelc rename me into targetType
-
 -- | The kind of Game target a neutral likes
-targetKind :: Neutral -> TargetType
-targetKind n =
+targetType :: Neutral -> TargetType
+targetType n =
   case n of
     Health -> CardTargetType Occupied
     Life -> CardTargetType Occupied
@@ -269,5 +267,5 @@ idToTargetType :: ID -> TargetType
 idToTargetType id =
   case id of
     IDC _ -> CardTargetType Hole
-    IDN n -> targetKind n
+    IDN n -> targetType n
     IDI _ -> error $ "Unsupported identifier: " ++ show id
