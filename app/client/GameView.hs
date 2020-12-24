@@ -30,7 +30,7 @@ import Event
 import qualified Game
 import GameViewInternal
 import Miso hiding (at)
-import Miso.String hiding (concat, intersperse, map)
+import Miso.String hiding (concat, intersperse, length, map)
 import Model
 import PCWViewInternal
 import SharedModel
@@ -246,14 +246,8 @@ boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (c
   card <- cardView z gameShared card cdsty
   return $ div_ attrs [card | not beingDragged]
   where
-    pixelsXOffset i
-      | i == 0 = (boardPixelWidth - cardPixelWidth) `div` 2 -- center
-      | i == 1 = pixelsXOffset 0 - xshift -- shift to the left compared to the center
-      | i == 2 = pixelsXOffset 0 + xshift -- shift to the right compared to the center
-      | i `mod` 2 == 0 = xshift + pixelsXOffset (i - 2) -- iterate
-      | otherwise = pixelsXOffset (i - 2) - xshift -- iterate
-      where
-        xshift = cardCellWidth * cellPixelSize + (cardHCellGap * cellPixelSize) `div` 2
+    cardx x y = (x * xshift) - (min 2 (handSize `div` 2) * xshift)
+    xshift = cardPixelWidth + (cardHCellGap * cellPixelSize) `div` 2 -- The space between two cards, when cards aren't overlapping
     (beingHovered, beingDragged) =
       case interaction of
         GameHoverInteraction Hovering {hoveredCard} ->
@@ -262,9 +256,10 @@ boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (c
           (False, draggedCard == i)
         GameShowErrorInteraction _ -> (False, False)
         _ -> (False, False)
-    x = pixelsXOffset (unHandIndex i)
-    y = 2 * cellPixelSize
-    fadeIn = unHandIndex i `elem` boardToHand anims playingPlayer
+    rightmargin = cps * 2
+    (x, y) = (rightmargin + cardx (unHandIndex i) handSize, 2 * cellPixelSize)
+    (hand, handSize) = (boardToHand anims playingPlayer, length hand)
+    fadeIn = unHandIndex i `elem` hand
     attrs =
       [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,

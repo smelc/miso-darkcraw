@@ -368,7 +368,7 @@ updateGameModel m@GameModel {gameShared, playingPlayer, turn} GameIncrTurn _ =
     pSpot = turnToPlayerSpot turn'
     isAI = pSpot /= playingPlayer
     nbDraws = Game.nbCardsToDraw (Model.board m') pSpot
-    -- If it's the player turn, we wanna handle draw the first card right away,
+    -- If it's the player turn, we wanna draw the first card right away,
     -- so that the game feels responsive.
     nbDraws' = if isAI then nbDraws else min 1 nbDraws
     (m'', events) =
