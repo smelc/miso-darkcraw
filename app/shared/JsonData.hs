@@ -20,6 +20,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\"  },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadArcher\", \"skills\":[\"Ranged\"]   },\n\
          \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":2, \"victory_points\":2, \"tile\":\"UndeadMummy\"    },\n\
+         \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\"] },\n\
          \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadWarrior\"  },\n\
          \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadGhost\"    },\n\
          \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadShade\"    }\n\
@@ -68,6 +69,7 @@ jsonData = "{\n\
          \    { \"tile\":\"UndeadWarrior\", \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadGhost\",   \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadShade\",   \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadNecromancer\", \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":3 } },\n\
          \    { \"tile\":\"WhiteAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears1\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears2\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":5 } },\n\
@@ -76,6 +78,7 @@ jsonData = "{\n\
          \  ],\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"upon arrival, neighbors with discipline get +1 :health: and +1 :attack:\"},\n\
+         \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"draw an additional card at beginning of your turn\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"hits 2 cells away when in the back line\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"hits any enemy in its column\"},\n\
          \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"never goes back to stack\"}\n\

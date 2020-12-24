@@ -58,6 +58,7 @@ data Tile
   | UndeadArcher
   | UndeadGhost
   | UndeadMummy
+  | UndeadNecromancer
   | UndeadShade
   | UndeadSkeleton
   | UndeadVampire

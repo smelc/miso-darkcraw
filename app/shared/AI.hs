@@ -228,6 +228,7 @@ scoreCard = \case
 scoreSkill :: Skill -> Int
 scoreSkill = \case
   Discipline -> -1
+  DrawCard -> -1
   LongReach -> -1
   Ranged -> -1
   Unique -> 0
