@@ -11,7 +11,6 @@
 
 module Card where
 
-import Configuration (hashless)
 import Control.Arrow ((&&&))
 import Data.Function ((&))
 import Data.Generics.Labels ()
@@ -220,7 +219,7 @@ teamDeck ::
   -- | The initial deck
   [Card Core]
 teamDeck cards t =
-  map CreatureCard (creatures ++ dev) ++ map NeutralCard neutrals
+  map CreatureCard creatures ++ map NeutralCard neutrals
   where
     kindToCreature :: Map.Map CreatureKind (Creature Core) =
       map cardToCreature cards
@@ -233,14 +232,8 @@ teamDeck cards t =
     -- Initial creatures:
     creatures =
       case t of
-        Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General
-        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
-    dev =
-      -- Creatures added in dev mode
-      case t of
-        Human -> []
-        Undead -> 4 * Necromancer
-    all = creatures ++ (if hashless then dev else [])
+        Human -> 3 * Spearman ++ 2 * Archer ++ 2 * Knight ++ 1 * General
+        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire ++ 1 * Necromancer
     kindToNeutral :: Map.Map Neutral (NeutralObject Core) =
       map cardToNeutralObject cards
         & catMaybes

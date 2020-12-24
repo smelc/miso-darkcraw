@@ -3,6 +3,7 @@
 .vscode/.ropeproject/
 app/.ghc.environment.x86_64-linux-8.6.5
 app/assets
+app/client/.liquid
 app/dist
 app/dist-newstyle
 app/result*

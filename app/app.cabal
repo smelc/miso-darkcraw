@@ -106,7 +106,6 @@ Test-Suite test-darkcraw
     Board
     Card
     Cinema
-    Configuration
     Constants
     Game
     Generators
