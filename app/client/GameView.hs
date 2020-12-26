@@ -30,7 +30,7 @@ import Event
 import qualified Game
 import GameViewInternal
 import Miso hiding (at)
-import Miso.String hiding (concat, intersperse, length, map)
+import Miso.String hiding (concat, intersperse, length, map, zip)
 import Model
 import PCWViewInternal
 import SharedModel
@@ -228,21 +228,21 @@ boardToInHandCells ::
   Styled [View Action]
 boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} = do
   stacks <- traverse (stackView m z playingPlayer Hand) [Discarded, Stacked]
-  cards <- traverse (boardToInHandCell z m) icreatures
+  cards <- traverse (boardToInHandCell m) zicreatures
   return $ cards ++ concat stacks
   where
     cards =
       boardToHand board playingPlayer
         & map (unliftCard . unsafeIdentToCard gameShared)
-    icreatures = Prelude.zip cards [HandIndex 0 ..]
+    icreatures = zip cards [HandIndex 0 ..]
+    zicreatures = zip [z, z+2 ..] icreatures & map (\(a, (b, c)) -> (a, b, c))
 
 boardToInHandCell ::
-  -- | The z index
-  Int ->
   GameModel ->
-  (Card Core, HandIndex) ->
+  -- The z-index, the card, the index in the hand
+  (Int, Card Core, HandIndex) ->
   Styled (View Action)
-boardToInHandCell z GameModel {anims, interaction, gameShared, playingPlayer} (card, i) = do
+boardToInHandCell GameModel {anims, interaction, gameShared, playingPlayer} (z, card, i) = do
   card <- cardView z gameShared card cdsty
   return $ div_ attrs [card | not beingDragged]
   where
