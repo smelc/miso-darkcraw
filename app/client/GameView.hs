@@ -138,7 +138,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
                     { hover = beingHovered,
                       PCWViewInternal.fadeIn = Board.fadeIn attackEffect
                     }
-            v <- cardView z gameShared (CreatureCard creature) cdsty
+            v <- cardView z gameShared t (CreatureCard creature) cdsty
             -- "pointer-events: none" turns off handling of drag/drog
             -- events. Without that, on full-fledged cards, children
             -- would trigger GameDragLeave/GameDragEnter events (because the
@@ -147,6 +147,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
             return $ div_ [style_ $ "pointer-events" =: "none"] [v]
       return $ maybeToList cards ++ death ++ heartw ++ heartg
   where
+    t = boardToPart board pSpot & Board.team
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = boardToInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs lift =
@@ -248,9 +249,10 @@ boardToInHandCell ::
   (Int, Card Core, HandIndex) ->
   Styled (View Action)
 boardToInHandCell GameModel {anims, board, interaction, gameShared, playingPlayer} bigZ (z, card, i) = do
-  card <- cardView (if beingHovered || beingDragged then bigZ else z) gameShared card cdsty
+  card <- cardView (if beingHovered || beingDragged then bigZ else z) gameShared t card cdsty
   return $ div_ attrs [card | not beingDragged]
   where
+    t = boardToPart board playingPlayer & Board.team
     (beingHovered, beingDragged) =
       case interaction of
         GameHoverInteraction Hovering {hoveredCard} ->

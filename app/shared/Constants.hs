@@ -80,6 +80,10 @@ initialHandSize = 7 -- For testing, FIXME @smelc revert me to 5
 maxHandSizeAtRefill :: Int
 maxHandSizeAtRefill = 3
 
+-- The yellowish background of a card
+cardBackground :: MisoString -> MisoString
+cardBackground team = "card-bg-" <> team <> ".png"
+
 -- | A card's height, in cells
 cardCellHeight :: Int
 cardCellHeight = 4

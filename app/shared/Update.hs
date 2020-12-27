@@ -591,7 +591,9 @@ updateModel DeckBack (DeckModel' DeckModel {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
 updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
-  noEff $ DeckModel' $ DeckModel deck m playingPlayer gameShared
+  noEff $ DeckModel' $ DeckModel deck m playingPlayer t gameShared
+  where
+    t = boardToPart board playingPlayer & Board.team
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack

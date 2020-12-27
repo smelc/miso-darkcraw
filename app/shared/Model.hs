@@ -138,6 +138,8 @@ data DeckModel = DeckModel
     deckBack :: Model,
     -- | To which player 'deckBack' belongs
     deckPlayer :: PlayerSpot,
+    -- | To which team the deck being shown belongs
+    deckTeam :: Team,
     -- | Part of the model shared among all pages
     deckShared :: SharedModel
   }

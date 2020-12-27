@@ -26,6 +26,7 @@ where
 import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), defaultDirection, spriteToKind)
 import Constants
+import Data.Char (toLower)
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -76,10 +77,12 @@ cardView ::
   -- | The z index
   Int ->
   SharedModel ->
+  -- | The team of the card, for selecting the background
+  Team ->
   Card Core ->
   CardDrawStyle ->
   Styled (View Action)
-cardView z shared card cdsty@CardDrawStyle {fadeIn} =
+cardView z shared team card cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed
@@ -106,7 +109,7 @@ cardView z shared card cdsty@CardDrawStyle {fadeIn} =
       div_ attrs $
         [div_ [style_ pictureStyle] [pictureCell]]
           ++ cardView' z shared card
-          ++ [cardBackground z cdsty]
+          ++ [PCWViewInternal.cardBackground z team cdsty]
     animData =
       (animationData "handCardFadein" "1s" "ease")
         { animDataFillMode = Just "forwards"
@@ -183,18 +186,24 @@ cardView' z shared card =
 cardBackground ::
   -- | The z index
   Int ->
+  Team ->
   CardDrawStyle ->
   View Action
-cardBackground z cdsty =
+cardBackground z team cdsty =
   div_
     [style_ $ sty1 <> sty2]
-    [imgCellwh assetFilenameBeigeBG cardPixelWidth cardPixelHeight]
+    [ imgCellwh
+        (Constants.cardBackground (ms . stringToLower $ show team))
+        cardPixelWidth
+        cardPixelHeight
+    ]
   where
     sty1 = zpwh z Absolute cardPixelWidth cardPixelHeight
     sty2 =
       if hover cdsty
         then "outline" =: (ms borderSize <> "px solid red")
         else mempty
+    stringToLower str = [toLower c | c <- str]
 
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
