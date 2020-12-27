@@ -30,7 +30,7 @@ import Event
 import qualified Game
 import GameViewInternal
 import Miso hiding (at)
-import Miso.String hiding (concat, intersperse, length, map, zip)
+import Miso.String hiding (concat, intersperse, last, length, map, null, zip)
 import Model
 import PCWViewInternal
 import SharedModel
@@ -228,22 +228,27 @@ boardToInHandCells ::
   Styled [View Action]
 boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} = do
   stacks <- traverse (stackView m z playingPlayer Hand) [Discarded, Stacked]
-  cards <- traverse (boardToInHandCell m) zicreatures
+  cards <- traverse (boardToInHandCell m bigZ) zicreatures'
   return $ cards ++ concat stacks
   where
     cards =
       boardToHand board playingPlayer
         & map (unliftCard . unsafeIdentToCard gameShared)
     icreatures = zip cards [HandIndex 0 ..]
-    zicreatures = zip [z, z + 2 ..] icreatures & map (\(a, (b, c)) -> (a, b, c))
+    zicreatures = zip [z, z + 2 ..] icreatures
+    bigZ = case safeLast zicreatures of Nothing -> z; Just (z', _) -> z' + 2
+    safeLast l = if null l then Nothing else Just $ last l
+    zicreatures' = map (\(a, (b, c)) -> (a, b, c)) zicreatures
 
 boardToInHandCell ::
   GameModel ->
+  -- The z-index when the card is on top of others
+  Int ->
   -- The z-index, the card, the index in the hand
   (Int, Card Core, HandIndex) ->
   Styled (View Action)
-boardToInHandCell GameModel {anims, board, interaction, gameShared, playingPlayer} (z, card, i) = do
-  card <- cardView z gameShared card cdsty
+boardToInHandCell GameModel {anims, board, interaction, gameShared, playingPlayer} bigZ (z, card, i) = do
+  card <- cardView (if beingHovered || beingDragged then bigZ else z) gameShared card cdsty
   return $ div_ attrs [card | not beingDragged]
   where
     (beingHovered, beingDragged) =
