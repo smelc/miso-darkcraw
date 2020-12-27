@@ -235,19 +235,17 @@ boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} = do
       boardToHand board playingPlayer
         & map (unliftCard . unsafeIdentToCard gameShared)
     icreatures = zip cards [HandIndex 0 ..]
-    zicreatures = zip [z, z+2 ..] icreatures & map (\(a, (b, c)) -> (a, b, c))
+    zicreatures = zip [z, z + 2 ..] icreatures & map (\(a, (b, c)) -> (a, b, c))
 
 boardToInHandCell ::
   GameModel ->
   -- The z-index, the card, the index in the hand
   (Int, Card Core, HandIndex) ->
   Styled (View Action)
-boardToInHandCell GameModel {anims, interaction, gameShared, playingPlayer} (z, card, i) = do
+boardToInHandCell GameModel {anims, board, interaction, gameShared, playingPlayer} (z, card, i) = do
   card <- cardView z gameShared card cdsty
   return $ div_ attrs [card | not beingDragged]
   where
-    cardx x y = (x * xshift) - (min 2 (handSize `div` 2) * xshift)
-    xshift = cardPixelWidth + (cardHCellGap * cellPixelSize) `div` 2 -- The space between two cards, when cards aren't overlapping
     (beingHovered, beingDragged) =
       case interaction of
         GameHoverInteraction Hovering {hoveredCard} ->
@@ -257,9 +255,22 @@ boardToInHandCell GameModel {anims, interaction, gameShared, playingPlayer} (z, 
         GameShowErrorInteraction _ -> (False, False)
         _ -> (False, False)
     rightmargin = cps * 2
-    (x, y) = (rightmargin + cardx (unHandIndex i) handSize, 2 * cellPixelSize)
-    (hand, handSize) = (boardToHand anims playingPlayer, length hand)
-    fadeIn = unHandIndex i `elem` hand
+    hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
+    i' = unHandIndex i
+    y = 2 * cps
+    x =
+      rightmargin
+        + if handSize <= 5
+          then i' * (cardPixelWidth + hgap) -- No overlapping
+          else case i' of -- Overlapping
+            0 -> 0
+            _ -> i' * cpw'
+    -- The visible width of a card when there's overlapping.
+    -- Draw a picture to understand from where this formula comes from.
+    cpw' = (maxHSpace - cardPixelWidth) `div` (handSize - 1)
+    handSize = boardToHand board playingPlayer & length
+    maxHSpace = (5 * cardPixelWidth) + 4 * hgap -- cards + gaps
+    fadeIn = unHandIndex i `elem` boardToHand anims playingPlayer
     attrs =
       [ style_ $ cardPositionStyle' x y,
         prop "draggable" True,

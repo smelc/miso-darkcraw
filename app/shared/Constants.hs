@@ -72,7 +72,7 @@ handPixelWidth = boardPixelWidth
 
 -- | The initial number of cards in the hand
 initialHandSize :: Int
-initialHandSize = 5
+initialHandSize = 7 -- For testing, FIXME @smelc revert me to 5
 
 -- | The maximum number of cards to draw from the stack at the start
 -- | of a turn. This effectively limits the hand's size after the initial
