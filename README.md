@@ -26,7 +26,10 @@ There are two kind of assets at the moment:
 * `app/assets/16x16*.png` and `app/assets/24x24*.png`. Generate them
   by executing `./scripts/GenAssets.hs` whenever `assets/16x16.png`
   or `assets/24x24.png` change.
-* `app/assets/*.png`. @smelc generate them from `tiled/*.tmx` files
-  using [tiled](https://www.mapeditor.org/) when required. Execute
-  `./scripts/dl-large-assets.sh` to download up-to-date versions.
+* `app/assets/*.png`. [@smelc](https://github.com/smelc) generates them from:
+
+  * `tiled/*.tmx` using [tiled](https://www.mapeditor.org/)
+  * `xcf/*.xcf` using [gimp](https://www.gimp.org/)
+
+  Execute `./scripts/dl-large-assets.sh` to download up-to-date versions.
 
