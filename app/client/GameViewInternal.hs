@@ -21,7 +21,8 @@ module GameViewInternal
     StackPosition (..),
     stackView,
     turnView,
-    heartGain,
+    statChange,
+    StatChangeKind (..),
   )
 where
 
@@ -304,23 +305,28 @@ heartWobble z ae =
           animDataDelay = Just $ ms delay <> "ms"
         }
 
-heartGain :: Int -> InPlaceEffect -> Styled [View Action]
-heartGain z ae =
+data StatChangeKind = HitPoint | Attack
+
+statChange :: Int -> StatChangeKind -> InPlaceEffect -> Styled [View Action]
+statChange z sck ae =
   sequence
     [ keyframed
         (builder x)
         (grow (animDataName animData) (imgw, imgh) (imgw * 2, imgh * 2))
         animData
-      | x <- [0 .. hpc - 1],
-        hpc > 0
+      | x <- [0 .. change - 1],
+        change > 0
     ]
   where
-    hpc = hitPointsChange ae
+    (change, animName, assetName) =
+      case sck of
+        Attack -> (attackChange ae, "swordGain", assetFilenameSword)
+        HitPoint -> (hitPointsChange ae, "heartGain", assetFilenameHeart)
     sty xshift = pltwh Absolute (left + xshift) top imgw imgh <> "z-index" =: ms z
     (imgw, imgh) :: (Int, Int) = (seize, imgw)
-    (left, top) = (cps `div` 3, 0)
+    (left, top) = (case sck of HitPoint -> cps `div` 3; Attack -> 2 * cps, 0)
     builder x rest =
-      img_ $ [src_ (assetsPath assetFilenameHeart), style_ $ sty (xshiftf x hpc)] ++ rest
+      img_ $ [src_ $ assetsPath assetName, style_ $ sty (xshiftf x change)] ++ rest
     xshiftf 0 1 = 0 -- if there's a single heart, center it
     xshiftf x 2 = (if odd x then -1 else 1) * cps -- two hearts
     xshiftf 0 3 = 0 -- three hearts, center
@@ -328,6 +334,4 @@ heartGain z ae =
     xshiftf _ 3 = xshiftf 42 2 -- three hearts, 42 is even: to the right
     xshiftf x total = error $ "xshiftf " ++ show x ++ " " ++ show total ++ " is unsupported"
     animData =
-      (animationData "heartGain" "1s" "linear")
-        { animDataFillMode = Just "forwards"
-        }
+      (animationData animName "1s" "linear") {animDataFillMode = Just "forwards"}

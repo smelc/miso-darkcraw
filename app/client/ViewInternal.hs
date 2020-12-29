@@ -167,7 +167,7 @@ textFrames name (startFontSize, startColor, startTransparent) (endFontSize, endC
 -- | Animation to transition the size and the opacity (from opaque to transparent)
 grow :: MisoString -> (Int, Int) -> (Int, Int) -> MisoString
 grow name start end =
-  keyframes name (mk start <> " opacity: 1;") [] (mk end <> "; opacity: 0;")
+  keyframes name (mk start <> " opacity: 1;") [] (mk end <> " opacity: 0;")
   where
     mk (w, h) = "width: " <> px w <> "; height: " <> px h <> ";"
 

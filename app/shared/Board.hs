@@ -125,7 +125,9 @@ bottomSpotOfTopVisual = \case
 -- Game.hs also uses for Core stuff internally. Unfortunate :-(
 -- So be careful when changing related code.
 data InPlaceEffect = InPlaceEffect
-  { -- | Creature dies
+  { -- | Attack value changed
+    attackChange :: Int,
+    -- | Creature dies
     death :: Bool,
     -- | Creature attacked (value used solely for animations)
     attackBump :: Bool,
@@ -139,10 +141,11 @@ data InPlaceEffect = InPlaceEffect
   deriving (Eq, Generic, Show)
 
 instance Semigroup InPlaceEffect where
-  InPlaceEffect {death = d1, attackBump = ab1, hitPointsChange = hp1, fadeIn = f1, scoreChange = c1}
-    <> InPlaceEffect {death = d2, attackBump = ab2, hitPointsChange = hp2, fadeIn = f2, scoreChange = c2} =
+  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, hitPointsChange = hp1, fadeIn = f1, scoreChange = c1}
+    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, hitPointsChange = hp2, fadeIn = f2, scoreChange = c2} =
       InPlaceEffect
-        { death = d1 || d2,
+        { attackChange = ac1 + ac2,
+          death = d1 || d2,
           attackBump = ab1 || ab2,
           hitPointsChange = hp1 + hp2,
           fadeIn = f1 || f2,
@@ -152,7 +155,8 @@ instance Semigroup InPlaceEffect where
 instance Monoid InPlaceEffect where
   mempty =
     InPlaceEffect
-      { death = False,
+      { attackChange = 0,
+        death = False,
         attackBump = False,
         hitPointsChange = 0,
         fadeIn = False,
@@ -189,7 +193,7 @@ type family StackType (p :: Phase) where
 
 type family DiscardedType (p :: Phase) where
   DiscardedType Core = [Card.ID]
-  DiscardedType UI = Int -- Discarded->Stack transfer
+  DiscardedType UI = Int -- Board->Discarded transfer
 
 type family TeamType (p :: Phase) where
   TeamType 'Core = Team

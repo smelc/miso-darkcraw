@@ -25,7 +25,7 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Text as Text
-import Debug.Trace (traceShow)
+import Debug.Trace (traceShow, traceShowId)
 import Event
 import qualified Game
 import GameViewInternal
@@ -128,7 +128,8 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
     <$> do
       death <- deathFadeout attackEffect x y
       heartw <- heartWobble (z + 1) attackEffect
-      heartg <- heartGain (z + 1) attackEffect
+      heartg <- statChange (z + 1) HitPoint attackEffect
+      attackg <- statChange (z + 1) Attack attackEffect
       cards <- sequence $
         case maybeCreature of
           Nothing -> Nothing
@@ -145,7 +146,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
             -- parent 'v' declares them) which disturbs dropping
             -- of neutral cards.
             return $ div_ [style_ $ "pointer-events" =: "none"] [v]
-      return $ maybeToList cards ++ death ++ heartw ++ heartg
+      return $ maybeToList cards ++ death ++ heartw ++ heartg ++ attackg
   where
     t = boardToPart board pSpot & Board.team
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat

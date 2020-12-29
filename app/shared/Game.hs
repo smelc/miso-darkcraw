@@ -248,9 +248,10 @@ playCardTargetM board pSpot cSpot creature = do
               else mempty
           )
           (Map.insert cSpot creature onTable)
-  -- FIXME @smelc Record animations for discipline boost
   let part' = base {inPlace = inPlace'}
   reportEffect pSpot cSpot $ mempty {fadeIn = True}
+  when (hasDiscipline creature) $
+    traverse_ ((\cSpot -> reportEffect pSpot cSpot disciplineEffect) . fst) disciplinedNeighbors'
   return $ boardSetPart board pSpot part'
   where
     base :: PlayerPart Core = boardToPart board pSpot
@@ -262,10 +263,11 @@ playCardTargetM board pSpot cSpot creature = do
         & catMaybes
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing
-    applyDisciplineBoost :: Creature 'Core -> Creature 'Core
-    applyDisciplineBoost Creature {..} = Creature {hp = hp + 1, attack = attack + 1, ..}
+    boost = 1
+    applyDisciplineBoost Creature {..} = Creature {hp = hp + boost, attack = attack + boost, ..}
     disciplinedNeighbors' =
       map (Bifunctor.second applyDisciplineBoost) disciplinedNeighbors
+    disciplineEffect = mempty {attackChange = boost, hitPointsChange = boost}
 
 drawCards ::
   SharedModel ->
