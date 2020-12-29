@@ -50,6 +50,8 @@ instance ToExpr CreatureID
 
 instance ToExpr Skill
 
+instance ToExpr SkillCore
+
 instance ToExpr Neutral
 
 instance ToExpr Item

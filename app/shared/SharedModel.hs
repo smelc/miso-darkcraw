@@ -20,7 +20,7 @@ module SharedModel
     unsafeIdentToCard,
     unsafeLiftCard,
     unsafeLiftCreature,
-    liftSkill,
+    SharedModel.liftSkill,
     shuffle,
     create,
     SharedModel.getStdGen,
@@ -141,7 +141,7 @@ liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
 liftCreature SharedModel {sharedCards} c@Creature {..} =
   case sharedCards Map.!? IDC creatureId of
     Nothing -> Nothing
-    Just (CreatureCard Creature {tile}) -> Just $ Creature {..}
+    Just (CreatureCard Creature {tile}) -> Just $ Creature {skills = map Card.liftSkill skills, ..}
     Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
 liftSkill :: SharedModel -> Skill -> SkillUI

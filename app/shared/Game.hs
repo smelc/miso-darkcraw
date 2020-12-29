@@ -255,7 +255,7 @@ playCardTargetM board pSpot cSpot creature = do
   where
     base :: PlayerPart Core = boardToPart board pSpot
     onTable :: Map CardSpot (Creature Core) = inPlace base
-    hasDiscipline c = Discipline `elem` skills c
+    hasDiscipline c = Discipline' `elem` skills c
     disciplinedNeighbors =
       boardToNeighbors board pSpot cSpot Board.Cardinal
         & map liftJust
@@ -416,7 +416,7 @@ attack board pSpot cSpot =
     attackeesInPlace :: Map CardSpot (Creature Core) =
       board ^. pOtherSpotLens . #inPlace
     attacker :: Maybe (Creature Core) = attackersInPlace !? cSpot
-    attackerSkills :: [Skill] = attacker <&> skills & fromMaybe []
+    attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Card.liftSkill
     allyBlocker :: Maybe (Creature Core) =
       if any (`elem` attackerSkills) [Ranged, LongReach]
         then Nothing -- attacker bypasses ally blocker (if any)

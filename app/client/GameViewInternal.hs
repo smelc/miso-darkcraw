@@ -233,7 +233,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
     (GameHoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
     (GameHoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
       let attacker = boardToInPlaceCreature board pSpotHov cSpotHov
-       in let skills' = maybe [] skills attacker
+       in let skills' = maybe [] skills attacker & map Card.liftSkill
            in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots skills' cSpotHov
                 then borderSize
                 else 0

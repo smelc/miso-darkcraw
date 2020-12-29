@@ -86,6 +86,10 @@ instance Arbitrary Skill where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary SkillCore where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 instance Arbitrary (Creature Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink

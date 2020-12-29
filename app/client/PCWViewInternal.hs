@@ -33,7 +33,7 @@ import Data.Maybe
 import Miso
 import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
-import SharedModel (SharedModel, liftSkill, tileToFilepath)
+import SharedModel (SharedModel, tileToFilepath)
 import qualified SharedModel
 import Tile
 import Update (Action)
@@ -144,7 +144,7 @@ cardView' z shared card =
             <> "align-items" =: "flex-start" -- left
             <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
             <> fontStyle
-        skillDiv skill = div_ [] [liftSkill shared skill & skillTitle & ms & text]
+        skillDiv skill = div_ [] [SharedModel.liftSkill shared skill & skillTitle & ms & text]
         skillsDivs = map skillDiv skills
     -- drawing of Neutral cards
     (NeutralCard NeutralObject {ntitle, ntext}) ->

@@ -38,6 +38,16 @@ data Skill
   | Unique
   deriving (Eq, Generic, Ord, Show)
 
+data SkillCore
+  = Discipline'
+  | -- | Whether the skill is available (True) or used already (False)
+    DrawCard' Bool
+  | LongReach'
+  | Ranged'
+  | Unique'
+  deriving (Eq, Generic, Ord, Show)
+
+-- FIXME @smelc rename me
 data SkillUI = SkillUI
   { skill :: Skill,
     skillText :: String,
@@ -55,6 +65,10 @@ data Phase
     -- maluses or bonuses), etc.
     UI
 
+type family SkillType (p :: Phase) where
+  SkillType UI = Skill
+  SkillType Core = SkillCore
+
 type family TextType (p :: Phase) where
   TextType UI = String
   TextType Core = ()
@@ -64,7 +78,8 @@ type family TileType (p :: Phase) where
   TileType Core = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (TextType p),
+  ( c (SkillType p),
+    c (TextType p),
     c (TileType p),
     c (NeutralTeamsType p)
   )
@@ -96,7 +111,7 @@ data Creature (p :: Phase) = Creature
     attack :: Int,
     moral :: Maybe Int,
     victoryPoints :: Int,
-    skills :: [Skill],
+    skills :: [SkillType p],
     tile :: TileType p
   }
   deriving (Generic)
@@ -158,9 +173,18 @@ deriving instance Forall Show p => Show (Card p)
 
 deriving instance Generic (Card p)
 
+liftSkill :: SkillCore -> Skill
+liftSkill skill =
+  case skill of
+    Discipline' -> Discipline
+    DrawCard' _ -> DrawCard
+    LongReach' -> LongReach
+    Ranged' -> Ranged
+    Unique' -> Unique
+
 unliftCreature :: Creature UI -> Creature Core
 unliftCreature Creature {..} =
-  Creature creatureId hp attack moral victoryPoints skills ()
+  Creature creatureId hp attack moral victoryPoints (map unliftSkill skills) ()
 
 unliftCard :: Card UI -> Card Core
 unliftCard card =
@@ -172,6 +196,15 @@ unliftCard card =
 unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =
   NeutralObject {neutral, neutralTeams = (), ntext = (), ntile = (), ntitle = ()}
+
+unliftSkill :: Skill -> SkillCore
+unliftSkill skill =
+  case skill of
+    Discipline -> Discipline'
+    DrawCard -> DrawCard' True
+    LongReach -> LongReach'
+    Ranged -> Ranged'
+    Unique -> Unique'
 
 cardToCreature :: Card p -> Maybe (Creature p)
 cardToCreature (CreatureCard creature) = Just creature

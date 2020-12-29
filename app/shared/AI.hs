@@ -201,7 +201,7 @@ scorePlace board pSpot cSpot =
     enemiesInPlace :: Map.Map CardSpot (Creature Core) =
       boardToInPlace board (otherPlayerSpot pSpot)
     cSkills = inPlace <&> skills & fromMaybe []
-    prefersBack = Ranged `elem` cSkills || LongReach `elem` cSkills
+    prefersBack = Ranged' `elem` cSkills || LongReach' `elem` cSkills
     lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
     enemySpots' :: [CardSpot] = allEnemySpots cSpot
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'
@@ -216,7 +216,7 @@ scorePlace board pSpot cSpot =
 scoreCard :: Card Core -> Int
 scoreCard = \case
   CreatureCard Creature {..} ->
-    sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map scoreSkill skills
+    sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map (scoreSkill . Card.liftSkill) skills
   NeutralCard NeutralObject {neutral} ->
     case neutral of
       Health -> -1
