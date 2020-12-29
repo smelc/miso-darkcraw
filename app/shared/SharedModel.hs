@@ -19,7 +19,6 @@ module SharedModel
     unsafeGetSeed,
     unsafeIdentToCard,
     unsafeLiftCard,
-    unsafeLiftCreature,
     SharedModel.liftSkill,
     shuffle,
     create,
@@ -171,6 +170,3 @@ unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
 
 unsafeLiftCard :: SharedModel -> Card Core -> Card UI
 unsafeLiftCard s c = liftCard s c & fromJust
-
-unsafeLiftCreature :: SharedModel -> Creature Core -> Creature UI
-unsafeLiftCreature s c = liftCreature s c & fromJust
