@@ -59,6 +59,10 @@ boardPixelHeight = boardCellHeight * cps
 borderSize :: Int
 borderSize = 3
 
+-- | The number of cards to draw at the beginning of a turn
+nbCardsToDraw :: Int
+nbCardsToDraw = 3
+
 gameTitle :: MisoString
 gameTitle = "Pixel Card Wars"
 
@@ -73,12 +77,6 @@ handPixelWidth = boardPixelWidth
 -- | The initial number of cards in the hand
 initialHandSize :: Int
 initialHandSize = 7 -- For testing, FIXME @smelc revert me to 5
-
--- | The maximum number of cards to draw from the stack at the start
--- | of a turn. This effectively limits the hand's size after the initial
--- | start (where it's at [initialHandSize])
-maxHandSizeAtRefill :: Int
-maxHandSizeAtRefill = 3
 
 -- The yellowish background of a card
 cardBackground :: MisoString -> MisoString

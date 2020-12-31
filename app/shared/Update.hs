@@ -29,7 +29,7 @@ import qualified Data.Text.Lazy as Text
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import qualified Game (Event (..), PolyResult (..), Target (..), drawCards, nbCardsToDraw, nextAttackSpot, play, playAll, transferCards)
+import qualified Game (DrawSource (..), Event (..), PolyResult (..), Target (..), cardsToDraw, drawCards, nextAttackSpot, play, playAll, transferCards)
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
@@ -167,11 +167,10 @@ data GameAction
     -- | pressed "End Turn".
     GamePlay Game.Event
   | -- | Turn was updated previously by 'GameIncrTurn',
-    -- | time to draw cards from the stack. Then the handler of this event
-    -- | will take care of giving the player control back. The Int parameter
-    -- | indicates how many cards can be drawn. Stream of events terminates
-    -- | when it becomes 0 or when hand is full.
-    GameDrawCard Int
+    -- time to draw cards from the stack. Then the handler of this event
+    -- will take care of giving the player control back. This event
+    -- is translated to a list of events, iteratively consuming the list.
+    GameDrawCards [Game.DrawSource]
   | -- | All actions have been resolved, time to update the turn widget
     -- | and to schedule 'GameDrawCard'. This does NOT translate
     -- | to a 'GamePlayEvent'.
@@ -319,16 +318,18 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
           (_, _) -> nexts <&> GamePlay
-updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCard n) _ =
-  case Game.drawCards gameShared board pSpot 1 of
+updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards []) _ =
+  traceShow "GameDrawCards [] should not happen (but is harmless)" (m, [])
+updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest)) _ =
+  case Game.drawCards gameShared board pSpot [fst] of
     Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
     Right (board', boardui', shared') ->
       ( m {board = board', anims = boardui', gameShared = shared'},
         -- enqueue next event (if any)
-        [(1, GameDrawCard $ n - 1) | n - 1 >= 1]
+        [(1, GameDrawCards rest) | not $ null rest]
       )
   where
-    pSpot = assert (n >= 1) $ turnToPlayerSpot turn
+    pSpot = turnToPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
   case em' of
@@ -362,42 +363,37 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           Game.Result board' () boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board'}
         else Right m
-updateGameModel m@GameModel {gameShared, playingPlayer, turn} GameIncrTurn _ =
-  (m'', events)
+updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTurn _ =
+  case runEither of
+    Left err -> withInteraction m $ GameShowErrorInteraction err
+    Right pair -> pair
   where
     turn' = nextTurn turn
-    m' = m {turn = turn'}
     pSpot = turnToPlayerSpot turn'
     isAI = pSpot /= playingPlayer
-    nbDraws = Game.nbCardsToDraw (Model.board m') pSpot
-    -- If it's the player turn, we wanna draw the first card right away,
-    -- so that the game feels responsive.
-    nbDraws' = if isAI then nbDraws else min 1 nbDraws
-    (m'', events) =
-      case runEither of
-        Left errMsg -> withInteraction m' $ GameShowErrorInteraction errMsg
-        Right (events, board', boardui', shared') ->
-          ( m' {anims = boardui', board = board', gameShared = shared'},
+    runEither = do
+      let (shared', board', boardui') = Game.transferCards gameShared board pSpot
+      let drawSrcs = Game.cardsToDraw board' pSpot True
+      -- If it's the player turn, we wanna draw the first card right away,
+      -- so that the game feels responsive.
+      let drawNow = if isAI then drawSrcs else take 1 drawSrcs
+      (board'', boardui'', shared'') <-
+        Game.drawCards shared' board' pSpot drawNow
+      let events =
+            -- AI case: after drawing cards and playing its events
+            --          press "End Turn". We want a one second delay, it makes
+            --          it easier to understand what's going on
+            -- player case: we drew the first card already (see drawNow),
+            --              enqueue next event (if any)
             if isAI
-              then -- AI: after drawing cards and playing its events
-              -- press "End Turn". We want a one second delay, it makes
-              -- it easier to understand what's going on
-                zip (repeat 1) $ snoc (map GamePlay events) GameEndTurnPressed
-              else -- player: we drew the first card already (see nbDraws')
-              -- enqueue next event (if any)
-                assert (null events) [(1, GameDrawCard $ nbDraws - 1) | nbDraws -1 >= 1]
-          )
-      where
-        -- both: transfer cards from discarded stack to stack, if necessary
-        -- AI: draw all cards, compute its events
-        -- player: draw first card
-        runEither = do
-          let (shared', board', boardui') =
-                Game.transferCards (Model.gameShared m') (Model.board m') pSpot
-          (board'', boardui'', shared'') <-
-            Game.drawCards shared' board' pSpot nbDraws'
-          let aiEvents = if isAI then AI.play gameShared board'' turn' else []
-          return (aiEvents, board'', boardui' <> boardui'', shared'')
+              then
+                let plays = AI.play gameShared board'' turn'
+                 in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
+              else
+                let drawSoon = drop 1 drawSrcs
+                 in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
+      let m' = m {anims = boardui' <> boardui'', board = board'', gameShared = shared'', turn = turn'}
+      return (m', events)
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
   withInteraction m $ GameHoverInteraction $ Hovering i

@@ -17,6 +17,7 @@ module Game
     attackOrder, -- exported for tests only
     nextAttackSpot,
     enemySpots,
+    DrawSource (..),
     Event (..),
     PolyResult (..),
     Result (..),
@@ -24,7 +25,7 @@ module Game
     play,
     playAll,
     playM,
-    nbCardsToDraw,
+    cardsToDraw,
     drawCards,
     transferCards,
     Target (..),
@@ -35,7 +36,8 @@ where
 import Board
 import Card hiding (ID)
 import qualified Card
-import Constants
+import Constants hiding (nbCardsToDraw)
+import qualified Constants
 import Control.Exception (assert)
 import Control.Lens
 import Control.Monad.Except
@@ -44,8 +46,8 @@ import Control.Monad.State
 import Control.Monad.Writer
 import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable
-import Data.List (elemIndex)
-import Data.List.Index (deleteAt)
+import Data.List
+import Data.List.Index (deleteAt, setAt)
 import Data.Map.Strict (Map, (!?))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -274,13 +276,13 @@ drawCards ::
   Board Core ->
   -- | The player drawing cards
   PlayerSpot ->
-  -- | The number of cards to draw
-  Int ->
+  -- | The sources from which to draw the cards
+  [DrawSource] ->
   Either Text (Board Core, Board UI, SharedModel)
-drawCards shared board _ 0 = return (board, mempty, shared)
-drawCards shared board pSpot i = do
-  (board', boardui, shared') <- drawCard shared board pSpot
-  (board'', boardui', shared'') <- drawCards shared' board' pSpot (i - 1)
+drawCards shared board _ [] = return (board, mempty, shared)
+drawCards shared board pSpot (hd : rest) = do
+  (board', boardui, shared') <- drawCard shared board pSpot hd
+  (board'', boardui', shared'') <- drawCards shared' board' pSpot rest
   return (board'', boardui <> boardui', shared'')
 
 drawCard ::
@@ -288,9 +290,11 @@ drawCard ::
   Board Core ->
   -- | The player drawing cards
   PlayerSpot ->
+  -- | The reason for drawing a card
+  DrawSource ->
   Either Text (Board Core, Board UI, SharedModel)
-drawCard shared board pSpot =
-  drawCardM board pSpot
+drawCard shared board pSpot src =
+  drawCardM board pSpot src
     & runWriterT
     & flip runStateT shared
     & runExcept
@@ -304,15 +308,16 @@ drawCardM ::
   MonadState SharedModel m =>
   Board Core ->
   PlayerSpot ->
+  DrawSource ->
   m (Board Core)
-drawCardM board pSpot =
-  case assert (bound >= 0) bound of
-    0 -> return board
-    _ -> do
-      let stack :: [Card.ID] = boardToStack board pSpot
+drawCardM board pSpot src =
+  case (srcKind board, stack) of
+    (Left _, _) -> return board -- cannot draw: 'src' is invalid
+    (_, []) -> return board -- cannot draw: stack is empty
+    (Right witness, _) -> do
       let hand = boardToHand board pSpot
       stdgen <- use #sharedStdGen
-      let (idrawn, stdgen') = randomR (0, bound - 1) stdgen
+      let (idrawn, stdgen') = randomR (0, assert (stackLen >= 1) $ stackLen - 1) stdgen
       #sharedStdGen .= stdgen'
       let ident :: Card.ID = stack !! idrawn
       let stack' = deleteAt idrawn stack
@@ -320,9 +325,25 @@ drawCardM board pSpot =
       tell $ boardAddToHand mempty pSpot $ length hand
       let board' = boardSetStack board pSpot stack'
       let board'' = boardSetHand board' pSpot hand'
-      return board''
+      let board''' = consumeSrc board'' witness
+      return board'''
   where
-    bound = nbCardsToDraw board pSpot
+    (stack, stackLen) = (boardToStack board pSpot, length stack)
+    srcKind b =
+      case src of
+        Native -> Right Nothing
+        CardDrawer pSpot' cSpot | pSpot' == pSpot ->
+          case boardToInPlaceCreature b pSpot cSpot of
+            Nothing -> Left "No creature at pSpot cSpot"
+            Just c@Creature {skills} ->
+              case findIndex (\case DrawCard' b -> b; _ -> False) skills of
+                Nothing -> Left "Not a creature with avail DrawCard'"
+                Just i -> Right $ Just (cSpot, c, i, DrawCard' False)
+        CardDrawer _ _ -> Left "Wrong PlayerSpot"
+    consumeSrc b Nothing = b -- No change
+    consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
+      -- Set new skill
+      boardSetCreature b pSpot cSpot $ c {skills = setAt skilli skill' skills}
 
 transferCards ::
   SharedModel ->
@@ -363,9 +384,9 @@ transferCardsM board pSpot =
       return $ boardSetPart board pSpot part'
   where
     (hand, actualHandSize) = (boardToHand board pSpot, length hand)
-    cardsToDraw = assert (actualHandSize <= initialHandSize) $ maxHandSizeAtRefill - actualHandSize
+    nbCardsToDraw = cardsToDraw board pSpot False & length
     (stack, stackSize) = (boardToStack board pSpot, length stack)
-    needTransfer = cardsToDraw > stackSize
+    needTransfer = nbCardsToDraw > stackSize
     discarded = boardToDiscarded board pSpot
     part = boardToPart board pSpot
 
@@ -534,12 +555,32 @@ nextAttackSpot board pSpot cSpot =
     spots :: [CardSpot] = attackOrder pSpot
     hasCreature c = isJust $ boardToInPlaceCreature board pSpot c
 
-nbCardsToDraw :: Board Core -> PlayerSpot -> Int
-nbCardsToDraw board pSpot =
-  assert (0 <= result' && result' <= maxHandSizeAtRefill) result'
+-- | The reason for drawing a card
+data DrawSource
+  = -- | Drawing one of the [nbDrawCards] cards allowed
+    Native
+  | -- | Drawing a card because of a creature with the [DrawCard] skill at the
+    -- given position
+    CardDrawer PlayerSpot CardSpot
+  deriving (Eq, Ord, Show)
+
+-- | The cards to draw, the Boolean indicates whether to bound by the
+-- stack's length or not
+cardsToDraw :: Board Core -> PlayerSpot -> Bool -> [DrawSource]
+cardsToDraw board pSpot considerStack =
+  map (const Native) [0 .. natives - 1] ++ map (CardDrawer pSpot) cardsDrawer
   where
-    handLen = length $ boardToHand board pSpot
     stackLen = length $ boardToStack board pSpot
-    result = min (maxHandSizeAtRefill - handLen) stackLen
-    result' = max 0 result -- Needed because initial hand size is greater
-    -- than maxHandSizeAtRefill
+    natives =
+      let base = Constants.nbCardsToDraw
+       in min base (if considerStack then stackLen else base)
+    cardsDrawer =
+      map (\cSpot -> (cSpot, boardToInPlaceCreature board pSpot cSpot)) (attackOrder pSpot)
+        & liftOpt
+        & map (\(cSpot, c) -> nbAvailDrawCardSkill c & flip replicate cSpot)
+        & concat
+    liftOpt [] = []
+    liftOpt ((x, Nothing) : rest) = liftOpt rest
+    liftOpt ((x, Just y) : rest) = (x, y) : liftOpt rest
+    nbAvailDrawCardSkill Creature {skills} =
+      filter (\case DrawCard' b -> b; _ -> False) skills & length
