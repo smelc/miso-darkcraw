@@ -11,6 +11,7 @@ common client-server-shared
   other-modules:
     AI
     Board
+    BoardInstances
     Card
     Constants
     Debugging
