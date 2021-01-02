@@ -2,6 +2,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE RecordWildCards #-}
 
+-- | This module contains instances of classes regarding types defined
+-- in 'Card'.
+-- |
 module CardInstances where
 
 import Card

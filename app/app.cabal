@@ -13,6 +13,7 @@ common client-server-shared
     Board
     BoardInstances
     Card
+    CardInstances
     Constants
     Debugging
     Event
