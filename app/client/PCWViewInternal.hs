@@ -121,9 +121,9 @@ cardView' z shared card =
   -- translating 'card' to 'ui' here. The translation is solely for UI
   -- only fields; we don't want to force callers to do it. That was the point
   -- of having SharedModel around.
-  case ui of
+  case (card, ui) of
     -- drawing of Creature cards
-    (CreatureCard Creature {attack, hp, skills}) ->
+    (CreatureCard Creature {skills}, CreatureCard Creature {attack, hp}) ->
       [div_ [style_ statsStyle] [statsCell]]
         ++ [div_ [style_ skillsStyle] skillsDivs]
       where
@@ -144,10 +144,9 @@ cardView' z shared card =
             <> "align-items" =: "flex-start" -- left
             <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
             <> fontStyle
-        skillDiv skill = div_ [] [SharedModel.liftSkill shared skill & skillTitle & ms & text]
-        skillsDivs = map skillDiv skills
+        skillsDivs = map (skillDiv shared) skills
     -- drawing of Neutral cards
-    (NeutralCard NeutralObject {ntitle, ntext}) ->
+    (_, NeutralCard NeutralObject {ntitle, ntext}) ->
       [ div_
           [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
             style_ fontStyle
@@ -171,7 +170,7 @@ cardView' z shared card =
               [text $ ms ntext]
           ]
       ]
-    _ -> error "Unhandled card"
+    _ -> error $ "Unhandled card: " ++ show card
   where
     ui = SharedModel.unsafeLiftCard shared card
     (topMargin, leftMargin) = (cps `div` 4, topMargin)
@@ -182,6 +181,16 @@ cardView' z shared card =
       "font-size" =: px fontSize
         <> "font-family" =: "serif"
     width = cardPixelWidth - (topMargin * 2)
+
+skillDiv :: SharedModel -> SkillCore -> View a
+skillDiv shared skill =
+  div_ [style_ sty] [skillTitle ui & ms & text]
+  where
+    ui = Card.liftSkill skill & SharedModel.liftSkill shared
+    sty =
+      case skill of
+        DrawCard' False -> "color" =: "#555555"
+        _ -> mempty
 
 cardBackground ::
   -- | The z index

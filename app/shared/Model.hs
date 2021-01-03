@@ -1,11 +1,14 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Model where
 
 import Board
+import BoardInstances
 import Card
+import CardInstances
 import Cinema (TimedFrame)
 import Data.Generics.Labels ()
 import Data.Set (Set)
@@ -62,6 +65,9 @@ data GameModel = GameModel
     anims :: Board UI
   }
   deriving (Eq, Generic, Show)
+
+instance Startable GameModel where
+  start GameModel {..} = GameModel {board = start board, ..}
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.

@@ -14,6 +14,7 @@ module Update where
 import qualified AI
 import Board
 import Card
+import CardInstances
 import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
 import Control.Concurrent (threadDelay)
 import Control.Exception
@@ -372,7 +373,8 @@ updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTur
     pSpot = turnToPlayerSpot turn'
     isAI = pSpot /= playingPlayer
     runEither = do
-      let (shared', board', boardui') = Game.transferCards gameShared board pSpot
+      let board0 = start board
+      let (shared', board', boardui') = Game.transferCards gameShared board0 pSpot
       let drawSrcs = Game.cardsToDraw board' pSpot True
       -- If it's the player turn, we wanna draw the first card right away,
       -- so that the game feels responsive.

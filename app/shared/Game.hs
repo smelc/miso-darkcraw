@@ -57,6 +57,7 @@ import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
+import Debug.Trace
 
 -- | On what a card can be applied
 data Target
@@ -312,7 +313,7 @@ drawCardM ::
   m (Board Core)
 drawCardM board pSpot src =
   case (srcKind board, stack) of
-    (Left _, _) -> return board -- cannot draw: 'src' is invalid
+    (Left msg, _) -> return board -- cannot draw: 'src' is invalid
     (_, []) -> return board -- cannot draw: stack is empty
     (Right witness, _) -> do
       let hand = boardToHand board pSpot
