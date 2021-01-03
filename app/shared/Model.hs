@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module Model where
 
@@ -65,9 +64,6 @@ data GameModel = GameModel
     anims :: Board UI
   }
   deriving (Eq, Generic, Show)
-
-instance Startable GameModel where
-  start GameModel {..} = GameModel {board = start board, ..}
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.
