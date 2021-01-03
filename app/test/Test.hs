@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -19,7 +20,8 @@ import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import Game (Target (..))
+import Debug.Trace (traceShow)
+import Game (Target (..), cardsToDraw, drawCards)
 import qualified Game (Event (..), PolyResult (..), attackOrder, play, playAll)
 import Generators
 import Json
@@ -144,6 +146,32 @@ testPlayFraming shared =
       cSpots =
         score == score' && stack == stack' && discarded == discarded' && team == team'
           && (Map.withoutKeys inPlace (Set.fromList cSpots) == Map.withoutKeys inPlace' (Set.fromList cSpots))
+
+testDrawCards :: SharedModel -> SpecWith ()
+testDrawCards shared =
+  describe
+    "Drawing cards"
+    $ prop "draws the expected number" $
+      \(Pretty board, Pretty turn) ->
+        let pSpot = turnToPlayerSpot turn
+         in let srcs = Game.cardsToDraw board pSpot True
+             in Game.drawCards shared board pSpot srcs `shouldSatisfy` cond board pSpot
+  where
+    cond _ _ (Left errMsg) = traceShow errMsg False
+    cond board pSpot (Right (board', _, _)) =
+      (len' - len)
+        == min (Constants.nbCardsToDraw + nbCardDrawSkills) (boardToStack board pSpot & length)
+      where
+        len = boardToHand board pSpot & length
+        len' = boardToHand board' pSpot & length
+        nbCardDrawSkills =
+          boardToPlayerHoleyInPlace board pSpot
+            & map snd
+            & catMaybes
+            & map skills
+            & concat
+            & filter (\case DrawCard' b -> b; _ -> False)
+            & length
 
 testNeighbors :: SpecWith ()
 testNeighbors =
@@ -387,3 +415,4 @@ main = hspec $ do
   testPlayLastHandCard shared
   Match.main shared
   testPlayFraming shared
+  testDrawCards shared
