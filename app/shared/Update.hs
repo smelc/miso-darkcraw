@@ -108,7 +108,7 @@ instance ToExpr StdGen where toExpr = defaultExprViaShow
 
 instance ToExpr Tile.TileUI
 
-instance ToExpr Card.SkillUI
+instance ToExpr Card.SkillPack
 
 instance ToExpr SharedModel
 

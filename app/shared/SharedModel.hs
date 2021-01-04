@@ -55,14 +55,14 @@ data SharedModel = SharedModel
   -- XXX @smelc, turn those into maps, for efficiency
   { -- | Data obtained at load time, that never changes
     sharedCards :: Map Card.ID (Card UI),
-    sharedSkills :: Map Skill SkillUI,
+    sharedSkills :: Map Skill SkillPack,
     sharedTiles :: Map Tile TileUI,
     -- | RNG obtained at load time, to be user whenever randomness is needed
     sharedStdGen :: StdGen
   }
   deriving (Eq, Generic, Show)
 
-create :: [Card UI] -> [SkillUI] -> [TileUI] -> StdGen -> SharedModel
+create :: [Card UI] -> [SkillPack] -> [TileUI] -> StdGen -> SharedModel
 create cards skills tiles sharedStdGen =
   SharedModel {..}
   where
@@ -143,13 +143,13 @@ liftCreature SharedModel {sharedCards} c@Creature {..} =
     Just (CreatureCard Creature {tile}) -> Just $ Creature {skills = map Card.liftSkill skills, ..}
     Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
-liftSkill :: SharedModel -> Skill -> SkillUI
+liftSkill :: SharedModel -> Skill -> SkillPack
 liftSkill SharedModel {sharedSkills} skill =
   fromMaybe
     default_
-    $ find (\SkillUI {skill = sk} -> sk == skill) sharedSkills
+    $ find (\SkillPack {skill = sk} -> sk == skill) sharedSkills
   where
-    default_ = SkillUI {skill = LongReach, ..}
+    default_ = SkillPack {skill = LongReach, ..}
     skillText = show skill ++ " not found!"
     skillTitle = skillText
 

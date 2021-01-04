@@ -47,8 +47,7 @@ data SkillCore
   | Unique'
   deriving (Eq, Generic, Ord, Show)
 
--- FIXME @smelc rename me
-data SkillUI = SkillUI
+data SkillPack = SkillPack
   { skill :: Skill,
     skillText :: String,
     skillTitle :: String

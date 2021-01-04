@@ -121,7 +121,7 @@ instance FromJSON Tile
 
 instance FromJSON TileUI
 
-instance FromJSON SkillUI where
+instance FromJSON SkillPack where
   parseJSON = genericParseJSON skillUIOptions
 
 -- TODO @smelc remove Phase parameter, only UI makes sense
@@ -129,7 +129,7 @@ data AllData (p :: Phase) = AllData
   { creatures :: [Creature p],
     neutral :: [NeutralObject p],
     items :: [ItemObject],
-    skills :: [SkillUI],
+    skills :: [SkillPack],
     tiles :: [TileUI]
   }
   deriving (Generic)
@@ -138,7 +138,7 @@ deriving instance Forall Show p => Show (AllData p)
 
 instance FromJSON (AllData UI)
 
-type LoadedJson = ([Card UI], [SkillUI], [TileUI])
+type LoadedJson = ([Card UI], [SkillPack], [TileUI])
 
 parseJson ::
   -- | The content of data.json
