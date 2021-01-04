@@ -28,6 +28,7 @@ import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (
 import Constants
 import Data.Char (toLower)
 import Data.Function ((&))
+import Data.List.Extra
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Miso
@@ -184,13 +185,21 @@ cardView' z shared card =
 
 skillDiv :: SharedModel -> SkillCore -> View a
 skillDiv shared skill =
-  div_ [style_ sty] [skillTitle ui & ms & text]
+  div_ [style_ color, hover] [skillTitle ui & ms & text]
   where
     ui = Card.liftSkill skill & SharedModel.liftSkill shared
-    sty =
+    color =
       case skill of
         DrawCard' False -> "color" =: "#555555"
         _ -> mempty
+    hover = title_ $ ms (skillText ui & typeset)
+
+typeset :: String -> String
+typeset x = go x replacements
+  where
+    go x [] = x
+    go x ((src, img) : rest) = go (replace src img x) rest
+    replacements = [(":heart:", "❤️"), (":crossed_swords:", "⚔️")]
 
 cardBackground ::
   -- | The z index

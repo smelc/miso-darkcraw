@@ -77,10 +77,10 @@ jsonData = "{\n\
          \    { \"tile\":\"WhiteAppears4\", \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":5 } }\n\
          \  ],\n\
          \  \"skills\": [\n\
-         \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"upon arrival, neighbors with discipline get +1 :health: and +1 :attack:\"},\n\
-         \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"draw an additional card at beginning of your turn\"},\n\
-         \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"hits 2 cells away when in the back line\"},\n\
-         \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"hits any enemy in its column\"},\n\
-         \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"never goes back to stack\"}\n\
+         \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:\"},\n\
+         \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of your turn\"},\n\
+         \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"Hits 2 cells away when in the back line\"},\n\
+         \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
+         \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"Never goes back to the stack\"}\n\
          \  ]\n\
          \}\n"
