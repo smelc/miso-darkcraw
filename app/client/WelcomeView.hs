@@ -11,7 +11,8 @@
 module WelcomeView (viewWelcomeModel) where
 
 import Cinema (TimedFrame (..))
-import Configuration
+import Configuration (Configuration (..), Edition (..))
+import qualified Configuration
 import Constants
 import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V
@@ -35,7 +36,7 @@ viewWelcomeModel WelcomeModel {..} = do
     div_
       [style_ bgStyle]
       $ [ torchesDiv zpp, -- Absolute placement
-          versionDiv zpp configuration, -- Absolute placement
+          versionDiv zpp Configuration.get, -- Absolute placement
           div_
             [style_ flexColumnStyle]
             -- top level flex, layout things in a column
@@ -61,10 +62,7 @@ viewWelcomeModel WelcomeModel {..} = do
       textStyle
         <> "font-size" =: px subtitleFontSize
         <> "z-index" =: ms zpp
-    multiplayerEnabled =
-      case configuration of
-        Configuration _ Itch _ -> False
-        _ -> True
+    multiplayerEnabled = Configuration.isDev
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "choose your team -> start"]
     createButtonDivM customStyle dest text =
@@ -126,24 +124,25 @@ torchesDiv z =
     duration x = if x then "2s" else "2.5s"
 
 versionDiv :: Int -> Configuration -> View Action
-versionDiv z (Configuration edition location maybeHash) =
+versionDiv z config =
   div_
     [style_ $ style <> textStyle, style_ flexLineStyle]
     $ [text $ ms txt]
       ++ [img_ [src_ (assetsPath assetFilenameCrown)] | legendary]
   where
-    txt = "Version: " ++ showLocation location ++ hashString ++ ", " ++ show edition
+    txt = "Version: " ++ location ++ hashString' ++ ", " ++ (if legendary then "Legendary" else "")
     textStyle = Map.fromList textRawStyle
-    showLocation Dev = "dev"
-    showLocation Itch = "Itch"
-    legendary =
-      case edition of
-        Legendary -> True
-        Vanilla -> False
-    hashString =
-      case maybeHash of
+    (location, legendary, hashString) =
+      case config of
+        Dev -> ("dev", True, Nothing)
+        Itch Vanilla h -> ("Itch", False, Just h)
+        Itch Legendary h -> ("Itch", True, Just h)
+        Schplaf Vanilla h -> ("schplaf", False, Just h)
+        Schplaf Legendary h -> ("schplaf", True, Just h)
+    hashString' =
+      case hashString of
         Nothing -> ""
-        Just hash -> ", " ++ hash
+        Just h -> ", " ++ h
     x = cps
     y = lobbiesPixelHeight - cps
     style = zplt z Absolute x y

@@ -15,7 +15,7 @@ module GameView where
 
 import Board
 import Card
-import Configuration (hashless)
+import qualified Configuration
 import Constants
 import Control.Lens
 import Control.Monad.Except
@@ -51,7 +51,7 @@ viewGameModel model@GameModel {board, interaction, playingPlayer} = do
     boardDivM = do
       let errs = errView model zpp & maybeToList
       stacks <-
-        if hashless
+        if Configuration.isDev
           then traverse (stackView model z enemySpot GameViewInternal.Board) [Discarded, Stacked]
           else return []
       turn <- turnView model zpp

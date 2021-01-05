@@ -9,7 +9,7 @@ function restore_config() {
 }
 
 # Compile
-./scripts/change-config.sh "Legendary" "Itch" "$(git rev-parse --short=7 HEAD)" || { echo "change-config.sh failed"; exit 1; }
+./scripts/change-config.sh "Itch Vanilla \"$(git rev-parse --short=7 HEAD)\"" || { echo "change-config.sh failed"; exit 1; }
 (cd app && rm -Rf .ghc.environment.* -Rf && nix-build -A release) || { echo "compilation failed"; restore_config; exit 1; }
 restore_config
 

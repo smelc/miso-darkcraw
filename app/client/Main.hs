@@ -15,7 +15,7 @@ import           Network.WebSockets
 #endif
 
 import Card
-import Configuration (hashless)
+import qualified Configuration
 import Control.Monad (forM_)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (mapMaybe)
@@ -70,7 +70,7 @@ main = do
   let shared = SharedModel.create cards skills tiles stdGen
   let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
   runApp $
-    if hashless
+    if Configuration.isDev
       then startApp $ debugApp NoOp App {..}
       else startApp App {..}
   where
@@ -81,7 +81,7 @@ main = do
             NoOp -> res
             _ -> traceShow a res
     updateProd a m = updateModel a m
-    update = if Configuration.hashless then updateLog else updateProd
+    update = if Configuration.isDev then updateLog else updateProd
     view = viewModel -- view function
     events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
     subs = [keyboardSub Keyboard]

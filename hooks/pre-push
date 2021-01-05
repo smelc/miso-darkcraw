@@ -10,7 +10,7 @@ function restore_config() {
   git checkout "app/client/Configuration.hs"
 }
 
-./scripts/change-config.sh "Legendary" "Dev" "$(git rev-parse --short=7 HEAD)" || { echo "change-config.sh failed"; exit 1; }
+./scripts/change-config.sh "Schplaf Legendary \"$(git rev-parse --short=7 HEAD)\"" || { echo "change-config.sh failed"; exit 1; }
 (cd app && rm -Rf .ghc.environment.* -Rf && nix-build -A release) || { echo "compilation failed"; restore_config; exit 1; }
 restore_config
 
