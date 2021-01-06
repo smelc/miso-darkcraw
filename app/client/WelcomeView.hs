@@ -32,18 +32,24 @@ viewWelcomeModel WelcomeModel {..} = do
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-
     createButtonDivM singlePlayerMargin SinglePlayerDestination "Single Player"
-  return $
-    div_
-      [style_ bgStyle]
-      $ [ torchesDiv zpp, -- Absolute placement
-          versionDiv zpp Configuration.get, -- Absolute placement
-          div_
-            [style_ flexColumnStyle]
-            -- top level flex, layout things in a column
-            [titleDiv, singlePlayerDiv, multiPlayerDiv]
-        ]
-        ++ viewWelcomeScene welcomeSceneModel
-        ++ debugSlider
+  let main =
+        div_
+          [style_ bgStyle]
+          $ [ torchesDiv zpp, -- Absolute placement
+              versionDiv zpp Configuration.get, -- Absolute placement
+              div_
+                [style_ flexColumnStyle]
+                -- top level flex, layout things in a column
+                [titleDiv, singlePlayerDiv, multiPlayerDiv]
+            ]
+            ++ viewWelcomeScene welcomeSceneModel
+            ++ debugSlider
+  let support =
+        case Configuration.get of
+          Itch {} -> []
+          Dev -> [supportDiv]
+          Schplaf {} -> [supportDiv]
+  return $ div_ [] $ main : support
   where
     (z, zpp, zpppp) = (0, z + 1, zpp + 1)
     bgStyle =
@@ -146,3 +152,32 @@ versionDiv z config =
     x = cps
     y = lobbiesPixelHeight - cps
     style = zplt z Absolute x y
+
+supportDiv =
+  div_
+    [ style_ $
+        "width" =: px lobbiesPixelWidth
+          <> "outline" =: "1px solid red"
+          <> "margin-top" =: px 1
+    ]
+    [ div_
+        [ style_ flexColumnStyle,
+          style_ $
+            "width" =: px (lobbiesPixelWidth - cps * 2)
+              <> "margin-left" =: px cps
+        ]
+        [ div_
+            []
+            [ text "This is a development version whose ",
+              a_ [href_ "https://github.com/smelc/miso-darkcraw"] [text "code is on GitHub"],
+              text ". To show your support, star it ⭐, or leave a comment on the released version:"
+            ],
+          a_
+            [ href_ itchUrl,
+              style_ $ "margin-top" =: px 12 <> "margin-bottom" =: px 12
+            ]
+            [text itchUrl]
+        ]
+    ]
+  where
+    itchUrl = "https://hgames.itch.io/pixel-card-wars"
