@@ -57,7 +57,6 @@ import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
-import Debug.Trace
 
 -- | On what a card can be applied
 data Target
@@ -264,6 +263,7 @@ playCardTargetM board pSpot cSpot creature = do
       boardToNeighbors board pSpot cSpot Board.Cardinal
         & map liftJust
         & catMaybes
+        & filter (\(_, c) -> hasDiscipline c)
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing
     boost = 1
