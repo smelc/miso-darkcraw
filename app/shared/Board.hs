@@ -444,6 +444,7 @@ data Teams = Teams
   { topTeam :: Team,
     botTeam :: Team
   }
+  deriving (Generic, Show)
 
 -- | The initial board, appropriately shuffled with 'SharedModel' rng
 initialBoard :: SharedModel -> Teams -> (SharedModel, Board 'Core)

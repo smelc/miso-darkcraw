@@ -145,6 +145,10 @@ instance Arbitrary Neighborhood where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary Teams where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 genSceneAst :: Int -> Gen SceneAst
 genSceneAst i = do
   n <- getSize

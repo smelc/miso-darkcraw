@@ -24,6 +24,7 @@ import Debug.Trace (traceShow)
 import Game (Target (..), cardsToDraw, drawCards)
 import qualified Game (Event (..), PolyResult (..), attackOrder, play, playAll)
 import Generators
+import qualified Invariants
 import Json
 import qualified Match
 import Movie
@@ -416,3 +417,4 @@ main = hspec $ do
   Match.main shared
   testPlayFraming shared
   testDrawCards shared
+  Invariants.main shared
