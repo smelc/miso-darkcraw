@@ -1,6 +1,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -11,6 +12,7 @@
 
 module Card where
 
+import qualified Constants
 import Control.Arrow ((&&&))
 import Data.Function ((&))
 import Data.Generics.Labels ()
@@ -31,7 +33,8 @@ allTeams :: [Team]
 allTeams = [Human ..]
 
 data Skill
-  = Discipline
+  = Blow
+  | Discipline
   | DrawCard
   | LongReach
   | Ranged
@@ -39,7 +42,9 @@ data Skill
   deriving (Eq, Generic, Ord, Show)
 
 data SkillCore
-  = Discipline'
+  = -- | Whether the skill is available (True) or used already (False)
+    Blow' Bool
+  | Discipline'
   | -- | Whether the skill is available (True) or used already (False)
     DrawCard' Bool
   | LongReach'
@@ -107,6 +112,7 @@ data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
 data Creature (p :: Phase) = Creature
   { creatureId :: CreatureID,
     hp :: Int,
+    -- | Beware when using this accessor, you may want 'totalAttack' instead
     attack :: Int,
     moral :: Maybe Int,
     victoryPoints :: Int,
@@ -175,12 +181,15 @@ deriving instance Generic (Card p)
 liftSkill :: SkillCore -> Skill
 liftSkill skill =
   case skill of
+    Blow' _ -> Blow
     Discipline' -> Discipline
     DrawCard' _ -> DrawCard
     LongReach' -> LongReach
     Ranged' -> Ranged
     Unique' -> Unique
 
+-- | Because this function uses default values (by relying on 'unliftSkill'),
+-- it is NOT harmless! Use only when initializing data.
 unliftCreature :: Creature UI -> Creature Core
 unliftCreature Creature {..} =
   Creature creatureId hp attack moral victoryPoints (map unliftSkill skills) ()
@@ -196,9 +205,12 @@ unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =
   NeutralObject {neutral, neutralTeams = (), ntext = (), ntile = (), ntitle = ()}
 
+-- | Because this function uses default values, it is NOT harmless! Use only
+-- when initializing data.
 unliftSkill :: Skill -> SkillCore
 unliftSkill skill =
   case skill of
+    Blow -> Blow' True
     Discipline -> Discipline'
     DrawCard -> DrawCard' True
     LongReach -> LongReach'
@@ -303,3 +315,13 @@ idToTargetType id =
     IDC _ -> CardTargetType Hole
     IDN n -> targetType n
     IDI _ -> error $ "Unsupported identifier: " ++ show id
+
+-- | The total attack of a creature, including boosts of skills and items.
+-- This would make more sense to be in 'Game', but alas this is more
+-- convenient to have it here dependency-wise.
+totalAttack :: Creature 'Core -> Int
+totalAttack Creature {..} =
+  attack + (nbAvailBoosts * Constants.boostAmount)
+  where
+    nbAvailBoosts =
+      filter (\case Blow' True -> True; _ -> False) skills & length

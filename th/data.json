@@ -4,7 +4,7 @@
     { "id": { "name":"swordsman", "team":"human" },  "title":"swordsman", "hp":2, "attack":1, "moral":3, "victory_points":2, "tile":"HumanSwordsman", "skills":["Discipline"] },
     { "id": { "name":"archer",    "team":"human" },  "title":"archer",    "hp":2, "attack":1, "moral":3, "victory_points":2, "tile":"HumanArcher",    "skills":["Ranged"] },
     { "id": { "name":"general",   "team":"human" },  "title":"general",   "hp":3, "attack":3, "moral":5, "victory_points":5, "tile":"HumanGeneral",   "skills":["Unique"] },
-    { "id": { "name":"knight",    "team":"human" },  "title":"Knight",    "hp":2, "attack":2, "moral":4, "victory_points":5, "tile":"HumanKnight",    "skills":[] },
+    { "id": { "name":"knight",    "team":"human" },  "title":"Knight",    "hp":2, "attack":2, "moral":4, "victory_points":5, "tile":"HumanKnight",    "skills":["Blow"] },
     { "id": { "name":"skeleton",  "team":"undead" }, "title":"skeleton",  "hp":1, "attack":1, "victory_points":1, "tile":"UndeadSkeleton" },
     { "id": { "name":"vampire",   "team":"undead" }, "title":"vampire",   "hp":3, "attack":3, "victory_points":5, "tile":"UndeadVampire"  },
     { "id": { "name":"archer",    "team":"undead" }, "title":"archer",    "hp":1, "attack":1, "victory_points":1, "tile":"UndeadArcher", "skills":["Ranged"]   },
@@ -66,6 +66,7 @@
     { "tile":"WhiteAppears4", "filepath": { "root": "24x24", "x":4, "y":5 } }
   ],
   "skills": [
+    { "skill":"Blow",        "title":"Blow",       "text":"+2 :crossed_swords: during first turn"},
     { "skill":"Discipline",  "title":"Discipline", "text":"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:"},
     { "skill":"DrawCard",    "title":"Librarian",  "text":"Draw an additional card at beginning of your turn"},
     { "skill":"LongReach",   "title":"Long reach", "text":"Hits 2 cells away when in the back line"},

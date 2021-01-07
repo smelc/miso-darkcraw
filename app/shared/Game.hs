@@ -36,7 +36,6 @@ where
 import Board
 import Card hiding (ID)
 import qualified Card
-import Constants hiding (nbCardsToDraw)
 import qualified Constants
 import Control.Exception (assert)
 import Control.Lens
@@ -427,7 +426,7 @@ attack board pSpot cSpot =
             return board'
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
-      let hit = Card.attack hitter
+      let hit = Card.totalAttack hitter
       reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
   where
@@ -488,7 +487,7 @@ singleAttack attacker defender
   | hps' <= 0 = mempty {death = True}
   | otherwise = mempty {hitPointsChange = - hit}
   where
-    hit = Card.attack attacker
+    hit = Card.totalAttack attacker
     hps' = Card.hp defender - hit
 
 -- | The spot that blocks a spot from attacking, which happens

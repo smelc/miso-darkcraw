@@ -216,7 +216,7 @@ scorePlace board pSpot cSpot =
 scoreCard :: Card Core -> Int
 scoreCard = \case
   CreatureCard Creature {..} ->
-    sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map (scoreSkill . Card.liftSkill) skills
+    sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map scoreSkill skills
   NeutralCard NeutralObject {neutral} ->
     case neutral of
       Health -> -1
@@ -225,13 +225,14 @@ scoreCard = \case
   ItemCard _ -> error "ItemCard unsupported"
 
 -- | The score of a skill, smaller values are better. Negative values returned.
-scoreSkill :: Skill -> Int
+scoreSkill :: SkillCore -> Int
 scoreSkill = \case
-  Discipline -> -1
-  DrawCard -> -1
-  LongReach -> -1
-  Ranged -> -1
-  Unique -> 0
+  Blow' b -> if b then -1 else 0
+  Discipline' -> -1
+  DrawCard' b -> if b then -1 else 0
+  LongReach' -> -1
+  Ranged' -> -1
+  Unique' -> 0
 
 sortByFst :: [(Int, b)] -> [(Int, b)]
 sortByFst l =

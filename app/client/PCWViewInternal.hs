@@ -124,7 +124,7 @@ cardView' z shared card =
   -- of having SharedModel around.
   case (card, ui) of
     -- drawing of Creature cards
-    (CreatureCard Creature {skills}, CreatureCard Creature {attack, hp}) ->
+    (CreatureCard core@Creature {skills}, CreatureCard Creature {hp}) ->
       [div_ [style_ statsStyle] [statsCell]]
         ++ [div_ [style_ skillsStyle] skillsDivs]
       where
@@ -134,7 +134,7 @@ cardView' z shared card =
             [style_ inStatsStyle]
             [ text $ ms hp,
               imgCell assetFilenameHeart,
-              text $ ms attack,
+              text $ ms $ totalAttack core,
               imgCell assetFilenameSword
             ]
         skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)
@@ -190,8 +190,12 @@ skillDiv shared skill =
     ui = Card.liftSkill skill & SharedModel.liftSkill shared
     color =
       case skill of
-        DrawCard' False -> "color" =: "#555555"
+        DrawCard' False -> "color" =: grey
+        Blow' False -> "color" =: grey
+        Blow' True -> "color" =: greenHTML
         _ -> mempty
+      where
+        grey = "#555555"
     hover = title_ $ ms (skillText ui & typeset)
 
 typeset :: String -> String

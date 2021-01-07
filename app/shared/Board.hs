@@ -602,6 +602,6 @@ cardLine board pSpot cSpot lineNb =
 creatureToAscii :: Creature Core -> LineNumber -> Maybe String
 creatureToAscii Creature {creatureId = CreatureID {..}} 0 =
   Just $ show team ++ " " ++ show creatureKind
-creatureToAscii Creature {..} 1 =
-  Just $ show hp ++ "<3 " ++ show attack ++ "X"
+creatureToAscii c@Creature {..} 1 =
+  Just $ show hp ++ "<3 " ++ show (totalAttack c) ++ "X"
 creatureToAscii _ _ = Nothing

@@ -55,6 +55,10 @@ boardPixelWidth = boardCellWidth * cps
 boardPixelHeight :: Int
 boardPixelHeight = boardCellHeight * cps
 
+-- | The additional attack granted by the Boost skill when available
+boostAmount :: Int
+boostAmount = 2
+
 -- | The size of borders around cards
 borderSize :: Int
 borderSize = 3
