@@ -19,31 +19,22 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 
 class Invariant a where
-  -- | An explanation why the invariant is violated, otherwise 'Nothing'
-  violation :: a -> Maybe String
-
-join :: [Maybe String] -> Maybe String
-join [] = Nothing
-join (Nothing : rest) = join rest
-join (Just violation : rest) =
-  case join rest of
-    Nothing -> Just violation
-    Just violations -> Just $ violation ++ "\n" ++ violations
+  -- | Violations of the invariant if any, otherwise []
+  violation :: a -> [String]
 
 instance Invariant (Creature 'Core) where
-  violation Creature {..}
-    | attack < 0 = Just $ "Creature's attack should be >= 0 but found " ++ show attack
-    | hp < 0 = Just $ "Creature's hp should be >= 0 but found " ++ show hp
-    | otherwise = Nothing
+  violation Creature {..} =
+    ["Creature's attack should be >= 0 but found " ++ show attack | attack < 0]
+      ++ ["Creature's hp should be >= 0 but found " ++ show hp | hp < 0]
 
 instance Invariant (PlayerPart 'Core) where
-  violation PlayerPart {..}
-    | score < 0 = Just $ "Score should be >= 0 but found " ++ show score
-    | otherwise = map violation (Map.elems inPlace) & join
+  violation PlayerPart {..} =
+    ["Score should be >= 0 but found " ++ show score | score < 0]
+      ++ (map violation (Map.elems inPlace) & concat)
 
 instance Invariant (Board 'Core) where
   violation Board {playerTop, playerBottom} =
-    join [violation playerTop, violation playerBottom]
+    violation playerTop ++ violation playerBottom
 
 main :: SharedModel -> SpecWith ()
 main shared =
@@ -61,7 +52,7 @@ main shared =
     last l = reverse l & listToMaybe
     isValid x =
       case violation x of
-        Just violation -> traceShow violation False
-        Nothing -> True
+        [] -> True
+        violations -> traceShow (unlines violations) False
     isValid' Nothing = True
     isValid' (Just b) = isValid b
