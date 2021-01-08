@@ -102,24 +102,30 @@ Test-Suite test-darkcraw
   if impl(ghcjs)
     buildable: False
   type:       exitcode-stdio-1.0
-  main-is:    Test.hs
+  main-is:    Main.hs
   other-modules:
     AI
     Board
+    BoardInstances
     Card
+    CardInstances
     Cinema
     Constants
     Game
     Generators
+    Invariants
     Json
     JsonData
     Match
+    Model
     Movie
     Pretty
     SceneEquivalence
+    ServerMessages
     SharedModel
     Tile
     Turn
+    Update
   hs-source-dirs:
     shared,
     test
