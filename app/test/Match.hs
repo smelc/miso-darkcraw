@@ -7,7 +7,7 @@
 -- This module simulates playing an entire game
 -- |
 -- play is exported for debugging with ghci
-module Match (main, play) where
+module Match (main, play, Result (boards)) where
 
 import qualified AI (play)
 import Board

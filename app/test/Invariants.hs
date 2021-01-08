@@ -47,14 +47,21 @@ instance Invariant (Board 'Core) where
 
 main :: SharedModel -> SpecWith ()
 main shared =
-  describe
-    "Board invariant"
-    $ prop "holds initially" $
+  describe "Board invariant" $ do
+    prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in (initialBoard shared' teams & snd) `shouldSatisfy` noViolation
+         in (initialBoard shared' teams & snd) `shouldSatisfy` isValid
+    prop "is preserved by playing matches" $
+      \(Pretty team1, Pretty team2, seed) ->
+        let shared' = SharedModel.withSeed shared seed
+         in (Match.play shared' team1 team2 seed & Match.boards & last)
+              `shouldSatisfy` isValid'
   where
-    noViolation x =
+    last l = reverse l & listToMaybe
+    isValid x =
       case violation x of
         Just violation -> traceShow violation False
         Nothing -> True
+    isValid' Nothing = True
+    isValid' (Just b) = isValid b
