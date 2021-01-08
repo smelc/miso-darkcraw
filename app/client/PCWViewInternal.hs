@@ -19,6 +19,7 @@ module PCWViewInternal
     cardPositionStyle',
     viewFrame,
     CardDrawStyle (..),
+    DisplayLocation (..),
     DisplayMode (..),
   )
 where
@@ -41,6 +42,9 @@ import Update (Action)
 import ViewInternal
 
 data DisplayMode = NormalMode | DebugMode
+
+-- | Where a card is being drawn
+data DisplayLocation = GameInPlaceLoc | GameHandLoc | GameDragLoc | DeckLoc
 
 data CardDrawStyle = CardDrawStyle
   { -- | Whether the card should fade in
@@ -75,6 +79,7 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
 
 -- | Div displaying a card
 cardView ::
+  DisplayLocation ->
   -- | The z index
   Int ->
   SharedModel ->
@@ -83,7 +88,7 @@ cardView ::
   Card Core ->
   CardDrawStyle ->
   Styled (View Action)
-cardView z shared team card cdsty@CardDrawStyle {fadeIn} =
+cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed
@@ -109,15 +114,15 @@ cardView z shared team card cdsty@CardDrawStyle {fadeIn} =
     builder attrs =
       div_ attrs $
         [div_ [style_ pictureStyle] [pictureCell]]
-          ++ cardView' z shared card
+          ++ cardView' loc z shared card
           ++ [PCWViewInternal.cardBackground z team cdsty]
     animData =
       (animationData "handCardFadein" "1s" "ease")
         { animDataFillMode = Just "forwards"
         }
 
-cardView' :: Int -> SharedModel -> Card Core -> [View Action]
-cardView' z shared card =
+cardView' :: DisplayLocation -> Int -> SharedModel -> Card Core -> [View Action]
+cardView' loc z shared card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI
   -- only fields; we don't want to force callers to do it. That was the point

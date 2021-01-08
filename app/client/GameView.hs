@@ -139,7 +139,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
                     { hover = beingHovered,
                       PCWViewInternal.fadeIn = Board.fadeIn attackEffect
                     }
-            v <- cardView z gameShared t (CreatureCard creature) cdsty
+            v <- cardView GameInPlaceLoc z gameShared t (CreatureCard creature) cdsty
             -- "pointer-events: none" turns off handling of drag/drog
             -- events. Without that, on full-fledged cards, children
             -- would trigger GameDragLeave/GameDragEnter events (because the
@@ -250,7 +250,7 @@ boardToInHandCell ::
   (Int, Card Core, HandIndex) ->
   Styled (View Action)
 boardToInHandCell GameModel {anims, board, interaction, gameShared, playingPlayer} bigZ (z, card, i) = do
-  card <- cardView (if beingHovered || beingDragged then bigZ else z) gameShared t card cdsty
+  card <- cardView loc (if beingHovered || beingDragged then bigZ else z) gameShared t card cdsty
   return $ div_ attrs [card | not beingDragged]
   where
     t = boardToPart board playingPlayer & Board.team
@@ -262,6 +262,7 @@ boardToInHandCell GameModel {anims, board, interaction, gameShared, playingPlaye
           (False, draggedCard == i)
         GameShowErrorInteraction _ -> (False, False)
         _ -> (False, False)
+    loc = if beingDragged then GameDragLoc else GameHandLoc
     rightmargin = cps * 2
     hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
     i' = unHandIndex i

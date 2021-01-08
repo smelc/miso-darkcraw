@@ -57,7 +57,7 @@ viewDeck DeckModel {deck, deckPlayer, deckTeam, deckShared} = do
     yoffset y = 3 + (y * (cardCellHeight + 1))
     -- Create div of a single card
     cardDiver x y card = do
-      card <- cardView z deckShared deckTeam card mempty
+      card <- cardView DeckLoc z deckShared deckTeam card mempty
       return $ div_ [style_ $ cardPositionStyle (xoffset x) (yoffset y)] [card]
     -- Create background of slot
     slotDiver x y =
