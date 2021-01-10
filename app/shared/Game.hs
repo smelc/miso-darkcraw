@@ -34,7 +34,8 @@ module Game
 where
 
 import Board
-import Card hiding (ID)
+import BoardInstances
+import Card hiding (ID, isStupid)
 import qualified Card
 import qualified Constants
 import Control.Exception (assert)
@@ -415,6 +416,10 @@ attack ::
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attackee) of
     (Nothing, _, _) -> return board -- no attacker
+    (Just c, _, _)
+      | isStupid board pSpot cSpot ->
+        -- TODO @smelc record an animation
+        return board
     (_, Just _, _) -> return board -- an ally blocks the way
     (Just hitter, _, Just (hitSpot, hittee)) ->
       -- attack can proceed

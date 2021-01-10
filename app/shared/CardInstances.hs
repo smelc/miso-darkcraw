@@ -17,6 +17,8 @@ class Startable a where
 instance Startable SkillCore where
   start (DrawCard' False) = DrawCard' True
   start (Blow' True) = Blow' False
+  start s@(Stupid4' _) | isStupid s = Stupid4' 0
+  start (Stupid4' i) = Stupid4' $ i + 1
   start a = a
 
 instance Startable (Creature 'Core) where

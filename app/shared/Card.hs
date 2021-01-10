@@ -38,6 +38,7 @@ data Skill
   | DrawCard
   | LongReach
   | Ranged
+  | Stupid4
   | Unique
   deriving (Eq, Generic, Ord, Show)
 
@@ -49,8 +50,13 @@ data SkillCore
     DrawCard' Bool
   | LongReach'
   | Ranged'
+  | -- | The turn, at 0, 1, or 2 not stupide; at 3 stupid; then back to 0
+    Stupid4' Int
   | Unique'
   deriving (Eq, Generic, Ord, Show)
+
+isStupid :: SkillCore -> Bool
+isStupid = \case Stupid4' 3 -> True; _ -> False
 
 data SkillPack = SkillPack
   { skill :: Skill,
@@ -99,6 +105,7 @@ data CreatureKind
   | Shade
   | Spearman
   | Swordsman
+  | Ogre
   | Vampire
   | Warrior
   deriving (Enum, Eq, Generic, Ord, Show)
@@ -186,6 +193,7 @@ liftSkill skill =
     DrawCard' _ -> DrawCard
     LongReach' -> LongReach
     Ranged' -> Ranged
+    Stupid4' _ -> Stupid4
     Unique' -> Unique
 
 -- | Because this function uses default values (by relying on 'unliftSkill'),
@@ -215,6 +223,7 @@ unliftSkill skill =
     DrawCard -> DrawCard' True
     LongReach -> LongReach'
     Ranged -> Ranged'
+    Stupid4 -> Stupid4' 0
     Unique -> Unique'
 
 cardToCreature :: Card p -> Maybe (Creature p)
@@ -276,8 +285,8 @@ teamDeck cards t =
     -- Initial creatures:
     creatures =
       case t of
-        Human -> 3 * Spearman ++ 2 * Archer ++ 2 * Knight ++ 1 * General
-        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire ++ 1 * Necromancer
+        Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General ++ 3 * Card.Ogre
+        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire ++ 3 * Necromancer
     kindToNeutral :: Map.Map Neutral (NeutralObject Core) =
       map cardToNeutralObject cards
         & catMaybes

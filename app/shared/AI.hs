@@ -13,6 +13,7 @@
 module AI (AI.play, boardScore, placeCards) where
 
 import Board
+import BoardInstances ()
 import Card
 import Control.Exception
 import Control.Lens hiding (snoc)
@@ -226,13 +227,15 @@ scoreCard = \case
 
 -- | The score of a skill, smaller values are better. Negative values returned.
 scoreSkill :: SkillCore -> Int
-scoreSkill = \case
-  Blow' b -> if b then -1 else 0
-  Discipline' -> -1
-  DrawCard' b -> if b then -1 else 0
-  LongReach' -> -1
-  Ranged' -> -1
-  Unique' -> 0
+scoreSkill s =
+  case s of
+    Blow' b -> if b then -1 else 0
+    Discipline' -> -1
+    DrawCard' b -> if b then -1 else 0
+    LongReach' -> -1
+    Ranged' -> -1
+    Stupid4' _ -> if isStupid s then 2 else 1
+    Unique' -> 0
 
 sortByFst :: [(Int, b)] -> [(Int, b)]
 sortByFst l =

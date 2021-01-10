@@ -16,6 +16,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
          \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":3, \"moral\":5, \"victory_points\":5, \"tile\":\"HumanGeneral\",   \"skills\":[\"Unique\"] },\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"moral\":4, \"victory_points\":5, \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"] },\n\
+         \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":3, \"moral\":4, \"victory_points\":5, \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"] },\n\
          \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadSkeleton\" },\n\
          \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\"  },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadArcher\", \"skills\":[\"Ranged\"]   },\n\
@@ -62,6 +63,7 @@ jsonData = "{\n\
          \    { \"tile\":\"GreenPotion\",   \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":0 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":1 } },\n\
          \    { \"tile\":\"Loupe\",         \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":1 } },\n\
+         \    { \"tile\":\"Ogre\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":0 } },\n\
          \    { \"tile\":\"UndeadSkeleton\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadVampire\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":3 } },\n\
@@ -82,6 +84,7 @@ jsonData = "{\n\
          \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of your turn\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"Hits 2 cells away when in the back line\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
+         \    { \"skill\":\"Stupid4\",     \"title\":\"Stupid\",     \"text\":\"1 out of 4 turns: does not attack\"},\n\
          \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"Never goes back to the stack\"}\n\
          \  ]\n\
          \}\n"

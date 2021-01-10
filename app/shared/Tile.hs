@@ -51,6 +51,7 @@ data Tile
   | HumanSpearman
   | HumanSwordsman
   | Loupe
+  | Ogre
   | SkullRedEyes
   | Sword1
   | Sword2
