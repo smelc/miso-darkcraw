@@ -17,6 +17,7 @@ import Pretty
 import SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
+import Turn
 
 class Invariant a where
   -- | Violations of the invariant if any, otherwise []
@@ -27,6 +28,11 @@ instance Invariant (Creature 'Core) where
     ["Creature's attack should be >= 0 but found " ++ show attack | attack < 0]
       ++ ["Creature's hp should be >= 0 but found " ++ show hp | hp < 0]
 
+-- Could this be made more general?
+instance Invariant a => Invariant [a] where
+  violation [] = []
+  violation (hd : rest) = violation hd ++ violation rest
+
 instance Invariant (PlayerPart 'Core) where
   violation PlayerPart {..} =
     ["Score should be >= 0 but found " ++ show score | score < 0]
@@ -36,23 +42,28 @@ instance Invariant (Board 'Core) where
   violation Board {playerTop, playerBottom} =
     violation playerTop ++ violation playerBottom
 
+instance Invariant Turn where
+  violation turn =
+    ["Turn must be >= 1 but found " ++ show i | i < 1]
+    where
+      i = turnToInt turn
+
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Board invariant" $ do
     prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in (initialBoard shared' teams & snd) `shouldSatisfy` isValid
+         in (initialBoard shared' teams & snd) `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in (Match.play shared' team1 team2 seed & Match.boards & last)
-              `shouldSatisfy` isValid'
+         in Match.play shared' team1 team2 seed
+              `shouldSatisfy` isValidResult
   where
     last l = reverse l & listToMaybe
-    isValid x =
-      case violation x of
-        [] -> True
-        violations -> traceShow (unlines violations) False
-    isValid' Nothing = True
-    isValid' (Just b) = isValid b
+    isValid [] = True
+    isValid violations = traceShow (unlines violations) False
+    isValid' x = violation x & isValid
+    isValidResult Match.Result {boards, turnResult} =
+      isValid $ violation boards ++ violation turnResult

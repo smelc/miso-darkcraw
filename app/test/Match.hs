@@ -7,7 +7,7 @@
 -- This module simulates playing an entire game
 -- |
 -- play is exported for debugging with ghci
-module Match (main, play, Result (boards)) where
+module Match (main, play, Result (..)) where
 
 import qualified AI (play)
 import Board
@@ -73,7 +73,8 @@ data MatchResult = Draw | Error Text | Win PlayerSpot
 
 data Result = Result
   { boards :: [Board 'Core],
-    matchResult :: MatchResult
+    matchResult :: MatchResult,
+    turnResult :: Turn
   }
   deriving (Show)
 
@@ -83,10 +84,10 @@ play shared opponent player nbTurns =
   where
     go m@GameModel {turn} boards
       | turnToInt turn > nbTurns =
-        Result (reverse boards) $ toMatchResult m
-    go m boards =
+        Result (reverse boards) (toMatchResult m) turn
+    go m@GameModel {turn} boards =
       case playOneTurn m of
-        Left msg -> Result boards $ Error msg
+        Left msg -> Result boards (Error msg) turn
         Right m'@GameModel {board} -> go m' $ board : boards
 
 toMatchResult :: GameModel -> MatchResult
@@ -109,8 +110,8 @@ playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
       -- this event:
       go m [Update.GameEndTurnPressed]
     (_, event : _) -> do
-      -- Taking only the first event avoids the need for _correctHandIndices
-      -- at the "cost" of doing recursion here:
+      -- Taking only the first event avoids the need for correcting
+      -- hand indices at the "cost" of doing recursion here:
       m' <- go m $ eventToGameActions board event
       playOneTurn m'
   where
