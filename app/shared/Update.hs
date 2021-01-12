@@ -668,17 +668,25 @@ initialGameModel ::
   Team ->
   GameModel
 initialGameModel shared teamo team =
+  unsafeInitialGameModel shared' board
+  where
+    -- We hardcode the position of the playing player here. No big deal.
+    teams = Teams {topTeam = teamo, botTeam = team}
+    (shared', board) = initialBoard shared teams
+
+-- | An initial model, appropriate for testing
+unsafeInitialGameModel ::
+  SharedModel ->
+  Board 'Core ->
   GameModel
-    shared'
+unsafeInitialGameModel shared board =
+  GameModel
+    shared
     board
     GameNoInteraction
     startingPlayerSpot
     initialTurn
     mempty
-  where
-    -- We hardcode the position of the playing player here. No big deal.
-    teams = Teams {topTeam = teamo, botTeam = team}
-    (shared', board) = initialBoard shared teams
 
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =

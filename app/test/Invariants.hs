@@ -8,16 +8,19 @@ module Invariants where
 import Board
 import Card
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)
 import qualified Match
+import qualified Model as Game
 import Pretty
 import SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Turn
+import qualified Update
 
 class Invariant a where
   -- | Violations of the invariant if any, otherwise []
@@ -48,6 +51,10 @@ instance Invariant Turn where
     where
       i = turnToInt turn
 
+instance Invariant a => Invariant (Maybe a) where
+  violation Nothing = []
+  violation (Just a) = violation a
+
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Board invariant" $ do
@@ -58,12 +65,15 @@ main shared =
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in Match.play shared' team1 team2 seed
+         in Match.play (Update.initialGameModel shared' team1 team2) seed
               `shouldSatisfy` isValidResult
   where
     last l = reverse l & listToMaybe
     isValid [] = True
     isValid violations = traceShow (unlines violations) False
     isValid' x = violation x & isValid
-    isValidResult Match.Result {boards, turnResult} =
+    isValidResult Match.Result {models} =
       isValid $ violation boards ++ violation turnResult
+      where
+        boards = map Game.board models
+        turnResult = reverse models & listToMaybe <&> Game.turn

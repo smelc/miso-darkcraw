@@ -34,15 +34,17 @@ main shared =
   where
     f (t1, t2) =
       map
-        (\seed -> play (SharedModel.withSeed shared seed) t1 t2 8)
+        (\seed -> play (model seed) 8)
         [1, 2]
         & not . any (isError . matchResult . traceResult)
+      where
+        model seed = initialGameModel (SharedModel.withSeed shared seed) t1 t2
     isError (Error msg) = traceShow msg True
     isError Draw = False
     isError (Win _) = False
     teamProduct = [(t1, t2) | t1 <- allTeams, t2 <- allTeams]
     traceResult r =
-      case (matchResult r, last $ boards r) of
+      case (matchResult r, last $ (map board . models) r) of
         (Error msg, _) -> traceShow ("ERROR " ++ Text.unpack msg) r
         (Draw, board) -> traceShow ("Draw " ++ showScores board) r
         (Win _, board) -> traceShow ("Win " ++ showScores board) r
@@ -72,23 +74,26 @@ data MatchResult = Draw | Error Text | Win PlayerSpot
   deriving (Show)
 
 data Result = Result
-  { boards :: [Board 'Core],
-    matchResult :: MatchResult,
-    turnResult :: Turn
+  { models :: [GameModel],
+    matchResult :: MatchResult
   }
   deriving (Show)
 
-play :: SharedModel -> Team -> Team -> Int -> Result
-play shared opponent player nbTurns =
-  go (initialGameModel shared opponent player) []
+play ::
+  GameModel ->
+  -- The number of turns
+  Int ->
+  Result
+play model nbTurns =
+  go model []
   where
-    go m@GameModel {turn} boards
+    go m@GameModel {turn} models
       | turnToInt turn > nbTurns =
-        Result (reverse boards) (toMatchResult m) turn
-    go m@GameModel {turn} boards =
+        Result (reverse models) (toMatchResult m)
+    go m@GameModel {turn} models =
       case playOneTurn m of
-        Left msg -> Result boards (Error msg) turn
-        Right m'@GameModel {board} -> go m' $ board : boards
+        Left msg -> Result (reverse models) (Error msg)
+        Right m' -> go m' $ m : models
 
 toMatchResult :: GameModel -> MatchResult
 toMatchResult GameModel {board} =
