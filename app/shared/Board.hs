@@ -514,6 +514,7 @@ boardToASCII board =
     lines =
       stackLines board PlayerTop ++ []
         ++ [handLine board PlayerTop]
+        ++ [scoreLine board PlayerTop]
         ++ cardsLines board PlayerTop topSpots
         ++ ["\n"] -- vertical space between AI lines
         ++ cardsLines board PlayerTop botSpots
@@ -522,6 +523,7 @@ boardToASCII board =
         ++ ["\n"] -- vertical space between player lines
         ++ cardsLines board PlayerBot topSpots
         ++ []
+        ++ [scoreLine board PlayerBot]
         ++ [handLine board PlayerBot]
         ++ stackLines board PlayerBot
 
@@ -554,6 +556,10 @@ handLine board pSpot =
   where
     hand = boardToHand board pSpot
 
+scoreLine :: Board 'Core -> PlayerSpot -> String
+scoreLine board pSpot =
+  replicate cardWidth ' ' ++ " Score: " ++ show (boardToScore board pSpot)
+
 stackLine :: StackKind -> [Card.ID] -> LineNumber -> Maybe String
 stackLine Discarded _ 0 = Just "Discarded"
 stackLine Stacked _ 0 = Just "Stack"
@@ -580,7 +586,7 @@ cardsLines board pSpot cSpots =
 -- The height of a card, in number of lines
 cardHeight = 1 + 1 + 5
 
--- The height of a card, in number of characters
+-- The width of a card, in number of characters
 cardWidth = 16
 
 type LineNumber = Int
