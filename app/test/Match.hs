@@ -23,14 +23,17 @@ import Generators ()
 import Model
 import SharedModel
 import Test.Hspec
+import Test.Hspec.QuickCheck
+import Test.QuickCheck ((==>))
 import Turn
 import Update
 
 main :: SharedModel -> SpecWith ()
-main shared =
+main shared = do
   describe "Playing a match doesn't return Error" $
     it "forall t1, t2 :: Team, play shared t1 t2 8 isn't Error" $
       all f teamProduct
+  testStupidity shared
   where
     f (t1, t2) =
       map
@@ -69,6 +72,20 @@ main shared =
           show (boardToPart board pSpot & Board.team)
             ++ " "
             ++ show (boardToScore board pSpot)
+
+testStupidity shared =
+  describe "Ogre stupidity is handled correctly" $
+    prop "the score is corretly predicted" $
+      \(cSpot, topTeam, seed) ->
+        not (inTheBack cSpot)
+          ==> let (teams, board) = (Teams topTeam Human, initialBoard shared teams cSpot)
+               in let model = Update.unsafeInitialGameModel (mkShared seed) board
+                   in True -- use turns, call play model turn
+  where
+    turns = [1 .. 8]
+    initialBoard s teams cSpot = smallBoard s teams ogreID startingPlayerSpot cSpot
+    ogreID = CreatureID Card.Ogre Human
+    mkShared seed = SharedModel.withSeed shared seed
 
 data MatchResult = Draw | Error Text | Win PlayerSpot
   deriving (Show)
@@ -153,17 +170,12 @@ eventToGameActions board event =
         Update.GameDragEnd
       ]
 
--- After translating the AI's events with eventToGameActions, we need
--- to handle that the events' translation introduce HandIndex values
--- which must be corrected to account for events having been played before.
-_correctHandIndices _ [] = []
-_correctHandIndices played (Update.GameDragStart hi@(HandIndex index) : rest) =
-  Update.GameDragStart (shift played hi) : _correctHandIndices ((index : played) & sort & reverse) rest
+-- | A board with a single creature in place. Hands are empty.
+smallBoard :: SharedModel -> Teams -> CreatureID -> PlayerSpot -> CardSpot -> Board 'Core
+smallBoard shared teams cid pSpot cSpot =
+  boardSetCreature (emptyBoard teams) pSpot cSpot c
   where
-    shift [] hi = hi
-    shift (played' : played_rest) hi@(HandIndex i) =
-      if played' < i
-        then shift played_rest (HandIndex $ i -1)
-        else shift played_rest hi
-_correctHandIndices played (a : rest) =
-  a : _correctHandIndices played rest
+    c =
+      SharedModel.idToCreature shared cid
+        & fromJust
+        & Card.unliftCreature

@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Model where
 
@@ -63,7 +64,15 @@ data GameModel = GameModel
     -- | Animations to perform next
     anims :: Board UI
   }
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic)
+
+instance Show GameModel where
+  show GameModel {..} =
+    "{ gameShared = omitted\n"
+      ++ unlines [boardToASCII board, f "interaction" interaction, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
+      ++ "\n}"
+    where
+      f s x = "  " ++ s ++ " = " ++ show x
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.
