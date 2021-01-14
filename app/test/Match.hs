@@ -13,18 +13,19 @@ import qualified AI (play)
 import Board
 import Card
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.List
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Debug.Trace (traceShow)
+import Debug.Trace (trace, traceShow)
 import qualified Game
 import Generators ()
 import Model
 import SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Test.QuickCheck ((==>))
+import Test.QuickCheck (withMaxSuccess, (==>))
 import Turn
 import Update
 
@@ -74,18 +75,30 @@ main shared = do
             ++ show (boardToScore board pSpot)
 
 testStupidity shared =
-  describe "Ogre stupidity is handled correctly" $
-    prop "the score is corretly predicted" $
+  describe "Stupidity is handled correctly" $
+    prop "the score is correctly predicted" $
       \(cSpot, topTeam, seed) ->
         not (inTheBack cSpot)
           ==> let (teams, board) = (Teams topTeam Human, initialBoard shared teams cSpot)
                in let model = Update.unsafeInitialGameModel (mkShared seed) board
-                   in True -- use turns, call play model turn
+                   in play model 8 `shouldSatisfy` isValid
   where
-    turns = [1 .. 8]
     initialBoard s teams cSpot = smallBoard s teams ogreID startingPlayerSpot cSpot
     ogreID = CreatureID Card.Ogre Human
+    ogreSpot = PlayerBot
+    ogreAttack = SharedModel.idToCreature shared ogreID & fromJust & attack
     mkShared seed = SharedModel.withSeed shared seed
+    isValid Result {models} = all isValidModel models
+    isValidModel GameModel {board, turn} =
+      expectedScore == score
+        || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
+      where
+        score = boardToScore board ogreSpot
+        turni = turnToInt turn
+        pSpot = turnToPlayerSpot turn
+        stupidFreq = 4
+        nbAttacks played = (turni - (if played then 0 else 1)) - ((turni - 1) `div` stupidFreq)
+        expectedScore = nbAttacks (pSpot /= ogreSpot) * ogreAttack
 
 data MatchResult = Draw | Error Text | Win PlayerSpot
   deriving (Show)
