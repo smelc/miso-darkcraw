@@ -182,13 +182,3 @@ eventToGameActions board event =
         Update.GameDrop,
         Update.GameDragEnd
       ]
-
--- | A board with a single creature in place. Hands are empty.
-smallBoard :: SharedModel -> Teams -> CreatureID -> PlayerSpot -> CardSpot -> Board 'Core
-smallBoard shared teams cid pSpot cSpot =
-  boardSetCreature (emptyBoard teams) pSpot cSpot c
-  where
-    c =
-      SharedModel.idToCreature shared cid
-        & fromJust
-        & Card.unliftCreature

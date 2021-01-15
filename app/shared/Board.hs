@@ -39,6 +39,7 @@ module Board
     PlayerPart (..),
     PlayerSpot (..),
     StackType (..),
+    smallBoard,
     startingPlayerSpot,
     spotToLens,
     boardToStack,
@@ -460,6 +461,17 @@ initialBoard shared Teams {..} =
         stack' = map cardToIdentifier stack
     (smodel', topPart) = part topTeam shared
     (smodel'', botPart) = part botTeam smodel'
+
+-- | A board with a single creature in place. Hands are empty. Handy for
+-- debugging for example.
+smallBoard :: SharedModel -> Teams -> CreatureID -> PlayerSpot -> CardSpot -> Board 'Core
+smallBoard shared teams cid pSpot cSpot =
+  boardSetCreature (emptyBoard teams) pSpot cSpot c
+  where
+    c =
+      SharedModel.idToCreature shared cid
+        & fromJust
+        & Card.unliftCreature
 
 -- Whether a spot is in the back line
 inTheBack :: CardSpot -> Bool

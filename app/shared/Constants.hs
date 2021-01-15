@@ -172,6 +172,9 @@ greenHTML = "#00FF00"
 greenRGB :: (Int, Int, Int)
 greenRGB = (0, 255, 0)
 
+redHTML :: MisoString
+redHTML = "#FF0000"
+
 yellowHTML :: MisoString
 yellowHTML = "#FFFF00"
 

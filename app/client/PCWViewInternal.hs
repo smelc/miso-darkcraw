@@ -190,7 +190,7 @@ cardView' loc z shared card =
 
 skillDiv :: SharedModel -> SkillCore -> View a
 skillDiv shared skill =
-  div_ [style_ color, hover] [skillTitle ui & ms & text]
+  div_ [style_ color, hover] [label & ms & text]
   where
     ui = Card.liftSkill skill & SharedModel.liftSkill shared
     color =
@@ -198,9 +198,14 @@ skillDiv shared skill =
         DrawCard' False -> "color" =: grey
         Blow' False -> "color" =: grey
         Blow' True -> "color" =: greenHTML
+        _ | isStupid skill -> "color" =: redHTML
         _ -> mempty
       where
         grey = "#555555"
+    label =
+      case skill of
+        Stupid4' i -> skillTitle ui ++ " " ++ show (i + 1) ++ "/4"
+        _ -> skillTitle ui
     hover = title_ $ ms (skillText ui & typeset)
 
 typeset :: String -> String
