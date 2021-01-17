@@ -121,6 +121,7 @@ data Creature (p :: Phase) = Creature
     hp :: Int,
     -- | Beware when using this accessor, you may want 'totalAttack' instead
     attack :: Int,
+    items :: [Int],
     moral :: Maybe Int,
     victoryPoints :: Int,
     skills :: [SkillType p],
@@ -165,7 +166,7 @@ deriving instance Forall Show p => Show (NeutralObject p)
 
 data Item
   = Crown
-  | FooBar
+  | SwordOfMight
   deriving (Eq, Generic, Ord, Show)
 
 newtype ItemObject = ItemObject
@@ -200,7 +201,7 @@ liftSkill skill =
 -- it is NOT harmless! Use only when initializing data.
 unliftCreature :: Creature UI -> Creature Core
 unliftCreature Creature {..} =
-  Creature creatureId hp attack moral victoryPoints (map unliftSkill skills) ()
+  Creature creatureId hp attack items moral victoryPoints (map unliftSkill skills) ()
 
 unliftCard :: Card UI -> Card Core
 unliftCard card =

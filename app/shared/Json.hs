@@ -100,6 +100,7 @@ instance FromJSON (Creature UI) where
       <$> v .: "id"
       <*> v .: "hp"
       <*> v .: "attack"
+      <*> v .:? "items" .!= []
       <*> v .:? "moral"
       <*> v .: "victory_points"
       <*> v .:? "skills" .!= []
