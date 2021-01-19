@@ -32,7 +32,8 @@ jsonData = "{\n\
          \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain 3 HP\"                , \"teams\": [\"human\"]  }\n\
          \  ],\n\
          \  \"items\": [\n\
-         \    { \"name\":\"crown\", \"title\":\"Crown\", \"tile\":\"crown\", \"text\":\"Leadership +2\" }\n\
+         \    { \"name\":\"crown\",        \"title\":\"Crown\",          \"tile\":\"Crown\",  \"text\":\"Gives the discipline skill\" },\n\
+         \    { \"name\":\"swordofmight\", \"title\":\"Sword of Might\", \"tile\":\"Sword2\", \"text\":\"+1 :heart:  +1:crossed_swords:\" }\n\
          \  ],\n\
          \  \"tiles\": [\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\
@@ -50,6 +51,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones4\",        \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":8 } },\n\
          \    { \"tile\":\"Bones5\",        \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":8 } },\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
+         \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
          \    { \"tile\":\"HumanSwordsman\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":0 } },\n\
          \    { \"tile\":\"HumanSpearman\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":0 } },\n\

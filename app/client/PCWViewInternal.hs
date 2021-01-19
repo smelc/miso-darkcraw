@@ -99,10 +99,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
   where
     topMargin = cps `div` 4
     picSize =
-      case card of
-        CreatureCard _ -> cps
-        NeutralCard _ -> 16
-        _ -> error $ "Unhandled card: " ++ show card
+      case card of CreatureCard _ -> cps; NeutralCard _ -> 16; ItemCard _ -> 16
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize) `div` 2) topMargin
     filepath =

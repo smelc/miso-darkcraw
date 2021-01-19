@@ -82,6 +82,12 @@ instance Arbitrary Item where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary (ItemObject 'Core) where
+  arbitrary = genericArbitraryU -- FIXME @smelc Use SharedModel once
+  -- it is augmented with items
+
+  shrink = genericShrink
+
 instance Arbitrary Skill where
   arbitrary = genericArbitraryU
   shrink = genericShrink
@@ -95,8 +101,9 @@ instance Arbitrary (Creature Core) where
   shrink = genericShrink
 
 instance Arbitrary (Card Core) where
-  -- Do not generate NeutralCard and ItemCard for now, since they
-  -- arent' supported yet
+  -- Do not generate NeutralCard for now, since they
+  -- arent' supported yet FIXME @smelc change that,
+  -- Neutral cards are supported now
   arbitrary = genericArbitrary (1 % 0 % 0 % ())
   shrink = genericShrink
 

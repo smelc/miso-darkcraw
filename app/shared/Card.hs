@@ -121,7 +121,7 @@ data Creature (p :: Phase) = Creature
     hp :: Int,
     -- | Beware when using this accessor, you may want 'totalAttack' instead
     attack :: Int,
-    items :: [Int],
+    items :: [Item],
     moral :: Maybe Int,
     victoryPoints :: Int,
     skills :: [SkillType p],
@@ -169,14 +169,24 @@ data Item
   | SwordOfMight
   deriving (Eq, Generic, Ord, Show)
 
-newtype ItemObject = ItemObject
-  {item :: Item}
-  deriving (Generic, Show)
+data ItemObject (p :: Phase) = ItemObject
+  { item :: Item,
+    itext :: TextType p,
+    itile :: TileType p,
+    ititle :: TextType p
+  }
+  deriving (Generic)
+
+deriving instance Forall Eq p => Eq (ItemObject p)
+
+deriving instance Forall Ord p => Ord (ItemObject p)
+
+deriving instance Forall Show p => Show (ItemObject p)
 
 data Card (p :: Phase)
   = CreatureCard (Creature p)
   | NeutralCard (NeutralObject p)
-  | ItemCard Item
+  | ItemCard (ItemObject p)
 
 deriving instance Forall Eq p => Eq (Card p)
 
@@ -208,7 +218,7 @@ unliftCard card =
   case card of
     CreatureCard creature -> CreatureCard $ unliftCreature creature
     NeutralCard n -> NeutralCard $ unliftNeutralObject n
-    ItemCard i -> ItemCard i
+    ItemCard _ -> ItemCard undefined
 
 unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =
@@ -255,7 +265,7 @@ cardToIdentifier :: Card p -> ID
 cardToIdentifier card =
   case card of
     CreatureCard Creature {..} -> IDC creatureId
-    ItemCard i -> IDI i
+    ItemCard ItemObject {..} -> IDI item
     NeutralCard NeutralObject {..} -> IDN neutral
 
 identToId :: ID -> Maybe CreatureID
@@ -322,9 +332,12 @@ targetType n =
 idToTargetType :: ID -> TargetType
 idToTargetType id =
   case id of
+    -- creatures are placed on empty spots
     IDC _ -> CardTargetType Hole
     IDN n -> targetType n
-    IDI _ -> error $ "Unsupported identifier: " ++ show id
+    -- items are placed on spots
+    -- occupied by creatures
+    IDI _ -> CardTargetType Occupied
 
 -- | The total attack of a creature, including boosts of skills and items.
 -- This would make more sense to be in 'Game', but alas this is more

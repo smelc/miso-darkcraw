@@ -58,6 +58,10 @@ instance ToExpr Neutral
 
 instance ToExpr Item
 
+instance ToExpr (ItemObject 'Core)
+
+instance ToExpr (ItemObject 'UI)
+
 instance ToExpr Filepath
 
 instance ToExpr (Creature Core)

@@ -17,7 +17,7 @@ where
 
 import Card
 import Data.Aeson
-import Data.ByteString.Lazy
+import Data.ByteString.Lazy hiding (map)
 import Data.Function ((&))
 import Data.List.Extra (lower)
 import qualified Data.Text.Encoding
@@ -82,8 +82,12 @@ itemObjectOptions =
     }
   where
     impl "item" = "name"
+    impl "itext" = "text"
+    impl "itile" = "tile"
+    impl "ititle" = "title"
     impl s = s
 
+-- TODO @smelc Rename me into skillPackOptions
 skillUIOptions :: Options
 skillUIOptions =
   defaultOptions
@@ -115,7 +119,7 @@ instance FromJSON (NeutralObject UI) where
 instance FromJSON Item where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance FromJSON ItemObject where
+instance FromJSON (ItemObject UI) where
   parseJSON = genericParseJSON itemObjectOptions
 
 instance FromJSON Tile
@@ -129,7 +133,7 @@ instance FromJSON SkillPack where
 data AllData (p :: Phase) = AllData
   { creatures :: [Creature p],
     neutral :: [NeutralObject p],
-    items :: [ItemObject],
+    items :: [ItemObject UI],
     skills :: [SkillPack],
     tiles :: [TileUI]
   }
@@ -139,7 +143,7 @@ deriving instance Forall Show p => Show (AllData p)
 
 instance FromJSON (AllData UI)
 
-type LoadedJson = ([Card UI], [SkillPack], [TileUI])
+type LoadedJson = ([Card UI], [ItemObject UI], [SkillPack], [TileUI])
 
 parseJson ::
   -- | The content of data.json
@@ -147,11 +151,10 @@ parseJson ::
   Either String LoadedJson
 parseJson json = do
   AllData creatures neutral items skills tiles <- eitherDecode json
-  let creatureCards = Prelude.map CreatureCard creatures
-      neutralCards = Prelude.map NeutralCard neutral
-      itemCards = Prelude.map (ItemCard . Card.item) items
-      allCards = creatureCards ++ neutralCards ++ itemCards
-  return (allCards, skills, tiles)
+  let creatureCards = map CreatureCard creatures
+      neutralCards = map NeutralCard neutral
+      allCards = creatureCards ++ neutralCards
+  return (allCards, items, skills, tiles)
 
 loadJson :: Either String LoadedJson
 loadJson =
