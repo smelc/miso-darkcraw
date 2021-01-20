@@ -203,6 +203,10 @@ data GameAction
     GameInPlaceMouseEnter Game.Target
   | -- | Ending hovering a target
     GameInPlaceMouseLeave Game.Target
+  | -- | Execute a command (dev mode only)
+    GameExecuteCmd
+  | -- | Update the command to execute soon (dev mode only)
+    GameUpdateCmd MisoString
   deriving (Show, Eq)
 
 -- | To which page to go to, from the welcome page

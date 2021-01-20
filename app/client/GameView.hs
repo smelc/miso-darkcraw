@@ -43,7 +43,7 @@ viewGameModel :: GameModel -> Styled (View Action)
 viewGameModel model@GameModel {board, interaction, playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
-  return $ div_ [] [boardDiv, handDiv]
+  return $ div_ [] $ [boardDiv, handDiv] ++ cmdDiv
   where
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
@@ -74,6 +74,19 @@ viewGameModel model@GameModel {board, interaction, playingPlayer} = do
             Left err -> traceShow (Text.unpack err) Nothing
             Right id -> Just $ idToTargetType id
         _ -> Nothing
+
+cmdDiv :: [View Action]
+cmdDiv =
+  [ div_
+      [style_ flexLineStyle]
+      [ input_ [type_ "text", onInput (lift . GameUpdateCmd)],
+        button_ [onClick $ lift GameExecuteCmd] [text "Execute"]
+      ]
+    | Configuration.isDev
+  ]
+  where
+    i = input_
+    lift = GameAction'
 
 boardToInPlaceCells ::
   -- | The z index
