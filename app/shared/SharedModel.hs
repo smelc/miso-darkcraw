@@ -24,6 +24,8 @@ module SharedModel
     create,
     SharedModel.getStdGen,
     getCards,
+    getCmd,
+    withCmd,
     withStdGen,
     getCardIdentifiers,
     cardToFilepath,
@@ -55,6 +57,8 @@ data SharedModel = SharedModel
   -- XXX @smelc, turn those into maps, for efficiency
   { -- | Data obtained at load time, that never changes
     sharedCards :: Map Card.ID (Card UI),
+    -- | The current debug command (in dev mode only)
+    sharedCmd :: Maybe String,
     sharedSkills :: Map Skill SkillPack,
     sharedTiles :: Map Tile TileUI,
     -- | RNG obtained at load time, to be user whenever randomness is needed
@@ -70,6 +74,7 @@ create cards skills tiles sharedStdGen =
     sharedCards = groupBy cardToIdentifier cards
     sharedSkills = groupBy skill skills
     sharedTiles = groupBy Tile.tile tiles
+    sharedCmd = Nothing
 
 cardToFilepath :: SharedModel -> Card UI -> Filepath
 cardToFilepath SharedModel {..} = \case
@@ -85,8 +90,14 @@ getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards
 getCards :: SharedModel -> [Card UI]
 getCards SharedModel {sharedCards} = Map.elems sharedCards
 
+getCmd :: SharedModel -> Maybe String
+getCmd SharedModel {sharedCmd} = sharedCmd
+
 getStdGen :: SharedModel -> StdGen
 getStdGen SharedModel {sharedStdGen} = sharedStdGen
+
+withCmd :: SharedModel -> Maybe String -> SharedModel
+withCmd shared cmd = shared {sharedCmd = cmd}
 
 withSeed :: SharedModel -> Int -> SharedModel
 withSeed shared seed = shared {sharedStdGen = mkStdGen seed}

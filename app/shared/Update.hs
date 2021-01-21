@@ -37,7 +37,7 @@ import Miso.String (MisoString, fromMisoString)
 import Model
 import Movie (welcomeMovie)
 import ServerMessages
-import SharedModel (SharedModel (..))
+import SharedModel (SharedModel (..), withCmd)
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -415,6 +415,11 @@ updateGameModel m (GameInPlaceMouseEnter target) GameNoInteraction =
   withInteraction m $ GameHoverInPlaceInteraction target
 updateGameModel m (GameInPlaceMouseLeave _) _ =
   withInteraction m GameNoInteraction
+-- Debug cmd
+updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
+  withInteraction
+    (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
+    i
 -- default
 updateGameModel m _ i =
   withInteraction m i

@@ -79,8 +79,16 @@ cmdDiv :: [View Action]
 cmdDiv =
   [ div_
       [style_ flexLineStyle]
-      [ input_ [type_ "text", onInput (lift . GameUpdateCmd)],
-        button_ [onClick $ lift GameExecuteCmd] [text "Execute"]
+      [ input_
+          [ style_ $ "width" =: px (boardPixelWidth - 128),
+            type_ "text",
+            onInput (lift . GameUpdateCmd)
+          ],
+        button_
+          [ style_ $ "width" =: px 120,
+            onClick $ lift GameExecuteCmd
+          ]
+          [text "Execute"]
       ]
     | Configuration.isDev
   ]
