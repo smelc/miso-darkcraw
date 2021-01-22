@@ -75,6 +75,7 @@ executable app
     Main.hs
   other-modules:
     Cinema
+    Command
     Configuration
     DeckView
     GameView
@@ -110,6 +111,7 @@ Test-Suite test-darkcraw
     Card
     CardInstances
     Cinema
+    Command
     Constants
     Game
     Generators

@@ -22,6 +22,7 @@ import Data.Maybe
 import GHC.Generics (Generic)
 import Tile
 
+-- If you change the first member, change 'allTeams' too
 data Team = Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
 
@@ -94,6 +95,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
     c (NeutralTeamsType p)
   )
 
+-- If you change the first member, change 'allCreatureKinds' too
 data CreatureKind
   = Archer
   | General
@@ -109,6 +111,8 @@ data CreatureKind
   | Vampire
   | Warrior
   deriving (Enum, Eq, Generic, Ord, Show)
+
+allCreatureKinds = [Archer ..]
 
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)

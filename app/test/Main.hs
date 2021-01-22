@@ -12,6 +12,7 @@ import AI
 import Board
 import Card
 import Cinema
+import Command
 import Constants
 import Control.Lens hiding (at, (+=))
 import Control.Lens.Extras
@@ -181,6 +182,15 @@ testNeighbors =
       \(n, cSpot) ->
         let res = neighbors n cSpot
          in (res & sort) `shouldBe` (res & Set.fromList & Set.toList & sort)
+
+testShowCommands :: SpecWith ()
+testShowCommands =
+  describe "Show Command" $
+    it "is injective" $
+      allStrings `shouldBe` uniqueStrings
+  where
+    allStrings = map show allCommands & sort
+    uniqueStrings = allStrings & Set.fromList & Set.toList & sort
 
 testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
