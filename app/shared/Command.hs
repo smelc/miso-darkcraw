@@ -10,6 +10,8 @@ module Command where
 import Card
 import Data.Char
 import Data.Function ((&))
+import Data.Functor
+import Data.Maybe
 
 toLowerString = map toLower
 
@@ -28,3 +30,10 @@ instance Show Command where
 
 class Read a where
   read :: String -> Maybe a
+
+instance Command.Read Command where
+  read s =
+    allCommands
+      & map (\c -> (c, show c))
+      & filter (\(_, s') -> s' == s)
+      & listToMaybe <&> fst

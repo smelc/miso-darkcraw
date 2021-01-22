@@ -1,9 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -17,6 +15,7 @@ import BoardInstances (boardStart)
 import Card
 import CardInstances
 import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
+import qualified Command
 import Control.Concurrent (threadDelay)
 import Control.Exception
 import Control.Lens
@@ -24,7 +23,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as DataBifunctor
 import Data.Foldable (asum, toList)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (maybeToList)
+import Data.Maybe (fromJust, isJust, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text.Lazy as Text
@@ -37,7 +36,7 @@ import Miso.String (MisoString, fromMisoString)
 import Model
 import Movie (welcomeMovie)
 import ServerMessages
-import SharedModel (SharedModel (..), withCmd)
+import SharedModel (SharedModel (..), getCmd, withCmd)
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -420,6 +419,12 @@ updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
   withInteraction
     (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
     i
+updateGameModel m@GameModel {gameShared} GameExecuteCmd i
+  | SharedModel.getCmd gameShared & isJust =
+    let cmdStr = SharedModel.getCmd gameShared & fromJust
+     in case Command.read cmdStr of
+          Nothing -> undefined -- TODO show error
+          Just (cmd :: Command.Command) -> undefined
 -- default
 updateGameModel m _ i =
   withInteraction m i
