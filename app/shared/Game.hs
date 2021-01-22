@@ -384,7 +384,6 @@ transferCardsM board pSpot =
       let part' = part {discarded = [], stack = stack ++ discarded'}
       return $ boardSetPart board pSpot part'
   where
-    (hand, actualHandSize) = (boardToHand board pSpot, length hand)
     nbCardsToDraw = cardsToDraw board pSpot False & length
     (stack, stackSize) = (boardToStack board pSpot, length stack)
     needTransfer = nbCardsToDraw > stackSize

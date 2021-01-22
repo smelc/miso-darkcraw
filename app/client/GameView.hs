@@ -93,7 +93,6 @@ cmdDiv =
     | Configuration.isDev
   ]
   where
-    i = input_
     lift = GameAction'
 
 boardToInPlaceCells ::

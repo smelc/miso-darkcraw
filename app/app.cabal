@@ -52,6 +52,7 @@ common client-server-shared
     -Wincomplete-patterns
     -Wpartial-fields
     -Wincomplete-uni-patterns
+    -Wunused-binds
     -Werror
     -Wwarn=missing-home-modules
   default-language:
@@ -159,6 +160,7 @@ Test-Suite test-darkcraw
     -Wincomplete-patterns
     -Wpartial-fields
     -Wincomplete-uni-patterns
+    -Wunused-binds
     -Werror
     -Wwarn=missing-home-modules
   default-language:

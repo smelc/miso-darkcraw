@@ -167,6 +167,11 @@ data Condition = WaitingForDate Date | WaitingForThreadId ThreadId
 
 data Thread = Thread {threadId :: ThreadId, threadCondition :: Condition, threadProg :: Prog}
 
+_avoidWarnings t =
+  case threadCondition t of
+    WaitingForDate _ -> threadProg t
+    _ -> undefined
+
 data SchedulerState = SchedulerState {actorCounter :: Int, threadCounter :: Int}
   deriving (Eq, Ord, Show, Generic)
 
