@@ -30,16 +30,19 @@ module SharedModel
     getCardIdentifiers,
     cardToFilepath,
     withSeed,
+    getAllCommands,
   )
 where
 
 import Card hiding (ID)
 import qualified Card
+import Command
 import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.Random
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import Data.List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -83,6 +86,17 @@ cardToFilepath SharedModel {..} = \case
   NeutralCard NeutralObject {ntile} ->
     fromMaybe default16Filepath $ sharedTiles Map.!? ntile <&> filepath
   ItemCard _ -> error "ItemCard not supported"
+
+getAllCommands :: SharedModel -> [Command]
+getAllCommands shared =
+  map Gimme cids
+  where
+    cids =
+      getCardIdentifiers shared
+        & map (\case IDC cid -> Just cid; _ -> Nothing)
+        & catMaybes
+
+-- & sortBy (\a b -> compare (show a) (show b)) TODO @smelc sort by team, then by string
 
 getCardIdentifiers :: SharedModel -> [Card.ID]
 getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards

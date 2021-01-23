@@ -40,10 +40,10 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: GameModel -> Styled (View Action)
-viewGameModel model@GameModel {board, interaction, playingPlayer} = do
+viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
-  return $ div_ [] $ [boardDiv, handDiv] ++ cmdDiv
+  return $ div_ [] $ [boardDiv, handDiv] ++ cmdDiv gameShared
   where
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
@@ -75,25 +75,35 @@ viewGameModel model@GameModel {board, interaction, playingPlayer} = do
             Right id -> Just $ idToTargetType id
         _ -> Nothing
 
-cmdDiv :: [View Action]
-cmdDiv =
-  [ div_
-      [style_ flexLineStyle]
-      [ input_
-          [ style_ $ "width" =: px (boardPixelWidth - 128),
-            type_ "text",
-            onInput (lift . GameUpdateCmd)
-          ],
-        button_
-          [ style_ $ "width" =: px 120,
-            onClick $ lift GameExecuteCmd
-          ]
-          [text "Execute"]
-      ]
-    | Configuration.isDev
-  ]
+cmdDiv :: SharedModel -> [View Action]
+cmdDiv shared =
+  buttons ++ [doc]
   where
     lift = GameAction'
+    buttons =
+      [ div_
+          [style_ flexLineStyle]
+          [ input_
+              [ style_ $ "width" =: px (boardPixelWidth - 128),
+                type_ "text",
+                onInput (lift . GameUpdateCmd)
+              ],
+            button_
+              [ style_ $ "width" =: px 120,
+                onClick $ lift GameExecuteCmd
+              ]
+              [text "Execute"]
+          ]
+        | Configuration.isDev
+      ]
+    doc =
+      div_
+        []
+        [ div_ [style_ $ "margin-top" =: px 8] [text "Available commands:"],
+          ul_
+            []
+            [li_ [] [text $ show cmd & ms] | cmd <- getAllCommands shared]
+        ]
 
 boardToInPlaceCells ::
   -- | The z index

@@ -68,7 +68,6 @@ main shared =
          in Match.play (Update.initialGameModel shared' team1 team2) seed
               `shouldSatisfy` isValidResult
   where
-    last l = reverse l & listToMaybe
     isValid [] = True
     isValid violations = traceShow (unlines violations) False
     isValid' x = violation x & isValid

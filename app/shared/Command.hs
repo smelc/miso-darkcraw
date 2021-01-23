@@ -15,12 +15,14 @@ import Data.Maybe
 
 toLowerString = map toLower
 
--- If you extend this datatype, extend 'allCommands' too
+-- If you extend this datatype, extend 'allCommands' below
+-- and 'getAllCommands' in SharedModel
 data Command = Gimme CreatureID
 
 -- We could use SharedModel to restrict this list to members that
 -- make sense at runtime, but dependency-wise, I don't want this module
 -- to depend on SharedModel.
+allCommands :: [Command]
 allCommands =
   [Gimme $ CreatureID kind team | kind <- allCreatureKinds, team <- allTeams]
 
