@@ -43,7 +43,10 @@ viewGameModel :: GameModel -> Styled (View Action)
 viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
-  return $ div_ [] $ [boardDiv, handDiv] ++ cmdDiv gameShared
+  return $
+    div_ [] $
+      [boardDiv, handDiv]
+        ++ if Configuration.isDev then cmdDiv gameShared else []
   where
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
@@ -94,7 +97,6 @@ cmdDiv shared =
               ]
               [text "Execute"]
           ]
-        | Configuration.isDev
       ]
     doc =
       div_
