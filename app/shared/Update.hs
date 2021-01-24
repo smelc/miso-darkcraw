@@ -26,7 +26,8 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, isJust, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
-import qualified Data.Text.Lazy as Text
+import qualified Data.Text as Text
+import qualified Data.Text.Lazy as LazyText
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
@@ -415,12 +416,16 @@ updateGameModel m (GameInPlaceMouseEnter target) GameNoInteraction =
 updateGameModel m (GameInPlaceMouseLeave _) _ =
   withInteraction m GameNoInteraction
 -- Debug cmd
-updateGameModel m@GameModel {gameShared} GameExecuteCmd i
+updateGameModel m@GameModel {board, gameShared, playingPlayer} GameExecuteCmd i
   | SharedModel.getCmd gameShared & isJust =
     let cmdStr = SharedModel.getCmd gameShared & fromJust
      in case Command.read cmdStr of
-          Nothing -> undefined -- TODO show error
-          Just (cmd :: Command.Command) -> undefined
+          Nothing ->
+            let errMsg = "Unrecognized command: " ++ cmdStr
+             in withInteraction m $ GameShowErrorInteraction $ Text.pack errMsg
+          Just (Command.Gimme cid) ->
+            let board' = boardAddToHand board playingPlayer $ IDC cid
+             in withInteraction (m {board = board'}) GameNoInteraction
 updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
   withInteraction
     (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
@@ -671,7 +676,7 @@ updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
   MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
 updateModel a m =
   error $
-    Text.unpack $
+    LazyText.unpack $
       "Unhandled case in updateModel with the model being:\n"
         <> pShowNoColor m
         <> "\nand the action being:\n"
