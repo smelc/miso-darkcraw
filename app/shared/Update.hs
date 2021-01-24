@@ -415,16 +415,16 @@ updateGameModel m (GameInPlaceMouseEnter target) GameNoInteraction =
 updateGameModel m (GameInPlaceMouseLeave _) _ =
   withInteraction m GameNoInteraction
 -- Debug cmd
-updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
-  withInteraction
-    (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
-    i
 updateGameModel m@GameModel {gameShared} GameExecuteCmd i
   | SharedModel.getCmd gameShared & isJust =
     let cmdStr = SharedModel.getCmd gameShared & fromJust
      in case Command.read cmdStr of
           Nothing -> undefined -- TODO show error
           Just (cmd :: Command.Command) -> undefined
+updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
+  withInteraction
+    (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
+    i
 -- default
 updateGameModel m _ i =
   withInteraction m i
