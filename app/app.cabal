@@ -75,6 +75,7 @@ executable app
   main-is:
     Main.hs
   other-modules:
+    BuildView
     Cinema
     Command
     Configuration

@@ -66,6 +66,19 @@ data GameModel = GameModel
   }
   deriving (Eq, Generic)
 
+data BuildModel = BuildModel
+  { -- | Part of the model shared among all pages
+    buildShared :: SharedModel,
+    -- | The actual deck
+    buildDeck :: [Card.ID],
+    -- | The playing player's team
+    buildTeam :: Team,
+    -- | The number of cards that can still be drawn from 'hand'
+    free :: Int,
+    -- | Cards to augment the deck
+    hand :: [Card.ID]
+  }
+
 instance Show GameModel where
   show GameModel {..} =
     "{ gameShared = omitted\n"

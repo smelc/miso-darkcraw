@@ -8,8 +8,8 @@
 
 -- |
 -- Module to display an instance of the main view, i.e.
--- the battle between two players. It's the only module that
--- can depend on 'GameViewInternal'.
+-- the battle between two players. Only this module (and modules that
+-- depend on it) can depend on 'GameViewInternal'.
 -- |
 module GameView where
 

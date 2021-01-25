@@ -1,15 +1,22 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
 -- Module to display a list of cards.
 -- |
-module DeckView (viewDeck) where
+module DeckView
+  ( DeckModel (..),
+    GenericModel (..),
+    viewDeck,
+    viewGeneric,
+  )
+where
 
 import Board (PlayerSpot (..))
-import Card (groupCards)
+import Card (Card, Phase (Core), Team, groupCards)
 import Constants
 import Data.Function ((&))
 import Data.List
@@ -17,14 +24,38 @@ import qualified Data.Map.Strict as Map
 import Miso (View, div_, onClick, style_)
 import Miso.String (ms)
 import Miso.Util ((=:))
-import Model (DeckModel (..))
+import Model
 import PCWViewInternal
+import SharedModel
 import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 
+data GenericModel = GenericModel
+  { -- | The model to use when closing the deck view
+    gBack :: Model,
+    -- | The deck to show
+    gDeck :: [Card 'Core],
+    -- | To which player 'gDeck' belongs
+    gPlayer :: PlayerSpot,
+    -- | To which team the deck being shown belongs
+    gTeam :: Team,
+    -- | Part of the model shared among all pages
+    gShared :: SharedModel
+  }
+
 viewDeck :: DeckModel -> Styled (View Action)
-viewDeck DeckModel {deck, deckPlayer, deckTeam, deckShared} = do
+viewDeck DeckModel {..} =
+  viewGeneric GenericModel {..}
+  where
+    gBack = deckBack
+    gDeck = deck
+    gPlayer = deckPlayer
+    gTeam = deckTeam
+    gShared = deckShared
+
+viewGeneric :: GenericModel -> Styled (View Action)
+viewGeneric GenericModel {gDeck = deck, gPlayer = player, gTeam = team, gShared = shared} = do
   backDiv <- backDivM
   cardsDiv <- cardsDiver 0 0 cards
   return $
@@ -57,14 +88,14 @@ viewDeck DeckModel {deck, deckPlayer, deckTeam, deckShared} = do
     yoffset y = 3 + (y * (cardCellHeight + 1))
     -- Create div of a single card
     cardDiver x y card = do
-      card <- cardView DeckLoc z deckShared deckTeam card mempty
+      card <- cardView DeckLoc z shared team card mempty
       return $ div_ [style_ $ cardPositionStyle (xoffset x) (yoffset y)] [card]
     -- Create background of slot
     slotDiver x y =
       div_
         [style_ $ cardPositionStyle (xoffset x) (yoffset y)]
         [imgCell slotPath]
-    slotPath = case deckPlayer of
+    slotPath = case player of
       PlayerTop -> assetSlotRed
       PlayerBot -> assetSlotBlue
     subtitleStyle = textStyle <> "font-size" =: px subtitleFontSize
