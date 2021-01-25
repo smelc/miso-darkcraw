@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 
 -- |
@@ -13,6 +14,7 @@ import Card
 import Data.Function ((&))
 import qualified DeckView as Deck
 import Miso
+import Miso.String (MisoString)
 import Model (BuildModel (..))
 import qualified SharedModel
 import Update (Action (..))
@@ -27,6 +29,7 @@ toGenericModel BuildModel {buildShared = shared, ..} =
   Deck.GenericModel {..}
   where
     gBack = undefined
+    gBackground = "build.png"
     gDeck = map (Card.unliftCard . SharedModel.unsafeIdentToCard shared) buildDeck
     gPlayer = undefined
     gShared = shared

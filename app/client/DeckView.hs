@@ -22,7 +22,7 @@ import Data.Function ((&))
 import Data.List
 import qualified Data.Map.Strict as Map
 import Miso (View, div_, onClick, style_)
-import Miso.String (ms)
+import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
 import Model
 import PCWViewInternal
@@ -34,6 +34,8 @@ import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 data GenericModel = GenericModel
   { -- | The model to use when closing the deck view
     gBack :: Model,
+    -- | The background to use
+    gBackground :: MisoString,
     -- | The deck to show
     gDeck :: [Card 'Core],
     -- | To which player 'gDeck' belongs
@@ -49,13 +51,14 @@ viewDeck DeckModel {..} =
   viewGeneric GenericModel {..}
   where
     gBack = deckBack
+    gBackground = "deck.png"
     gDeck = deck
     gPlayer = deckPlayer
     gTeam = deckTeam
     gShared = deckShared
 
 viewGeneric :: GenericModel -> Styled (View Action)
-viewGeneric GenericModel {gDeck = deck, gPlayer = player, gTeam = team, gShared = shared} = do
+viewGeneric GenericModel {gBackground = bg, gDeck = deck, gPlayer = player, gTeam = team, gShared = shared} = do
   backDiv <- backDivM
   cardsDiv <- cardsDiver 0 0 cards
   return $
@@ -66,7 +69,7 @@ viewGeneric GenericModel {gDeck = deck, gPlayer = player, gTeam = team, gShared 
     (z, zpp) = (0, z + 1)
     bgStyle =
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
-        <> "background-image" =: assetsUrl "deck.png"
+        <> "background-image" =: assetsUrl bg
     cards = groupCards deck & Map.toList & sort
     -- Terminal case
     cardsDiver x y _ | x == 4 && y == 3 = return []
