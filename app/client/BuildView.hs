@@ -11,6 +11,7 @@
 module BuildView where
 
 import Card
+import Constants
 import Data.Function ((&))
 import qualified DeckView as Deck
 import Miso
@@ -21,8 +22,17 @@ import Update (Action (..))
 import ViewInternal
 
 viewBuildModel :: BuildModel -> Styled (View Action)
-viewBuildModel b@BuildModel {buildDeck, hand} =
-  Deck.viewGeneric $ toGenericModel b
+viewBuildModel b@BuildModel {buildDeck, hand} = do
+  boardDiv <- Deck.viewGeneric $ toGenericModel b
+  handDiv <- handDivM
+  return $ div_ [] [boardDiv, handDiv]
+  where
+    handDivM = do
+      cells <- undefined -- boardToInHandCells zpp model
+      return $ div_ [style_ handStyle] cells
+    handStyle =
+      zpltwh 0 Relative 0 0 handPixelWidth handPixelHeight
+        <> "background-image" =: assetsUrl "build-hand.png"
 
 toGenericModel :: BuildModel -> Deck.GenericModel
 toGenericModel BuildModel {buildShared = shared, ..} =

@@ -426,6 +426,8 @@ updateGameModel m@GameModel {board, gameShared, playingPlayer} GameExecuteCmd i
           Just (Command.Gimme cid) ->
             let board' = boardAddToHand board playingPlayer $ IDC cid
              in withInteraction (m {board = board'}) GameNoInteraction
+          Just (Command.Goto _) ->
+            undefined
 updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
   withInteraction
     (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})

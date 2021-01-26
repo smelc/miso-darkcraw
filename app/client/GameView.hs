@@ -66,7 +66,8 @@ viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = 
         <> "background-image" =: assetsUrl "forest.png"
     handDivM = do
       cells <- boardToInHandCells zpp model
-      return $ div_ [style_ handStyle] cells
+      stacks <- traverse (stackView model z playingPlayer Hand) [Discarded, Stacked]
+      return $ div_ [style_ handStyle] $ cells ++ concat stacks
     handStyle =
       zpltwh z Relative 0 0 handPixelWidth handPixelHeight
         <> "background-image" =: assetsUrl "forest-hand.png"
@@ -260,10 +261,8 @@ boardToInHandCells ::
   Int ->
   GameModel ->
   Styled [View Action]
-boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} = do
-  stacks <- traverse (stackView m z playingPlayer Hand) [Discarded, Stacked]
-  cards <- traverse (boardToInHandCell m bigZ) zicreatures'
-  return $ cards ++ concat stacks
+boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} =
+  traverse (boardToInHandCell m bigZ) zicreatures'
   where
     cards =
       boardToHand board playingPlayer
