@@ -8,21 +8,21 @@
 -- when augmenting the deck with new cards. Can depend on 'DeckView'
 -- and 'GameView'.
 -- |
-module BuildView where
+module BuildView (view) where
 
 import Card
 import Constants
 import Data.Function ((&))
 import qualified DeckView as Deck
-import Miso
+import Miso hiding (view)
 import Miso.String (MisoString)
 import Model (BuildModel (..))
 import qualified SharedModel
 import Update (Action (..))
 import ViewInternal
 
-viewBuildModel :: BuildModel -> Styled (View Action)
-viewBuildModel b@BuildModel {buildDeck, hand} = do
+view :: BuildModel -> Styled (View Action)
+view b@BuildModel {buildDeck, hand} = do
   boardDiv <- Deck.viewGeneric $ toGenericModel b
   handDiv <- handDivM
   return $ div_ [] [boardDiv, handDiv]

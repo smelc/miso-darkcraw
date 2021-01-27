@@ -89,7 +89,7 @@ cardToFilepath SharedModel {..} = \case
 
 getAllCommands :: SharedModel -> [Command]
 getAllCommands shared =
-  map Gimme cids
+  map Gimme cids ++ [Goto v | v <- Command.allViews]
   where
     cids =
       getCardIdentifiers shared

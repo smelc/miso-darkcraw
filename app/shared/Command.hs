@@ -46,7 +46,7 @@ instance Show Command where
   show (Gimme CreatureID {..}) =
     "gimme " ++ (show team & toLowerString) ++ " " ++ (show creatureKind & toLowerString)
   show (Goto v) =
-    "goto" ++ show v
+    "goto " ++ show v
 
 class Read a where
   read :: String -> Maybe a

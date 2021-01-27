@@ -35,6 +35,7 @@ import qualified Game (DrawSource (..), Event (..), PolyResult (..), Target (..)
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
+import qualified Model (gameToBuild)
 import Movie (welcomeMovie)
 import ServerMessages
 import SharedModel (SharedModel (..), getCmd, withCmd)
@@ -147,6 +148,8 @@ instance ToExpr MultiPlayerLobbyError
 instance ToExpr InvitationActorState
 
 instance ToExpr InvitedActorState
+
+instance ToExpr BuildModel
 
 instance ToExpr DeckModel
 
@@ -416,18 +419,8 @@ updateGameModel m (GameInPlaceMouseEnter target) GameNoInteraction =
 updateGameModel m (GameInPlaceMouseLeave _) _ =
   withInteraction m GameNoInteraction
 -- Debug cmd
-updateGameModel m@GameModel {board, gameShared, playingPlayer} GameExecuteCmd i
-  | SharedModel.getCmd gameShared & isJust =
-    let cmdStr = SharedModel.getCmd gameShared & fromJust
-     in case Command.read cmdStr of
-          Nothing ->
-            let errMsg = "Unrecognized command: " ++ cmdStr
-             in withInteraction m $ GameShowErrorInteraction $ Text.pack errMsg
-          Just (Command.Gimme cid) ->
-            let board' = boardAddToHand board playingPlayer $ IDC cid
-             in withInteraction (m {board = board'}) GameNoInteraction
-          Just (Command.Goto _) ->
-            undefined
+updateGameModel m GameExecuteCmd i =
+  withInteraction m $ GameShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
 updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
   withInteraction
     (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
@@ -620,6 +613,19 @@ updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
   noEff $ DeckModel' $ DeckModel deck m playingPlayer t gameShared
   where
     t = boardToPart board playingPlayer & Board.team
+-- Leave 'GameView' (maybe)
+updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameShared, playingPlayer})
+  | SharedModel.getCmd gameShared & isJust =
+    let cmdStr = SharedModel.getCmd gameShared & fromJust
+     in case Command.read cmdStr of
+          Nothing ->
+            let errMsg = "Unrecognized command: " ++ cmdStr
+             in noEff $ GameModel' $ gm {interaction = GameShowErrorInteraction $ Text.pack errMsg}
+          Just (Command.Gimme cid) ->
+            let board' = boardAddToHand board playingPlayer $ IDC cid
+             in noEff $ GameModel' $ gm {board = board'}
+          Just c@(Command.Goto _) ->
+            noEff $ BuildModel' $ Model.gameToBuild gm
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack

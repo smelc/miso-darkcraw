@@ -10,14 +10,17 @@ import BoardInstances
 import Card
 import CardInstances
 import Cinema (TimedFrame)
+import Data.Function ((&))
 import Data.Generics.Labels ()
+import qualified Data.Map.Strict as Map
+import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
 import GHC.Generics
 import qualified Game (Target)
 import ServerMessages
-import SharedModel (SharedModel (..))
+import SharedModel (SharedModel (..), liftCard)
 import Turn (Turn, turnToPlayerSpot)
 
 -- | An interaction happening in the game page
@@ -78,6 +81,27 @@ data BuildModel = BuildModel
     -- | Cards to augment the deck
     hand :: [Card.ID]
   }
+  deriving (Eq, Generic, Show)
+
+gameToBuild :: GameModel -> BuildModel
+gameToBuild gm@GameModel {..} =
+  BuildModel {..}
+  where
+    buildShared = gameShared
+    buildDeck = gameToDeck gm
+    buildTeam = boardToPart board playingPlayer & Board.team
+    free = 0 -- for the moment
+    hand = [] -- for the moment
+
+-- This implementation will be wrong once volatile cards are generated
+-- during a match. When this happen, the player's deck will have to be
+-- carried on in GameModel. No big deal.
+gameToDeck :: GameModel -> [Card.ID]
+gameToDeck GameModel {gameShared = shared, ..} =
+  inPlace' ++ inHand ++ stack ++ discarded
+  where
+    PlayerPart {..} = boardToPart board playingPlayer
+    inPlace' = inPlace & Map.elems & map (IDC . creatureId)
 
 instance Show GameModel where
   show GameModel {..} =
@@ -172,7 +196,8 @@ data DeckModel = DeckModel
 -- | The top level model, later it will be a disjunction
 -- | of the model of each page
 data Model
-  = DeckModel' DeckModel
+  = BuildModel' BuildModel
+  | DeckModel' DeckModel
   | GameModel' GameModel
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel
   | WelcomeModel' WelcomeModel
