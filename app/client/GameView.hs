@@ -2,6 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
@@ -262,7 +263,7 @@ boardToInHandCells ::
   GameModel ->
   Styled [View Action]
 boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} =
-  traverse (boardToInHandCell m bigZ) zicreatures'
+  traverse (boardToInHandCell (toHandDrawingInput m) bigZ) zicreatures'
   where
     cards =
       boardToHand board playingPlayer
@@ -273,54 +274,83 @@ boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} =
     safeLast l = if null l then Nothing else Just $ last l
     zicreatures' = map (\(a, (b, c)) -> (a, b, c)) zicreatures
 
+toHandDrawingInput :: GameModel -> HandDrawingInput
+toHandDrawingInput GameModel {gameShared = shared, ..} =
+  undefined -- HandDrawingInput { .. } TODO @smelc
+  where
+    _hdiShared = shared
+
+data HandDrawingInput = HandDrawingInput
+  { -- | Whether the corresponding index of 'hdiHand' is being faded in
+    hdiFadeIn :: [Int],
+    -- | The hand
+    hdiHand :: [Card 'Core],
+    -- | The current interaction, if any
+    hdiInteraction :: Maybe GameInteraction,
+    -- | The team of the hand being drawn
+    hdiTeam :: Team,
+    -- | The player of the hand being drawn
+    hdiPlayingPlayer :: PlayerSpot,
+    hdiShared :: SharedModel
+  }
+
 boardToInHandCell ::
-  GameModel ->
+  HandDrawingInput ->
   -- The z-index when the card is on top of others
   Int ->
   -- The z-index, the card, the index in the hand
   (Int, Card Core, HandIndex) ->
   Styled (View Action)
-boardToInHandCell GameModel {anims, board, interaction, gameShared, playingPlayer} bigZ (z, card, i) = do
-  card <- cardView loc (if beingHovered || beingDragged then bigZ else z) gameShared t card cdsty
-  return $ div_ attrs [card | not beingDragged]
-  where
-    t = boardToPart board playingPlayer & Board.team
-    (beingHovered, beingDragged) =
-      case interaction of
-        GameHoverInteraction Hovering {hoveredCard} ->
-          (hoveredCard == i, False)
-        GameDragInteraction Dragging {draggedCard} ->
-          (False, draggedCard == i)
-        GameShowErrorInteraction _ -> (False, False)
-        _ -> (False, False)
-    loc = if beingDragged then GameDragLoc else GameHandLoc
-    rightmargin = cps * 2
-    hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
-    i' = unHandIndex i
-    y = 2 * cps
-    x =
-      rightmargin
-        + if handSize <= 5
-          then i' * (cardPixelWidth + hgap) -- No overlapping
-          else case i' of -- Overlapping
-            0 -> 0
-            _ -> i' * cpw'
-    -- The visible width of a card when there's overlapping.
-    -- Draw a picture to understand from where this formula comes from.
-    cpw' = (maxHSpace - cardPixelWidth) `div` (handSize - 1)
-    handSize = boardToHand board playingPlayer & length
-    maxHSpace = (5 * cardPixelWidth) + 4 * hgap -- cards + gaps
-    fadeIn = unHandIndex i `elem` boardToHand anims playingPlayer
-    attrs =
-      [ style_ $ cardPositionStyle' x y,
-        prop "draggable" True,
-        onDragStart $ GameAction' $ GameDragStart i,
-        onDragEnd $ GameAction' GameDragEnd,
-        class_ "card",
-        onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
-        onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
-      ]
-    cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
+boardToInHandCell
+  HandDrawingInput
+    { hdiFadeIn = anims,
+      hdiHand = hand,
+      hdiInteraction = interaction,
+      hdiPlayingPlayer = playingPlayer,
+      hdiShared = shared,
+      hdiTeam = team
+    }
+  bigZ
+  (z, card, i) = do
+    card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared team card cdsty
+    return $ div_ attrs [card | not beingDragged]
+    where
+      (beingHovered, beingDragged) =
+        case interaction of
+          Just (GameHoverInteraction Hovering {hoveredCard}) ->
+            (hoveredCard == i, False)
+          Just (GameDragInteraction Dragging {draggedCard}) ->
+            (False, draggedCard == i)
+          Just (GameShowErrorInteraction _) -> (False, False)
+          _ -> (False, False)
+      loc = if beingDragged then GameDragLoc else GameHandLoc
+      rightmargin = cps * 2
+      hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
+      i' = unHandIndex i
+      y = 2 * cps
+      x =
+        rightmargin
+          + if handSize <= 5
+            then i' * (cardPixelWidth + hgap) -- No overlapping
+            else case i' of -- Overlapping
+              0 -> 0
+              _ -> i' * cpw'
+      -- The visible width of a card when there's overlapping.
+      -- Draw a picture to understand from where this formula comes from.
+      cpw' = (maxHSpace - cardPixelWidth) `div` (handSize - 1)
+      handSize = length hand
+      maxHSpace = (5 * cardPixelWidth) + 4 * hgap -- cards + gaps
+      fadeIn = undefined -- TODO @smelc unHandIndex i `elem` boardToHand anims playingPlayer
+      attrs =
+        [ style_ $ cardPositionStyle' x y,
+          prop "draggable" True,
+          onDragStart $ GameAction' $ GameDragStart i,
+          onDragEnd $ GameAction' GameDragEnd,
+          class_ "card",
+          onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
+          onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
+        ]
+      cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
