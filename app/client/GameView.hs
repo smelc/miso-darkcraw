@@ -66,7 +66,7 @@ viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = 
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl "forest.png"
     handDivM = do
-      cells <- boardToInHandCells zpp model
+      cells <- boardToInHandCells zpp $ toHandDrawingInput model
       stacks <- traverse (stackView model z playingPlayer Hand) [Discarded, Stacked]
       return $ div_ [style_ handStyle] $ cells ++ concat stacks
     handStyle =
@@ -260,14 +260,12 @@ borderRGB interaction target =
 boardToInHandCells ::
   -- | The z index
   Int ->
-  GameModel ->
+  HandDrawingInput ->
   Styled [View Action]
-boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} =
-  traverse (boardToInHandCell (toHandDrawingInput m) bigZ) zicreatures'
+boardToInHandCells z hdi@HandDrawingInput {hdiHand} =
+  traverse (boardToInHandCell hdi bigZ) zicreatures'
   where
-    cards =
-      boardToHand board playingPlayer
-        & map (unliftCard . unsafeIdentToCard gameShared)
+    cards = map fst hdiHand
     icreatures = zip cards [HandIndex 0 ..]
     zicreatures = zip [z, z + 2 ..] icreatures
     bigZ = case safeLast zicreatures of Nothing -> z; Just (z', _) -> z' + 2
@@ -276,15 +274,26 @@ boardToInHandCells z m@GameModel {board, playingPlayer, gameShared} =
 
 toHandDrawingInput :: GameModel -> HandDrawingInput
 toHandDrawingInput GameModel {gameShared = shared, ..} =
-  undefined -- HandDrawingInput { .. } TODO @smelc
+  HandDrawingInput {..}
   where
-    _hdiShared = shared
+    hdiHand =
+      [ (card, fadeIn)
+        | (i, card) <-
+            zip
+              [0 ..]
+              ( boardToHand board playingPlayer
+                  & map (Card.unliftCard . SharedModel.unsafeIdentToCard shared)
+              ),
+          let fadeIn = i `elem` boardToHand anims playingPlayer
+      ]
+    hdiInteraction = Just interaction
+    hdiShared = shared
+    hdiTeam = boardToPart board playingPlayer & Board.team
+    hdiPlayingPlayer = playingPlayer
 
 data HandDrawingInput = HandDrawingInput
-  { -- | Whether the corresponding index of 'hdiHand' is being faded in
-    hdiFadeIn :: [Int],
-    -- | The hand
-    hdiHand :: [Card 'Core],
+  { -- | The hand, and whether the corresponding card is being faded in
+    hdiHand :: [(Card 'Core, Bool)],
     -- | The current interaction, if any
     hdiInteraction :: Maybe GameInteraction,
     -- | The team of the hand being drawn
@@ -303,8 +312,7 @@ boardToInHandCell ::
   Styled (View Action)
 boardToInHandCell
   HandDrawingInput
-    { hdiFadeIn = anims,
-      hdiHand = hand,
+    { hdiHand = hand,
       hdiInteraction = interaction,
       hdiPlayingPlayer = playingPlayer,
       hdiShared = shared,
@@ -340,7 +348,7 @@ boardToInHandCell
       cpw' = (maxHSpace - cardPixelWidth) `div` (handSize - 1)
       handSize = length hand
       maxHSpace = (5 * cardPixelWidth) + 4 * hgap -- cards + gaps
-      fadeIn = undefined -- TODO @smelc unHandIndex i `elem` boardToHand anims playingPlayer
+      fadeIn = map snd hand !! unHandIndex i
       attrs =
         [ style_ $ cardPositionStyle' x y,
           prop "draggable" True,
