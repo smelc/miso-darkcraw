@@ -34,11 +34,12 @@ view b@BuildModel {buildDeck, hand} = do
       return $ div_ [style_ handStyle] cells
     handStyle =
       zpltwh z Relative 0 0 handPixelWidth handPixelHeight
-        <> "background-image" =: assetsUrl "build-hand.png" -- foo
+        <> "background-image" =: assetsUrl "build-hand.png"
 
 toCardCore BuildModel {buildShared = shared, ..} =
   map (Card.unliftCard . SharedModel.unsafeIdentToCard shared) buildDeck
 
+-- | Used to draw the upper part (relies on 'DeckView')
 toGenericModel :: BuildModel -> Deck.GenericModel
 toGenericModel b@BuildModel {buildShared = shared, ..} =
   Deck.GenericModel {..}
@@ -48,6 +49,7 @@ toGenericModel b@BuildModel {buildShared = shared, ..} =
     (gPlayer, gTeam) = buildPlayer
     gShared = shared
 
+-- | Used to draw the bottom part (relies on 'GameView')
 toHandDrawingInput :: BuildModel -> GameView.HandDrawingInput
 toHandDrawingInput b@BuildModel {buildShared = shared, ..} =
   GameView.HandDrawingInput {..}
