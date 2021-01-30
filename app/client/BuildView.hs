@@ -14,6 +14,7 @@ import Card
 import Constants
 import Data.Function ((&))
 import qualified DeckView as Deck
+import qualified GameView
 import Miso hiding (view)
 import Miso.String (MisoString)
 import Model (BuildModel (..))
@@ -27,20 +28,31 @@ view b@BuildModel {buildDeck, hand} = do
   handDiv <- handDivM
   return $ div_ [] [boardDiv, handDiv]
   where
+    (z, zpp) = (0, z + 1)
     handDivM = do
-      cells <- undefined -- boardToInHandCells zpp model
+      cells <- GameView.boardToInHandCells zpp $ toHandDrawingInput b
       return $ div_ [style_ handStyle] cells
     handStyle =
-      zpltwh 0 Relative 0 0 handPixelWidth handPixelHeight
-        <> "background-image" =: assetsUrl "build-hand.png"
+      zpltwh z Relative 0 0 handPixelWidth handPixelHeight
+        <> "background-image" =: assetsUrl "build-hand.png" -- foo
+
+toCardCore BuildModel {buildShared = shared, ..} =
+  map (Card.unliftCard . SharedModel.unsafeIdentToCard shared) buildDeck
 
 toGenericModel :: BuildModel -> Deck.GenericModel
-toGenericModel BuildModel {buildShared = shared, ..} =
+toGenericModel b@BuildModel {buildShared = shared, ..} =
   Deck.GenericModel {..}
   where
-    gBack = undefined
     gBackground = "build.png"
-    gDeck = map (Card.unliftCard . SharedModel.unsafeIdentToCard shared) buildDeck
-    gPlayer = undefined
+    gDeck = toCardCore b
+    (gPlayer, gTeam) = buildPlayer
     gShared = shared
-    gTeam = buildTeam
+
+toHandDrawingInput :: BuildModel -> GameView.HandDrawingInput
+toHandDrawingInput b@BuildModel {buildShared = shared, ..} =
+  GameView.HandDrawingInput {..}
+  where
+    hdiHand = zip (toCardCore b) $ repeat False
+    hdiInteraction = Nothing
+    (hdiPlayingPlayer, hdiTeam) = buildPlayer
+    hdiShared = shared

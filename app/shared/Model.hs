@@ -74,8 +74,8 @@ data BuildModel = BuildModel
     buildShared :: SharedModel,
     -- | The actual deck
     buildDeck :: [Card.ID],
-    -- | The playing player's team
-    buildTeam :: Team,
+    -- | The playing player's spot and team
+    buildPlayer :: (PlayerSpot, Team),
     -- | The number of cards that can still be drawn from 'hand'
     free :: Int,
     -- | Cards to augment the deck
@@ -89,7 +89,7 @@ gameToBuild gm@GameModel {..} =
   where
     buildShared = gameShared
     buildDeck = gameToDeck gm
-    buildTeam = boardToPart board playingPlayer & Board.team
+    buildPlayer = (playingPlayer, boardToPart board playingPlayer & Board.team)
     free = 0 -- for the moment
     hand = [] -- for the moment
 

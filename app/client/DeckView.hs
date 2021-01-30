@@ -32,9 +32,7 @@ import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 
 data GenericModel = GenericModel
-  { -- | The model to use when closing the deck view
-    gBack :: Model,
-    -- | The background to use
+  { -- | The background to use
     gBackground :: MisoString,
     -- | The deck to show
     gDeck :: [Card 'Core],
@@ -50,7 +48,6 @@ viewDeck :: DeckModel -> Styled (View Action)
 viewDeck DeckModel {..} =
   viewGeneric GenericModel {..}
   where
-    gBack = deckBack
     gBackground = "deck.png"
     gDeck = deck
     gPlayer = deckPlayer
