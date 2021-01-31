@@ -222,7 +222,11 @@ unliftCard card =
   case card of
     CreatureCard creature -> CreatureCard $ unliftCreature creature
     NeutralCard n -> NeutralCard $ unliftNeutralObject n
-    ItemCard _ -> ItemCard undefined
+    ItemCard i -> ItemCard $ unliftItemObject i
+
+unliftItemObject :: ItemObject UI -> ItemObject Core
+unliftItemObject ItemObject {..} =
+  ItemObject {item, itext = (), itile = (), ititle = ()}
 
 unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =
@@ -246,6 +250,11 @@ cardToCreature (CreatureCard creature) = Just creature
 cardToCreature (NeutralCard _) = Nothing
 cardToCreature (ItemCard _) = Nothing
 
+cardToItemObject :: Card p -> Maybe (ItemObject p)
+cardToItemObject (NeutralCard n) = Nothing
+cardToItemObject (CreatureCard _) = Nothing
+cardToItemObject (ItemCard i) = Just i
+
 cardToNeutralObject :: Card p -> Maybe (NeutralObject p)
 cardToNeutralObject (NeutralCard n) = Just n
 cardToNeutralObject (CreatureCard _) = Nothing
@@ -259,11 +268,9 @@ data ID
   | IDN Neutral
   deriving (Eq, Generic, Ord, Show)
 
+-- TODO @smelc Delete me
 creatureToIdentifier :: Creature p -> ID
 creatureToIdentifier Creature {creatureId} = IDC creatureId
-
-neutralToIdentifier :: NeutralObject p -> ID
-neutralToIdentifier NeutralObject {neutral} = IDN neutral
 
 cardToIdentifier :: Card p -> ID
 cardToIdentifier card =

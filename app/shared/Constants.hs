@@ -63,6 +63,9 @@ boostAmount = 2
 borderSize :: Int
 borderSize = 3
 
+-- | The height of the hand in the build view, in pixels
+buildPixelHeight = cps * 6
+
 -- | The number of cards to draw at the beginning of a turn
 nbCardsToDraw :: Int
 nbCardsToDraw = 3

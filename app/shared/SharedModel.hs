@@ -31,6 +31,7 @@ module SharedModel
     cardToFilepath,
     withSeed,
     getAllCommands,
+    identToItem,
   )
 where
 
@@ -85,7 +86,8 @@ cardToFilepath SharedModel {..} = \case
     fromMaybe default24Filepath $ sharedTiles Map.!? tile <&> filepath
   NeutralCard NeutralObject {ntile} ->
     fromMaybe default16Filepath $ sharedTiles Map.!? ntile <&> filepath
-  ItemCard _ -> error "ItemCard not supported"
+  ItemCard ItemObject {itile} ->
+    fromMaybe default16Filepath $ sharedTiles Map.!? itile <&> filepath
 
 getAllCommands :: SharedModel -> [Command]
 getAllCommands shared =
@@ -124,21 +126,36 @@ withStdGen shared stdgen = shared {sharedStdGen = stdgen}
 unsafeGet :: SharedModel
 unsafeGet = unsafeGetSeed 42
 
--- | An instance of 'SharedModel' that is fine for debugging. Don't use
--- it in production!
+-- TODO @smelc Rename me into createWithSeed. This method is not unsafe
+-- because obviously, if loadJson fails, the entire game is broken;
+-- so it's fine erroring out.
+
+-- | An instance of 'SharedModel' obtained by reading the Json data
 unsafeGetSeed :: Int -> SharedModel
 unsafeGetSeed seed =
   case loadJson of
     Left err -> error err
     Right (cards, _, skills, tiles) -> create cards skills tiles $ mkStdGen seed
 
+-- Instead of returning Maybe here, I should add a test that all
+-- Card.ID are mapped by SharedModel and error out
 identToCard :: SharedModel -> Card.ID -> Maybe (Card UI)
 identToCard SharedModel {sharedCards} cid = sharedCards Map.!? cid
 
+-- Instead of returning Maybe here, I should add a test that all
+-- Item are mapped by SharedModel and error out
+identToItem :: SharedModel -> Item -> Maybe (ItemObject UI)
+identToItem SharedModel {sharedCards} i =
+  sharedCards Map.!? IDI i >>= cardToItemObject
+
+-- Instead of returning Maybe here, I should add a test that all
+-- CreatureID are mapped by SharedModel and error out
 idToCreature :: SharedModel -> CreatureID -> Maybe (Creature UI)
 idToCreature SharedModel {sharedCards} cid =
   sharedCards Map.!? IDC cid >>= cardToCreature
 
+-- Instead of returning Maybe here, I should add a test that all
+-- Neutral are mapped by SharedModel and error out
 identToNeutral :: SharedModel -> Neutral -> Maybe (NeutralObject UI)
 identToNeutral SharedModel {sharedCards} n =
   sharedCards Map.!? IDN n >>= cardToNeutralObject
@@ -147,17 +164,15 @@ liftCard :: SharedModel -> Card Core -> Maybe (Card UI)
 liftCard shared = \case
   CreatureCard creature -> CreatureCard <$> liftCreature shared creature
   NeutralCard n -> NeutralCard <$> liftNeutralObject shared n
-  ItemCard i -> Just $ ItemCard undefined
+  ItemCard i -> ItemCard <$> liftItemObject shared i
+
+liftItemObject :: SharedModel -> ItemObject Core -> Maybe (ItemObject UI)
+liftItemObject shared ItemObject {item} =
+  identToItem shared item
 
 liftNeutralObject :: SharedModel -> NeutralObject Core -> Maybe (NeutralObject UI)
-liftNeutralObject shared no =
-  n >>= identToNeutral shared
-  where
-    n =
-      case neutralToIdentifier no of
-        IDN n' -> Just n'
-        IDC _ -> Nothing
-        IDI _ -> Nothing
+liftNeutralObject shared NeutralObject {neutral} =
+  identToNeutral shared neutral
 
 -- | Translates a 'Core' 'Creature' into an 'UI' one, keeping its stats
 -- An alternative implementation could return the pristine, formal, UI card.

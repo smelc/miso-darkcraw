@@ -148,32 +148,14 @@ cardView' loc z shared card =
             <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
             <> fontStyle
         skillsDivs = map (skillDiv shared) skills
+    -- drawing of Item cards
+    (_, ItemCard ItemObject {ititle = title, itext = txt}) ->
+      [itemNeutralView zpp fontStyle leftMargin title txt]
     -- drawing of Neutral cards
-    (_, NeutralCard NeutralObject {ntitle, ntext}) ->
-      [ div_
-          [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
-            style_ fontStyle
-          ]
-          [ div_
-              [ style_ $
-                  "align" =: "center"
-                    <> "position" =: "absolute"
-                    <> "margin-top" =: "24px"
-                    <> "transform" =: "translate(-50%,0%)"
-                    <> "margin-left" =: "50%"
-                    <> "margin-right" =: "50%"
-              ]
-              [text $ ms ntitle],
-            p_
-              [ style_ $
-                  "position" =: "absolute"
-                    <> "margin-top" =: "40px"
-                    <> "margin-left" =: px leftMargin
-              ]
-              [text $ ms ntext]
-          ]
-      ]
-    _ -> error $ "Unhandled card: " ++ show card
+    (_, NeutralCard NeutralObject {ntitle = title, ntext = txt}) ->
+      [itemNeutralView zpp fontStyle leftMargin title txt]
+    (core, ui) ->
+      error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
     ui = SharedModel.unsafeLiftCard shared card
     (topMargin, leftMargin) = (cps `div` 4, topMargin)
@@ -184,6 +166,33 @@ cardView' loc z shared card =
       "font-size" =: px fontSize
         <> "font-family" =: "serif"
     width = cardPixelWidth - (topMargin * 2)
+    zpp = z + 1
+
+-- | Draws an item or neutral card
+itemNeutralView :: Int -> Map.Map MisoString MisoString -> Int -> String -> String -> View a
+itemNeutralView z fontStyle leftMargin title txt =
+  div_
+    [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
+      style_ fontStyle
+    ]
+    [ div_
+        [ style_ $
+            "align" =: "center"
+              <> "position" =: "absolute"
+              <> "margin-top" =: "24px"
+              <> "transform" =: "translate(-50%,0%)"
+              <> "margin-left" =: "50%"
+              <> "margin-right" =: "50%"
+        ]
+        [text $ ms title],
+      p_
+        [ style_ $
+            "position" =: "absolute"
+              <> "margin-top" =: "40px"
+              <> "margin-left" =: px leftMargin
+        ]
+        [text $ ms $ typeset txt]
+    ]
 
 skillDiv :: SharedModel -> SkillCore -> View a
 skillDiv shared skill =

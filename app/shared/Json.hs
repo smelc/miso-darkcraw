@@ -152,8 +152,9 @@ parseJson ::
 parseJson json = do
   AllData creatures neutral items skills tiles <- eitherDecode json
   let creatureCards = map CreatureCard creatures
+      itemCards = map ItemCard items
       neutralCards = map NeutralCard neutral
-      allCards = creatureCards ++ neutralCards
+      allCards = creatureCards ++ itemCards ++ neutralCards
   return (allCards, items, skills, tiles)
 
 loadJson :: Either String LoadedJson

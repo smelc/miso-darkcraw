@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -33,11 +34,8 @@ view b@BuildModel {buildDeck, hand} = do
       cells <- GameView.boardToInHandCells zpp $ toHandDrawingInput b
       return $ div_ [style_ handStyle] cells
     handStyle =
-      zpltwh z Relative 0 0 handPixelWidth handPixelHeight
+      zpltwh z Relative 0 0 handPixelWidth buildPixelHeight
         <> "background-image" =: assetsUrl "build-hand.png"
-
-toCardCore BuildModel {buildShared = shared, ..} =
-  map (Card.unliftCard . SharedModel.unsafeIdentToCard shared) buildDeck
 
 -- | Used to draw the upper part (relies on 'DeckView')
 toGenericModel :: BuildModel -> Deck.GenericModel
@@ -45,7 +43,7 @@ toGenericModel b@BuildModel {buildShared = shared, ..} =
   Deck.GenericModel {..}
   where
     gBackground = "build.png"
-    gDeck = toCardCore b
+    gDeck = map (Card.unliftCard . SharedModel.unsafeIdentToCard shared) buildDeck
     (gPlayer, gTeam) = buildPlayer
     gShared = shared
 
@@ -54,8 +52,11 @@ toHandDrawingInput :: BuildModel -> GameView.HandDrawingInput
 toHandDrawingInput b@BuildModel {buildShared = shared, ..} =
   GameView.HandDrawingInput {..}
   where
-    hdiHand = zip (toCardCore b) $ repeat False
+    itemCards =
+      SharedModel.getCards shared
+        & filter (\case ItemCard c -> True; _ -> False)
+    hdiHand = zip (map Card.unliftCard itemCards) $ repeat False
     hdiInteraction = Nothing
-    hdiOffseter = id -- TODO @smelc change me
+    hdiOffseter (x, y) = (x + boardPixelWidth `div` 2, y - cps)
     (hdiPlayingPlayer, hdiTeam) = buildPlayer
     hdiShared = shared
