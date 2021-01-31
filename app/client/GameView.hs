@@ -287,15 +287,20 @@ toHandDrawingInput GameModel {gameShared = shared, ..} =
           let fadeIn = i `elem` boardToHand anims playingPlayer
       ]
     hdiInteraction = Just interaction
+    hdiOffseter = id
     hdiShared = shared
     hdiTeam = boardToPart board playingPlayer & Board.team
     hdiPlayingPlayer = playingPlayer
+
+type HandOffseter = (Int, Int) -> (Int, Int)
 
 data HandDrawingInput = HandDrawingInput
   { -- | The hand, and whether the corresponding card is being faded in
     hdiHand :: [(Card 'Core, Bool)],
     -- | The current interaction, if any
     hdiInteraction :: Maybe GameInteraction,
+    -- | How to offset the default position of the hand's cards
+    hdiOffseter :: HandOffseter,
     -- | The team of the hand being drawn
     hdiTeam :: Team,
     -- | The player of the hand being drawn
@@ -314,6 +319,7 @@ boardToInHandCell
   HandDrawingInput
     { hdiHand = hand,
       hdiInteraction = interaction,
+      hdiOffseter = offseter,
       hdiPlayingPlayer = playingPlayer,
       hdiShared = shared,
       hdiTeam = team
@@ -343,6 +349,7 @@ boardToInHandCell
             else case i' of -- Overlapping
               0 -> 0
               _ -> i' * cpw'
+      (x', y') = offseter (x, y)
       -- The visible width of a card when there's overlapping.
       -- Draw a picture to understand from where this formula comes from.
       cpw' = (maxHSpace - cardPixelWidth) `div` (handSize - 1)
@@ -350,7 +357,7 @@ boardToInHandCell
       maxHSpace = (5 * cardPixelWidth) + 4 * hgap -- cards + gaps
       fadeIn = map snd hand !! unHandIndex i
       attrs =
-        [ style_ $ cardPositionStyle' x y,
+        [ style_ $ cardPositionStyle' x' y',
           prop "draggable" True,
           onDragStart $ GameAction' $ GameDragStart i,
           onDragEnd $ GameAction' GameDragEnd,

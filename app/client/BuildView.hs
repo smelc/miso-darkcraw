@@ -56,5 +56,6 @@ toHandDrawingInput b@BuildModel {buildShared = shared, ..} =
   where
     hdiHand = zip (toCardCore b) $ repeat False
     hdiInteraction = Nothing
+    hdiOffseter = id -- TODO @smelc change me
     (hdiPlayingPlayer, hdiTeam) = buildPlayer
     hdiShared = shared
