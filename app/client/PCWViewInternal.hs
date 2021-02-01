@@ -173,23 +173,24 @@ itemNeutralView :: Int -> Map.Map MisoString MisoString -> Int -> String -> Stri
 itemNeutralView z fontStyle leftMargin title txt =
   div_
     [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
-      style_ fontStyle
+      style_ fontStyle,
+      style_ flexColumnStyle
     ]
     [ div_
         [ style_ $
             "align" =: "center"
-              <> "position" =: "absolute"
+              -- <> "position" =: "absolute"
               <> "margin-top" =: "24px"
-              <> "transform" =: "translate(-50%,0%)"
-              <> "margin-left" =: "50%"
-              <> "margin-right" =: "50%"
+              -- <> "transform" =: "translate(-50%,0%)"
+              -- <> "margin-left" =: "50%"
+              -- <> "margin-right" =: "50%"
         ]
         [text $ ms title],
       p_
         [ style_ $
-            "position" =: "absolute"
-              <> "margin-top" =: "40px"
-              <> "margin-left" =: px leftMargin
+            -- "position" =: "absolute"
+            -- "margin-top" =: "40px"
+            "margin-left" =: px leftMargin
         ]
         [text $ ms $ typeset txt]
     ]
