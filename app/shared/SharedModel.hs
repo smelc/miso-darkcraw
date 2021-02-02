@@ -143,11 +143,14 @@ unsafeGetSeed seed =
 identToCard :: SharedModel -> Card.ID -> Maybe (Card UI)
 identToCard SharedModel {sharedCards} cid = sharedCards Map.!? cid
 
--- Instead of returning Maybe here, I should add a test that all
--- Item are mapped by SharedModel and error out
-identToItem :: SharedModel -> Item -> Maybe (ItemObject UI)
+identToItem :: SharedModel -> Item -> ItemObject UI
 identToItem SharedModel {sharedCards} i =
-  sharedCards Map.!? IDI i >>= cardToItemObject
+  case sharedCards Map.!? IDI i of
+    -- This should not happen, see 'testShared'
+    Nothing -> error $ "Unmapped item: " ++ show i
+    Just (ItemCard res) -> res
+    -- To avoid this case, I could split the cards in SharedModel
+    Just w -> error $ "Item " ++ show i ++ " not mapped to ItemCard, found " ++ show w ++ " instead."
 
 -- Instead of returning Maybe here, I should add a test that all
 -- CreatureID are mapped by SharedModel and error out
@@ -165,11 +168,10 @@ liftCard :: SharedModel -> Card Core -> Maybe (Card UI)
 liftCard shared = \case
   CreatureCard creature -> CreatureCard <$> liftCreature shared creature
   NeutralCard n -> NeutralCard <$> liftNeutralObject shared n
-  ItemCard i -> ItemCard <$> liftItemObject shared i
+  ItemCard i -> Just $ ItemCard $ liftItemObject shared i
 
-liftItemObject :: SharedModel -> ItemObject Core -> Maybe (ItemObject UI)
-liftItemObject shared ItemObject {item} =
-  identToItem shared item
+liftItemObject :: SharedModel -> ItemObject Core -> ItemObject UI
+liftItemObject shared ItemObject {item} = identToItem shared item
 
 liftNeutralObject :: SharedModel -> NeutralObject Core -> Maybe (NeutralObject UI)
 liftNeutralObject shared NeutralObject {neutral} =

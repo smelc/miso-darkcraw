@@ -178,7 +178,12 @@ testDrawCards shared =
 testShared shared =
   describe "SharedModel" $ do
     prop "maps all Item values" $
-      \item -> SharedModel.identToItem shared item `shouldSatisfy` isJust
+      \item ->
+        let found =
+              SharedModel.getCards shared
+                & map (\case ItemCard ItemObject {item = i} | item == i -> Just i; _ -> Nothing)
+                & catMaybes
+         in found `shouldBe` [item]
     prop "maps all Neutral values" $
       \n -> SharedModel.identToNeutral shared n `shouldSatisfy` isJust
 
