@@ -32,6 +32,7 @@ module SharedModel
     withSeed,
     getAllCommands,
     identToItem,
+    identToNeutral,
   )
 where
 

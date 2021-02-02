@@ -175,6 +175,13 @@ testDrawCards shared =
             & filter (\case DrawCard' b -> b; _ -> False)
             & length
 
+testShared shared =
+  describe "SharedModel" $ do
+    prop "maps all Item values" $
+      \item -> SharedModel.identToItem shared item `shouldSatisfy` isJust
+    prop "maps all Neutral values" $
+      \n -> SharedModel.identToNeutral shared n `shouldSatisfy` isJust
+
 testNeighbors :: SpecWith ()
 testNeighbors =
   describe "Neighbors doesn't return doublons" $
@@ -428,3 +435,4 @@ main = hspec $ do
   testPlayFraming shared
   testDrawCards shared
   Invariants.main shared
+  testShared shared
