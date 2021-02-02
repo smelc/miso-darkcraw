@@ -160,20 +160,24 @@ idToCreature SharedModel {sharedCards} cid =
 
 -- Instead of returning Maybe here, I should add a test that all
 -- Neutral are mapped by SharedModel and error out
-identToNeutral :: SharedModel -> Neutral -> Maybe (NeutralObject UI)
+identToNeutral :: SharedModel -> Neutral -> NeutralObject UI
 identToNeutral SharedModel {sharedCards} n =
-  sharedCards Map.!? IDN n >>= cardToNeutralObject
+  case sharedCards Map.!? IDN n of
+    Nothing -> error $ "Unmapped neutral: " ++ show n
+    Just (NeutralCard res) -> res
+    -- To avoid this case, I could split the cards in SharedModel
+    Just w -> error $ "Neutral " ++ show n ++ " not mapped to NeutralCard, found " ++ show w ++ " instead."
 
 liftCard :: SharedModel -> Card Core -> Maybe (Card UI)
 liftCard shared = \case
   CreatureCard creature -> CreatureCard <$> liftCreature shared creature
-  NeutralCard n -> NeutralCard <$> liftNeutralObject shared n
+  NeutralCard n -> Just $ NeutralCard $ liftNeutralObject shared n
   ItemCard i -> Just $ ItemCard $ liftItemObject shared i
 
 liftItemObject :: SharedModel -> ItemObject Core -> ItemObject UI
 liftItemObject shared ItemObject {item} = identToItem shared item
 
-liftNeutralObject :: SharedModel -> NeutralObject Core -> Maybe (NeutralObject UI)
+liftNeutralObject :: SharedModel -> NeutralObject Core -> NeutralObject UI
 liftNeutralObject shared NeutralObject {neutral} =
   identToNeutral shared neutral
 

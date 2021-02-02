@@ -185,7 +185,12 @@ testShared shared =
                 & catMaybes
          in found `shouldBe` [item]
     prop "maps all Neutral values" $
-      \n -> SharedModel.identToNeutral shared n `shouldSatisfy` isJust
+      \n ->
+        let found =
+              SharedModel.getCards shared
+                & map (\case NeutralCard NeutralObject {neutral = n'} | n == n' -> Just n'; _ -> Nothing)
+                & catMaybes
+         in found `shouldBe` [n]
 
 testNeighbors :: SpecWith ()
 testNeighbors =
