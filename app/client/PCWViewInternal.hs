@@ -173,26 +173,14 @@ itemNeutralView :: Int -> Map.Map MisoString MisoString -> Int -> String -> Stri
 itemNeutralView z fontStyle leftMargin title txt =
   div_
     [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
-      style_ fontStyle,
-      style_ flexColumnStyle
+      style_ $ fontStyle <> flexColumnStyle,
+      style_ $
+        "top" =: px cps
+          <> "left" =: px 4 -- So that text doesn't overlap card border
+          <> "width" =: px (cardPixelWidth - (4 * 2))
     ]
-    [ div_
-        [ style_ $
-            "align" =: "center"
-              -- <> "position" =: "absolute"
-              <> "margin-top" =: "24px"
-              -- <> "transform" =: "translate(-50%,0%)"
-              -- <> "margin-left" =: "50%"
-              -- <> "margin-right" =: "50%"
-        ]
-        [text $ ms title],
-      p_
-        [ style_ $
-            -- "position" =: "absolute"
-            -- "margin-top" =: "40px"
-            "margin-left" =: px leftMargin
-        ]
-        [text $ ms $ typeset txt]
+    [ div_ [] [text $ ms title],
+      div_ [style_ $ "margin-top" =: px (cps `div` 4)] [text $ ms $ typeset txt]
     ]
 
 skillDiv :: SharedModel -> SkillCore -> View a
