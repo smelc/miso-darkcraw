@@ -263,7 +263,7 @@ boardToInHandCells ::
   HandDrawingInput ->
   Styled [View Action]
 boardToInHandCells z hdi@HandDrawingInput {hdiHand} =
-  traverse (boardToInHandCell hdi bigZ) zicreatures'
+  traverse (boardToInHandCell hdi actionizer bigZ) zicreatures'
   where
     cards = map fst hdiHand
     icreatures = zip cards [HandIndex 0 ..]
@@ -271,6 +271,14 @@ boardToInHandCells z hdi@HandDrawingInput {hdiHand} =
     bigZ = case safeLast zicreatures of Nothing -> z; Just (z', _) -> z' + 2
     safeLast l = if null l then Nothing else Just $ last l
     zicreatures' = map (\(a, (b, c)) -> (a, b, c)) zicreatures
+    actionizer =
+      HandActionizer
+        { onDragStart = GameDragStart,
+          onDragEnd = GameDragEnd,
+          onMouseEnter = GameInHandMouseEnter,
+          onMouseLeave = GameInHandMouseLeave
+        }
+        <&> GameAction'
 
 toHandDrawingInput :: GameModel -> HandDrawingInput
 toHandDrawingInput GameModel {gameShared = shared, ..} =
@@ -292,6 +300,26 @@ toHandDrawingInput GameModel {gameShared = shared, ..} =
     hdiTeam = boardToPart board playingPlayer & Board.team
     hdiPlayingPlayer = playingPlayer
 
+data HandActionizer a = HandActionizer
+  { -- The event to raise when starting to drag a card
+    onDragStart :: HandIndex -> a,
+    -- The event to raise when stopping hovering a card
+    onDragEnd :: a,
+    -- The event to raise when hovering a card
+    onMouseEnter :: HandIndex -> a,
+    -- The event to raise when stopping hovering a card
+    onMouseLeave :: HandIndex -> a
+  }
+
+instance Functor HandActionizer where
+  fmap f HandActionizer {..} =
+    HandActionizer
+      { onDragStart = f . onDragStart,
+        onDragEnd = f onDragEnd,
+        onMouseEnter = f . onMouseEnter,
+        onMouseLeave = f . onMouseLeave
+      }
+
 type HandOffseter = (Int, Int) -> (Int, Int)
 
 data HandDrawingInput = HandDrawingInput
@@ -310,6 +338,7 @@ data HandDrawingInput = HandDrawingInput
 
 boardToInHandCell ::
   HandDrawingInput ->
+  HandActionizer Action ->
   -- The z-index when the card is on top of others
   Int ->
   -- The z-index, the card, the index in the hand
@@ -324,6 +353,7 @@ boardToInHandCell
       hdiShared = shared,
       hdiTeam = team
     }
+  HandActionizer {..}
   bigZ
   (z, card, i) = do
     card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared team card cdsty
@@ -359,11 +389,11 @@ boardToInHandCell
       attrs =
         [ style_ $ cardPositionStyle' x' y',
           prop "draggable" True,
-          onDragStart $ GameAction' $ GameDragStart i,
-          onDragEnd $ GameAction' GameDragEnd,
+          Miso.onDragStart $ onDragStart i,
+          Miso.onDragEnd onDragEnd,
           class_ "card",
-          onMouseEnter' "card" $ GameAction' $ GameInHandMouseEnter i,
-          onMouseLeave' "card" $ GameAction' $ GameInHandMouseLeave i
+          onMouseEnter' "card" $ onMouseEnter i,
+          onMouseLeave' "card" $ onMouseLeave i
         ]
       cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
 
