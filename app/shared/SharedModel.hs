@@ -98,8 +98,13 @@ getAllCommands shared =
       getCardIdentifiers shared
         & map (\case IDC cid -> Just cid; _ -> Nothing)
         & catMaybes
-
--- & sortBy (\a b -> compare (show a) (show b)) TODO @smelc sort by team, then by string
+        & sortBy compareCID
+    compareCID
+      CreatureID {creatureKind = ck1, team = t1}
+      CreatureID {creatureKind = ck2, team = t2} =
+        case compare t1 t2 of
+          EQ -> compare ck1 ck2
+          x -> x
 
 getCardIdentifiers :: SharedModel -> [Card.ID]
 getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards
