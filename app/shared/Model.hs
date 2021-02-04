@@ -24,24 +24,24 @@ import SharedModel (SharedModel (..), liftCard)
 import Turn (Turn, turnToPlayerSpot)
 
 -- | An interaction happening in the game page
-data GameInteraction
+data Interaction a
   = -- | Hovering over a card in hand
-    GameHoverInteraction Hovering
+    HoverInteraction Hovering
   | -- | Hovering over a target
-    GameHoverInPlaceInteraction Game.Target
+    HoverInPlaceInteraction a
   | -- | Dragging a card
-    GameDragInteraction Dragging
-  | GameNoInteraction
-  | GameShowErrorInteraction Text.Text
+    DragInteraction (Dragging a)
+  | NoInteraction
+  | ShowErrorInteraction Text.Text
   deriving (Eq, Generic, Show)
 
 newtype Hovering = Hovering
   {hoveredCard :: HandIndex}
   deriving (Eq, Generic, Show)
 
-data Dragging = Dragging
+data Dragging a = Dragging
   { draggedCard :: HandIndex,
-    dragTarget :: Maybe Game.Target
+    dragTarget :: Maybe a
   }
   deriving (Eq, Show, Generic)
 
@@ -59,7 +59,7 @@ data GameModel = GameModel
     -- | The core part of the model
     board :: Board Core,
     -- | What user interaction is going on
-    interaction :: GameInteraction,
+    interaction :: Interaction Game.Target,
     -- | Where the player plays
     playingPlayer :: PlayerSpot,
     -- | The current turn

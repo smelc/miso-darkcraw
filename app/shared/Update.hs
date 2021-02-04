@@ -101,11 +101,11 @@ instance ToExpr HandFiddle
 
 instance ToExpr Game.Target
 
-instance ToExpr Dragging
+instance ToExpr (Dragging Game.Target)
 
 instance ToExpr Hovering
 
-instance ToExpr GameInteraction
+instance ToExpr (Interaction Game.Target)
 
 instance ToExpr Turn
 
@@ -265,12 +265,12 @@ logUpdates update action model = do
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
 
-withInteraction :: GameModel -> GameInteraction -> (GameModel, GameActionSeq)
+withInteraction :: GameModel -> Interaction Game.Target -> (GameModel, GameActionSeq)
 withInteraction m i = (m {interaction = i}, [])
 
 playOne :: GameModel -> Game.Event -> (GameModel, GameActionSeq)
 playOne m gamePlayEvent =
-  updateGameModel m (GamePlay gamePlayEvent) GameNoInteraction
+  updateGameModel m (GamePlay gamePlayEvent) NoInteraction
 
 -- | We MUST return GameAction as the second element (as opposed to
 -- 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
@@ -283,36 +283,36 @@ playOne m gamePlayEvent =
 updateGameModel ::
   GameModel ->
   GameAction ->
-  GameInteraction ->
+  Interaction Game.Target ->
   (GameModel, GameActionSeq)
 -- This is the only definition that should care about GameShowErrorInteraction:
-updateGameModel m action (GameShowErrorInteraction _) =
-  updateGameModel m action GameNoInteraction -- clear error message
+updateGameModel m action (ShowErrorInteraction _) =
+  updateGameModel m action NoInteraction -- clear error message
   -- Now onto "normal" stuff:
-updateGameModel m GameDragEnd _ = withInteraction m GameNoInteraction
+updateGameModel m GameDragEnd _ = withInteraction m NoInteraction
 updateGameModel m (GameDragStart i) _
   | isPlayerTurn m =
-    withInteraction m $ GameDragInteraction $ Dragging i Nothing
+    withInteraction m $ DragInteraction $ Dragging i Nothing
 updateGameModel
   m
   GameDrop
-  (GameDragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
+  (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
     playOne m $ Game.Place dragTarget draggedCard
 updateGameModel m GameDrop _
   | isPlayerTurn m =
-    withInteraction m GameNoInteraction
+    withInteraction m NoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
-updateGameModel m (GameDragEnter target) (GameDragInteraction dragging)
+updateGameModel m (GameDragEnter target) (DragInteraction dragging)
   | isPlayerTurn m =
-    withInteraction m $ GameDragInteraction $ dragging {dragTarget = Just target}
-updateGameModel m (GameDragLeave _) (GameDragInteraction dragging)
+    withInteraction m $ DragInteraction $ dragging {dragTarget = Just target}
+updateGameModel m (GameDragLeave _) (DragInteraction dragging)
   | isPlayerTurn m =
-    withInteraction m $ GameDragInteraction $ dragging {dragTarget = Nothing}
+    withInteraction m $ DragInteraction $ dragging {dragTarget = Nothing}
 -- A GamePlayEvent to execute
 updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
   case Game.play gameShared board gameEvent of
-    Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
+    Left errMsg -> withInteraction m $ ShowErrorInteraction errMsg
     Right (Game.Result board' nexts anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
@@ -335,7 +335,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards []) _ =
   traceShow "GameDrawCards [] should not happen (but is harmless)" (m, [])
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest)) _ =
   case Game.drawCards gameShared board pSpot [fst] of
-    Left errMsg -> withInteraction m $ GameShowErrorInteraction errMsg
+    Left errMsg -> withInteraction m $ ShowErrorInteraction errMsg
     Right (board', boardui', shared') ->
       ( m {board = board', anims = boardui', gameShared = shared'},
         -- enqueue next event (if any)
@@ -346,7 +346,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
   case em' of
-    Left err -> withInteraction m $ GameShowErrorInteraction err
+    Left err -> withInteraction m $ ShowErrorInteraction err
     Right m'@GameModel {board = board'} ->
       if isInitialTurn
         then -- We want a one second delay, to see clearly that the opponent
@@ -354,7 +354,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           (m', [(1, event)])
         else -- We don't want any delay so that the game feels responsive
         -- when the player presses "End Turn", hence the recursive call.
-          updateGameModel m' event GameNoInteraction
+          updateGameModel m' event NoInteraction
       where
         event =
           -- schedule resolving first attack
@@ -378,7 +378,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
         else Right m
 updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTurn _ =
   case runEither of
-    Left err -> withInteraction m $ GameShowErrorInteraction err
+    Left err -> withInteraction m $ ShowErrorInteraction err
     Right pair -> pair
   where
     turn' = nextTurn turn
@@ -409,18 +409,18 @@ updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTur
       let m' = m {anims = boardui' <> boardui'', board = board'', gameShared = shared'', turn = turn'}
       return (m', events)
 -- Hovering in hand cards
-updateGameModel m (GameInHandMouseEnter i) GameNoInteraction =
-  withInteraction m $ GameHoverInteraction $ Hovering i
+updateGameModel m (GameInHandMouseEnter i) NoInteraction =
+  withInteraction m $ HoverInteraction $ Hovering i
 updateGameModel m (GameInHandMouseLeave _) _ =
-  withInteraction m GameNoInteraction
+  withInteraction m NoInteraction
 -- Hovering in place cards
-updateGameModel m (GameInPlaceMouseEnter target) GameNoInteraction =
-  withInteraction m $ GameHoverInPlaceInteraction target
+updateGameModel m (GameInPlaceMouseEnter target) NoInteraction =
+  withInteraction m $ HoverInPlaceInteraction target
 updateGameModel m (GameInPlaceMouseLeave _) _ =
-  withInteraction m GameNoInteraction
+  withInteraction m NoInteraction
 -- Debug cmd
 updateGameModel m GameExecuteCmd i =
-  withInteraction m $ GameShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
+  withInteraction m $ ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
 updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
   withInteraction
     (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
@@ -620,7 +620,7 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameSh
      in case Command.read cmdStr of
           Nothing ->
             let errMsg = "Unrecognized command: " ++ cmdStr
-             in noEff $ GameModel' $ gm {interaction = GameShowErrorInteraction $ Text.pack errMsg}
+             in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
           Just (Command.Gimme cid) ->
             let board' = boardAddToHand board playingPlayer $ IDC cid
              in noEff $ GameModel' $ gm {board = board'}
@@ -714,7 +714,7 @@ unsafeInitialGameModel shared board =
   GameModel
     shared
     board
-    GameNoInteraction
+    NoInteraction
     startingPlayerSpot
     initialTurn
     mempty

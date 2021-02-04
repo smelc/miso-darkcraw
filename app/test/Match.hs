@@ -159,7 +159,7 @@ playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
             go model' (map snd seq ++ actions)
     getErr m@GameModel {interaction} =
       case interaction of
-        GameShowErrorInteraction err -> Left err
+        ShowErrorInteraction err -> Left err
         _ -> Right m
 
 eventToGameActions ::

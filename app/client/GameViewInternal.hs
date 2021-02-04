@@ -48,7 +48,7 @@ import ViewInternal
 errView :: GameModel -> Int -> Maybe (View Action)
 errView GameModel {interaction} z =
   case interaction of
-    GameShowErrorInteraction msg ->
+    ShowErrorInteraction msg ->
       Just $ div_ [style_ errViewStyle] $ [textView msg] ++ feedbackViews
     _ -> Nothing
   where
@@ -230,9 +230,9 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
 borderWidth :: GameModel -> Game.Target -> Int
 borderWidth GameModel {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
-    (GameDragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
-    (GameHoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
-    (GameHoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
+    (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
+    (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
+    (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
       let attacker = boardToInPlaceCreature board pSpotHov cSpotHov
        in let skills' = maybe [] skills attacker & map Card.liftSkill
            in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots skills' cSpotHov

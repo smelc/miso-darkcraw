@@ -75,7 +75,7 @@ viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = 
         <> "background-image" =: assetsUrl "forest-hand.png"
     dragTargetType =
       case interaction of
-        GameDragInteraction (Dragging (HandIndex i) _) ->
+        DragInteraction (Dragging (HandIndex i) _) ->
           case boardToHand board playingPlayer & flip lookupHand i & runExcept of
             Left err -> traceShow (Text.unpack err) Nothing
             Right id -> Just $ idToTargetType id
@@ -198,7 +198,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
     (x, y) = cardCellsBoardOffset pSpot cSpot
-    beingHovered = interaction == GameHoverInPlaceInteraction target
+    beingHovered = interaction == HoverInPlaceInteraction target
     attackEffect =
       anims ^. spotToLens pSpot . field' @"inPlace" . #unInPlaceEffects . ix cSpot
     bounceStyle =
@@ -252,10 +252,10 @@ dragDropEvents target =
   where
     lift = GameAction'
 
-borderRGB :: GameInteraction -> Game.Target -> (Int, Int, Int)
+borderRGB :: Eq a => Interaction a -> a -> (Int, Int, Int)
 borderRGB interaction target =
   case interaction of
-    GameDragInteraction Dragging {dragTarget} | dragTarget == Just target -> yellowRGB
+    DragInteraction Dragging {dragTarget} | dragTarget == Just target -> yellowRGB
     _ -> greenRGB
 
 boardToInHandCells ::
@@ -319,7 +319,8 @@ data HandDrawingInput = HandDrawingInput
   { -- | The hand, and whether the corresponding card is being faded in
     hdiHand :: [(Card 'Core, Bool)],
     -- | The current interaction, if any
-    hdiInteraction :: Maybe GameInteraction,
+    hdiInteraction :: Maybe (Interaction Game.Target), -- FIXME @smelc do not hardcode Game.Target
+
     -- | How to offset the default position of the hand's cards
     hdiOffseter :: HandOffseter,
     -- | The team of the hand being drawn
@@ -354,11 +355,11 @@ boardToInHandCell
     where
       (beingHovered, beingDragged) =
         case interaction of
-          Just (GameHoverInteraction Hovering {hoveredCard}) ->
+          Just (HoverInteraction Hovering {hoveredCard}) ->
             (hoveredCard == i, False)
-          Just (GameDragInteraction Dragging {draggedCard}) ->
+          Just (DragInteraction Dragging {draggedCard}) ->
             (False, draggedCard == i)
-          Just (GameShowErrorInteraction _) -> (False, False)
+          Just (ShowErrorInteraction _) -> (False, False)
           _ -> (False, False)
       loc = if beingDragged then GameDragLoc else GameHandLoc
       rightmargin = cps * 2
