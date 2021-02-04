@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -310,15 +311,7 @@ data HandActionizer a = HandActionizer
     -- The event to raise when stopping hovering a card
     onMouseLeave :: HandIndex -> a
   }
-
-instance Functor HandActionizer where
-  fmap f HandActionizer {..} =
-    HandActionizer
-      { onDragStart = f . onDragStart,
-        onDragEnd = f onDragEnd,
-        onMouseEnter = f . onMouseEnter,
-        onMouseLeave = f . onMouseLeave
-      }
+  deriving (Functor)
 
 type HandOffseter = (Int, Int) -> (Int, Int)
 
