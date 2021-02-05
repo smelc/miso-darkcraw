@@ -244,13 +244,13 @@ boardToPlayerTarget z m@GameModel {interaction} dragTargetType pSpot =
 -- | The events for placeholders showing drag targets
 dragDropEvents :: Game.Target -> [Attribute Action]
 dragDropEvents target =
-  [ onDragEnter $ lift $ GameDragEnter target,
-    onDragLeave $ lift $ GameDragLeave target,
-    onDrop (AllowDrop True) $ lift GameDrop,
+  [ onDragEnter $ lift $ DragEnter target,
+    onDragLeave $ lift $ DragLeave target,
+    onDrop (AllowDrop True) $ lift Drop,
     dummyOn "dragover"
   ]
   where
-    lift = GameAction'
+    lift = GameAction' . GameDnD
 
 borderRGB :: Eq a => Interaction a -> a -> (Int, Int, Int)
 borderRGB interaction target =
@@ -274,8 +274,8 @@ boardToInHandCells z hdi@HandDrawingInput {hdiHand} =
     zicreatures' = map (\(a, (b, c)) -> (a, b, c)) zicreatures
     actionizer =
       HandActionizer
-        { onDragStart = GameDragStart,
-          onDragEnd = GameDragEnd,
+        { onDragStart = GameDnD . DragStart,
+          onDragEnd = GameDnD DragEnd,
           onMouseEnter = GameInHandMouseEnter,
           onMouseLeave = GameInHandMouseLeave
         }

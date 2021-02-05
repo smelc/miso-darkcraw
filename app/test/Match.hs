@@ -171,14 +171,16 @@ eventToGameActions board event =
     Game.Attack {} -> [Update.GamePlay event]
     Game.NoPlayEvent -> []
     Game.Place target handIndex ->
-      [ Update.GameDragStart handIndex,
-        Update.GameDragEnter target,
-        Update.GameDrop,
-        Update.GameDragEnd
+      [ Update.DragStart handIndex,
+        Update.DragEnter target,
+        Update.Drop,
+        Update.DragEnd
       ]
+        & map GameDnD
     Game.Place' target _ ->
-      [ Update.GameDragStart $ Game.placePrimeToHandIndex board event & fromJust,
-        Update.GameDragEnter target,
-        Update.GameDrop,
-        Update.GameDragEnd
+      [ Update.DragStart $ Game.placePrimeToHandIndex board event & fromJust,
+        Update.DragEnter target,
+        Update.Drop,
+        Update.DragEnd
       ]
+        & map GameDnD

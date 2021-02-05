@@ -169,11 +169,26 @@ data SinglePlayerLobbyAction
   = LobbySelectTeam (Maybe Team)
   deriving (Show, Eq)
 
+data DnDAction a
+  = -- | Dragging card in hand ends. When a successful drop is done,
+    -- this event is fired right after 'Drop'. We rely on that. If Drop
+    -- was fired last, we would miss it. Be careful on untested browsers.
+    DragEnd
+  | -- | Dragging card in hand
+    DragStart HandIndex
+  | -- | In 'GameView', this can play the 'GamePlayEvent' 'Place'
+    Drop
+  | DragEnter a
+  | DragLeave a
+  deriving (Show, Eq)
+
 -- | Actions that are raised by 'GameView'
 data GameAction
-  = -- | Play some game event. It can be an event scheduled by the AI
-    -- | Or a 'EndTurn' 'GamePlayEvent' scheduled because the player
-    -- | pressed "End Turn".
+  = -- | A drag an drop event
+    GameDnD (DnDAction Game.Target)
+  | -- | Play some game event. It can be an event scheduled by the AI
+    -- Or a 'EndTurn' 'GamePlayEvent' scheduled because the player
+    -- pressed "End Turn".
     GamePlay Game.Event
   | -- | Turn was updated previously by 'GameIncrTurn',
     -- time to draw cards from the stack. Then the handler of this event
@@ -181,22 +196,12 @@ data GameAction
     -- is translated to a list of events, iteratively consuming the list.
     GameDrawCards [Game.DrawSource]
   | -- | All actions have been resolved, time to update the turn widget
-    -- | and to schedule 'GameDrawCard'. This does NOT translate
-    -- | to a 'GamePlayEvent'.
+    -- and to schedule 'GameDrawCard'. This does NOT translate
+    -- to a 'GamePlayEvent'.
     GameIncrTurn
-  | -- | Dragging card in hand ends. When a successful drop is done,
-    -- this event is fired right after GameDrop. We rely on that. If GameDrop
-    -- was fired last, we would miss it. Be careful on untested browsers.
-    GameDragEnd
-  | -- | Dragging card in hand
-    GameDragStart HandIndex
-  | -- | This can play the 'GamePlayEvent' 'Place'
-    GameDrop
-  | GameDragEnter Game.Target
-  | GameDragLeave Game.Target
   | -- | End Turn button pressed in turn widget. For player, schedule
-    -- | attacks then 'GameIncrTurn'; for AI, compute its actions,
-    -- | schedule them, and then schedule attack and 'GameIncrTurn'.
+    -- attacks then 'GameIncrTurn'; for AI, compute its actions,
+    -- schedule them, and then schedule attack and 'GameIncrTurn'.
     GameEndTurnPressed
   | -- | Starting hovering card in hand
     GameInHandMouseEnter HandIndex
@@ -289,24 +294,24 @@ updateGameModel ::
 updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
   -- Now onto "normal" stuff:
-updateGameModel m GameDragEnd _ = withInteraction m NoInteraction
-updateGameModel m (GameDragStart i) _
+updateGameModel m (GameDnD DragEnd) _ = withInteraction m NoInteraction
+updateGameModel m (GameDnD (DragStart i)) _
   | isPlayerTurn m =
     withInteraction m $ DragInteraction $ Dragging i Nothing
 updateGameModel
   m
-  GameDrop
+  (GameDnD Drop)
   (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
     playOne m $ Game.Place dragTarget draggedCard
-updateGameModel m GameDrop _
+updateGameModel m (GameDnD Drop) _
   | isPlayerTurn m =
     withInteraction m NoInteraction
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
-updateGameModel m (GameDragEnter target) (DragInteraction dragging)
+updateGameModel m (GameDnD (DragEnter target)) (DragInteraction dragging)
   | isPlayerTurn m =
     withInteraction m $ DragInteraction $ dragging {dragTarget = Just target}
-updateGameModel m (GameDragLeave _) (DragInteraction dragging)
+updateGameModel m (GameDnD (DragLeave _)) (DragInteraction dragging)
   | isPlayerTurn m =
     withInteraction m $ DragInteraction $ dragging {dragTarget = Nothing}
 -- A GamePlayEvent to execute
