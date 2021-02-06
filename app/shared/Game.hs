@@ -467,7 +467,7 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee) =
   case hittee' of
     Just _ -> board'
     Nothing ->
-      board' & spotToLens pSpot . #discarded <>~ [creatureToIdentifier hittee]
+      board' & spotToLens pSpot . #discarded <>~ [hittee & creatureId & IDC]
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:

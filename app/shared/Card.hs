@@ -268,10 +268,6 @@ data ID
   | IDN Neutral
   deriving (Eq, Generic, Ord, Show)
 
--- TODO @smelc Delete me
-creatureToIdentifier :: Creature p -> ID
-creatureToIdentifier Creature {creatureId} = IDC creatureId
-
 cardToIdentifier :: Card p -> ID
 cardToIdentifier card =
   case card of
