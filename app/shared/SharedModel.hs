@@ -16,7 +16,6 @@ module SharedModel
     SharedModel,
     tileToFilepath,
     unsafeGet,
-    unsafeGetSeed,
     unsafeIdentToCard,
     unsafeLiftCard,
     SharedModel.liftSkill,
@@ -81,6 +80,13 @@ create cards skills tiles sharedStdGen =
     sharedTiles = groupBy Tile.tile tiles
     sharedCmd = Nothing
 
+-- | An instance of 'SharedModel' obtained by reading the Json data
+createWithSeed :: Int -> SharedModel
+createWithSeed seed =
+  case loadJson of
+    Left err -> error err
+    Right (cards, _, skills, tiles) -> create cards skills tiles $ mkStdGen seed
+
 cardToFilepath :: SharedModel -> Card UI -> Filepath
 cardToFilepath SharedModel {..} = \case
   CreatureCard Creature {tile} ->
@@ -130,18 +136,7 @@ withStdGen shared stdgen = shared {sharedStdGen = stdgen}
 -- | An instance of 'SharedModel' that is fine for debugging. Don't use
 -- it in production!
 unsafeGet :: SharedModel
-unsafeGet = unsafeGetSeed 42
-
--- TODO @smelc Rename me into createWithSeed. This method is not unsafe
--- because obviously, if loadJson fails, the entire game is broken;
--- so it's fine erroring out.
-
--- | An instance of 'SharedModel' obtained by reading the Json data
-unsafeGetSeed :: Int -> SharedModel
-unsafeGetSeed seed =
-  case loadJson of
-    Left err -> error err
-    Right (cards, _, skills, tiles) -> create cards skills tiles $ mkStdGen seed
+unsafeGet = createWithSeed 42
 
 -- Instead of returning Maybe here, I should add a test that all
 -- Card.ID are mapped by SharedModel and error out
