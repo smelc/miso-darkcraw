@@ -443,12 +443,13 @@ attack board pSpot cSpot =
     attackeesInPlace :: Map CardSpot (Creature Core) =
       board ^. pOtherSpotLens . #inPlace
     attacker :: Maybe (Creature Core) = attackersInPlace !? cSpot
+    attackerCanAttack = (attacker <&> Card.attack & fromMaybe 0) > 0
     attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Card.liftSkill
     allyBlocker :: Maybe (Creature Core) =
       if any (`elem` attackerSkills) [Ranged, LongReach]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
-    attackedSpots :: [CardSpot] = enemySpots attackerSkills cSpot
+    attackedSpots :: [CardSpot] = enemySpots attackerCanAttack attackerSkills cSpot
     -- For the moment a card attacks the first card in front of it. If
     -- later there's a skill Rampage, this will change:
     attackee :: Maybe (CardSpot, Creature Core) =
@@ -513,20 +514,16 @@ allyBlockerSpot _ = Nothing
 
 -- | All enemy spots of a spot
 allEnemySpots :: CardSpot -> [CardSpot]
-allEnemySpots = enemySpots [Ranged]
+allEnemySpots = enemySpots True [Ranged]
 
 -- | Spots that can be attacked from a spot
 -- | Spot as argument is in one player part while spots returned
 -- | are in the other player part.
 -- | The order in the result matters, the first element is the first spot
 -- | attacked, then the second element is attacked if the first spot is empty
-enemySpots :: [Skill] -> CardSpot -> [CardSpot]
-enemySpots skills cSpot =
-  map bottomSpotOfTopVisual $
-    if
-        | Ranged `elem` skills -> spotsInSight
-        | inTheBack cSpot -> if LongReach `elem` skills then take 1 spotsInSight else []
-        | otherwise -> take 1 spotsInSight
+enemySpots :: Bool -> [Skill] -> CardSpot -> [CardSpot]
+enemySpots canAttack skills cSpot =
+  map bottomSpotOfTopVisual base'
   where
     spotsInSight =
       case cSpot of
@@ -536,6 +533,12 @@ enemySpots skills cSpot =
         BottomLeft -> [TopLeft, BottomLeft]
         Bottom -> [Top, Bottom]
         BottomRight -> [TopRight, BottomRight]
+    base =
+      if
+          | Ranged `elem` skills -> spotsInSight
+          | inTheBack cSpot -> if LongReach `elem` skills then take 1 spotsInSight else []
+          | otherwise -> take 1 spotsInSight
+    base' = if canAttack then base else []
 
 -- | The order in which cards attack
 attackOrder :: PlayerSpot -> [CardSpot]

@@ -32,7 +32,7 @@ import Constants
 import Control.Lens
 import Control.Monad.Except
 import qualified Data.Map.Strict as Map
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
 import qualified Game (Target (..), appliesTo, enemySpots)
@@ -234,10 +234,11 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
       let attacker = boardToInPlaceCreature board pSpotHov cSpotHov
-       in let skills' = maybe [] skills attacker & map Card.liftSkill
-           in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots skills' cSpotHov
-                then borderSize
-                else 0
+       in let canAttack = fromMaybe 0 (attacker <&> Card.attack) > 0
+           in let skills' = maybe [] skills attacker & map Card.liftSkill
+               in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots canAttack skills' cSpotHov
+                    then borderSize
+                    else 0
     _ -> 0
   where
     allInPlace :: [(CardSpot, Maybe (Creature Core))] =
