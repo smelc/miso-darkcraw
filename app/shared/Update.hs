@@ -272,8 +272,7 @@ logUpdates update action model = do
 -- | Class defining the behavior of updating 'm' w.r.t. 'Interaction'
 -- and 'DnDAction'
 class Interactable m t mseq | m -> t, m -> mseq where
-  -- | When to start a drag session
-  considerDragStart :: m -> Bool
+  considerAction :: m -> DnDAction t -> Bool
 
   -- | What to do when dropping card at given index, on the given 't' target
   drop :: m -> HandIndex -> t -> mseq
@@ -295,18 +294,30 @@ act ::
   Interaction t ->
   mseq
 act m a i =
-  case (a, i) of
-    (DragEnd, _) -> updateDefault m NoInteraction
-    (DragStart j, _)
-      | considerDragStart m ->
-        updateDefault m $ DragInteraction $ Dragging j Nothing
-    (Drop, DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) ->
+  case (considerAction m a, a, i) of
+    (False, _, _) -> updateDefault m NoInteraction
+    (_, DragEnd, _) -> updateDefault m NoInteraction
+    (_, DragStart j, _) ->
+      updateDefault m $ DragInteraction $ Dragging j Nothing
+    (_, Drop, DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) ->
       Update.drop m draggedCard dragTarget
-    (Drop, _) | stopWrongDrop m -> updateDefault m NoInteraction
+    (_, Drop, _) | stopWrongDrop m -> updateDefault m NoInteraction
+    -- DragEnter cannot create a DragInteraction if there's none yet, we don't
+    -- want to keep track of drag targets if a drag action did not start yet
+    (_, DragEnter t, DragInteraction dragging) ->
+      updateDefault m $ DragInteraction $ dragging {dragTarget = Just t}
+    (_, DragLeave _, DragInteraction dragging) ->
+      updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
     _ -> updateDefault m i
 
 instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
-  considerDragStart m = isPlayerTurn m
+  considerAction m a =
+    case a of
+      DragEnd -> True
+      DragStart _ -> isPlayerTurn m
+      Drop -> True
+      DragEnter _ -> isPlayerTurn m
+      DragLeave _ -> isPlayerTurn m
 
   drop m idx target = playOne m $ Game.Place target idx
 
@@ -343,14 +354,8 @@ updateGameModel m action (ShowErrorInteraction _) =
 updateGameModel m (GameDnD a@DragEnd) i = act m a i
 updateGameModel m (GameDnD a@(DragStart _)) i = act m a i
 updateGameModel m (GameDnD a@Drop) i = act m a i
--- DragEnter cannot create a DragInteraction if there's none yet, we don't
--- want to keep track of drag targets if a drag action did not start yet
-updateGameModel m (GameDnD (DragEnter target)) (DragInteraction dragging)
-  | isPlayerTurn m =
-    updateDefault m $ DragInteraction $ dragging {dragTarget = Just target}
-updateGameModel m (GameDnD (DragLeave _)) (DragInteraction dragging)
-  | isPlayerTurn m =
-    updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
+updateGameModel m (GameDnD a@(DragEnter _)) i = act m a i
+updateGameModel m (GameDnD a@(DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute
 updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
   case Game.play gameShared board gameEvent of
