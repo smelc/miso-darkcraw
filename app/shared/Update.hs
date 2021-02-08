@@ -1,6 +1,8 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -267,11 +269,55 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
+-- | Class defining the behavior of updating 'm' w.r.t. 'Interaction'
+-- and 'DnDAction'
+class Interactable m t mseq | m -> t, m -> mseq where
+  -- | When to start a drag session
+  considerDragStart :: m -> Bool
+
+  -- | What to do when dropping card at given index, on the given 't' target
+  drop :: m -> HandIndex -> t -> mseq
+
+  -- | When to stop a dropping action
+  stopWrongDrop :: m -> Bool
+
+  -- | The default behavior
+  updateDefault :: m -> Interaction t -> mseq
+
+  -- | How to update the abstract state 'm' with the given 'Interaction'
+  withInteraction :: m -> Interaction t -> m
+
+act ::
+  forall m t mseq.
+  Interactable m t mseq =>
+  m ->
+  DnDAction t ->
+  Interaction t ->
+  mseq
+act m a i =
+  case (a, i) of
+    (DragEnd, _) -> updateDefault m NoInteraction
+    (DragStart j, _)
+      | considerDragStart m ->
+        updateDefault m $ DragInteraction $ Dragging j Nothing
+    (Drop, DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) ->
+      Update.drop m draggedCard dragTarget
+    (Drop, _) | stopWrongDrop m -> updateDefault m NoInteraction
+    _ -> updateDefault m i
+
+instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
+  considerDragStart m = isPlayerTurn m
+
+  drop m idx target = playOne m $ Game.Place target idx
+
+  stopWrongDrop m = isPlayerTurn m
+
+  updateDefault m i = (withInteraction m i, [])
+
+  withInteraction m@GameModel {..} i = GameModel {interaction = i, ..}
+
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
-
-withInteraction :: GameModel -> Interaction Game.Target -> (GameModel, GameActionSeq)
-withInteraction m i = (m {interaction = i}, [])
 
 playOne :: GameModel -> Game.Event -> (GameModel, GameActionSeq)
 playOne m gamePlayEvent =
@@ -294,30 +340,21 @@ updateGameModel ::
 updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
   -- Now onto "normal" stuff:
-updateGameModel m (GameDnD DragEnd) _ = withInteraction m NoInteraction
-updateGameModel m (GameDnD (DragStart i)) _
-  | isPlayerTurn m =
-    withInteraction m $ DragInteraction $ Dragging i Nothing
-updateGameModel
-  m
-  (GameDnD Drop)
-  (DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) =
-    playOne m $ Game.Place dragTarget draggedCard
-updateGameModel m (GameDnD Drop) _
-  | isPlayerTurn m =
-    withInteraction m NoInteraction
+updateGameModel m (GameDnD a@DragEnd) i = act m a i
+updateGameModel m (GameDnD a@(DragStart _)) i = act m a i
+updateGameModel m (GameDnD a@Drop) i = act m a i
 -- DragEnter cannot create a DragInteraction if there's none yet, we don't
 -- want to keep track of drag targets if a drag action did not start yet
 updateGameModel m (GameDnD (DragEnter target)) (DragInteraction dragging)
   | isPlayerTurn m =
-    withInteraction m $ DragInteraction $ dragging {dragTarget = Just target}
+    updateDefault m $ DragInteraction $ dragging {dragTarget = Just target}
 updateGameModel m (GameDnD (DragLeave _)) (DragInteraction dragging)
   | isPlayerTurn m =
-    withInteraction m $ DragInteraction $ dragging {dragTarget = Nothing}
+    updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
 -- A GamePlayEvent to execute
 updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
   case Game.play gameShared board gameEvent of
-    Left errMsg -> withInteraction m $ ShowErrorInteraction errMsg
+    Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
     Right (Game.Result board' nexts anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
@@ -340,7 +377,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards []) _ =
   traceShow "GameDrawCards [] should not happen (but is harmless)" (m, [])
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest)) _ =
   case Game.drawCards gameShared board pSpot [fst] of
-    Left errMsg -> withInteraction m $ ShowErrorInteraction errMsg
+    Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
     Right (board', boardui', shared') ->
       ( m {board = board', anims = boardui', gameShared = shared'},
         -- enqueue next event (if any)
@@ -351,7 +388,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
   case em' of
-    Left err -> withInteraction m $ ShowErrorInteraction err
+    Left err -> updateDefault m $ ShowErrorInteraction err
     Right m'@GameModel {board = board'} ->
       if isInitialTurn
         then -- We want a one second delay, to see clearly that the opponent
@@ -383,7 +420,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
         else Right m
 updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTurn _ =
   case runEither of
-    Left err -> withInteraction m $ ShowErrorInteraction err
+    Left err -> updateDefault m $ ShowErrorInteraction err
     Right pair -> pair
   where
     turn' = nextTurn turn
@@ -409,30 +446,30 @@ updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTur
                 let plays = AI.play gameShared board'' turn'
                  in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
               else
-                let drawSoon = drop 1 drawSrcs
+                let drawSoon = Prelude.drop 1 drawSrcs
                  in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
       let m' = m {anims = boardui' <> boardui'', board = board'', gameShared = shared'', turn = turn'}
       return (m', events)
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) NoInteraction =
-  withInteraction m $ HoverInteraction $ Hovering i
+  updateDefault m $ HoverInteraction $ Hovering i
 updateGameModel m (GameInHandMouseLeave _) _ =
-  withInteraction m NoInteraction
+  updateDefault m NoInteraction
 -- Hovering in place cards
 updateGameModel m (GameInPlaceMouseEnter target) NoInteraction =
-  withInteraction m $ HoverInPlaceInteraction target
+  updateDefault m $ HoverInPlaceInteraction target
 updateGameModel m (GameInPlaceMouseLeave _) _ =
-  withInteraction m NoInteraction
+  updateDefault m NoInteraction
 -- Debug cmd
 updateGameModel m GameExecuteCmd i =
-  withInteraction m $ ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
+  updateDefault m $ ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
 updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
-  withInteraction
+  updateDefault
     (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
     i
 -- default
 updateGameModel m _ i =
-  withInteraction m i
+  updateDefault m i
 
 updateSinglePlayerLobbyModel ::
   SinglePlayerLobbyAction ->
