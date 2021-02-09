@@ -669,7 +669,7 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameSh
             let errMsg = "Unrecognized command: " ++ cmdStr
              in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
           Just (Command.Gimme cid) ->
-            let board' = boardAddToHand board playingPlayer $ IDC cid
+            let board' = boardAddToHand board playingPlayer cid
              in noEff $ GameModel' $ gm {board = board'}
           Just c@(Command.Goto _) ->
             noEff $ BuildModel' $ Model.gameToBuild gm

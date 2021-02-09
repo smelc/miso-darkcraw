@@ -117,9 +117,6 @@ allCreatureKinds = [Archer ..]
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
 
--- creatureToFilepath :: Maybe (Creature UI) -> Filepath
--- creatureToFilepath creature = maybe default24Filepath filepath creature
-
 data Creature (p :: Phase) = Creature
   { creatureId :: CreatureID,
     hp :: Int,
@@ -139,11 +136,14 @@ deriving instance Forall Ord p => Ord (Creature p)
 
 deriving instance Forall Show p => Show (Creature p)
 
+-- If you change the first member, change 'allNeutrals' too
 data Neutral
   = Health
   | InfernalHaste
   | Life
-  deriving (Eq, Generic, Ord, Show)
+  deriving (Enum, Eq, Generic, Ord, Show)
+
+allNeutrals = [Health ..]
 
 type family NeutralTeamsType (p :: Phase) where
   NeutralTeamsType UI = [Team]
@@ -168,10 +168,13 @@ deriving instance Forall Ord p => Ord (NeutralObject p)
 
 deriving instance Forall Show p => Show (NeutralObject p)
 
+-- If you change the first member, update 'allItems'
 data Item
   = Crown
   | SwordOfMight
-  deriving (Eq, Generic, Ord, Show)
+  deriving (Enum, Eq, Generic, Ord, Show)
+
+allItems = [Card.Crown ..]
 
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,

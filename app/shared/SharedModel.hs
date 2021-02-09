@@ -98,19 +98,35 @@ cardToFilepath SharedModel {..} = \case
 
 getAllCommands :: SharedModel -> [Command]
 getAllCommands shared =
-  map Gimme cids ++ [Goto v | v <- Command.allViews]
+  map Gimme cids
+    ++ map Gimme items
+    ++ map Gimme neutrals
+    ++ [Goto v | v <- Command.allViews]
   where
     cids =
       getCardIdentifiers shared
         & map (\case IDC cid -> Just cid; _ -> Nothing)
         & catMaybes
         & sortBy compareCID
+        & map IDC
     compareCID
       CreatureID {creatureKind = ck1, team = t1}
       CreatureID {creatureKind = ck2, team = t2} =
         case compare t1 t2 of
           EQ -> compare ck1 ck2
           x -> x
+    items =
+      getCardIdentifiers shared
+        & map (\case IDI i -> Just i; _ -> Nothing)
+        & catMaybes
+        & sortOn show
+        & map IDI
+    neutrals =
+      getCardIdentifiers shared
+        & map (\case IDN n -> Just n; _ -> Nothing)
+        & catMaybes
+        & sortOn show
+        & map IDN
 
 getCardIdentifiers :: SharedModel -> [Card.ID]
 getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards

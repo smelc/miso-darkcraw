@@ -30,7 +30,7 @@ instance Show View where
 -- and 'getAllCommands' in SharedModel
 data Command
   = -- | Command to obtain an extra card in the hand in GameView
-    Gimme CreatureID
+    Gimme Card.ID
   | -- | Command to go to another view GameView
     Goto View
 
@@ -39,12 +39,18 @@ data Command
 -- to depend on SharedModel.
 allCommands :: [Command]
 allCommands =
-  [Gimme $ CreatureID kind team | kind <- allCreatureKinds, team <- allTeams]
+  [Gimme $ Card.IDC $ CreatureID kind team | kind <- allCreatureKinds, team <- allTeams]
+    ++ [Gimme $ Card.IDI item | item <- allItems]
+    ++ [Gimme $ Card.IDN neutral | neutral <- allNeutrals]
     ++ [Goto v | v <- allViews]
 
 instance Show Command where
-  show (Gimme CreatureID {..}) =
+  show (Gimme (Card.IDC CreatureID {..})) =
     "gimme " ++ (show team & toLowerString) ++ " " ++ (show creatureKind & toLowerString)
+  show (Gimme (Card.IDI item)) =
+    "gimme " ++ (show item & toLowerString)
+  show (Gimme (Card.IDN neutral)) =
+    "gimme " ++ (show neutral & toLowerString)
   show (Goto v) =
     "goto " ++ show v
 
