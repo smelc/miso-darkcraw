@@ -78,7 +78,7 @@ viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = 
         DragInteraction (Dragging (HandIndex i) _) ->
           case boardToHand board playingPlayer & flip lookupHand i & runExcept of
             Left err -> traceShow (Text.unpack err) Nothing
-            Right id -> Just $ idToTargetType id
+            Right id -> Just $ targetType id
         _ -> Nothing
 
 cmdDiv :: SharedModel -> [View Action]

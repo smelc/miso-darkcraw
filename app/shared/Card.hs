@@ -326,28 +326,20 @@ data CardTargetKind
     Hole
   | -- | Card targets occupied 'CardSpot'
     Occupied
-  deriving (Show)
+  deriving (Eq, Show)
 
 data TargetType = CardTargetType CardTargetKind | PlayerTargetType
-  deriving (Show)
+  deriving (Eq, Show)
 
 -- | The kind of Game target a neutral likes
-targetType :: Neutral -> TargetType
-targetType n =
-  case n of
-    Health -> CardTargetType Occupied
-    Life -> CardTargetType Occupied
-    InfernalHaste -> PlayerTargetType
-
-idToTargetType :: ID -> TargetType
-idToTargetType id =
+targetType :: Card.ID -> TargetType
+targetType id =
   case id of
-    -- creatures are placed on empty spots
     IDC _ -> CardTargetType Hole
-    IDN n -> targetType n
-    -- items are placed on spots
-    -- occupied by creatures
     IDI _ -> CardTargetType Occupied
+    IDN Health -> CardTargetType Occupied
+    IDN Life -> CardTargetType Occupied
+    IDN InfernalHaste -> PlayerTargetType
 
 -- | The total attack of a creature, including boosts of skills and items.
 -- This would make more sense to be in 'Game', but alas this is more

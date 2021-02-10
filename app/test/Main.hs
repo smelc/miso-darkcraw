@@ -85,7 +85,7 @@ testPlayLastHandCard shared =
       case lastCardIdx board pSpot of
         Nothing -> Nothing
         Just i ->
-          let (id, targetKind) = (boardToHand board pSpot !! i, idToTargetType id)
+          let (id, targetKind) = (boardToHand board pSpot !! i, targetType id)
            in case targetKind of
                 PlayerTargetType -> Just $ Game.Place (PlayerTarget pSpot) $ HandIndex i -- Choosing pSpot is arbitrary
                 CardTargetType ctk ->
@@ -124,7 +124,7 @@ testPlayFraming shared =
         id : hand' ->
           if breaksFraming id
             then pickCardSpot (boardSetHand board pSpot hand') (i + 1) pSpot -- try next card
-            else case idToTargetType id of
+            else case targetType id of
               PlayerTargetType -> Nothing
               CardTargetType ctk ->
                 boardToPlayerCardSpots board pSpot ctk

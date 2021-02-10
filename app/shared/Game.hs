@@ -394,16 +394,26 @@ transferCardsM board pSpot =
 -- on 'target'
 appliesTo :: Board Core -> Neutral -> PlayerSpot -> Target -> Bool
 appliesTo board n playingPlayer target =
-  -- FIXME @smelc refactor me to have exhaustive matching on n
-  -- Otherwise it's a place I'll forget to update when introducing a new Neutral
-  case (target, n) of
-    (PlayerTarget pSpot, InfernalHaste)
-      | pSpot == playingPlayer -> True
-    (CardTarget pSpot cSpot, Health)
-      | pSpot == playingPlayer -> Board.appliesTo n board pSpot cSpot
-    (CardTarget pSpot cSpot, Life)
-      | pSpot == playingPlayer -> Board.appliesTo n board pSpot cSpot
-    (_, _) -> False
+  -- There could be more code sharing by matching 'n' and 'target'
+  -- simultaneously, but I'd loose the exhaustive pattern on 'Neutral'
+  -- values. I prefer keeping the associated warning here.
+  case n of
+    InfernalHaste ->
+      case target of
+        PlayerTarget pSpot | pSpot == playingPlayer -> True
+        _ -> False
+    Health ->
+      case target of
+        CardTarget pSpot cSpot
+          | pSpot == playingPlayer ->
+            Board.appliesTo (IDN n) board pSpot cSpot
+        _ -> False
+    Life ->
+      case target of
+        CardTarget pSpot cSpot
+          | pSpot == playingPlayer ->
+            Board.appliesTo (IDN n) board pSpot cSpot
+        _ -> False
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
