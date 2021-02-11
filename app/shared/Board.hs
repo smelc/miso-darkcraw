@@ -502,7 +502,7 @@ appliesTo id board pSpot cSpot =
   case (Card.targetType id, boardToInPlaceCreature board pSpot cSpot) of
     (Card.CardTargetType Occupied, Just _) -> True
     (Card.CardTargetType Hole, Nothing) -> True
-    (Card.PlayerTargetType, _) -> True
+    (Card.PlayerTargetType, Nothing) -> True
     _ -> False
 
 ------------------------------

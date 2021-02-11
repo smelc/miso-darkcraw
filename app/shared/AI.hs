@@ -158,7 +158,7 @@ targets ::
   [Target]
 targets board playingPlayer id =
   case (Card.targetType id, whichPlayerTarget id) of
-    (CardTargetType ctk, Playing) ->
+    (CardTargetType ctk, Game.Playing) ->
       cardTargets playingPlayer ctk
     (CardTargetType ctk, Opponent) ->
       cardTargets (otherPlayerSpot playingPlayer) ctk
@@ -169,18 +169,6 @@ targets board playingPlayer id =
   where
     cardTargets pSpot ctk =
       boardToPlayerCardSpots board pSpot ctk & map (CardTarget pSpot)
-
--- | Whether the AI tries to play a neutral card on the playing player
--- or the  opponent. We could even try both, but we don't do that.
-data WhichPlayerTarget = Playing | Opponent
-
-whichPlayerTarget :: Card.ID -> WhichPlayerTarget
-whichPlayerTarget = \case
-  IDC _ -> Playing
-  IDI _ -> Playing
-  IDN Health -> Playing
-  IDN InfernalHaste -> Playing
-  IDN Life -> Playing
 
 -- | The score of placing a card at the given position
 scorePlace ::

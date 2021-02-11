@@ -30,6 +30,8 @@ module Game
     transferCards,
     Target (..),
     Game.appliesTo,
+    whichPlayerTarget,
+    WhichPlayerTarget (..),
   )
 where
 
@@ -70,6 +72,19 @@ data Target
 targetToPlayerSpot :: Target -> PlayerSpot
 targetToPlayerSpot (PlayerTarget pSpot) = pSpot
 targetToPlayerSpot (CardTarget pSpot _) = pSpot
+
+-- | Whether a card makes sense on the playing player
+-- or the  opponent. We could even try both, but we don't do that
+-- for now
+data WhichPlayerTarget = Playing | Opponent
+
+whichPlayerTarget :: Card.ID -> WhichPlayerTarget
+whichPlayerTarget = \case
+  IDC _ -> Playing
+  IDI _ -> Playing
+  IDN Health -> Playing
+  IDN InfernalHaste -> Playing
+  IDN Life -> Playing
 
 data Event
   = -- | A card attacks at the given spot. The first Boolean indicates
@@ -390,29 +405,23 @@ transferCardsM board pSpot =
     discarded = boardToDiscarded board pSpot
     part = boardToPart board pSpot
 
--- | board n pSpot target holds iff player at 'pSpot' can play card 'n'
+-- | board id pSpot target holds iff player at 'pSpot' can play card 'id'
 -- on 'target'
-appliesTo :: Board Core -> Neutral -> PlayerSpot -> Target -> Bool
-appliesTo board n playingPlayer target =
-  -- There could be more code sharing by matching 'n' and 'target'
-  -- simultaneously, but I'd loose the exhaustive pattern on 'Neutral'
-  -- values. I prefer keeping the associated warning here.
-  case n of
-    InfernalHaste ->
-      case target of
-        PlayerTarget pSpot | pSpot == playingPlayer -> True
-        _ -> False
-    Health ->
-      case target of
-        CardTarget pSpot cSpot
-          | pSpot == playingPlayer ->
-            Board.appliesTo (IDN n) board pSpot cSpot
-        _ -> False
-    Life ->
-      case target of
-        CardTarget pSpot cSpot
-          | pSpot == playingPlayer ->
-            Board.appliesTo (IDN n) board pSpot cSpot
+appliesTo :: Board Core -> Card.ID -> PlayerSpot -> Target -> Bool
+appliesTo board id playingPlayer target =
+  correctPlayer && correctHoleyness
+  where
+    correctPlayer =
+      case whichPlayerTarget id of
+        Playing -> targetToPlayerSpot target == playingPlayer
+        Opponent -> targetToPlayerSpot target /= playingPlayer
+    correctHoleyness =
+      case (target, Card.targetType id) of
+        (CardTarget pSpot cSpot, CardTargetType Hole) ->
+          boardToInPlaceCreature board pSpot cSpot & isNothing
+        (CardTarget pSpot cSpot, CardTargetType Occupied) ->
+          boardToInPlaceCreature board pSpot cSpot & isJust
+        (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board

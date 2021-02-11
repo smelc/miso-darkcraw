@@ -241,21 +241,10 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
                     else 0
     _ -> 0
   where
-    allInPlace :: [(CardSpot, Maybe (Creature Core))] =
-      boardToPlayerHoleyInPlace board playingPlayer
-    playingPlayerCardsSpots :: [CardSpot] =
-      [c | (c, m) <- allInPlace, isJust m]
-    emptyPlayingPlayerSpot pSpot cSpot =
-      cSpot `notElem` playingPlayerCardsSpots && pSpot == playingPlayer
     cond hi =
       case handCard $ unHandIndex hi of
         Left errMsg -> trace (Text.unpack errMsg) False
-        Right card ->
-          case (card, pTarget) of
-            (IDC _, Game.CardTarget pSpot cSpot) -> emptyPlayingPlayerSpot pSpot cSpot
-            (IDC _, _) -> False
-            (IDN n, _) -> Game.appliesTo board n playingPlayer pTarget
-            (i, _) -> error $ "Unhandled identifier: " ++ show i
+        Right id -> Game.appliesTo board id playingPlayer pTarget
     handCard i = lookupHand (boardToHand board playingPlayer) i & runExcept
 
 deathFadeout :: InPlaceEffect -> Int -> Int -> Styled [View Action]
