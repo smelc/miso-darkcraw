@@ -176,8 +176,11 @@ playM shared board (Place target (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let card = unsafeIdentToCard shared ident & unliftCard
   case (target, card) of
-    (CardTarget pSpot cSpot, CreatureCard card) -> do
-      board'' <- playCardTargetM board' pSpot cSpot card
+    (CardTarget pSpot cSpot, CreatureCard creature) -> do
+      board'' <- playCreatureM board' pSpot cSpot creature
+      return (board'', Nothing)
+    (CardTarget pSpot cSpot, ItemCard itemObj) -> do
+      board'' <- playItemM board' pSpot cSpot $ Card.item itemObj
       return (board'', Nothing)
     (_, NeutralCard NeutralObject {neutral}) ->
       playPlayerTargetM board' playingPlayer target neutral
@@ -247,7 +250,7 @@ playPlayerTargetM board _playingPlayer target n =
             c' = c {hp = hp + hps}
             board' = boardSetCreature board pSpot cSpot c'
 
-playCardTargetM ::
+playCreatureM ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
   Board Core ->
@@ -255,8 +258,9 @@ playCardTargetM ::
   CardSpot ->
   Creature Core ->
   m (Board Core)
-playCardTargetM board pSpot cSpot creature = do
-  when (Map.member cSpot onTable) $ throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
+playCreatureM board pSpot cSpot creature = do
+  when (Map.member cSpot inPlace) $
+    throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
   let inPlace' =
         -- Left-biased union
         Map.union
@@ -264,15 +268,14 @@ playCardTargetM board pSpot cSpot creature = do
               then Map.fromList disciplinedNeighbors'
               else mempty
           )
-          (Map.insert cSpot creature onTable)
-  let part' = base {inPlace = inPlace'}
+          (Map.insert cSpot creature inPlace)
+  let part' = part {inPlace = inPlace'}
   reportEffect pSpot cSpot $ mempty {fadeIn = True}
   when (hasDiscipline creature) $
     traverse_ ((\cSpot -> reportEffect pSpot cSpot disciplineEffect) . fst) disciplinedNeighbors'
   return $ boardSetPart board pSpot part'
   where
-    base :: PlayerPart Core = boardToPart board pSpot
-    onTable :: Map CardSpot (Creature Core) = inPlace base
+    part@PlayerPart {inPlace} = boardToPart board pSpot
     hasDiscipline c = Discipline' `elem` skills c
     disciplinedNeighbors =
       boardToNeighbors board pSpot cSpot Board.Cardinal
@@ -286,6 +289,27 @@ playCardTargetM board pSpot cSpot creature = do
     disciplinedNeighbors' =
       map (Bifunctor.second applyDisciplineBoost) disciplinedNeighbors
     disciplineEffect = mempty {attackChange = boost, hitPointsChange = boost}
+
+playItemM ::
+  MonadError Text m =>
+  MonadWriter (Board UI) m =>
+  Board Core ->
+  PlayerSpot ->
+  CardSpot ->
+  Item ->
+  m (Board Core)
+playItemM board pSpot cSpot item =
+  case inPlace Map.!? cSpot of
+    Nothing ->
+      throwError $ "Cannot place item on empty spot: " <> Text.pack (show cSpot)
+    Just creature@Creature {items} -> do
+      reportEffect pSpot cSpot $ mempty {fadeIn = True}
+      -- TODO @smelc record animation for item arrival
+      let creature' = creature {items = item : items}
+      return $ boardSetPart board pSpot $ part' creature'
+  where
+    part@PlayerPart {inPlace} = boardToPart board pSpot
+    part' c' = part {inPlace = Map.insert cSpot c' inPlace}
 
 drawCards ::
   SharedModel ->
