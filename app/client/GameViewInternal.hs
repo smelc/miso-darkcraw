@@ -49,7 +49,9 @@ errView :: GameModel -> Int -> Maybe (View Action)
 errView GameModel {interaction} z =
   case interaction of
     ShowErrorInteraction msg ->
-      Just $ div_ [style_ errViewStyle] $ [textView msg] ++ feedbackViews
+      Just $
+        trace (Text.unpack msg) $ -- Log it to console
+          div_ [style_ errViewStyle] $ [textView msg] ++ feedbackViews
     _ -> Nothing
   where
     (width, height) = (504, 168)
