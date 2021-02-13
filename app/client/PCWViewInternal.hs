@@ -98,10 +98,8 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
     else pure $ builder []
   where
     topMargin = cps `div` 4
-    picSize =
-      case card of CreatureCard _ -> cps; NeutralCard _ -> 16; ItemCard _ -> 16
     pictureStyle =
-      zplt (z + 1) Absolute ((cardPixelWidth - picSize) `div` 2) topMargin
+      zplt (z + 1) Absolute ((cardPixelWidth - picSize card) `div` 2) topMargin
     filepath =
       SharedModel.unsafeLiftCard shared card
         & SharedModel.cardToFilepath shared
@@ -126,9 +124,10 @@ cardView' loc z shared card =
   -- of having SharedModel around.
   case (card, ui) of
     -- drawing of Creature cards
-    (CreatureCard core@Creature {skills}, CreatureCard Creature {hp}) ->
+    (CreatureCard core@Creature {skills}, CreatureCard Creature {hp, items}) ->
       [div_ [style_ statsStyle] [statsCell]]
         ++ [div_ [style_ skillsStyle] skillsDivs]
+        ++ itemDivs
       where
         inStatsStyle = flexLineStyle <> fontStyle
         statsCell =
@@ -148,6 +147,8 @@ cardView' loc z shared card =
             <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
             <> fontStyle
         skillsDivs = map (skillDiv shared) skills
+        itemDivs =
+          map (\(i, item) -> itemDiv zpp shared i item) $ zip [0 ..] items
     -- drawing of Item cards
     (_, ItemCard ItemObject {ititle = title, itext = txt}) ->
       [itemNeutralView zpp fontStyle leftMargin title txt]
@@ -162,9 +163,7 @@ cardView' loc z shared card =
     statsTopMargin = topMargin * 2 + cps
     statsStyle = zpltwh (z + 1) Absolute leftMargin statsTopMargin width cps
     fontSize = cps `div` 2
-    fontStyle =
-      "font-size" =: px fontSize
-        <> "font-family" =: "serif"
+    fontStyle = "font-size" =: px fontSize <> "font-family" =: "serif"
     width = cardPixelWidth - (topMargin * 2)
     zpp = z + 1
 
@@ -202,6 +201,28 @@ skillDiv shared skill =
         Stupid4' i -> skillTitle ui ++ " " ++ show (i + 1) ++ "/4"
         _ -> skillTitle ui
     hover = title_ $ ms (skillText ui & typeset)
+
+-- | Div to show an item on a creature in place
+itemDiv :: Int -> SharedModel -> Int -> ItemObject UI -> View a
+itemDiv z shared i iobj =
+  div_ [style_ itemStyle] [pictureCell]
+  where
+    itemStyle =
+      "z-index" =: ms z
+        <> "position" =: "absolute"
+        <> "left" =: px (cardPixelWidth - (imgSize `div` 2))
+        <> "top" =: px (i * (imgSize + (imgSize `div` 4)))
+    imgSize = picSize card
+    card = ItemCard iobj
+    filepath =
+      SharedModel.cardToFilepath shared card
+        & filepathToString
+        & ms
+    pictureCell = imgCellwh filepath imgSize imgSize
+
+picSize :: Card p -> Int
+picSize card =
+  case card of CreatureCard _ -> cps; NeutralCard _ -> 16; ItemCard _ -> 16
 
 typeset :: String -> String
 typeset x = go x replacements
