@@ -200,10 +200,16 @@ liftNeutralObject shared NeutralObject {neutral} =
 -- | Translates a 'Core' 'Creature' into an 'UI' one, keeping its stats
 -- An alternative implementation could return the pristine, formal, UI card.
 liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
-liftCreature SharedModel {sharedCards} c@Creature {..} =
+liftCreature s@SharedModel {sharedCards} c@Creature {..} =
   case sharedCards Map.!? IDC creatureId of
     Nothing -> Nothing
-    Just (CreatureCard Creature {tile}) -> Just $ Creature {skills = map Card.liftSkill skills, ..}
+    Just (CreatureCard Creature {tile}) ->
+      Just $
+        Creature
+          { items = map (\i -> liftItemObject s (ItemObject i () () ())) items,
+            skills = map Card.liftSkill skills,
+            ..
+          }
     Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
 liftSkill :: SharedModel -> Skill -> SkillPack

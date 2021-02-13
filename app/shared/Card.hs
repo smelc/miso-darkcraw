@@ -76,6 +76,10 @@ data Phase
     -- maluses or bonuses), etc.
     UI
 
+type family ItemType (p :: Phase) where
+  ItemType UI = ItemObject UI
+  ItemType Core = Item
+
 type family SkillType (p :: Phase) where
   SkillType UI = Skill
   SkillType Core = SkillCore
@@ -89,7 +93,8 @@ type family TileType (p :: Phase) where
   TileType Core = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (SkillType p),
+  ( c (ItemType p),
+    c (SkillType p),
     c (TextType p),
     c (TileType p),
     c (NeutralTeamsType p)
@@ -122,7 +127,7 @@ data Creature (p :: Phase) = Creature
     hp :: Int,
     -- | Beware when using this accessor, you may want 'totalAttack' instead
     attack :: Int,
-    items :: [Item],
+    items :: [ItemType p],
     moral :: Maybe Int,
     victoryPoints :: Int,
     skills :: [SkillType p],
@@ -218,7 +223,7 @@ liftSkill skill =
 -- it is NOT harmless! Use only when initializing data.
 unliftCreature :: Creature UI -> Creature Core
 unliftCreature Creature {..} =
-  Creature creatureId hp attack items moral victoryPoints (map unliftSkill skills) ()
+  Creature creatureId hp attack (map Card.item items) moral victoryPoints (map unliftSkill skills) ()
 
 unliftCard :: Card UI -> Card Core
 unliftCard card =
