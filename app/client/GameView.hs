@@ -180,7 +180,15 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
             -- would trigger GameDragLeave/GameDragEnter events (because the
             -- parent 'v' declares them) which disturbs dropping
             -- of neutral cards.
-            return $ div_ [style_ $ "pointer-events" =: "none"] [v]
+            let attr =
+                  case dragTargetType of
+                    -- Not dragging, don't disable nested events: we want hover
+                    -- to be handled. Also, for consistency with hand, do
+                    -- not make text selectable
+                    Nothing -> noDrag
+                    -- Dragging: disable nested events (see above)
+                    Just _ -> style_ $ "pointer-events" =: "none"
+            return $ div_ [attr] [v]
       return $ maybeToList cards ++ death ++ heartw ++ heartg ++ attackg
   where
     t = boardToPart board pSpot & Board.team
