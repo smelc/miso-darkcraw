@@ -32,8 +32,9 @@ jsonData = "{\n\
          \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain 3 HP\"                , \"teams\": [\"human\"]  }\n\
          \  ],\n\
          \  \"items\": [\n\
-         \    { \"name\":\"crown\",        \"title\":\"Crown\",          \"tile\":\"Crown\",  \"text\":\"Gives the discipline skill\" },\n\
-         \    { \"name\":\"swordofmight\", \"title\":\"Sword of Might\", \"tile\":\"Sword2\", \"text\":\"+1 :heart:  +1:crossed_swords:\" }\n\
+         \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\" },\n\
+         \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\" },\n\
+         \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\" }\n\
          \  ],\n\
          \  \"tiles\": [\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\
@@ -58,6 +59,7 @@ jsonData = "{\n\
          \    { \"tile\":\"HumanArcher\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":0 } },\n\
          \    { \"tile\":\"HumanGeneral\",  \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":0 } },\n\
          \    { \"tile\":\"HumanKnight\",   \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":0 } },\n\
+         \    { \"tile\":\"FlailOfTheDamned\", \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":2 } },\n\
          \    { \"tile\":\"SkullRedEyes\",  \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":2 } },\n\
          \    { \"tile\":\"Sword1\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"Sword2\",        \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":1 } },\n\

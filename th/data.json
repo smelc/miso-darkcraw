@@ -21,8 +21,9 @@
     { "name":"life",          "title":"Life",   "tile":"GreenPotion",  "text":"Gain 3 HP"                , "teams": ["human"]  }
   ],
   "items": [
-    { "name":"crown",        "title":"Crown",          "tile":"Crown",  "text":"Gives the discipline skill" },
-    { "name":"swordofmight", "title":"Sword of Might", "tile":"Sword2", "text":"+1 :heart:  +1:crossed_swords:" }
+    { "name":"crown",            "title":"Crown",               "tile":"Crown",            "text":"Gives the discipline skill" },
+    { "name":"flailofthedamned", "title":"Flail of the Damned", "tile":"FlailOfTheDamned", "text":"Each kill creates a skeleton" },
+    { "name":"swordofmight",     "title":"Sword of Might",      "tile":"Sword2",           "text":"+1 :heart:  +1:crossed_swords:" }
   ],
   "tiles": [
     { "tile":"BlackAppears0", "filepath": { "root": "24x24", "x":0, "y":6 } },
@@ -47,6 +48,7 @@
     { "tile":"HumanArcher",   "filepath": { "root": "24x24", "x":2, "y":0 } },
     { "tile":"HumanGeneral",  "filepath": { "root": "24x24", "x":3, "y":0 } },
     { "tile":"HumanKnight",   "filepath": { "root": "24x24", "x":4, "y":0 } },
+    { "tile":"FlailOfTheDamned", "filepath": { "root": "16x16", "x":0, "y":2 } },
     { "tile":"SkullRedEyes",  "filepath": { "root": "16x16", "x":1, "y":2 } },
     { "tile":"Sword1",        "filepath": { "root": "16x16", "x":1, "y":0 } },
     { "tile":"Sword2",        "filepath": { "root": "16x16", "x":3, "y":1 } },

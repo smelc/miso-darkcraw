@@ -43,6 +43,7 @@ data Tile
   | Bones5
   | Bones6
   | Crown
+  | FlailOfTheDamned
   | GreenPotion
   | Heart
   | HumanArcher

@@ -176,6 +176,7 @@ deriving instance Forall Show p => Show (NeutralObject p)
 -- If you change the first member, update 'allItems'
 data Item
   = Crown
+  | FlailOfTheDamned
   | SwordOfMight
   deriving (Enum, Eq, Generic, Ord, Show)
 
