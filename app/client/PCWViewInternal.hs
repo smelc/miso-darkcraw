@@ -97,9 +97,8 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
         animData
     else pure $ builder []
   where
-    topMargin = cps `div` 4
     pictureStyle =
-      zplt (z + 1) Absolute ((cardPixelWidth - picSize card) `div` 2) topMargin
+      zplt (z + 1) Absolute ((cardPixelWidth - picSize card) `div` 2) picTopMargin
     filepath =
       SharedModel.unsafeLiftCard shared card
         & SharedModel.cardToFilepath shared
@@ -107,7 +106,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
         & ms
     pictureCell = imgCell filepath
     builder attrs =
-      div_ attrs $
+      div_ (attrs ++ extraAttrs) $
         [div_ [style_ pictureStyle] [pictureCell]]
           ++ cardView' loc z shared card
           ++ [PCWViewInternal.cardBackground z team cdsty]
@@ -115,8 +114,24 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
       (animationData "handCardFadein" "1s" "ease")
         { animDataFillMode = Just "forwards"
         }
+    extraAttrs =
+      case card of
+        CreatureCard cc ->
+          [ style_ $
+              "overflow-y" =: "auto"
+                <> scrollbarStyle
+                <> "height" =: px (cardPixelHeight - picTopMargin - picSize card)
+          ]
+        (NeutralCard nc) -> [] -- Done in itemNeutralView
+        (ItemCard ic) -> [] -- Done in itemNeutralView
 
-cardView' :: DisplayLocation -> Int -> SharedModel -> Card Core -> [View Action]
+picTopMargin = cps `div` 4
+
+scrollbarStyle =
+  "scrollbar-width" =: "thin"
+    <> "scrollbar-color" =: "#9d9fa0 #333333"
+
+cardView' :: DisplayLocation -> Int -> SharedModel -> Card 'Core -> [View Action]
 cardView' loc z shared card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI
@@ -151,10 +166,10 @@ cardView' loc z shared card =
           map (\(i, item) -> itemDiv zpp shared i item) $ zip [0 ..] items
     -- drawing of Item cards
     (_, ItemCard ItemObject {ititle = title, itext = txt}) ->
-      [itemNeutralView zpp fontStyle leftMargin title txt]
+      [itemNeutralView zpp card fontStyle leftMargin title txt]
     -- drawing of Neutral cards
     (_, NeutralCard NeutralObject {ntitle = title, ntext = txt}) ->
-      [itemNeutralView zpp fontStyle leftMargin title txt]
+      [itemNeutralView zpp card fontStyle leftMargin title txt]
     (core, ui) ->
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
@@ -168,8 +183,9 @@ cardView' loc z shared card =
     zpp = z + 1
 
 -- | Draws an item or neutral card
-itemNeutralView :: Int -> Map.Map MisoString MisoString -> Int -> String -> String -> View a
-itemNeutralView z fontStyle leftMargin title txt =
+itemNeutralView ::
+  Int -> Card 'Core -> Map.Map MisoString MisoString -> Int -> String -> String -> View a
+itemNeutralView z card fontStyle leftMargin title txt =
   div_
     [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
       style_ $ fontStyle <> flexColumnStyle,
@@ -177,6 +193,9 @@ itemNeutralView z fontStyle leftMargin title txt =
         "top" =: px cps
           <> "left" =: px 4 -- So that text doesn't overlap card border
           <> "width" =: px (cardPixelWidth - (4 * 2))
+          <> "height" =: px (cardPixelHeight - picTopMargin - picSize card)
+          <> "overflow-y" =: "auto"
+          <> scrollbarStyle
     ]
     [ div_ [] [text $ ms title],
       div_ [style_ $ "margin-top" =: px (cps `div` 4)] [text $ ms $ typeset txt]

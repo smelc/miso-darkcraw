@@ -299,7 +299,9 @@ teamDeck ::
   -- | The initial deck
   [Card Core]
 teamDeck cards t =
-  map CreatureCard creatures ++ map NeutralCard neutrals
+  map CreatureCard creatures
+    ++ map NeutralCard neutrals
+    ++ map ItemCard items
   where
     kindToCreature :: Map.Map CreatureKind (Creature Core) =
       map cardToCreature cards
@@ -312,8 +314,8 @@ teamDeck cards t =
     -- Initial creatures:
     creatures =
       case t of
-        Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General ++ 3 * Card.Ogre
-        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire ++ 3 * Necromancer
+        Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General
+        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
     kindToNeutral :: Map.Map Neutral (NeutralObject Core) =
       map cardToNeutralObject cards
         & catMaybes
@@ -326,6 +328,10 @@ teamDeck cards t =
       case t of
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste
+    items =
+      map (\case ItemCard i -> Just i; _ -> Nothing) cards
+        & catMaybes
+        & map unliftItemObject
 
 data CardTargetKind
   = -- | Card targets empty 'CardSpot'
