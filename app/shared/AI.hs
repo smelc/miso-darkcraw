@@ -131,7 +131,6 @@ aiPlayFirst :: SharedModel -> Board Core -> Turn -> Maybe Game.Event
 aiPlayFirst shared board turn =
   case boardToHand board pSpot of
     [] -> Nothing
-    i@(IDI _) : _ -> error $ "Unsupported identifier: " ++ show i
     id : _ -> do
       let scores' = scores id & sortByFst
       best <- listToMaybe scores'
@@ -207,7 +206,11 @@ scoreCard = \case
       Health -> -1
       InfernalHaste -> -10
       Life -> -3
-  ItemCard _ -> error "ItemCard unsupported"
+  ItemCard ItemObject {item} ->
+    case item of
+      Crown -> -1
+      FlailOfTheDamned -> -1
+      SwordOfMight -> -1
 
 -- | The score of a skill, smaller values are better. Negative values returned.
 scoreSkill :: SkillCore -> Int
