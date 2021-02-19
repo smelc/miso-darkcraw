@@ -80,6 +80,10 @@ type family ItemType (p :: Phase) where
   ItemType UI = ItemObject UI
   ItemType Core = Item
 
+type family OffsetType (p :: Phase) where
+  OffsetType UI = Int
+  OffsetType Core = ()
+
 type family SkillType (p :: Phase) where
   SkillType UI = Skill
   SkillType Core = SkillCore
@@ -94,6 +98,7 @@ type family TileType (p :: Phase) where
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (ItemType p),
+    c (OffsetType p),
     c (SkillType p),
     c (TextType p),
     c (TileType p),
@@ -185,8 +190,10 @@ allItems = [Card.Crown ..]
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
     itext :: TextType p,
+    itextSzOffset :: OffsetType p,
     itile :: TileType p,
-    ititle :: TextType p
+    ititle :: TextType p,
+    ititleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
@@ -235,7 +242,7 @@ unliftCard card =
 
 unliftItemObject :: ItemObject UI -> ItemObject Core
 unliftItemObject ItemObject {..} =
-  ItemObject {item, itext = (), itile = (), ititle = ()}
+  ItemObject {item, itext = (), itextSzOffset = (), itile = (), ititle = (), ititleSzOffset = ()}
 
 unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =

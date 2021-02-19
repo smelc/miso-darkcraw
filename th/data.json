@@ -22,7 +22,7 @@
   ],
   "items": [
     { "name":"crown",            "title":"Crown",               "tile":"Crown",            "text":"Gives the discipline skill" },
-    { "name":"flailofthedamned", "title":"Flail of the Damned", "tile":"FlailOfTheDamned", "text":"Each kill creates a skeleton" },
+    { "name":"flailofthedamned", "title":"Flail of the Damned", "tile":"FlailOfTheDamned", "text":"Each kill creates a skeleton", "title_sz_offset":-2, "text_sz_offset":-2 },
     { "name":"swordofmight",     "title":"Sword of Might",      "tile":"Sword2",           "text":"+1 :heart:  +1:crossed_swords:" }
   ],
   "tiles": [

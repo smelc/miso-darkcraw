@@ -144,13 +144,13 @@ cardView' loc z shared card =
         ++ [div_ [style_ skillsStyle] skillsDivs]
         ++ itemDivs
       where
-        inStatsStyle = flexLineStyle <> fontStyle
+        inStatsStyle = flexLineStyle <> fontStyle fontSize
         statsCell =
           div_
             [style_ inStatsStyle]
-            [ text $ ms hp,
+            [ Miso.text $ ms hp,
               imgCell assetFilenameHeart,
-              text $ ms $ totalAttack core,
+              Miso.text $ ms $ totalAttack core,
               imgCell assetFilenameSword
             ]
         skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)
@@ -160,16 +160,20 @@ cardView' loc z shared card =
             <> "flex-direction" =: "column"
             <> "align-items" =: "flex-start" -- left
             <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
-            <> fontStyle
+            <> fontStyle fontSize
         skillsDivs = map (skillDiv shared) skills
         itemDivs =
           map (\(i, item) -> itemDiv zpp shared i item) $ zip [0 ..] items
     -- drawing of Item cards
-    (_, ItemCard ItemObject {ititle = title, itext = txt}) ->
-      [itemNeutralView zpp card fontStyle leftMargin title txt]
+    (_, ItemCard ItemObject {ititle = title, ititleSzOffset = titleSzOffset, itext = text, itextSzOffset = textSzOffset}) ->
+      [itemNeutralView zpp card INViewInput {fontStyle = fontStyle offFontSize, ..}]
+      where
+        -- We don't distinguish textSzOffset and titleSzOffset, we just
+        -- take the largest offset.
+        offFontSize = fontSize + min textSzOffset titleSzOffset
     -- drawing of Neutral cards
-    (_, NeutralCard NeutralObject {ntitle = title, ntext = txt}) ->
-      [itemNeutralView zpp card fontStyle leftMargin title txt]
+    (_, NeutralCard NeutralObject {ntitle = title, ntext = text}) ->
+      [itemNeutralView zpp card INViewInput {fontStyle = fontStyle fontSize, ..}]
     (core, ui) ->
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
@@ -178,14 +182,23 @@ cardView' loc z shared card =
     statsTopMargin = topMargin * 2 + cps
     statsStyle = zpltwh (z + 1) Absolute leftMargin statsTopMargin width cps
     fontSize = cps `div` 2
-    fontStyle = "font-size" =: px fontSize <> "font-family" =: "serif"
+    fontStyle fontSize =
+      "font-size" =: px fontSize <> "font-family" =: "serif"
     width = cardPixelWidth - (topMargin * 2)
     zpp = z + 1
 
+data INViewInput = INViewInput
+  { fontStyle :: Map.Map MisoString MisoString,
+    leftMargin :: Int,
+    text :: String,
+    title :: String
+  }
+
 -- | Draws an item or neutral card
 itemNeutralView ::
-  Int -> Card 'Core -> Map.Map MisoString MisoString -> Int -> String -> String -> View a
-itemNeutralView z card fontStyle leftMargin title txt =
+  Int -> Card 'Core -> INViewInput -> View a
+-- itemNeutralView z card fontStyle leftMargin title txt =
+itemNeutralView z card INViewInput {fontStyle, leftMargin, text, title} =
   div_
     [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
       style_ $ fontStyle <> flexColumnStyle,
@@ -197,13 +210,15 @@ itemNeutralView z card fontStyle leftMargin title txt =
           <> "overflow-y" =: "auto"
           <> scrollbarStyle
     ]
-    [ div_ [] [text $ ms title],
-      div_ [style_ $ "margin-top" =: px (cps `div` 4)] [text $ ms $ typeset txt]
+    [ Miso.text $ ms title,
+      div_
+        [style_ $ "margin-top" =: px (cps `div` 4)]
+        [Miso.text $ ms $ typeset text]
     ]
 
 skillDiv :: SharedModel -> SkillCore -> View a
 skillDiv shared skill =
-  div_ [style_ color, hover] [label & ms & text]
+  div_ [style_ color, hover] [label & ms & Miso.text]
   where
     ui = Card.liftSkill skill & SharedModel.liftSkill shared
     color =
@@ -341,7 +356,7 @@ viewEntry mode Context {..} element (Actor mname state@ActorState {direction, te
       ([stateToAttribute (zFor sprite) state] ++ nameTooltip)
       [imgCell path]
   ]
-    ++ [ div_ [bubbleStyle state] [text $ ms $ fromJust telling]
+    ++ [ div_ [bubbleStyle state] [Miso.text $ ms $ fromJust telling]
          | isJust telling
        ]
   where

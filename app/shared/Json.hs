@@ -75,18 +75,6 @@ neutralObjectOptions =
     impl "ntitle" = "title"
     impl s = s
 
-itemObjectOptions :: Options
-itemObjectOptions =
-  defaultOptions
-    { fieldLabelModifier = impl
-    }
-  where
-    impl "item" = "name"
-    impl "itext" = "text"
-    impl "itile" = "tile"
-    impl "ititle" = "title"
-    impl s = s
-
 -- TODO @smelc Rename me into skillPackOptions
 skillUIOptions :: Options
 skillUIOptions =
@@ -120,7 +108,14 @@ instance FromJSON Item where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
 instance FromJSON (ItemObject UI) where
-  parseJSON = genericParseJSON itemObjectOptions
+  parseJSON = withObject "Item" $ \v ->
+    ItemObject
+      <$> v .: "name"
+      <*> v .: "text"
+      <*> v .:? "text_sz_offset" .!= 0
+      <*> v .: "tile"
+      <*> v .: "title"
+      <*> v .:? "title_sz_offset" .!= 0
 
 instance FromJSON Tile
 

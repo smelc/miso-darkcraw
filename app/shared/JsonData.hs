@@ -33,7 +33,7 @@ jsonData = "{\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\" },\n\
-         \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\" },\n\
+         \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2 },\n\
          \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\" }\n\
          \  ],\n\
          \  \"tiles\": [\n\
