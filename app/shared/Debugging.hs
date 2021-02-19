@@ -9,6 +9,7 @@ import qualified Data.Sequence as S
 import Miso
 import Miso.String (MisoString, fromMisoString, ms)
 import Text.Pretty.Simple (pShowNoColor)
+import ViewInternal (flexColumnStyle)
 
 data DebuggingFrame e m = DebuggingFrame e m
   deriving (Eq)
@@ -68,7 +69,7 @@ debugView :: (Show e, Show m) => (m -> View a) -> DebuggingModel e m -> View (De
 debugView _ (Running Empty) = error "debugging model should have at least one frame"
 debugView view (Running (_ :|> DebuggingFrame _ m)) =
   div_
-    [style_ ("display" =: "flex" <> "align-items" =: "start")]
+    [style_ flexColumnStyle]
     [ fmap LiftEvent (view m),
       button_
         [onClick EnterDebugging, style_ ("margin-left" =: "20px")]

@@ -12,13 +12,18 @@ import Model (Model (..))
 import MultiPlayerLobbyView (viewMultiPlayerLobbyModel)
 import SinglePlayerLobbyView (viewSinglePlayerLobbyModel)
 import Update (Action)
-import ViewInternal (renderStyledView)
+import ViewInternal (flexColumnStyle, renderStyledView)
 import WelcomeView (viewWelcomeModel)
 
 viewModel :: Model -> View Action
-viewModel (BuildModel' model) = renderStyledView $ Build.view model
-viewModel (DeckModel' model) = renderStyledView $ viewDeck model
-viewModel (GameModel' model) = renderStyledView $ viewGameModel model
-viewModel (WelcomeModel' model) = renderStyledView $ viewWelcomeModel model
-viewModel (MultiPlayerLobbyModel' model) = viewMultiPlayerLobbyModel model
-viewModel (SinglePlayerLobbyModel' model) = renderStyledView $ viewSinglePlayerLobbyModel model
+viewModel m = center $ go m
+  where
+    go (BuildModel' model) = renderStyledView $ Build.view model
+    go (DeckModel' model) = renderStyledView $ viewDeck model
+    go (GameModel' model) = renderStyledView $ viewGameModel model
+    go (WelcomeModel' model) = renderStyledView $ viewWelcomeModel model
+    go (MultiPlayerLobbyModel' model) = viewMultiPlayerLobbyModel model
+    go (SinglePlayerLobbyModel' model) = renderStyledView $ viewSinglePlayerLobbyModel model
+
+center :: View a -> View a
+center v = div_ [style_ flexColumnStyle] [v]
