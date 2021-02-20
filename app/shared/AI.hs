@@ -73,7 +73,7 @@ play shared board turn =
         ( \events ->
             case Game.playAll shared board events of
               Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
-              Right (Game.Result board' () _) -> Just (boardScore board' pSpot, events)
+              Right (Game.Result _ board' () _) -> Just (boardScore board' pSpot, events)
         )
         possibles
         & catMaybes
@@ -122,7 +122,7 @@ playHand shared board turn =
             pSpot = turnToPlayerSpot turn
             hand' = boardToHand board pSpot & tail
             board' = boardSetHand board pSpot hand' -- Skip first card
-        Right (Game.Result b' () _) ->
+        Right (Game.Result _ b' () _) ->
           event : playHand shared b' turn
 
 -- | Take the hand's first card (if any) and return a [Place] event
@@ -145,7 +145,7 @@ aiPlayFirst shared board turn =
           let board' = Game.play shared board $ Place target handIndex,
           isRight board'
       ]
-    takeBoard (Game.Result b _ _) = b
+    takeBoard (Game.Result _ b _ _) = b
 
 targets ::
   Board Core ->

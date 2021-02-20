@@ -104,7 +104,7 @@ data Event
 
 -- | The polymorphic version of 'Result'. Used for implementors that
 -- do not return events and hence instantiate 'a' by ()
-data PolyResult a = Result (Board Core) a (Board UI)
+data PolyResult a = Result SharedModel (Board Core) a (Board UI)
   deriving (Eq, Show)
 
 -- | The result of playing an 'Event': an updated board, the next event
@@ -129,15 +129,23 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart UI = mempty {inPlace = botInPlace}
 
+reportEffects ::
+  MonadWriter (Board UI) m =>
+  PlayerSpot ->
+  InPlaceEffects ->
+  m ()
+reportEffects pSpot InPlaceEffects {unInPlaceEffects = effects} =
+  traverse_ (\(cSpot, e) -> reportEffect pSpot cSpot e) $ Map.toList effects
+
 play :: SharedModel -> Board Core -> Event -> Either Text Result
 play shared board action =
-  playM shared board action
+  playM board action
     & runWriterT
+    & flip runStateT shared
     & runExcept
-    & build
+    & fmap mkResult
   where
-    build (Left err) = Left err
-    build (Right ((b, es), a)) = Right $ Result b es a
+    mkResult (((b, e), bui), s) = Result s b e bui
 
 -- | Please avoid calling this function if you can. Its effect is
 -- difficult to predict because of cards that create events, as these
@@ -148,9 +156,9 @@ play shared board action =
 playAll :: SharedModel -> Board Core -> [Event] -> Either Text (PolyResult ())
 playAll shared board es = go board mempty es
   where
-    go b anims [] = Right $ Result b () anims
+    go b anims [] = Right $ Result shared b () anims
     go b anims (e : tl) = do
-      Result board' new anims' <- play shared b e
+      Result undefined board' new anims' <- play shared b e
       -- /!\ We're enqueueing the event created by playing 'e' i.e. 'new',
       -- before the rest of the events ('tl'). This means 'tl' will be played in a state
       -- that is NOT the one planned when building 'e : tl' (except if the
@@ -164,15 +172,16 @@ playAll shared board es = go board mempty es
 playM ::
   MonadError Text m =>
   MonadWriter (Board UI) m =>
-  SharedModel ->
+  MonadState SharedModel m =>
   Board Core ->
   Event ->
   m (Board Core, Maybe Event)
-playM _ board (Attack pSpot cSpot _ _) = do
+playM board (Attack pSpot cSpot _ _) = do
   board' <- Game.attack board pSpot cSpot
   return (board', Nothing)
-playM _ board NoPlayEvent = return (board, Nothing)
-playM shared board (Place target (handhi :: HandIndex)) = do
+playM board NoPlayEvent = return (board, Nothing)
+playM board (Place target (handhi :: HandIndex)) = do
+  shared <- get
   ident <- lookupHand hand handi
   let card = unsafeIdentToCard shared ident & unliftCard
   case (target, card) of
@@ -195,10 +204,10 @@ playM shared board (Place target (handhi :: HandIndex)) = do
       -- playingPlayer should be passed instead
       case target of PlayerTarget p -> p; CardTarget p _ -> p
     playingPlayer = pSpot
-playM shared board e@(Place' target id) =
+playM board e@(Place' target id) =
   case placePrimeToHandIndex board e of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
-    Just i -> playM shared board (Place target i)
+    Just i -> playM board (Place target i)
   where
     pSpot = targetToPlayerSpot target
 
@@ -451,8 +460,11 @@ appliesTo board id playingPlayer target =
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
   MonadWriter (Board UI) m =>
+  MonadState SharedModel m =>
   Board Core ->
+  -- The attacker's player spot
   PlayerSpot ->
+  -- The attacker's card spot
   CardSpot ->
   m (Board Core)
 attack board pSpot cSpot =
@@ -470,7 +482,12 @@ attack board pSpot cSpot =
        in do
             reportEffect pSpot cSpot $ mempty {attackBump = True}
             reportEffect attackeePSpot hitSpot effect -- hittee
-            return board'
+            (board'', effects) <-
+              if death effect
+                then applyFlailOfTheDamned board' hitter (pSpot, cSpot)
+                else pure (board', mempty)
+            reportEffects pSpot effects
+            return board''
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
       let hit = Card.totalAttack hitter
@@ -528,6 +545,22 @@ applyInPlaceEffect effect creature@Creature {..} =
   case effect of
     InPlaceEffect {death = True} -> Nothing
     InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = hp + i}
+
+applyFlailOfTheDamned ::
+  MonadState SharedModel m =>
+  -- The input board
+  Board 'Core ->
+  -- The hitter
+  Creature 'Core ->
+  -- The hitter's position
+  (PlayerSpot, CardSpot) ->
+  m (Board 'Core, InPlaceEffects)
+applyFlailOfTheDamned board creature (pSpot, cSpot) =
+  if not hasFlailOfTheDamned
+    then return (board, mempty)
+    else error "not implemented"
+  where
+    hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
 
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> InPlaceEffect

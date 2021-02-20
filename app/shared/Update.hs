@@ -360,12 +360,12 @@ updateGameModel m (GameDnD a@(DragLeave _)) i = act m a i
 updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
   case Game.play gameShared board gameEvent of
     Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
-    Right (Game.Result board' nexts anims') ->
+    Right (Game.Result shared' board' nexts anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
       (m', zip (repeat 1) $ maybeToList event)
       where
-        m' = m {board = board', anims = anims'}
+        m' = m {board = board', gameShared = shared', anims = anims'}
         event = case (gameEvent, nexts) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
             -- enqueue resolving next attack if applicable
@@ -384,7 +384,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest
   case Game.drawCards gameShared board pSpot [fst] of
     Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
     Right (board', boardui', shared') ->
-      ( m {board = board', anims = boardui', gameShared = shared'},
+      ( m {anims = boardui', board = board', gameShared = shared'},
         -- enqueue next event (if any)
         [(1, GameDrawCards rest) | not $ null rest]
       )
@@ -420,8 +420,8 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
           let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ nextTurn turn
-          Game.Result board' () boardui' <- Game.playAll gameShared board placements
-          return $ m {anims = boardui', board = board'}
+          Game.Result shared' board' () boardui' <- Game.playAll gameShared board placements
+          return $ m {anims = boardui', board = board', gameShared = shared'}
         else Right m
 updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTurn _ =
   case runEither of
