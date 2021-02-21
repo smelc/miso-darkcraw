@@ -136,7 +136,9 @@ data Creature (p :: Phase) = Creature
     moral :: Maybe Int,
     victoryPoints :: Int,
     skills :: [SkillType p],
-    tile :: TileType p
+    tile :: TileType p,
+    -- | Creature doesn't go to the discarded stack when killed
+    transient :: Bool
   }
   deriving (Generic)
 
@@ -231,7 +233,11 @@ liftSkill skill =
 -- it is NOT harmless! Use only when initializing data.
 unliftCreature :: Creature UI -> Creature Core
 unliftCreature Creature {..} =
-  Creature creatureId hp attack (map Card.item items) moral victoryPoints (map unliftSkill skills) ()
+  Creature {items = items', skills = skills', tile = tile', ..}
+  where
+    items' = map Card.item items
+    skills' = map unliftSkill skills
+    tile' = ()
 
 unliftCard :: Card UI -> Card Core
 unliftCard card =

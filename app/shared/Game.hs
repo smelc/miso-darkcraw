@@ -527,6 +527,7 @@ applyInPlaceEffectOnBoard ::
 applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee) =
   case hittee' of
     Just _ -> board'
+    Nothing | Card.transient hittee -> board' -- Dont' put hittee in discarded stack
     Nothing ->
       board' & spotToLens pSpot . #discarded <>~ [hittee & creatureId & IDC]
   where

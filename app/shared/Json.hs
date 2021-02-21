@@ -97,6 +97,7 @@ instance FromJSON (Creature UI) where
       <*> v .: "victory_points"
       <*> v .:? "skills" .!= []
       <*> v .: "tile"
+      <*> v .:? "transient" .!= False
 
 instance FromJSON Neutral where
   parseJSON = genericParseJSON toLowerConstructorOptions
