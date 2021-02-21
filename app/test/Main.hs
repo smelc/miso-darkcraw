@@ -58,7 +58,7 @@ testAIRanged :: SharedModel -> Turn -> Board Core
 testAIRanged shared turn =
   case Game.playAll shared board events of
     Left _ -> error "AI failed"
-    Right (Game.Result board' () _) -> board'
+    Right (Game.Result _ board' () _) -> board'
   where
     (t, teams) = (Undead, Teams Undead Undead)
     archer = IDC $ CreatureID Archer t
@@ -135,7 +135,7 @@ testPlayFraming shared =
       Discipline `elem` (idToCreature shared id & fromJust & skills)
     breaksFraming _ = False
     relation _ _ _ (Left _) = True
-    relation board pSpot cSpot (Right (Game.Result board' _ _)) = boardEq board pSpot [cSpot] board'
+    relation board pSpot cSpot (Right (Game.Result _ board' _ _)) = boardEq board pSpot [cSpot] board'
     boardEq (board :: Board 'Core) pSpot cSpots board' =
       let otherSpot = otherPlayerSpot pSpot
        in -- Board must be completely equivalent on part of player that doesn't play
@@ -335,7 +335,7 @@ testAIPlace shared =
                 Pretty (ignoreErrMsg (Game.playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (Game.playAll shared board events'))
   where
     ignoreErrMsg (Left _) = Nothing
-    ignoreErrMsg (Right (Game.Result board' () _)) = Just board'
+    ignoreErrMsg (Right (Game.Result _ board' () _)) = Just board'
     spotsDiffer (Game.Place' (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"
@@ -377,7 +377,7 @@ testPlayScoreMonotonic shared =
                  in monotonic initialScore nextScore
   where
     takeBoard (Left _) = Nothing
-    takeBoard (Right (Game.Result b _ _)) = Just b
+    takeBoard (Right (Game.Result _ b _ _)) = Just b
     monotonic _ Nothing = True -- Nothing to test
     monotonic i (Just j) = j <= i -- Better score is smaller score
 
