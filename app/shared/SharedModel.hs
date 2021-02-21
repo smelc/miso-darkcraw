@@ -32,6 +32,7 @@ module SharedModel
     getAllCommands,
     identToItem,
     identToNeutral,
+    pick,
   )
 where
 
@@ -222,6 +223,19 @@ liftSkill SharedModel {sharedSkills} skill =
     skillText = show skill ++ " not found!"
     skillTitle = skillText
 
+-- | Pick one element at random from the second argument, using the random
+-- generator of 'SharedModel'. Returns the updated 'SharedModel' and the
+-- picked element (being 'Just' if the list non-empty)
+pick :: SharedModel -> [a] -> (SharedModel, Maybe a)
+pick shared@SharedModel {sharedStdGen = stdgen} l =
+  case length l of
+    0 -> (shared, Nothing)
+    len ->
+      let (i, stdgen') = randomR (0, len - 1) stdgen
+       in (shared {sharedStdGen = stdgen'}, Just $ l !! i)
+
+-- | Shuffles the second argument with the random generator
+-- of 'SharedModel'. Returns the shuffle and the updated 'SharedModel'
 shuffle :: SharedModel -> [a] -> (SharedModel, [a])
 shuffle shared@SharedModel {sharedStdGen} l =
   (shared {sharedStdGen = stdgen'}, l')

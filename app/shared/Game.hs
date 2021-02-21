@@ -557,10 +557,22 @@ applyFlailOfTheDamned ::
   m (Board 'Core, InPlaceEffects)
 applyFlailOfTheDamned board creature (pSpot, cSpot) =
   if not hasFlailOfTheDamned
-    then return (board, mempty)
-    else error "not implemented"
+    then return noChange
+    else do
+      shared <- get
+      let spots =
+            boardToPlayerHoleyInPlace board pSpot
+              & filter (isNothing . snd)
+              & map fst
+      let (shared', spawningSpot) = SharedModel.pick shared spots
+      case spawningSpot of
+        Nothing -> return noChange
+        Just spawningSpot -> do
+          put shared'
+          undefined
   where
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
+    noChange = (board, mempty)
 
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> InPlaceEffect
