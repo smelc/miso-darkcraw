@@ -129,14 +129,6 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart UI = mempty {inPlace = botInPlace}
 
-reportEffects ::
-  MonadWriter (Board UI) m =>
-  PlayerSpot ->
-  InPlaceEffects ->
-  m ()
-reportEffects pSpot InPlaceEffects {unInPlaceEffects = effects} =
-  traverse_ (\(cSpot, e) -> reportEffect pSpot cSpot e) $ Map.toList effects
-
 play :: SharedModel -> Board Core -> Event -> Either Text Result
 play shared board action =
   playM board action
@@ -482,12 +474,9 @@ attack board pSpot cSpot =
        in do
             reportEffect pSpot cSpot $ mempty {attackBump = True}
             reportEffect attackeePSpot hitSpot effect -- hittee
-            (board'', effects) <-
-              if death effect
-                then applyFlailOfTheDamned board' hitter (pSpot, cSpot)
-                else pure (board', mempty)
-            reportEffects pSpot effects
-            return board''
+            if death effect
+              then applyFlailOfTheDamned board' hitter (pSpot, cSpot)
+              else pure board'
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
       let hit = Card.totalAttack hitter
@@ -548,6 +537,7 @@ applyInPlaceEffect effect creature@Creature {..} =
     InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = hp + i}
 
 applyFlailOfTheDamned ::
+  MonadWriter (Board UI) m =>
   MonadState SharedModel m =>
   -- The input board
   Board 'Core ->
@@ -555,7 +545,7 @@ applyFlailOfTheDamned ::
   Creature 'Core ->
   -- The hitter's position
   (PlayerSpot, CardSpot) ->
-  m (Board 'Core, InPlaceEffects)
+  m (Board 'Core)
 applyFlailOfTheDamned board creature (pSpot, cSpot) =
   if not hasFlailOfTheDamned
     then return noChange
@@ -570,10 +560,19 @@ applyFlailOfTheDamned board creature (pSpot, cSpot) =
         Nothing -> return noChange
         Just spawningSpot -> do
           put shared'
-          undefined
+          let spawned =
+                CreatureID Skeleton Undead
+                  & SharedModel.idToCreature shared'
+                  & fromJust
+                  & Card.unliftCreature
+          let spawned' = spawned {transient = True}
+          let board' = boardSetCreature board pSpot spawningSpot spawned'
+          -- TODO @smelc record an animation highlighting the flail
+          reportEffect pSpot spawningSpot $ mempty {fadeIn = True}
+          return board'
   where
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
-    noChange = (board, mempty)
+    noChange = board
 
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> InPlaceEffect
