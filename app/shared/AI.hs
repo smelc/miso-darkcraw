@@ -122,8 +122,8 @@ playHand shared board turn =
             pSpot = turnToPlayerSpot turn
             hand' = boardToHand board pSpot & tail
             board' = boardSetHand board pSpot hand' -- Skip first card
-        Right (Game.Result _ b' () _) ->
-          event : playHand shared b' turn
+        Right (Game.Result shared' b' () _) ->
+          event : playHand shared' b' turn
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.

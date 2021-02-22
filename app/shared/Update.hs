@@ -448,7 +448,7 @@ updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTur
             --              enqueue next event (if any)
             if isAI
               then
-                let plays = AI.play gameShared board'' turn'
+                let plays = AI.play shared'' board'' turn'
                  in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
               else
                 let drawSoon = Prelude.drop 1 drawSrcs
