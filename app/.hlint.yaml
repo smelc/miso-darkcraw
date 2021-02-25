@@ -16,6 +16,7 @@
 - ignore: {name: "Reduce duplication"}
 - ignore: {name: "Use zipWith"}
 - ignore: {name: "Use uncurry"}
+- ignore: {name: "Use if"} # Do not suggest to rewrite case Bool of by if then else
 
 
 # Specify additional command line arguments

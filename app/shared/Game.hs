@@ -55,6 +55,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Debug.Trace
 import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
@@ -252,29 +253,37 @@ playPlayerTargetM board _playingPlayer target n =
             board' = boardSetCreature board pSpot cSpot c'
 
 playCreatureM ::
-  MonadError Text m =>
   MonadWriter (Board UI) m =>
   Board Core ->
   PlayerSpot ->
   CardSpot ->
   Creature Core ->
   m (Board Core)
-playCreatureM board pSpot cSpot creature = do
-  when (Map.member cSpot inPlace) $
-    throwError $ "Cannot place card on non-empty spot: " <> Text.pack (show cSpot)
-  let inPlace' =
-        -- Left-biased union
-        Map.union
-          ( if hasDiscipline creature
-              then Map.fromList disciplinedNeighbors'
-              else mempty
-          )
-          (Map.insert cSpot creature inPlace)
-  let part' = part {inPlace = inPlace'}
-  reportEffect pSpot cSpot $ mempty {fadeIn = True}
-  when (hasDiscipline creature) $
-    traverse_ ((\cSpot -> reportEffect pSpot cSpot disciplineEffect) . fst) disciplinedNeighbors'
-  return $ boardSetPart board pSpot part'
+playCreatureM board pSpot cSpot creature =
+  case Map.member cSpot inPlace of
+    True ->
+      -- This used to be an error, but now this can happen with
+      -- Infernal Haste + Flail of the Damned. Haste makes
+      -- the flail spawn an unexpected creature, which may make
+      -- an event computed by the AI fail.
+      return $
+        traceShow
+          ("[WARN] Cannot place card on non-empty spot: " <> Text.pack (show cSpot))
+          board
+    _ -> do
+      let inPlace' =
+            -- Left-biased union
+            Map.union
+              ( if hasDiscipline creature
+                  then Map.fromList disciplinedNeighbors'
+                  else mempty
+              )
+              (Map.insert cSpot creature inPlace)
+      let part' = part {inPlace = inPlace'}
+      reportEffect pSpot cSpot $ mempty {fadeIn = True}
+      when (hasDiscipline creature) $
+        traverse_ ((\cSpot -> reportEffect pSpot cSpot disciplineEffect) . fst) disciplinedNeighbors'
+      return $ boardSetPart board pSpot part'
   where
     part@PlayerPart {inPlace} = boardToPart board pSpot
     hasDiscipline c = Discipline' `elem` skills c
