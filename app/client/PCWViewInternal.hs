@@ -40,6 +40,7 @@ import qualified SharedModel
 import Tile
 import Update (Action)
 import ViewInternal
+import qualified Total
 
 data DisplayMode = NormalMode | DebugMode
 
@@ -150,7 +151,7 @@ cardView' loc z shared card =
             [style_ inStatsStyle]
             [ Miso.text $ ms hp,
               imgCell assetFilenameHeart,
-              Miso.text $ ms $ totalAttack core,
+              Miso.text $ ms $ Total.attack core,
               imgCell assetFilenameSword
             ]
         skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)

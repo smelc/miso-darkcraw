@@ -60,6 +60,7 @@ import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
+import qualified Total
 
 -- | On what a card can be applied
 data Target
@@ -274,24 +275,23 @@ playCreatureM board pSpot cSpot creature =
       let inPlace' =
             -- Left-biased union
             Map.union
-              ( if hasDiscipline creature
+              ( if Total.hasDiscipline creature
                   then Map.fromList disciplinedNeighbors'
                   else mempty
               )
               (Map.insert cSpot creature inPlace)
       let part' = part {inPlace = inPlace'}
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
-      when (hasDiscipline creature) $
+      when (Total.hasDiscipline creature) $
         traverse_ ((\cSpot -> reportEffect pSpot cSpot disciplineEffect) . fst) disciplinedNeighbors'
       return $ boardSetPart board pSpot part'
   where
     part@PlayerPart {inPlace} = boardToPart board pSpot
-    hasDiscipline c = Discipline' `elem` skills c
     disciplinedNeighbors =
       boardToNeighbors board pSpot cSpot Board.Cardinal
         & map liftJust
         & catMaybes
-        & filter (\(_, c) -> hasDiscipline c)
+        & filter (\(_, c) -> Total.hasDiscipline c)
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing
     boost = 1
@@ -488,7 +488,7 @@ attack board pSpot cSpot =
               else pure board'
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
-      let hit = Card.totalAttack hitter
+      let hit = Total.attack hitter
       reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
   where
@@ -589,7 +589,7 @@ singleAttack attacker defender
   | hps' <= 0 = mempty {death = True}
   | otherwise = mempty {hitPointsChange = - hit}
   where
-    hit = Card.totalAttack attacker
+    hit = Total.attack attacker
     hps' = Card.hp defender - hit
 
 -- | The spot that blocks a spot from attacking, which happens

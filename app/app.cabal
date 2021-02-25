@@ -24,6 +24,7 @@ common client-server-shared
     ServerMessages
     SharedModel
     Tile
+    Total
     Turn
     Update
     Utils
@@ -128,6 +129,7 @@ Test-Suite test-darkcraw
     ServerMessages
     SharedModel
     Tile
+    Total
     Turn
     Update
   hs-source-dirs:

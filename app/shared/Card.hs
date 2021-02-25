@@ -365,13 +365,3 @@ targetType id =
     IDN Health -> CardTargetType Occupied
     IDN Life -> CardTargetType Occupied
     IDN InfernalHaste -> PlayerTargetType
-
--- | The total attack of a creature, including boosts of skills and items.
--- This would make more sense to be in 'Game', but alas this is more
--- convenient to have it here dependency-wise.
-totalAttack :: Creature 'Core -> Int
-totalAttack Creature {..} =
-  attack + (nbAvailBoosts * Constants.boostAmount)
-  where
-    nbAvailBoosts =
-      filter (\case Blow' True -> True; _ -> False) skills & length

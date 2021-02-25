@@ -82,6 +82,7 @@ import qualified Data.Text as Text
 import GHC.Generics (Generic)
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
+import qualified Total
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
@@ -623,5 +624,5 @@ creatureToAscii :: Creature Core -> LineNumber -> Maybe String
 creatureToAscii Creature {creatureId = CreatureID {..}} 0 =
   Just $ show team ++ " " ++ show creatureKind
 creatureToAscii c@Creature {..} 1 =
-  Just $ show hp ++ "<3 " ++ show (totalAttack c) ++ "X"
+  Just $ show hp ++ "<3 " ++ show (Total.attack c) ++ "X"
 creatureToAscii _ _ = Nothing
