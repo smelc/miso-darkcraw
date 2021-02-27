@@ -19,9 +19,9 @@ import Data.Function ((&))
 -- convenient to have it here dependency-wise.
 attack :: Creature 'Core -> Int
 attack Creature {..} =
-  attack + (nbAvailBoosts * Constants.boostAmount)
+  attack + (nbBlows * Constants.blowAmount)
   where
-    nbAvailBoosts =
+    nbBlows =
       filter (\case Blow' True -> True; _ -> False) skills & length
 
 -- | Whether a creature has discipline
