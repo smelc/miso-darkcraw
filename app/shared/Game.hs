@@ -315,11 +315,25 @@ playItemM board pSpot cSpot item =
     Just creature@Creature {items} -> do
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       -- TODO @smelc record animation for item arrival
-      let creature' = creature {items = item : items}
+      let creature' = installItem creature item
       return $ boardSetPart board pSpot $ part' creature'
   where
     part@PlayerPart {inPlace} = boardToPart board pSpot
     part' c' = part {inPlace = Map.insert cSpot c' inPlace}
+
+installItem ::
+  Creature 'Core ->
+  Item ->
+  Creature 'Core
+installItem c@Creature {hp, items} item =
+  c {hp = hp + hpChange, items = item : items}
+  where
+    -- Items adding health are resolved here, as opposed to items
+    -- adding attack, which are dealt with in 'Total'
+    hpChange =
+      case item of
+        SwordOfMight -> 1
+        _ -> 0 -- wildcard intentional
 
 drawCards ::
   SharedModel ->

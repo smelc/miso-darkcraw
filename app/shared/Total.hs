@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RecordWildCards #-}
 
 -- |
 -- This module defines getters for getting the complete stat of
@@ -18,11 +17,15 @@ import Data.Function ((&))
 -- This would make more sense to be in 'Game', but alas this is more
 -- convenient to have it here dependency-wise.
 attack :: Creature 'Core -> Int
-attack Creature {..} =
-  attack + (nbBlows * Constants.blowAmount)
+attack Creature {Card.attack, skills, items} =
+  -- Items adding attack are dealth with here, as opposed to items
+  -- adding health, which are dealth with in 'Game'
+  attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight
   where
     nbBlows =
       filter (\case Blow' True -> True; _ -> False) skills & length
+    nbSwordsOfMight =
+      filter (== SwordOfMight) items & length
 
 -- | Whether a creature has discipline
 hasDiscipline :: Creature 'Core -> Bool
