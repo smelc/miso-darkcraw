@@ -207,7 +207,7 @@ liftCreature s@SharedModel {sharedCards} c@Creature {..} =
     Just (CreatureCard Creature {tile}) ->
       Just $
         Creature
-          { items = map (\i -> liftItemObject s (ItemObject i () () () () ())) items,
+          { items = map (\i -> liftItemObject s (ItemObject i () () () () () ())) items,
             skills = map Card.liftSkill skills,
             ..
           }

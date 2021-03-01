@@ -112,6 +112,7 @@ instance FromJSON (ItemObject UI) where
   parseJSON = withObject "Item" $ \v ->
     ItemObject
       <$> v .: "name"
+      <*> v .:? "teams" .!= allTeams
       <*> v .: "text"
       <*> v .:? "text_sz_offset" .!= 0
       <*> v .: "tile"

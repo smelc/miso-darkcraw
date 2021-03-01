@@ -88,6 +88,10 @@ type family SkillType (p :: Phase) where
   SkillType UI = Skill
   SkillType Core = SkillCore
 
+type family TeamsType (p :: Phase) where
+  TeamsType UI = [Team]
+  TeamsType Core = ()
+
 type family TextType (p :: Phase) where
   TextType UI = String
   TextType Core = ()
@@ -100,6 +104,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (ItemType p),
     c (OffsetType p),
     c (SkillType p),
+    c (TeamsType p),
     c (TextType p),
     c (TileType p),
     c (NeutralTeamsType p)
@@ -191,6 +196,7 @@ allItems = [Card.Crown ..]
 
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
+    teams :: TeamsType p,
     itext :: TextType p,
     itextSzOffset :: OffsetType p,
     itile :: TileType p,
@@ -248,7 +254,7 @@ unliftCard card =
 
 unliftItemObject :: ItemObject UI -> ItemObject Core
 unliftItemObject ItemObject {..} =
-  ItemObject {item, itext = (), itextSzOffset = (), itile = (), ititle = (), ititleSzOffset = ()}
+  ItemObject {teams = (), item, itext = (), itextSzOffset = (), itile = (), ititle = (), ititleSzOffset = ()}
 
 unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
 unliftNeutralObject NeutralObject {..} =
@@ -342,7 +348,7 @@ teamDeck cards t =
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste
     items =
-      map (\case ItemCard i -> Just i; _ -> Nothing) cards
+      map (\case ItemCard i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
         & catMaybes
         & map unliftItemObject
 

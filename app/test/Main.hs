@@ -390,8 +390,9 @@ main = hspec $ do
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
       is _Right eitherCardsNTiles -- should be the first test, others depend on it
-    it "all decks are initially of the same size" $ -- broken O_o
-      all (\l -> length l == length (head allDecks)) allDecks
+    it "all decks are initially of the same size (modulo items)" $
+      let itemLessDecks = map (filter (\case ItemCard _ -> False; _ -> True)) allDecks
+       in all (\l -> length l == length (head itemLessDecks)) itemLessDecks
     it "all hit points are initially > 0" $
       all (\c -> hp c > 0) allCreatures
     it "all attacks are initially >= 0" $
