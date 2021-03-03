@@ -120,9 +120,9 @@ teamButton smodel z chosen team = do
         Nothing -> (Enabled, LobbySelectTeam $ Just team)
         Just t | t == team -> (Selected, LobbySelectTeam Nothing) -- toggle
         Just _ -> (Disabled, LobbySelectTeam $ Just team)
-    creature kind team = idToCreature smodel $ CreatureID kind team
+    creature kind team items = idToCreature smodel (CreatureID kind team) items
     path team kind =
-      creature kind team
+      creature kind team []
         <&> CreatureCard
         <&> SharedModel.cardToFilepath smodel
         & fromMaybe default24Filepath

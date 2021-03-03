@@ -56,7 +56,6 @@ module Board
     botSpots,
     boardToASCII,
     StackKind (..),
-    unsafeExampleBoard,
     Board.appliesTo,
     boardToScore,
     neighbors,
@@ -465,12 +464,12 @@ initialBoard shared Teams {..} =
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.
-smallBoard :: SharedModel -> Teams -> CreatureID -> PlayerSpot -> CardSpot -> Board 'Core
-smallBoard shared teams cid pSpot cSpot =
+smallBoard :: SharedModel -> Teams -> CreatureID -> [Item] -> PlayerSpot -> CardSpot -> Board 'Core
+smallBoard shared teams cid items pSpot cSpot =
   boardSetCreature (emptyBoard teams) pSpot cSpot c
   where
     c =
-      SharedModel.idToCreature shared cid
+      SharedModel.idToCreature shared cid []
         & fromJust
         & Card.unliftCreature
 
@@ -509,17 +508,6 @@ appliesTo id board pSpot cSpot =
 ------------------------------
 -- Now onto fancy rendering --
 ------------------------------
-
--- For testing
-unsafeExampleBoard :: Board Core
-unsafeExampleBoard =
-  board'
-  where
-    shared = SharedModel.unsafeGet
-    teams = Teams {topTeam = Undead, botTeam = Human}
-    board = initialBoard shared teams & snd
-    creature team creatureKind = idToCreature shared CreatureID {..} & fromJust & unliftCreature
-    board' = boardSetCreature board PlayerBot Bottom $ creature Human Archer
 
 boardToASCII :: Board Core -> String
 boardToASCII board =
@@ -581,7 +569,7 @@ stackLine _ cards i | i > length cards = Nothing
 stackLine _ cards i = Just $ showID $ cards !! (i - 1)
 
 showID :: Card.ID -> String
-showID (IDC CreatureID {creatureKind, team}) =
+showID (IDC CreatureID {creatureKind, team} _) =
   showTeamShort team ++ " " ++ show creatureKind
 showID (IDI i) = show i
 showID (IDN n) = show n

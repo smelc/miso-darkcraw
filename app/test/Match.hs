@@ -83,10 +83,10 @@ testStupidity shared =
                in let model = Update.unsafeInitialGameModel (mkShared seed) board
                    in play model 8 `shouldSatisfy` isValid
   where
-    initialBoard s teams cSpot = smallBoard s teams ogreID startingPlayerSpot cSpot
+    initialBoard s teams cSpot = smallBoard s teams ogreID [] startingPlayerSpot cSpot
     ogreID = CreatureID Card.Ogre Human
     ogreSpot = PlayerBot
-    ogreAttack = SharedModel.idToCreature shared ogreID & fromJust & attack
+    ogreAttack = SharedModel.idToCreature shared ogreID [] & fromJust & attack
     mkShared seed = SharedModel.withSeed shared seed
     isValid Result {models} = all isValidModel models
     isValidModel GameModel {board, turn} =

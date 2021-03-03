@@ -166,5 +166,8 @@ Test-Suite test-darkcraw
     -Wunused-binds
     -Werror
     -Wwarn=missing-home-modules
+    -fprof-auto
+    -prof
+    -rtsopts
   default-language:
      Haskell2010

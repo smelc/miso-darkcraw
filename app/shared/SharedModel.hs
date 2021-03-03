@@ -48,6 +48,7 @@ import Data.List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import GHC.Base (assert)
 import GHC.Generics (Generic)
 import Json (loadJson)
 import System.Random.Shuffle (shuffleM)
@@ -106,10 +107,10 @@ getAllCommands shared =
   where
     cids =
       getCardIdentifiers shared
-        & map (\case IDC cid -> Just cid; _ -> Nothing)
+        & map (\case IDC cid _ -> Just cid; _ -> Nothing)
         & catMaybes
         & sortBy compareCID
-        & map IDC
+        & map (\cid -> IDC cid [])
     compareCID
       CreatureID {creatureKind = ck1, team = t1}
       CreatureID {creatureKind = ck2, team = t2} =
@@ -158,7 +159,17 @@ unsafeGet = createWithSeed 42
 -- Instead of returning Maybe here, I should add a test that all
 -- Card.ID are mapped by SharedModel and error out
 identToCard :: SharedModel -> Card.ID -> Maybe (Card UI)
-identToCard SharedModel {sharedCards} cid = sharedCards Map.!? cid
+identToCard s@SharedModel {sharedCards} (IDC cid items) =
+  -- Because creatures in data.json don't have items, we send []:
+  case sharedCards Map.!? IDC cid [] of
+    Nothing -> Nothing
+    Just (CreatureCard c@Creature {items = is}) ->
+      -- and then we fill the result with the expected items:
+      assert (null is) $
+        let itemsUI = map (liftItemObject s . mkCoreItemObject) items
+         in Just $ CreatureCard $ c {items = itemsUI}
+    Just c -> error $ "Unexpected card: " ++ show c ++ ". Expected CreatureCard."
+identToCard SharedModel {sharedCards} id = sharedCards Map.!? id
 
 identToItem :: SharedModel -> Item -> ItemObject UI
 identToItem SharedModel {sharedCards} i =
@@ -171,12 +182,10 @@ identToItem SharedModel {sharedCards} i =
 
 -- Instead of returning Maybe here, I should add a test that all
 -- CreatureID are mapped by SharedModel and error out
-idToCreature :: SharedModel -> CreatureID -> Maybe (Creature UI)
-idToCreature SharedModel {sharedCards} cid =
-  sharedCards Map.!? IDC cid >>= cardToCreature
+idToCreature :: SharedModel -> CreatureID -> [Item] -> Maybe (Creature UI)
+idToCreature SharedModel {sharedCards} cid items =
+  sharedCards Map.!? IDC cid items >>= cardToCreature
 
--- Instead of returning Maybe here, I should add a test that all
--- Neutral are mapped by SharedModel and error out
 identToNeutral :: SharedModel -> Neutral -> NeutralObject UI
 identToNeutral SharedModel {sharedCards} n =
   case sharedCards Map.!? IDN n of
@@ -200,14 +209,14 @@ liftNeutralObject shared NeutralObject {neutral} =
 
 -- | Translates a 'Core' 'Creature' into an 'UI' one, keeping its stats
 -- An alternative implementation could return the pristine, formal, UI card.
-liftCreature :: SharedModel -> Creature Core -> Maybe (Creature UI)
+liftCreature :: SharedModel -> Creature 'Core -> Maybe (Creature UI)
 liftCreature s@SharedModel {sharedCards} c@Creature {..} =
-  case sharedCards Map.!? IDC creatureId of
+  case sharedCards Map.!? IDC creatureId items of
     Nothing -> Nothing
     Just (CreatureCard Creature {tile}) ->
       Just $
         Creature
-          { items = map (\i -> liftItemObject s (ItemObject i () () () () () ())) items,
+          { items = map (liftItemObject s . mkCoreItemObject) items,
             skills = map Card.liftSkill skills,
             ..
           }

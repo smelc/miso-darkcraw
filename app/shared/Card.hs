@@ -1,6 +1,8 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -153,6 +155,15 @@ deriving instance Forall Ord p => Ord (Creature p)
 
 deriving instance Forall Show p => Show (Creature p)
 
+class Itemizable a where
+  getItems :: a -> [Item]
+
+instance Itemizable (Creature 'UI) where
+  getItems Creature {items} = map item items
+
+instance Itemizable (Creature 'Core) where
+  getItems Creature {items} = items
+
 -- If you change the first member, change 'allNeutrals' too
 data Neutral
   = Health
@@ -204,6 +215,9 @@ data ItemObject (p :: Phase) = ItemObject
     ititleSzOffset :: OffsetType p
   }
   deriving (Generic)
+
+mkCoreItemObject :: Item -> ItemObject 'Core
+mkCoreItemObject item = ItemObject item () () () () () ()
 
 deriving instance Forall Eq p => Eq (ItemObject p)
 
@@ -291,23 +305,23 @@ cardToNeutralObject (ItemCard _) = Nothing
 -- | The minimal identifier of a card. See 'SharedModel' to obtain
 -- | a full-fledged card from that.
 data ID
-  = IDC CreatureID
+  = IDC CreatureID [Item]
   | IDI Item
   | IDN Neutral
   deriving (Eq, Generic, Ord, Show)
 
-cardToIdentifier :: Card p -> ID
-cardToIdentifier card =
-  case card of
-    CreatureCard Creature {..} -> IDC creatureId
-    ItemCard ItemObject {..} -> IDI item
-    NeutralCard NeutralObject {..} -> IDN neutral
+cardToIdentifier :: Itemizable (Creature p) => Card p -> ID
+cardToIdentifier =
+  \case
+    CreatureCard c@Creature {creatureId} -> IDC creatureId $ getItems c
+    ItemCard ItemObject {item} -> IDI item
+    NeutralCard NeutralObject {neutral} -> IDN neutral
 
 identToId :: ID -> Maybe CreatureID
-identToId (IDC cid) = Just cid
+identToId (IDC cid _) = Just cid
 identToId _ = Nothing
 
-groupCards :: [Card p] -> Map.Map ID [Card p]
+groupCards :: Itemizable (Creature p) => [Card p] -> Map.Map ID [Card p]
 groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
 
 teamDeck ::
@@ -366,7 +380,7 @@ data TargetType = CardTargetType CardTargetKind | PlayerTargetType
 targetType :: Card.ID -> TargetType
 targetType id =
   case id of
-    IDC _ -> CardTargetType Hole
+    IDC {} -> CardTargetType Hole
     IDI _ -> CardTargetType Occupied
     IDN Health -> CardTargetType Occupied
     IDN Life -> CardTargetType Occupied

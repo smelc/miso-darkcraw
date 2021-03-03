@@ -101,7 +101,7 @@ gameToDeck GameModel {gameShared = shared, ..} =
   inPlace' ++ inHand ++ stack ++ discarded
   where
     PlayerPart {..} = boardToPart board playingPlayer
-    inPlace' = inPlace & Map.elems & map (IDC . creatureId)
+    inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 instance Show GameModel where
   show GameModel {..} =

@@ -61,7 +61,7 @@ testAIRanged shared turn =
     Right (Game.Result _ board' () _) -> board'
   where
     (t, teams) = (Undead, Teams Undead Undead)
-    archer = IDC $ CreatureID Archer t
+    archer = IDC (CreatureID Archer t) []
     board = boardAddToHand (emptyBoard teams) (turnToPlayerSpot turn) archer
     events = AI.play SharedModel.unsafeGet board turn
 
@@ -130,9 +130,10 @@ testPlayFraming shared =
                 boardToPlayerCardSpots board pSpot ctk
                   & listToMaybe
                   <&> (i,)
-    breaksFraming (IDC id) =
+    breaksFraming (IDC id _) =
       -- Playing a card with Discipline may affect neighbors, hereby breaking Framing
-      Discipline `elem` (idToCreature shared id & fromJust & skills)
+      -- TODO @smelc use Total's hasDiscipline
+      Discipline `elem` (idToCreature shared id [] & fromJust & skills)
     breaksFraming _ = False
     relation _ _ _ (Left _) = True
     relation board pSpot cSpot (Right (Game.Result _ board' _ _)) = boardEq board pSpot [cSpot] board'
@@ -341,8 +342,9 @@ testAIPlace shared =
     spotsDiffer _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
     allDiff (event : events) = all (spotsDiffer event) events && allDiff events
-    hasDiscipline (Game.Place' _ (IDC id)) =
-      Discipline `elem` (SharedModel.idToCreature shared id & fromJust & skills)
+    hasDiscipline (Game.Place' _ (IDC id items)) =
+      -- TODO @smelc use Total's hasDiscipline instead
+      Discipline `elem` (SharedModel.idToCreature shared id items & fromJust & skills)
     hasDiscipline (Game.Place' _ _) = False
     hasDiscipline _ = error "Only Place' events should have been generated"
 

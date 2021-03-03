@@ -82,7 +82,7 @@ data WhichPlayerTarget = Playing | Opponent
 
 whichPlayerTarget :: Card.ID -> WhichPlayerTarget
 whichPlayerTarget = \case
-  IDC _ -> Playing
+  IDC {} -> Playing
   IDI _ -> Playing
   IDN Health -> Playing
   IDN InfernalHaste -> Playing
@@ -536,12 +536,13 @@ applyInPlaceEffectOnBoard ::
   (PlayerSpot, CardSpot, Creature Core) ->
   -- | The updated board
   Board Core
-applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee) =
+applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) =
   case hittee' of
     Just _ -> board'
     Nothing | Card.transient hittee -> board' -- Dont' put hittee in discarded stack
     Nothing ->
-      board' & spotToLens pSpot . #discarded <>~ [hittee & creatureId & IDC]
+      let discarded = boardToDiscarded board' pSpot
+       in boardSetDiscarded board' pSpot $ discarded ++ [IDC creatureId items]
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:
@@ -585,7 +586,7 @@ applyFlailOfTheDamned board creature (pSpot, cSpot) =
           put shared'
           let spawned =
                 CreatureID Skeleton Undead
-                  & SharedModel.idToCreature shared'
+                  & (\cid -> SharedModel.idToCreature shared' cid [])
                   & fromJust
                   & Card.unliftCreature
           let spawned' = spawned {transient = True}

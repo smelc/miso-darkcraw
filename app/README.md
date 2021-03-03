@@ -40,6 +40,7 @@ cabal repl app.cabal:app
 For a repl for the test context, do:
 
 ```
+nix-shell
 cabal repl test-darkcraw
 ```
 
@@ -59,8 +60,8 @@ cabal run --enable-profiling test-darkcraw -- +RTS -p
 ~/.cabal/bin/profiteur test-darkcraw.prof
 ```
 
-To profile when it doesn't terminate, add that to `app.cabal` in the
-the `test-darkcraw` section:
+To profile when it doesn't terminate or when a backtrace is missing,
+add that to `app.cabal` in the the `test-darkcraw` section:
 
 ```
   ghc-options:
@@ -74,6 +75,9 @@ Run a test as follows:
 ```
 ./dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/t/test-darkcraw/build/test-darkcraw/test-darkcraw +RTS -xc
 ```
+
+If debugging doesn't terminate, because the code loops, beware that
+the backtrace may only happen when `Ctrl-c`ing `test-darkcraw`
 
 # Fast feedback
 
