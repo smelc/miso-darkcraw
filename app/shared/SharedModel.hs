@@ -156,19 +156,9 @@ withStdGen shared stdgen = shared {sharedStdGen = stdgen}
 unsafeGet :: SharedModel
 unsafeGet = createWithSeed 42
 
--- Instead of returning Maybe here, I should add a test that all
--- Card.ID are mapped by SharedModel and error out
 identToCard :: SharedModel -> Card.ID -> Maybe (Card UI)
-identToCard s@SharedModel {sharedCards} (IDC cid items) =
-  -- Because creatures in data.json don't have items, we send []:
-  case sharedCards Map.!? IDC cid [] of
-    Nothing -> Nothing
-    Just (CreatureCard c@Creature {items = is}) ->
-      -- and then we fill the result with the expected items:
-      assert (null is) $
-        let itemsUI = map (liftItemObject s . mkCoreItemObject) items
-         in Just $ CreatureCard $ c {items = itemsUI}
-    Just c -> error $ "Unexpected card: " ++ show c ++ ". Expected CreatureCard."
+identToCard s@SharedModel {sharedCards} (IDC creatureId items) =
+  CreatureCard <$> idToCreature s creatureId items
 identToCard SharedModel {sharedCards} id = sharedCards Map.!? id
 
 identToItem :: SharedModel -> Item -> ItemObject UI
@@ -180,11 +170,17 @@ identToItem SharedModel {sharedCards} i =
     -- To avoid this case, I could split the cards in SharedModel
     Just w -> error $ "Item " ++ show i ++ " not mapped to ItemCard, found " ++ show w ++ " instead."
 
--- Instead of returning Maybe here, I should add a test that all
--- CreatureID are mapped by SharedModel and error out
 idToCreature :: SharedModel -> CreatureID -> [Item] -> Maybe (Creature UI)
-idToCreature SharedModel {sharedCards} cid items =
-  sharedCards Map.!? IDC cid items >>= cardToCreature
+idToCreature s@SharedModel {sharedCards} cid items =
+  -- Because creatures in data.json don't have items, we send []:
+  case sharedCards Map.!? IDC cid [] of
+    Nothing -> Nothing
+    Just (CreatureCard c@Creature {items = is}) ->
+      -- and then we fill the result with the expected items:
+      assert (null is) $
+        let itemsUI = map (liftItemObject s . mkCoreItemObject) items
+         in Just $ c {items = itemsUI}
+    Just c -> error "Unexpected card. Expected CreatureCard."
 
 identToNeutral :: SharedModel -> Neutral -> NeutralObject UI
 identToNeutral SharedModel {sharedCards} n =
