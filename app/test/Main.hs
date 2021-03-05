@@ -36,6 +36,7 @@ import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
+import qualified Total
 import Turn
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
@@ -130,10 +131,11 @@ testPlayFraming shared =
                 boardToPlayerCardSpots board pSpot ctk
                   & listToMaybe
                   <&> (i,)
-    breaksFraming (IDC id _) =
-      -- Playing a card with Discipline may affect neighbors, hereby breaking Framing
-      -- TODO @smelc use Total's hasDiscipline
-      Discipline `elem` (idToCreature shared id [] & fromJust & skills)
+    breaksFraming (IDC id items) =
+      SharedModel.idToCreature shared id items
+        & fromJust
+        & Card.unliftCreature
+        & Total.isDisciplined
     breaksFraming _ = False
     relation _ _ _ (Left _) = True
     relation board pSpot cSpot (Right (Game.Result _ board' _ _)) = boardEq board pSpot [cSpot] board'
@@ -343,8 +345,10 @@ testAIPlace shared =
     allDiff [] = True
     allDiff (event : events) = all (spotsDiffer event) events && allDiff events
     hasDiscipline (Game.Place' _ (IDC id items)) =
-      -- TODO @smelc use Total's hasDiscipline instead
-      Discipline `elem` (SharedModel.idToCreature shared id items & fromJust & skills)
+      SharedModel.idToCreature shared id items
+        & fromJust
+        & Card.unliftCreature
+        & Total.isDisciplined
     hasDiscipline (Game.Place' _ _) = False
     hasDiscipline _ = error "Only Place' events should have been generated"
 

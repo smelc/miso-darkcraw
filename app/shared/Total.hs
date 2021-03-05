@@ -27,8 +27,12 @@ attack Creature {Card.attack, skills, items} =
     nbSwordsOfMight =
       filter (== SwordOfMight) items & length
 
+-- | Core function for finding out about discipline
+hasDiscipline :: [Skill] -> [Item] -> Bool
+hasDiscipline skills items =
+  Discipline `elem` skills || Crown `elem` items
+
 -- | Whether a creature has discipline
-hasDiscipline :: Creature 'Core -> Bool
-hasDiscipline Creature {items, skills} =
-  Discipline' `elem` skills
-    || Crown `elem` items
+isDisciplined :: Creature 'Core -> Bool
+isDisciplined Creature {items, skills} =
+  hasDiscipline (map liftSkill skills) items

@@ -275,14 +275,14 @@ playCreatureM board pSpot cSpot creature =
       let inPlace' =
             -- Left-biased union
             Map.union
-              ( if Total.hasDiscipline creature
+              ( if Total.isDisciplined creature
                   then Map.fromList disciplinedNeighbors'
                   else mempty
               )
               (Map.insert cSpot creature inPlace)
       let part' = part {inPlace = inPlace'}
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
-      when (Total.hasDiscipline creature) $
+      when (Total.isDisciplined creature) $
         traverse_ ((\cSpot -> reportEffect pSpot cSpot disciplineEffect) . fst) disciplinedNeighbors'
       return $ boardSetPart board pSpot part'
   where
@@ -291,7 +291,7 @@ playCreatureM board pSpot cSpot creature =
       boardToNeighbors board pSpot cSpot Board.Cardinal
         & map liftJust
         & catMaybes
-        & filter (\(_, c) -> Total.hasDiscipline c)
+        & filter (\(_, c) -> Total.isDisciplined c)
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing
     boost = 1
