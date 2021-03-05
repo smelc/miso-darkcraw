@@ -22,9 +22,9 @@ instance Arbitrary a => Arbitrary (Pretty a) where
 -- /!\ The instances that follow are easier to read but hide
 -- some info, beware! /!\
 
--- instance {-# OVERLAPPING #-} Show (Pretty (Board Core)) where
+-- instance {-# OVERLAPPING #-} Show (Pretty (Board 'Core)) where
 --   show (Pretty b) = boardToASCII b
 
--- instance {-# OVERLAPPING #-} Show (Pretty (Maybe (Board Core))) where
+-- instance {-# OVERLAPPING #-} Show (Pretty (Maybe (Board 'Core))) where
 --   show (Pretty Nothing) = "Nothing"
 --   show (Pretty (Just b)) = boardToASCII b

@@ -71,7 +71,9 @@ instance Arbitrary (NeutralObject Core) where
 instance Arbitrary Card.ID where
   -- Do not generate NeutralCard and ItemCard for now, since they
   -- arent' supported yet. TODO @smelc do that now
-  arbitrary = IDC <$> arbitrary <*> arbitrary
+  arbitrary = IDC <$> arbitrary <*> elements [[]] -- empty items, to match that creatures
+  -- initially don't have items
+
   shrink = genericShrink
 
 instance Arbitrary CardSpot where
