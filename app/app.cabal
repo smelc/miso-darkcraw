@@ -109,6 +109,7 @@ Test-Suite test-darkcraw
   main-is:    Main.hs
   other-modules:
     AI
+    Balance
     Board
     BoardInstances
     Card
