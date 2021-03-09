@@ -16,15 +16,17 @@ import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
+import qualified Update
 
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $
     prop "Starting team doesn't have an advantage" $
-      \(Seeds seeds :: Seeds) ->
-        let shareds = take nbCivilWars seeds & map (SharedModel.withSeed shared)
-         in let results = map (\t -> (t, play shareds t t nbTurns)) allTeams
-             in results `shouldSatisfy` civilWarsSpec
+      once $
+        \(Seeds seeds :: Seeds) ->
+          let shareds = take nbCivilWars seeds & map (SharedModel.withSeed shared)
+           in let results = map (\t -> (t, play shareds t t nbTurns)) allTeams
+               in results `shouldSatisfy` civilWarsSpec
   where
     nbCivilWars = 20 -- Number of games for endomatches
     nbTurns = 8
@@ -68,11 +70,10 @@ play shareds t1 t2 nbTurns =
     & count (0, 0, 0)
   where
     go (shared : rest) =
-      Match.play (mkGameModel shared) nbTurns : go rest
+      Match.play (Update.initialGameModel shared t1 t2) nbTurns : go rest
     go [] = []
     count acc [] = acc
     count (w1, d, w2) (Match.Draw : tail) = count (w1, d + 1, w2) tail
     count tuple (Match.Error {} : tail) = count tuple tail -- not this test's business to fail on Error
     count (w1, d, w2) (Match.Win PlayerTop : tail) = count (w1, d, w2 + 1) tail
     count (w1, d, w2) (Match.Win PlayerBot : tail) = count (w1 + 1, d, w2) tail
-    mkGameModel = undefined
