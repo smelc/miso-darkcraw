@@ -8,6 +8,8 @@ module Balance where
 import Board
 import Card
 import Data.Function ((&))
+import Debug.Trace
+import GHC.Float
 import qualified Match
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -19,17 +21,29 @@ main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $
     prop "Starting team doesn't have an advantage" $
-      \(seedsList :: [Seeds]) ->
-        let shareds = map (\(Seeds seeds) -> map (SharedModel.withSeed shared) seeds) seedsList
-         in let teamNShareds = zip allTeams shareds
-             in let results = map (\(t, shareds) -> (t, play (take nbCivilWars shareds) t t nbTurns)) teamNShareds
-                 in results `shouldSatisfy` civilWarsSpec
+      \(Seeds seeds :: Seeds) ->
+        let shareds = take nbCivilWars seeds & map (SharedModel.withSeed shared)
+         in let results = map (\t -> (t, play shareds t t nbTurns)) allTeams
+             in results `shouldSatisfy` civilWarsSpec
   where
     nbCivilWars = 20 -- Number of games for endomatches
     nbTurns = 8
-    civilWarsSpec :: [(Team, (Int, Int))] -> Bool
+    civilWarsSpec :: [(Team, (Int, Int, Int))] -> Bool
     civilWarsSpec [] = True
-    civilWarsSpec _ = False -- TODO
+    civilWarsSpec ((t, (win1, draws, win2)) : rest) =
+      case (min <= win1f, win1f <= max) of
+        (False, _) ->
+          traceShow
+            (show t ++ " VS " ++ show t ++ ": not enough wins: " ++ show win1 ++ ", expected at least " ++ show min)
+            False
+        (_, False) ->
+          traceShow
+            (show t ++ " VS " ++ show t ++ ": too many wins: " ++ show win1 ++ ", expected at most " ++ show max)
+            False
+        _ -> civilWarsSpec rest
+      where
+        (nbWins, win1f) = (int2Float $ win1 + win2, int2Float win1)
+        (min, max) = (nbWins * 0.4, nbWins * 0.6)
 
 newtype Seeds = Seeds [Int]
   deriving (Show)
@@ -47,12 +61,11 @@ play ::
   Int ->
   -- | The number of wins of the first team, the number of draws, and
   -- the number of wins of the second team
-  (Int, Int)
+  (Int, Int, Int)
 play shareds t1 t2 nbTurns =
   go shareds
     & map Match.matchResult
     & count (0, 0, 0)
-    & (\(w1, _, w2) -> (w1, w2))
   where
     go (shared : rest) =
       Match.play (mkGameModel shared) nbTurns : go rest
