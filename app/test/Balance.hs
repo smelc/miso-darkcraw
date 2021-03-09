@@ -19,18 +19,20 @@ main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $
     prop "Starting team doesn't have an advantage" $
-      \(seeds :: [Seeds]) ->
-        let shareds = map (\(Seeds ints) -> SharedModel.withSeed shared) seeds in
-        let _ =
-                 map
-                   undefined
-                   $ zip allTeams (take nbCivilWars seeds)
-         in undefined
+      \(seedsList :: [Seeds]) ->
+        let shareds = map (\(Seeds seeds) -> map (SharedModel.withSeed shared) seeds) seedsList
+         in let teamNShareds = zip allTeams shareds
+             in let results = map (\(t, shareds) -> (t, play (take nbCivilWars shareds) t t nbTurns)) teamNShareds
+                 in results `shouldSatisfy` civilWarsSpec
   where
-    nbCivilWars = 20
+    nbCivilWars = 20 -- Number of games for endomatches
     nbTurns = 8
+    civilWarsSpec :: [(Team, (Int, Int))] -> Bool
+    civilWarsSpec [] = True
+    civilWarsSpec _ = False -- TODO
 
 newtype Seeds = Seeds [Int]
+  deriving (Show)
 
 instance Arbitrary Seeds where
   arbitrary = Seeds <$> infiniteList
