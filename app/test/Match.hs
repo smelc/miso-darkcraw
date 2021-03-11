@@ -41,7 +41,7 @@ main shared = do
         [1, 2]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = initialGameModel (SharedModel.withSeed shared seed) t1 t2
+        model seed = initialGameModel (SharedModel.withSeed shared seed) $ Teams t1 t2
     isError (Error msg) = traceShow msg True
     isError Draw = False
     isError (Win _) = False

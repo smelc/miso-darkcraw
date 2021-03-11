@@ -65,7 +65,7 @@ main shared =
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in Match.play (Update.initialGameModel shared' team1 team2) seed
+         in Match.play (Update.initialGameModel shared' $ Teams team1 team2) seed
               `shouldSatisfy` isValidResult
   where
     isValid [] = True

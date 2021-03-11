@@ -686,7 +686,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ initialGameModel shared Undead team
+    noEff $ GameModel' $ initialGameModel shared $ Teams {topTeam = Undead, botTeam = team}
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -740,16 +740,11 @@ updateModel a m =
 -- | The initial model, appropriately shuffled with 'SharedModel' rng
 initialGameModel ::
   SharedModel ->
-  -- | The team of the other player
-  Team ->
-  -- | The team of the playing player
-  Team ->
+  Teams ->
   GameModel
-initialGameModel shared teamo team =
+initialGameModel shared teams =
   unsafeInitialGameModel shared' board
   where
-    -- We hardcode the position of the playing player here. No big deal.
-    teams = Teams {topTeam = teamo, botTeam = team}
     (shared', board) = initialBoard shared teams
 
 -- | An initial model, appropriate for testing

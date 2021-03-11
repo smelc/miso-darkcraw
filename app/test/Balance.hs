@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
@@ -10,6 +11,7 @@ import Card
 import Data.Function ((&))
 import Debug.Trace
 import GHC.Float
+import Match (Result (..))
 import qualified Match
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -25,7 +27,7 @@ main shared =
       once $
         \(Seeds seeds :: Seeds) ->
           let shareds = take nbCivilWars seeds & map (SharedModel.withSeed shared)
-           in let results = map (\t -> (t, play shareds t t nbTurns)) allTeams
+           in let results = map (\t -> (t, Balance.play shareds (Teams t t) nbTurns)) allTeams
                in results `shouldSatisfy` civilWarsSpec
   where
     nbCivilWars = 20 -- Number of games for endomatches
@@ -57,20 +59,20 @@ play ::
   -- | The models to use for a start (length of this list implies the
   -- the number of games to play)
   [SharedModel] ->
-  Team ->
-  Team ->
+  Teams ->
   -- | The number of turns to play
   Int ->
   -- | The number of wins of the first team, the number of draws, and
   -- the number of wins of the second team
   (Int, Int, Int)
-play shareds t1 t2 nbTurns =
+play shareds teams nbTurns =
   go shareds
     & map Match.matchResult
     & count (0, 0, 0)
   where
     go (shared : rest) =
-      Match.play (Update.initialGameModel shared t1 t2) nbTurns : go rest
+      let result@Result {matchResult} = Match.play (Update.initialGameModel shared teams) nbTurns
+       in traceShow matchResult result : go rest
     go [] = []
     count acc [] = acc
     count (w1, d, w2) (Match.Draw : tail) = count (w1, d + 1, w2) tail
