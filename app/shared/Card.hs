@@ -25,6 +25,7 @@ import GHC.Generics (Generic)
 import Tile
 
 -- If you change the first member, change 'allTeams' too
+-- If you add a member, augment the tests in 'Balance.hs'
 data Team = Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
 

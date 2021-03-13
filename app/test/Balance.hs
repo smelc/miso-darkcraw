@@ -23,31 +23,34 @@ import qualified Update
 
 main :: SharedModel -> SpecWith ()
 main shared =
-  describe "Balance" $
-    prop "Starting team doesn't have an advantage" $
-      let shareds = take nbCivilWars seeds & map (SharedModel.withSeed shared)
-       in let results = map (\t -> (t, Balance.play shareds (Teams t t) nbTurns)) allTeams
-           in results `shouldSatisfy` civilWarsSpec
+  describe "Balance" $ do
+    prop "Starting team doesn't have an advantage" $ do
+      checkBalance Human Human
+      checkBalance Undead Undead
+    prop "Teams are balanced" $
+      checkBalance Human Undead
   where
+    checkBalance t1 t2 =
+      let shareds = take nbCivilWars seeds & map (SharedModel.withSeed shared)
+       in let results = Balance.play shareds (Teams t1 t2) nbTurns
+           in results `shouldSatisfy` spec t1 t2
     seeds = [0, 31 ..]
     nbCivilWars = 20 -- Number of games for endomatches
     nbTurns = 8
-    civilWarsSpec :: [(Team, (Int, Int, Int))] -> Bool
-    civilWarsSpec [] = True
-    civilWarsSpec ((t, (win1, draws, win2)) : rest) =
+    spec t1 t2 (win1, draws, win2) =
       case (min <= win1f, win1f <= max) of
         (False, _) ->
           traceShow
-            (show t ++ " VS " ++ show t ++ ": not enough wins: " ++ show win1 ++ ", expected at least " ++ show min)
+            (show t1 ++ " VS " ++ show t2 ++ ": not enough wins: " ++ show win1 ++ ", expected at least " ++ show min)
             False
         (_, False) ->
           traceShow
-            (show t ++ " VS " ++ show t ++ ": too many wins: " ++ show win1 ++ ", expected at most " ++ show max)
+            (show t1 ++ " VS " ++ show t2 ++ ": too many wins: " ++ show win1 ++ ", expected at most " ++ show max)
             False
         _ ->
           traceShow
             (show min ++ " <= " ++ show win1f ++ " <= " ++ show max)
-            $ civilWarsSpec rest
+            True
       where
         (nbWins, win1f) = (int2Float $ win1 + win2, int2Float win1)
         (min, max) = (nbWins * 0.4, nbWins * 0.6)
@@ -85,6 +88,4 @@ play shareds teams nbTurns =
         lastBoard = last models & board
         team pSpot = boardToPart lastBoard pSpot & Board.team
         winLabel winner pSpot =
-          case winner == pSpot of
-            True -> "Win  " ++ show (team pSpot)
-            False -> "Lost " ++ show (team pSpot)
+          if winner == pSpot then "Win " else "Lost" ++ " " ++ show (team pSpot)
