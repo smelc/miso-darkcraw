@@ -47,13 +47,15 @@ main shared =
         _ -> civilWarsSpec rest
       where
         (nbWins, win1f) = (int2Float $ win1 + win2, int2Float win1)
-        (min, max) = (nbWins * 0.4, nbWins * 0.6)
+        (min, max) = (nbWins * 0.3, nbWins * 0.7)
 
 newtype Seeds = Seeds [Int]
   deriving (Show)
 
 instance Arbitrary Seeds where
-  arbitrary = Seeds <$> infiniteList
+  arbitrary = Seeds <$> genInts
+    where
+      genInts = infiniteListOf $ choose (-1024, 1024 :: Int)
 
 play ::
   -- | The models to use for a start (length of this list implies the

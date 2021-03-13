@@ -38,19 +38,13 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import qualified Total
 import Turn
+import qualified Balance
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
 creatureSum cards getter = sum (map getter cards)
 
 getAllDecks :: [Card UI] -> [[Card Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
-
-testBalance :: [Card UI] -> Int
-testBalance cards =
-  undefined
-  where
-    _humanDeck = teamDeck cards Human
-    _undeadDeck = teamDeck cards Undead
 
 -- XXX smelc group AI tests together
 
@@ -413,6 +407,7 @@ main = hspec $ do
         (\pSpot -> length allCardsSpots == length (Game.attackOrder pSpot))
         allPlayersSpots
   let shared = SharedModel.unsafeGet
+  Balance.main shared
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
