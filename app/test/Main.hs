@@ -9,6 +9,7 @@
 module Main where
 
 import AI
+import qualified Balance
 import Board
 import Card
 import Cinema
@@ -38,7 +39,6 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import qualified Total
 import Turn
-import qualified Balance
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
 creatureSum cards getter = sum (map getter cards)
@@ -407,7 +407,6 @@ main = hspec $ do
         (\pSpot -> length allCardsSpots == length (Game.attackOrder pSpot))
         allPlayersSpots
   let shared = SharedModel.unsafeGet
-  Balance.main shared
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
@@ -415,6 +414,19 @@ main = hspec $ do
               & filter (\(_, _, maybeCreature) -> isJust maybeCreature)
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)
+  -- From fast tests to slow tests (to maximize failing early)
+  testPlayFraming shared
+  testDrawCards shared
+  testShared shared
+  testAIPlace shared
+  testInPlaceEffectsMonoid
+  testNoPlayEventNeutral shared
+  testPlayScoreMonotonic shared
+  testPlayLastHandCard shared
+  Invariants.main shared
+  Match.main shared
+  Balance.main shared
+  -- Onto tests of scenes
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition
   describe "Cinema.|||" $
@@ -438,13 +450,3 @@ main = hspec $ do
           ((scene1 ||| scene2) ||| scene3) ~= (scene1 ||| (scene2 ||| scene3))
   testSceneReturn
   testGetActorState
-  testAIPlace shared
-  testInPlaceEffectsMonoid
-  testNoPlayEventNeutral shared
-  testPlayScoreMonotonic shared
-  testPlayLastHandCard shared
-  Match.main shared
-  testPlayFraming shared
-  testDrawCards shared
-  Invariants.main shared
-  testShared shared

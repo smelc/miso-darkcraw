@@ -48,7 +48,7 @@ main shared = do
     teamProduct = [(t1, t2) | t1 <- allTeams, t2 <- allTeams]
     traceResult r =
       case (matchResult r, last $ (map board . models) r) of
-        (Error msg, _) -> traceShow ("ERROR " ++ Text.unpack msg) r
+        (Error msg, _) -> traceShow ("[ERR] " ++ Text.unpack msg) r
         (Draw, board) -> traceShow ("Draw " ++ showScores board) r
         (Win _, board) -> traceShow ("Win " ++ showScores board) r
     last l = reverse l & listToMaybe
