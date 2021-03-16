@@ -41,11 +41,29 @@ main shared =
       case (min <= win1f, win1f <= max) of
         (False, _) ->
           traceShow
-            (show t1 ++ " VS " ++ show t2 ++ ": not enough wins: " ++ show win1 ++ ", expected at least " ++ show min)
+            ( show t1
+                ++ " VS "
+                ++ show t2
+                ++ ": not enough wins ("
+                ++ show t1
+                ++ "): "
+                ++ show win1
+                ++ ", expected at least "
+                ++ show min
+            )
             False
         (_, False) ->
           traceShow
-            (show t1 ++ " VS " ++ show t2 ++ ": too many wins: " ++ show win1 ++ ", expected at most " ++ show max)
+            ( show t1
+                ++ " VS "
+                ++ show t2
+                ++ ": too many wins ("
+                ++ show t1
+                ++ "): "
+                ++ show win1
+                ++ ", expected at most "
+                ++ show max
+            )
             False
         _ ->
           traceShow
@@ -88,4 +106,9 @@ play shareds teams nbTurns =
         lastBoard = last models & board
         team pSpot = boardToPart lastBoard pSpot & Board.team
         winLabel winner pSpot =
-          if winner == pSpot then "Win " else "Lost" ++ " " ++ show (team pSpot)
+          (if winner == pSpot then "Win " else "Lost")
+            ++ " "
+            ++ show (team pSpot)
+            ++ "("
+            ++ show (boardToScore lastBoard pSpot)
+            ++ ")"
