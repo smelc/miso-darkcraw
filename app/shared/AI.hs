@@ -219,6 +219,7 @@ scoreSkill s =
     Blow' b -> if b then -1 else 0
     Discipline' -> -1
     DrawCard' b -> if b then -1 else 0
+    Fear' -> -1
     LongReach' -> -1
     Ranged' -> -1
     Stupid4' _ -> if isStupid s then 2 else 1
