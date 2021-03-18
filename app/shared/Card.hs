@@ -54,8 +54,9 @@ data SkillCore
   | Discipline'
   | -- | Whether the skill is available (True) or used already (False)
     DrawCard' Bool
-  | -- | Creature causes fear
-    Fear'
+  | -- | Creature causes fear, the Boolean indicates whether the skill
+    -- is available (True) or used already (False)
+    Fear' Bool
   | LongReach'
   | Ranged'
   | -- | The turn, at 0, 1, or 2 not stupide; at 3 stupid; then back to 0
@@ -249,7 +250,7 @@ liftSkill skill =
     Blow' _ -> Blow
     Discipline' -> Discipline
     DrawCard' _ -> DrawCard
-    Fear' -> Fear
+    Fear' _ -> Fear
     LongReach' -> LongReach
     Ranged' -> Ranged
     Stupid4' _ -> Stupid4
@@ -288,7 +289,7 @@ unliftSkill skill =
     Blow -> Blow' True
     Discipline -> Discipline'
     DrawCard -> DrawCard' True
-    Fear -> Fear'
+    Fear -> Fear' True
     LongReach -> LongReach'
     Ranged -> Ranged'
     Stupid4 -> Stupid4' 0
