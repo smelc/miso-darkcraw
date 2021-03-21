@@ -7,6 +7,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Update where
@@ -21,6 +22,8 @@ import qualified Command
 import Control.Concurrent (threadDelay)
 import Control.Exception
 import Control.Lens
+import Control.Monad.Freer as Eff
+import Control.Monad.Freer.State as Eff
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as DataBifunctor
 import Data.Foldable (asum, toList)
@@ -383,7 +386,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards []) _ =
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest)) _ =
   case Game.drawCards gameShared board pSpot [fst] of
     Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
-    Right (board', boardui', shared') ->
+    Right (shared', board', boardui') ->
       ( m {anims = boardui', board = board', gameShared = shared'},
         -- enqueue next event (if any)
         [(1, GameDrawCards rest) | not $ null rest]
@@ -424,37 +427,16 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           return $ m {anims = boardui', board = board', gameShared = shared'}
         else Right m
 updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTurn _ =
-  case runEither of
+  case x of
     Left err -> updateDefault m $ ShowErrorInteraction err
-    Right pair -> pair
+    Right res -> res
   where
-    turn' = nextTurn turn
-    pSpot = turnToPlayerSpot turn'
-    isAI = pSpot /= playingPlayer
-    runEither = do
-      let board0 = boardStart board pSpot
-      let (shared', board', boardui') = Game.transferCards gameShared board0 pSpot
-      let drawSrcs = Game.cardsToDraw board' pSpot True
-      -- If it's the player turn, we wanna draw the first card right away,
-      -- so that the game feels responsive.
-      let drawNow = if isAI then drawSrcs else take 1 drawSrcs
-      (board'', boardui'', shared'') <-
-        Game.drawCards shared' board' pSpot drawNow
-      let events =
-            -- AI case: after drawing cards and playing its events
-            --          press "End Turn". We want a one second delay, it makes
-            --          it easier to understand what's going on
-            -- player case: we drew the first card already (see drawNow),
-            --              enqueue next event (if any)
-            if isAI
-              then
-                let plays = AI.play shared'' board'' turn'
-                 in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
-              else
-                let drawSoon = Prelude.drop 1 drawSrcs
-                 in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
-      let m' = m {anims = boardui' <> boardui'', board = board'', gameShared = shared'', turn = turn'}
-      return (m', events)
+    x =
+      updateGameIncrTurn m
+        & Eff.evalState gameShared
+        & Eff.evalState board
+        & Eff.evalState (mempty :: Board 'UI)
+        & Eff.run
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) NoInteraction =
   updateDefault m $ HoverInteraction $ Hovering i
@@ -476,6 +458,64 @@ updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
 updateGameModel m _ i =
   updateDefault m i
 
+-- | This function uses 'Eff' to have multiple 'State' for different types
+-- This allows to use put/get to track updates to the state, instead
+-- of having variables with increasing version numbers (ticks)
+updateGameIncrTurn ::
+  Members '[State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
+  GameModel ->
+  Eff eff (Either Text.Text (GameModel, GameActionSeq))
+updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
+  board <- get @(Board 'Core)
+  put @(Board 'Core) $ boardStart board pSpot
+  shared <- get @SharedModel
+  board <- get @(Board 'Core)
+  putAll $ Game.transferCards shared board pSpot
+  board <- get @(Board 'Core)
+  let drawSrcs = Game.cardsToDraw board pSpot True
+  -- If it's the player turn, we wanna draw the first card right away,
+  -- so that the game feels responsive.
+  let drawNow = if isAI then drawSrcs else take 1 drawSrcs
+  board <- get @(Board 'Core)
+  shared <- get @SharedModel
+  case Game.drawCards shared board pSpot drawNow of
+    Left errMsg -> return $ Left errMsg
+    Right triplet -> do
+      putAll triplet
+      shared <- get @SharedModel
+      board <- get @(Board 'Core)
+      let events =
+            -- AI case: after drawing cards and playing its events
+            --          press "End Turn". We want a one second delay, it makes
+            --          it easier to understand what's going on
+            -- player case: we drew the first card already (see drawNow),
+            --              enqueue next event (if any)
+            if isAI
+              then
+                let plays = AI.play shared board turn'
+                 in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
+              else
+                let drawSoon = Prelude.drop 1 drawSrcs
+                 in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
+      shared <- get @SharedModel
+      board <- get @(Board 'Core)
+      boardui <- get @(Board 'UI)
+      let m' = m {anims = boardui, board = board, gameShared = shared, turn = turn'}
+      return $ Right (m', events)
+  where
+    turn' = nextTurn turn
+    pSpot = turnToPlayerSpot turn'
+    isAI = pSpot /= playingPlayer
+    putAll ::
+      Members '[State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
+      (SharedModel, Board 'Core, Board 'UI) ->
+      Eff eff ()
+    putAll (s, b, ui') = do
+      put @SharedModel s
+      put @(Board 'Core) b
+      ui <- get @(Board 'UI)
+      put @(Board 'UI) (ui <> ui') -- animations accumulate
+
 updateSinglePlayerLobbyModel ::
   SinglePlayerLobbyAction ->
   SinglePlayerLobbyModel ->
@@ -493,7 +533,7 @@ updateMultiPlayerLobbyModel
   LobbySubmitUsername
   (CollectingUserName userName) =
     WaitingForNameSubmission userName <# do
-      send (CreateUser userName)
+      Miso.send (CreateUser userName)
       return NoOp
 updateMultiPlayerLobbyModel
   (LobbyServerMessage UserCreated)
@@ -515,7 +555,7 @@ updateMultiPlayerLobbyModel
   (LobbyInviteUser user)
   (DisplayingUserList _ me users) =
     InvitingUser me users user WaitingForUserInvitationAck <# do
-      send (InviteUser user)
+      Miso.send (InviteUser user)
       return NoOp
 updateMultiPlayerLobbyModel
   (LobbyServerMessage UserBusy)
@@ -529,7 +569,7 @@ updateMultiPlayerLobbyModel
   CancelInvitationClicked
   (InvitingUser me users user WaitingForRSVP) =
     InvitingUser me users user WaitingForInvitationDropAck <# do
-      send DropInvitation
+      Miso.send DropInvitation
       return NoOp
 updateMultiPlayerLobbyModel
   (LobbyServerMessage InvitationDropAck)
@@ -555,7 +595,7 @@ updateMultiPlayerLobbyModel
   RejectInvitationClicked
   (Invited me users user CollectingUserRSVP) =
     Invited me users user WaitingForRejectionAck <# do
-      send RejectInvitation
+      Miso.send RejectInvitation
       return NoOp
 updateMultiPlayerLobbyModel
   (LobbyServerMessage IncomingInvitationRejectionAck)
@@ -565,7 +605,7 @@ updateMultiPlayerLobbyModel
   AcceptInvitationClicked
   (Invited me users user CollectingUserRSVP) =
     Invited me users user WaitingForAcceptanceAck <# do
-      send AcceptInvitation
+      Miso.send AcceptInvitation
       return NoOp
 updateMultiPlayerLobbyModel
   (LobbyServerMessage IncomingInvitationAcceptanceAck)

@@ -342,12 +342,12 @@ drawCards ::
   PlayerSpot ->
   -- | The sources from which to draw the cards
   [DrawSource] ->
-  Either Text (Board Core, Board UI, SharedModel)
-drawCards shared board _ [] = return (board, mempty, shared)
+  Either Text (SharedModel, Board Core, Board UI)
+drawCards shared board _ [] = return (shared, board, mempty)
 drawCards shared board pSpot (hd : rest) = do
   (board', boardui, shared') <- drawCard shared board pSpot hd
-  (board'', boardui', shared'') <- drawCards shared' board' pSpot rest
-  return (board'', boardui <> boardui', shared'')
+  (shared'', board'', boardui') <- drawCards shared' board' pSpot rest
+  return (shared'', board'', boardui <> boardui')
 
 drawCard ::
   SharedModel ->

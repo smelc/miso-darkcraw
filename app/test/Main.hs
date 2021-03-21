@@ -157,7 +157,7 @@ testDrawCards shared =
              in Game.drawCards shared board pSpot srcs `shouldSatisfy` cond board pSpot
   where
     cond _ _ (Left errMsg) = traceShow errMsg False
-    cond board pSpot (Right (board', _, _)) =
+    cond board pSpot (Right (_, board', _)) =
       (len' - len)
         == min (Constants.nbCardsToDraw + nbCardDrawSkills) (boardToStack board pSpot & length)
       where
