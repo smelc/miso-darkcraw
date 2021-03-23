@@ -14,6 +14,7 @@
 
 module Game
   ( allEnemySpots,
+    applyFear,
     attackOrder, -- exported for tests only
     nextAttackSpot,
     enemySpots,
@@ -471,6 +472,54 @@ appliesTo board id playingPlayer target =
           boardToInPlaceCreature board pSpot cSpot & isJust
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
+
+applyFear ::
+  -- | The input board
+  Board 'Core ->
+  -- | The part causing fear
+  PlayerSpot ->
+  (Board 'Core, Board 'UI)
+applyFear board pSpot =
+  applyFearM board pSpot & runWriter
+
+applyFearM ::
+  MonadWriter (Board 'UI) m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part causing fear
+  PlayerSpot ->
+  m (Board 'Core)
+applyFearM board affectingSpot = do
+  traverse_ (\spot -> reportEffect affectedSpot spot deathEffect) fearAffected
+  let board' = boardSetInPlace board affectedSpot affectedInPlace'
+  let board'' = boardSetInPlace board' affectingSpot affectingInPlace'
+  return board''
+  where
+    affectedSpot = otherPlayerSpot affectingSpot
+    affectingInPlace = boardToInPlace board affectingSpot
+    causingFear = affectingInPlace & Map.filter (`Total.causesFear` True)
+    affectingSpots = Map.keys causingFear
+    affectedSpots :: [CardSpot] =
+      affectingSpots
+        & map (enemySpots True [])
+        & concat
+    affectedInPlace = boardToInPlace board affectedSpot
+    fearAffected :: [CardSpot] =
+      affectedInPlace
+        & Map.filterWithKey
+          (\spot c -> spot `elem` affectedSpots && Total.affectedByFear c)
+        & Map.keys
+    affectedInPlace' =
+      -- remove creatures killed by fear
+      removeKeys affectedInPlace fearAffected
+    removeKeys map [] = map
+    removeKeys map (k : rest) = removeKeys (Map.delete k map) rest
+    affectingInPlace' =
+      -- consume Fear skills
+      Map.mapWithKey consumeFear affectingInPlace
+    deathEffect = InPlaceEffect 0 True False 0 False 0
+    consumeFear cSpot c | cSpot `notElem` affectingSpots = c
+    consumeFear cSpot Creature {skills} = undefined
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
