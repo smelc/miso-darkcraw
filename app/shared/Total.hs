@@ -13,6 +13,12 @@ import Card
 import qualified Constants
 import Data.Function ((&))
 
+-- | Whether a creature is affected by fear
+affectedByFear :: Creature 'Core -> Bool
+affectedByFear Creature {hp} | hp > 1 = False
+affectedByFear c | causesFear c False = False -- Creature causing fear cannot have fear
+affectedByFear _ = True
+
 -- | The total attack of a creature, including boosts of skills and items.
 -- This would make more sense to be in 'Game', but alas this is more
 -- convenient to have it here dependency-wise.
@@ -26,6 +32,15 @@ attack Creature {Card.attack, skills, items} =
       filter (\case Blow' True -> True; _ -> False) skills & length
     nbSwordsOfMight =
       filter (== SwordOfMight) items & length
+
+-- | Whether a creature causes fear
+causesFear ::
+  Creature 'Core ->
+  -- | Whether to consider the skill's state
+  Bool ->
+  Bool
+causesFear Creature {skills} True = any (\case Fear' True -> True; _ -> False) skills
+causesFear Creature {skills} False = any (\case Fear' _ -> True; _ -> False) skills
 
 -- | Core function for finding out about discipline
 hasDiscipline :: [Skill] -> [Item] -> Bool
