@@ -14,6 +14,7 @@
 
 module Game
   ( allEnemySpots,
+    applyFear,
     attackOrder, -- exported for tests only
     nextAttackSpot,
     enemySpots,
@@ -476,6 +477,15 @@ appliesTo board id playingPlayer target =
           boardToInPlaceCreature board pSpot cSpot & isJust
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
+
+applyFear ::
+  -- | The input board
+  Board 'Core ->
+  -- | The part causing fear
+  PlayerSpot ->
+  (Board 'Core, Board 'UI)
+applyFear board pSpot =
+  applyFearM board pSpot & runWriter
 
 applyFearM ::
   MonadWriter (Board 'UI) m =>

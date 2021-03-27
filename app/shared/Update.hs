@@ -36,7 +36,7 @@ import qualified Data.Text.Lazy as LazyText
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import qualified Game (DrawSource (..), Event (..), PolyResult (..), Target (..), cardsToDraw, drawCards, nextAttackSpot, play, playAll, transferCards)
+import qualified Game (DrawSource (..), Event (..), PolyResult (..), Target (..), applyFear, cardsToDraw, drawCards, nextAttackSpot, play, playAll, transferCards)
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
@@ -482,9 +482,12 @@ updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
     Left errMsg -> return $ Left errMsg
     Right triplet -> do
       putAll triplet
+      board <- get @(Board 'Core)
+      let fearMatters = (Game.applyFear board otherSpot & fst) /= board
+      let events1 = [(1, GamePlay $ Game.ApplyFear otherSpot) | fearMatters]
       shared <- get @SharedModel
       board <- get @(Board 'Core)
-      let events =
+      let events2 =
             -- AI case: after drawing cards and playing its events
             --          press "End Turn". We want a one second delay, it makes
             --          it easier to understand what's going on
@@ -501,10 +504,11 @@ updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
       board <- get @(Board 'Core)
       boardui <- get @(Board 'UI)
       let m' = m {anims = boardui, board = board, gameShared = shared, turn = turn'}
-      return $ Right (m', events)
+      return $ Right (m', events1 ++ events2)
   where
     turn' = nextTurn turn
     pSpot = turnToPlayerSpot turn'
+    otherSpot = otherPlayerSpot pSpot
     isAI = pSpot /= playingPlayer
     putAll ::
       Members '[State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
