@@ -14,7 +14,6 @@
 
 module Game
   ( allEnemySpots,
-    applyFear,
     attackOrder, -- exported for tests only
     nextAttackSpot,
     enemySpots,
@@ -90,7 +89,9 @@ whichPlayerTarget = \case
   IDN Life -> Playing
 
 data Event
-  = -- | A card attacks at the given spot. The first Boolean indicates
+  = -- | Apply fear of the creatures at the given 'PlayerSpot'
+    ApplyFear PlayerSpot
+  | -- | A card attacks at the given spot. The first Boolean indicates
     -- whether the next spot (as defined by 'nextAttackSpot') should
     -- be enqueued after solving this attack. The second Boolean indicates
     -- whether 'GameIncrTurn' (change player turn) should be performed
@@ -171,6 +172,9 @@ playM ::
   Board Core ->
   Event ->
   m (Board Core, Maybe Event)
+playM board (ApplyFear pSpot) = do
+  board' <- Game.applyFearM board pSpot
+  return (board', Nothing)
 playM board (Attack pSpot cSpot _ _) = do
   board' <- Game.attack board pSpot cSpot
   return (board', Nothing)
@@ -473,15 +477,6 @@ appliesTo board id playingPlayer target =
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
 
-applyFear ::
-  -- | The input board
-  Board 'Core ->
-  -- | The part causing fear
-  PlayerSpot ->
-  (Board 'Core, Board 'UI)
-applyFear board pSpot =
-  applyFearM board pSpot & runWriter
-
 applyFearM ::
   MonadWriter (Board 'UI) m =>
   -- | The input board
@@ -519,7 +514,10 @@ applyFearM board affectingSpot = do
       Map.mapWithKey consumeFear affectingInPlace
     deathEffect = InPlaceEffect 0 True False 0 False 0
     consumeFear cSpot c | cSpot `notElem` affectingSpots = c
-    consumeFear cSpot Creature {skills} = undefined
+    consumeFear cSpot c@Creature {skills} = c {skills = consumeFearSkill skills}
+    consumeFearSkill [] = []
+    consumeFearSkill ((Fear' True) : rest) = Fear' False : rest
+    consumeFearSkill (s : rest) = s : consumeFearSkill rest
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::

@@ -44,6 +44,7 @@ placeCards shared board turn =
   assert (all isPlaceEvent events) events
   where
     events = AI.play shared board turn
+    isPlaceEvent ApplyFear {} = False
     isPlaceEvent Attack {} = False
     isPlaceEvent NoPlayEvent = False
     isPlaceEvent Place {} = True

@@ -168,6 +168,7 @@ eventToGameActions ::
 eventToGameActions board event =
   case event of
     Game.Attack {} -> [Update.GamePlay event]
+    Game.ApplyFear {} -> [Update.GamePlay event]
     Game.NoPlayEvent -> []
     Game.Place target handIndex ->
       [ Update.DragStart handIndex,
