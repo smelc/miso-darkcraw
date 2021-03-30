@@ -29,6 +29,7 @@ import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (
 import Constants
 import Data.Char (toLower)
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.List.Extra
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -38,9 +39,9 @@ import Miso.Util ((=:))
 import SharedModel (SharedModel, tileToFilepath)
 import qualified SharedModel
 import Tile
+import qualified Total
 import Update (Action)
 import ViewInternal
-import qualified Total
 
 data DisplayMode = NormalMode | DebugMode
 
@@ -101,11 +102,10 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
     pictureStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize card) `div` 2) picTopMargin
     filepath =
-      SharedModel.unsafeLiftCard shared card
-        & SharedModel.cardToFilepath shared
-        & filepathToString
-        & ms
-    pictureCell = imgCell filepath
+      SharedModel.liftCard shared card
+        <&> SharedModel.cardToFilepath shared
+        & fromMaybe default24Filepath
+    pictureCell = imgCell $ ms $ filepathToString filepath
     builder attrs =
       div_ (attrs ++ extraAttrs) $
         [div_ [style_ pictureStyle] [pictureCell]]
