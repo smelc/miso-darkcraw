@@ -17,7 +17,6 @@ module SharedModel
     tileToFilepath,
     unsafeGet,
     unsafeIdentToCard,
-    unsafeLiftCard,
     SharedModel.liftSkill,
     shuffle,
     create,
@@ -255,6 +254,3 @@ tileToFilepath SharedModel {sharedTiles} tile =
 
 unsafeIdentToCard :: SharedModel -> Card.ID -> Card UI
 unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
-
-unsafeLiftCard :: SharedModel -> Card Core -> Card UI
-unsafeLiftCard s c = liftCard s c & fromJust

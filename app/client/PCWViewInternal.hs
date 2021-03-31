@@ -178,7 +178,10 @@ cardView' loc z shared card =
     (core, ui) ->
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
-    ui = SharedModel.unsafeLiftCard shared card
+    ui =
+      case SharedModel.liftCard shared card of
+        Nothing -> error $ "Cannot lift card: " ++ show card
+        Just c -> c
     (topMargin, leftMargin) = (cps `div` 4, topMargin)
     statsTopMargin = topMargin * 2 + cps
     statsStyle = zpltwh (z + 1) Absolute leftMargin statsTopMargin width cps
