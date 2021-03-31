@@ -206,15 +206,18 @@ liftNeutralObject shared NeutralObject {neutral} =
 -- An alternative implementation could return the pristine, formal, UI card.
 liftCreature :: SharedModel -> Creature 'Core -> Maybe (Creature UI)
 liftCreature s@SharedModel {sharedCards} c@Creature {..} =
-  case sharedCards Map.!? IDC creatureId items of
+  -- Because creatures in data.json don't have items, we send []:
+  case sharedCards Map.!? IDC creatureId [] of
     Nothing -> Nothing
-    Just (CreatureCard Creature {tile}) ->
-      Just $
-        Creature
-          { items = map (liftItemObject s . mkCoreItemObject) items,
-            skills = map Card.liftSkill skills,
-            ..
-          }
+    Just (CreatureCard Creature {items = is, tile}) ->
+      -- and then we fill the result with the expected items:
+      assert (null is) $
+        Just $
+          Creature
+            { items = map (liftItemObject s . mkCoreItemObject) items,
+              skills = map Card.liftSkill skills,
+              ..
+            }
     Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
 liftSkill :: SharedModel -> Skill -> SkillPack
