@@ -18,7 +18,7 @@ instance Startable SkillCore where
   start (DrawCard' False) = DrawCard' True -- Renew it
   start (Blow' True) = Blow' False -- Always turn OFF, meaning the only change
   -- to use it is when you initially place the card
-  start (Fear' False) = Blow' True -- Renew it
+  start (Fear' False) = Fear' True -- Renew it
   start s@(Stupid4' _) | isStupid s = Stupid4' 0
   start (Stupid4' i) = Stupid4' $ i + 1
   start a = a

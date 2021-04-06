@@ -230,6 +230,7 @@ skillDiv shared skill =
         DrawCard' False -> "color" =: grey
         Blow' False -> "color" =: grey
         Blow' True -> "color" =: greenHTML
+        Fear' False -> "color" =: grey
         _ | isStupid skill -> "color" =: redHTML
         _ -> mempty
       where
