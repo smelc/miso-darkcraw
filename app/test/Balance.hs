@@ -27,7 +27,7 @@ main shared =
     prop "Starting team doesn't have an advantage" $ do
       checkBalance Human Human
       checkBalance Undead Undead
-    xit "Teams are balanced" $ -- FIXME @smelc xit->prop once fixed
+    it "Teams are balanced" $
       checkBalance Human Undead
   where
     checkBalance t1 t2 =
@@ -67,7 +67,7 @@ main shared =
             False
         _ ->
           traceShow
-            (show min ++ " <= " ++ show win1f ++ " <= " ++ show max)
+            (show min ++ " <= " ++ show win1f ++ " (" ++ show t1 ++ ") <= " ++ show max)
             True
       where
         (nbWins, win1f) = (int2Float $ win1 + win2, int2Float win1)
