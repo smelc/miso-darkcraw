@@ -129,6 +129,10 @@ instance Arbitrary Turn where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary DeathCause where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 instance Arbitrary InPlaceEffect where
   arbitrary = genericArbitraryU
   shrink = genericShrink

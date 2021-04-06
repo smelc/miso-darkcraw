@@ -32,7 +32,7 @@ import Constants
 import Control.Lens
 import Control.Monad.Except
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
 import qualified Game (Target (..), appliesTo, enemySpots)
@@ -209,7 +209,7 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
     deck :: [Card Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
     atColonSize = length deck
     attackEffects = anims ^. spotToLens pSpot . #inPlace & unInPlaceEffects
-    nbDeaths = Map.foldr (\ae i -> i + (if death ae then 1 else 0)) 0 attackEffects
+    nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 attackEffects
     animName = "stackPlus"
     animData =
       (animationData animName "1s" "linear")
@@ -256,15 +256,20 @@ deathFadeout ae _ _ =
         builder
         (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
         animData
-      | death ae
+      | isDead
     ]
   where
+    (isDead, asset) =
+      case death ae of
+        DeathByFear -> (True, Just assetFilenameGhost)
+        NoDeath -> (False, Nothing)
+        UsualDeath -> (True, Just assetFilenameSkull)
     sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
     left = (cardPixelWidth - imgw) `div` 2
     top = (cardPixelHeight - imgh) `div` 2
     builder x =
-      img_ $ [src_ (assetsPath assetFilenameSkull), style_ sty] ++ x
+      img_ $ [src_ (assetsPath $ fromJust asset), style_ sty] ++ x
     animData =
       (animationData "deathFadeout" "1s" "ease")
         { animDataFillMode = Just "forwards"

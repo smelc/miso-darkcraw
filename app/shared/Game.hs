@@ -495,7 +495,7 @@ applyFearM ::
   PlayerSpot ->
   m (Board 'Core)
 applyFearM board affectingSpot = do
-  traverse_ (\spot -> reportEffect affectedSpot spot deathEffect) fearAffected
+  traverse_ (\spot -> reportEffect affectedSpot spot deathByFearEffect) fearAffected
   let board' = boardSetInPlace board affectedSpot affectedInPlace'
   let board'' = boardSetInPlace board' affectingSpot affectingInPlace'
   return board''
@@ -522,7 +522,7 @@ applyFearM board affectingSpot = do
     affectingInPlace' =
       -- consume Fear skills
       Map.mapWithKey consumeFear affectingInPlace
-    deathEffect = InPlaceEffect 0 True False 0 False 0
+    deathByFearEffect = InPlaceEffect 0 DeathByFear False 0 False 0
     consumeFear cSpot c | cSpot `notElem` affectingSpots = c
     consumeFear cSpot c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []
@@ -554,7 +554,7 @@ attack board pSpot cSpot =
        in do
             reportEffect pSpot cSpot $ mempty {attackBump = True}
             reportEffect attackeePSpot hitSpot effect -- hittee
-            if death effect
+            if (isDead . death) effect
               then applyFlailOfTheDamned board' hitter (pSpot, cSpot)
               else pure board'
     (Just hitter, _, Nothing) -> do
@@ -614,7 +614,7 @@ applyInPlaceEffect ::
   Maybe (Creature Core)
 applyInPlaceEffect effect creature@Creature {..} =
   case effect of
-    InPlaceEffect {death = True} -> Nothing
+    InPlaceEffect {death} | isDead death -> Nothing
     InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = hp + i}
 
 applyFlailOfTheDamned ::
@@ -658,7 +658,7 @@ applyFlailOfTheDamned board creature (pSpot, cSpot) =
 -- The effect of an attack on the defender
 singleAttack :: Creature Core -> Creature Core -> InPlaceEffect
 singleAttack attacker defender
-  | hps' <= 0 = mempty {death = True}
+  | hps' <= 0 = mempty {death = UsualDeath}
   | otherwise = mempty {hitPointsChange = - hit}
   where
     hit = Total.attack attacker

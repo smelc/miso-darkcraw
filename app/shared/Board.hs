@@ -29,6 +29,7 @@ module Board
     boardToPart,
     Board (..),
     CardSpot (..),
+    DeathCause (..),
     endingPlayerSpot,
     initialBoard,
     HandIndex (..),
@@ -63,6 +64,7 @@ module Board
     boardToPlayerHoleyInPlace,
     boardToNeighbors,
     boardToPlayerCardSpots,
+    isDead,
   )
 where
 
@@ -119,6 +121,29 @@ bottomSpotOfTopVisual = \case
   Bottom -> Top
   BottomRight -> TopLeft
 
+data DeathCause
+  = -- | Creature was killed by fear
+    DeathByFear
+  | -- | Creature was not killed
+    NoDeath
+  | -- | Creature was killed for a reason we do not track precisely
+    UsualDeath
+  deriving (Eq, Generic, Show)
+
+-- | Whether this death cause represents a death
+isDead :: DeathCause -> Bool
+isDead NoDeath = False
+isDead _ = True
+
+instance Semigroup DeathCause where
+  DeathByFear <> _ = DeathByFear
+  _ <> DeathByFear = DeathByFear
+  UsualDeath <> _ = UsualDeath
+  NoDeath <> d = d
+
+instance Monoid DeathCause where
+  mempty = NoDeath
+
 -- It is a bit unfortunate to have these types defined here
 -- as they are UI only. However we need them to define the InPlaceType family
 
@@ -128,8 +153,8 @@ bottomSpotOfTopVisual = \case
 data InPlaceEffect = InPlaceEffect
   { -- | Attack value changed
     attackChange :: Int,
-    -- | Creature dies
-    death :: Bool,
+    -- | Did creature die? If yes, for what reason
+    death :: DeathCause,
     -- | Creature attacked (value used solely for animations)
     attackBump :: Bool,
     -- | Hits points changed
@@ -146,7 +171,7 @@ instance Semigroup InPlaceEffect where
     <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, hitPointsChange = hp2, fadeIn = f2, scoreChange = c2} =
       InPlaceEffect
         { attackChange = ac1 + ac2,
-          death = d1 || d2,
+          death = d1 <> d2,
           attackBump = ab1 || ab2,
           hitPointsChange = hp1 + hp2,
           fadeIn = f1 || f2,
@@ -157,7 +182,7 @@ instance Monoid InPlaceEffect where
   mempty =
     InPlaceEffect
       { attackChange = 0,
-        death = False,
+        death = mempty,
         attackBump = False,
         hitPointsChange = 0,
         fadeIn = False,

@@ -84,6 +84,8 @@ instance ToExpr (Card UI)
 
 instance ToExpr PlayerSpot
 
+instance ToExpr DeathCause
+
 instance ToExpr InPlaceEffect
 
 instance ToExpr InPlaceEffects
