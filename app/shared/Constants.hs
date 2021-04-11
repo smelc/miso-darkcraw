@@ -14,11 +14,12 @@ assetFilenameBeigeBG = "24x24_0_2.png"
 assetFilenameCrown :: MisoString
 assetFilenameCrown = "16x16_0_1.png"
 
-assetFilenameGhost :: MisoString
-assetFilenameGhost = "24x24_5_3.png"
+assetFilenameGhost :: MisoString = "24x24_5_3.png"
 
 assetFilenameHeart :: MisoString
 assetFilenameHeart = "16x16_0_0.png"
+
+assetFilenameShade :: MisoString = "24x24_6_3.png"
 
 assetFilenameSkull :: MisoString
 assetFilenameSkull = "16x16_1_1.png"

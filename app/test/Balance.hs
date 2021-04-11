@@ -31,11 +31,11 @@ main shared =
       checkBalance Human Undead
   where
     checkBalance t1 t2 =
-      let shareds = take nbCivilWars seeds & map (SharedModel.withSeed shared)
+      let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
        in let results = Balance.play shareds (Teams t1 t2) nbTurns
            in results `shouldSatisfy` spec t1 t2
     seeds = [0, 31 ..]
-    nbCivilWars = 20 -- Number of games for endomatches
+    nbMatches = 50
     nbTurns = 8
     spec t1 t2 (win1, draws, win2) =
       case (min <= win1f, win1f <= max) of
@@ -50,6 +50,13 @@ main shared =
                 ++ show win1
                 ++ ", expected at least "
                 ++ show min
+                ++ " (draws: "
+                ++ show draws
+                ++ ", "
+                ++ show t2
+                ++ " wins "
+                ++ show win2
+                ++ ")"
             )
             False
         (_, False) ->
