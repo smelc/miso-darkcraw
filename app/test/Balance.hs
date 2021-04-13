@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
@@ -33,52 +34,67 @@ main shared =
     checkBalance t1 t2 =
       let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
        in let results = Balance.play shareds (Teams t1 t2) nbTurns
-           in results `shouldSatisfy` spec t1 t2
+           in results `shouldSatisfy` spec
     seeds = [0, 31 ..]
     nbMatches = 50
     nbTurns = 8
-    spec t1 t2 (win1, draws, win2) =
-      case (min <= win1f, win1f <= max) of
+    spec Balance.Result {..} =
+      case (min <= winTop, winTop <= max) of
         (False, _) ->
           traceShow
-            ( show t1
+            ( show topTeam
                 ++ " VS "
-                ++ show t2
+                ++ show botTeam
                 ++ ": not enough wins ("
-                ++ show t1
+                ++ show topTeam
                 ++ "): "
-                ++ show win1
+                ++ show winTop
                 ++ ", expected at least "
                 ++ show min
                 ++ " (draws: "
                 ++ show draws
                 ++ ", "
-                ++ show t2
+                ++ show botTeam
                 ++ " wins "
-                ++ show win2
+                ++ show botWins
                 ++ ")"
             )
             False
         (_, False) ->
           traceShow
-            ( show t1
+            ( show topTeam
                 ++ " VS "
-                ++ show t2
+                ++ show botTeam
                 ++ ": too many wins ("
-                ++ show t1
+                ++ show topWins
                 ++ "): "
-                ++ show win1
+                ++ show topTeam
                 ++ ", expected at most "
                 ++ show max
             )
             False
         _ ->
           traceShow
-            (show min ++ " <= " ++ show win1f ++ " (" ++ show t1 ++ ") <= " ++ show max)
+            (show min ++ " <= " ++ show winTop ++ " (" ++ show topTeam ++ ") <= " ++ show max)
             True
       where
-        (nbWins, win1f) = (int2Float $ win1 + win2, int2Float win1)
+        (nbWins, winTop) = (int2Float $ topWins + botWins, int2Float topWins)
         (min, max) = (nbWins * 0.4, nbWins * 0.6)
+
+-- | The result of executing 'play': the number of wins of each team and
+-- the number of draws
+data Result = Result
+  { topTeam :: Team,
+    topWins :: Int,
+    botTeam :: Team,
+    botWins :: Int,
+    draws :: Int
+  }
+  deriving (Show)
+
+mkEmpty :: Teams -> Balance.Result
+mkEmpty Teams {topTeam, botTeam} =
+  Balance.Result {topWins = 0, botWins = 0, draws = 0, ..}
 
 play ::
   -- | The models to use for a start (length of this list implies the
@@ -87,23 +103,21 @@ play ::
   Teams ->
   -- | The number of turns to play
   Int ->
-  -- | The number of wins of the first team, the number of draws, and
-  -- the number of wins of the second team
-  (Int, Int, Int)
-play shareds teams nbTurns =
+  Balance.Result
+play shareds teams@Teams {topTeam, botTeam} nbTurns =
   go shareds
     & map Match.matchResult
-    & count (0, 0, 0)
+    & count (mkEmpty teams)
   where
     go (shared : rest) =
       let result = Match.play (Update.initialGameModel shared teams) nbTurns
        in traceShow (logString result) result : go rest
     go [] = []
     count acc [] = acc
-    count (w1, d, w2) (Match.Draw : tail) = count (w1, d + 1, w2) tail
+    count b@Balance.Result {draws} (Match.Draw : tail) = count b {draws = draws + 1} tail
     count tuple (Match.Error {} : tail) = count tuple tail -- not this test's business to fail on Error
-    count (w1, d, w2) (Match.Win PlayerTop : tail) = count (w1, d, w2 + 1) tail
-    count (w1, d, w2) (Match.Win PlayerBot : tail) = count (w1 + 1, d, w2) tail
+    count b@Balance.Result {topWins} (Match.Win PlayerTop : tail) = count b {topWins = topWins + 1} tail
+    count b@Balance.Result {botWins} (Match.Win PlayerBot : tail) = count b {botWins = botWins + 1} tail
     logString Match.Result {Match.models, Match.matchResult} =
       case matchResult of
         Match.Draw -> "Draw " ++ show (team PlayerTop) ++ " VS " ++ show (team PlayerBot)
