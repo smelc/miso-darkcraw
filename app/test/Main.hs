@@ -381,6 +381,38 @@ testPlayScoreMonotonic shared =
     monotonic _ Nothing = True -- Nothing to test
     monotonic i (Just j) = j <= i -- Better score is smaller score
 
+testFear shared =
+  describe "Fear works as expected" $ do
+    it "fear triggers when expected" $
+      (boardToPart board'' PlayerBot & Board.inPlace) `shouldSatisfy` Map.null
+    it "fear does not trigger when expected" $
+      (boardToPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null
+  where
+    teams = Teams Undead Human
+    causingFear = CreatureID Skeleton Undead
+    board = smallBoard shared teams causingFear [] PlayerTop Bottom
+    affectedByFear =
+      SharedModel.idToCreature shared (CreatureID Archer Human) []
+        & fromJust
+        & unliftCreature
+    board' =
+      boardSetCreature
+        board
+        PlayerBot
+        (bottomSpotOfTopVisual Top)
+        (affectedByFear & (\Creature {hp, ..} -> Creature {hp = 1, ..}))
+    board'' = Game.play shared board' (Game.ApplyFear PlayerTop) & extract
+    extract (Left _) = error "Test failure"
+    extract (Right (Game.Result _ b _ _)) = b
+    -- Second test
+    boardBis' =
+      boardSetCreature
+        board
+        PlayerBot
+        (bottomSpotOfTopVisual Top)
+        affectedByFear
+    boardBis'' = Game.play shared boardBis' (Game.ApplyFear PlayerTop) & extract
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -415,6 +447,7 @@ main = hspec $ do
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)
   -- From fast tests to slow tests (to maximize failing early)
+  testFear shared
   testPlayFraming shared
   testDrawCards shared
   testShared shared
