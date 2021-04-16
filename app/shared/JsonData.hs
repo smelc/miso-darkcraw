@@ -18,7 +18,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"moral\":4, \"victory_points\":5, \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"] },\n\
          \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":3, \"moral\":4, \"victory_points\":5, \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"] },\n\
          \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadSkeleton\", \"skills\":[\"Fear\"] },\n\
-         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\",  \"skills\":[\"Fear\"]  },\n\
+         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\",  \"skills\":[\"Terror\"]  },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadArcher\",   \"skills\":[\"Fear\", \"Ranged\"]   },\n\
          \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":2, \"victory_points\":2, \"tile\":\"UndeadMummy\",    \"skills\":[\"Fear\"]    },\n\
          \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\"] },\n\
@@ -86,10 +86,11 @@ jsonData = "{\n\
          \    { \"skill\":\"Blow\",        \"title\":\"Blow\",       \"text\":\"+2 :crossed_swords: during first turn\"},\n\
          \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of your turn\"},\n\
-         \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn\"},\n\
+         \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"Hits 2 cells away when in the back line\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
          \    { \"skill\":\"Stupid4\",     \"title\":\"Stupid\",     \"text\":\"1 out of 4 turns: does not attack\"},\n\
+         \    { \"skill\":\"Terror\",      \"title\":\"Terror\",     \"text\":\"Nearby opponent with 2 :heart: (or less) dies at beginning of its turn. Immune to to fear and terror.\"},\n\
          \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"Never goes back to the stack\"}\n\
          \  ]\n\
          \}\n"

@@ -14,7 +14,7 @@
 
 module Game
   ( allEnemySpots,
-    applyFear,
+    applyFearNTerror,
     attackOrder, -- exported for tests only
     nextAttackSpot,
     enemySpots,
@@ -91,7 +91,7 @@ whichPlayerTarget = \case
 
 data Event
   = -- | Apply fear of the creatures at the given 'PlayerSpot'
-    ApplyFear PlayerSpot
+    ApplyFearNTerror PlayerSpot
   | -- | A card attacks at the given spot. The first Boolean indicates
     -- whether the next spot (as defined by 'nextAttackSpot') should
     -- be enqueued after solving this attack. The second Boolean indicates
@@ -173,8 +173,8 @@ playM ::
   Board Core ->
   Event ->
   m (Board Core, Maybe Event)
-playM board (ApplyFear pSpot) = do
-  board' <- Game.applyFearM board pSpot
+playM board (ApplyFearNTerror pSpot) = do
+  board' <- Game.applyFearNTerrorM board pSpot
   return (board', Nothing)
 playM board (Attack pSpot cSpot _ _) = do
   board' <- Game.attack board pSpot cSpot
@@ -478,56 +478,85 @@ appliesTo board id playingPlayer target =
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
 
-applyFear ::
+applyFearNTerror ::
   -- | The input board
   Board 'Core ->
   -- | The part causing fear
   PlayerSpot ->
   (Board 'Core, Board 'UI)
-applyFear board pSpot =
-  applyFearM board pSpot & runWriter
+applyFearNTerror board pSpot =
+  applyFearNTerrorM board pSpot & runWriter
 
-applyFearM ::
+applyFearNTerrorM ::
   MonadWriter (Board 'UI) m =>
   -- | The input board
   Board 'Core ->
   -- | The part causing fear
   PlayerSpot ->
   m (Board 'Core)
-applyFearM board affectingSpot = do
-  traverse_ (\spot -> reportEffect affectedSpot spot deathByFearEffect) fearAffected
-  let board' = boardSetInPlace board affectedSpot affectedInPlace'
+applyFearNTerrorM board affectingSpot = do
+  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByTerror) terrorAffected
+  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByFear) fearAffected
+  let board' = boardSetInPlace board affectedSpot affectedInPlace''
   let board'' = boardSetInPlace board' affectingSpot affectingInPlace'
   return board''
   where
     affectedSpot = otherPlayerSpot affectingSpot
     affectingInPlace = boardToInPlace board affectingSpot
-    causingFear = affectingInPlace & Map.filter (`Total.causesFear` True)
-    affectingSpots = Map.keys causingFear
-    affectedSpots :: [CardSpot] =
-      affectingSpots
-        & map (enemySpots True [])
-        & concat
+    causingFear = Map.filter Total.causesFear affectingInPlace
+    causingTerror = Map.filter Total.causesTerror affectingInPlace
+    switch :: CardSpot -> Maybe CardSpot -- From affecting spot to affected spot, and back
+    switch cSpot = enemySpots True [] cSpot & listToMaybe
+    terrorAffectedSpots :: [CardSpot] = Map.keys causingTerror & mapMaybe switch
+    fearAffectedSpots :: [CardSpot] =
+      Map.keys causingFear
+        -- & flip removeAll terrorAffectedSpots -- Terror is stronger than fear: nope, seems to turn Fear off!?
+        & mapMaybe switch
+    removeAll l1 l2 = [x | x <- l1, x `notElem` l2]
     affectedInPlace = boardToInPlace board affectedSpot
     fearAffected :: [CardSpot] =
       affectedInPlace
         & Map.filterWithKey
-          (\spot c -> spot `elem` affectedSpots && Total.affectedByFear c)
+          (\spot c -> spot `elem` fearAffectedSpots && Total.affectedByFear c)
+        & Map.keys
+    terrorAffected :: [CardSpot] =
+      affectedInPlace
+        & Map.filterWithKey
+          (\spot c -> spot `elem` terrorAffectedSpots && Total.affectedByTerror c)
         & Map.keys
     affectedInPlace' =
+      -- remove creatures killed by terror
+      removeKeys affectedInPlace terrorAffected
+    terrorKillers :: [CardSpot] =
+      -- Affecting spots that cause a death by terror
+      removeAll (Map.keys affectedInPlace') $
+        Map.keys affectedInPlace
+          & mapMaybe switch
+    affectedInPlace'' =
       -- remove creatures killed by fear
-      removeKeys affectedInPlace fearAffected
+      removeKeys affectedInPlace' fearAffected
+    fearKillers :: [CardSpot] =
+      -- Affecting spots that cause a death by fear
+      removeAll (Map.keys affectedInPlace'') $
+        Map.keys affectedInPlace'
+          & mapMaybe switch
     removeKeys map [] = map
     removeKeys map (k : rest) = removeKeys (Map.delete k map) rest
     affectingInPlace' =
-      -- consume Fear skills
-      Map.mapWithKey consumeFear affectingInPlace
-    deathByFearEffect = InPlaceEffect 0 DeathByFear False 0 False 0
-    consumeFear cSpot c | cSpot `notElem` affectingSpots = c
+      -- consume skills
+      Map.mapWithKey consumeTerror affectingInPlace
+        & Map.mapWithKey consumeFear
+    deathBy cause = InPlaceEffect 0 cause False 0 False 0
+    consumeFear cSpot c | cSpot `notElem` fearKillers = c
     consumeFear cSpot c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []
     consumeFearSkill ((Fear' True) : rest) = Fear' False : rest
     consumeFearSkill (s : rest) = s : consumeFearSkill rest
+    consumeTerror cSpot c | cSpot `notElem` terrorKillers = c
+    consumeTerror cSpot c@Creature {skills} = c {skills = consumeTerrorSkill skills}
+    consumeTerrorSkill [] = []
+    consumeTerrorSkill ((Terror' True) : rest) = Terror' False : rest
+    consumeTerrorSkill (s : rest) = s : consumeTerrorSkill rest
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::

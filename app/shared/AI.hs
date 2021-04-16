@@ -44,7 +44,7 @@ placeCards shared board turn =
   assert (all isPlaceEvent events) events
   where
     events = AI.play shared board turn
-    isPlaceEvent ApplyFear {} = False
+    isPlaceEvent ApplyFearNTerror {} = False
     isPlaceEvent Attack {} = False
     isPlaceEvent NoPlayEvent = False
     isPlaceEvent Place {} = True
@@ -224,6 +224,7 @@ scoreSkill s =
     LongReach' -> -1
     Ranged' -> -1
     Stupid4' _ -> if isStupid s then 2 else 1
+    Terror' b -> if b then -2 else 0
     Unique' -> 0
 
 sortByFst :: [(Int, b)] -> [(Int, b)]

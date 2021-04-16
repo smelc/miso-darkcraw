@@ -231,6 +231,7 @@ skillDiv shared skill =
         Blow' False -> "color" =: grey
         Blow' True -> "color" =: greenHTML
         Fear' False -> "color" =: grey
+        Terror' False -> "color" =: grey
         _ | isStupid skill -> "color" =: redHTML
         _ -> mempty
       where

@@ -45,6 +45,8 @@ data Skill
   | LongReach
   | Ranged
   | Stupid4
+  | -- Creature causes terror
+    Terror
   | Unique
   deriving (Eq, Generic, Ord, Show)
 
@@ -61,6 +63,9 @@ data SkillCore
   | Ranged'
   | -- | The turn, at 0, 1, or 2 not stupide; at 3 stupid; then back to 0
     Stupid4' Int
+  | -- | Creature causes terror, the Boolean indicates whether the skill
+    -- is available (True) or used already (False)
+    Terror' Bool
   | Unique'
   deriving (Eq, Generic, Ord, Show)
 
@@ -254,6 +259,7 @@ liftSkill skill =
     LongReach' -> LongReach
     Ranged' -> Ranged
     Stupid4' _ -> Stupid4
+    Terror' _ -> Terror
     Unique' -> Unique
 
 -- | Because this function uses default values (by relying on 'unliftSkill'),
@@ -293,6 +299,7 @@ unliftSkill skill =
     LongReach -> LongReach'
     Ranged -> Ranged'
     Stupid4 -> Stupid4' 0
+    Terror -> Terror' True
     Unique -> Unique'
 
 cardToCreature :: Card p -> Maybe (Creature p)

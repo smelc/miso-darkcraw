@@ -261,6 +261,7 @@ deathFadeout ae _ _ =
   where
     (isDead, asset) =
       case death ae of
+        DeathByTerror -> (True, Just assetFilenameShade)
         DeathByFear -> (True, Just assetFilenameGhost)
         NoDeath -> (False, Nothing)
         UsualDeath -> (True, Just assetFilenameSkull)

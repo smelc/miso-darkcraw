@@ -401,7 +401,7 @@ testFear shared =
         PlayerBot
         (bottomSpotOfTopVisual Top)
         (affectedByFear & (\Creature {hp, ..} -> Creature {hp = 1, ..}))
-    board'' = Game.play shared board' (Game.ApplyFear PlayerTop) & extract
+    board'' = Game.play shared board' (Game.ApplyFearNTerror PlayerTop) & extract
     extract (Left _) = error "Test failure"
     extract (Right (Game.Result _ b _ _)) = b
     -- Second test
@@ -411,7 +411,19 @@ testFear shared =
         PlayerBot
         (bottomSpotOfTopVisual Top)
         affectedByFear
-    boardBis'' = Game.play shared boardBis' (Game.ApplyFear PlayerTop) & extract
+    boardBis'' = Game.play shared boardBis' (Game.ApplyFearNTerror PlayerTop) & extract
+
+testFearNTerror shared =
+  describe "Fear and terror" $ do
+    prop "Creature causing fear is immune to fear" $
+      \c -> Total.causesFear c ==> not $ Total.affectedByFear c
+    prop "Creature causing terror is immune to fear" $
+      \c -> Total.causesTerror c ==> not $ Total.affectedByFear c
+    prop "Creature causing terror is immune to terror" $
+      \c -> Total.causesTerror c ==> not $ Total.affectedByTerror c
+    modifyMaxDiscardRatio (* 5) $
+      prop "Creature affected by fear is affected by terror" $
+        \c -> Total.affectedByFear c ==> Total.affectedByTerror c
 
 main :: IO ()
 main = hspec $ do
@@ -448,6 +460,7 @@ main = hspec $ do
             && not (null occupiedSpots)
   -- From fast tests to slow tests (to maximize failing early)
   testFear shared
+  testFearNTerror shared
   testPlayFraming shared
   testDrawCards shared
   testShared shared

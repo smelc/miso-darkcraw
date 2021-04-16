@@ -36,7 +36,7 @@ import qualified Data.Text.Lazy as LazyText
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import qualified Game (DrawSource (..), Event (..), PolyResult (..), Target (..), applyFear, cardsToDraw, drawCards, nextAttackSpot, play, playAll, transferCards)
+import qualified Game (DrawSource (..), Event (..), PolyResult (..), Target (..), applyFearNTerror, cardsToDraw, drawCards, nextAttackSpot, play, playAll, transferCards)
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
@@ -485,8 +485,8 @@ updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
     Right triplet -> do
       putAll triplet
       board <- get @(Board 'Core)
-      let fearMatters = (Game.applyFear board otherSpot & fst) /= board
-      let events1 = [(1, GamePlay $ Game.ApplyFear otherSpot) | fearMatters]
+      let fearMatters = (Game.applyFearNTerror board otherSpot & fst) /= board
+      let events1 = [(1, GamePlay $ Game.ApplyFearNTerror otherSpot) | fearMatters]
       shared <- get @SharedModel
       board <- get @(Board 'Core)
       let events2 =
