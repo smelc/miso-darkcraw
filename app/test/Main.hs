@@ -383,16 +383,20 @@ testPlayScoreMonotonic shared =
 
 testFear shared =
   describe "Fear works as expected" $ do
-    it "fear triggers when expected" $
+    it "fear triggers when expected" $ do
+      -- Fear should kill 'fearTarget'
       (boardToPart board'' PlayerBot & Board.inPlace) `shouldSatisfy` Map.null
+      -- And 'fearTarget' should end up in Discarded stack
+      (boardToDiscarded board'' PlayerBot `shouldBe` [IDC fearTarget []])
     it "fear does not trigger when expected" $
       (boardToPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null
   where
     teams = Teams Undead Human
     causingFear = CreatureID Skeleton Undead
+    fearTarget = CreatureID Archer Human
     board = smallBoard shared teams causingFear [] PlayerTop Bottom
     affectedByFear =
-      SharedModel.idToCreature shared (CreatureID Archer Human) []
+      SharedModel.idToCreature shared fearTarget []
         & fromJust
         & unliftCreature
     board' =
