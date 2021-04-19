@@ -499,7 +499,8 @@ applyFearNTerrorM board affectingSpot = do
   traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByFear) fearAffected
   let board' = boardSetInPlace board affectedSpot affectedInPlace''
   let board'' = boardSetInPlace board' affectingSpot affectingInPlace'
-  return board''
+  let board''' = boardAddToDiscarded board'' affectedSpot killedToDiscard
+  return board'''
   where
     affectedSpot = otherPlayerSpot affectingSpot
     affectingInPlace = boardToInPlace board affectingSpot
@@ -524,6 +525,11 @@ applyFearNTerrorM board affectingSpot = do
         & Map.filterWithKey
           (\spot c -> spot `elem` terrorAffectedSpots && Total.affectedByTerror c)
         & Map.keys
+    killedToDiscard :: [Card.ID] =
+      map (boardToInPlaceCreature board affectedSpot) (terrorAffected ++ fearAffected)
+        & catMaybes
+        & filter (\Creature {transient} -> not transient) -- Transient creatures do not got to discarded stack
+        & map (\Creature {creatureId, items} -> IDC creatureId items)
     affectedInPlace' =
       -- remove creatures killed by terror
       removeKeys affectedInPlace terrorAffected

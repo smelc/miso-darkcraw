@@ -47,6 +47,7 @@ module Board
     boardSetStack,
     boardSetHand,
     boardAddToHand,
+    boardAddToDiscarded,
     emptyBoard,
     boardSetCreature,
     boardToDiscarded,
@@ -339,6 +340,12 @@ neighbors Diagonal pSpot =
     BottomLeft -> [Top]
     Bottom -> [TopLeft, TopRight]
     BottomRight -> [Top]
+
+boardAddToDiscarded :: Board 'Core -> PlayerSpot -> DiscardedType 'Core -> Board 'Core
+boardAddToDiscarded board pSpot addition =
+  boardSetDiscarded board pSpot $ discarded ++ addition
+  where
+    discarded = boardToDiscarded board pSpot
 
 boardAddToHand :: Board p -> PlayerSpot -> HandElemType p -> Board p
 boardAddToHand board pSpot handElem =

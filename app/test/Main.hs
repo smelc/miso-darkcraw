@@ -383,10 +383,9 @@ testPlayScoreMonotonic shared =
 
 testFear shared =
   describe "Fear works as expected" $ do
-    it "fear triggers when expected" $ do
-      -- Fear should kill 'fearTarget'
+    it "fear triggers when expected" $
       (boardToPart board'' PlayerBot & Board.inPlace) `shouldSatisfy` Map.null
-      -- And 'fearTarget' should end up in Discarded stack
+    it "fear kills go to discarded stack" $
       (boardToDiscarded board'' PlayerBot `shouldBe` [IDC fearTarget []])
     it "fear does not trigger when expected" $
       (boardToPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null

@@ -28,7 +28,7 @@ main shared =
     prop "Starting team doesn't have an advantage" $ do
       checkBalance Human Human
       checkBalance Undead Undead
-    it "Teams are balanced" $
+    xit "Teams are balanced" $
       checkBalance Human Undead
   where
     checkBalance t1 t2 =
