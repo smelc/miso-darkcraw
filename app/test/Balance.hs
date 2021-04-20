@@ -25,18 +25,18 @@ import qualified Update
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $ do
-    prop "Starting team doesn't have an advantage" $ do
+    it "Teams are balanced" $ -- Tested first, because most likely to fail
+      checkBalance Human Undead
+    it "Starting team doesn't have an advantage" $ do
       checkBalance Human Human
       checkBalance Undead Undead
-    xit "Teams are balanced" $
-      checkBalance Human Undead
   where
     checkBalance t1 t2 =
       let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
        in let results = Balance.play shareds (Teams t1 t2) nbTurns
            in results `shouldSatisfy` spec
     seeds = [0, 31 ..]
-    nbMatches = 50
+    nbMatches = 40
     nbTurns = 8
     spec Balance.Result {..} =
       case (min <= winTop, winTop <= max) of

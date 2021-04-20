@@ -363,7 +363,7 @@ teamDeck cards t =
     creatures =
       case t of
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General
-        Undead -> 3 * Skeleton ++ 2 * Archer ++ 1 * Mummy ++ 1 * Vampire
+        Undead -> 3 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
     kindToNeutral :: Map.Map Neutral (NeutralObject Core) =
       map cardToNeutralObject cards
         & catMaybes
