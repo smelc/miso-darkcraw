@@ -289,7 +289,7 @@ playCreatureM board pSpot cSpot creature =
       let part' = part {inPlace = inPlace'}
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       when (Total.isDisciplined creature) $
-        traverse_ ((\cSpot -> reportEffect pSpot cSpot disciplineEffect) . fst) disciplinedNeighbors'
+        traverse_ ((\(cSpot, _) -> reportEffect pSpot cSpot disciplineEffect)) disciplinedNeighbors'
       return $ boardSetPart board pSpot part'
   where
     part@PlayerPart {inPlace} = boardToPart board pSpot
