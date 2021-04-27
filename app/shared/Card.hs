@@ -388,7 +388,11 @@ data CardTargetKind
     Occupied
   deriving (Eq, Show)
 
-data TargetType = CardTargetType CardTargetKind | PlayerTargetType
+data TargetType
+  = -- | Target is a single card
+    CardTargetType CardTargetKind
+  | -- | Target is an entire part of the bard
+    PlayerTargetType
   deriving (Eq, Show)
 
 -- | The kind of Game target a neutral likes

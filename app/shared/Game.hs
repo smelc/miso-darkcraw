@@ -15,6 +15,7 @@
 module Game
   ( allEnemySpots,
     applyFearNTerror,
+    applyPlague,
     attackOrder, -- exported for tests only
     nextAttackSpot,
     enemySpots,
@@ -61,6 +62,7 @@ import GHC.Generics (Generic)
 import SharedModel (SharedModel, unsafeIdentToCard)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
+import qualified Tile
 import qualified Total
 
 -- | On what a card can be applied
@@ -341,6 +343,36 @@ installItem c@Creature {hp, items} item =
         SwordOfMight -> 1
         _ -> 0 -- wildcard intentional
 
+applyPlague ::
+  Board 'Core ->
+  -- | The part on which to apply plague
+  PlayerSpot ->
+  Board 'Core
+applyPlague board actingPlayer = applyPlagueM board actingPlayer & runWriter & fst
+
+-- TODO @smelc rename to applyPlagueM
+applyPlagueM ::
+  MonadWriter (Board UI) m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part on which to apply plague
+  PlayerSpot ->
+  m (Board 'Core)
+applyPlagueM board pSpot = do
+  -- Record animation
+  traverse_ (\(cSpot, c) -> reportEffect pSpot cSpot $ plagueEffect c) $ Map.toList affecteds
+  -- Do core stuff
+  return $
+    Map.foldrWithKey
+      (\cSpot c b -> applyInPlaceEffectOnBoard (plagueEffect c) b (pSpot, cSpot, c))
+      board
+      affecteds
+  where
+    affecteds = boardToInPlace board pSpot
+    baseEffect = mempty {hitPointsChange = -1}
+    plagueEffect Creature {hp} | hp <= 1 = baseEffect {death = UsualDeath}
+    plagueEffect _ = baseEffect {fadeOut = [Tile.HeartBroken]}
+
 drawCards ::
   SharedModel ->
   Board Core ->
@@ -552,7 +584,7 @@ applyFearNTerrorM board affectingSpot = do
       -- consume skills
       Map.mapWithKey consumeTerror affectingInPlace
         & Map.mapWithKey consumeFear
-    deathBy cause = InPlaceEffect 0 cause False 0 False 0
+    deathBy cause = InPlaceEffect 0 cause False 0 False [] 0
     consumeFear cSpot c | cSpot `notElem` fearKillers = c
     consumeFear cSpot c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []

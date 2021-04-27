@@ -46,6 +46,7 @@ data Tile
   | FlailOfTheDamned
   | GreenPotion
   | Heart
+  | HeartBroken
   | HumanArcher
   | HumanGeneral
   | HumanKnight

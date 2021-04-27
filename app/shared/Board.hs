@@ -84,6 +84,7 @@ import qualified Data.Text as Text
 import GHC.Generics (Generic)
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
+import Tile (Tile)
 import qualified Total
 
 -- | The spot of a card, as visible from the top of the screen. For the
@@ -153,8 +154,8 @@ instance Monoid DeathCause where
 -- as they are UI only. However we need them to define the InPlaceType family
 
 -- | Initially this type was for displaying animations only. However
--- Game.hs also uses for Core stuff internally. Unfortunate :-(
--- So be careful when changing related code.
+-- Game.hs also uses for Core stuff internally (see applyInPlaceEffectOnBoard).
+-- Unfortunate :-( So be careful when changing related code.
 data InPlaceEffect = InPlaceEffect
   { -- | Attack value changed
     attackChange :: Int,
@@ -164,22 +165,25 @@ data InPlaceEffect = InPlaceEffect
     attackBump :: Bool,
     -- | Hits points changed
     hitPointsChange :: Int,
-    -- | Fade-in card
+    -- | Card fades-in
     fadeIn :: Bool,
+    -- | Tiles to fade out atop the card
+    fadeOut :: [Tile.Tile],
     -- | Score changed
     scoreChange :: Int
   }
   deriving (Eq, Generic, Show)
 
 instance Semigroup InPlaceEffect where
-  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, hitPointsChange = hp1, fadeIn = f1, scoreChange = c1}
-    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, hitPointsChange = hp2, fadeIn = f2, scoreChange = c2} =
+  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, hitPointsChange = hp1, fadeIn = fi1, fadeOut = fo1, scoreChange = c1}
+    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, hitPointsChange = hp2, fadeIn = fi2, fadeOut = fo2, scoreChange = c2} =
       InPlaceEffect
         { attackChange = ac1 + ac2,
           death = d1 <> d2,
           attackBump = ab1 || ab2,
           hitPointsChange = hp1 + hp2,
-          fadeIn = f1 || f2,
+          fadeIn = fi1 || fi2,
+          fadeOut = fo1 ++ fo2,
           scoreChange = c1 + c2
         }
 
@@ -191,6 +195,7 @@ instance Monoid InPlaceEffect where
         attackBump = False,
         hitPointsChange = 0,
         fadeIn = False,
+        fadeOut = [],
         scoreChange = 0
       }
 

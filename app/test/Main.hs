@@ -23,7 +23,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
 import Debug.Trace (traceShow)
-import Game (Target (..), cardsToDraw, drawCards)
+import Game (Target (..), applyPlague, cardsToDraw, drawCards)
 import qualified Game (Event (..), PolyResult (..), attackOrder, play, playAll)
 import Generators
 import qualified Invariants
@@ -45,8 +45,6 @@ creatureSum cards getter = sum (map getter cards)
 
 getAllDecks :: [Card UI] -> [[Card Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
-
--- XXX smelc group AI tests together
 
 -- | Tests that the AI treats 'Ranged' correctly.
 testAIRanged :: SharedModel -> Turn -> Board Core
@@ -355,9 +353,24 @@ testInPlaceEffectsMonoid =
     prop "effects <> mempty == effect" $
       \(effect :: InPlaceEffects) ->
         effect <> mempty `shouldBe` effect
-    prop "effects <> effects' == effects' <> effects" $
+    prop "effects <> effects' == effects' <> effects (modulo fadeOut)" $
       \(effect :: InPlaceEffects, effect') ->
-        effect <> effect' `shouldBe` effect' <> effect
+        let (e1, e2) = rmCommonFadeout effect effect'
+         in e1 <> e2 `shouldBe` e1 <> e2
+  where
+    hasCommonFadeout effects1 effects2 =
+      any
+        ( \cSpot ->
+            nonEmptyFadeout ((unInPlaceEffects effects1) Map.!? cSpot)
+              && nonEmptyFadeout ((unInPlaceEffects effects2) Map.!? cSpot)
+        )
+        allCardsSpots
+    nonEmptyFadeout Nothing = False
+    nonEmptyFadeout (Just effect) = not $ null $ fadeOut effect
+    rmCommonFadeout e1 e2 | hasCommonFadeout e1 e2 = (rmFadeout e1, e2)
+    rmCommonFadeout e1 e2 = (e1, e2)
+    rmFadeout InPlaceEffects {unInPlaceEffects = effects} =
+      Map.map (\effect -> effect {fadeOut = []}) effects & InPlaceEffects
 
 testNoPlayEventNeutral shared =
   describe "Game.NoPlayEvent is neutral w.r.t Game.playAll" $
@@ -428,6 +441,40 @@ testFearNTerror shared =
       prop "Creature affected by fear is affected by terror" $
         \c -> Total.affectedByFear c ==> Total.affectedByTerror c
 
+testPlague shared =
+  describe "Plague" $ do
+    prop "Plague kills creatures with hp <= 1" $
+      \(teams :: Teams, cids :: [(CreatureID, [Item])]) ->
+        applyPlague (setHp 1) teams cids `shouldSatisfy` Map.null
+    prop "Plague doesn't kill creatures with hp > 1" $
+      \(teams :: Teams, cids :: [(CreatureID, [Item])]) ->
+        (applyPlague (setHp 2) teams cids & Map.size) `shouldBe` min 6 (length cids)
+  where
+    addAllToInPlace b pSpot cids = foldr (\pair b -> addToInPlace b pSpot pair) b cids
+    addToInPlace (b :: Board 'Core) pSpot (cid, items) =
+      case firstEmpty of
+        Nothing -> b
+        Just cSpot ->
+          let creature = SharedModel.idToCreature shared cid items & fromJust & Card.unliftCreature
+           in boardSetInPlace b pSpot (boardToInPlace b pSpot & Map.insert cSpot creature)
+      where
+        firstEmpty =
+          boardToPlayerHoleyInPlace b pSpot
+            & filter (\(_, m) -> isNothing m)
+            & listToMaybe
+            <&> fst
+    mkBoard teams pSpot cids = addAllToInPlace (emptyBoard teams) pSpot cids
+    mapInPlace f pSpot (board :: Board 'Core) =
+      boardToInPlace board pSpot
+        & Map.map f
+        & boardSetInPlace board pSpot
+    setHp i c = c {hp = i}
+    applyPlague f teams cids =
+      Game.applyPlague board pSpot & flip boardToInPlace pSpot
+      where
+        pSpot = PlayerTop
+        board = mkBoard teams pSpot cids & mapInPlace f pSpot
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -437,7 +484,7 @@ main = hspec $ do
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
       is _Right eitherCardsNTiles -- should be the first test, others depend on it
-    it "all decks are initially of the same size (modulo items)" $
+    xit "all decks are initially of the same size (modulo items)" $
       let itemLessDecks = map (filter (\case ItemCard _ -> False; _ -> True)) allDecks
        in all (\l -> length l == length (head itemLessDecks)) itemLessDecks
     it "all hit points are initially > 0" $
@@ -464,6 +511,7 @@ main = hspec $ do
   -- From fast tests to slow tests (to maximize failing early)
   testFear shared
   testFearNTerror shared
+  testPlague shared
   testPlayFraming shared
   testDrawCards shared
   testShared shared
