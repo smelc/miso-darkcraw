@@ -180,6 +180,7 @@ data Neutral
   = Health
   | InfernalHaste
   | Life
+  | Plague
   deriving (Enum, Eq, Generic, Ord, Show)
 
 allNeutrals = [Health ..]
@@ -404,3 +405,4 @@ targetType id =
     IDN Health -> CardTargetType Occupied
     IDN Life -> CardTargetType Occupied
     IDN InfernalHaste -> PlayerTargetType
+    IDN Plague -> PlayerTargetType

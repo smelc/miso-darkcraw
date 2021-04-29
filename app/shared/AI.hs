@@ -207,6 +207,7 @@ scoreCard = \case
       Health -> -1
       InfernalHaste -> -10
       Life -> -3
+      Plague -> -5 -- TODO @smelc pass the board and check number of creates, for a dynamic value to be returned
   ItemCard ItemObject {item} ->
     case item of
       Crown -> -1

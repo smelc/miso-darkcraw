@@ -90,6 +90,7 @@ whichPlayerTarget = \case
   IDN Health -> Playing
   IDN InfernalHaste -> Playing
   IDN Life -> Playing
+  IDN Plague -> Opponent
 
 data Event
   = -- | Apply fear of the creatures at the given 'PlayerSpot'
@@ -249,6 +250,9 @@ playPlayerTargetM board _playingPlayer target n =
       let increase = 3
       reportEffect pSpot cSpot (mempty {hitPointsChange = increase})
       board' <- addHitpoints pSpot cSpot increase
+      return (board', Nothing)
+    (Plague, PlayerTarget pSpot) -> do
+      board' <- applyPlagueM board pSpot
       return (board', Nothing)
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
   where
@@ -666,7 +670,8 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
     Nothing | Card.transient hittee -> board' -- Dont' put hittee in discarded stack
     Nothing ->
       let discarded = boardToDiscarded board' pSpot
-       in boardSetDiscarded board' pSpot $ discarded ++ [IDC creatureId items]
+       in -- TODO @smelc use boardAddToDiscarded instead
+          boardSetDiscarded board' pSpot $ discarded ++ [IDC creatureId items]
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:
