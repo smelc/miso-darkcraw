@@ -100,13 +100,7 @@ boardPlayerScore board pSpot =
     cSpotAndMayCreatures = boardToPlayerHoleyInPlace board pSpot
     scores =
       map
-        ( \(cSpot, mCreature) ->
-            case mCreature of
-              Nothing -> 5 -- Empty spot: malus
-              Just _ ->
-                let score = scorePlace board pSpot cSpot
-                 in assert (isJust score) (fromJust score)
-        )
+        (\(cSpot, mayC) -> maybe 5 (\c -> scorePlace board c pSpot cSpot) mayC) -- Empty spot: malus of 5
         cSpotAndMayCreatures
 
 -- | Events for playing all cards of the hand, in order. Each card
@@ -171,22 +165,26 @@ targets board playingPlayer id =
     cardTargets pSpot ctk =
       boardToPlayerCardSpots board pSpot ctk & map (CardTarget pSpot)
 
--- | The score of placing a card at the given position
+-- | The score of the card at the given position
 scorePlace ::
   Board Core ->
+  -- | The creature at 'pSpot' 'cSpot'
+  Creature 'Core ->
+  -- | Where to place the creature
   PlayerSpot ->
+  -- | Where to place the creature
   CardSpot ->
   -- | The score of the card at pSpot cSpot. 0 is the best.
-  Maybe Int
-scorePlace board pSpot cSpot =
-  case inPlace of
-    Just _ -> Just $ sum maluses
-    _ -> Nothing
+  Int
+scorePlace board inPlace pSpot cSpot =
+  assert (creature ~=~ inPlace) $ sum maluses
   where
-    inPlace :: Maybe (Creature Core) = boardToInPlaceCreature board pSpot cSpot
+    (~=~) Nothing _ = False
+    (~=~) (Just a) b = a == b
+    creature :: Maybe (Creature Core) = boardToInPlaceCreature board pSpot cSpot
     enemiesInPlace :: Map.Map CardSpot (Creature Core) =
       boardToInPlace board (otherPlayerSpot pSpot)
-    cSkills = inPlace <&> skills & fromMaybe []
+    cSkills = skills inPlace
     prefersBack = Ranged' `elem` cSkills || LongReach' `elem` cSkills
     lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
     enemySpots' :: [CardSpot] = allEnemySpots cSpot
