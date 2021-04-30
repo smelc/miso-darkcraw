@@ -49,7 +49,7 @@ instance Invariant Turn where
   violation turn =
     ["Turn must be >= 1 but found " ++ show i | i < 1]
     where
-      i = turnToInt turn
+      i = Turn.toInt turn
 
 instance Invariant a => Invariant (Maybe a) where
   violation Nothing = []

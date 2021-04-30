@@ -55,7 +55,7 @@ testAIRanged shared turn =
   where
     (t, teams) = (Undead, Teams Undead Undead)
     archer = IDC (CreatureID Archer t) []
-    board = boardAddToHand (emptyBoard teams) (turnToPlayerSpot turn) archer
+    board = boardAddToHand (emptyBoard teams) (Turn.toPlayerSpot turn) archer
     events = AI.play SharedModel.unsafeGet board turn
 
 -- | This test was written in the hope it would reveal why
@@ -69,7 +69,7 @@ testPlayLastHandCard shared =
     "Play the last card of the hand"
     $ prop "doesn't yield an error" $
       \(Pretty board, Pretty turn) ->
-        let event = playLastCardEvent board $ turnToPlayerSpot turn
+        let event = playLastCardEvent board $ Turn.toPlayerSpot turn
          in isJust event
               ==> Game.play shared board (fromJust event) `shouldSatisfy` isRight
   where
@@ -103,7 +103,7 @@ testPlayFraming shared =
     "Playing some cards doesn't change"
     $ prop "other spots of the board when placing non-Discipline creature" $
       \(Pretty board, Pretty turn) ->
-        let pSpot = turnToPlayerSpot turn
+        let pSpot = Turn.toPlayerSpot turn
          in let pair = pickCardSpot board 0 pSpot
              in isJust pair
                   ==> let (i, cSpot) = fromJust pair
@@ -150,7 +150,7 @@ testDrawCards shared =
     "Drawing cards"
     $ prop "draws the expected number" $
       \(Pretty board, Pretty turn) ->
-        let pSpot = turnToPlayerSpot turn
+        let pSpot = Turn.toPlayerSpot turn
          in let srcs = Game.cardsToDraw board pSpot True
              in Game.drawCards shared board pSpot srcs `shouldSatisfy` cond board pSpot
   where
@@ -384,7 +384,7 @@ testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
       \(board, turn) ->
-        let (pSpot, score) = (turnToPlayerSpot turn, flip boardScore pSpot)
+        let (pSpot, score) = (Turn.toPlayerSpot turn, flip boardScore pSpot)
          in let (initialScore, events) = (score board, AI.play shared board turn)
              in let nextScore = Game.playAll shared board events & takeBoard <&> score
                  in monotonic initialScore nextScore
@@ -504,7 +504,7 @@ main = hspec $ do
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
-            boardToHoleyInPlace (testAIRanged shared initialTurn)
+            boardToHoleyInPlace (testAIRanged shared Turn.initial)
               & filter (\(_, _, maybeCreature) -> isJust maybeCreature)
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)

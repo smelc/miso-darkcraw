@@ -28,7 +28,8 @@ import Game hiding (Event, Result)
 import qualified Game
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Turn (Turn, turnToPlayerSpot)
+import Turn (Turn)
+import qualified Turn
 
 -- | Events that place creatures on the board. This function guarantees
 -- that the returned events are solely placements (no neutral cards), so
@@ -57,7 +58,7 @@ play shared board turn =
     [] -> []
     (_, events) : _ -> events
   where
-    pSpot = turnToPlayerSpot turn
+    pSpot = Turn.toPlayerSpot turn
     hands =
       boardToHand board pSpot
         & map (unliftCard . SharedModel.unsafeIdentToCard shared)
@@ -120,7 +121,7 @@ playHand shared board turn =
           traceShow ("Cannot play first card of hand: " ++ Text.unpack msg) $
             playHand shared board' turn
           where
-            pSpot = turnToPlayerSpot turn
+            pSpot = Turn.toPlayerSpot turn
             hand' = boardToHand board pSpot & tail
             board' = boardSetHand board pSpot hand' -- Skip first card
         Right (Game.Result shared' b' () _) ->
@@ -138,7 +139,7 @@ aiPlayFirst shared board turn =
       return $ Place' (snd best) id
   where
     handIndex = HandIndex 0
-    pSpot = turnToPlayerSpot turn
+    pSpot = Turn.toPlayerSpot turn
     possibles id = targets board pSpot id
     scores id =
       [ (boardScore (fromRight' board' & takeBoard) pSpot, target)

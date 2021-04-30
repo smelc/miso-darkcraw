@@ -40,7 +40,8 @@ import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
 import SharedModel (unsafeIdentToCard)
-import Turn (turnToInt, turnToPlayerSpot)
+import Turn (Turn)
+import qualified Turn
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
@@ -134,9 +135,9 @@ turnView model@GameModel {turn} z = do
         <> flexColumnStyle
         <> "justify-content" =: "center"
         <> "background-image" =: assetsUrl "turn.png"
-    line1 :: View Action = text $ "Turn " <> ms (turnToInt turn)
+    line1 :: View Action = text $ "Turn " <> ms (Turn.toInt turn)
     playerImgY =
-      case turnToPlayerSpot turn of
+      case Turn.toPlayerSpot turn of
         PlayerTop -> "1"
         PlayerBot -> "2"
     topMargin = cellPixelSize `div` 2

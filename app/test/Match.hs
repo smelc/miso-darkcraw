@@ -93,8 +93,8 @@ testStupidity shared =
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
         score = boardToScore board ogreSpot
-        turni = turnToInt turn
-        pSpot = turnToPlayerSpot turn
+        turni = Turn.toInt turn
+        pSpot = Turn.toPlayerSpot turn
         stupidFreq = 4
         nbAttacks played = (turni - (if played then 0 else 1)) - ((turni - 1) `div` stupidFreq)
         expectedScore = nbAttacks (pSpot /= ogreSpot) * ogreAttack
@@ -117,7 +117,7 @@ play model nbTurns =
   go model []
   where
     go m@GameModel {turn} models
-      | turnToInt turn > nbTurns =
+      | Turn.toInt turn > nbTurns =
         Result (reverse models) (toMatchResult m)
     go m@GameModel {turn} models =
       case playOneTurn m of
@@ -149,7 +149,7 @@ playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
       m' <- go m $ eventToGameActions board event
       playOneTurn m'
   where
-    pSpot = turnToPlayerSpot turn
+    pSpot = Turn.toPlayerSpot turn
     go model [] = getErr model
     go model@GameModel {interaction} (action : actions) =
       let (model', seq) = Update.updateGameModel model action interaction

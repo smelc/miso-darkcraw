@@ -48,7 +48,8 @@ import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import Tile
-import Turn (Turn, initialTurn, nextTurn, turnToPlayerSpot)
+import Turn (Turn)
+import qualified Turn
 
 instance ToExpr CreatureKind
 
@@ -394,7 +395,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest
         [(1, GameDrawCards rest) | not $ null rest]
       )
   where
-    pSpot = turnToPlayerSpot turn
+    pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
   case em' of
@@ -414,8 +415,8 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
             Nothing -> GameIncrTurn -- no more attack, change turn
             Just cSpot -> GamePlay $ Game.Attack pSpot cSpot True True
   where
-    pSpot = turnToPlayerSpot turn
-    isInitialTurn = turn == initialTurn
+    pSpot = Turn.toPlayerSpot turn
+    isInitialTurn = turn == Turn.initial
     em' =
       if isInitialTurn
         then do
@@ -424,7 +425,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
-          let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ nextTurn turn
+          let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ Turn.next turn
           Game.Result shared' board' () boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board', gameShared = shared'}
         else Right m
@@ -508,8 +509,8 @@ updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
       let m' = m {anims = boardui, board = board, gameShared = shared, turn = turn'}
       return $ Right (m', events1 ++ events2)
   where
-    turn' = nextTurn turn
-    pSpot = turnToPlayerSpot turn'
+    turn' = Turn.next turn
+    pSpot = Turn.toPlayerSpot turn'
     otherSpot = otherPlayerSpot pSpot
     isAI = pSpot /= playingPlayer
     putAll ::
@@ -804,7 +805,7 @@ unsafeInitialGameModel shared board =
     board
     NoInteraction
     startingPlayerSpot
-    initialTurn
+    Turn.initial
     mempty
 
 initialWelcomeModel :: SharedModel -> WelcomeModel

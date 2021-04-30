@@ -21,7 +21,8 @@ import GHC.Generics
 import qualified Game (Target)
 import ServerMessages
 import SharedModel (SharedModel (..), liftCard)
-import Turn (Turn, turnToPlayerSpot)
+import Turn (Turn)
+import qualified Turn
 
 -- | An interaction happening in the game page
 data Interaction a
@@ -115,7 +116,7 @@ instance Show GameModel where
 -- | nor the turn of the other player if in multiplayer.
 isPlayerTurn :: GameModel -> Bool
 isPlayerTurn GameModel {playingPlayer, turn} =
-  turnToPlayerSpot turn == playingPlayer
+  Turn.toPlayerSpot turn == playingPlayer
 
 data PlayingMode
   = NoPlayingMode
