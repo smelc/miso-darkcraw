@@ -55,8 +55,9 @@ testAIRanged shared turn =
   where
     (t, teams) = (Undead, Teams Undead Undead)
     archer = IDC (CreatureID Archer t) []
-    board = boardAddToHand (emptyBoard teams) (Turn.toPlayerSpot turn) archer
-    events = AI.play SharedModel.unsafeGet board turn
+    pSpot = Turn.toPlayerSpot turn
+    board = boardAddToHand (emptyBoard teams) pSpot archer
+    events = AI.play shared board pSpot
 
 -- | This test was written in the hope it would reveal why
 -- there are such logs in the console when playing the last card of the hand:
@@ -383,9 +384,9 @@ testNoPlayEventNeutral shared =
 testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
-      \(board, turn) ->
-        let (pSpot, score) = (Turn.toPlayerSpot turn, flip boardScore pSpot)
-         in let (initialScore, events) = (score board, AI.play shared board turn)
+      \(board, pSpot) ->
+        let score = flip boardScore pSpot
+         in let (initialScore, events) = (score board, AI.play shared board pSpot)
              in let nextScore = Game.playAll shared board events & takeBoard <&> score
                  in monotonic initialScore nextScore
   where

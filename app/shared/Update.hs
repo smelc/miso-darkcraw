@@ -425,7 +425,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
-          let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ Turn.next turn
+          let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
           Game.Result shared' board' () boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board', gameShared = shared'}
         else Right m
@@ -498,7 +498,7 @@ updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
             --              enqueue next event (if any)
             if isAI
               then
-                let plays = AI.play shared board turn'
+                let plays = AI.play shared board pSpot
                  in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
               else
                 let drawSoon = Prelude.drop 1 drawSrcs

@@ -137,7 +137,7 @@ toMatchResult GameModel {board} =
 playOneTurn :: GameModel -> Either Text GameModel
 playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
   -- We need to play for the player
-  case (playingPlayer == pSpot, AI.play shared board turn) of
+  case (playingPlayer == pSpot, AI.play shared board pSpot) of
     (False, _) -> Left $ Text.pack $ "It should be the player turn (" ++ show playingPlayer ++ "), but found: " ++ show pSpot
     (_, []) ->
       -- The main loop will take care of playing the opponent when honoring

@@ -37,7 +37,8 @@ import qualified Turn
 placeCards ::
   SharedModel ->
   Board Core ->
-  Turn ->
+  -- | The player whose cards must be played
+  PlayerSpot ->
   [Game.Event]
 placeCards shared board turn =
   -- Will fail once when we do more stuff in aiPlay. It's OK, I'll
@@ -52,13 +53,18 @@ placeCards shared board turn =
     isPlaceEvent Place' {} = True
 
 -- | Smart play events
-play :: SharedModel -> Board Core -> Turn -> [Game.Event]
-play shared board turn =
+play ::
+  SharedModel ->
+  Board Core ->
+  -- | The playing player
+  PlayerSpot ->
+  -- | Events generated for player 'pSpot'
+  [Game.Event]
+play shared board pSpot =
   case scores of
     [] -> []
     (_, events) : _ -> events
   where
-    pSpot = Turn.toPlayerSpot turn
     hands =
       boardToHand board pSpot
         & map (unliftCard . SharedModel.unsafeIdentToCard shared)
@@ -68,7 +74,7 @@ play shared board turn =
         & permutations -- Try cards in all orders (because aiPlayHand plays first card)
     possibles =
       map
-        (\hand -> playHand shared (boardSetHand board pSpot hand) turn)
+        (\hand -> playHand shared (boardSetHand board pSpot hand) pSpot)
         hands
     scores :: [(Int, [Game.Event])] =
       map
@@ -105,26 +111,36 @@ boardPlayerScore board pSpot =
 
 -- | Events for playing all cards of the hand, in order. Each card
 -- is played optimally.
-playHand :: SharedModel -> Board Core -> Turn -> [Game.Event]
-playHand shared board turn =
-  case aiPlayFirst shared board turn of
+playHand ::
+  SharedModel ->
+  Board Core ->
+  -- | The playing player
+  PlayerSpot ->
+  [Game.Event]
+playHand shared board pSpot =
+  case aiPlayFirst shared board pSpot of
     Nothing -> []
     Just event ->
       case Game.playAll shared board [event] of
         Left msg ->
           traceShow ("Cannot play first card of hand: " ++ Text.unpack msg) $
-            playHand shared board' turn
+            playHand shared board' pSpot
           where
-            pSpot = Turn.toPlayerSpot turn
             hand' = boardToHand board pSpot & tail
             board' = boardSetHand board pSpot hand' -- Skip first card
         Right (Game.Result shared' b' () _) ->
-          event : playHand shared' b' turn
+          event : playHand shared' b' pSpot
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
-aiPlayFirst :: SharedModel -> Board Core -> Turn -> Maybe Game.Event
-aiPlayFirst shared board turn =
+aiPlayFirst ::
+  SharedModel ->
+  Board Core ->
+  -- | The playing player, i.e. the player whose hand should the
+  -- the card be picked from.
+  PlayerSpot ->
+  Maybe Game.Event
+aiPlayFirst shared board pSpot =
   case boardToHand board pSpot of
     [] -> Nothing
     id : _ -> do
@@ -133,7 +149,6 @@ aiPlayFirst shared board turn =
       return $ Place' (snd best) id
   where
     handIndex = HandIndex 0
-    pSpot = Turn.toPlayerSpot turn
     possibles id = targets board pSpot id
     scores id =
       [ (boardScore (fromRight' board' & takeBoard) pSpot, target)
