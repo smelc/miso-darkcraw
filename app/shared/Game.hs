@@ -59,7 +59,7 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 import Debug.Trace
 import GHC.Generics (Generic)
-import SharedModel (SharedModel, unsafeIdentToCard)
+import SharedModel (SharedModel)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
 import qualified Tile
@@ -186,17 +186,20 @@ playM board NoPlayEvent = return (board, Nothing)
 playM board (Place target (handhi :: HandIndex)) = do
   shared <- get
   ident <- lookupHand hand handi
-  let card = unsafeIdentToCard shared ident & unliftCard
+  let card = SharedModel.identToCard shared ident <&> unliftCard
   case (target, card) of
-    (CardTarget pSpot cSpot, CreatureCard creature) -> do
+    (CardTarget pSpot cSpot, Just (CreatureCard creature)) -> do
       board'' <- playCreatureM board' pSpot cSpot creature
       return (board'', Nothing)
-    (CardTarget pSpot cSpot, ItemCard itemObj) -> do
+    (CardTarget pSpot cSpot, Just (ItemCard itemObj)) -> do
       board'' <- playItemM board' pSpot cSpot $ Card.item itemObj
       return (board'', Nothing)
-    (_, NeutralCard NeutralObject {neutral}) ->
+    (_, Just (NeutralCard NeutralObject {neutral})) ->
       playPlayerTargetM board' playingPlayer target neutral
-    _ -> throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ show target ++ ", " ++ show card ++ ")"
+    (_, Nothing) ->
+      throwError $ Text.pack $ "ident not found: " ++ show ident
+    _ ->
+      throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ show target ++ ", " ++ show card ++ ")"
   where
     handi = unHandIndex handhi
     (hand, hand') = (boardToHand board pSpot, deleteAt handi hand)
