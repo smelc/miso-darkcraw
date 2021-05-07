@@ -322,6 +322,8 @@ testAIPlace shared =
   describe "AI.placeCards" $ do
     prop "placeCards returns events whose spots differ" $
       \board turn -> allDiff $ AI.placeCards shared board turn
+    prop "placeCards returns events whose card is valid" $
+      \board pSpot -> AI.placeCards shared board pSpot `shouldSatisfy` (goodCards board pSpot)
     prop "placeCards return events that commute (modulo Discipline)" $
       \(Pretty board) (Pretty turn) ->
         let events = AI.placeCards shared board turn & filter (not . hasDiscipline)
@@ -344,6 +346,21 @@ testAIPlace shared =
         & Total.isDisciplined
     hasDiscipline (Game.Place' _ _) = False
     hasDiscipline _ = error "Only Place' events should have been generated"
+    goodCards _ _ [] = True
+    goodCards board pSpot (Game.Place _ HandIndex {unHandIndex = i} : tl) =
+      case (0 <= i, i < handSize) of
+        (False, _) -> traceShow ("Wrong hand index: " ++ show i) False
+        (_, False) -> traceShow ("Wrong hand index: " ++ show i ++ ", hand has " ++ show handSize ++ " members.") False
+        _ -> goodCards board pSpot tl
+      where
+        handSize = List.length $ boardToHand board pSpot
+    goodCards (board :: Board 'Core) pSpot (Game.Place' _ id : tl) =
+      if id `elem` hand
+        then goodCards board pSpot tl
+        else traceShow ("Wrong ID: " ++ show id ++ "It does not belong to the hand: " ++ show hand) False
+      where
+        hand = boardToHand board pSpot
+    goodCards boards pSpot (_ : tl) = goodCards boards pSpot tl
 
 {- HLINT ignore testInPlaceEffectsMonoid -}
 testInPlaceEffectsMonoid =
