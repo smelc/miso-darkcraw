@@ -81,11 +81,11 @@ testPlayLastHandCard shared =
         Just i ->
           let (id, targetKind) = (boardToHand board pSpot !! i, targetType id)
            in case targetKind of
-                PlayerTargetType -> Just $ Game.Place (PlayerTarget pSpot) $ HandIndex i -- Choosing pSpot is arbitrary
+                PlayerTargetType -> Just $ Game.Place pSpot (PlayerTarget pSpot) $ HandIndex i -- Choosing pSpot is arbitrary
                 CardTargetType ctk ->
                   boardToPlayerCardSpots board pSpot ctk
                     & listToMaybe
-                    <&> (\cSpot -> Game.Place (CardTarget pSpot cSpot) $ HandIndex i)
+                    <&> (\cSpot -> Game.Place pSpot (CardTarget pSpot cSpot) $ HandIndex i)
     lastCardIdx board pSpot =
       case boardToHand board pSpot of
         [] -> Nothing
@@ -108,7 +108,7 @@ testPlayFraming shared =
          in let pair = pickCardSpot board 0 pSpot
              in isJust pair
                   ==> let (i, cSpot) = fromJust pair
-                       in Game.play shared board (Game.Place (Game.CardTarget pSpot cSpot) (HandIndex i))
+                       in Game.play shared board (Game.Place pSpot (Game.CardTarget pSpot cSpot) (HandIndex i))
                             `shouldSatisfy` relation board pSpot cSpot
   where
     -- Very simple AI-like function
@@ -324,6 +324,8 @@ testAIPlace shared =
       \board turn -> allDiff $ AI.placeCards shared board turn
     prop "placeCards returns events whose card is valid" $
       \board pSpot -> AI.placeCards shared board pSpot `shouldSatisfy` (goodCards board pSpot)
+    prop "placeCards returns events playing cards of the player whose turn it is" $
+      \board pSpot -> AI.placeCards shared board pSpot `shouldSatisfy` playerIs pSpot
     prop "placeCards return events that commute (modulo Discipline)" $
       \(Pretty board) (Pretty turn) ->
         let events = AI.placeCards shared board turn & filter (not . hasDiscipline)
@@ -334,33 +336,40 @@ testAIPlace shared =
   where
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (Game.Result _ board' () _)) = Just board'
-    spotsDiffer (Game.Place' (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' (Game.CardTarget pSpot2 cSpot2) _) =
+    spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
     allDiff (event : events) = all (spotsDiffer event) events && allDiff events
-    hasDiscipline (Game.Place' _ (IDC id items)) =
+    hasDiscipline (Game.Place' _ _ (IDC id items)) =
       SharedModel.idToCreature shared id items
         & fromJust
         & Card.unliftCreature
         & Total.isDisciplined
-    hasDiscipline (Game.Place' _ _) = False
+    hasDiscipline (Game.Place' _ _ _) = False
     hasDiscipline _ = error "Only Place' events should have been generated"
     goodCards _ _ [] = True
-    goodCards board pSpot (Game.Place _ HandIndex {unHandIndex = i} : tl) =
+    goodCards board pSpot (Game.Place _ _ HandIndex {unHandIndex = i} : tl) =
       case (0 <= i, i < handSize) of
         (False, _) -> traceShow ("Wrong hand index: " ++ show i) False
         (_, False) -> traceShow ("Wrong hand index: " ++ show i ++ ", hand has " ++ show handSize ++ " members.") False
         _ -> goodCards board pSpot tl
       where
         handSize = List.length $ boardToHand board pSpot
-    goodCards (board :: Board 'Core) pSpot (Game.Place' _ id : tl) =
+    goodCards (board :: Board 'Core) pSpot (Game.Place' _ _ id : tl) =
       if id `elem` hand
         then goodCards board pSpot tl
         else traceShow ("Wrong ID: " ++ show id ++ "It does not belong to the hand: " ++ show hand) False
       where
         hand = boardToHand board pSpot
     goodCards boards pSpot (_ : tl) = goodCards boards pSpot tl
+    playerIs _ [] = True
+    playerIs expected (event : tl) = playerIs' expected event && playerIs expected tl
+    playerIs' expected =
+      \case
+        Game.Place actual _ _ | expected /= actual -> False
+        Game.Place' actual _ _ | expected /= actual -> False
+        _ -> True
 
 {- HLINT ignore testInPlaceEffectsMonoid -}
 testInPlaceEffectsMonoid =

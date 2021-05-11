@@ -281,7 +281,10 @@ class Interactable m t mseq | m -> t, m -> mseq where
   considerAction :: m -> DnDAction t -> Bool
 
   -- | What to do when dropping card at given index, on the given 't' target
-  drop :: m -> HandIndex -> t -> mseq
+  -- The spot indicates the player whose card is being played
+  drop :: m -> PlayerSpot -> HandIndex -> t -> mseq
+
+  getPlayingPlayer :: m -> PlayerSpot
 
   -- | When to stop a dropping action
   stopWrongDrop :: m -> Bool
@@ -306,7 +309,13 @@ act m a i =
     (_, DragStart j, _) ->
       updateDefault m $ DragInteraction $ Dragging j Nothing
     (_, Drop, DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) ->
-      Update.drop m draggedCard dragTarget
+      Update.drop
+        m
+        pSpot
+        draggedCard
+        dragTarget
+      where
+        pSpot = getPlayingPlayer m
     (_, Drop, _) | stopWrongDrop m -> updateDefault m NoInteraction
     -- DragEnter cannot create a DragInteraction if there's none yet, we don't
     -- want to keep track of drag targets if a drag action did not start yet
@@ -325,7 +334,9 @@ instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
       DragEnter _ -> isPlayerTurn m
       DragLeave _ -> isPlayerTurn m
 
-  drop m idx target = playOne m $ Game.Place target idx
+  drop m pSpot idx target = playOne m $ Game.Place pSpot target idx
+
+  getPlayingPlayer GameModel {turn} = Turn.toPlayerSpot turn
 
   stopWrongDrop m = isPlayerTurn m
 

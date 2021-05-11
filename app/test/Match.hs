@@ -170,15 +170,15 @@ eventToGameActions board event =
     Game.Attack {} -> [Update.GamePlay event]
     Game.ApplyFearNTerror {} -> [Update.GamePlay event]
     Game.NoPlayEvent -> []
-    Game.Place target handIndex ->
+    Game.Place _ target handIndex ->
       [ Update.DragStart handIndex,
         Update.DragEnter target,
         Update.Drop,
         Update.DragEnd
       ]
         & map GameDnD
-    Game.Place' target _ ->
-      [ Update.DragStart $ Game.placePrimeToHandIndex board event & fromJust,
+    Game.Place' pSpot target id ->
+      [ Update.DragStart $ Game.idToHandIndex board pSpot id & fromJust,
         Update.DragEnter target,
         Update.Drop,
         Update.DragEnd

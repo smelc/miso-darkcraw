@@ -121,15 +121,28 @@ playHand shared board pSpot =
   case aiPlayFirst shared board pSpot of
     Nothing -> []
     Just event ->
-      case Game.playAll shared board [event] of
-        Left msg ->
-          traceShow ("Cannot play first card of hand: " ++ Text.unpack msg) $
-            playHand shared board' pSpot
-          where
-            hand' = boardToHand board pSpot & tail
-            board' = boardSetHand board pSpot hand' -- Skip first card
-        Right (Game.Result shared' b' () _) ->
-          event : playHand shared' b' pSpot
+      assert (eventPlayerIs pSpot event) $
+        case Game.playAll shared board [event] of
+          Right (Game.Result shared' b' () _) ->
+            event : playHand shared' b' pSpot
+          Left msg ->
+            traceShow ("Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it.") $
+              playHand shared board' pSpot
+            where
+              -- The call to tail is safe because the hand must be non-empty,
+              -- by aiPlayFirst returning Just _
+              hand' = boardToHand board pSpot & tail
+              board' = boardSetHand board pSpot hand' -- Skip first card
+  where
+    eventPlayerIs expected =
+      \case
+        Place actual _ _ | expected == actual -> True
+        Place' actual _ _ | expected == actual -> True
+        Place {} -> False
+        Place' {} -> False
+        ApplyFearNTerror _ -> True -- we don't care
+        Attack _ _ _ _ -> True -- no player, we're fine
+        NoPlayEvent -> True -- no player, we're fine
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
@@ -145,15 +158,15 @@ aiPlayFirst shared board pSpot =
     [] -> Nothing
     id : _ -> do
       let scores' = scores id & sortByFst
-      best <- listToMaybe scores'
-      return $ Place' (snd best) id
+      (_, target) <- listToMaybe scores'
+      return $ Place' pSpot target id
   where
     handIndex = HandIndex 0
     possibles id = targets board pSpot id
     scores id =
       [ (boardScore (fromRight' board' & takeBoard) pSpot, target)
         | target <- possibles id,
-          let board' = Game.play shared board $ Place target handIndex,
+          let board' = Game.play shared board $ Place pSpot target handIndex,
           isRight board'
       ]
     takeBoard (Game.Result _ b _ _) = b

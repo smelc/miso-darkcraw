@@ -23,7 +23,7 @@ module Game
     Event (..),
     PolyResult (..),
     Result (..),
-    placePrimeToHandIndex,
+    idToHandIndex,
     play,
     playAll,
     playM,
@@ -103,11 +103,13 @@ data Event
     Attack PlayerSpot CardSpot Bool Bool
   | -- | A Nothing case, for convenience
     NoPlayEvent
-  | -- | Player puts a card from his hand on its part of the board
-    Place Target HandIndex
+  | -- | Player puts a card from his hand on its part of the board. First
+    -- argument is the player, second argument is the target, third argument
+    -- is the card being played.
+    Place PlayerSpot Target HandIndex
   | -- | AI puts a card from his hand. This constructor has better
     -- testing behavior than 'Place': it makes the generated events commute.
-    Place' Target Card.ID
+    Place' PlayerSpot Target Card.ID
   deriving (Eq, Generic, Show)
 
 -- | The polymorphic version of 'Result'. Used for implementors that
@@ -158,7 +160,7 @@ playAll shared board es = go board mempty es
   where
     go b anims [] = Right $ Result shared b () anims
     go b anims (e : tl) = do
-      Result undefined board' new anims' <- play shared b e
+      Result _ board' new anims' <- play shared b e
       -- /!\ We're enqueueing the event created by playing 'e' i.e. 'new',
       -- before the rest of the events ('tl'). This means 'tl' will be played in a state
       -- that is NOT the one planned when building 'e : tl' (except if the
@@ -183,7 +185,7 @@ playM board (Attack pSpot cSpot _ _) = do
   board' <- Game.attack board pSpot cSpot
   return (board', Nothing)
 playM board NoPlayEvent = return (board, Nothing)
-playM board (Place target (handhi :: HandIndex)) = do
+playM board (Place pSpot target (handhi :: HandIndex)) = do
   shared <- get
   ident <- lookupHand hand handi
   let card = SharedModel.identToCard shared ident <&> unliftCard
@@ -195,7 +197,7 @@ playM board (Place target (handhi :: HandIndex)) = do
       board'' <- playItemM board' pSpot cSpot $ Card.item itemObj
       return (board'', Nothing)
     (_, Just (NeutralCard NeutralObject {neutral})) ->
-      playPlayerTargetM board' playingPlayer target neutral
+      playPlayerTargetM board' pSpot target neutral
     (_, Nothing) ->
       throwError $ Text.pack $ "ident not found: " ++ show ident
     _ ->
@@ -204,29 +206,19 @@ playM board (Place target (handhi :: HandIndex)) = do
     handi = unHandIndex handhi
     (hand, hand') = (boardToHand board pSpot, deleteAt handi hand)
     board' = boardSetHand board pSpot hand'
-    pSpot =
-      -- FIXME @smelc Change me, this will be wrong once there are neutral
-      -- cards that are applied on the opponent's board. GameModel's
-      -- playingPlayer should be passed instead
-      case target of PlayerTarget p -> p; CardTarget p _ -> p
-    playingPlayer = pSpot
-playM board e@(Place' target id) =
-  case placePrimeToHandIndex board e of
+playM board e@(Place' pSpot target id) =
+  case idToHandIndex board pSpot id of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
-    Just i -> playM board (Place target i)
-  where
-    pSpot = targetToPlayerSpot target
+    Just i -> playM board (Place pSpot target i)
 
-placePrimeToHandIndex :: Board 'Core -> Event -> Maybe HandIndex
-placePrimeToHandIndex board =
-  \case
-    Place' target id -> f target id
-    _ -> Nothing
-  where
-    idxAndIDs pSpot =
-      boardToHand board pSpot & zip [HandIndex 0 ..]
-    f target id =
-      find (\(_, m) -> m == id) (idxAndIDs $ targetToPlayerSpot target) <&> fst
+-- | The index of the card with this 'Card.ID', in the hand of the
+-- player at the given spot
+idToHandIndex :: Board 'Core -> PlayerSpot -> Card.ID -> Maybe HandIndex
+idToHandIndex board pSpot id =
+  find
+    (\(_, m) -> m == id)
+    (boardToHand board pSpot & zip [HandIndex 0 ..])
+    <&> fst
 
 playPlayerTargetM ::
   MonadError Text m =>

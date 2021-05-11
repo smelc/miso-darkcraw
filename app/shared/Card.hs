@@ -376,7 +376,7 @@ teamDeck cards t =
     neutrals =
       case t of
         Human -> 1 ** Health ++ 1 ** Life
-        Undead -> 2 ** InfernalHaste
+        Undead -> 2 ** InfernalHaste ++ 1 ** Plague
     items =
       map (\case ItemCard i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
         & catMaybes
