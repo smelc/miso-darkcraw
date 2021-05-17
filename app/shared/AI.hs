@@ -28,15 +28,13 @@ import Game hiding (Event, Result)
 import qualified Game
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Turn (Turn)
-import qualified Turn
 
 -- | Events that place creatures on the board. This function guarantees
 -- that the returned events are solely placements (no neutral cards), so
 -- that playing them with 'Game.playAll' returns an empty list of 'Game.Event'
 placeCards ::
   SharedModel ->
-  Board Core ->
+  Board 'Core ->
   -- | The player whose cards must be played
   PlayerSpot ->
   [Game.Event]
@@ -55,7 +53,7 @@ placeCards shared board turn =
 -- | Smart play events
 play ::
   SharedModel ->
-  Board Core ->
+  Board 'Core ->
   -- | The playing player
   PlayerSpot ->
   -- | Events generated for player 'pSpot'
@@ -89,7 +87,7 @@ play shared board pSpot =
 
 -- | The score of a board, from the POV of the given player. Smaller is
 -- the best
-boardScore :: Board Core -> PlayerSpot -> Int
+boardScore :: Board 'Core -> PlayerSpot -> Int
 boardScore board pSpot =
   -- This is wrong (breaks testAIRanged), I don't get why.
   -- playerScore (otherPlayerSpot pSpot) - playerScore pSpot
@@ -99,7 +97,7 @@ boardScore board pSpot =
   boardPlayerScore board pSpot
 
 -- | The score of given player's in-place cards. 0 is the best.
-boardPlayerScore :: Board Core -> PlayerSpot -> Int
+boardPlayerScore :: Board 'Core -> PlayerSpot -> Int
 boardPlayerScore board pSpot =
   sum scores
   where
@@ -113,7 +111,7 @@ boardPlayerScore board pSpot =
 -- is played optimally.
 playHand ::
   SharedModel ->
-  Board Core ->
+  Board 'Core ->
   -- | The playing player
   PlayerSpot ->
   [Game.Event]
@@ -148,7 +146,7 @@ playHand shared board pSpot =
 -- for best placing this card.
 aiPlayFirst ::
   SharedModel ->
-  Board Core ->
+  Board 'Core ->
   -- | The playing player, i.e. the player whose hand should the
   -- the card be picked from.
   PlayerSpot ->
@@ -172,7 +170,7 @@ aiPlayFirst shared board pSpot =
     takeBoard (Game.Result _ b _ _) = b
 
 targets ::
-  Board Core ->
+  Board 'Core ->
   -- | The player placing a card
   PlayerSpot ->
   -- | The card being played
@@ -195,7 +193,7 @@ targets board playingPlayer id =
 
 -- | The score of the card at the given position
 scorePlace ::
-  Board Core ->
+  Board 'Core ->
   -- | The creature at 'pSpot' 'cSpot'
   Creature 'Core ->
   -- | Where to place the creature
@@ -209,8 +207,8 @@ scorePlace board inPlace pSpot cSpot =
   where
     (~=~) Nothing _ = False
     (~=~) (Just a) b = a == b
-    creature :: Maybe (Creature Core) = boardToInPlaceCreature board pSpot cSpot
-    enemiesInPlace :: Map.Map CardSpot (Creature Core) =
+    creature :: Maybe (Creature 'Core) = boardToInPlaceCreature board pSpot cSpot
+    enemiesInPlace :: Map.Map CardSpot (Creature 'Core) =
       boardToInPlace board (otherPlayerSpot pSpot)
     cSkills = skills inPlace
     prefersBack = Ranged' `elem` cSkills || LongReach' `elem` cSkills
@@ -225,7 +223,7 @@ scorePlace board inPlace pSpot cSpot =
 
 -- | The score of a card. Most powerful cards return a smaller value.
 -- Negative values returned. FIXME @smelc Return positive values
-scoreCard :: Card Core -> Int
+scoreCard :: Card 'Core -> Int
 scoreCard = \case
   CreatureCard Creature {..} ->
     sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map scoreSkill skills

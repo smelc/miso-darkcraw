@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Generators where
 
@@ -64,7 +65,7 @@ instance Arbitrary Neutral where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary (NeutralObject Core) where
+instance Arbitrary (NeutralObject 'Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
@@ -98,22 +99,22 @@ instance Arbitrary SkillCore where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary (Creature Core) where
+instance Arbitrary (Creature 'Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary (Card Core) where
+instance Arbitrary (Card 'Core) where
   -- Do not generate NeutralCard for now, since they
   -- arent' supported yet FIXME @smelc change that,
   -- Neutral cards are supported now
   arbitrary = genericArbitrary (1 % 0 % 0 % ())
   shrink = genericShrink
 
-instance Arbitrary (PlayerPart Core) where
+instance Arbitrary (PlayerPart 'Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary (Board Core) where
+instance Arbitrary (Board 'Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

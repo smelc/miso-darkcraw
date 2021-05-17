@@ -18,8 +18,6 @@ import Model (GameModel (..))
 import SharedModel (SharedModel)
 import qualified SharedModel
 import Test.Hspec
-import Test.Hspec.QuickCheck
-import Test.QuickCheck
 import qualified Update
 
 main :: SharedModel -> SpecWith ()
@@ -104,7 +102,7 @@ play ::
   -- | The number of turns to play
   Int ->
   Balance.Result
-play shareds teams@Teams {topTeam, botTeam} nbTurns =
+play shareds teams nbTurns =
   go shareds
     & map Match.matchResult
     & count (mkEmpty teams)

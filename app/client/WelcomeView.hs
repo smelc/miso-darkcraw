@@ -153,6 +153,7 @@ versionDiv z config =
     y = lobbiesPixelHeight - cps
     style = zplt z Absolute x y
 
+supportDiv :: View a
 supportDiv =
   div_
     [ style_ $

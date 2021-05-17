@@ -17,7 +17,7 @@ import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (SinglePlayerLobbyModel (..))
-import SharedModel (SharedModel (..), cardToFilepath, idToCreature)
+import SharedModel (SharedModel (), cardToFilepath, idToCreature)
 import Tile
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)

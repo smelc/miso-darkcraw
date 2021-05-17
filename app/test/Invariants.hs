@@ -9,7 +9,6 @@ import Board
 import Card
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)

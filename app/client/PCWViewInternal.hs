@@ -25,7 +25,7 @@ module PCWViewInternal
 where
 
 import Card
-import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (..), Frame (..), defaultDirection, spriteToKind)
+import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
 import Constants
 import Data.Char (toLower)
 import Data.Function ((&))
@@ -87,10 +87,10 @@ cardView ::
   SharedModel ->
   -- | The team of the card, for selecting the background
   Team ->
-  Card Core ->
+  Card 'Core ->
   CardDrawStyle ->
   Styled (View Action)
-cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
+cardView _ z shared team card cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed
@@ -109,7 +109,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
     builder attrs =
       div_ (attrs ++ extraAttrs) $
         [div_ [style_ pictureStyle] [pictureCell]]
-          ++ cardView' loc z shared card
+          ++ cardView' z shared card
           ++ [PCWViewInternal.cardBackground z team cdsty]
     animData =
       (animationData "handCardFadein" "1s" "ease")
@@ -117,23 +117,25 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
         }
     extraAttrs =
       case card of
-        CreatureCard cc ->
+        CreatureCard _ ->
           [ style_ $
               "overflow-y" =: "auto"
                 <> scrollbarStyle
                 <> "height" =: px (cardPixelHeight - picTopMargin - picSize card)
           ]
-        (NeutralCard nc) -> [] -- Done in itemNeutralView
-        (ItemCard ic) -> [] -- Done in itemNeutralView
+        (NeutralCard _) -> [] -- Done in itemNeutralView
+        (ItemCard _) -> [] -- Done in itemNeutralView
 
+picTopMargin :: Int
 picTopMargin = cps `div` 4
 
+scrollbarStyle :: Map.Map MisoString MisoString
 scrollbarStyle =
   "scrollbar-width" =: "thin"
     <> "scrollbar-color" =: "#9d9fa0 #333333"
 
-cardView' :: DisplayLocation -> Int -> SharedModel -> Card 'Core -> [View Action]
-cardView' loc z shared card =
+cardView' :: Int -> SharedModel -> Card 'Core -> [View Action]
+cardView' z shared card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI
   -- only fields; we don't want to force callers to do it. That was the point
@@ -202,7 +204,7 @@ data INViewInput = INViewInput
 itemNeutralView ::
   Int -> Card 'Core -> INViewInput -> View a
 -- itemNeutralView z card fontStyle leftMargin title txt =
-itemNeutralView z card INViewInput {fontStyle, leftMargin, text, title} =
+itemNeutralView z card INViewInput {fontStyle, text, title} =
   div_
     [ style_ $ zpwh (z + 1) Absolute cardPixelWidth cardPixelHeight,
       style_ $ fontStyle <> flexColumnStyle,
@@ -243,7 +245,7 @@ skillDiv shared skill =
     hover = title_ $ ms (skillText ui & typeset)
 
 -- | Div to show an item on a creature in place
-itemDiv :: Int -> SharedModel -> Int -> ItemObject UI -> View a
+itemDiv :: Int -> SharedModel -> Int -> ItemObject 'UI -> View a
 itemDiv z shared i iobj =
   div_ [style_ itemStyle] [pictureCell]
   where

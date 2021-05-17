@@ -3,29 +3,24 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE Rank2Types #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Main where
 
-import Control.Concurrent (MVar, modifyMVar, modifyMVar_, newMVar, readMVar)
+import Control.Concurrent (MVar, modifyMVar_, newMVar, readMVar)
 import Control.Exception (finally)
-import Control.Lens
+import Control.Lens hiding (from, to)
 import Control.Monad (forM_, forever)
 import Control.Monad.State (execState)
 import Data.Aeson (decode, encode)
 import qualified Data.ByteString.Lazy.Char8 as C
-import Data.Char (isPunctuation, isSpace)
-import Data.Generics.Labels
-import Data.Generics.Product.Types
-import Data.List
+import Data.Generics.Labels ()
 import qualified Data.Map as M
-import Data.Monoid (mappend)
-import qualified Data.Set as S
-import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text.Lazy.Encoding as LT
-import GHC.Generics
+import GHC.Generics hiding (from, to)
 import qualified Network.WebSockets as WS
 import ServerMessages
 

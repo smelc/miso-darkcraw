@@ -27,7 +27,7 @@ import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Text as Text
-import Debug.Trace (traceShow, traceShowId)
+import Debug.Trace (traceShow)
 import Event
 import qualified Game
 import GameViewInternal
@@ -344,14 +344,13 @@ boardToInHandCell ::
   -- The z-index when the card is on top of others
   Int ->
   -- The z-index, the card, the index in the hand
-  (Int, Card Core, HandIndex) ->
+  (Int, Card 'Core, HandIndex) ->
   Styled (View Action)
 boardToInHandCell
   HandDrawingInput
     { hdiHand = hand,
       hdiInteraction = interaction,
       hdiOffseter = offseter,
-      hdiPlayingPlayer = playingPlayer,
       hdiShared = shared,
       hdiTeam = team
     }
@@ -404,7 +403,7 @@ cardCellsBoardOffset PlayerTop cardSpot =
   (offsetx + x, offsety + y)
   where
     (offsetx, offsety) =
-      (boardToLeftCardCellsOffset, 3) -- offset from background corner
+      (boardToLeftCardCellsOffset, 3 :: Int) -- offset from background corner
     botyShift = cardCellHeight + cardVCellGap -- offset from top to bottom line
     xtop = cardCellWidth + cardHCellGap -- offset from left to middle
     xtopright = xtop * 2 -- offset from left to right

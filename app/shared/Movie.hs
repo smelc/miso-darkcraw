@@ -166,7 +166,7 @@ welcomeFightMovie = do
     [ do allw0right; allw1left,
       do up w01; left w1; left w11
     ]
-  newActorAt "bones" (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
+  _ <- newActorAt "bones" (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
   during 5 $ do hide w12; w1 & tell "iugp8b4"
   during 1 $ shutup w1
   w20 <- newHiddenActor "w20"

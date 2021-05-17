@@ -6,21 +6,18 @@
 module Model where
 
 import Board
-import BoardInstances
 import Card
-import CardInstances
 import Cinema (TimedFrame)
 import Data.Function ((&))
 import Data.Generics.Labels ()
 import qualified Data.Map.Strict as Map
-import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
 import GHC.Generics
 import qualified Game (Target)
 import ServerMessages
-import SharedModel (SharedModel (..), liftCard)
+import SharedModel (SharedModel)
 import Turn (Turn)
 import qualified Turn
 
@@ -58,7 +55,7 @@ data GameModel = GameModel
   { -- | Part of the model shared among all pages
     gameShared :: SharedModel,
     -- | The core part of the model
-    board :: Board Core,
+    board :: Board 'Core,
     -- | What user interaction is going on
     interaction :: Interaction Game.Target,
     -- | Where the player plays
@@ -66,7 +63,7 @@ data GameModel = GameModel
     -- | The current turn
     turn :: Turn,
     -- | Animations to perform next
-    anims :: Board UI
+    anims :: Board 'UI
   }
   deriving (Eq, Generic)
 
@@ -98,7 +95,7 @@ gameToBuild gm@GameModel {..} =
 -- during a match. When this happen, the player's deck will have to be
 -- carried on in GameModel. No big deal.
 gameToDeck :: GameModel -> [Card.ID]
-gameToDeck GameModel {gameShared = shared, ..} =
+gameToDeck GameModel {..} =
   inPlace' ++ inHand ++ stack ++ discarded
   where
     PlayerPart {..} = boardToPart board playingPlayer
@@ -182,7 +179,7 @@ data InvitedActorState
 
 data DeckModel = DeckModel
   { -- | The deck to show
-    deck :: [Card Core],
+    deck :: [Card 'Core],
     -- | The model to use when closing the deck view
     deckBack :: Model,
     -- | To which player 'deckBack' belongs

@@ -9,6 +9,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Update where
 
@@ -16,11 +17,9 @@ import qualified AI
 import Board
 import BoardInstances (boardStart)
 import Card
-import CardInstances
 import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
 import qualified Command
 import Control.Concurrent (threadDelay)
-import Control.Exception
 import Control.Lens
 import Control.Monad.Freer as Eff
 import Control.Monad.Freer.State as Eff
@@ -43,7 +42,7 @@ import Model
 import qualified Model (gameToBuild)
 import Movie (welcomeMovie)
 import ServerMessages
-import SharedModel (SharedModel (..), getCmd, withCmd)
+import SharedModel (SharedModel, getCmd, withCmd)
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -71,17 +70,17 @@ instance ToExpr (ItemObject 'UI)
 
 instance ToExpr Filepath
 
-instance ToExpr (Creature Core)
+instance ToExpr (Creature 'Core)
 
-instance ToExpr (Creature UI)
+instance ToExpr (Creature 'UI)
 
-instance ToExpr (NeutralObject Core)
+instance ToExpr (NeutralObject 'Core)
 
-instance ToExpr (NeutralObject UI)
+instance ToExpr (NeutralObject 'UI)
 
-instance ToExpr (Card Core)
+instance ToExpr (Card 'Core)
 
-instance ToExpr (Card UI)
+instance ToExpr (Card 'UI)
 
 instance ToExpr PlayerSpot
 
@@ -93,15 +92,15 @@ instance ToExpr InPlaceEffects
 
 instance ToExpr Card.ID
 
-instance ToExpr (PlayerPart Core)
+instance ToExpr (PlayerPart 'Core)
 
-instance ToExpr (PlayerPart UI)
+instance ToExpr (PlayerPart 'UI)
 
 instance ToExpr CardSpot
 
-instance ToExpr (Board Core)
+instance ToExpr (Board 'Core)
 
-instance ToExpr (Board UI)
+instance ToExpr (Board 'UI)
 
 instance ToExpr HandIndex
 
@@ -231,7 +230,7 @@ data WelcomeDestination
   | SinglePlayerDestination
   deriving (Eq, Show)
 
-type DeckViewInput = [Card Core]
+type DeckViewInput = [Card 'Core]
 
 -- | Sum type for application events. If drop stuff doesn't work
 -- | think whether it's affected by https://github.com/dmjio/miso/issues/478
@@ -342,7 +341,7 @@ instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
 
   updateDefault m i = (withInteraction m i, [])
 
-  withInteraction m@GameModel {..} i = GameModel {interaction = i, ..}
+  withInteraction g i = g {interaction = i}
 
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
@@ -395,8 +394,8 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
           (_, _) -> nexts <&> GamePlay
-updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards []) _ =
-  traceShow "GameDrawCards [] should not happen (but is harmless)" (m, [])
+updateGameModel m (GameDrawCards []) _ =
+  traceShow ("GameDrawCards [] should not happen (but is harmless)" :: String) (m, [])
 updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest)) _ =
   case Game.drawCards gameShared board pSpot [fst] of
     Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
@@ -440,7 +439,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           Game.Result shared' board' () boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board', gameShared = shared'}
         else Right m
-updateGameModel m@GameModel {board, gameShared, playingPlayer, turn} GameIncrTurn _ =
+updateGameModel m@GameModel {board, gameShared} GameIncrTurn _ =
   case x of
     Left err -> updateDefault m $ ShowErrorInteraction err
     Right res -> res
@@ -462,7 +461,7 @@ updateGameModel m (GameInPlaceMouseEnter target) NoInteraction =
 updateGameModel m (GameInPlaceMouseLeave _) _ =
   updateDefault m NoInteraction
 -- Debug cmd
-updateGameModel m GameExecuteCmd i =
+updateGameModel m GameExecuteCmd _ =
   updateDefault m $ ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
 updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
   updateDefault
@@ -729,7 +728,7 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameSh
           Just (Command.Gimme cid) ->
             let board' = boardAddToHand board playingPlayer cid
              in noEff $ GameModel' $ gm {board = board'}
-          Just c@(Command.Goto _) ->
+          Just (Command.Goto _) ->
             noEff $ BuildModel' $ Model.gameToBuild gm
 -- Actions that leave 'SinglePlayerView'
 updateModel

@@ -12,8 +12,6 @@ import qualified AI (play)
 import Board
 import Card
 import Data.Function ((&))
-import Data.Functor ((<&>))
-import Data.List
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -24,7 +22,7 @@ import Model
 import SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Test.QuickCheck (withMaxSuccess, (==>))
+import Test.QuickCheck ((==>))
 import Turn
 import Update
 
@@ -73,6 +71,7 @@ main shared = do
             ++ " "
             ++ show (boardToScore board pSpot)
 
+testStupidity :: SharedModel -> SpecWith ()
 testStupidity shared =
   describe "Stupidity is handled correctly" $
     prop "the score is correctly predicted" $
@@ -119,7 +118,7 @@ play model nbTurns =
     go m@GameModel {turn} models
       | Turn.toInt turn > nbTurns =
         Result (reverse models) (toMatchResult m)
-    go m@GameModel {turn} models =
+    go m models =
       case playOneTurn m of
         Left msg -> Result (reverse models) (Error msg)
         Right m' -> go m' $ m : models
@@ -154,7 +153,7 @@ playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
     go model@GameModel {interaction} (action : actions) =
       let (model', seq) = Update.updateGameModel model action interaction
        in do
-            getErr model'
+            _ <- getErr model'
             go model' (map snd seq ++ actions)
     getErr m@GameModel {interaction} =
       case interaction of

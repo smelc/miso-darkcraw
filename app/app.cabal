@@ -50,10 +50,7 @@ common client-server-shared
     tree-diff,
     vector
   ghc-options:
-    -Wincomplete-patterns
-    -Wpartial-fields
-    -Wincomplete-uni-patterns
-    -Wunused-binds
+    -Wall
     -Werror
     -Wwarn=missing-home-modules
   default-language:
@@ -94,6 +91,11 @@ executable app
   hs-source-dirs:
     client,
     shared
+  ghc-options:
+    -Wall
+    -Wno-name-shadowing
+    -Werror
+    -Wwarn=missing-home-modules
   if !impl(ghcjs)
     build-depends:
        jsaddle, jsaddle-warp, transformers,
@@ -161,10 +163,8 @@ Test-Suite test-darkcraw
     tree-diff,
     vector
   ghc-options:
-    -Wincomplete-patterns
-    -Wpartial-fields
-    -Wincomplete-uni-patterns
-    -Wunused-binds
+    -Wall
+    -Wno-name-shadowing
     -Werror
     -Wwarn=missing-home-modules
     -fprof-auto

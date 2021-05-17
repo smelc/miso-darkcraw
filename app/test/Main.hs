@@ -5,6 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 module Main where
 
@@ -43,11 +44,11 @@ import Turn
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
 creatureSum cards getter = sum (map getter cards)
 
-getAllDecks :: [Card UI] -> [[Card Core]]
+getAllDecks :: [Card 'UI] -> [[Card 'Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
 
 -- | Tests that the AI treats 'Ranged' correctly.
-testAIRanged :: SharedModel -> Turn -> Board Core
+testAIRanged :: SharedModel -> Turn -> Board 'Core
 testAIRanged shared turn =
   case Game.playAll shared board events of
     Left _ -> error "AI failed"
@@ -311,11 +312,11 @@ testGetActorState =
       a1 <- newActorAt "a1" skeleton 1 2
       a1x <- a1 `dot` x
       a1y <- a1 `dot` y
-      newActorAt "a2" skeleton a1x a1y
+      _ <- newActorAt "a2" skeleton a1x a1y
       wait 1
     expectedScene = do
-      newActorAt "a1" skeleton 1 2
-      newActorAt "a2" skeleton 1 2
+      _ <- newActorAt "a1" skeleton 1 2
+      _ <- newActorAt "a2" skeleton 1 2
       wait 1
 
 testAIPlace shared =
@@ -443,7 +444,7 @@ testFear shared =
         board
         PlayerBot
         (bottomSpotOfTopVisual Top)
-        (affectedByFear & (\Creature {hp, ..} -> Creature {hp = 1, ..}))
+        (affectedByFear & (\Creature {..} -> Creature {hp = 1, ..}))
     board'' = Game.play shared board' (Game.ApplyFearNTerror PlayerTop) & extract
     extract (Left _) = error "Test failure"
     extract (Right (Game.Result _ b _ _)) = b
@@ -456,7 +457,7 @@ testFear shared =
         affectedByFear
     boardBis'' = Game.play shared boardBis' (Game.ApplyFearNTerror PlayerTop) & extract
 
-testFearNTerror shared =
+testFearNTerror =
   describe "Fear and terror" $ do
     prop "Creature causing fear is immune to fear" $
       \c -> Total.causesFear c ==> not $ Total.affectedByFear c
@@ -537,7 +538,7 @@ main = hspec $ do
             && not (null occupiedSpots)
   -- From fast tests to slow tests (to maximize failing early)
   testFear shared
-  testFearNTerror shared
+  testFearNTerror
   testPlague shared
   testPlayFraming shared
   testDrawCards shared

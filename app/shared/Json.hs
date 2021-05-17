@@ -8,6 +8,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Json
   ( loadJson,
@@ -86,7 +87,7 @@ skillUIOptions =
     impl "skillTitle" = "title"
     impl s = s
 
-instance FromJSON (Creature UI) where
+instance FromJSON (Creature 'UI) where
   parseJSON = withObject "Creature" $ \v ->
     Creature
       <$> v .: "id"
@@ -102,13 +103,13 @@ instance FromJSON (Creature UI) where
 instance FromJSON Neutral where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance FromJSON (NeutralObject UI) where
+instance FromJSON (NeutralObject 'UI) where
   parseJSON = genericParseJSON neutralObjectOptions
 
 instance FromJSON Item where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance FromJSON (ItemObject UI) where
+instance FromJSON (ItemObject 'UI) where
   parseJSON = withObject "Item" $ \v ->
     ItemObject
       <$> v .: "name"
@@ -130,7 +131,7 @@ instance FromJSON SkillPack where
 data AllData (p :: Phase) = AllData
   { creatures :: [Creature p],
     neutral :: [NeutralObject p],
-    items :: [ItemObject UI],
+    items :: [ItemObject 'UI],
     skills :: [SkillPack],
     tiles :: [TileUI]
   }
@@ -138,9 +139,9 @@ data AllData (p :: Phase) = AllData
 
 deriving instance Forall Show p => Show (AllData p)
 
-instance FromJSON (AllData UI)
+instance FromJSON (AllData 'UI)
 
-type LoadedJson = ([Card UI], [ItemObject UI], [SkillPack], [TileUI])
+type LoadedJson = ([Card 'UI], [ItemObject 'UI], [SkillPack], [TileUI])
 
 parseJson ::
   -- | The content of data.json

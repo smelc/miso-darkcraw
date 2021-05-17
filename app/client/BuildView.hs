@@ -17,14 +17,13 @@ import Data.Function ((&))
 import qualified DeckView as Deck
 import qualified GameView
 import Miso hiding (view)
-import Miso.String (MisoString)
 import Model (BuildModel (..))
 import qualified SharedModel
 import Update (Action (..))
 import ViewInternal
 
 view :: BuildModel -> Styled (View Action)
-view b@BuildModel {buildDeck, hand} = do
+view b = do
   boardDiv <- Deck.viewGeneric $ toGenericModel b
   handDiv <- handDivM
   return $ div_ [] [boardDiv, handDiv]
@@ -39,7 +38,7 @@ view b@BuildModel {buildDeck, hand} = do
 
 -- | Used to draw the upper part (relies on 'DeckView')
 toGenericModel :: BuildModel -> Deck.GenericModel
-toGenericModel b@BuildModel {buildShared = shared, ..} =
+toGenericModel BuildModel {buildShared = shared, ..} =
   Deck.GenericModel {..}
   where
     gBackground = "build.png"
@@ -49,12 +48,12 @@ toGenericModel b@BuildModel {buildShared = shared, ..} =
 
 -- | Used to draw the bottom part (relies on 'GameView')
 toHandDrawingInput :: BuildModel -> GameView.HandDrawingInput
-toHandDrawingInput b@BuildModel {buildShared = shared, ..} =
+toHandDrawingInput BuildModel {buildShared = shared, ..} =
   GameView.HandDrawingInput {..}
   where
     itemCards =
       SharedModel.getCards shared
-        & filter (\case ItemCard c -> True; _ -> False)
+        & filter (\case ItemCard _ -> True; _ -> False)
     hdiHand = zip (map Card.unliftCard itemCards) $ repeat False
     hdiInteraction = Nothing
     hdiOffseter (x, y) = (x + boardPixelWidth `div` 2, y - cps)

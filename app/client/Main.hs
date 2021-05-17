@@ -53,7 +53,7 @@ loadJson' =
       exitWith $ ExitFailure 1
     Right loadedJson -> return loadedJson
 
-logTeam :: [Card UI] -> Team -> IO ()
+logTeam :: [Card 'UI] -> Team -> IO ()
 logTeam cards t = do
   let deck = mapMaybe cardToCreature $ teamDeck cards t
   print t

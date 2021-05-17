@@ -13,6 +13,7 @@ import Data.Function ((&))
 import Data.Functor
 import Data.Maybe
 
+toLowerString :: [Char] -> [Char]
 toLowerString = map toLower
 
 -- If you change the first member of this type, change 'allViews' too
@@ -21,6 +22,7 @@ data View
     Build
   deriving (Enum)
 
+allViews :: [View]
 allViews = [Build ..]
 
 instance Show View where

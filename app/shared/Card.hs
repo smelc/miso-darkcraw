@@ -14,7 +14,6 @@
 
 module Card where
 
-import qualified Constants
 import Control.Arrow ((&&&))
 import Data.Function ((&))
 import Data.Generics.Labels ()
@@ -90,28 +89,28 @@ data Phase
     UI
 
 type family ItemType (p :: Phase) where
-  ItemType UI = ItemObject UI
-  ItemType Core = Item
+  ItemType 'UI = ItemObject 'UI
+  ItemType 'Core = Item
 
 type family OffsetType (p :: Phase) where
-  OffsetType UI = Int
-  OffsetType Core = ()
+  OffsetType 'UI = Int
+  OffsetType 'Core = ()
 
 type family SkillType (p :: Phase) where
-  SkillType UI = Skill
-  SkillType Core = SkillCore
+  SkillType 'UI = Skill
+  SkillType 'Core = SkillCore
 
 type family TeamsType (p :: Phase) where
-  TeamsType UI = [Team]
-  TeamsType Core = ()
+  TeamsType 'UI = [Team]
+  TeamsType 'Core = ()
 
 type family TextType (p :: Phase) where
-  TextType UI = String
-  TextType Core = ()
+  TextType 'UI = String
+  TextType 'Core = ()
 
 type family TileType (p :: Phase) where
-  TileType UI = Tile
-  TileType Core = ()
+  TileType 'UI = Tile
+  TileType 'Core = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (ItemType p),
@@ -140,6 +139,7 @@ data CreatureKind
   | Warrior
   deriving (Enum, Eq, Generic, Ord, Show)
 
+allCreatureKinds :: [CreatureKind]
 allCreatureKinds = [Archer ..]
 
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
@@ -183,11 +183,12 @@ data Neutral
   | Plague
   deriving (Enum, Eq, Generic, Ord, Show)
 
+allNeutrals :: [Neutral]
 allNeutrals = [Health ..]
 
 type family NeutralTeamsType (p :: Phase) where
-  NeutralTeamsType UI = [Team]
-  NeutralTeamsType Core = ()
+  NeutralTeamsType 'UI = [Team]
+  NeutralTeamsType 'Core = ()
 
 -- If Creature and NeutralObject start having more in common than solely
 -- tile/ntile, a new record can be introduced; to share code.
@@ -215,6 +216,7 @@ data Item
   | SwordOfMight
   deriving (Enum, Eq, Generic, Ord, Show)
 
+allItems :: [Item]
 allItems = [Card.Crown ..]
 
 data ItemObject (p :: Phase) = ItemObject
@@ -265,7 +267,7 @@ liftSkill skill =
 
 -- | Because this function uses default values (by relying on 'unliftSkill'),
 -- it is NOT harmless! Use only when initializing data.
-unliftCreature :: Creature UI -> Creature Core
+unliftCreature :: Creature 'UI -> Creature 'Core
 unliftCreature Creature {..} =
   Creature {items = items', skills = skills', tile = tile', ..}
   where
@@ -273,18 +275,18 @@ unliftCreature Creature {..} =
     skills' = map unliftSkill skills
     tile' = ()
 
-unliftCard :: Card UI -> Card Core
+unliftCard :: Card 'UI -> Card 'Core
 unliftCard card =
   case card of
     CreatureCard creature -> CreatureCard $ unliftCreature creature
     NeutralCard n -> NeutralCard $ unliftNeutralObject n
     ItemCard i -> ItemCard $ unliftItemObject i
 
-unliftItemObject :: ItemObject UI -> ItemObject Core
+unliftItemObject :: ItemObject 'UI -> ItemObject 'Core
 unliftItemObject ItemObject {..} =
   ItemObject {teams = (), item, itext = (), itextSzOffset = (), itile = (), ititle = (), ititleSzOffset = ()}
 
-unliftNeutralObject :: NeutralObject UI -> NeutralObject Core
+unliftNeutralObject :: NeutralObject 'UI -> NeutralObject 'Core
 unliftNeutralObject NeutralObject {..} =
   NeutralObject {neutral, neutralTeams = (), ntext = (), ntile = (), ntitle = ()}
 
@@ -309,7 +311,7 @@ cardToCreature (NeutralCard _) = Nothing
 cardToCreature (ItemCard _) = Nothing
 
 cardToItemObject :: Card p -> Maybe (ItemObject p)
-cardToItemObject (NeutralCard n) = Nothing
+cardToItemObject (NeutralCard _) = Nothing
 cardToItemObject (CreatureCard _) = Nothing
 cardToItemObject (ItemCard i) = Just i
 
@@ -342,17 +344,17 @@ groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
 
 teamDeck ::
   -- | The cards as loaded from disk
-  [Card UI] ->
+  [Card 'UI] ->
   -- | The team for which to build the deck
   Team ->
   -- | The initial deck
-  [Card Core]
+  [Card 'Core]
 teamDeck cards t =
   map CreatureCard creatures
     ++ map NeutralCard neutrals
     ++ map ItemCard items
   where
-    kindToCreature :: Map.Map CreatureKind (Creature Core) =
+    kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
       map cardToCreature cards
         & catMaybes
         & filter (\c -> (creatureId c & team) == t)
@@ -365,7 +367,7 @@ teamDeck cards t =
       case t of
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * Knight ++ 1 * General
         Undead -> 3 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
-    kindToNeutral :: Map.Map Neutral (NeutralObject Core) =
+    kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
       map cardToNeutralObject cards
         & catMaybes
         & filter (\nobj -> t `Prelude.elem` neutralTeams nobj)

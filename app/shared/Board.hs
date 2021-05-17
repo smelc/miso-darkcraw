@@ -34,12 +34,12 @@ module Board
     initialBoard,
     HandIndex (..),
     inTheBack,
-    InHandType (..),
+    InHandType (),
     lookupHand,
     otherPlayerSpot,
     PlayerPart (..),
     PlayerSpot (..),
-    StackType (..),
+    StackType (),
     smallBoard,
     startingPlayerSpot,
     spotToLens,
@@ -102,7 +102,7 @@ data CardSpot
 allCardsSpots :: [CardSpot]
 allCardsSpots = [TopLeft ..]
 
-type CardsOnTable = Map.Map CardSpot (Creature Core)
+type CardsOnTable = Map.Map CardSpot (Creature 'Core)
 
 -- | A convenience constructor to create the bottom part of a board
 -- | by using the CardSpot that you see instead of having to consider
@@ -209,27 +209,27 @@ instance Monoid InPlaceEffects where
   mempty = InPlaceEffects mempty
 
 type family InPlaceType (p :: Phase) where
-  InPlaceType Core = CardsOnTable
-  InPlaceType UI = InPlaceEffects
+  InPlaceType 'Core = CardsOnTable
+  InPlaceType 'UI = InPlaceEffects
 
 type family HandElemType (p :: Phase) where
-  HandElemType Core = Card.ID
-  HandElemType UI = Int
+  HandElemType 'Core = Card.ID
+  HandElemType 'UI = Int
 
 type family InHandType (p :: Phase) where
   InHandType p = [HandElemType p]
 
 type family ScoreType (p :: Phase) where
-  ScoreType Core = Int
-  ScoreType UI = ()
+  ScoreType 'Core = Int
+  ScoreType 'UI = ()
 
 type family StackType (p :: Phase) where
-  StackType Core = [Card.ID]
-  StackType UI = Int -- Discarded->Stack transfer
+  StackType 'Core = [Card.ID]
+  StackType 'UI = Int -- Discarded->Stack transfer
 
 type family DiscardedType (p :: Phase) where
-  DiscardedType Core = [Card.ID]
-  DiscardedType UI = Int -- Board->Discarded transfer
+  DiscardedType 'Core = [Card.ID]
+  DiscardedType 'UI = Int -- Board->Discarded transfer
 
 type family TeamType (p :: Phase) where
   TeamType 'Core = Team
@@ -264,11 +264,11 @@ deriving instance Board.Forall Ord p => Ord (PlayerPart p)
 
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
-instance Semigroup (PlayerPart UI) where
+instance Semigroup (PlayerPart 'UI) where
   PlayerPart inPlace1 inHand1 () s1 d1 () <> PlayerPart inPlace2 inHand2 () s2 d2 () =
     PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) () (s1 + s2) (d1 + d2) ()
 
-instance Monoid (PlayerPart UI) where
+instance Monoid (PlayerPart 'UI) where
   mempty = PlayerPart mempty mempty mempty 0 0 mempty
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
@@ -317,11 +317,11 @@ deriving instance Board.Forall Ord p => Ord (Board p)
 
 deriving instance Board.Forall Show p => Show (Board p)
 
-instance Semigroup (Board UI) where
+instance Semigroup (Board 'UI) where
   Board top1 bot1 <> Board top2 bot2 =
     Board (top1 <> top2) (bot1 <> bot2)
 
-instance Monoid (Board UI) where
+instance Monoid (Board 'UI) where
   mempty = Board mempty mempty
 
 data Neighborhood = Cardinal | Diagonal | All
@@ -360,7 +360,7 @@ boardAddToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
-boardSetCreature :: Board Core -> PlayerSpot -> CardSpot -> Creature Core -> Board Core
+boardSetCreature :: Board 'Core -> PlayerSpot -> CardSpot -> Creature 'Core -> Board 'Core
 boardSetCreature board pSpot cSpot creature =
   boardSetPart board pSpot part'
   where
@@ -395,7 +395,7 @@ boardSetStack board pSpot stack =
   where
     part = boardToPart board pSpot
 
-boardToHoleyInPlace :: Board Core -> [(PlayerSpot, CardSpot, Maybe (Creature Core))]
+boardToHoleyInPlace :: Board 'Core -> [(PlayerSpot, CardSpot, Maybe (Creature 'Core))]
 boardToHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- allPlayersSpots,
@@ -416,7 +416,7 @@ boardToPlayerCardSpots board pSpot ctk =
     & map fst
 
 boardToPlayerHoleyInPlace ::
-  Board Core -> PlayerSpot -> [(CardSpot, Maybe (Creature Core))]
+  Board 'Core -> PlayerSpot -> [(CardSpot, Maybe (Creature 'Core))]
 boardToPlayerHoleyInPlace board pSpot =
   [ (cSpot, maybeCreature)
     | cSpot <- allCardsSpots,
@@ -461,19 +461,19 @@ boardToStack Board {playerTop} PlayerTop = stack playerTop
 boardToStack Board {playerBottom} PlayerBot = stack playerBottom
 
 boardToInPlaceCreature ::
-  Board Core ->
+  Board 'Core ->
   PlayerSpot ->
   CardSpot ->
-  Maybe (Creature Core)
+  Maybe (Creature 'Core)
 boardToInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
   where
     inPlace = boardToInPlace board pSpot
 
-emptyBoard :: Teams -> Board Core
+emptyBoard :: Teams -> Board 'Core
 emptyBoard Teams {topTeam, botTeam} =
   Board {playerTop = emptyPlayerPart topTeam, playerBottom = emptyPlayerPart botTeam}
 
-emptyPlayerPart :: Team -> PlayerPart Core
+emptyPlayerPart :: Team -> PlayerPart 'Core
 emptyPlayerPart team = PlayerPart {..}
   where
     inPlace = Map.empty
@@ -510,7 +510,7 @@ smallBoard shared teams cid items pSpot cSpot =
   boardSetCreature (emptyBoard teams) pSpot cSpot c
   where
     c =
-      SharedModel.idToCreature shared cid []
+      SharedModel.idToCreature shared cid items
         & fromJust
         & Card.unliftCreature
 
@@ -538,7 +538,7 @@ spotToLens =
     PlayerBot -> #playerBottom
     PlayerTop -> #playerTop
 
-appliesTo :: Card.ID -> Board Core -> PlayerSpot -> CardSpot -> Bool
+appliesTo :: Card.ID -> Board 'Core -> PlayerSpot -> CardSpot -> Bool
 appliesTo id board pSpot cSpot =
   case (Card.targetType id, boardToInPlaceCreature board pSpot cSpot) of
     (Card.CardTargetType Occupied, Just _) -> True
@@ -550,7 +550,7 @@ appliesTo id board pSpot cSpot =
 -- Now onto fancy rendering --
 ------------------------------
 
-boardToASCII :: Board Core -> String
+boardToASCII :: Board 'Core -> String
 boardToASCII board =
   (intersperse "\n" lines & concat) ++ "\n"
   where
@@ -570,7 +570,7 @@ boardToASCII board =
         ++ [handLine board PlayerBot]
         ++ stackLines board PlayerBot
 
-stackLines :: Board Core -> PlayerSpot -> [String]
+stackLines :: Board 'Core -> PlayerSpot -> [String]
 stackLines board pSpot =
   map (\s -> replicate 4 ' ' ++ s) $ reverse $ go 0 []
   where
@@ -593,7 +593,7 @@ stackLines board pSpot =
           where
             blanks = replicate stackWidth ' '
 
-handLine :: Board Core -> PlayerSpot -> String
+handLine :: Board 'Core -> PlayerSpot -> String
 handLine board pSpot =
   "Hand: " ++ intercalate ", " (map showID hand)
   where
@@ -615,10 +615,11 @@ showID (IDC CreatureID {creatureKind, team} _) =
 showID (IDI i) = show i
 showID (IDN n) = show n
 
+showTeamShort :: Team -> String
 showTeamShort Human = "H"
 showTeamShort Undead = "UD"
 
-cardsLines :: Board Core -> PlayerSpot -> [CardSpot] -> [String]
+cardsLines :: Board 'Core -> PlayerSpot -> [CardSpot] -> [String]
 cardsLines board pSpot cSpots =
   map f [0 .. cardHeight - 1]
   where
@@ -627,15 +628,17 @@ cardsLines board pSpot cSpots =
        in intersperse " " pieces & concat -- horizontal space between cards
 
 -- The height of a card, in number of lines
+cardHeight :: Int
 cardHeight = 1 + 1 + 5
 
 -- The width of a card, in number of characters
+cardWidth :: Int
 cardWidth = 16
 
 type LineNumber = Int
 
 -- | The line number must be in [0, cardHeight)
-cardLine :: Board Core -> PlayerSpot -> CardSpot -> LineNumber -> String
+cardLine :: Board 'Core -> PlayerSpot -> CardSpot -> LineNumber -> String
 cardLine board pSpot cSpot lineNb =
   case length base of
     i | i < cardWidth -> base ++ replicate (cardWidth - i) '.'
@@ -649,7 +652,7 @@ cardLine board pSpot cSpot lineNb =
       Just creature -> fromMaybe emptyLine $ creatureToAscii creature lineNb
 
 -- | The n-th line of a creature card, or None
-creatureToAscii :: Creature Core -> LineNumber -> Maybe String
+creatureToAscii :: Creature 'Core -> LineNumber -> Maybe String
 creatureToAscii Creature {creatureId = CreatureID {..}} 0 =
   Just $ show team ++ " " ++ show creatureKind
 creatureToAscii c@Creature {..} 1 =

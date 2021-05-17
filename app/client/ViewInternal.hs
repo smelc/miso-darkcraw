@@ -184,17 +184,17 @@ wobblev ::
 wobblev name upOrDown x y =
   keyframes name from steps to
   where
-    from = ms $ step 0 0 "1"
+    from = ms $ step (0 :: Int) (0 :: Int) "1"
     steps =
-      [ (p, step x' (round y') opacity)
-        | let steps = zip [15, 30, 45, 60, 85] [1 ..],
+      [ (p, step x' ((round y') :: Int) opacity)
+        | let steps = zip [15, 30, 45, 60, 85] [1 :: Int ..],
           let steps' = map (\(p, i) -> (p, if even i then x else - x)) steps,
-          (p :: Int, x') <- steps',
+          (p :: Int, x' :: Int) <- steps',
           let y' :: Float = (fromIntegral p / 100) * fromIntegral y,
           -- Take first three chars as in .eg. "0.3"
-          let opacity = show (100 / fromIntegral p) & take 3
+          let opacity = show ((100 / fromIntegral p) :: Double) & take 3
       ]
-    to = ms $ step 0 (if upOrDown then y else - y) "0"
+    to = ms $ step (0 :: Int) (if upOrDown then y else - y) "0"
     translateX i = "translateX(" ++ show i ++ "px)"
     translateY i = "translateY(" ++ ysign ++ show i ++ "px)"
     step x y o =

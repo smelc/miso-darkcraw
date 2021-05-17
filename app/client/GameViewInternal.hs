@@ -32,7 +32,7 @@ import Constants
 import Control.Lens
 import Control.Monad.Except
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
 import qualified Game (Target (..), appliesTo, enemySpots)
@@ -40,7 +40,6 @@ import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
 import SharedModel (unsafeIdentToCard)
-import Turn (Turn)
 import qualified Turn
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
@@ -207,7 +206,7 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
     plusValue = case stackType of
       Stacked -> boardToStack anims pSpot
       Discarded -> boardToDiscarded anims pSpot + nbDeaths
-    deck :: [Card Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
+    deck :: [Card 'Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
     atColonSize = length deck
     attackEffects = anims ^. spotToLens pSpot . #inPlace & unInPlaceEffects
     nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 attackEffects
