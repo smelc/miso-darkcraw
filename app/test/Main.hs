@@ -503,6 +503,35 @@ testPlague shared =
         pSpot = PlayerTop
         board = mkBoard teams pSpot cids & mapInPlace f pSpot
 
+testItemsAI shared =
+  describe "AI" $ do
+    xit "Sword of Might is put on most potent in place creature" $
+      play (board1 (mkCreature Archer Undead) (mkCreature Vampire Undead) SwordOfMight)
+        `shouldSatisfy` ( \case
+                            Left errMsg -> traceShow errMsg False
+                            Right (Game.Result _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight
+                        )
+  where
+    pSpot = PlayerTop
+    board1 id1 id2 item =
+      Board.emptyBoard teams
+        & setCreature pSpot TopLeft id1
+        & setCreature pSpot Bottom id2
+        & (\b -> Board.boardAddToHand b pSpot (IDI item))
+    teams = Teams Undead Undead
+    mkCreature kind team =
+      SharedModel.idToCreature shared (CreatureID kind team) []
+        & fromJust
+        & Card.unliftCreature
+    setCreature pSpot cSpot c board =
+      Board.boardSetCreature board pSpot cSpot c
+    play board =
+      Game.playAll shared board $ AI.play shared board pSpot
+    hasItem board pSpot cSpot item =
+      case boardToInPlaceCreature board pSpot cSpot of
+        Nothing -> False
+        Just Creature {items} -> item `elem` items
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -539,6 +568,7 @@ main = hspec $ do
   -- From fast tests to slow tests (to maximize failing early)
   testFear shared
   testFearNTerror
+  testItemsAI shared
   testPlague shared
   testPlayFraming shared
   testDrawCards shared
