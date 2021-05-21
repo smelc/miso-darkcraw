@@ -60,7 +60,7 @@ main shared =
     prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in (initialBoard shared' teams & snd) `shouldSatisfy` isValid'
+         in (Board.initial shared' teams & snd) `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->
         let shared' = SharedModel.withSeed shared seed

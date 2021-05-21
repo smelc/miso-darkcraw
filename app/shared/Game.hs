@@ -204,8 +204,8 @@ playM board (Place pSpot target (handhi :: HandIndex)) = do
       throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ show target ++ ", " ++ show card ++ ")"
   where
     handi = unHandIndex handhi
-    (hand, hand') = (boardToHand board pSpot, deleteAt handi hand)
-    board' = boardSetHand board pSpot hand'
+    (hand, hand') = (Board.toHand board pSpot, deleteAt handi hand)
+    board' = Board.setHand board pSpot hand'
 playM board (Place' pSpot target id) =
   case idToHandIndex board pSpot id of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
@@ -217,7 +217,7 @@ idToHandIndex :: Board 'Core -> PlayerSpot -> Card.ID -> Maybe HandIndex
 idToHandIndex board pSpot id =
   find
     (\(_, m) -> m == id)
-    (boardToHand board pSpot & zip [HandIndex 0 ..])
+    (Board.toHand board pSpot & zip [HandIndex 0 ..])
     <&> fst
 
 playPlayerTargetM ::
@@ -252,13 +252,13 @@ playPlayerTargetM board _playingPlayer target n =
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
   where
     addHitpoints pSpot cSpot hps =
-      case boardToInPlaceCreature board pSpot cSpot of
+      case Board.toInPlaceCreature board pSpot cSpot of
         Nothing -> return board
         Just c@Creature {hp} ->
           return board'
           where
             c' = c {hp = hp + hps}
-            board' = boardSetCreature board pSpot cSpot c'
+            board' = Board.setCreature board pSpot cSpot c'
 
 playCreatureM ::
   MonadWriter (Board 'UI) m =>
@@ -291,11 +291,11 @@ playCreatureM board pSpot cSpot creature =
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       when (Total.isDisciplined creature) $
         traverse_ ((\(cSpot, _) -> reportEffect pSpot cSpot disciplineEffect)) disciplinedNeighbors'
-      return $ boardSetPart board pSpot part'
+      return $ Board.setPart board pSpot part'
   where
-    part@PlayerPart {inPlace} = boardToPart board pSpot
+    part@PlayerPart {inPlace} = Board.toPart board pSpot
     disciplinedNeighbors =
-      boardToNeighbors board pSpot cSpot Board.Cardinal
+      Board.toNeighbors board pSpot cSpot Board.Cardinal
         & map liftJust
         & catMaybes
         & filter (\(_, c) -> Total.isDisciplined c)
@@ -323,9 +323,9 @@ playItemM board pSpot cSpot item =
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       -- TODO @smelc record animation for item arrival
       let creature' = installItem creature item
-      return $ boardSetPart board pSpot $ part' creature'
+      return $ Board.setPart board pSpot $ part' creature'
   where
-    part@PlayerPart {inPlace} = boardToPart board pSpot
+    part@PlayerPart {inPlace} = Board.toPart board pSpot
     part' c' = part {inPlace = Map.insert cSpot c' inPlace}
 
 installItem ::
@@ -367,7 +367,7 @@ applyPlagueM board pSpot = do
       board
       affecteds
   where
-    affecteds = boardToInPlace board pSpot
+    affecteds = Board.toInPlace board pSpot
     baseEffect = mempty {hitPointsChange = -1}
     plagueEffect Creature {hp} | hp <= 1 = baseEffect {death = UsualDeath}
     plagueEffect _ = baseEffect {fadeOut = [Tile.HeartBroken]}
@@ -416,25 +416,25 @@ drawCardM board pSpot src =
     (Left _msg, _) -> return board -- cannot draw: 'src' is invalid
     (_, []) -> return board -- cannot draw: stack is empty
     (Right witness, _) -> do
-      let hand = boardToHand board pSpot
+      let hand = Board.toHand board pSpot
       stdgen <- use #sharedStdGen
       let (idrawn, stdgen') = randomR (0, assert (stackLen >= 1) $ stackLen - 1) stdgen
       #sharedStdGen .= stdgen'
       let ident :: Card.ID = stack !! idrawn
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [ident]
-      tell $ boardAddToHand mempty pSpot $ length hand
-      let board' = boardSetStack board pSpot stack'
-      let board'' = boardSetHand board' pSpot hand'
+      tell $ Board.addToHand mempty pSpot $ length hand
+      let board' = Board.setStack board pSpot stack'
+      let board'' = Board.setHand board' pSpot hand'
       let board''' = consumeSrc board'' witness
       return board'''
   where
-    (stack, stackLen) = (boardToStack board pSpot, length stack)
+    (stack, stackLen) = (Board.toStack board pSpot, length stack)
     srcKind b =
       case src of
         Native -> Right Nothing
         CardDrawer pSpot' cSpot | pSpot' == pSpot ->
-          case boardToInPlaceCreature b pSpot cSpot of
+          case Board.toInPlaceCreature b pSpot cSpot of
             Nothing -> Left ("No creature at pSpot cSpot" :: Text)
             Just c@Creature {skills} ->
               case findIndex (\case DrawCard' b -> b; _ -> False) skills of
@@ -444,7 +444,7 @@ drawCardM board pSpot src =
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
       -- Set new skill
-      boardSetCreature b pSpot cSpot $ c {skills = setAt skilli skill' skills}
+      Board.setCreature b pSpot cSpot $ c {skills = setAt skilli skill' skills}
 
 transferCards ::
   SharedModel ->
@@ -478,17 +478,17 @@ transferCardsM board pSpot =
   if not needTransfer
     then pure board
     else do
-      tell $ boardSetDiscarded mempty pSpot (- length discarded)
-      tell $ boardSetStack mempty pSpot (length discarded)
+      tell $ Board.setDiscarded mempty pSpot (- length discarded)
+      tell $ Board.setStack mempty pSpot (length discarded)
       discarded' <- shuffleM discarded
       let part' = part {discarded = [], stack = stack ++ discarded'}
-      return $ boardSetPart board pSpot part'
+      return $ Board.setPart board pSpot part'
   where
     nbCardsToDraw = cardsToDraw board pSpot False & length
-    (stack, stackSize) = (boardToStack board pSpot, length stack)
+    (stack, stackSize) = (Board.toStack board pSpot, length stack)
     needTransfer = nbCardsToDraw > stackSize
-    discarded = boardToDiscarded board pSpot
-    part = boardToPart board pSpot
+    discarded = Board.toDiscarded board pSpot
+    part = Board.toPart board pSpot
 
 -- | board id pSpot target holds iff player at 'pSpot' can play card 'id'
 -- on 'target'
@@ -503,9 +503,9 @@ appliesTo board id playingPlayer target =
     correctHoleyness =
       case (target, Card.targetType id) of
         (CardTarget pSpot cSpot, CardTargetType Hole) ->
-          boardToInPlaceCreature board pSpot cSpot & isNothing
+          Board.toInPlaceCreature board pSpot cSpot & isNothing
         (CardTarget pSpot cSpot, CardTargetType Occupied) ->
-          boardToInPlaceCreature board pSpot cSpot & isJust
+          Board.toInPlaceCreature board pSpot cSpot & isJust
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
 
@@ -528,13 +528,13 @@ applyFearNTerrorM ::
 applyFearNTerrorM board affectingSpot = do
   traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByTerror) terrorAffected
   traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByFear) fearAffected
-  let board' = boardSetInPlace board affectedSpot affectedInPlace''
-  let board'' = boardSetInPlace board' affectingSpot affectingInPlace'
-  let board''' = boardAddToDiscarded board'' affectedSpot killedToDiscard
+  let board' = Board.setInPlace board affectedSpot affectedInPlace''
+  let board'' = Board.setInPlace board' affectingSpot affectingInPlace'
+  let board''' = Board.addToDiscarded board'' affectedSpot killedToDiscard
   return board'''
   where
     affectedSpot = otherPlayerSpot affectingSpot
-    affectingInPlace = boardToInPlace board affectingSpot
+    affectingInPlace = Board.toInPlace board affectingSpot
     causingFear = Map.filter Total.causesFear affectingInPlace
     causingTerror = Map.filter Total.causesTerror affectingInPlace
     switch :: CardSpot -> Maybe CardSpot -- From affecting spot to affected spot, and back
@@ -545,7 +545,7 @@ applyFearNTerrorM board affectingSpot = do
         -- & flip removeAll terrorAffectedSpots -- Terror is stronger than fear: nope, seems to turn Fear off!?
         & mapMaybe switch
     removeAll l1 l2 = [x | x <- l1, x `notElem` l2]
-    affectedInPlace = boardToInPlace board affectedSpot
+    affectedInPlace = Board.toInPlace board affectedSpot
     fearAffected :: [CardSpot] =
       affectedInPlace
         & Map.filterWithKey
@@ -557,7 +557,7 @@ applyFearNTerrorM board affectingSpot = do
           (\spot c -> spot `elem` terrorAffectedSpots && Total.affectedByTerror c)
         & Map.keys
     killedToDiscard :: [Card.ID] =
-      map (boardToInPlaceCreature board affectedSpot) (terrorAffected ++ fearAffected)
+      map (Board.toInPlaceCreature board affectedSpot) (terrorAffected ++ fearAffected)
         & catMaybes
         & filter (\Creature {transient} -> not transient) -- Transient creatures do not got to discarded stack
         & map (\Creature {creatureId, items} -> IDC creatureId items)
@@ -664,9 +664,9 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
     Just _ -> board'
     Nothing | Card.transient hittee -> board' -- Dont' put hittee in discarded stack
     Nothing ->
-      let discarded = boardToDiscarded board' pSpot
-       in -- TODO @smelc use boardAddToDiscarded instead
-          boardSetDiscarded board' pSpot $ discarded ++ [IDC creatureId items]
+      let discarded = Board.toDiscarded board' pSpot
+       in -- TODO @smelc use Board.addToDiscarded instead
+          Board.setDiscarded board' pSpot $ discarded ++ [IDC creatureId items]
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:
@@ -700,7 +700,7 @@ applyFlailOfTheDamned board creature pSpot =
     else do
       shared <- get
       let spots =
-            boardToPlayerHoleyInPlace board pSpot
+            Board.toPlayerHoleyInPlace board pSpot
               & filter (isNothing . snd)
               & map fst
       let (shared', spawningSpot) = SharedModel.pick shared spots
@@ -714,7 +714,7 @@ applyFlailOfTheDamned board creature pSpot =
                   & fromJust
                   & Card.unliftCreature
           let spawned' = spawned {transient = True}
-          let board' = boardSetCreature board pSpot spawningSpot spawned'
+          let board' = Board.setCreature board pSpot spawningSpot spawned'
           -- TODO @smelc record an animation highlighting the flail
           reportEffect pSpot spawningSpot $ mempty {fadeIn = True}
           return board'
@@ -796,7 +796,7 @@ nextAttackSpot board pSpot cSpot =
                in find hasCreature spots'
   where
     spots :: [CardSpot] = attackOrder pSpot
-    hasCreature c = isJust $ boardToInPlaceCreature board pSpot c
+    hasCreature c = isJust $ Board.toInPlaceCreature board pSpot c
 
 -- | The reason for drawing a card
 data DrawSource
@@ -813,12 +813,12 @@ cardsToDraw :: Board 'Core -> PlayerSpot -> Bool -> [DrawSource]
 cardsToDraw board pSpot considerStack =
   map (const Native) [0 .. natives - 1] ++ map (CardDrawer pSpot) cardsDrawer
   where
-    stackLen = length $ boardToStack board pSpot
+    stackLen = length $ Board.toStack board pSpot
     natives =
       let base = Constants.nbCardsToDraw
        in min base (if considerStack then stackLen else base)
     cardsDrawer =
-      map (\cSpot -> (cSpot, boardToInPlaceCreature board pSpot cSpot)) (attackOrder pSpot)
+      map (\cSpot -> (cSpot, Board.toInPlaceCreature board pSpot cSpot)) (attackOrder pSpot)
         & liftOpt
         & map (\(cSpot, c) -> nbAvailDrawCardSkill c & flip replicate cSpot)
         & concat

@@ -204,8 +204,8 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
       Stacked -> (#stack, "Stack", "right")
       Discarded -> (#discarded, "Discarded", "left")
     plusValue = case stackType of
-      Stacked -> boardToStack anims pSpot
-      Discarded -> boardToDiscarded anims pSpot + nbDeaths
+      Stacked -> Board.toStack anims pSpot
+      Discarded -> Board.toDiscarded anims pSpot + nbDeaths
     deck :: [Card 'Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
     atColonSize = length deck
     attackEffects = anims ^. spotToLens pSpot . #inPlace & unInPlaceEffects
@@ -235,7 +235,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
-      let attacker = boardToInPlaceCreature board pSpotHov cSpotHov
+      let attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
        in let canAttack = fromMaybe 0 (attacker <&> Card.attack) > 0
            in let skills' = maybe [] skills attacker & map Card.liftSkill
                in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots canAttack skills' cSpotHov
@@ -247,7 +247,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
       case handCard $ unHandIndex hi of
         Left errMsg -> trace (Text.unpack errMsg) False
         Right id -> Game.appliesTo board id playingPlayer pTarget
-    handCard i = lookupHand (boardToHand board playingPlayer) i & runExcept
+    handCard i = lookupHand (Board.toHand board playingPlayer) i & runExcept
 
 deathFadeout :: InPlaceEffect -> Int -> Int -> Styled [View Action]
 deathFadeout ae _ _ =

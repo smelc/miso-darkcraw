@@ -76,7 +76,7 @@ viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = 
     dragTargetType =
       case interaction of
         DragInteraction (Dragging (HandIndex i) _) ->
-          case boardToHand board playingPlayer & flip lookupHand i & runExcept of
+          case Board.toHand board playingPlayer & flip lookupHand i & runExcept of
             Left err -> traceShow (Text.unpack err) Nothing
             Right id -> Just $ targetType id
         _ -> Nothing
@@ -127,7 +127,7 @@ boardToInPlaceCells z m@GameModel {board, playingPlayer} dragTargetType = do
     mainM =
       sequence
         [ boardToInPlaceCell z m dragTargetType pSpot cSpot
-          | (pSpot, cSpot, _) <- boardToHoleyInPlace board
+          | (pSpot, cSpot, _) <- Board.toHoleyInPlace board
         ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     bumpInit = "transform: translateY(0px);"
@@ -191,9 +191,9 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
             return $ div_ [attr] [v]
       return $ maybeToList cards ++ death ++ heartw ++ heartg ++ attackg
   where
-    t = boardToPart board pSpot & Board.team
+    t = Board.toPart board pSpot & Board.team
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
-    maybeCreature = boardToInPlaceCreature board pSpot cSpot
+    maybeCreature = Board.toInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs lift =
       -- If dragging we don't need to handle in place hovering
       case (maybeCreature, dragTarget) of
@@ -298,15 +298,15 @@ toHandDrawingInput GameModel {gameShared = shared, ..} =
         | (i, card) <-
             zip
               [0 ..]
-              ( boardToHand board playingPlayer
+              ( Board.toHand board playingPlayer
                   & map (Card.unliftCard . SharedModel.unsafeIdentToCard shared)
               ),
-          let fadeIn = i `elem` boardToHand anims playingPlayer
+          let fadeIn = i `elem` Board.toHand anims playingPlayer
       ]
     hdiInteraction = Just interaction
     hdiOffseter = id
     hdiShared = shared
-    hdiTeam = boardToPart board playingPlayer & Board.team
+    hdiTeam = Board.toPart board playingPlayer & Board.team
     hdiPlayingPlayer = playingPlayer
 
 data HandActionizer a = HandActionizer

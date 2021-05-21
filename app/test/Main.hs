@@ -57,7 +57,7 @@ testAIRanged shared turn =
     (t, teams) = (Undead, Teams Undead Undead)
     archer = IDC (CreatureID Archer t) []
     pSpot = Turn.toPlayerSpot turn
-    board = boardAddToHand (emptyBoard teams) pSpot archer
+    board = Board.addToHand (Board.empty teams) pSpot archer
     events = AI.play shared board pSpot
 
 -- | This test was written in the hope it would reveal why
@@ -80,15 +80,15 @@ testPlayLastHandCard shared =
       case lastCardIdx board pSpot of
         Nothing -> Nothing
         Just i ->
-          let (id, targetKind) = (boardToHand board pSpot !! i, targetType id)
+          let (id, targetKind) = (Board.toHand board pSpot !! i, targetType id)
            in case targetKind of
                 PlayerTargetType -> Just $ Game.Place pSpot (PlayerTarget pSpot) $ HandIndex i -- Choosing pSpot is arbitrary
                 CardTargetType ctk ->
-                  boardToPlayerCardSpots board pSpot ctk
+                  Board.toPlayerCardSpots board pSpot ctk
                     & listToMaybe
                     <&> (\cSpot -> Game.Place pSpot (CardTarget pSpot cSpot) $ HandIndex i)
     lastCardIdx board pSpot =
-      case boardToHand board pSpot of
+      case Board.toHand board pSpot of
         [] -> Nothing
         l -> Just $ length l - 1
     isRight (Right _) = True
@@ -114,15 +114,15 @@ testPlayFraming shared =
   where
     -- Very simple AI-like function
     pickCardSpot (board :: Board 'Core) i pSpot =
-      case boardToHand board pSpot of
+      case Board.toHand board pSpot of
         [] -> Nothing
         id : hand' ->
           if breaksFraming id
-            then pickCardSpot (boardSetHand board pSpot hand') (i + 1) pSpot -- try next card
+            then pickCardSpot (Board.setHand board pSpot hand') (i + 1) pSpot -- try next card
             else case targetType id of
               PlayerTargetType -> Nothing
               CardTargetType ctk ->
-                boardToPlayerCardSpots board pSpot ctk
+                Board.toPlayerCardSpots board pSpot ctk
                   & listToMaybe
                   <&> (i,)
     breaksFraming (IDC id items) =
@@ -136,9 +136,9 @@ testPlayFraming shared =
     boardEq (board :: Board 'Core) pSpot cSpots board' =
       let otherSpot = otherPlayerSpot pSpot
        in -- Board must be completely equivalent on part of player that doesn't play
-          (boardToPart board otherSpot == boardToPart board' otherSpot)
+          (Board.toPart board otherSpot == Board.toPart board' otherSpot)
             -- and agree w.r.t. partEq on the part of the player that played
-            && partEq (boardToPart board pSpot) (boardToPart board' pSpot) cSpots
+            && partEq (Board.toPart board pSpot) (Board.toPart board' pSpot) cSpots
     partEq
       (PlayerPart {..} :: PlayerPart 'Core)
       (PlayerPart {inPlace = inPlace', score = score', stack = stack', discarded = discarded', team = team'} :: PlayerPart 'Core)
@@ -159,12 +159,12 @@ testDrawCards shared =
     cond _ _ (Left errMsg) = traceShow errMsg False
     cond board pSpot (Right (_, board', _)) =
       (len' - len)
-        == min (Constants.nbCardsToDraw + nbCardDrawSkills) (boardToStack board pSpot & length)
+        == min (Constants.nbCardsToDraw + nbCardDrawSkills) (Board.toStack board pSpot & length)
       where
-        len = boardToHand board pSpot & length
-        len' = boardToHand board' pSpot & length
+        len = Board.toHand board pSpot & length
+        len' = Board.toHand board' pSpot & length
         nbCardDrawSkills =
-          boardToPlayerHoleyInPlace board pSpot
+          Board.toPlayerHoleyInPlace board pSpot
             & map snd
             & catMaybes
             & map skills
@@ -356,13 +356,13 @@ testAIPlace shared =
         (_, False) -> traceShow ("Wrong hand index: " ++ show i ++ ", hand has " ++ show handSize ++ " members.") False
         _ -> goodCards board pSpot tl
       where
-        handSize = List.length $ boardToHand board pSpot
+        handSize = List.length $ Board.toHand board pSpot
     goodCards (board :: Board 'Core) pSpot (Game.Place' _ _ id : tl) =
       if id `elem` hand
         then goodCards board pSpot tl
         else traceShow ("Wrong ID: " ++ show id ++ "It does not belong to the hand: " ++ show hand) False
       where
-        hand = boardToHand board pSpot
+        hand = Board.toHand board pSpot
     goodCards boards pSpot (_ : tl) = goodCards boards pSpot tl
     playerIs _ [] = True
     playerIs expected (event : tl) = playerIs' expected event && playerIs expected tl
@@ -425,22 +425,22 @@ testPlayScoreMonotonic shared =
 testFear shared =
   describe "Fear works as expected" $ do
     it "fear triggers when expected" $
-      (boardToPart board'' PlayerBot & Board.inPlace) `shouldSatisfy` Map.null
+      (Board.toPart board'' PlayerBot & Board.inPlace) `shouldSatisfy` Map.null
     it "fear kills go to discarded stack" $
-      (boardToDiscarded board'' PlayerBot `shouldBe` [IDC fearTarget []])
+      (Board.toDiscarded board'' PlayerBot `shouldBe` [IDC fearTarget []])
     it "fear does not trigger when expected" $
-      (boardToPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null
+      (Board.toPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null
   where
     teams = Teams Undead Human
     causingFear = CreatureID Skeleton Undead
     fearTarget = CreatureID Archer Human
-    board = smallBoard shared teams causingFear [] PlayerTop Bottom
+    board = Board.small shared teams causingFear [] PlayerTop Bottom
     affectedByFear =
       SharedModel.idToCreature shared fearTarget []
         & fromJust
         & unliftCreature
     board' =
-      boardSetCreature
+      Board.setCreature
         board
         PlayerBot
         (bottomSpotOfTopVisual Top)
@@ -450,7 +450,7 @@ testFear shared =
     extract (Right (Game.Result _ b _ _)) = b
     -- Second test
     boardBis' =
-      boardSetCreature
+      Board.setCreature
         board
         PlayerBot
         (bottomSpotOfTopVisual Top)
@@ -484,21 +484,21 @@ testPlague shared =
         Nothing -> b
         Just cSpot ->
           let creature = SharedModel.idToCreature shared cid items & fromJust & Card.unliftCreature
-           in boardSetInPlace b pSpot (boardToInPlace b pSpot & Map.insert cSpot creature)
+           in Board.setInPlace b pSpot (Board.toInPlace b pSpot & Map.insert cSpot creature)
       where
         firstEmpty =
-          boardToPlayerHoleyInPlace b pSpot
+          Board.toPlayerHoleyInPlace b pSpot
             & filter (\(_, m) -> isNothing m)
             & listToMaybe
             <&> fst
-    mkBoard teams pSpot cids = addAllToInPlace (emptyBoard teams) pSpot cids
+    mkBoard teams pSpot cids = addAllToInPlace (Board.empty teams) pSpot cids
     mapInPlace f pSpot (board :: Board 'Core) =
-      boardToInPlace board pSpot
+      Board.toInPlace board pSpot
         & Map.map f
-        & boardSetInPlace board pSpot
+        & Board.setInPlace board pSpot
     setHp i c = c {hp = i}
     applyPlague f teams cids =
-      Game.applyPlague board pSpot & flip boardToInPlace pSpot
+      Game.applyPlague board pSpot & flip Board.toInPlace pSpot
       where
         pSpot = PlayerTop
         board = mkBoard teams pSpot cids & mapInPlace f pSpot
@@ -514,21 +514,21 @@ testItemsAI shared =
   where
     pSpot = PlayerTop
     board1 id1 id2 item =
-      Board.emptyBoard teams
+      Board.empty teams
         & setCreature pSpot TopLeft id1
         & setCreature pSpot Bottom id2
-        & (\b -> Board.boardAddToHand b pSpot (IDI item))
+        & (\b -> Board.addToHand b pSpot (IDI item))
     teams = Teams Undead Undead
     mkCreature kind team =
       SharedModel.idToCreature shared (CreatureID kind team) []
         & fromJust
         & Card.unliftCreature
     setCreature pSpot cSpot c board =
-      Board.boardSetCreature board pSpot cSpot c
+      Board.setCreature board pSpot cSpot c
     play board =
       Game.playAll shared board $ AI.play shared board pSpot
     hasItem board pSpot cSpot item =
-      case boardToInPlaceCreature board pSpot cSpot of
+      case Board.toInPlaceCreature board pSpot cSpot of
         Nothing -> False
         Just Creature {items} -> item `elem` items
 
@@ -561,7 +561,7 @@ main = hspec $ do
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
-            boardToHoleyInPlace (testAIRanged shared Turn.initial)
+            Board.toHoleyInPlace (testAIRanged shared Turn.initial)
               & filter (\(_, _, maybeCreature) -> isJust maybeCreature)
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)

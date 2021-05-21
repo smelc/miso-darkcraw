@@ -434,7 +434,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- place its card in a state where the player did not put its
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
-          let emptyPlayerInPlaceBoard = boardSetInPlace board pSpot Map.empty
+          let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
           let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
           Game.Result shared' board' () boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board', gameShared = shared'}
@@ -716,7 +716,7 @@ updateModel DeckBack (DeckModel' DeckModel {..}) =
 updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
   noEff $ DeckModel' $ DeckModel deck m playingPlayer t gameShared
   where
-    t = boardToPart board playingPlayer & Board.team
+    t = Board.toPart board playingPlayer & Board.team
 -- Leave 'GameView' (maybe)
 updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameShared, playingPlayer})
   | SharedModel.getCmd gameShared & isJust =
@@ -726,7 +726,7 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameSh
             let errMsg = "Unrecognized command: " ++ cmdStr
              in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
           Just (Command.Gimme cid) ->
-            let board' = boardAddToHand board playingPlayer cid
+            let board' = Board.addToHand board playingPlayer cid
              in noEff $ GameModel' $ gm {board = board'}
           Just (Command.Goto _) ->
             noEff $ BuildModel' $ Model.gameToBuild gm
@@ -802,7 +802,7 @@ initialGameModel ::
 initialGameModel shared teams =
   unsafeInitialGameModel shared' board
   where
-    (shared', board) = initialBoard shared teams
+    (shared', board) = Board.initial shared teams
 
 -- | An initial model, appropriate for testing
 unsafeInitialGameModel ::

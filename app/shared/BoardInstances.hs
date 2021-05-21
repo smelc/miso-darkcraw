@@ -19,7 +19,7 @@ instance Startable (PlayerPart 'Core) where
 
 boardStart :: Board 'Core -> PlayerSpot -> Board 'Core
 boardStart board pSpot =
-  boardSetPart board pSpot $ start $ boardToPart board pSpot
+  Board.setPart board pSpot $ start $ Board.toPart board pSpot
 
 class Stupid a where
   isStupid :: a -> PlayerSpot -> CardSpot -> Bool
@@ -32,6 +32,6 @@ instance Stupid (Creature 'Core) where
 
 instance Stupid (Board 'Core) where
   isStupid b pSpot cSpot =
-    case boardToInPlaceCreature b pSpot cSpot of
+    case Board.toInPlaceCreature b pSpot cSpot of
       Nothing -> False
       Just c -> BoardInstances.isStupid c pSpot cSpot

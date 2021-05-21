@@ -63,13 +63,13 @@ main shared = do
             EQ -> "="
             GT -> ">"
         sign Nothing = "?"
-        scoreTop board = boardToScore board PlayerTop
-        scoreBot board = boardToScore board PlayerBot
+        scoreTop board = Board.toScore board PlayerTop
+        scoreBot board = Board.toScore board PlayerBot
         showScore Nothing _ = "?"
         showScore (Just (board :: Board 'Core)) pSpot =
-          show (boardToPart board pSpot & Board.team)
+          show (Board.toPart board pSpot & Board.team)
             ++ " "
-            ++ show (boardToScore board pSpot)
+            ++ show (Board.toScore board pSpot)
 
 testStupidity :: SharedModel -> SpecWith ()
 testStupidity shared =
@@ -81,7 +81,7 @@ testStupidity shared =
                in let model = Update.unsafeInitialGameModel (mkShared seed) board
                    in play model 8 `shouldSatisfy` isValid
   where
-    initialBoard s teams cSpot = smallBoard s teams ogreID [] startingPlayerSpot cSpot
+    initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot
     ogreID = CreatureID Card.Ogre Human
     ogreSpot = PlayerBot
     ogreAttack = SharedModel.idToCreature shared ogreID [] & fromJust & attack
@@ -91,7 +91,7 @@ testStupidity shared =
       expectedScore == score
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
-        score = boardToScore board ogreSpot
+        score = Board.toScore board ogreSpot
         turni = Turn.toInt turn
         pSpot = Turn.toPlayerSpot turn
         stupidFreq = 4
@@ -130,7 +130,7 @@ toMatchResult GameModel {board} =
       | scoreTop > scoreBot -> Win PlayerTop
       | otherwise -> Win PlayerBot
   where
-    score pSpot = boardToPart board pSpot & Board.score
+    score pSpot = Board.toPart board pSpot & Board.score
     (scoreTop, scoreBot) = (score PlayerTop, score PlayerBot)
 
 playOneTurn :: GameModel -> Either Text GameModel

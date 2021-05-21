@@ -123,11 +123,11 @@ play shareds teams nbTurns =
         Match.Win pSpot -> winLabel pSpot PlayerTop ++ " VS " ++ winLabel pSpot PlayerBot
       where
         lastBoard = last models & board
-        team pSpot = boardToPart lastBoard pSpot & Board.team
+        team pSpot = Board.toPart lastBoard pSpot & Board.team
         winLabel winner pSpot =
           (if winner == pSpot then "Win " else "Lost")
             ++ " "
             ++ show (team pSpot)
             ++ "("
-            ++ show (boardToScore lastBoard pSpot)
+            ++ show (Board.toScore lastBoard pSpot)
             ++ ")"

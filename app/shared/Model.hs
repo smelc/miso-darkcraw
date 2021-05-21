@@ -87,7 +87,7 @@ gameToBuild gm@GameModel {..} =
   where
     buildShared = gameShared
     buildDeck = gameToDeck gm
-    buildPlayer = (playingPlayer, boardToPart board playingPlayer & Board.team)
+    buildPlayer = (playingPlayer, Board.toPart board playingPlayer & Board.team)
     free = 0 -- for the moment
     hand = [] -- for the moment
 
@@ -98,13 +98,13 @@ gameToDeck :: GameModel -> [Card.ID]
 gameToDeck GameModel {..} =
   inPlace' ++ inHand ++ stack ++ discarded
   where
-    PlayerPart {..} = boardToPart board playingPlayer
+    PlayerPart {..} = Board.toPart board playingPlayer
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 instance Show GameModel where
   show GameModel {..} =
     "{ gameShared = omitted\n"
-      ++ unlines [boardToASCII board, f "interaction" interaction, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
+      ++ unlines [Board.toASCII board, f "interaction" interaction, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
       ++ "\n}"
     where
       f s x = "  " ++ s ++ " = " ++ show x

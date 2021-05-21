@@ -13,6 +13,14 @@
 module AI (AI.play, boardScore, placeCards) where
 
 import Board
+  ( Board,
+    CardSpot,
+    HandIndex (HandIndex),
+    PlayerSpot,
+    inTheBack,
+    otherPlayerSpot,
+  )
+import qualified Board
 import BoardInstances ()
 import Card
 import Control.Exception
@@ -64,7 +72,7 @@ play shared board pSpot =
     (_, events) : _ -> events
   where
     hands =
-      boardToHand board pSpot
+      Board.toHand board pSpot
         & map (unliftCard . SharedModel.unsafeIdentToCard shared)
         & sortOn scoreCard
         & map cardToIdentifier
@@ -72,7 +80,7 @@ play shared board pSpot =
         & permutations -- Try cards in all orders (because aiPlayHand plays first card)
     possibles =
       map
-        (\hand -> playHand shared (boardSetHand board pSpot hand) pSpot)
+        (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
         hands
     scores :: [(Int, [Game.Event])] =
       map
@@ -93,7 +101,7 @@ boardScore board pSpot =
   -- playerScore (otherPlayerSpot pSpot) - playerScore pSpot
   -- where
   --   playerScore pSpot =
-  --     boardPlayerScore board pSpot + (boardToPart board pSpot & score)
+  --     boardPlayerScore board pSpot + (Board.toPart board pSpot & score)
   boardPlayerScore board pSpot
 
 -- | The score of given player's in-place cards. 0 is the best.
@@ -101,7 +109,7 @@ boardPlayerScore :: Board 'Core -> PlayerSpot -> Int
 boardPlayerScore board pSpot =
   sum scores
   where
-    cSpotAndMayCreatures = boardToPlayerHoleyInPlace board pSpot
+    cSpotAndMayCreatures = Board.toPlayerHoleyInPlace board pSpot
     scores =
       map
         (\(cSpot, mayC) -> maybe 5 (\c -> scorePlace board c pSpot cSpot) mayC) -- Empty spot: malus of 5
@@ -129,8 +137,8 @@ playHand shared board pSpot =
             where
               -- The call to tail is safe because the hand must be non-empty,
               -- by aiPlayFirst returning Just _
-              hand' = boardToHand board pSpot & tail
-              board' = boardSetHand board pSpot hand' -- Skip first card
+              hand' = Board.toHand board pSpot & tail
+              board' = Board.setHand board pSpot hand' -- Skip first card
   where
     eventPlayerIs expected =
       \case
@@ -152,7 +160,7 @@ aiPlayFirst ::
   PlayerSpot ->
   Maybe Game.Event
 aiPlayFirst shared board pSpot =
-  case boardToHand board pSpot of
+  case Board.toHand board pSpot of
     [] -> Nothing
     id : _ -> do
       let scores' = scores id & sortByFst
@@ -189,7 +197,7 @@ targets board playingPlayer id =
       [PlayerTarget $ otherPlayerSpot playingPlayer]
   where
     cardTargets pSpot ctk =
-      boardToPlayerCardSpots board pSpot ctk & map (CardTarget pSpot)
+      Board.toPlayerCardSpots board pSpot ctk & map (CardTarget pSpot)
 
 -- | The score of the card at the given position
 scorePlace ::
@@ -207,9 +215,9 @@ scorePlace board inPlace pSpot cSpot =
   where
     (~=~) Nothing _ = False
     (~=~) (Just a) b = a == b
-    creature :: Maybe (Creature 'Core) = boardToInPlaceCreature board pSpot cSpot
+    creature :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpot cSpot
     enemiesInPlace :: Map.Map CardSpot (Creature 'Core) =
-      boardToInPlace board (otherPlayerSpot pSpot)
+      Board.toInPlace board (otherPlayerSpot pSpot)
     cSkills = skills inPlace
     prefersBack = Ranged' `elem` cSkills || LongReach' `elem` cSkills
     lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
