@@ -78,7 +78,7 @@ import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import Data.List (intercalate, intersperse)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (catMaybes, fromJust, fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import GHC.Generics (Generic)
@@ -324,7 +324,14 @@ instance Semigroup (Board 'UI) where
 instance Monoid (Board 'UI) where
   mempty = Board mempty mempty
 
-data Neighborhood = Cardinal | Diagonal | All
+-- | The various kinds of neighbors
+data Neighborhood
+  = -- | Neighbors to the left and the right
+    Cardinal
+  | -- | Neighbors in diagonals
+    Diagonal
+  | -- | Cardinal + diagnoal neighbors
+    All
   deriving (Eq, Generic, Show)
 
 neighbors :: Neighborhood -> CardSpot -> [CardSpot]
@@ -442,12 +449,17 @@ toNeighbors ::
   PlayerSpot ->
   CardSpot ->
   Neighborhood ->
-  [(CardSpot, Maybe (Creature 'Core))]
+  [(CardSpot, Creature 'Core)]
 toNeighbors board pSpot cSpot neighborhood =
   [ (cSpot, maybeCreature)
     | cSpot <- neighbors neighborhood cSpot,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
+    & map liftJust
+    & catMaybes
+  where
+    liftJust (f, Just s) = Just (f, s)
+    liftJust _ = Nothing
 
 toPart :: Board p -> PlayerSpot -> PlayerPart p
 toPart Board {playerTop} PlayerTop = playerTop

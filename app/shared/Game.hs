@@ -296,11 +296,7 @@ playCreatureM board pSpot cSpot creature =
     part@PlayerPart {inPlace} = Board.toPart board pSpot
     disciplinedNeighbors =
       Board.toNeighbors board pSpot cSpot Board.Cardinal
-        & map liftJust
-        & catMaybes
         & filter (\(_, c) -> Total.isDisciplined c)
-    liftJust (f, Just s) = Just (f, s)
-    liftJust _ = Nothing
     boost = 1
     applyDisciplineBoost Creature {..} = Creature {hp = hp + boost, attack = attack + boost, ..}
     disciplinedNeighbors' =
@@ -349,7 +345,6 @@ applyPlague ::
   Board 'Core
 applyPlague board actingPlayer = applyPlagueM board actingPlayer & runWriter & fst
 
--- TODO @smelc rename to applyPlagueM
 applyPlagueM ::
   MonadWriter (Board 'UI) m =>
   -- | The input board
