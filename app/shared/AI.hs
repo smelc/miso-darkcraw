@@ -25,7 +25,6 @@ import BoardInstances ()
 import Card
 import Control.Exception
 import Control.Lens hiding (snoc)
-import Data.Either
 import Data.Either.Extra
 import Data.List
 import qualified Data.Map.Strict as Map
@@ -168,14 +167,15 @@ aiPlayFirst shared board pSpot =
       return $ Place' pSpot target id
   where
     handIndex = HandIndex 0
-    possibles id = targets board pSpot id
-    scores id =
-      [ (boardScore (fromRight' board' & takeBoard) pSpot, target)
-        | target <- possibles id,
-          let board' = Game.play shared board $ Place pSpot target handIndex,
-          isRight board'
+    scores :: ID -> [(Int, Target)] = \id ->
+      [ (board' & eitherToMaybe <&> (\(Game.Result _ b _ _) -> boardScore b pSpot), target)
+        | target <- targets board pSpot id,
+          let board' = Game.play shared board $ Place pSpot target handIndex
       ]
-    takeBoard (Game.Result _ b _ _) = b
+        & map liftMaybe
+        & catMaybes
+    liftMaybe (Nothing, _) = Nothing
+    liftMaybe (Just x, y) = Just (x, y)
 
 targets ::
   Board 'Core ->
