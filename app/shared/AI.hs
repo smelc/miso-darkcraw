@@ -73,7 +73,7 @@ play shared board pSpot =
     hands =
       Board.toHand board pSpot
         & map (unliftCard . SharedModel.unsafeIdentToCard shared)
-        & sortOn scoreCard
+        & sortOn scoreHandCard
         & map cardToIdentifier
         & take 5 -- To keep complexity low for big hands
         & permutations -- Try cards in all orders (because aiPlayHand plays first card)
@@ -103,16 +103,18 @@ boardScore board pSpot =
   --     boardPlayerScore board pSpot + (Board.toPart board pSpot & score)
   boardPlayerScore board pSpot
 
--- | The score of given player's in-place cards. 0 is the best.
+-- | The score of given player's in-place cards. 0 is the best. Only >= 0
+-- values are returned.
 boardPlayerScore :: Board 'Core -> PlayerSpot -> Int
 boardPlayerScore board pSpot =
-  sum scores
+  assert (result >= 0) result
   where
     cSpotAndMayCreatures = Board.toPlayerHoleyInPlace board pSpot
     scores =
       map
         (\(cSpot, mayC) -> maybe 5 (\c -> scorePlace board c pSpot cSpot) mayC) -- Empty spot: malus of 5
         cSpotAndMayCreatures
+    result = sum scores
 
 -- | Events for playing all cards of the hand, in order. Each card
 -- is played optimally.
@@ -208,10 +210,11 @@ scorePlace ::
   PlayerSpot ->
   -- | Where to place the creature
   CardSpot ->
-  -- | The score of the card at pSpot cSpot. 0 is the best.
+  -- | The score of the card at pSpot cSpot. 0 is the best. Only >= 0
+  -- values are returned.
   Int
 scorePlace board inPlace pSpot cSpot =
-  assert (creature ~=~ inPlace) $ sum maluses
+  assert (creature ~=~ inPlace && result >= 0) result
   where
     (~=~) Nothing _ = False
     (~=~) (Just a) b = a == b
@@ -228,11 +231,13 @@ scorePlace board inPlace pSpot cSpot =
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
     maluses = [lineMalus, victoryPointsMalus]
+    result = sum maluses
 
 -- | The score of a card. Most powerful cards return a smaller value.
 -- Negative values returned. FIXME @smelc Return positive values
-scoreCard :: Card 'Core -> Int
-scoreCard = \case
+-- Used to play most powerful cards first.
+scoreHandCard :: Card 'Core -> Int
+scoreHandCard = \case
   CreatureCard Creature {..} ->
     sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map scoreSkill skills
   NeutralCard NeutralObject {neutral} ->
