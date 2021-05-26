@@ -10,7 +10,7 @@
 -- This module defines how the AI plays
 -- |
 -- boardScore is exported for tests
-module AI (AI.play, boardScore, placeCards) where
+module AI (AI.play, boardPlayerScore, placeCards) where
 
 import Board
   ( Board,
@@ -35,6 +35,7 @@ import Game hiding (Event, Result)
 import qualified Game
 import SharedModel (SharedModel)
 import qualified SharedModel
+import qualified Total
 
 -- | Events that place creatures on the board. This function guarantees
 -- that the returned events are solely placements (no neutral cards), so
@@ -86,35 +87,23 @@ play shared board pSpot =
         ( \events ->
             case Game.playAll shared board events of
               Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
-              Right (Game.Result _ board' () _) -> Just (boardScore board' pSpot, events)
+              Right (Game.Result _ board' () _) -> Just (boardPlayerScore board' pSpot, events)
         )
         possibles
         & catMaybes
         & sortByFst
 
--- | The score of a board, from the POV of the given player. Smaller is
--- the best
-boardScore :: Board 'Core -> PlayerSpot -> Int
-boardScore board pSpot =
-  -- This is wrong (breaks testAIRanged), I don't get why.
-  -- playerScore (otherPlayerSpot pSpot) - playerScore pSpot
-  -- where
-  --   playerScore pSpot =
-  --     boardPlayerScore board pSpot + (Board.toPart board pSpot & score)
-  boardPlayerScore board pSpot
-
--- | The score of given player's in-place cards. 0 is the best. Only >= 0
--- values are returned.
+-- | The score of given player's in-place cards. Smaller is the best.
+-- Both negative and positive values are returned.
 boardPlayerScore :: Board 'Core -> PlayerSpot -> Int
 boardPlayerScore board pSpot =
-  assert (result >= 0) result
+  sum scores
   where
     cSpotAndMayCreatures = Board.toPlayerHoleyInPlace board pSpot
     scores =
       map
         (\(cSpot, mayC) -> maybe 5 (\c -> scorePlace board c pSpot cSpot) mayC) -- Empty spot: malus of 5
         cSpotAndMayCreatures
-    result = sum scores
 
 -- | Events for playing all cards of the hand, in order. Each card
 -- is played optimally.
@@ -170,7 +159,7 @@ aiPlayFirst shared board pSpot =
   where
     handIndex = HandIndex 0
     scores :: ID -> [(Int, Target)] = \id ->
-      [ (board' & eitherToMaybe <&> (\(Game.Result _ b _ _) -> boardScore b pSpot), target)
+      [ (board' & eitherToMaybe <&> (\(Game.Result _ b _ _) -> boardPlayerScore b pSpot), target)
         | target <- targets board pSpot id,
           let board' = Game.play shared board $ Place pSpot target handIndex
       ]
@@ -210,11 +199,11 @@ scorePlace ::
   PlayerSpot ->
   -- | Where to place the creature
   CardSpot ->
-  -- | The score of the card at pSpot cSpot. 0 is the best. Only >= 0
-  -- values are returned.
+  -- | The score of the card at pSpot cSpot. Smaller is the best.
+  -- Both negative and positive values are returned.
   Int
 scorePlace board inPlace pSpot cSpot =
-  assert (creature ~=~ inPlace && result >= 0) result
+  assert (creature ~=~ inPlace) result
   where
     (~=~) Nothing _ = False
     (~=~) (Just a) b = a == b
@@ -230,8 +219,28 @@ scorePlace board inPlace pSpot cSpot =
     -- increase. This will avoid doing an incorrect simulation.
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
-    maluses = [lineMalus, victoryPointsMalus]
-    result = sum maluses
+    maluses = sum [lineMalus, victoryPointsMalus]
+    result = (assert (maluses >= 0) maluses) - scoreCreatureItems inPlace cSpot
+
+-- | The score of the items of this creature (which is on the passed spot).
+-- 0 is the worst. Higher values
+-- are better. Only positive values are returned.
+scoreCreatureItems :: Creature 'Core -> CardSpot -> Int
+scoreCreatureItems c@Creature {attack, hp, items} cSpot =
+  assert (result >= 0) result
+  where
+    scoreCreatureItem :: Item -> Int = \case
+      Crown ->
+        levelUpBonus + positionBonus
+        where
+          levelUpBonus = if Total.isDisciplined c then 0 else 2
+          positionBonus =
+            if (Board.neighbors Board.Cardinal cSpot & length) == 3
+              then 1 -- Creature is in a central spot
+              else 0
+      FlailOfTheDamned -> attack + hp -- Prefer strong creatures
+      SwordOfMight -> attack + hp -- Prefer strong creatures
+    result = sum $ map scoreCreatureItem items
 
 -- | The score of a card. Most powerful cards return a smaller value.
 -- Negative values returned. FIXME @smelc Return positive values

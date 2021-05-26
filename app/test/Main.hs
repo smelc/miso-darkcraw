@@ -412,7 +412,7 @@ testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
       \(board, pSpot) ->
-        let score = flip boardScore pSpot
+        let score = flip boardPlayerScore pSpot
          in let (initialScore, events) = (score board, AI.play shared board pSpot)
              in let nextScore = Game.playAll shared board events & takeBoard <&> score
                  in monotonic initialScore nextScore
@@ -505,7 +505,7 @@ testPlague shared =
 
 testItemsAI shared =
   describe "AI" $ do
-    xit "Sword of Might is put on most potent in place creature" $
+    it "Sword of Might is put on most potent in place creature" $
       play (board1 (mkCreature Archer Undead) (mkCreature Vampire Undead) SwordOfMight)
         `shouldSatisfy` ( \case
                             Left errMsg -> traceShow errMsg False
