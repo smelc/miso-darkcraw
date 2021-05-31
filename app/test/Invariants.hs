@@ -60,7 +60,7 @@ main shared =
     prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in (Board.initial shared' teams & snd) `shouldSatisfy` isValid'
+         in (Board.initial shared' teams & takeBoard) `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->
         let shared' = SharedModel.withSeed shared seed
@@ -75,3 +75,4 @@ main shared =
       where
         boards = map Game.board models
         turnResult = reverse models & listToMaybe <&> Game.turn
+    takeBoard (_, b, _) = b

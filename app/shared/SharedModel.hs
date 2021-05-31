@@ -60,7 +60,6 @@ instance Eq StdGen where
 -- | The part of the model that is likely to be used by all pages
 -- | i.e. all possible models
 data SharedModel = SharedModel
-  -- XXX @smelc, turn those into maps, for efficiency
   { -- | Data obtained at load time, that never changes
     sharedCards :: Map Card.ID (Card 'UI),
     -- | The current debug command (in dev mode only)

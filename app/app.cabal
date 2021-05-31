@@ -12,6 +12,7 @@ common client-server-shared
     AI
     Board
     BoardInstances
+    Campaign
     Card
     CardInstances
     Constants
@@ -114,6 +115,7 @@ Test-Suite test-darkcraw
     Balance
     Board
     BoardInstances
+    Campaign
     Card
     CardInstances
     Cinema

@@ -42,7 +42,8 @@ import Model
 import qualified Model (gameToBuild)
 import Movie (welcomeMovie)
 import ServerMessages
-import SharedModel (SharedModel, getCmd, withCmd)
+import SharedModel (SharedModel)
+import qualified SharedModel
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -800,21 +801,27 @@ initialGameModel ::
   Teams ->
   GameModel
 initialGameModel shared teams =
-  unsafeInitialGameModel shared' board
+  unsafeInitialGameModel shared' (map Card.cardToIdentifier playingPlayerDeck) board
   where
-    (shared', board) = Board.initial shared teams
+    (shared', board, decks) = Board.initial shared teams
+    playingPlayer = Turn.toPlayerSpot Turn.initial
+    playingPlayerDeck = Board.toData playingPlayer decks
 
 -- | An initial model, appropriate for testing
 unsafeInitialGameModel ::
   SharedModel ->
+  -- | The playing player's deck
+  [Card.ID] ->
+  -- | The board
   Board 'Core ->
   GameModel
-unsafeInitialGameModel shared board =
+unsafeInitialGameModel shared playingPlayerdeck board =
   GameModel
     shared
     board
     NoInteraction
     startingPlayerSpot
+    playingPlayerdeck
     Turn.initial
     mempty
 

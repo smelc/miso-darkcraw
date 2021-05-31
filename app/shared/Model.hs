@@ -60,6 +60,8 @@ data GameModel = GameModel
     interaction :: Interaction Game.Target,
     -- | Where the player plays
     playingPlayer :: PlayerSpot,
+    -- | The deck of 'playingPlayer'
+    playingPlayerDeck :: [Card.ID],
     -- | The current turn
     turn :: Turn,
     -- | Animations to perform next

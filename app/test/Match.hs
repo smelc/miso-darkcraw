@@ -78,7 +78,7 @@ testStupidity shared =
       \(cSpot, topTeam, seed) ->
         not (inTheBack cSpot)
           ==> let (teams, board) = (Teams topTeam Human, initialBoard shared teams cSpot)
-               in let model = Update.unsafeInitialGameModel (mkShared seed) board
+               in let model = Update.unsafeInitialGameModel (mkShared seed) undefined board
                    in play model 8 `shouldSatisfy` isValid
   where
     initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot

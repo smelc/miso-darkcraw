@@ -66,6 +66,8 @@ module Board
     toNeighbors,
     toPlayerCardSpots,
     isDead,
+    toTeam,
+    toData,
   )
 where
 
@@ -500,20 +502,37 @@ data Teams = Teams
   }
   deriving (Generic, Show)
 
--- | The initial board, appropriately shuffled with 'SharedModel' rng
-initial :: SharedModel -> Teams -> (SharedModel, Board 'Core)
+toTeam :: Teams -> PlayerSpot -> Team
+toTeam Teams {topTeam} PlayerTop = topTeam
+toTeam Teams {botTeam} PlayerBot = botTeam
+
+-- | A dumb container for holding data of teams
+data TeamsData a = TeamsData
+  { topTeamData :: a,
+    botTeamData :: a
+  }
+
+toData :: PlayerSpot -> TeamsData a -> a
+toData PlayerTop TeamsData {topTeamData} = topTeamData
+toData PlayerBot TeamsData {botTeamData} = botTeamData
+
+-- | The initial board, appropriately shuffled with 'SharedModel' rng,
+-- and the starting decks of both teams.
+initial :: SharedModel -> Teams -> (SharedModel, Board 'Core, TeamsData [Card 'UI])
 initial shared Teams {..} =
-  (smodel'', Board topPart botPart)
+  (smodel'', Board topPart botPart, TeamsData {topTeamData, botTeamData})
   where
-    part team smodel = (smodel', PlayerPart Map.empty hand' 0 stack' [] team)
+    part team smodel = (smodel', PlayerPart Map.empty hand' 0 stack' [] team, deckUI)
       where
-        deck = teamDeck (SharedModel.getCards shared) team
-        (smodel', deck') = SharedModel.shuffle smodel deck
+        (deckCore, deckUI) =
+          let deckUI = SharedModel.getCards shared
+           in (teamDeck deckUI team, deckUI)
+        (smodel', deck') = SharedModel.shuffle smodel deckCore
         (hand, stack) = splitAt initialHandSize deck'
         hand' = map cardToIdentifier hand
         stack' = map cardToIdentifier stack
-    (smodel', topPart) = part topTeam shared
-    (smodel'', botPart) = part botTeam smodel'
+    (smodel', topPart, topTeamData) = part topTeam shared
+    (smodel'', botPart, botTeamData) = part botTeam smodel'
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.
