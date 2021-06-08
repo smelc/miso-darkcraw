@@ -38,6 +38,7 @@ import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
+import TestLib (shouldAllSatisfy)
 import qualified Total
 import Turn
 
@@ -457,17 +458,23 @@ testFear shared =
         affectedByFear
     boardBis'' = Game.play shared boardBis' (Game.ApplyFearNTerror PlayerTop) & extract
 
-testFearNTerror =
+testFearNTerror shared =
   describe "Fear and terror" $ do
     prop "Creature causing fear is immune to fear" $
-      \c -> Total.causesFear c ==> not $ Total.affectedByFear c
-    prop "Creature causing terror is immune to fear" $
-      \c -> Total.causesTerror c ==> not $ Total.affectedByFear c
-    prop "Creature causing terror is immune to terror" $
-      \c -> Total.causesTerror c ==> not $ Total.affectedByTerror c
-    modifyMaxDiscardRatio (* 5) $
-      prop "Creature affected by fear is affected by terror" $
-        \c -> Total.affectedByFear c ==> Total.affectedByTerror c
+      causingFear `shouldAllSatisfy` (not . Total.affectedByFear False)
+    it "Creature causing terror is immune to fear" $
+      causingTerror `shouldAllSatisfy` (not . Total.affectedByFear False)
+    it "Creature causing terror is immune to terror" $
+      causingTerror `shouldAllSatisfy` (not . Total.affectedByTerror False)
+    it "Creature affected by fear is affected by terror" $
+      causingFear `shouldAllSatisfy` Total.affectedByTerror False
+  where
+    creatures =
+      SharedModel.getCards shared
+        & mapMaybe (\case CreatureCard c -> Just c; _ -> Nothing)
+        & map Card.unliftCreature
+    causingTerror = creatures & filter Total.causesTerror
+    causingFear = creatures & filter Total.causesFear
 
 testPlague shared =
   describe "Plague" $ do
@@ -567,7 +574,7 @@ main = hspec $ do
             && not (null occupiedSpots)
   -- From fast tests to slow tests (to maximize failing early)
   testFear shared
-  testFearNTerror
+  testFearNTerror shared
   testItemsAI shared
   testPlague shared
   testPlayFraming shared

@@ -544,12 +544,12 @@ applyFearNTerrorM board affectingSpot = do
     fearAffected :: [CardSpot] =
       affectedInPlace
         & Map.filterWithKey
-          (\spot c -> spot `elem` fearAffectedSpots && Total.affectedByFear c)
+          (\spot c -> spot `elem` fearAffectedSpots && Total.affectedByFear True c)
         & Map.keys
     terrorAffected :: [CardSpot] =
       affectedInPlace
         & Map.filterWithKey
-          (\spot c -> spot `elem` terrorAffectedSpots && Total.affectedByTerror c)
+          (\spot c -> spot `elem` terrorAffectedSpots && Total.affectedByTerror True c)
         & Map.keys
     killedToDiscard :: [Card.ID] =
       map (Board.toInPlaceCreature board affectedSpot) (terrorAffected ++ fearAffected)

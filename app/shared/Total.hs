@@ -13,18 +13,20 @@ import Card
 import qualified Constants
 import Data.Function ((&))
 
--- | Whether a creature is affected by fear
-affectedByFear :: Creature 'Core -> Bool
-affectedByFear Creature {hp} | hp > 1 = False
-affectedByFear c | causesFear c = False -- Creature causing fear are immune to fear
-affectedByFear c | causesTerror c = False -- Creature causing terror are immune to fear
-affectedByFear _ = True
+-- | Whether a creature is affected by fear. The first Boolean indicates
+-- whether to consider the hitpoints ('True') or not ('False')
+affectedByFear :: Bool -> Creature 'Core -> Bool
+affectedByFear True Creature {hp} | hp > 1 = False
+affectedByFear _ c | causesFear c = False -- Creature causing fear are immune to fear
+affectedByFear _ c | causesTerror c = False -- Creature causing terror are immune to fear
+affectedByFear _ _ = True
 
--- | Whether a creature is affected by terror
-affectedByTerror :: Creature 'Core -> Bool
-affectedByTerror Creature {hp} | hp > 2 = False
-affectedByTerror c | causesTerror c = False -- Creature causing terror are immune to terror
-affectedByTerror _ = True
+-- | Whether a creature is affected by terror. The first Boolean indicates
+-- whether to consider the hitpoints ('True') or not ('False')
+affectedByTerror :: Bool -> Creature 'Core -> Bool
+affectedByTerror True Creature {hp} | hp > 2 = False
+affectedByTerror _ c | causesTerror c = False -- Creature causing terror are immune to terror
+affectedByTerror _ _ = True
 
 -- | The total attack of a creature, including boosts of skills and items.
 -- This would make more sense to be in 'Game', but alas this is more

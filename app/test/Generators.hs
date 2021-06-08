@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Generators where
@@ -100,14 +101,25 @@ instance Arbitrary SkillCore where
   shrink = genericShrink
 
 instance Arbitrary (Creature 'Core) where
-  arbitrary = genericArbitraryU
+  arbitrary =
+    let shared = SharedModel.unsafeGet
+     in elements $
+          SharedModel.getCardIdentifiers shared
+            & map (SharedModel.identToCard shared)
+            & catMaybes
+            & map Card.unliftCard
+            & mapMaybe (\case CreatureCard creature -> Just creature; _ -> Nothing)
   shrink = genericShrink
 
 instance Arbitrary (Card 'Core) where
-  -- Do not generate NeutralCard for now, since they
-  -- arent' supported yet FIXME @smelc change that,
-  -- Neutral cards are supported now
-  arbitrary = genericArbitrary (1 % 0 % 0 % ())
+  arbitrary =
+    let shared = SharedModel.unsafeGet
+     in elements $
+          SharedModel.getCardIdentifiers shared
+            & map (SharedModel.identToCard shared)
+            & catMaybes
+            & map Card.unliftCard
+
   shrink = genericShrink
 
 instance Arbitrary (PlayerPart 'Core) where

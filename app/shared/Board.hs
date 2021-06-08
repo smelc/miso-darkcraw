@@ -19,6 +19,7 @@ module Board
   ( allCardsSpots,
     allPlayersSpots,
     Teams (..),
+    TeamsData (..),
     InPlaceEffect (..),
     InPlaceEffects (..),
     bottomSpotOfTopVisual,
@@ -518,21 +519,24 @@ toData PlayerBot TeamsData {botTeamData} = botTeamData
 
 -- | The initial board, appropriately shuffled with 'SharedModel' rng,
 -- and the starting decks of both teams.
-initial :: SharedModel -> Teams -> (SharedModel, Board 'Core, TeamsData [Card 'UI])
-initial shared Teams {..} =
-  (smodel'', Board topPart botPart, TeamsData {topTeamData, botTeamData})
+initial ::
+  -- | The shared model, only used for shuffling
+  SharedModel ->
+  -- | The initial decks
+  (TeamsData (Team, [Card 'Core])) ->
+  -- | The shared model, with its RNG updated; and the initial board
+  (SharedModel, Board 'Core)
+initial shared TeamsData {topTeamData = (topTeam, topDeck), botTeamData = (botTeam, botDeck)} =
+  (smodel'', Board topPart botPart)
   where
-    part team smodel = (smodel', PlayerPart Map.empty hand' 0 stack' [] team, deckUI)
+    part team smodel deck = (smodel', PlayerPart Map.empty hand' 0 stack' [] team)
       where
-        (deckCore, deckUI) =
-          let deckUI = SharedModel.getCards shared
-           in (teamDeck deckUI team, deckUI)
-        (smodel', deck') = SharedModel.shuffle smodel deckCore
+        (smodel', deck') = SharedModel.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
         hand' = map cardToIdentifier hand
         stack' = map cardToIdentifier stack
-    (smodel', topPart, topTeamData) = part topTeam shared
-    (smodel'', botPart, botTeamData) = part botTeam smodel'
+    (smodel', topPart) = part topTeam shared topDeck
+    (smodel'', botPart) = part botTeam smodel' botDeck
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.

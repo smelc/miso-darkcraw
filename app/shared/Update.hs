@@ -800,12 +800,14 @@ initialGameModel ::
   SharedModel ->
   Teams ->
   GameModel
-initialGameModel shared teams =
-  unsafeInitialGameModel shared' (map Card.cardToIdentifier playingPlayerDeck) board
+initialGameModel shared Teams {topTeam, botTeam} =
+  -- We hardcode that the playing player is at the bottom
+  unsafeInitialGameModel shared' (map Card.cardToIdentifier botDeck) board
   where
-    (shared', board, decks) = Board.initial shared teams
-    playingPlayer = Turn.toPlayerSpot Turn.initial
-    playingPlayerDeck = Board.toData playingPlayer decks
+    uiCards = SharedModel.getCards shared
+    topTeamData = (topTeam, Card.teamDeck uiCards topTeam)
+    botTeamData@(_, botDeck) = (botTeam, Card.teamDeck uiCards botTeam)
+    (shared', board) = Board.initial shared (Board.TeamsData {topTeamData, botTeamData})
 
 -- | An initial model, appropriate for testing
 unsafeInitialGameModel ::

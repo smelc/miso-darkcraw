@@ -133,6 +133,7 @@ Test-Suite test-darkcraw
     SceneEquivalence
     ServerMessages
     SharedModel
+    TestLib
     Tile
     Total
     Turn
