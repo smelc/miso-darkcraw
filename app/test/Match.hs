@@ -39,7 +39,7 @@ main shared = do
         [1, 2]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = initialGameModel (SharedModel.withSeed shared seed) $ Teams t1 t2
+        model seed = level0GameModel (SharedModel.withSeed shared seed) $ Teams t1 t2
     isError (Error msg) = traceShow msg True
     isError Draw = False
     isError (Win _) = False
@@ -77,15 +77,20 @@ testStupidity shared =
     prop "the score is correctly predicted" $
       \(cSpot, topTeam, seed) ->
         not (inTheBack cSpot)
-          ==> let (teams, board) = (Teams topTeam Human, initialBoard shared teams cSpot)
-               in let model = Update.unsafeInitialGameModel (mkShared seed) undefined board
-                   in play model 8 `shouldSatisfy` isValid
+          ==> let teams = Teams topTeam Human
+               in let board = initialBoard shared teams cSpot
+                   in let model = Update.unsafeInitialGameModel (mkShared seed) (mkTeamData teams) board
+                       in play model 8 `shouldSatisfy` isValid
   where
     initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot
     ogreID = CreatureID Card.Ogre Human
     ogreSpot = PlayerBot
     ogreAttack = SharedModel.idToCreature shared ogreID [] & fromJust & attack
     mkShared seed = SharedModel.withSeed shared seed
+    mkTeamData Teams {topTeam, botTeam} =
+      TeamsData {topTeamData = mkData topTeam, botTeamData = mkData botTeam}
+      where
+        mkData t = (t, SharedModel.getInitialDeck shared t)
     isValid Result {models} = all isValidModel models
     isValidModel GameModel {board, turn} =
       expectedScore == score

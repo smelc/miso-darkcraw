@@ -33,6 +33,7 @@ module SharedModel
     identToItem,
     identToNeutral,
     pick,
+    getInitialDeck,
   )
 where
 
@@ -137,6 +138,9 @@ getCards SharedModel {sharedCards} = Map.elems sharedCards
 
 getCmd :: SharedModel -> Maybe String
 getCmd SharedModel {sharedCmd} = sharedCmd
+
+getInitialDeck :: SharedModel -> Team -> [Card 'Core]
+getInitialDeck shared team = Card.teamDeck (getCards shared) team
 
 getStdGen :: SharedModel -> StdGen
 getStdGen SharedModel {sharedStdGen} = sharedStdGen

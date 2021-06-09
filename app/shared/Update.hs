@@ -744,7 +744,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ initialGameModel shared $ Teams {topTeam = Undead, botTeam = team}
+    noEff $ GameModel' $ level0GameModel shared $ Teams Undead team
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -796,36 +796,64 @@ updateModel a m =
         <> pShowNoColor a
 
 -- | The initial model, appropriately shuffled with 'SharedModel' rng
-initialGameModel ::
+level0GameModel ::
   SharedModel ->
   Teams ->
   GameModel
-initialGameModel shared Teams {topTeam, botTeam} =
-  -- We hardcode that the playing player is at the bottom
-  unsafeInitialGameModel shared' (map Card.cardToIdentifier botDeck) board
+level0GameModel shared teams =
+  levelNGameModel
+    shared
+    $ mkTeamData teams
   where
-    uiCards = SharedModel.getCards shared
-    topTeamData = (topTeam, Card.teamDeck uiCards topTeam)
-    botTeamData@(_, botDeck) = (botTeam, Card.teamDeck uiCards botTeam)
-    (shared', board) = Board.initial shared (Board.TeamsData {topTeamData, botTeamData})
+    mkTeamData Teams {topTeam, botTeam} =
+      TeamsData {topTeamData = mkData topTeam, botTeamData = mkData botTeam}
+    mkData t = (t, SharedModel.getInitialDeck shared t)
 
--- | An initial model, appropriate for testing
-unsafeInitialGameModel ::
+-- | A model that takes the decks as parameters, for use after the initial
+-- start of the game
+levelNGameModel ::
   SharedModel ->
-  -- | The playing player's deck
-  [Card.ID] ->
-  -- | The board
-  Board 'Core ->
+  -- | The initial decks
+  (TeamsData (Team, [Card 'Core])) ->
   GameModel
-unsafeInitialGameModel shared playingPlayerdeck board =
+levelNGameModel shared teamsData =
   GameModel
     shared
     board
     NoInteraction
     startingPlayerSpot
-    playingPlayerdeck
+    playingPlayerDeck
     Turn.initial
     mempty
+  where
+    (_, board) = Board.initial shared teamsData
+    playingPlayerDeck =
+      toData startingPlayerSpot teamsData
+        & snd
+        & map Card.cardToIdentifier
+
+-- | An initial model, with a custom board
+unsafeInitialGameModel ::
+  SharedModel ->
+  -- | The initial decks
+  (TeamsData (Team, [Card 'Core])) ->
+  -- | The board
+  Board 'Core ->
+  GameModel
+unsafeInitialGameModel shared teamsData board =
+  GameModel
+    shared
+    board
+    NoInteraction
+    startingPlayerSpot
+    playingPlayerDeck
+    Turn.initial
+    mempty
+  where
+    playingPlayerDeck =
+      toData startingPlayerSpot teamsData
+        & snd
+        & map Card.cardToIdentifier
 
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel welcomeShared =

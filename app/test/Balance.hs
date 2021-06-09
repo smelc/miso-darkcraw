@@ -8,7 +8,9 @@
 module Balance where
 
 import Board
-import Card
+import qualified Campaign
+import Card (Team (..))
+import qualified Card
 import Data.Function ((&))
 import qualified Data.Text as Text
 import Debug.Trace
@@ -18,6 +20,7 @@ import Model (GameModel (..))
 import SharedModel (SharedModel)
 import qualified SharedModel
 import Test.Hspec
+import TestLib (shouldAllSatisfy)
 import qualified Update
 
 main :: SharedModel -> SpecWith ()
@@ -25,18 +28,24 @@ main shared =
   describe "Balance" $ do
     xit "Teams are balanced" $ -- Tested first, because most likely to fail
     -- Current state : "Human VS Undead: too many wins (28): Human, expected at most 23.400002"
-      checkBalance Human Undead
+      checkBalance Human Campaign.Level0
     xit "Starting team doesn't have an advantage" $ do
-      checkBalance Human Human
-      checkBalance Undead Undead
+      checkBalanceStart Human Human
+      checkBalanceStart Undead Undead
   where
-    checkBalance t1 t2 =
+    -- The team to test, at which level. This means rewards before
+    -- this level have been obtained.
+    checkBalance t level =
       let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
-       in let results = Balance.play shareds (Teams t1 t2) nbTurns
+       in let allResults = Balance.playAll shareds t level nbTurns
+           in (map snd allResults) `shouldAllSatisfy` spec
+    checkBalanceStart t1 t2 =
+      let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
+       in let results = Balance.play shareds (Teams t1 t2) Campaign.Level0 nbTurns
            in results `shouldSatisfy` spec
     seeds = [0, 31 ..]
     nbMatches = 40
-    nbTurns = 8
+    nbTurns :: Int = 8
     spec Balance.Result {..} =
       case (min <= winTop, winTop <= max) of
         (False, _) ->
@@ -95,21 +104,40 @@ mkEmpty :: Teams -> Balance.Result
 mkEmpty Teams {topTeam, botTeam} =
   Balance.Result {topWins = 0, botWins = 0, draws = 0, ..}
 
+playAll ::
+  -- | The models to use for a start (length of this list implies the
+  -- the number of games to play)
+  [SharedModel] ->
+  -- | The team to test
+  Team ->
+  -- | The level of the team
+  Campaign.Level ->
+  -- | The number of turns to play
+  Int ->
+  -- | Results against the given team
+  [(Team, Balance.Result)]
+playAll shareds team level nbTurns =
+  [ (opponent, play shareds (Teams opponent team) level nbTurns)
+    | opponent <- Card.allTeams
+  ]
+
 play ::
   -- | The models to use for a start (length of this list implies the
   -- the number of games to play)
   [SharedModel] ->
   Teams ->
+  -- | The level being played
+  Campaign.Level ->
   -- | The number of turns to play
   Int ->
   Balance.Result
-play shareds teams nbTurns =
+play shareds teams _level nbTurns =
   go shareds
     & map Match.matchResult
     & count (mkEmpty teams)
   where
     go (shared : rest) =
-      let result = Match.play (Update.initialGameModel shared teams) nbTurns
+      let result = Match.play (Update.level0GameModel shared teams) nbTurns
        in traceShow (logString result) result : go rest
     go [] = []
     count acc [] = acc
