@@ -798,23 +798,19 @@ updateModel a m =
 -- | The initial model, appropriately shuffled with 'SharedModel' rng
 level0GameModel ::
   SharedModel ->
-  Teams ->
+  (Teams Team) ->
   GameModel
 level0GameModel shared teams =
   levelNGameModel
     shared
-    $ mkTeamData teams
-  where
-    mkTeamData Teams {topTeam, botTeam} =
-      TeamsData {topTeamData = mkData topTeam, botTeamData = mkData botTeam}
-    mkData t = (t, SharedModel.getInitialDeck shared t)
+    $ (teams <&> (\t -> (t, SharedModel.getInitialDeck shared t)))
 
 -- | A model that takes the decks as parameters, for use after the initial
 -- start of the game
 levelNGameModel ::
   SharedModel ->
   -- | The initial decks
-  (TeamsData (Team, [Card 'Core])) ->
+  (Teams (Team, [Card 'Core])) ->
   GameModel
 levelNGameModel shared teamsData =
   GameModel
@@ -836,7 +832,7 @@ levelNGameModel shared teamsData =
 unsafeInitialGameModel ::
   SharedModel ->
   -- | The initial decks
-  (TeamsData (Team, [Card 'Core])) ->
+  (Teams (Team, [Card 'Core])) ->
   -- | The board
   Board 'Core ->
   GameModel

@@ -100,7 +100,7 @@ data Result = Result
   }
   deriving (Show)
 
-mkEmpty :: Teams -> Balance.Result
+mkEmpty :: Teams Team -> Balance.Result
 mkEmpty Teams {topTeam, botTeam} =
   Balance.Result {topWins = 0, botWins = 0, draws = 0, ..}
 
@@ -125,7 +125,7 @@ play ::
   -- | The models to use for a start (length of this list implies the
   -- the number of games to play)
   [SharedModel] ->
-  Teams ->
+  Teams Team ->
   -- | The level being played
   Campaign.Level ->
   -- | The number of turns to play

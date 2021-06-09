@@ -1,5 +1,6 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -19,7 +20,6 @@ module Board
   ( allCardsSpots,
     allPlayersSpots,
     Teams (..),
-    TeamsData (..),
     InPlaceEffect (..),
     InPlaceEffects (..),
     bottomSpotOfTopVisual,
@@ -67,7 +67,6 @@ module Board
     toNeighbors,
     toPlayerCardSpots,
     isDead,
-    toTeam,
     toData,
   )
 where
@@ -484,7 +483,7 @@ toInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
   where
     inPlace = toInPlace board pSpot
 
-empty :: Teams -> Board 'Core
+empty :: Teams Team -> Board 'Core
 empty Teams {topTeam, botTeam} =
   Board {playerTop = emptyPlayerPart topTeam, playerBottom = emptyPlayerPart botTeam}
 
@@ -497,25 +496,15 @@ emptyPlayerPart team = PlayerPart {..}
     stack = []
     discarded = []
 
-data Teams = Teams
-  { topTeam :: Team,
-    botTeam :: Team
+data Teams a = Teams
+  { topTeam :: a,
+    botTeam :: a
   }
-  deriving (Generic, Show)
+  deriving (Generic, Show, Functor)
 
-toTeam :: Teams -> PlayerSpot -> Team
-toTeam Teams {topTeam} PlayerTop = topTeam
-toTeam Teams {botTeam} PlayerBot = botTeam
-
--- | A dumb container for holding data of teams
-data TeamsData a = TeamsData
-  { topTeamData :: a,
-    botTeamData :: a
-  }
-
-toData :: PlayerSpot -> TeamsData a -> a
-toData PlayerTop TeamsData {topTeamData} = topTeamData
-toData PlayerBot TeamsData {botTeamData} = botTeamData
+toData :: PlayerSpot -> Teams a -> a
+toData PlayerTop Teams {topTeam} = topTeam
+toData PlayerBot Teams {botTeam} = botTeam
 
 -- | The initial board, appropriately shuffled with 'SharedModel' rng,
 -- and the starting decks of both teams.
@@ -523,10 +512,10 @@ initial ::
   -- | The shared model, only used for shuffling
   SharedModel ->
   -- | The initial decks
-  (TeamsData (Team, [Card 'Core])) ->
+  (Teams (Team, [Card 'Core])) ->
   -- | The shared model, with its RNG updated; and the initial board
   (SharedModel, Board 'Core)
-initial shared TeamsData {topTeamData = (topTeam, topDeck), botTeamData = (botTeam, botDeck)} =
+initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)} =
   (smodel'', Board topPart botPart)
   where
     part team smodel deck = (smodel', PlayerPart Map.empty hand' 0 stack' [] team)
@@ -540,7 +529,7 @@ initial shared TeamsData {topTeamData = (topTeam, topDeck), botTeamData = (botTe
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.
-small :: SharedModel -> Teams -> CreatureID -> [Item] -> PlayerSpot -> CardSpot -> Board 'Core
+small :: SharedModel -> Teams Team -> CreatureID -> [Item] -> PlayerSpot -> CardSpot -> Board 'Core
 small shared teams cid items pSpot cSpot =
   setCreature (empty teams) pSpot cSpot c
   where

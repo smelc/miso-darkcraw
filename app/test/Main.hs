@@ -479,10 +479,10 @@ testFearNTerror shared =
 testPlague shared =
   describe "Plague" $ do
     prop "Plague kills creatures with hp <= 1" $
-      \(teams :: Teams, cids :: [(CreatureID, [Item])]) ->
+      \(teams :: Teams Team, cids :: [(CreatureID, [Item])]) ->
         applyPlague (setHp 1) teams cids `shouldSatisfy` Map.null
     prop "Plague doesn't kill creatures with hp > 1" $
-      \(teams :: Teams, cids :: [(CreatureID, [Item])]) ->
+      \(teams :: Teams Team, cids :: [(CreatureID, [Item])]) ->
         (applyPlague (setHp 2) teams cids & Map.size) `shouldBe` min 6 (length cids)
   where
     addAllToInPlace b pSpot cids = foldr (\pair b -> addToInPlace b pSpot pair) b cids

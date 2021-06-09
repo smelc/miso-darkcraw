@@ -12,6 +12,7 @@ import qualified AI (play)
 import Board
 import Card
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -87,10 +88,7 @@ testStupidity shared =
     ogreSpot = PlayerBot
     ogreAttack = SharedModel.idToCreature shared ogreID [] & fromJust & attack
     mkShared seed = SharedModel.withSeed shared seed
-    mkTeamData Teams {topTeam, botTeam} =
-      TeamsData {topTeamData = mkData topTeam, botTeamData = mkData botTeam}
-      where
-        mkData t = (t, SharedModel.getInitialDeck shared t)
+    mkTeamData teams = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
     isValid Result {models} = all isValidModel models
     isValidModel GameModel {board, turn} =
       expectedScore == score

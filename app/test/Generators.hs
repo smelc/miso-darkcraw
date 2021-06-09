@@ -171,7 +171,7 @@ instance Arbitrary Neighborhood where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary Teams where
+instance Arbitrary (Teams Team) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
