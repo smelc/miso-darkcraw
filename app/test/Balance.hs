@@ -52,50 +52,10 @@ main shared =
     seeds = [0, 31 ..]
     nbMatches = 40
     nbTurns :: Int = 8
-    spec Balance.Result {..} =
+    spec balanceRes@Balance.Result {..} =
       case (min <= winTop, winTop <= max) of
-        (False, _) ->
-          traceShow
-            ( show topTeam
-                ++ " VS "
-                ++ show botTeam
-                ++ ": not enough wins ("
-                ++ show topTeam
-                ++ "/"
-                ++ show nbGames
-                ++ "): "
-                ++ show winTop
-                ++ ", expected at least "
-                ++ show min
-                ++ " (draws: "
-                ++ show draws
-                ++ ", "
-                ++ show botTeam
-                ++ " wins "
-                ++ show botWins
-                ++ ", level "
-                ++ show level
-                ++ ")"
-            )
-            False
-        (_, False) ->
-          traceShow
-            ( show topTeam
-                ++ " VS "
-                ++ show botTeam
-                ++ ": too many wins ("
-                ++ show topWins
-                ++ "/"
-                ++ show nbGames
-                ++ "): "
-                ++ show topTeam
-                ++ ", expected at most "
-                ++ show max
-                ++ " (level: "
-                ++ show level
-                ++ ")"
-            )
-            False
+        (False, _) -> traceShow (showNotEnoughTopWins balanceRes) False
+        (_, False) -> traceShow (showTooManyTopWins balanceRes) False
         _ ->
           traceShow
             (show min ++ " <= " ++ show winTop ++ " (" ++ show topTeam ++ ") <= " ++ show max ++ "@" ++ show level)
@@ -103,7 +63,6 @@ main shared =
       where
         (nbWins, winTop) = (int2Float $ topWins + botWins, int2Float topWins)
         (min, max) = (nbWins * 0.4, nbWins * 0.6)
-        nbGames = botWins + draws + topWins
 
 -- | The result of executing 'play': the number of wins of each team and
 -- the number of draws
@@ -192,6 +151,56 @@ play shareds level teams nbTurns =
           (if winner == pSpot then "Win " else "Lost")
             ++ " "
             ++ show (team pSpot)
-            ++ "("
+            ++ "(score: "
             ++ show (Board.toScore lastBoard pSpot)
-            ++ ")"
+            ++ ", "
+            ++ show (toData pSpot teams & snd & length)
+            ++ " cards)"
+
+showNotEnoughTopWins :: Result -> String
+showNotEnoughTopWins Balance.Result {..} =
+  show topTeam
+    ++ " VS "
+    ++ show botTeam
+    ++ ": not enough wins ("
+    ++ show topTeam
+    ++ "/"
+    ++ show nbGames
+    ++ "): "
+    ++ show winTop
+    ++ ", expected at least "
+    ++ show min
+    ++ " (draws: "
+    ++ show draws
+    ++ ", "
+    ++ show botTeam
+    ++ " wins "
+    ++ show botWins
+    ++ ", level "
+    ++ show level
+    ++ ")"
+  where
+    (nbWins, winTop) = (int2Float $ topWins + botWins, int2Float topWins)
+    (min, _max) = (nbWins * 0.4, nbWins * 0.6)
+    nbGames = botWins + draws + topWins
+
+showTooManyTopWins :: Result -> String
+showTooManyTopWins Balance.Result {..} =
+  show topTeam
+    ++ " VS "
+    ++ show botTeam
+    ++ ": too many wins ("
+    ++ show topWins
+    ++ "/"
+    ++ show nbGames
+    ++ "): "
+    ++ show topTeam
+    ++ ", expected at most "
+    ++ show max
+    ++ " (level: "
+    ++ show level
+    ++ ")"
+  where
+    (nbWins, _winTop) = (int2Float $ topWins + botWins, int2Float topWins)
+    (_min, max) = (nbWins * 0.4, nbWins * 0.6)
+    nbGames = botWins + draws + topWins
