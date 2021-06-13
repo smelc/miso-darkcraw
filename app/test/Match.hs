@@ -20,6 +20,7 @@ import Debug.Trace (trace, traceShow)
 import qualified Game
 import Generators ()
 import Model
+import Nat
 import SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -91,11 +92,11 @@ testStupidity shared =
     mkTeamData teams = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
     isValid Result {models} = all isValidModel models
     isValidModel GameModel {board, turn} =
-      expectedScore == score
+      (natToInt expectedScore) == score
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
         score = Board.toScore board ogreSpot
-        turni = Turn.toInt turn
+        turni = Turn.toInt turn & intToNat
         pSpot = Turn.toPlayerSpot turn
         stupidFreq = 4
         nbAttacks played = (turni - (if played then 0 else 1)) - ((turni - 1) `div` stupidFreq)

@@ -21,6 +21,7 @@ import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics (Generic)
+import Nat
 import Tile
 
 -- If you change the first member, change 'allTeams' too
@@ -147,12 +148,12 @@ data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
 
 data Creature (p :: Phase) = Creature
   { creatureId :: CreatureID,
-    hp :: Int,
+    hp :: Nat,
     -- | Beware when using this accessor, you may want 'totalAttack' instead
-    attack :: Int,
+    attack :: Nat,
     items :: [ItemType p],
     moral :: Maybe Int,
-    victoryPoints :: Int,
+    victoryPoints :: Nat,
     skills :: [SkillType p],
     tile :: TileType p,
     -- | Creature doesn't go to the discarded stack when killed

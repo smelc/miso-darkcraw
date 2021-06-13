@@ -22,6 +22,7 @@ common client-server-shared
     JsonData
     Json
     Model
+    Nat
     ServerMessages
     SharedModel
     Tile
@@ -129,6 +130,7 @@ Test-Suite test-darkcraw
     Match
     Model
     Movie
+    Nat
     Pretty
     SceneEquivalence
     ServerMessages

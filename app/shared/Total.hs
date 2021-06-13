@@ -12,6 +12,7 @@ module Total where
 import Card
 import qualified Constants
 import Data.Function ((&))
+import Nat
 
 -- | Whether a creature is affected by fear. The first Boolean indicates
 -- whether to consider the hitpoints ('True') or not ('False')
@@ -31,16 +32,16 @@ affectedByTerror _ _ = True
 -- | The total attack of a creature, including boosts of skills and items.
 -- This would make more sense to be in 'Game', but alas this is more
 -- convenient to have it here dependency-wise.
-attack :: Creature 'Core -> Int
+attack :: Creature 'Core -> Nat
 attack Creature {Card.attack, skills, items} =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
   attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight
   where
     nbBlows =
-      filter (\case Blow' True -> True; _ -> False) skills & length
+      filter (\case Blow' True -> True; _ -> False) skills & natLength
     nbSwordsOfMight =
-      filter (== SwordOfMight) items & length
+      filter (== SwordOfMight) items & natLength
 
 -- | Whether a creature causes fear
 causesFear ::

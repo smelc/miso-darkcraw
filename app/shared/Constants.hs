@@ -4,6 +4,7 @@
 module Constants where
 
 import Miso.String
+import Nat
 
 assetsDir :: MisoString
 assetsDir = "assets"
@@ -62,7 +63,7 @@ boardPixelHeight :: Int
 boardPixelHeight = boardCellHeight * cps
 
 -- | The additional attack granted by the Blow skill when available
-blowAmount :: Int
+blowAmount :: Nat
 blowAmount = 2
 
 -- | The size of borders around cards

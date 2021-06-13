@@ -33,6 +33,7 @@ import qualified Data.Text as Text
 import Debug.Trace (trace, traceShow)
 import Game hiding (Event, Result)
 import qualified Game
+import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
 import qualified Total
@@ -238,8 +239,8 @@ scoreCreatureItems c@Creature {attack, hp, items} cSpot =
             if (Board.neighbors Board.Cardinal cSpot & length) == 3
               then 1 -- Creature is in a central spot
               else 0
-      FlailOfTheDamned -> attack + hp -- Prefer strong creatures
-      SwordOfMight -> attack + hp -- Prefer strong creatures
+      FlailOfTheDamned -> natToInt $ attack + hp -- Prefer strong creatures
+      SwordOfMight -> natToInt $ attack + hp -- Prefer strong creatures
     result = sum $ map scoreCreatureItem items
 
 -- | The score of a card. Most powerful cards return a smaller value.
@@ -248,7 +249,7 @@ scoreCreatureItems c@Creature {attack, hp, items} cSpot =
 scoreHandCard :: Card 'Core -> Int
 scoreHandCard = \case
   CreatureCard Creature {..} ->
-    sum $ [- hp, - attack, - (fromMaybe 0 moral)] ++ map scoreSkill skills
+    sum $ [- (natToInt hp), - (natToInt attack), - (fromMaybe 0 moral)] ++ map scoreSkill skills
   NeutralCard NeutralObject {neutral} ->
     case neutral of
       Health -> -1

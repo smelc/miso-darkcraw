@@ -5,7 +5,9 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 -- |
 -- This module contains generic things to be used in *View.hs
@@ -34,8 +36,9 @@ import Data.List.Extra
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Miso
-import Miso.String (MisoString, ms)
+import Miso.String (MisoString, ToMisoString (..), ms)
 import Miso.Util ((=:))
+import Nat
 import SharedModel (SharedModel, tileToFilepath)
 import qualified SharedModel
 import Tile
@@ -61,6 +64,9 @@ instance Semigroup CardDrawStyle where
 
 instance Monoid CardDrawStyle where
   mempty = CardDrawStyle False False
+
+instance Miso.String.ToMisoString Nat where
+  toMisoString = toMisoString . show
 
 cardBoxShadowStyle ::
   -- | The (r, g, b) of the border
@@ -139,7 +145,6 @@ cardView' z shared card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI
   -- only fields; we don't want to force callers to do it. That was the point
-  -- of having SharedModel around.
   case (card, ui) of
     -- drawing of Creature cards
     (CreatureCard core@Creature {skills}, CreatureCard Creature {hp, items}) ->

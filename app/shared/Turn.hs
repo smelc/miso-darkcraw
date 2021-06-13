@@ -12,6 +12,7 @@ where
 import Board (PlayerSpot (..), endingPlayerSpot, startingPlayerSpot)
 import GHC.Generics (Generic)
 
+-- FIXME @smelc Int->Nat
 newtype Turn = Turn (Int, PlayerSpot)
   deriving (Eq, Generic, Show)
 

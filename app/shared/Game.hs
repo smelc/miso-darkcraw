@@ -59,6 +59,7 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 import Debug.Trace
 import GHC.Generics (Generic)
+import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
 import System.Random.Shuffle (shuffleM)
@@ -620,7 +621,7 @@ attack board pSpot cSpot =
               else pure board'
     (Just hitter, _, Nothing) -> do
       -- nothing to attack, contribute to the score!
-      let hit = Total.attack hitter
+      let hit = Total.attack hitter & natToInt
       reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
   where
@@ -677,7 +678,7 @@ applyInPlaceEffect ::
 applyInPlaceEffect effect creature@Creature {..} =
   case effect of
     InPlaceEffect {death} | isDead death -> Nothing
-    InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = hp + i}
+    InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
 
 applyFlailOfTheDamned ::
   MonadWriter (Board 'UI) m =>
@@ -721,10 +722,10 @@ applyFlailOfTheDamned board creature pSpot =
 singleAttack :: Creature 'Core -> Creature 'Core -> InPlaceEffect
 singleAttack attacker defender
   | hps' <= 0 = mempty {death = UsualDeath}
-  | otherwise = mempty {hitPointsChange = - hit}
+  | otherwise = mempty {hitPointsChange = - (natToInt hit)}
   where
     hit = Total.attack attacker
-    hps' = Card.hp defender - hit
+    hps' = Card.hp defender `minusNatClamped` hit
 
 -- | The spot that blocks a spot from attacking, which happens
 -- | if the input spot is in the back line
