@@ -139,6 +139,7 @@ getCards SharedModel {sharedCards} = Map.elems sharedCards
 getCmd :: SharedModel -> Maybe String
 getCmd SharedModel {sharedCmd} = sharedCmd
 
+-- | The starting deck of the given team, not shuffled
 getInitialDeck :: SharedModel -> Team -> [Card 'Core]
 getInitialDeck shared team = Card.teamDeck (getCards shared) team
 
