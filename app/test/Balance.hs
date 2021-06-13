@@ -41,7 +41,7 @@ main shared =
     checkBalance t level =
       let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
        in let allResults = Balance.playAll shareds t level nbTurns
-           in (map snd allResults) `shouldAllSatisfy` _desiredSpec
+           in (map snd allResults) `shouldAllSatisfy` actualSpec
     checkBalanceStart t1 t2 =
       let shareds = take nbEndoMatches seeds & map (SharedModel.withSeed shared)
        in let results = Balance.play shareds Campaign.Level0 teams nbTurns
@@ -53,8 +53,8 @@ main shared =
     (nbMatches, nbEndoMatches) = (40, nbMatches `div` 2)
     nbTurns :: Int = 8
     actualSpec r@Balance.Result {..}
-      | topTeam == Human && botTeam == Undead && topWins == 24 && botWins == 15 =
-        traceShow (showTooManyTopWins r) True
+      | topTeam == Human && botTeam == Undead && topWins == 24 && botWins == 15 && level == Campaign.Level0 =
+        traceShow (showBalanced r) True
     -- actualSpec is a cheap way to track changes to the balance
     actualSpec r =
       traceShow ("Unexpected spec: " ++ show r) False
@@ -62,10 +62,7 @@ main shared =
       case (min <= winTop, winTop <= max) of
         (False, _) -> traceShow (showNotEnoughTopWins balanceRes) False
         (_, False) -> traceShow (showTooManyTopWins balanceRes) False
-        _ ->
-          traceShow
-            (show min ++ " <= " ++ show winTop ++ " (" ++ show topTeam ++ ") <= " ++ show max ++ ", " ++ show level)
-            True
+        _ -> traceShow (showBalanced balanceRes) True
       where
         nbGames = int2Float $ topWins + botWins + draws
         winTop = int2Float topWins
@@ -201,9 +198,9 @@ showNotEnoughTopWins Balance.Result {..} =
     ++ show level
     ++ ")"
   where
-    (nbWins, winTop) = (int2Float $ topWins + botWins, int2Float topWins)
-    (min, _max) = (nbWins * 0.4, nbWins * 0.6)
-    nbGames = botWins + draws + topWins
+    (_, winTop) = (int2Float $ topWins + botWins, int2Float topWins)
+    nbGames = int2Float $ botWins + draws + topWins
+    (min, _max) = minMax nbGames
 
 showTooManyTopWins :: Result -> String
 showTooManyTopWins Balance.Result {..} =
@@ -222,6 +219,16 @@ showTooManyTopWins Balance.Result {..} =
     ++ show level
     ++ ")"
   where
-    (nbWins, _winTop) = (int2Float $ topWins + botWins, int2Float topWins)
-    (_min, max) = (nbWins * 0.4, nbWins * 0.6)
-    nbGames = botWins + draws + topWins
+    nbGames = int2Float $ botWins + draws + topWins
+    (_min, max) = minMax nbGames
+
+showBalanced :: Result -> String
+showBalanced Balance.Result {..} =
+  (show min ++ " <= " ++ show winTop ++ " (" ++ show topTeam ++ ") <= " ++ show max ++ ", " ++ show level)
+  where
+    nbGames = int2Float $ topWins + botWins + draws
+    winTop = int2Float topWins
+    (min, max) = minMax nbGames
+
+minMax :: Float -> (Float, Float)
+minMax nbGames = (nbGames * 0.4, nbGames * 0.6)

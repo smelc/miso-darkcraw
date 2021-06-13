@@ -12,7 +12,7 @@ import Prelude hiding (pred, succ)
 data Level
   = Level0
   | Level1
-  deriving (Show)
+  deriving (Eq, Show)
 
 -- | Given a level, its predecessor
 pred :: Level -> Maybe Level
@@ -49,4 +49,7 @@ decks deck team level =
     Just predLevel ->
       concat $ [decks d team predLevel | d <- extensions]
       where
-        extensions = [reward : deck | reward <- rewards level team]
+        extensions =
+          case rewards level team of
+            [] -> [deck] -- No rewards
+            rewards -> [reward : deck | reward <- rewards]
