@@ -10,10 +10,10 @@ module Balance where
 
 import Board
 import qualified Campaign
-import Card (Card, Phase (..), Team (..))
-import qualified Card
+import Card
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import Data.List
 import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace
@@ -29,40 +29,47 @@ import qualified Update
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $ do
-    xit "Teams are balanced" $ -- Tested first, because most likely to fail
+    it "Teams are balanced" $ -- Tested first, because most likely to fail
     -- Current state : "Human VS Undead: too many wins (28): Human, expected at most 23.400002"
       checkBalance Human Campaign.Level0
     xit "Starting team doesn't have an advantage" $ do
-      checkBalanceStart Human Human
       checkBalanceStart Undead Undead
+      checkBalanceStart Human Human
   where
     -- The team to test, at which level. This means rewards before
     -- this level have been obtained.
     checkBalance t level =
       let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
        in let allResults = Balance.playAll shareds t level nbTurns
-           in (map snd allResults) `shouldAllSatisfy` spec
+           in (map snd allResults) `shouldAllSatisfy` _desiredSpec
     checkBalanceStart t1 t2 =
-      let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
+      let shareds = take nbEndoMatches seeds & map (SharedModel.withSeed shared)
        in let results = Balance.play shareds Campaign.Level0 teams nbTurns
-           in results `shouldSatisfy` spec
+           in results `shouldSatisfy` actualSpec
       where
         teams = Teams t1 t2 <&> (\t -> (t, Card.teamDeck uiCards t))
         uiCards = SharedModel.getCards shared
     seeds = [0, 31 ..]
-    nbMatches = 40
+    (nbMatches, nbEndoMatches) = (40, nbMatches `div` 2)
     nbTurns :: Int = 8
-    spec balanceRes@Balance.Result {..} =
+    actualSpec r@Balance.Result {..}
+      | topTeam == Human && botTeam == Undead && topWins == 24 && botWins == 15 =
+        traceShow (showTooManyTopWins r) True
+    -- actualSpec is a cheap way to track changes to the balance
+    actualSpec r =
+      traceShow ("Unexpected spec: " ++ show r) False
+    _desiredSpec balanceRes@Balance.Result {..} =
       case (min <= winTop, winTop <= max) of
         (False, _) -> traceShow (showNotEnoughTopWins balanceRes) False
         (_, False) -> traceShow (showTooManyTopWins balanceRes) False
         _ ->
           traceShow
-            (show min ++ " <= " ++ show winTop ++ " (" ++ show topTeam ++ ") <= " ++ show max ++ "@" ++ show level)
+            (show min ++ " <= " ++ show winTop ++ " (" ++ show topTeam ++ ") <= " ++ show max ++ ", " ++ show level)
             True
       where
-        (nbWins, winTop) = (int2Float $ topWins + botWins, int2Float topWins)
-        (min, max) = (nbWins * 0.4, nbWins * 0.6)
+        nbGames = int2Float $ topWins + botWins + draws
+        winTop = int2Float topWins
+        (min, max) = (nbGames * 0.4, nbGames * 0.6)
 
 -- | The result of executing 'play': the number of wins of each team and
 -- the number of draws
@@ -103,7 +110,7 @@ playAll shareds team level nbTurns =
     otherTeams = [t | t <- Card.allTeams, t /= team]
     ids t =
       Campaign.decks
-        (SharedModel.getInitialDeck shared team & map Card.cardToIdentifier)
+        (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
         t
         level
     decks t =
@@ -154,8 +161,22 @@ play shareds level teams nbTurns =
             ++ "(score: "
             ++ show (Board.toScore lastBoard pSpot)
             ++ ", "
-            ++ show (toData pSpot teams & snd & length)
-            ++ " cards)"
+            ++ show (length cards)
+            ++ " cards: "
+            ++ concat (intersperse " " (map freqIdToStr cardsFreq))
+            ++ ")"
+          where
+            cards = toData pSpot teams & snd
+            cardsFreq =
+              map (cardToIdentifier) cards
+                & groupBy (==)
+                & map (\repeats -> (head repeats, length repeats))
+            idToStr (IDC (CreatureID {creatureKind}) []) = take 2 $ show creatureKind
+            idToStr (IDC cid _) = idToStr (IDC cid []) ++ "..."
+            idToStr (IDI i) = show i
+            idToStr (IDN n) = show n
+            freqIdToStr (id, 1) = idToStr id
+            freqIdToStr (id, i) = show i ++ idToStr id
 
 showNotEnoughTopWins :: Result -> String
 showNotEnoughTopWins Balance.Result {..} =

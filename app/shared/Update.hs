@@ -812,7 +812,7 @@ levelNGameModel ::
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
   GameModel
-levelNGameModel shared teamsData =
+levelNGameModel shared teams =
   GameModel
     shared
     board
@@ -822,9 +822,9 @@ levelNGameModel shared teamsData =
     Turn.initial
     mempty
   where
-    (_, board) = Board.initial shared teamsData
+    (_, board) = Board.initial shared teams
     playingPlayerDeck =
-      toData startingPlayerSpot teamsData
+      toData startingPlayerSpot teams
         & snd
         & map Card.cardToIdentifier
 
