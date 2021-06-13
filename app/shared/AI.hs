@@ -220,17 +220,16 @@ scorePlace board inPlace pSpot cSpot =
     -- increase. This will avoid doing an incorrect simulation.
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
-    maluses = sum [lineMalus, victoryPointsMalus]
-    result = (assert (maluses >= 0) maluses) - scoreCreatureItems inPlace cSpot
+    maluses :: Nat = sum [lineMalus, victoryPointsMalus]
+    result = (natToInt maluses) - (natToInt $ scoreCreatureItems inPlace cSpot)
 
 -- | The score of the items of this creature (which is on the passed spot).
--- 0 is the worst. Higher values
--- are better. Only positive values are returned.
-scoreCreatureItems :: Creature 'Core -> CardSpot -> Int
+-- 0 is the worst. Higher values are better.
+scoreCreatureItems :: Creature 'Core -> CardSpot -> Nat
 scoreCreatureItems c@Creature {attack, hp, items} cSpot =
-  assert (result >= 0) result
+  result
   where
-    scoreCreatureItem :: Item -> Int = \case
+    scoreCreatureItem :: Item -> Nat = \case
       Crown ->
         levelUpBonus + positionBonus
         where
@@ -239,8 +238,8 @@ scoreCreatureItems c@Creature {attack, hp, items} cSpot =
             if (Board.neighbors Board.Cardinal cSpot & length) == 3
               then 1 -- Creature is in a central spot
               else 0
-      FlailOfTheDamned -> natToInt $ attack + hp -- Prefer strong creatures
-      SwordOfMight -> natToInt $ attack + hp -- Prefer strong creatures
+      FlailOfTheDamned -> attack + hp -- Prefer strong creatures
+      SwordOfMight -> attack + hp -- Prefer strong creatures
     result = sum $ map scoreCreatureItem items
 
 -- | The score of a card. Most powerful cards return a smaller value.
