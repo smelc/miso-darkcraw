@@ -29,8 +29,9 @@ import qualified Update
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $ do
-    it "Teams are balanced" $ -- Tested first, because most likely to fail
-    -- Current state : "Human VS Undead: too many wins (28): Human, expected at most 23.400002"
+    it "The teams' balance is as expected" $ do
+      -- Tested first, because most likely to fail
+      checkBalance Human Campaign.Level1
       checkBalance Human Campaign.Level0
     xit "Starting team doesn't have an advantage" $ do
       checkBalanceStart Undead Undead
@@ -52,10 +53,13 @@ main shared =
     seeds = [0, 31 ..]
     (nbMatches, nbEndoMatches) = (40, nbMatches `div` 2)
     nbTurns :: Int = 8
+    -- actualSpec is a cheap way to track changes to the balance
     actualSpec r@Balance.Result {..}
       | topTeam == Human && botTeam == Undead && topWins == 24 && botWins == 15 && level == Campaign.Level0 =
         traceShow (showBalanced r) True
-    -- actualSpec is a cheap way to track changes to the balance
+    actualSpec r@Balance.Result {..}
+      | topTeam == Human && botTeam == Undead && topWins == 29 && botWins == 9 && level == Campaign.Level1 =
+        traceShow (showBalanced r) True
     actualSpec r =
       traceShow ("Unexpected spec: " ++ show r) False
     _desiredSpec balanceRes@Balance.Result {..} =
@@ -108,8 +112,8 @@ playAll shareds team level nbTurns =
     ids t =
       Campaign.decks
         (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
-        t
         level
+        t
     decks t =
       [ map (SharedModel.identToCard shared) cards
           & catMaybes

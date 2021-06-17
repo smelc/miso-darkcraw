@@ -6,6 +6,7 @@
 
 module Generators where
 
+import qualified Campaign as Campaign
 import Board
 import Card
 import Cinema
@@ -48,6 +49,10 @@ instance Arbitrary CreatureKind where
   shrink = genericShrink
 
 instance Arbitrary Team where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Campaign.Level where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

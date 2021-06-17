@@ -12,6 +12,7 @@ module Main where
 import AI
 import qualified Balance
 import Board
+import qualified Campaign as Campaign
 import Card
 import Cinema
 import Command
@@ -31,6 +32,7 @@ import qualified Invariants
 import Json
 import qualified Match
 import Movie
+import Nat
 import Pretty
 import SceneEquivalence
 import SharedModel (SharedModel, idToCreature)
@@ -423,6 +425,15 @@ testPlayScoreMonotonic shared =
     monotonic _ Nothing = True -- Nothing to test
     monotonic i (Just j) = j <= i -- Better score is smaller score
 
+testRewards =
+  describe "Rewards work as expected" $ do
+    it "initialisation" $ do
+      Campaign.decks [] Campaign.Level0 Human == [[]]
+    prop "one card is received at every reward" $ do
+      \(level, team) ->
+        Campaign.decks [] level team
+          `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
+
 testFear shared =
   describe "Fear works as expected" $ do
     it "fear triggers when expected" $
@@ -573,6 +584,7 @@ main = hspec $ do
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)
   -- From fast tests to slow tests (to maximize failing early)
+  testRewards
   testFear shared
   testFearNTerror shared
   testItemsAI shared
