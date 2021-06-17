@@ -55,10 +55,18 @@ main shared =
     nbTurns :: Int = 8
     -- actualSpec is a cheap way to track changes to the balance
     actualSpec r@Balance.Result {..}
-      | topTeam == Human && botTeam == Undead && topWins == 24 && botWins == 15 && level == Campaign.Level0 =
+      | topTeam == Human
+          && botTeam == Undead
+          && topWins == 24
+          && botWins == 15
+          && level == Campaign.Level0 =
         traceShow (showBalanced r) True
     actualSpec r@Balance.Result {..}
-      | topTeam == Human && botTeam == Undead && topWins == 29 && botWins == 9 && level == Campaign.Level1 =
+      | topTeam == Human
+          && botTeam == Undead
+          && topWins == 29
+          && botWins == 9
+          && level == Campaign.Level1 =
         traceShow (showBalanced r) True
     actualSpec r =
       traceShow ("Unexpected spec: " ++ show r) False
