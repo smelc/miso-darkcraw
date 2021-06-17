@@ -31,8 +31,8 @@ main shared =
   describe "Balance" $ do
     it "The teams' balance is as expected" $ do
       -- Tested first, because most likely to fail
-      checkBalance Human Campaign.Level1
       checkBalance Human Campaign.Level0
+      checkBalance Human Campaign.Level1
     xit "Starting team doesn't have an advantage" $ do
       checkBalanceStart Undead Undead
       checkBalanceStart Human Human
@@ -57,15 +57,15 @@ main shared =
     actualSpec r@Balance.Result {..}
       | topTeam == Human
           && botTeam == Undead
-          && topWins == 24
-          && botWins == 15
+          && topWins == 17
+          && botWins == 23
           && level == Campaign.Level0 =
         traceShow (showBalanced r) True
     actualSpec r@Balance.Result {..}
       | topTeam == Human
           && botTeam == Undead
           && topWins == 29
-          && botWins == 9
+          && botWins == 10
           && level == Campaign.Level1 =
         traceShow (showBalanced r) True
     actualSpec r =
