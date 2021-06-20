@@ -57,8 +57,8 @@ main shared =
     actualSpec r@Balance.Result {..}
       | topTeam == Human
           && botTeam == Undead
-          && topWins == 21
-          && botWins == 16
+          && topWins == 20
+          && botWins == 17
           && level == Campaign.Level0 =
         traceShow (showBalanced r) True
     actualSpec r@Balance.Result {..}

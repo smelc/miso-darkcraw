@@ -29,6 +29,8 @@ import Data.Either.Extra
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import Data.Set (Set)
+import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Debug.Trace (trace, traceShow)
 import Game hiding (Event, Result)
@@ -72,13 +74,14 @@ play shared board pSpot =
     [] -> []
     (_, events) : _ -> events
   where
-    hands =
+    hands :: [[Card.ID]] =
       Board.toHand board pSpot
         & map (unliftCard . SharedModel.unsafeIdentToCard shared)
         & sortOn scoreHandCard
         & map cardToIdentifier
         & take 5 -- To keep complexity low for big hands
         & permutations -- Try cards in all orders (because aiPlayHand plays first card)
+        & removeDups
     possibles =
       map
         (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
@@ -93,6 +96,27 @@ play shared board pSpot =
         possibles
         & catMaybes
         & sortByFst
+    -- removeDups removes duplicate hands sequences, for example [Sk, Sk] and
+    -- [Sk, Sk] which can happen when the hand has the same Skeleton card twice
+    removeDups :: [[Card.ID]] -> [[Card.ID]]
+    removeDups decks =
+      go Set.empty decks
+      where
+        go :: Set [(Card.ID, Nat)] -> [[Card.ID]] -> [[Card.ID]]
+        go _ [] = []
+        go seqs (deck : decks) | (seq' deck) `Set.member` seqs = go seqs decks
+        go seqs (deck : decks) = deck : go (Set.insert (seq' deck) seqs) decks
+        seq' = seq Nothing
+        -- seq [a, b, b, a] is [(a, 1), (b, 2), (a, 0)]
+        seq :: Eq a => Maybe (a, Nat) -> [a] -> [(a, Nat)]
+        seq Nothing [] = []
+        seq (Just (prev, cardinal)) [] = [(prev, cardinal)]
+        seq Nothing (card : cards) = seq (Just (card, 1)) cards
+        seq (Just (prev, cardinal)) (card : cards)
+          | prev == card =
+            seq (Just (prev, cardinal + 1)) cards
+        seq (Just (prev, cardinal)) (_ : cards) =
+          (prev, cardinal) : seq Nothing cards
 
 -- | The score of given player's in-place cards. Smaller is the best.
 -- Both negative and positive values are returned.
