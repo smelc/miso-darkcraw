@@ -155,7 +155,9 @@ aiPlayFirst shared board pSpot =
     [] -> Nothing
     id : _ -> do
       let scores' = scores id & sortByFst
-      (_, target) <- listToMaybe scores'
+      -- Take all targets that have the same best score and pick one randomly
+      -- Should I returned a mutated SharedModel?
+      target <- takeBestOnes scores' & SharedModel.shuffle shared & snd & listToMaybe
       return $ Place' pSpot target id
   where
     handIndex = HandIndex 0
@@ -168,6 +170,16 @@ aiPlayFirst shared board pSpot =
         & catMaybes
     liftMaybe (Nothing, _) = Nothing
     liftMaybe (Just x, y) = Just (x, y)
+    takeBestOnes :: Eq a => [(a, b)] -> [b]
+    takeBestOnes = \case
+      [] -> [] -- No input, no output
+      ((score, elem) : tail) -> elem : go score tail -- Take score from first element
+      where
+        -- go 0 [(0, "a"), (0, "b"), (-1, "b")] returns ["a", "b"]
+        go :: Eq a => a -> [(a, b)] -> [b]
+        go _ [] = []
+        go searched ((score, elem) : tail) | score == searched = elem : go searched tail
+        go _ _ = [] -- Because list is sorted, if first score doesn't match, then stop
 
 targets ::
   Board 'Core ->
