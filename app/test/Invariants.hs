@@ -5,6 +5,7 @@
 
 module Invariants where
 
+import qualified AI
 import Board
 import Card
 import Data.Function ((&))
@@ -60,14 +61,15 @@ main shared =
     prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in let GameModel {board} = Update.level0GameModel shared' teams
+         in let GameModel {board} = Update.level0GameModel difficulty shared' teams
              in board `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in Match.play (Update.level0GameModel shared' $ Teams team1 team2) seed
+         in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) seed
               `shouldSatisfy` isValidResult
   where
+    difficulty = AI.Easy
     isValid [] = True
     isValid violations = traceShow (unlines violations) False
     isValid' x = violation x & isValid

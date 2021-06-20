@@ -5,6 +5,7 @@
 
 module Model where
 
+import AI (Difficulty)
 import Board
 import Card
 import Cinema (TimedFrame)
@@ -56,6 +57,8 @@ data GameModel = GameModel
     gameShared :: SharedModel,
     -- | The core part of the model
     board :: Board 'Core,
+    -- | The game's difficulty
+    difficulty :: Difficulty,
     -- | What user interaction is going on
     interaction :: Interaction Game.Target,
     -- | Where the player plays

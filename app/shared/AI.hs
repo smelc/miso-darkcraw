@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -10,7 +11,7 @@
 -- This module defines how the AI plays
 -- |
 -- boardScore is exported for tests
-module AI (AI.play, boardPlayerScore, placeCards) where
+module AI (AI.play, boardPlayerScore, Difficulty (..), placeCards) where
 
 import Board
   ( Board,
@@ -33,6 +34,7 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Debug.Trace (trace, traceShow)
+import GHC.Generics (Generic)
 import Game hiding (Event, Result)
 import qualified Game
 import Nat
@@ -40,21 +42,29 @@ import SharedModel (SharedModel)
 import qualified SharedModel
 import qualified Total
 
+-- | The AI's level
+data Difficulty
+  = Easy
+  | Medium
+  | Hard
+  deriving (Eq, Generic)
+
 -- | Events that place creatures on the board. This function guarantees
 -- that the returned events are solely placements (no neutral cards), so
 -- that playing them with 'Game.playAll' returns an empty list of 'Game.Event'
 placeCards ::
+  Difficulty ->
   SharedModel ->
   Board 'Core ->
   -- | The player whose cards must be played
   PlayerSpot ->
   [Game.Event]
-placeCards shared board turn =
+placeCards difficulty shared board turn =
   -- Will fail once when we do more stuff in aiPlay. It's OK, I'll
   -- adapt when this happens.
   assert (all isPlaceEvent events) events
   where
-    events = AI.play shared board turn
+    events = AI.play difficulty shared board turn
     isPlaceEvent ApplyFearNTerror {} = False
     isPlaceEvent Attack {} = False
     isPlaceEvent NoPlayEvent = False
@@ -63,13 +73,14 @@ placeCards shared board turn =
 
 -- | Smart play events
 play ::
+  Difficulty ->
   SharedModel ->
   Board 'Core ->
   -- | The playing player
   PlayerSpot ->
   -- | Events generated for player 'pSpot'
   [Game.Event]
-play shared board pSpot =
+play _difficulty shared board pSpot =
   case scores of
     [] -> []
     (_, events) : _ -> events

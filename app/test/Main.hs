@@ -61,7 +61,7 @@ testAIRanged shared turn =
     archer = IDC (CreatureID Archer t) []
     pSpot = Turn.toPlayerSpot turn
     board = Board.addToHand (Board.empty teams) pSpot archer
-    events = AI.play shared board pSpot
+    events = AI.play AI.Easy shared board pSpot
 
 -- | This test was written in the hope it would reveal why
 -- there are such logs in the console when playing the last card of the hand:
@@ -325,19 +325,20 @@ testGetActorState =
 testAIPlace shared =
   describe "AI.placeCards" $ do
     prop "placeCards returns events whose spots differ" $
-      \board turn -> allDiff $ AI.placeCards shared board turn
+      \board turn -> allDiff $ AI.placeCards difficulty shared board turn
     prop "placeCards returns events whose card is valid" $
-      \board pSpot -> AI.placeCards shared board pSpot `shouldSatisfy` (goodCards board pSpot)
+      \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` (goodCards board pSpot)
     prop "placeCards returns events playing cards of the player whose turn it is" $
-      \board pSpot -> AI.placeCards shared board pSpot `shouldSatisfy` playerIs pSpot
+      \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` playerIs pSpot
     prop "placeCards return events that commute (modulo Discipline)" $
       \(Pretty board) (Pretty turn) ->
-        let events = AI.placeCards shared board turn & filter (not . hasDiscipline)
+        let events = AI.placeCards difficulty shared board turn & filter (not . hasDiscipline)
          in (length events >= 2)
               ==> forAll (Test.QuickCheck.elements (permutations events))
               $ \events' ->
                 Pretty (ignoreErrMsg (Game.playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (Game.playAll shared board events'))
   where
+    difficulty = AI.Easy
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (Game.Result _ board' () _)) = Just board'
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
@@ -416,7 +417,7 @@ testPlayScoreMonotonic shared =
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
       \(board, pSpot) ->
         let score = flip boardPlayerScore pSpot
-         in let (initialScore, events) = (score board, AI.play shared board pSpot)
+         in let (initialScore, events) = (score board, AI.play AI.Easy shared board pSpot)
              in let nextScore = Game.playAll shared board events & takeBoard <&> score
                  in monotonic initialScore nextScore
   where
@@ -544,7 +545,7 @@ testItemsAI shared =
     setCreature pSpot cSpot c board =
       Board.setCreature board pSpot cSpot c
     play board =
-      Game.playAll shared board $ AI.play shared board pSpot
+      Game.playAll shared board $ AI.play AI.Easy shared board pSpot
     hasItem board pSpot cSpot item =
       case Board.toInPlaceCreature board pSpot cSpot of
         Nothing -> False

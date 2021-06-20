@@ -13,6 +13,7 @@
 
 module Update where
 
+import AI (Difficulty)
 import qualified AI
 import Board
 import BoardInstances (boardStart)
@@ -124,6 +125,8 @@ instance ToExpr Tile.TileUI
 instance ToExpr Card.SkillPack
 
 instance ToExpr SharedModel
+
+instance ToExpr Difficulty
 
 instance ToExpr GameModel
 
@@ -408,7 +411,7 @@ updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest
   where
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
+updateGameModel m@GameModel {board, difficulty, gameShared, turn} GameEndTurnPressed _ =
   case em' of
     Left err -> updateDefault m $ ShowErrorInteraction err
     Right m'@GameModel {board = board'} ->
@@ -436,7 +439,7 @@ updateGameModel m@GameModel {board, gameShared, turn} GameEndTurnPressed _ =
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
-          let placements = AI.placeCards gameShared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
+          let placements = AI.placeCards difficulty gameShared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
           Game.Result shared' board' () boardui' <- Game.playAll gameShared board placements
           return $ m {anims = boardui', board = board', gameShared = shared'}
         else Right m
@@ -479,7 +482,7 @@ updateGameIncrTurn ::
   Members '[State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
   GameModel ->
   Eff eff (Either Text.Text (GameModel, GameActionSeq))
-updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
+updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
   board <- get @(Board 'Core)
   put @(Board 'Core) $ boardStart board pSpot
   shared <- get @SharedModel
@@ -509,7 +512,7 @@ updateGameIncrTurn m@GameModel {playingPlayer, turn} = do
             --              enqueue next event (if any)
             if isAI
               then
-                let plays = AI.play shared board pSpot
+                let plays = AI.play difficulty shared board pSpot
                  in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
               else
                 let drawSoon = Prelude.drop 1 drawSrcs
@@ -744,7 +747,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ level0GameModel shared $ Teams Undead team
+    noEff $ GameModel' $ level0GameModel AI.Hard shared $ Teams Undead team
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -797,25 +800,29 @@ updateModel a m =
 
 -- | The initial model, appropriately shuffled with 'SharedModel' rng
 level0GameModel ::
+  Difficulty ->
   SharedModel ->
   (Teams Team) ->
   GameModel
-level0GameModel shared teams =
+level0GameModel difficulty shared teams =
   levelNGameModel
+    difficulty
     shared
     $ (teams <&> (\t -> (t, SharedModel.getInitialDeck shared t)))
 
 -- | A model that takes the decks as parameters, for use after the initial
 -- start of the game
 levelNGameModel ::
+  Difficulty ->
   SharedModel ->
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
   GameModel
-levelNGameModel shared teams =
+levelNGameModel difficulty shared teams =
   GameModel
     shared
     board
+    difficulty
     NoInteraction
     startingPlayerSpot
     playingPlayerDeck
@@ -830,16 +837,18 @@ levelNGameModel shared teams =
 
 -- | An initial model, with a custom board
 unsafeInitialGameModel ::
+  Difficulty ->
   SharedModel ->
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
   -- | The board
   Board 'Core ->
   GameModel
-unsafeInitialGameModel shared teamsData board =
+unsafeInitialGameModel difficulty shared teamsData board =
   GameModel
     shared
     board
+    difficulty
     NoInteraction
     startingPlayerSpot
     playingPlayerDeck

@@ -8,7 +8,7 @@
 -- |
 module Match (main, MatchResult (..), play, Result (..)) where
 
-import qualified AI (play)
+import qualified AI (Difficulty (..), play)
 import Board
 import Card
 import Data.Function ((&))
@@ -41,7 +41,7 @@ main shared = do
         [1, 2]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = level0GameModel (SharedModel.withSeed shared seed) $ Teams t1 t2
+        model seed = level0GameModel AI.Easy (SharedModel.withSeed shared seed) $ Teams t1 t2
     isError (Error msg) = traceShow msg True
     isError Draw = False
     isError (Win _) = False
@@ -81,7 +81,7 @@ testStupidity shared =
         not (inTheBack cSpot)
           ==> let teams = Teams topTeam Human
                in let board = initialBoard shared teams cSpot
-                   in let model = Update.unsafeInitialGameModel (mkShared seed) (mkTeamData teams) board
+                   in let model = Update.unsafeInitialGameModel AI.Easy (mkShared seed) (mkTeamData teams) board
                        in play model 8 `shouldSatisfy` isValid
   where
     initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot
@@ -140,7 +140,7 @@ toMatchResult GameModel {board} =
 playOneTurn :: GameModel -> Either Text GameModel
 playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
   -- We need to play for the player
-  case (playingPlayer == pSpot, AI.play shared board pSpot) of
+  case (playingPlayer == pSpot, AI.play AI.Easy shared board pSpot) of
     (False, _) -> Left $ Text.pack $ "It should be the player turn (" ++ show playingPlayer ++ "), but found: " ++ show pSpot
     (_, []) ->
       -- The main loop will take care of playing the opponent when honoring

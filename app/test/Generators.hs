@@ -6,8 +6,8 @@
 
 module Generators where
 
-import qualified Campaign as Campaign
 import Board
+import qualified Campaign as Campaign
 import Card
 import Cinema
 import Data.Function ((&))
