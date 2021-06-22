@@ -40,6 +40,8 @@ import qualified Game
 import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
+import System.Random (StdGen)
+import System.Random.Shuffle (shuffle')
 import qualified Total
 
 -- | The AI's level
@@ -71,42 +73,23 @@ placeCards difficulty shared board turn =
     isPlaceEvent Place {} = True
     isPlaceEvent Place' {} = True
 
--- | Smart play events
-play ::
-  Difficulty ->
-  SharedModel ->
-  Board 'Core ->
-  -- | The playing player
-  PlayerSpot ->
-  -- | Events generated for player 'pSpot'
-  [Game.Event]
-play _difficulty shared board pSpot =
-  case scores of
-    [] -> []
-    (_, events) : _ -> events
+-- | Given the hand, the permutations to consider for playing this hand
+applyDifficulty :: Difficulty -> StdGen -> [Card.ID] -> [[Card.ID]]
+applyDifficulty difficulty stdgen hand =
+  case hand of
+    [] -> [] -- Needed, because the general case below doesn't return for [].
+    -- I don't understand why O_o
+    _ ->
+      case difficulty of
+        Easy -> [shuffle' hand (length hand) stdgen]
+        Medium -> go 4
+        Hard -> go 5
   where
-    hands :: [[Card.ID]] =
-      Board.toHand board pSpot
-        & map (unliftCard . SharedModel.unsafeIdentToCard shared)
-        & sortOn scoreHandCard
-        & map cardToIdentifier
-        & take 5 -- To keep complexity low for big hands
-        & permutations -- Try cards in all orders (because aiPlayHand plays first card)
-        & removeDups
-    possibles =
-      map
-        (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
-        hands
-    scores :: [(Int, [Game.Event])] =
-      map
-        ( \events ->
-            case Game.playAll shared board events of
-              Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
-              Right (Game.Result _ board' () _) -> Just (boardPlayerScore board' pSpot, events)
+    go (maxFactorial :: Nat) =
+      removeDups $
+        ( let (start, end) = splitAt (natToInt maxFactorial) hand
+           in permutations start & map (\start -> start ++ end)
         )
-        possibles
-        & catMaybes
-        & sortByFst
     -- removeDups removes duplicate hands sequences, for example [Sk, Sk] and
     -- [Sk, Sk] which can happen when the hand has the same Skeleton card twice
     removeDups :: [[Card.ID]] -> [[Card.ID]]
@@ -128,6 +111,41 @@ play _difficulty shared board pSpot =
             seq (Just (prev, cardinal + 1)) cards
         seq (Just (prev, cardinal)) (_ : cards) =
           (prev, cardinal) : seq Nothing cards
+
+-- | Smart play events
+play ::
+  Difficulty ->
+  SharedModel ->
+  Board 'Core ->
+  -- | The playing player
+  PlayerSpot ->
+  -- | Events generated for player 'pSpot'
+  [Game.Event]
+play difficulty shared board pSpot =
+  case scores of
+    [] -> []
+    (_, events) : _ -> events
+  where
+    hands :: [[Card.ID]] =
+      Board.toHand board pSpot
+        & map (unliftCard . SharedModel.unsafeIdentToCard shared)
+        & sortOn scoreHandCard
+        & map cardToIdentifier
+        & applyDifficulty difficulty (SharedModel.getStdGen shared)
+    possibles =
+      map
+        (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
+        hands
+    scores :: [(Int, [Game.Event])] =
+      map
+        ( \events ->
+            case Game.playAll shared board events of
+              Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
+              Right (Game.Result _ board' () _) -> Just (boardPlayerScore board' pSpot, events)
+        )
+        possibles
+        & catMaybes
+        & sortByFst
 
 -- | The score of given player's in-place cards. Smaller is the best.
 -- Both negative and positive values are returned.
