@@ -551,6 +551,14 @@ testItemsAI shared =
         Nothing -> False
         Just Creature {items} -> item `elem` items
 
+testApplyDifficulty stdgen =
+  describe "applyDifficulty" $ do
+    prop "Returned lists are permutations of the input list" $
+      \(difficulty, SmallList (l :: [Int])) ->
+        let perms = permutations l
+         in AI.applyDifficulty difficulty stdgen l
+              `shouldAllSatisfy` (\res -> res `elem` perms)
+
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -595,6 +603,7 @@ main = hspec $ do
   testShared shared
   testAIPlace shared
   testInPlaceEffectsMonoid
+  testApplyDifficulty $ SharedModel.getStdGen shared
   testNoPlayEventNeutral shared
   testPlayScoreMonotonic shared
   testPlayLastHandCard shared

@@ -6,6 +6,7 @@
 
 module Generators where
 
+import AI (Difficulty)
 import Board
 import qualified Campaign as Campaign
 import Card
@@ -179,6 +180,16 @@ instance Arbitrary Neighborhood where
 instance Arbitrary (Teams Team) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
+
+instance Arbitrary (Difficulty) where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+newtype SmallList a = SmallList a
+  deriving (Show)
+
+instance Arbitrary a => Arbitrary (SmallList a) where
+  arbitrary = SmallList <$> resize 5 arbitrary
 
 genSceneAst :: Int -> Gen SceneAst
 genSceneAst i = do

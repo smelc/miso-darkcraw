@@ -10,8 +10,8 @@
 -- |
 -- This module defines how the AI plays
 -- |
--- boardScore is exported for tests
-module AI (AI.play, boardPlayerScore, Difficulty (..), placeCards) where
+-- applyDifficulty and boardScore are exported for tests
+module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), placeCards) where
 
 import Board
   ( Board,
@@ -49,7 +49,7 @@ data Difficulty
   = Easy
   | Medium
   | Hard
-  deriving (Eq, Generic)
+  deriving (Eq, Generic, Show)
 
 -- | Events that place creatures on the board. This function guarantees
 -- that the returned events are solely placements (no neutral cards), so
@@ -74,7 +74,7 @@ placeCards difficulty shared board turn =
     isPlaceEvent Place' {} = True
 
 -- | Given the hand, the permutations to consider for playing this hand
-applyDifficulty :: Difficulty -> StdGen -> [Card.ID] -> [[Card.ID]]
+applyDifficulty :: forall a. Ord a => Difficulty -> StdGen -> [a] -> [[a]]
 applyDifficulty difficulty stdgen hand =
   case hand of
     [] -> [] -- Needed, because the general case below doesn't return for [].
@@ -92,17 +92,17 @@ applyDifficulty difficulty stdgen hand =
         )
     -- removeDups removes duplicate hands sequences, for example [Sk, Sk] and
     -- [Sk, Sk] which can happen when the hand has the same Skeleton card twice
-    removeDups :: [[Card.ID]] -> [[Card.ID]]
+    removeDups :: [[a]] -> [[a]]
     removeDups decks =
       go Set.empty decks
       where
-        go :: Set [(Card.ID, Nat)] -> [[Card.ID]] -> [[Card.ID]]
+        go :: Set [(a, Nat)] -> [[a]] -> [[a]]
         go _ [] = []
         go seqs (deck : decks) | (seq' deck) `Set.member` seqs = go seqs decks
         go seqs (deck : decks) = deck : go (Set.insert (seq' deck) seqs) decks
         seq' = seq Nothing
-        -- seq [a, b, b, a] is [(a, 1), (b, 2), (a, 0)]
-        seq :: Eq a => Maybe (a, Nat) -> [a] -> [(a, Nat)]
+        -- seq [a, b, b, a] is [(a, 1), (b, 2), (a, 1)]
+        seq :: Maybe (a, Nat) -> [a] -> [(a, Nat)]
         seq Nothing [] = []
         seq (Just (prev, cardinal)) [] = [(prev, cardinal)]
         seq Nothing (card : cards) = seq (Just (card, 1)) cards
