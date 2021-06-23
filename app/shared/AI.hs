@@ -76,14 +76,11 @@ placeCards difficulty shared board turn =
 -- | Given the hand, the permutations to consider for playing this hand
 applyDifficulty :: forall a. Ord a => Difficulty -> StdGen -> [a] -> [[a]]
 applyDifficulty difficulty stdgen hand =
-  case hand of
-    [] -> [] -- Needed, because the general case below doesn't return for [].
-    -- I don't understand why O_o
-    _ ->
-      case difficulty of
-        Easy -> [shuffle' hand (length hand) stdgen]
-        Medium -> go 4
-        Hard -> go 5
+  case (difficulty, hand) of
+    (_, []) -> [] -- shuffle' doesn't support []
+    (Easy, _) -> [shuffle' hand (length hand) stdgen]
+    (Medium, _) -> go 4
+    (Hard, _) -> go 5
   where
     go (maxFactorial :: Nat) =
       removeDups $
@@ -98,19 +95,17 @@ applyDifficulty difficulty stdgen hand =
       where
         go :: Set [(a, Nat)] -> [[a]] -> [[a]]
         go _ [] = []
-        go seqs (deck : decks) | (seq' deck) `Set.member` seqs = go seqs decks
-        go seqs (deck : decks) = deck : go (Set.insert (seq' deck) seqs) decks
-        seq' = seq Nothing
+        go seqs (deck : decks) | (seq deck) `Set.member` seqs = go seqs decks
+        go seqs (deck : decks) = deck : go (Set.insert (seq deck) seqs) decks
         -- seq [a, b, b, a] is [(a, 1), (b, 2), (a, 1)]
-        seq :: Maybe (a, Nat) -> [a] -> [(a, Nat)]
-        seq Nothing [] = []
-        seq (Just (prev, cardinal)) [] = [(prev, cardinal)]
-        seq Nothing (card : cards) = seq (Just (card, 1)) cards
-        seq (Just (prev, cardinal)) (card : cards)
-          | prev == card =
-            seq (Just (prev, cardinal + 1)) cards
-        seq (Just (prev, cardinal)) (_ : cards) =
-          (prev, cardinal) : seq Nothing cards
+        seq :: [a] -> [(a, Nat)]
+        seq [] = []
+        seq (x : xs) = seq_go x 1 xs
+          where
+            seq_go prev count [] = [(prev, count)]
+            seq_go prev count (y : ys)
+              | y == prev = seq_go prev (count + 1) ys
+              | otherwise = (prev, count) : seq ys
 
 -- | Smart play events
 play ::
