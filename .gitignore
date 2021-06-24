@@ -7,6 +7,7 @@ app/client/.liquid
 app/dist
 app/dist-newstyle
 app/result*
+hls
 oryx
 th/dist-newstyle
 th/.stack-work

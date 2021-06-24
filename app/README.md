@@ -22,12 +22,36 @@ directory). This puts the result in `result-2/bin/app.jsexe/`.
 To have GHC feedback within `neovim`:
 
 ```
+# At the root of the repo
+mkdir hls
+cd hls
+# This mentions release 1.2.0, use a newer version if available!
+wget https://github.com/haskell/haskell-language-server/releases/download/1.2.0/haskell-language-server-Linux-8.6.5.gz
+wget https://github.com/haskell/haskell-language-server/releases/download/1.2.0/haskell-language-server-wrapper-Linux.gz
+gunzip *.gz
+mv haskell-language-server-Linux-8.6.5 haskell-language-server-8.6.5
+mv haskell-language-server-wrapper-Linux haskell-language-server-wrapper
+cd .. # back to the repo's root
+export PATH="$(pwd)/hls:$PATH"
+
+cd app
+haskell-language-server-wrapper
+# lot of output, should work... kill it
 nix-shell  # Enter environment defined by shell.nix
-nvim Main.hs
+nvim shared/Card.hs
 ```
 
 It seems [coc.nvim](https://github.com/neoclide/coc.nvim) works
-with my usual configuration, nice!
+with my usual configuration, nice! Make sure it has:
+
+```
+  "languageserver": {
+    "haskell": {
+      "command": "haskell-language-server-wrapper",
+```
+
+so that it matches the filenames above in `hls/`.
+
 
 # repl
 
