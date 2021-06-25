@@ -43,6 +43,7 @@ data Tile
   | Bones5
   | Bones6
   | Crown
+  | DropBlue
   | FlailOfTheDamned
   | GreenPotion
   | Heart

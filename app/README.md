@@ -17,6 +17,13 @@ in commits messages (read them when you `fetch`).
 Build release with `rm .ghc.environment.* -Rf; nix-build` (from the `app`
 directory). This puts the result in `result-2/bin/app.jsexe/`.
 
+Or:
+
+```shell
+nix-shell -A release.env default.nix
+abal --project-file=cabal.config build all
+```
+
 # neovim integration
 
 To have GHC feedback within `neovim`:

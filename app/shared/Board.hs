@@ -84,6 +84,7 @@ import Data.Maybe (fromJust, fromMaybe, mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import GHC.Generics (Generic)
+import Nat
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
 import Tile (Tile)
@@ -221,6 +222,10 @@ type family HandElemType (p :: Phase) where
 type family InHandType (p :: Phase) where
   InHandType p = [HandElemType p]
 
+type family ManaType (p :: Phase) where
+  ManaType 'Core = Nat -- Actual mana
+  ManaType 'UI = Int -- Difference with previous state
+
 type family ScoreType (p :: Phase) where
   ScoreType 'Core = Int
   ScoreType 'UI = ()
@@ -241,6 +246,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (HandElemType p),
     c (InPlaceType p),
     c (InHandType p),
+    c (ManaType p),
     c (ScoreType p),
     c (StackType p),
     c (DiscardedType p),
@@ -252,6 +258,7 @@ data PlayerPart (p :: Phase) = PlayerPart
     inPlace :: InPlaceType p,
     -- | Cards in hand
     inHand :: InHandType p,
+    mana :: ManaType p,
     -- | The score of this player
     score :: ScoreType p,
     stack :: StackType p,
@@ -267,11 +274,11 @@ deriving instance Board.Forall Ord p => Ord (PlayerPart p)
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
 instance Semigroup (PlayerPart 'UI) where
-  PlayerPart inPlace1 inHand1 () s1 d1 () <> PlayerPart inPlace2 inHand2 () s2 d2 () =
-    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) () (s1 + s2) (d1 + d2) ()
+  PlayerPart inPlace1 inHand1 mana1 () s1 d1 () <> PlayerPart inPlace2 inHand2 mana2 () s2 d2 () =
+    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) (mana1 + mana2) () (s1 + s2) (d1 + d2) ()
 
 instance Monoid (PlayerPart 'UI) where
-  mempty = PlayerPart mempty mempty mempty 0 0 mempty
+  mempty = PlayerPart {inPlace = mempty, inHand = mempty, mana = 0, score = (), stack = 0, discarded = 0, team = ()}
 
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
@@ -491,6 +498,7 @@ emptyPlayerPart team = PlayerPart {..}
   where
     inPlace = Map.empty
     inHand = []
+    mana = 0
     score = 0
     stack = []
     discarded = []
@@ -517,7 +525,7 @@ initial ::
 initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)} =
   (smodel'', Board topPart botPart)
   where
-    part team smodel deck = (smodel', PlayerPart Map.empty hand' 0 stack' [] team)
+    part team smodel deck = (smodel', PlayerPart Map.empty hand' 0 0 stack' [] team)
       where
         (smodel', deck') = SharedModel.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
