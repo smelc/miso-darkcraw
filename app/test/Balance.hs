@@ -173,13 +173,13 @@ play shareds level teams nbTurns =
             ++ ", "
             ++ show (length cards)
             ++ " cards: "
-            ++ concat (intersperse " " (map freqIdToStr cardsFreq))
+            ++ unwords (map freqIdToStr cardsFreq)
             ++ ")"
           where
             cards = toData pSpot teams & snd
             cardsFreq =
-              map (cardToIdentifier) cards
-                & groupBy (==)
+              map cardToIdentifier cards
+                & group
                 & map (\repeats -> (head repeats, length repeats))
             idToStr (IDC (CreatureID {creatureKind}) []) = take 2 $ show creatureKind
             idToStr (IDC cid _) = idToStr (IDC cid []) ++ "..."

@@ -8,7 +8,7 @@ module Generators where
 
 import AI (Difficulty)
 import Board
-import qualified Campaign as Campaign
+import qualified Campaign
 import Card
 import Cinema
 import Data.Function ((&))
@@ -64,8 +64,7 @@ instance Arbitrary CreatureID where
     elements $
       SharedModel.unsafeGet
         & SharedModel.getCardIdentifiers
-        & map identToId
-        & catMaybes
+        & mapMaybe identToId
   shrink = genericShrink
 
 instance Arbitrary Neutral where

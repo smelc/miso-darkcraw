@@ -5,7 +5,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -381,8 +380,7 @@ teamDeck cards t =
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste ++ 1 ** Plague
     items =
-      map (\case ItemCard i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
-        & catMaybes
+      mapMaybe (\case ItemCard i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
         & map unliftItemObject
 
 data CardTargetKind

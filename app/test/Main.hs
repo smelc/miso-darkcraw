@@ -12,7 +12,7 @@ module Main where
 import AI
 import qualified Balance
 import Board
-import qualified Campaign as Campaign
+import qualified Campaign
 import Card
 import Cinema
 import Command
@@ -557,7 +557,7 @@ testApplyDifficulty stdgen =
       \(difficulty, SmallList (l :: [Int])) ->
         let perms = permutations l
          in AI.applyDifficulty difficulty stdgen l
-              `shouldAllSatisfy` (\res -> res `elem` perms)
+              `shouldAllSatisfy` (`elem` perms)
 
 main :: IO ()
 main = hspec $ do

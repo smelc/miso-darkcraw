@@ -11,9 +11,9 @@ import Card
 import Data.Char
 import Data.Function ((&))
 import Data.Functor
-import Data.Maybe
+import Data.List (find)
 
-toLowerString :: [Char] -> [Char]
+toLowerString :: String -> String
 toLowerString = map toLower
 
 -- If you change the first member of this type, change 'allViews' too
@@ -63,5 +63,5 @@ instance Command.Read Command where
   read s =
     allCommands
       & map (\c -> (c, show c))
-      & filter (\(_, s') -> s' == s)
-      & listToMaybe <&> fst
+      & find (\(_, s') -> s' == s)
+      <&> fst

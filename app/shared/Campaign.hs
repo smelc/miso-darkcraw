@@ -65,7 +65,7 @@ rewardsUpTo level team =
     Nothing -> []
     Just res -> res
   where
-    rewardsSeq = preds level & map (flip rewards team)
+    rewardsSeq = preds level & map (`rewards` team)
     go :: [[Card.ID]] -> Maybe [[Card.ID]]
     go [] = Nothing
     go (rewardsAtLevel : nextRewards) =

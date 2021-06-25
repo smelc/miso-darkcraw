@@ -80,7 +80,7 @@ import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import Data.List (intercalate, intersperse)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (catMaybes, fromJust, fromMaybe)
+import Data.Maybe (fromJust, fromMaybe, mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import GHC.Generics (Generic)
@@ -457,8 +457,7 @@ toNeighbors board pSpot cSpot neighborhood =
     | cSpot <- neighbors neighborhood cSpot,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
-    & map liftJust
-    & catMaybes
+    & mapMaybe liftJust
   where
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing

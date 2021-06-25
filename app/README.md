@@ -52,6 +52,9 @@ with my usual configuration, nice! Make sure it has:
 
 so that it matches the filenames above in `hls/`.
 
+# [hlint](https://github.com/ndmitchell/hlint)
+
+`hlint $(git ls-files "*.hs")`
 
 # repl
 
