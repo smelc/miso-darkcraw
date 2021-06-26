@@ -522,6 +522,27 @@ testPlague shared =
         pSpot = PlayerTop
         board = mkBoard teams pSpot cids & mapInPlace f pSpot
 
+testTransient shared =
+  describe "Transient" $ do
+    it "Transient creatures don't go to any stack when killed" $ do
+      board' `shouldSatisfy` pred
+  where
+    mkCreature kind team transient =
+      SharedModel.idToCreature shared (CreatureID kind team) []
+        & fromJust
+        & Card.unliftCreature
+        & (\c -> c {transient})
+    botCardSpot = bottomSpotOfTopVisual Top
+    board =
+      Board.empty (Teams Undead Human)
+        & (\b -> Board.setCreature b PlayerTop Bottom $ mkCreature Skeleton Undead True)
+        & (\b -> Board.setCreature b PlayerBot botCardSpot $ mkCreature Vampire Undead True)
+    board' = Game.play shared board $ Game.Attack PlayerBot botCardSpot False False
+    pred (Left errMsg) = traceShow errMsg False
+    pred (Right (Game.Result _ board'' _ _)) =
+      Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
+        && (map (Board.toDiscarded board'') allPlayersSpots & all null) -- Discarded stack is empty
+
 testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
@@ -598,6 +619,7 @@ main = hspec $ do
   testFearNTerror shared
   testItemsAI shared
   testPlague shared
+  testTransient shared
   testPlayFraming shared
   testDrawCards shared
   testShared shared

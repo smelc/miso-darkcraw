@@ -112,6 +112,10 @@ type family TileType (p :: Phase) where
   TileType 'UI = Tile
   TileType 'Core = ()
 
+type family TransientType (p :: Phase) where
+  TransientType 'UI = ()
+  TransientType 'Core = Bool
+
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (ItemType p),
     c (OffsetType p),
@@ -119,6 +123,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
     c (TeamsType p),
     c (TextType p),
     c (TileType p),
+    c (TransientType p),
     c (NeutralTeamsType p)
   )
 
@@ -156,7 +161,7 @@ data Creature (p :: Phase) = Creature
     skills :: [SkillType p],
     tile :: TileType p,
     -- | Creature doesn't go to the discarded stack when killed
-    transient :: Bool
+    transient :: TransientType p
   }
   deriving (Generic)
 
@@ -274,6 +279,7 @@ unliftCreature Creature {..} =
     items' = map Card.item items
     skills' = map unliftSkill skills
     tile' = ()
+    transient = False
 
 unliftCard :: Card 'UI -> Card 'Core
 unliftCard card =

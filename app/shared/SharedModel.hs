@@ -221,6 +221,7 @@ liftCreature s@SharedModel {sharedCards} c@Creature {..} =
           Creature
             { items = map (liftItemObject s . mkCoreItemObject) items,
               skills = map Card.liftSkill skills,
+              transient = (),
               ..
             }
     Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
