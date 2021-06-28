@@ -21,6 +21,9 @@ assetFilenameGhost = "24x24_5_3.png"
 assetFilenameHeart :: MisoString
 assetFilenameHeart = "16x16_0_0.png"
 
+assetFilenameMana :: MisoString
+assetFilenameMana = "16x16_5_0.png"
+
 assetFilenameShade :: MisoString
 assetFilenameShade = "24x24_6_3.png"
 
@@ -92,6 +95,10 @@ handPixelWidth = boardPixelWidth
 -- | The initial number of cards in the hand
 initialHandSize :: Int
 initialHandSize = 7 -- For testing, FIXME @smelc revert me to 5
+
+-- | The initial mana of a team
+initialMana :: Nat
+initialMana = 3
 
 -- The yellowish background of a card
 cardBackground :: MisoString -> MisoString
@@ -173,6 +180,11 @@ lobbiesPixelWidth = lobbiesCellWidth * cps
 -- | The height of the backgrounds of non-board view, in pixels
 lobbiesPixelHeight :: Int
 lobbiesPixelHeight = 624
+
+-- | The number of pixels from the left of the board, to the center
+-- of the mana column
+manaLeftPixelOffset :: Int
+manaLeftPixelOffset = (boardToLeftCardCellsOffset * cellPixelSize) `div` 2
 
 beigeHTML :: MisoString
 beigeHTML = "#F6E795"

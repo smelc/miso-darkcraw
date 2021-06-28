@@ -62,7 +62,8 @@ viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = 
       turn <- turnView model zpp
       let scores = scoreViews model zpp
       boardCards <- boardCardsM
-      return $ div_ [style_ boardStyle] $ concat stacks ++ [turn] ++ errs ++ scores ++ boardCards
+      let manaView_ = manaView model zpp
+      return $ div_ [style_ boardStyle] $ concat stacks ++ [turn] ++ errs ++ scores ++ boardCards ++ [manaView_]
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl "forest.png"

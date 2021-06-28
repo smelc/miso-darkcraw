@@ -498,7 +498,7 @@ emptyPlayerPart team = PlayerPart {..}
   where
     inPlace = Map.empty
     inHand = []
-    mana = 0
+    mana = initialMana
     score = 0
     stack = []
     discarded = []
@@ -525,7 +525,7 @@ initial ::
 initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)} =
   (smodel'', Board topPart botPart)
   where
-    part team smodel deck = (smodel', PlayerPart Map.empty hand' 0 0 stack' [] team)
+    part team smodel deck = (smodel', (emptyPlayerPart team) {inHand = hand', stack = stack'})
       where
         (smodel', deck') = SharedModel.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'

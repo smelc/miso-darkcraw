@@ -16,6 +16,7 @@ module GameViewInternal
     errView,
     heartWobble,
     keyframes,
+    manaView,
     noDrag,
     scoreViews,
     StackPosition (..),
@@ -39,6 +40,7 @@ import qualified Game (Target (..), appliesTo, enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
+import Nat
 import SharedModel (unsafeIdentToCard)
 import qualified Turn
 import Update
@@ -112,6 +114,28 @@ scoreView GameModel {board} z pSpot =
     ]
   where
     score = board ^. (spotToLens pSpot . #score)
+
+manaView :: GameModel -> Int -> View a
+manaView GameModel {board, playingPlayer} z =
+  div_ [style_ flexColumnStyle, style_ positioning] imgs
+  where
+    positioning =
+      "z-index" =: ms z
+        <> "position" =: ms (show Absolute)
+        <> "left" =: px (2 * cps)
+        <> "bottom" =: px (3 * cps)
+        <> "width" =: px cps
+    imgPosition i =
+      "z-index" =: ms z
+        <> "position" =: ms (show Absolute)
+        <> "bottom" =: px (i * seize)
+        <> "width" =: px seize
+    nbMana = Board.toPart board playingPlayer & Board.mana & natToInt
+    imgs = if nbMana == 0 then [] else map mkImage [1 .. nbMana]
+    mkImage i =
+      div_
+        [style_ $ imgPosition i]
+        $ [img_ [src_ (assetsPath $ assetFilenameMana)]]
 
 -- Not in scoreView itself, otherwise it mixes up the central alignment
 -- (that uses scoreView's div own width (50%))

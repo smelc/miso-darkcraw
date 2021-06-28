@@ -21,7 +21,7 @@ Or:
 
 ```shell
 nix-shell -A release.env default.nix
-abal --project-file=cabal.config build all
+cabal --project-file=cabal.config build all
 ```
 
 # neovim integration
