@@ -117,8 +117,9 @@ scoreView GameModel {board} z pSpot =
 
 manaView :: GameModel -> Int -> View a
 manaView GameModel {board, playingPlayer} z =
-  div_ [style_ flexColumnStyle, style_ positioning] imgs
+  div_ [style_ flexColumnStyle, style_ positioning] (manaText : imgs)
   where
+    manaText = div_ [style_ textStyle] [text "Mana"]
     positioning =
       "z-index" =: ms z
         <> "position" =: ms (show Absolute)
@@ -128,7 +129,7 @@ manaView GameModel {board, playingPlayer} z =
     imgPosition i =
       "z-index" =: ms z
         <> "position" =: ms (show Absolute)
-        <> "bottom" =: px (i * seize)
+        <> "bottom" =: px ((i * seize) + (seize `div` 2))
         <> "width" =: px seize
     nbMana = Board.toPart board playingPlayer & Board.mana & natToInt
     imgs = if nbMana == 0 then [] else map mkImage [1 .. nbMana]
