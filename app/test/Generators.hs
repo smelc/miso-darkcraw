@@ -113,7 +113,11 @@ instance Arbitrary (Creature 'Core) where
             & map (SharedModel.identToCard shared)
             & catMaybes
             & map Card.unliftCard
-            & mapMaybe (\case CreatureCard creature -> Just creature; _ -> Nothing)
+            & mapMaybe (\case CreatureCard _ creature -> Just creature; _ -> Nothing)
+  shrink = genericShrink
+
+instance Arbitrary (CardCommon 'Core) where
+  arbitrary = genericArbitraryU
   shrink = genericShrink
 
 instance Arbitrary (Card 'Core) where

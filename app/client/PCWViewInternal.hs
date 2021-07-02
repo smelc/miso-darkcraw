@@ -106,7 +106,8 @@ cardView _ z shared team card cdsty@CardDrawStyle {fadeIn} =
     else pure $ builder []
   where
     pictureStyle =
-      zplt (z + 1) Absolute ((cardPixelWidth - picSize card) `div` 2) picTopMargin
+      zplt (z + 1) Absolute ((cardPixelWidth - picSize id) `div` 2) picTopMargin
+    id = Card.cardToIdentifier card
     filepath =
       SharedModel.liftCard shared card
         <&> SharedModel.cardToFilepath shared
@@ -123,14 +124,14 @@ cardView _ z shared team card cdsty@CardDrawStyle {fadeIn} =
         }
     extraAttrs =
       case card of
-        CreatureCard _ ->
+        CreatureCard {} ->
           [ style_ $
               "overflow-y" =: "auto"
                 <> scrollbarStyle
-                <> "height" =: px (cardPixelHeight - picTopMargin - picSize card)
+                <> "height" =: px (cardPixelHeight - picTopMargin - picSize id)
           ]
-        (NeutralCard _) -> [] -- Done in itemNeutralView
-        (ItemCard _) -> [] -- Done in itemNeutralView
+        (NeutralCard {}) -> [] -- Done in itemNeutralView
+        (ItemCard {}) -> [] -- Done in itemNeutralView
 
 picTopMargin :: Int
 picTopMargin = cps `div` 4
@@ -147,7 +148,7 @@ cardView' z shared card =
   -- only fields; we don't want to force callers to do it. That was the point
   case (card, ui) of
     -- drawing of Creature cards
-    (CreatureCard core@Creature {skills}, CreatureCard Creature {hp, items}) ->
+    (CreatureCard _ core@Creature {skills}, CreatureCard _ Creature {hp, items}) ->
       [div_ [style_ statsStyle] [statsCell]]
         ++ [div_ [style_ skillsStyle] skillsDivs]
         ++ itemDivs
@@ -173,14 +174,14 @@ cardView' z shared card =
         itemDivs =
           map (\(i, item) -> itemDiv zpp shared i item) $ zip [0 ..] items
     -- drawing of Item cards
-    (_, ItemCard ItemObject {ititle = title, ititleSzOffset = titleSzOffset, itext = text, itextSzOffset = textSzOffset}) ->
+    (_, ItemCard _ ItemObject {ititle = title, ititleSzOffset = titleSzOffset, itext = text, itextSzOffset = textSzOffset}) ->
       [itemNeutralView zpp card INViewInput {fontStyle = fontStyle offFontSize, ..}]
       where
         -- We don't distinguish textSzOffset and titleSzOffset, we just
         -- take the largest offset.
         offFontSize = fontSize + min textSzOffset titleSzOffset
     -- drawing of Neutral cards
-    (_, NeutralCard NeutralObject {ntitle = title, ntext = text}) ->
+    (_, NeutralCard _ NeutralObject {ntitle = title, ntext = text}) ->
       [itemNeutralView zpp card INViewInput {fontStyle = fontStyle fontSize, ..}]
     (core, ui) ->
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
@@ -217,7 +218,7 @@ itemNeutralView z card INViewInput {fontStyle, text, title} =
         "top" =: px cps
           <> "left" =: px 4 -- So that text doesn't overlap card border
           <> "width" =: px (cardPixelWidth - (4 * 2))
-          <> "height" =: px (cardPixelHeight - picTopMargin - picSize card)
+          <> "height" =: px (cardPixelHeight - picTopMargin - (picSize $ Card.cardToIdentifier card))
           <> "overflow-y" =: "auto"
           <> scrollbarStyle
     ]
@@ -251,7 +252,7 @@ skillDiv shared skill =
 
 -- | Div to show an item on a creature in place
 itemDiv :: Int -> SharedModel -> Int -> ItemObject 'UI -> View a
-itemDiv z shared i iobj =
+itemDiv z shared i iobj@ItemObject {item} =
   div_ [style_ itemStyle] [pictureCell]
   where
     itemStyle =
@@ -259,17 +260,17 @@ itemDiv z shared i iobj =
         <> "position" =: "absolute"
         <> "left" =: px (cardPixelWidth - (imgSize `div` 2))
         <> "top" =: px (i * (imgSize + (imgSize `div` 4)))
-    imgSize = picSize card
-    card = ItemCard iobj
+    id = IDI item
+    imgSize = picSize id
+    card = ItemCard (SharedModel.unsafeToCardCommon shared id) iobj
     filepath =
       SharedModel.cardToFilepath shared card
         & filepathToString
         & ms
     pictureCell = imgCellwh filepath imgSize imgSize
 
-picSize :: Card p -> Int
-picSize card =
-  case card of CreatureCard _ -> cps; NeutralCard _ -> 16; ItemCard _ -> 16
+picSize :: Card.ID -> Int
+picSize id = case id of IDC {} -> cps; IDN {} -> 16; IDI {} -> 16
 
 typeset :: String -> String
 typeset x = go x replacements
@@ -330,7 +331,7 @@ createContext z shared =
   Context {..}
   where
     paths = map f (SharedModel.getCards shared) & catMaybes & Map.fromList
-    f card@(CreatureCard Creature {creatureId}) =
+    f card@(CreatureCard _ Creature {creatureId}) =
       Just (creatureId, dirToFilename (SharedModel.cardToFilepath shared card))
     f _ = Nothing
     -- Leave 24x24_3_0.png untouched if direction is ToLeft
@@ -379,7 +380,7 @@ viewEntry mode Context {..} element (Actor mname state@ActorState {direction, te
         case paths Map.!? cid of
           Nothing -> error $ "CreatureID has no corresponding filename: " ++ show cid
           Just dirToPath -> dirToPath direction
-      Right tile -> tileToFilepath shared tile & filepathToString & ms
+      Right tile -> tileToFilepath shared tile Tile.TwentyFour & filepathToString & ms
     bubbleStyle ActorState {x, y} =
       style_ $
         "position" =: "absolute"

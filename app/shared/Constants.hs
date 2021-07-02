@@ -128,6 +128,10 @@ cardHCellGap = 1
 cardVCellGap :: Int
 cardVCellGap = 1
 
+-- | The default mana prize if omitted in data.json
+defaultManaCost :: Nat
+defaultManaCost = 1
+
 -- | The URL of the game on itch.io
 itchURL :: MisoString
 itchURL = "https://hgames.itch.io/pixel-card-wars"

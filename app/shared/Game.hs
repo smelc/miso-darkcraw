@@ -191,13 +191,13 @@ playM board (Place pSpot target (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let card = SharedModel.identToCard shared ident <&> unliftCard
   case (target, card) of
-    (CardTarget pSpot cSpot, Just (CreatureCard creature)) -> do
+    (CardTarget pSpot cSpot, Just (CreatureCard _ creature)) -> do
       board'' <- playCreatureM board' pSpot cSpot creature
       return (board'', Nothing)
-    (CardTarget pSpot cSpot, Just (ItemCard itemObj)) -> do
+    (CardTarget pSpot cSpot, Just (ItemCard _ itemObj)) -> do
       board'' <- playItemM board' pSpot cSpot $ Card.item itemObj
       return (board'', Nothing)
-    (_, Just (NeutralCard NeutralObject {neutral})) ->
+    (_, Just (NeutralCard _ NeutralObject {neutral})) ->
       playPlayerTargetM board' pSpot target neutral
     (_, Nothing) ->
       throwError $ Text.pack $ "ident not found: " ++ show ident

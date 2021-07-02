@@ -92,6 +92,10 @@ type family ItemType (p :: Phase) where
   ItemType 'UI = ItemObject 'UI
   ItemType 'Core = Item
 
+type family ManaType (p :: Phase) where
+  ManaType 'UI = Nat -- Mana cost
+  ManaType 'Core = () -- Card is on table, mana doesn't matter
+
 type family OffsetType (p :: Phase) where
   OffsetType 'UI = Int
   OffsetType 'Core = ()
@@ -118,6 +122,7 @@ type family TransientType (p :: Phase) where
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (ItemType p),
+    c (ManaType p),
     c (OffsetType p),
     c (SkillType p),
     c (TeamsType p),
@@ -159,7 +164,6 @@ data Creature (p :: Phase) = Creature
     moral :: Maybe Int,
     victoryPoints :: Nat,
     skills :: [SkillType p],
-    tile :: TileType p,
     -- | Creature doesn't go to the discarded stack when killed
     transient :: TransientType p
   }
@@ -203,7 +207,6 @@ data NeutralObject (p :: Phase) = NeutralObject
     -- | The teams to which this neutral card applies
     neutralTeams :: NeutralTeamsType p,
     ntext :: TextType p,
-    ntile :: TileType p,
     ntitle :: TextType p
   }
   deriving (Generic)
@@ -229,14 +232,13 @@ data ItemObject (p :: Phase) = ItemObject
     teams :: TeamsType p,
     itext :: TextType p,
     itextSzOffset :: OffsetType p,
-    itile :: TileType p,
     ititle :: TextType p,
     ititleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
 mkCoreItemObject :: Item -> ItemObject 'Core
-mkCoreItemObject item = ItemObject item () () () () () ()
+mkCoreItemObject item = ItemObject item () () () () ()
 
 deriving instance Forall Eq p => Eq (ItemObject p)
 
@@ -244,10 +246,28 @@ deriving instance Forall Ord p => Ord (ItemObject p)
 
 deriving instance Forall Show p => Show (ItemObject p)
 
+-- | Data that is used by all three kind of cards
+data CardCommon (p :: Phase) = CardCommon
+  { mana :: ManaType p,
+    tile :: TileType p
+  }
+  deriving (Generic)
+
+mkCoreCardCommon :: CardCommon 'Core
+mkCoreCardCommon = CardCommon {mana = (), tile = ()}
+
+deriving instance Forall Eq p => Eq (CardCommon p)
+
+deriving instance Forall Ord p => Ord (CardCommon p)
+
+deriving instance Forall Show p => Show (CardCommon p)
+
+-- TODO: Get rid of the duplication of the first parameter by introducing
+-- an extra level?
 data Card (p :: Phase)
-  = CreatureCard (Creature p)
-  | NeutralCard (NeutralObject p)
-  | ItemCard (ItemObject p)
+  = CreatureCard (CardCommon p) (Creature p)
+  | NeutralCard (CardCommon p) (NeutralObject p)
+  | ItemCard (CardCommon p) (ItemObject p)
 
 deriving instance Forall Eq p => Eq (Card p)
 
@@ -256,6 +276,11 @@ deriving instance Forall Ord p => Ord (Card p)
 deriving instance Forall Show p => Show (Card p)
 
 deriving instance Generic (Card p)
+
+toCommon :: Card p -> CardCommon p
+toCommon (CreatureCard common _) = common
+toCommon (NeutralCard common _) = common
+toCommon (ItemCard common _) = common
 
 liftSkill :: SkillCore -> Skill
 liftSkill skill =
@@ -270,31 +295,32 @@ liftSkill skill =
     Terror' _ -> Terror
     Unique' -> Unique
 
+-- TODO @smelc Introduce an Unlift typeclass
+
 -- | Because this function uses default values (by relying on 'unliftSkill'),
 -- it is NOT harmless! Use only when initializing data.
 unliftCreature :: Creature 'UI -> Creature 'Core
 unliftCreature Creature {..} =
-  Creature {items = items', skills = skills', tile = tile', ..}
+  Creature {items = items', skills = skills', ..}
   where
     items' = map Card.item items
     skills' = map unliftSkill skills
-    tile' = ()
     transient = False
 
 unliftCard :: Card 'UI -> Card 'Core
 unliftCard card =
   case card of
-    CreatureCard creature -> CreatureCard $ unliftCreature creature
-    NeutralCard n -> NeutralCard $ unliftNeutralObject n
-    ItemCard i -> ItemCard $ unliftItemObject i
+    CreatureCard _ creature -> CreatureCard mkCoreCardCommon $ unliftCreature creature
+    NeutralCard _ n -> NeutralCard mkCoreCardCommon $ unliftNeutralObject n
+    ItemCard _ i -> ItemCard mkCoreCardCommon $ unliftItemObject i
 
 unliftItemObject :: ItemObject 'UI -> ItemObject 'Core
 unliftItemObject ItemObject {..} =
-  ItemObject {teams = (), item, itext = (), itextSzOffset = (), itile = (), ititle = (), ititleSzOffset = ()}
+  ItemObject {teams = (), item, itext = (), itextSzOffset = (), ititle = (), ititleSzOffset = ()}
 
 unliftNeutralObject :: NeutralObject 'UI -> NeutralObject 'Core
 unliftNeutralObject NeutralObject {..} =
-  NeutralObject {neutral, neutralTeams = (), ntext = (), ntile = (), ntitle = ()}
+  NeutralObject {neutral, neutralTeams = (), ntext = (), ntitle = ()}
 
 -- | Because this function uses default values, it is NOT harmless! Use only
 -- when initializing data.
@@ -312,19 +338,19 @@ unliftSkill skill =
     Unique -> Unique'
 
 cardToCreature :: Card p -> Maybe (Creature p)
-cardToCreature (CreatureCard creature) = Just creature
-cardToCreature (NeutralCard _) = Nothing
-cardToCreature (ItemCard _) = Nothing
+cardToCreature (CreatureCard _ creature) = Just creature
+cardToCreature (NeutralCard {}) = Nothing
+cardToCreature (ItemCard {}) = Nothing
 
 cardToItemObject :: Card p -> Maybe (ItemObject p)
-cardToItemObject (NeutralCard _) = Nothing
-cardToItemObject (CreatureCard _) = Nothing
-cardToItemObject (ItemCard i) = Just i
+cardToItemObject (NeutralCard {}) = Nothing
+cardToItemObject (CreatureCard {}) = Nothing
+cardToItemObject (ItemCard _ i) = Just i
 
 cardToNeutralObject :: Card p -> Maybe (NeutralObject p)
-cardToNeutralObject (NeutralCard n) = Just n
-cardToNeutralObject (CreatureCard _) = Nothing
-cardToNeutralObject (ItemCard _) = Nothing
+cardToNeutralObject (NeutralCard _ n) = Just n
+cardToNeutralObject (CreatureCard {}) = Nothing
+cardToNeutralObject (ItemCard {}) = Nothing
 
 -- | The minimal identifier of a card. See 'SharedModel' to obtain
 -- | a full-fledged card from that.
@@ -337,9 +363,9 @@ data ID
 cardToIdentifier :: Itemizable (Creature p) => Card p -> ID
 cardToIdentifier =
   \case
-    CreatureCard c@Creature {creatureId} -> IDC creatureId $ getItems c
-    ItemCard ItemObject {item} -> IDI item
-    NeutralCard NeutralObject {neutral} -> IDN neutral
+    CreatureCard _ c@Creature {creatureId} -> IDC creatureId $ getItems c
+    ItemCard _ ItemObject {item} -> IDI item
+    NeutralCard _ NeutralObject {neutral} -> IDN neutral
 
 identToId :: ID -> Maybe CreatureID
 identToId (IDC cid _) = Just cid
@@ -356,9 +382,9 @@ teamDeck ::
   -- | The initial deck
   [Card 'Core]
 teamDeck cards t =
-  map CreatureCard creatures
-    ++ map NeutralCard neutrals
-    ++ map ItemCard items
+  map (CreatureCard mkCoreCardCommon) creatures
+    ++ map (NeutralCard mkCoreCardCommon) neutrals
+    ++ map (ItemCard mkCoreCardCommon) items
   where
     kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
       map cardToCreature cards
@@ -386,7 +412,7 @@ teamDeck cards t =
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste ++ 1 ** Plague
     items =
-      mapMaybe (\case ItemCard i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
+      mapMaybe (\case ItemCard _ i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
         & map unliftItemObject
 
 data CardTargetKind

@@ -79,3 +79,9 @@ data TileUI = TileUI
     tile :: Tile
   }
   deriving (Eq, Generic, Show)
+
+data Size
+  = -- | Tiles that are 16x16
+    Sixteen
+  | -- | Tiles that are 24x24
+    TwentyFour

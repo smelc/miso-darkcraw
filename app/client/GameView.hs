@@ -147,7 +147,7 @@ boardToInPlaceCell ::
   PlayerSpot ->
   CardSpot ->
   Styled (View Action)
-boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTargetType pSpot cSpot =
+boardToInPlaceCell z m@GameModel {anims, board, gameShared = shared, interaction} dragTargetType pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
@@ -175,7 +175,7 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared, interaction} dragTar
                     { hover = beingHovered,
                       PCWViewInternal.fadeIn = Board.fadeIn attackEffect
                     }
-            v <- cardView GameInPlaceLoc z gameShared t (CreatureCard creature) cdsty
+            v <- cardView GameInPlaceLoc z shared t (CreatureCard mkCoreCardCommon creature) cdsty
             -- "pointer-events: none" turns off handling of drag/drog
             -- events. Without that, on full-fledged cards, children
             -- would trigger GameDragLeave/GameDragEnter events (because the

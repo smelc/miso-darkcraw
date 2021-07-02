@@ -53,7 +53,7 @@ toHandDrawingInput BuildModel {buildShared = shared, ..} =
   where
     itemCards =
       SharedModel.getCards shared
-        & filter (\case ItemCard _ -> True; _ -> False)
+        & filter (\case ItemCard {} -> True; _ -> False)
     hdiHand = zip (map Card.unliftCard itemCards) $ repeat False
     hdiInteraction = Nothing
     hdiOffseter (x, y) = (x + boardPixelWidth `div` 2, y - cps)

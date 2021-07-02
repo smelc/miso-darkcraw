@@ -181,14 +181,14 @@ testShared shared =
       \item ->
         let found =
               SharedModel.getCards shared
-                & map (\case ItemCard ItemObject {item = i} | item == i -> Just i; _ -> Nothing)
+                & map (\case ItemCard _ ItemObject {item = i} | item == i -> Just i; _ -> Nothing)
                 & catMaybes
          in found `shouldBe` [item]
     prop "maps all Neutral values" $
       \n ->
         let found =
               SharedModel.getCards shared
-                & map (\case NeutralCard NeutralObject {neutral = n'} | n == n' -> Just n'; _ -> Nothing)
+                & map (\case NeutralCard _ NeutralObject {neutral = n'} | n == n' -> Just n'; _ -> Nothing)
                 & catMaybes
          in found `shouldBe` [n]
 
@@ -483,7 +483,7 @@ testFearNTerror shared =
   where
     creatures =
       SharedModel.getCards shared
-        & mapMaybe (\case CreatureCard c -> Just c; _ -> Nothing)
+        & mapMaybe (\case CreatureCard _ c -> Just c; _ -> Nothing)
         & map Card.unliftCreature
     causingTerror = creatures & filter Total.causesTerror
     causingFear = creatures & filter Total.causesFear
@@ -583,14 +583,14 @@ testApplyDifficulty stdgen =
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
-  let (cards, _, _, _) = eitherCardsNTiles ^?! _Right
+  let (cards, _, _) = eitherCardsNTiles ^?! _Right
   let allDecks = getAllDecks cards
   let allCreatures = mapMaybe cardToCreature $ concat allDecks
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
       is _Right eitherCardsNTiles -- should be the first test, others depend on it
     xit "all decks are initially of the same size (modulo items)" $
-      let itemLessDecks = map (filter (\case ItemCard _ -> False; _ -> True)) allDecks
+      let itemLessDecks = map (filter (\case ItemCard {} -> False; _ -> True)) allDecks
        in all (\l -> length l == length (head itemLessDecks)) itemLessDecks
     it "all hit points are initially > 0" $
       all (\c -> hp c > 0) allCreatures

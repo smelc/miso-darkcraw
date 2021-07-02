@@ -30,6 +30,8 @@ module SharedModel
     cardToFilepath,
     withSeed,
     getAllCommands,
+    toCardCommon,
+    unsafeToCardCommon,
     identToItem,
     identToNeutral,
     pick,
@@ -53,7 +55,8 @@ import GHC.Base (assert)
 import GHC.Generics (Generic)
 import Json (loadJson)
 import System.Random.Shuffle (shuffleM)
-import Tile (Filepath, Tile, TileUI (..), default16Filepath, default24Filepath)
+import Tile (Filepath, Tile, TileUI (..))
+import qualified Tile
 
 instance Eq StdGen where
   std1 == std2 = show std1 == show std2
@@ -87,16 +90,15 @@ createWithSeed :: Int -> SharedModel
 createWithSeed seed =
   case loadJson of
     Left err -> error err
-    Right (cards, _, skills, tiles) -> create cards skills tiles $ mkStdGen seed
+    Right (cards, skills, tiles) -> create cards skills tiles $ mkStdGen seed
 
 cardToFilepath :: SharedModel -> Card 'UI -> Filepath
-cardToFilepath SharedModel {..} = \case
-  CreatureCard Creature {tile} ->
-    fromMaybe default24Filepath $ sharedTiles Map.!? tile <&> filepath
-  NeutralCard NeutralObject {ntile} ->
-    fromMaybe default16Filepath $ sharedTiles Map.!? ntile <&> filepath
-  ItemCard ItemObject {itile} ->
-    fromMaybe default16Filepath $ sharedTiles Map.!? itile <&> filepath
+cardToFilepath shared = \case
+  CreatureCard (CardCommon {tile}) _ -> go tile Tile.TwentyFour
+  NeutralCard (CardCommon {tile}) _ -> go tile Tile.Sixteen
+  ItemCard (CardCommon {tile}) _ -> go tile Tile.Sixteen
+  where
+    go = tileToFilepath shared
 
 getAllCommands :: SharedModel -> [Command]
 getAllCommands shared =
@@ -161,8 +163,15 @@ unsafeGet :: SharedModel
 unsafeGet = createWithSeed 42
 
 identToCard :: SharedModel -> Card.ID -> Maybe (Card 'UI)
-identToCard s (IDC creatureId items) =
-  CreatureCard <$> idToCreature s creatureId items
+identToCard s@SharedModel {sharedCards} (IDC cid items) =
+  case sharedCards Map.!? IDC cid [] of
+    Nothing -> Nothing
+    Just (CreatureCard cc c@Creature {items = is}) ->
+      -- and then we fill the result with the expected items:
+      assert (null is) $
+        let itemsUI = map (liftItemObject s . mkCoreItemObject) items
+         in Just $ CreatureCard cc (c {items = itemsUI})
+    Just _ -> error "Unexpected card. Expected CreatureCard."
 identToCard SharedModel {sharedCards} id = sharedCards Map.!? id
 
 identToItem :: SharedModel -> Item -> ItemObject 'UI
@@ -170,35 +179,50 @@ identToItem SharedModel {sharedCards} i =
   case sharedCards Map.!? IDI i of
     -- This should not happen, see 'testShared'
     Nothing -> error $ "Unmapped item: " ++ show i
-    Just (ItemCard res) -> res
+    Just (ItemCard _ res) -> res
     -- To avoid this case, I could split the cards in SharedModel
     Just w -> error $ "Item " ++ show i ++ " not mapped to ItemCard, found " ++ show w ++ " instead."
 
 idToCreature :: SharedModel -> CreatureID -> [Item] -> Maybe (Creature 'UI)
-idToCreature s@SharedModel {sharedCards} cid items =
-  -- Because creatures in data.json don't have items, we send []:
-  case sharedCards Map.!? IDC cid [] of
+idToCreature shared cid items =
+  case identToCard shared $ IDC cid items of
     Nothing -> Nothing
-    Just (CreatureCard c@Creature {items = is}) ->
-      -- and then we fill the result with the expected items:
-      assert (null is) $
-        let itemsUI = map (liftItemObject s . mkCoreItemObject) items
-         in Just $ c {items = itemsUI}
+    Just (CreatureCard _ c) -> Just c
     Just _ -> error "Unexpected card. Expected CreatureCard."
 
 identToNeutral :: SharedModel -> Neutral -> NeutralObject 'UI
 identToNeutral SharedModel {sharedCards} n =
   case sharedCards Map.!? IDN n of
     Nothing -> error $ "Unmapped neutral: " ++ show n
-    Just (NeutralCard res) -> res
+    Just (NeutralCard _ res) -> res
     -- To avoid this case, I could split the cards in SharedModel
     Just w -> error $ "Neutral " ++ show n ++ " not mapped to NeutralCard, found " ++ show w ++ " instead."
 
+toCardCommon :: SharedModel -> Card.ID -> Maybe (CardCommon 'UI)
+toCardCommon shared id =
+  identToCard shared id <&> dispatch
+  where
+    dispatch =
+      \case
+        CreatureCard common _ -> common
+        NeutralCard common _ -> common
+        ItemCard common _ -> common
+
+unsafeToCardCommon :: SharedModel -> Card.ID -> CardCommon 'UI
+unsafeToCardCommon shared id =
+  case toCardCommon shared id of
+    Nothing -> error $ "unsafeToCardCommon: Card.ID not found: " ++ show id
+    Just res -> res
+
 liftCard :: SharedModel -> Card 'Core -> Maybe (Card 'UI)
-liftCard shared = \case
-  CreatureCard creature -> CreatureCard <$> liftCreature shared creature
-  NeutralCard n -> Just $ NeutralCard $ liftNeutralObject shared n
-  ItemCard i -> Just $ ItemCard $ liftItemObject shared i
+liftCard shared card =
+  case (common, card) of
+    (Nothing, _) -> Nothing
+    (Just common, CreatureCard _ creature) -> CreatureCard common <$> liftCreature shared creature
+    (Just common, NeutralCard _ n) -> Just $ NeutralCard common $ liftNeutralObject shared n
+    (Just common, ItemCard _ i) -> Just $ ItemCard common $ liftItemObject shared i
+  where
+    common = toCardCommon shared $ Card.cardToIdentifier card
 
 liftItemObject :: SharedModel -> ItemObject 'Core -> ItemObject 'UI
 liftItemObject shared ItemObject {item} = identToItem shared item
@@ -214,7 +238,7 @@ liftCreature s@SharedModel {sharedCards} c@Creature {..} =
   -- Because creatures in data.json don't have items, we send []:
   case sharedCards Map.!? IDC creatureId [] of
     Nothing -> Nothing
-    Just (CreatureCard Creature {items = is, tile}) ->
+    Just (CreatureCard _ (Creature {items = is})) ->
       -- and then we fill the result with the expected items:
       assert (null is) $
         Just $
@@ -255,11 +279,12 @@ shuffle shared@SharedModel {sharedStdGen} l =
   where
     (l', stdgen') = shuffleM l & flip runRandT sharedStdGen & runIdentity
 
-tileToFilepath :: SharedModel -> Tile -> Filepath
-tileToFilepath SharedModel {sharedTiles} tile =
-  case find (\TileUI {tile = t} -> t == tile) sharedTiles of
-    Nothing -> default24Filepath
-    Just TileUI {Tile.filepath} -> filepath
+tileToFilepath :: SharedModel -> Tile -> Tile.Size -> Filepath
+tileToFilepath SharedModel {sharedTiles} tile defaultSize =
+  case (find (\TileUI {tile = t} -> t == tile) sharedTiles, defaultSize) of
+    (Nothing, Tile.Sixteen) -> Tile.default16Filepath
+    (Nothing, Tile.TwentyFour) -> Tile.default24Filepath
+    (Just TileUI {Tile.filepath}, _) -> filepath
 
 unsafeIdentToCard :: SharedModel -> Card.ID -> Card 'UI
 unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust

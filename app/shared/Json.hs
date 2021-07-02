@@ -3,7 +3,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -17,6 +19,7 @@ module Json
 where
 
 import Card
+import Constants (defaultManaCost)
 import Data.Aeson
 import Data.ByteString.Lazy hiding (map)
 import Data.Function ((&))
@@ -24,6 +27,7 @@ import Data.List.Extra (lower)
 import qualified Data.Text.Encoding
 import GHC.Generics
 import JsonData
+import Nat
 import Tile
 
 instance FromJSON Team where
@@ -63,19 +67,6 @@ toLowerConstructorOptions =
 
 instance FromJSON Skill
 
-neutralObjectOptions :: Options
-neutralObjectOptions =
-  defaultOptions
-    { fieldLabelModifier = impl
-    }
-  where
-    impl "neutral" = "name"
-    impl "neutralTeams" = "teams"
-    impl "ntext" = "text"
-    impl "ntile" = "tile"
-    impl "ntitle" = "title"
-    impl s = s
-
 -- TODO @smelc Rename me into skillPackOptions
 skillUIOptions :: Options
 skillUIOptions =
@@ -87,32 +78,69 @@ skillUIOptions =
     impl "skillTitle" = "title"
     impl s = s
 
-instance FromJSON (Creature 'UI) where
+data CreatureObjectJSON = CreatureObjectJSON
+  { creatureId :: CreatureID,
+    hp :: Nat,
+    attack :: Nat,
+    mana :: Nat,
+    skills :: [Skill],
+    tile :: Tile
+  }
+  deriving (Show)
+
+instance FromJSON CreatureObjectJSON where
   parseJSON = withObject "Creature" $ \v ->
-    Creature
+    CreatureObjectJSON
       <$> v .: "id"
       <*> v .: "hp"
       <*> v .: "attack"
-      <*> v .:? "items" .!= []
-      <*> v .:? "moral"
-      <*> v .: "victory_points"
+      <*> v .:? "mana" .!= defaultManaCost
       <*> v .:? "skills" .!= []
       <*> v .: "tile"
-      <*> pure ()
 
 instance FromJSON Neutral where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance FromJSON (NeutralObject 'UI) where
-  parseJSON = genericParseJSON neutralObjectOptions
+data NeutralObjectJSON = NeutralObjectJSON
+  { neutral :: Neutral,
+    neutralTeams :: [Team],
+    nmana :: Nat,
+    ntext :: String,
+    ntile :: Tile,
+    ntitle :: String
+  }
+  deriving (Show)
+
+instance FromJSON NeutralObjectJSON where
+  parseJSON = withObject "Neutral" $ \v ->
+    NeutralObjectJSON
+      <$> v .: "name"
+      <*> v .: "teams"
+      <*> v .:? "mana" .!= defaultManaCost
+      <*> v .: "text"
+      <*> v .: "tile"
+      <*> v .: "title"
 
 instance FromJSON Item where
   parseJSON = genericParseJSON toLowerConstructorOptions
 
-instance FromJSON (ItemObject 'UI) where
+data ItemObjectJSON = ItemObjectJSON
+  { item :: Item,
+    imana :: Nat,
+    teams :: [Team],
+    itext :: String,
+    itextSzOffset :: Int,
+    itile :: Tile,
+    ititle :: String,
+    ititleSzOffset :: Int
+  }
+  deriving (Generic, Show)
+
+instance FromJSON ItemObjectJSON where
   parseJSON = withObject "Item" $ \v ->
-    ItemObject
+    ItemObjectJSON
       <$> v .: "name"
+      <*> v .:? "mana" .!= defaultManaCost
       <*> v .:? "teams" .!= allTeams
       <*> v .: "text"
       <*> v .:? "text_sz_offset" .!= 0
@@ -127,21 +155,25 @@ instance FromJSON TileUI
 instance FromJSON SkillPack where
   parseJSON = genericParseJSON skillUIOptions
 
--- TODO @smelc remove Phase parameter, only UI makes sense
-data AllData (p :: Phase) = AllData
-  { creatures :: [Creature p],
-    neutral :: [NeutralObject p],
-    items :: [ItemObject 'UI],
-    skills :: [SkillPack],
+data AllData = AllData
+  { creatures :: [CreatureObjectJSON],
+    neutrals :: [NeutralObjectJSON],
+    items :: [ItemObjectJSON],
+    skillsPack :: [SkillPack],
     tiles :: [TileUI]
   }
-  deriving (Generic)
+  deriving (Generic, Show)
 
-deriving instance Forall Show p => Show (AllData p)
+instance FromJSON AllData where
+  parseJSON =
+    genericParseJSON
+      defaultOptions
+        { fieldLabelModifier = \case
+            "skillsPack" -> "skills"
+            s -> s
+        }
 
-instance FromJSON (AllData 'UI)
-
-type LoadedJson = ([Card 'UI], [ItemObject 'UI], [SkillPack], [TileUI])
+type LoadedJson = ([Card 'UI], [SkillPack], [TileUI])
 
 parseJson ::
   -- | The content of data.json
@@ -149,11 +181,27 @@ parseJson ::
   Either String LoadedJson
 parseJson json = do
   AllData creatures neutral items skills tiles <- eitherDecode json
-  let creatureCards = map CreatureCard creatures
-      itemCards = map ItemCard items
-      neutralCards = map NeutralCard neutral
+  let creatureCards = map mkCreatureCard creatures
+      itemCards = map mkItemCard items
+      neutralCards = map mkNeutralCard neutral
       allCards = creatureCards ++ itemCards ++ neutralCards
-  return (allCards, items, skills, tiles)
+  return (allCards, skills, tiles)
+  where
+    mkCreatureCard :: CreatureObjectJSON -> Card 'UI
+    mkCreatureCard CreatureObjectJSON {..} =
+      CreatureCard
+        (CardCommon mana tile)
+        (Creature {items = [], moral = Nothing, victoryPoints = 0, transient = (), ..})
+    mkItemCard :: ItemObjectJSON -> Card 'UI
+    mkItemCard ItemObjectJSON {..} =
+      ItemCard
+        (CardCommon {mana = imana, tile = itile})
+        (ItemObject {..})
+    mkNeutralCard :: NeutralObjectJSON -> Card 'UI
+    mkNeutralCard NeutralObjectJSON {..} =
+      NeutralCard
+        (CardCommon {mana = nmana, tile = ntile})
+        (NeutralObject {..})
 
 loadJson :: Either String LoadedJson
 loadJson =

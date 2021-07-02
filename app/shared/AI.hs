@@ -307,15 +307,15 @@ scoreCreatureItems c@Creature {attack, hp, items} cSpot =
 -- Used to play most powerful cards first.
 scoreHandCard :: Card 'Core -> Int
 scoreHandCard = \case
-  CreatureCard Creature {..} ->
+  CreatureCard _ Creature {..} ->
     sum $ [- (natToInt hp), - (natToInt attack), - (fromMaybe 0 moral)] ++ map scoreSkill skills
-  NeutralCard NeutralObject {neutral} ->
+  NeutralCard _ NeutralObject {neutral} ->
     case neutral of
       Health -> -1
       InfernalHaste -> -10
       Life -> -3
       Plague -> -5 -- TODO @smelc pass the board and check number of creates, for a dynamic value to be returned
-  ItemCard ItemObject {item} ->
+  ItemCard _ ItemObject {item} ->
     case item of
       Crown -> -1
       FlailOfTheDamned -> -1

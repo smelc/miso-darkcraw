@@ -223,8 +223,8 @@ type family InHandType (p :: Phase) where
   InHandType p = [HandElemType p]
 
 type family ManaType (p :: Phase) where
-  ManaType 'Core = Nat -- Actual mana
-  ManaType 'UI = Int -- Difference with previous state
+  Board.ManaType 'Core = Nat -- Actual mana
+  Board.ManaType 'UI = Int -- Difference with previous state
 
 type family ScoreType (p :: Phase) where
   ScoreType 'Core = Int
@@ -246,7 +246,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (HandElemType p),
     c (InPlaceType p),
     c (InHandType p),
-    c (ManaType p),
+    c (Board.ManaType p),
     c (ScoreType p),
     c (StackType p),
     c (DiscardedType p),
@@ -258,7 +258,7 @@ data PlayerPart (p :: Phase) = PlayerPart
     inPlace :: InPlaceType p,
     -- | Cards in hand
     inHand :: InHandType p,
-    mana :: ManaType p,
+    mana :: Board.ManaType p,
     -- | The score of this player
     score :: ScoreType p,
     stack :: StackType p,

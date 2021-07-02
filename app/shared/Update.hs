@@ -80,6 +80,10 @@ instance ToExpr (NeutralObject 'Core)
 
 instance ToExpr (NeutralObject 'UI)
 
+instance ToExpr (CardCommon 'Core)
+
+instance ToExpr (CardCommon 'UI)
+
 instance ToExpr (Card 'Core)
 
 instance ToExpr (Card 'UI)

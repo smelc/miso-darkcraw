@@ -17,7 +17,7 @@ import Miso
 import Miso.String hiding (concat, length, map)
 import Miso.Util ((=:))
 import Model (SinglePlayerLobbyModel (..))
-import SharedModel (SharedModel (), cardToFilepath, idToCreature)
+import SharedModel (SharedModel (), cardToFilepath, idToCreature, unsafeToCardCommon)
 import Tile
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
@@ -123,16 +123,11 @@ teamButton smodel z chosen team = do
     creature kind team items = idToCreature smodel (CreatureID kind team) items
     path team kind =
       creature kind team []
-        <&> CreatureCard
+        <&> (CreatureCard $ SharedModel.unsafeToCardCommon smodel $ IDC (CreatureID kind team) [])
         <&> SharedModel.cardToFilepath smodel
         & fromMaybe default24Filepath
         & filepathToString
-    tile team =
-      ( case team of
-          Human -> General
-          Undead -> Vampire
-      )
-        & path team
+    tile team = (case team of Human -> General; Undead -> Vampire) & path team
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
         imgCell $ ms $ tile team
