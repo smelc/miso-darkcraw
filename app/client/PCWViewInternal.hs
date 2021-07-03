@@ -109,7 +109,7 @@ cardView _ z shared team card cdsty@CardDrawStyle {fadeIn} =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize id) `div` 2) picTopMargin
     id = Card.cardToIdentifier card
     filepath =
-      SharedModel.liftCard shared card
+      SharedModel.mlift shared card
         <&> SharedModel.cardToFilepath shared
         & fromMaybe default24Filepath
     pictureCell = imgCell $ ms $ filepathToString filepath
@@ -186,8 +186,8 @@ cardView' z shared card =
     (core, ui) ->
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
-    ui =
-      case SharedModel.liftCard shared card of
+    ui :: Card 'UI =
+      case SharedModel.mlift shared card of
         Nothing -> error $ "Cannot lift card: " ++ show card
         Just c -> c
     (topMargin, leftMargin) = (cps `div` 4, topMargin)

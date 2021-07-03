@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -13,7 +14,8 @@
 module SharedModel
   ( identToCard,
     idToCreature,
-    liftCard,
+    Lift (..),
+    Mlift (..),
     SharedModel,
     tileToFilepath,
     unsafeGet,
@@ -43,7 +45,7 @@ import Card hiding (ID)
 import qualified Card
 import Command
 import Control.Monad.Identity (Identity (runIdentity))
-import Control.Monad.Random
+import Control.Monad.Random hiding (lift)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -169,7 +171,7 @@ identToCard s@SharedModel {sharedCards} (IDC cid items) =
     Just (CreatureCard cc c@Creature {items = is}) ->
       -- and then we fill the result with the expected items:
       assert (null is) $
-        let itemsUI = map (liftItemObject s . mkCoreItemObject) items
+        let itemsUI = map (lift s . mkCoreItemObject) items
          in Just $ CreatureCard cc (c {items = itemsUI})
     Just _ -> error "Unexpected card. Expected CreatureCard."
 identToCard SharedModel {sharedCards} id = sharedCards Map.!? id
@@ -214,41 +216,50 @@ unsafeToCardCommon shared id =
     Nothing -> error $ "unsafeToCardCommon: Card.ID not found: " ++ show id
     Just res -> res
 
-liftCard :: SharedModel -> Card 'Core -> Maybe (Card 'UI)
-liftCard shared card =
-  case (common, card) of
-    (Nothing, _) -> Nothing
-    (Just common, CreatureCard _ creature) -> CreatureCard common <$> liftCreature shared creature
-    (Just common, NeutralCard _ n) -> Just $ NeutralCard common $ liftNeutralObject shared n
-    (Just common, ItemCard _ i) -> Just $ ItemCard common $ liftItemObject shared i
-  where
-    common = toCardCommon shared $ Card.cardToIdentifier card
+class Mlift p where
+  mlift :: SharedModel -> p 'Core -> Maybe (p 'UI)
 
-liftItemObject :: SharedModel -> ItemObject 'Core -> ItemObject 'UI
-liftItemObject shared ItemObject {item} = identToItem shared item
+instance Mlift Card where
+  mlift :: SharedModel -> Card 'Core -> Maybe (Card 'UI)
+  mlift shared card =
+    case (common, card) of
+      (Nothing, _) -> Nothing
+      (Just common, CreatureCard _ creature) -> CreatureCard common <$> mlift shared creature
+      (Just common, NeutralCard _ n) -> go NeutralCard common n
+      (Just common, ItemCard _ i) -> go ItemCard common i
+    where
+      common = toCardCommon shared $ Card.cardToIdentifier card
+      go constructor common liftable = pure $ constructor common $ lift shared liftable
 
-liftNeutralObject :: SharedModel -> NeutralObject 'Core -> NeutralObject 'UI
-liftNeutralObject shared NeutralObject {neutral} =
-  identToNeutral shared neutral
+class Lift p where
+  lift :: SharedModel -> p 'Core -> p 'UI
+
+instance Lift ItemObject where
+  lift shared ItemObject {item} = identToItem shared item
+
+instance Lift NeutralObject where
+  lift shared NeutralObject {neutral} =
+    identToNeutral shared neutral
 
 -- | Translates a 'Core' 'Creature' into an 'UI' one, keeping its stats
 -- An alternative implementation could return the pristine, formal, UI card.
-liftCreature :: SharedModel -> Creature 'Core -> Maybe (Creature 'UI)
-liftCreature s@SharedModel {sharedCards} c@Creature {..} =
-  -- Because creatures in data.json don't have items, we send []:
-  case sharedCards Map.!? IDC creatureId [] of
-    Nothing -> Nothing
-    Just (CreatureCard _ (Creature {items = is})) ->
-      -- and then we fill the result with the expected items:
-      assert (null is) $
-        Just $
-          Creature
-            { items = map (liftItemObject s . mkCoreItemObject) items,
-              skills = map Card.liftSkill skills,
-              transient = (),
-              ..
-            }
-    Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
+instance Mlift Creature where
+  mlift :: SharedModel -> Creature 'Core -> Maybe (Creature 'UI)
+  mlift s@SharedModel {sharedCards} c@Creature {..} =
+    -- Because creatures in data.json don't have items, we send []:
+    case sharedCards Map.!? IDC creatureId [] of
+      Nothing -> Nothing
+      Just (CreatureCard _ (Creature {items = is})) ->
+        -- and then we fill the result with the expected items:
+        assert (null is) $
+          Just $
+            Creature
+              { items = map (lift s . mkCoreItemObject) items,
+                skills = map Card.liftSkill skills,
+                transient = (),
+                ..
+              }
+      Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
 liftSkill :: SharedModel -> Skill -> SkillPack
 liftSkill SharedModel {sharedSkills} skill =
