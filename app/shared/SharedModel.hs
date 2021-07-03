@@ -198,7 +198,7 @@ identToNeutral SharedModel {sharedCards} n =
     -- To avoid this case, I could split the cards in SharedModel
     Just w -> error $ "Neutral " ++ show n ++ " not mapped to NeutralCard, found " ++ show w ++ " instead."
 
-toCardCommon :: SharedModel -> Card.ID -> Maybe (CardCommon 'UI)
+toCardCommon :: SharedModel -> Card.ID -> Maybe (CardCommon 'UI p)
 toCardCommon shared id =
   identToCard shared id <&> dispatch
   where
@@ -208,7 +208,7 @@ toCardCommon shared id =
         NeutralCard common _ -> common
         ItemCard common _ -> common
 
-unsafeToCardCommon :: SharedModel -> Card.ID -> CardCommon 'UI
+unsafeToCardCommon :: SharedModel -> Card.ID -> CardCommon 'UI p
 unsafeToCardCommon shared id =
   case toCardCommon shared id of
     Nothing -> error $ "unsafeToCardCommon: Card.ID not found: " ++ show id

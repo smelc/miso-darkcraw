@@ -190,17 +190,17 @@ parseJson json = do
     mkCreatureCard :: CreatureObjectJSON -> Card 'UI
     mkCreatureCard CreatureObjectJSON {..} =
       CreatureCard
-        (CardCommon mana tile)
+        (CardCommon mana () tile ())
         (Creature {items = [], moral = Nothing, victoryPoints = 0, transient = (), ..})
     mkItemCard :: ItemObjectJSON -> Card 'UI
     mkItemCard ItemObjectJSON {..} =
       ItemCard
-        (CardCommon {mana = imana, tile = itile})
+        (CardCommon {mana = imana, text = itext, tile = itile, title = ititle})
         (ItemObject {..})
     mkNeutralCard :: NeutralObjectJSON -> Card 'UI
-    mkNeutralCard NeutralObjectJSON {..} =
+    mkNeutralCard NeutralObjectJSON {neutralTeams = nteams, ..} =
       NeutralCard
-        (CardCommon {mana = nmana, tile = ntile})
+        (CardCommon {mana = nmana, text = ntext, tile = ntile, title = ntitle})
         (NeutralObject {..})
 
 loadJson :: Either String LoadedJson

@@ -128,8 +128,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
     c (TeamsType p),
     c (TextType p),
     c (TileType p),
-    c (TransientType p),
-    c (NeutralTeamsType p)
+    c (TransientType p)
   )
 
 -- If you change the first member, change 'allCreatureKinds' too
@@ -195,19 +194,13 @@ data Neutral
 allNeutrals :: [Neutral]
 allNeutrals = [Health ..]
 
-type family NeutralTeamsType (p :: Phase) where
-  NeutralTeamsType 'UI = [Team]
-  NeutralTeamsType 'Core = ()
-
 -- If Creature and NeutralObject start having more in common than solely
 -- tile/ntile, a new record can be introduced; to share code.
 
 data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
-    neutralTeams :: NeutralTeamsType p,
-    ntext :: TextType p,
-    ntitle :: TextType p
+    nteams :: TeamsType p
   }
   deriving (Generic)
 
@@ -230,15 +223,13 @@ allItems = [Card.Crown ..]
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
     teams :: TeamsType p,
-    itext :: TextType p,
     itextSzOffset :: OffsetType p,
-    ititle :: TextType p,
     ititleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
 mkCoreItemObject :: Item -> ItemObject 'Core
-mkCoreItemObject item = ItemObject item () () () () ()
+mkCoreItemObject item = ItemObject item () () ()
 
 deriving instance Forall Eq p => Eq (ItemObject p)
 
@@ -247,27 +238,29 @@ deriving instance Forall Ord p => Ord (ItemObject p)
 deriving instance Forall Show p => Show (ItemObject p)
 
 -- | Data that is used by all three kind of cards
-data CardCommon (p :: Phase) = CardCommon
+data CardCommon (p :: Phase) (q :: Phase) = CardCommon
   { mana :: ManaType p,
-    tile :: TileType p
+    text :: TextType q,
+    tile :: TileType p,
+    title :: TextType q
   }
   deriving (Generic)
 
-mkCoreCardCommon :: CardCommon 'Core
-mkCoreCardCommon = CardCommon {mana = (), tile = ()}
+mkCoreCardCommon :: CardCommon 'Core 'Core
+mkCoreCardCommon = CardCommon {mana = (), text = (), tile = (), title = ()}
 
-deriving instance Forall Eq p => Eq (CardCommon p)
+deriving instance Forall Eq p => Forall Eq q => Eq (CardCommon p q)
 
-deriving instance Forall Ord p => Ord (CardCommon p)
+deriving instance Forall Ord p => Forall Ord q => Ord (CardCommon p q)
 
-deriving instance Forall Show p => Show (CardCommon p)
+deriving instance Forall Show p => Forall Show q => Show (CardCommon p q)
 
 -- TODO: Get rid of the duplication of the first parameter by introducing
 -- an extra level?
 data Card (p :: Phase)
-  = CreatureCard (CardCommon p) (Creature p)
-  | NeutralCard (CardCommon p) (NeutralObject p)
-  | ItemCard (CardCommon p) (ItemObject p)
+  = CreatureCard (CardCommon p 'Core) (Creature p)
+  | NeutralCard (CardCommon p p) (NeutralObject p)
+  | ItemCard (CardCommon p p) (ItemObject p)
 
 deriving instance Forall Eq p => Eq (Card p)
 
@@ -276,11 +269,6 @@ deriving instance Forall Ord p => Ord (Card p)
 deriving instance Forall Show p => Show (Card p)
 
 deriving instance Generic (Card p)
-
-toCommon :: Card p -> CardCommon p
-toCommon (CreatureCard common _) = common
-toCommon (NeutralCard common _) = common
-toCommon (ItemCard common _) = common
 
 liftSkill :: SkillCore -> Skill
 liftSkill skill =
@@ -316,11 +304,11 @@ unliftCard card =
 
 unliftItemObject :: ItemObject 'UI -> ItemObject 'Core
 unliftItemObject ItemObject {..} =
-  ItemObject {teams = (), item, itext = (), itextSzOffset = (), ititle = (), ititleSzOffset = ()}
+  ItemObject {teams = (), item, itextSzOffset = (), ititleSzOffset = ()}
 
 unliftNeutralObject :: NeutralObject 'UI -> NeutralObject 'Core
 unliftNeutralObject NeutralObject {..} =
-  NeutralObject {neutral, neutralTeams = (), ntext = (), ntitle = ()}
+  NeutralObject {neutral, nteams = ()}
 
 -- | Because this function uses default values, it is NOT harmless! Use only
 -- when initializing data.
@@ -402,7 +390,7 @@ teamDeck cards t =
     kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
       map cardToNeutralObject cards
         & catMaybes
-        & filter (\nobj -> t `Prelude.elem` neutralTeams nobj)
+        & filter (\nobj -> t `Prelude.elem` nteams nobj)
         & map unliftNeutralObject
         & map (\nobj -> (neutral nobj, nobj))
         & Map.fromList
