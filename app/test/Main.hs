@@ -131,7 +131,7 @@ testPlayFraming shared =
     breaksFraming (IDC id items) =
       SharedModel.idToCreature shared id items
         & fromJust
-        & Card.unliftCreature
+        & Card.unlift
         & Total.isDisciplined
     breaksFraming _ = False
     relation _ _ _ (Left _) = True
@@ -349,7 +349,7 @@ testAIPlace shared =
     hasDiscipline (Game.Place' _ _ (IDC id items)) =
       SharedModel.idToCreature shared id items
         & fromJust
-        & Card.unliftCreature
+        & Card.unlift
         & Total.isDisciplined
     hasDiscipline (Game.Place' _ _ _) = False
     hasDiscipline _ = error "Only Place' events should have been generated"
@@ -451,7 +451,7 @@ testFear shared =
     affectedByFear =
       SharedModel.idToCreature shared fearTarget []
         & fromJust
-        & unliftCreature
+        & Card.unlift
     board' =
       Board.setCreature
         board
@@ -484,7 +484,7 @@ testFearNTerror shared =
     creatures =
       SharedModel.getCards shared
         & mapMaybe (\case CreatureCard _ c -> Just c; _ -> Nothing)
-        & map Card.unliftCreature
+        & map Card.unlift
     causingTerror = creatures & filter Total.causesTerror
     causingFear = creatures & filter Total.causesFear
 
@@ -502,7 +502,7 @@ testPlague shared =
       case firstEmpty of
         Nothing -> b
         Just cSpot ->
-          let creature = SharedModel.idToCreature shared cid items & fromJust & Card.unliftCreature
+          let creature = SharedModel.idToCreature shared cid items & fromJust & Card.unlift
            in Board.setInPlace b pSpot (Board.toInPlace b pSpot & Map.insert cSpot creature)
       where
         firstEmpty =
@@ -530,7 +530,7 @@ testTransient shared =
     mkCreature kind team transient =
       SharedModel.idToCreature shared (CreatureID kind team) []
         & fromJust
-        & Card.unliftCreature
+        & Card.unlift
         & (\c -> c {transient})
     botCardSpot = bottomSpotOfTopVisual Top
     board =
@@ -562,7 +562,7 @@ testItemsAI shared =
     mkCreature kind team =
       SharedModel.idToCreature shared (CreatureID kind team) []
         & fromJust
-        & Card.unliftCreature
+        & Card.unlift
     setCreature pSpot cSpot c board =
       Board.setCreature board pSpot cSpot c
     play board =

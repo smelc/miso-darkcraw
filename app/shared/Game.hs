@@ -708,7 +708,7 @@ applyFlailOfTheDamned board creature pSpot =
                 CreatureID Skeleton Undead
                   & (\cid -> SharedModel.idToCreature shared' cid [])
                   & fromJust
-                  & Card.unliftCreature
+                  & Card.unlift
           let spawned' = spawned {transient = True}
           let board' = Board.setCreature board pSpot spawningSpot spawned'
           -- TODO @smelc record an animation highlighting the flail

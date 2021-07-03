@@ -543,7 +543,7 @@ small shared teams cid items pSpot cSpot =
     c =
       SharedModel.idToCreature shared cid items
         & fromJust
-        & Card.unliftCreature
+        & Card.unlift
 
 -- Whether a spot is in the back line
 inTheBack :: CardSpot -> Bool

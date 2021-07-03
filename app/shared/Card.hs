@@ -3,6 +3,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -295,32 +296,32 @@ liftSkill skill =
     Terror' _ -> Terror
     Unique' -> Unique
 
--- TODO @smelc Introduce an Unlift typeclass
+class Unlift t where
+  unlift :: t 'UI -> t 'Core
 
--- | Because this function uses default values (by relying on 'unliftSkill'),
--- it is NOT harmless! Use only when initializing data.
-unliftCreature :: Creature 'UI -> Creature 'Core
-unliftCreature Creature {..} =
-  Creature {items = items', skills = skills', ..}
-  where
-    items' = map Card.item items
-    skills' = map unliftSkill skills
-    transient = False
+instance Unlift Creature where
+  unlift :: Creature 'UI -> Creature 'Core
+  unlift Creature {..} =
+    Creature {items = items', skills = skills', ..}
+    where
+      items' = map Card.item items
+      skills' = map unliftSkill skills
+      transient = False
+
+instance Unlift ItemObject where
+  unlift ItemObject {..} =
+    ItemObject {teams = (), item, itext = (), itextSzOffset = (), ititle = (), ititleSzOffset = ()}
+
+instance Unlift NeutralObject where
+  unlift NeutralObject {..} =
+    NeutralObject {neutral, neutralTeams = (), ntext = (), ntitle = ()}
 
 unliftCard :: Card 'UI -> Card 'Core
-unliftCard card =
-  case card of
-    CreatureCard _ creature -> CreatureCard mkCoreCardCommon $ unliftCreature creature
-    NeutralCard _ n -> NeutralCard mkCoreCardCommon $ unliftNeutralObject n
-    ItemCard _ i -> ItemCard mkCoreCardCommon $ unliftItemObject i
-
-unliftItemObject :: ItemObject 'UI -> ItemObject 'Core
-unliftItemObject ItemObject {..} =
-  ItemObject {teams = (), item, itext = (), itextSzOffset = (), ititle = (), ititleSzOffset = ()}
-
-unliftNeutralObject :: NeutralObject 'UI -> NeutralObject 'Core
-unliftNeutralObject NeutralObject {..} =
-  NeutralObject {neutral, neutralTeams = (), ntext = (), ntitle = ()}
+unliftCard =
+  \case
+    CreatureCard _ c -> CreatureCard mkCoreCardCommon $ unlift c
+    NeutralCard _ n -> NeutralCard mkCoreCardCommon $ unlift n
+    ItemCard _ i -> ItemCard mkCoreCardCommon $ unlift i
 
 -- | Because this function uses default values, it is NOT harmless! Use only
 -- when initializing data.
@@ -390,7 +391,7 @@ teamDeck cards t =
       map cardToCreature cards
         & catMaybes
         & filter (\c -> (creatureId c & team) == t)
-        & map unliftCreature
+        & map unlift
         & map ((creatureKind . creatureId) &&& id)
         & Map.fromList
     (*) i k = replicate i $ kindToCreature Map.! k
@@ -403,7 +404,7 @@ teamDeck cards t =
       map cardToNeutralObject cards
         & catMaybes
         & filter (\nobj -> t `Prelude.elem` neutralTeams nobj)
-        & map unliftNeutralObject
+        & map unlift
         & map (\nobj -> (neutral nobj, nobj))
         & Map.fromList
     (**) i k = replicate i $ kindToNeutral Map.! k
@@ -413,7 +414,7 @@ teamDeck cards t =
         Undead -> 2 ** InfernalHaste ++ 1 ** Plague
     items =
       mapMaybe (\case ItemCard _ i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
-        & map unliftItemObject
+        & map unlift
 
 data CardTargetKind
   = -- | Card targets empty 'CardSpot'
