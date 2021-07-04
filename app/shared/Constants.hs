@@ -116,7 +116,7 @@ cardCellWidth = 3
 cardPixelHeight :: Int
 cardPixelHeight = cellPixelSize * cardCellHeight
 
--- | A card's width, in pixels
+-- | A card's width, in pixels, equal to 24*3=72
 cardPixelWidth :: Int
 cardPixelWidth = cellPixelSize * cardCellWidth
 

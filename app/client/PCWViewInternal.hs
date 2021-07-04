@@ -85,7 +85,8 @@ cardBoxShadowStyle (r, g, b) width timingFunction =
         ("transition-timing-function", timingFunction)
       ]
 
--- | Div displaying a card
+-- | Div displaying a card. Draws the picture and the background
+-- and delegate most stuff to 'cardView''
 cardView ::
   DisplayLocation ->
   -- | The z index
@@ -96,7 +97,7 @@ cardView ::
   Card 'Core ->
   CardDrawStyle ->
   Styled (View Action)
-cardView _ z shared team card cdsty@CardDrawStyle {fadeIn} =
+cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
   if fadeIn
     then
       keyframed
@@ -105,17 +106,33 @@ cardView _ z shared team card cdsty@CardDrawStyle {fadeIn} =
         animData
     else pure $ builder []
   where
-    pictureStyle =
+    avatarPicStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize id) `div` 2) picTopMargin
     id = Card.cardToIdentifier card
+    manaTextStyle =
+      zplt (z + 1) Absolute (cps `div` 4) (cps `div` 6)
+        <> mkFontStyle skillFontSize
+    manaColorStyle = "color" =: "#2087BA"
+    mana = uiCard <&> Card.toCommon <&> Card.mana <&> ms & fromMaybe (ms ("?" :: String))
+    drawMana = case loc of GameHandLoc -> True; DeckLoc -> True; _ -> False
+    uiCard = SharedModel.mlift shared card
     filepath =
-      SharedModel.mlift shared card
+      uiCard
         <&> SharedModel.cardToFilepath shared
         & fromMaybe default24Filepath
-    pictureCell = imgCell $ ms $ filepathToString filepath
+    avatarPicCell = imgCell $ ms $ filepathToString filepath
+    manaDiv =
+      case drawMana of
+        False -> []
+        True ->
+          pure $
+            div_
+              [style_ manaTextStyle, style_ manaColorStyle]
+              [Miso.text mana]
     builder attrs =
       div_ (attrs ++ extraAttrs) $
-        [div_ [style_ pictureStyle] [pictureCell]]
+        [div_ [style_ avatarPicStyle] [avatarPicCell]]
+          ++ manaDiv
           ++ cardView' z shared card
           ++ [PCWViewInternal.cardBackground z team cdsty]
     animData =
@@ -153,7 +170,7 @@ cardView' z shared card =
         ++ [div_ [style_ skillsStyle] skillsDivs]
         ++ itemDivs
       where
-        inStatsStyle = flexLineStyle <> fontStyle fontSize
+        inStatsStyle = flexLineStyle <> mkFontStyle skillFontSize
         statsCell =
           div_
             [style_ inStatsStyle]
@@ -162,27 +179,27 @@ cardView' z shared card =
               Miso.text $ ms $ Total.attack core,
               imgCell assetFilenameSword
             ]
-        skillsTopMargin = statsTopMargin + fontSize + (fontSize `div` 2)
+        skillsTopMargin = statsTopMargin + skillFontSize + (skillFontSize `div` 2)
         skillsHeight = cps * length skills
         skillsStyle =
           "display" =: "flex"
             <> "flex-direction" =: "column"
             <> "align-items" =: "flex-start" -- left
             <> zpltwh (z + 1) Absolute leftMargin skillsTopMargin width skillsHeight
-            <> fontStyle fontSize
+            <> mkFontStyle skillFontSize
         skillsDivs = map (skillDiv shared) skills
         itemDivs =
           map (\(i, item) -> itemDiv zpp shared i item) $ zip [0 ..] items
     -- drawing of Item cards
     (_, ItemCard _ ItemObject {ititle = title, ititleSzOffset = titleSzOffset, itext = text, itextSzOffset = textSzOffset}) ->
-      [itemNeutralView zpp card INViewInput {fontStyle = fontStyle offFontSize, ..}]
+      [itemNeutralView zpp card INViewInput {fontStyle = mkFontStyle offFontSize, ..}]
       where
         -- We don't distinguish textSzOffset and titleSzOffset, we just
         -- take the largest offset.
-        offFontSize = fontSize + min textSzOffset titleSzOffset
+        offFontSize = skillFontSize + min textSzOffset titleSzOffset
     -- drawing of Neutral cards
     (_, NeutralCard _ NeutralObject {ntitle = title, ntext = text}) ->
-      [itemNeutralView zpp card INViewInput {fontStyle = fontStyle fontSize, ..}]
+      [itemNeutralView zpp card INViewInput {fontStyle = mkFontStyle skillFontSize, ..}]
     (core, ui) ->
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
@@ -193,11 +210,15 @@ cardView' z shared card =
     (topMargin, leftMargin) = (cps `div` 4, topMargin)
     statsTopMargin = topMargin * 2 + cps
     statsStyle = zpltwh (z + 1) Absolute leftMargin statsTopMargin width cps
-    fontSize = cps `div` 2
-    fontStyle fontSize =
-      "font-size" =: px fontSize <> "font-family" =: "serif"
     width = cardPixelWidth - (topMargin * 2)
     zpp = z + 1
+
+-- The size of the text in the skill stats, and in other places too
+skillFontSize :: Int
+skillFontSize = cps `div` 2
+
+mkFontStyle :: Int -> Map.Map MisoString MisoString
+mkFontStyle fontSize = "font-size" =: px fontSize <> "font-family" =: "serif"
 
 data INViewInput = INViewInput
   { fontStyle :: Map.Map MisoString MisoString,
