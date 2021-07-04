@@ -189,7 +189,7 @@ playM board NoPlayEvent = return (board, Nothing)
 playM board (Place pSpot target (handhi :: HandIndex)) = do
   shared <- get
   ident <- lookupHand hand handi
-  let card = SharedModel.identToCard shared ident <&> unliftCard
+  let card = SharedModel.identToCard shared ident <&> unlift
   case (target, card) of
     (CardTarget pSpot cSpot, Just (CreatureCard _ creature)) -> do
       board'' <- playCreatureM board' pSpot cSpot creature

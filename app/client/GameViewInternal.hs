@@ -231,7 +231,7 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
     plusValue = case stackType of
       Stacked -> Board.toStack anims pSpot
       Discarded -> Board.toDiscarded anims pSpot + nbDeaths
-    deck :: [Card 'Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map unliftCard
+    deck :: [Card 'Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map Card.unlift
     atColonSize = length deck
     attackEffects = anims ^. spotToLens pSpot . #inPlace & unInPlaceEffects
     nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 attackEffects

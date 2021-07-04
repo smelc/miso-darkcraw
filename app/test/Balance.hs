@@ -126,7 +126,7 @@ playAll shareds team level nbTurns =
     decks t =
       [ map (SharedModel.identToCard shared) cards
           & catMaybes
-          & map Card.unliftCard
+          & map Card.unlift
         | cards <- ids t
       ]
     shared = head shareds

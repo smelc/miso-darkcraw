@@ -42,7 +42,7 @@ toGenericModel BuildModel {buildShared = shared, ..} =
   Deck.GenericModel {..}
   where
     gBackground = "build.png"
-    gDeck = map (Card.unliftCard . SharedModel.unsafeIdentToCard shared) buildDeck
+    gDeck = map (Card.unlift . SharedModel.unsafeIdentToCard shared) buildDeck
     (gPlayer, gTeam) = buildPlayer
     gShared = shared
 
@@ -54,7 +54,7 @@ toHandDrawingInput BuildModel {buildShared = shared, ..} =
     itemCards =
       SharedModel.getCards shared
         & filter (\case ItemCard {} -> True; _ -> False)
-    hdiHand = zip (map Card.unliftCard itemCards) $ repeat False
+    hdiHand = zip (map Card.unlift itemCards) $ repeat False
     hdiInteraction = Nothing
     hdiOffseter (x, y) = (x + boardPixelWidth `div` 2, y - cps)
     (hdiPlayingPlayer, hdiTeam) = buildPlayer

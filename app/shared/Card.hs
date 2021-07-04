@@ -316,12 +316,13 @@ instance Unlift NeutralObject where
   unlift NeutralObject {..} =
     NeutralObject {neutral, neutralTeams = (), ntext = (), ntitle = ()}
 
-unliftCard :: Card 'UI -> Card 'Core
-unliftCard =
-  \case
-    CreatureCard _ c -> CreatureCard mkCoreCardCommon $ unlift c
-    NeutralCard _ n -> NeutralCard mkCoreCardCommon $ unlift n
-    ItemCard _ i -> ItemCard mkCoreCardCommon $ unlift i
+instance Unlift Card where
+  unlift :: Card 'UI -> Card 'Core
+  unlift =
+    \case
+      CreatureCard _ c -> CreatureCard mkCoreCardCommon $ unlift c
+      NeutralCard _ n -> NeutralCard mkCoreCardCommon $ unlift n
+      ItemCard _ i -> ItemCard mkCoreCardCommon $ unlift i
 
 -- | Because this function uses default values, it is NOT harmless! Use only
 -- when initializing data.

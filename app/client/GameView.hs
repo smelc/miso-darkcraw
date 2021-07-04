@@ -300,7 +300,7 @@ toHandDrawingInput GameModel {gameShared = shared, ..} =
             zip
               [0 ..]
               ( Board.toHand board playingPlayer
-                  & map (Card.unliftCard . SharedModel.unsafeIdentToCard shared)
+                  & map (Card.unlift . SharedModel.unsafeIdentToCard shared)
               ),
           let fadeIn = i `elem` Board.toHand anims playingPlayer
       ]

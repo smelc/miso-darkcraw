@@ -109,11 +109,9 @@ instance Arbitrary (Creature 'Core) where
   arbitrary =
     let shared = SharedModel.unsafeGet
      in elements $
-          SharedModel.getCardIdentifiers shared
-            & map (SharedModel.identToCard shared)
-            & catMaybes
-            & map Card.unliftCard
+          SharedModel.getCards shared
             & mapMaybe (\case CreatureCard _ creature -> Just creature; _ -> Nothing)
+            & map Card.unlift
   shrink = genericShrink
 
 instance Arbitrary (CardCommon 'Core) where
@@ -124,10 +122,8 @@ instance Arbitrary (Card 'Core) where
   arbitrary =
     let shared = SharedModel.unsafeGet
      in elements $
-          SharedModel.getCardIdentifiers shared
-            & map (SharedModel.identToCard shared)
-            & catMaybes
-            & map Card.unliftCard
+          SharedModel.getCards shared
+            & map Card.unlift
 
   shrink = genericShrink
 

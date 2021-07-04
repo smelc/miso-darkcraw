@@ -123,7 +123,7 @@ play difficulty shared board pSpot =
   where
     hands :: [[Card.ID]] =
       Board.toHand board pSpot
-        & map (unliftCard . SharedModel.unsafeIdentToCard shared)
+        & map (Card.unlift . SharedModel.unsafeIdentToCard shared)
         & sortOn scoreHandCard
         & map cardToIdentifier
         & applyDifficulty difficulty (SharedModel.getStdGen shared)
