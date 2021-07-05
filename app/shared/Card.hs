@@ -129,8 +129,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
     c (TeamsType p),
     c (TextType p),
     c (TileType p),
-    c (TransientType p),
-    c (NeutralTeamsType p)
+    c (TransientType p)
   )
 
 -- If you change the first member, change 'allCreatureKinds' too
@@ -196,17 +195,13 @@ data Neutral
 allNeutrals :: [Neutral]
 allNeutrals = [Health ..]
 
-type family NeutralTeamsType (p :: Phase) where
-  NeutralTeamsType 'UI = [Team]
-  NeutralTeamsType 'Core = ()
-
 -- If Creature and NeutralObject start having more in common than solely
 -- tile/ntile, a new record can be introduced; to share code.
 
 data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
-    neutralTeams :: NeutralTeamsType p,
+    neutralTeams :: TeamsType p,
     ntext :: TextType p,
     ntitle :: TextType p
   }
