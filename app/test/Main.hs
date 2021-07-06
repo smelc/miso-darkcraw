@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
@@ -19,13 +20,14 @@ import Command
 import Constants
 import Control.Lens hiding (at, (+=))
 import Control.Lens.Extras
-import Control.Monad
+import Control.Monad.Except
 import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
+import Data.Text (Text)
 import Debug.Trace (traceShow)
-import Game (Target (..), applyPlague, cardsToDraw, drawCards)
+import Game (Target (..), applyPlague, cardsToDraw, drawCards, idToHandIndex)
 import qualified Game (Event (..), PolyResult (..), attackOrder, play, playAll)
 import Generators
 import qualified Invariants
@@ -62,40 +64,6 @@ testAIRanged shared turn =
     pSpot = Turn.toPlayerSpot turn
     board = Board.addToHand (Board.empty teams) pSpot archer
     events = AI.play AI.Easy shared board pSpot
-
--- | This test was written in the hope it would reveal why
--- there are such logs in the console when playing the last card of the hand:
--- "Invalid hand index: 4. Hand has 4 card(s)."
--- Unfortunately, the test passes ^^ so it's a UI only bug. It's a good
--- test though, so I kept it.
-testPlayLastHandCard :: SharedModel -> SpecWith ()
-testPlayLastHandCard shared =
-  describe
-    "Play the last card of the hand"
-    $ prop "doesn't yield an error" $
-      \(Pretty board, Pretty turn) ->
-        let event = playLastCardEvent board $ Turn.toPlayerSpot turn
-         in isJust event
-              ==> Game.play shared board (fromJust event) `shouldSatisfy` isRight
-  where
-    -- Very simple AI-like function
-    playLastCardEvent board pSpot =
-      case lastCardIdx board pSpot of
-        Nothing -> Nothing
-        Just i ->
-          let (id, targetKind) = (Board.toHand board pSpot !! i, targetType id)
-           in case targetKind of
-                PlayerTargetType -> Just $ Game.Place pSpot (PlayerTarget pSpot) $ HandIndex i -- Choosing pSpot is arbitrary
-                CardTargetType ctk ->
-                  Board.toPlayerCardSpots board pSpot ctk
-                    & listToMaybe
-                    <&> (\cSpot -> Game.Place pSpot (CardTarget pSpot cSpot) $ HandIndex i)
-    lastCardIdx board pSpot =
-      case Board.toHand board pSpot of
-        [] -> Nothing
-        l -> Just $ length l - 1
-    isRight (Right _) = True
-    isRight (Left _) = False
 
 -- Tests that playing a creature only affects the target spot. Some
 -- creatures are omitted: the ones with Discipline, because it breaks this
@@ -488,6 +456,41 @@ testFearNTerror shared =
     causingTerror = creatures & filter Total.causesTerror
     causingFear = creatures & filter Total.causesFear
 
+testMana shared =
+  describe "AI" $ do
+    prop "only play cards for which enough mana is available" $
+      \(board, pSpot) ->
+        let manaAvailable = Board.toPart board pSpot & Board.mana
+         in AI.play Easy shared board pSpot `shouldAllSatisfy` manaCostGeq board manaAvailable
+  where
+    -- manaCostGeq returns True if 'avail' is greater or equal to the
+    -- mana cost of 'card'.
+    manaCostGeq :: Board 'Core -> Nat -> Game.Event -> Bool
+    manaCostGeq board avail =
+      \case
+        Game.ApplyFearNTerror {} -> True
+        Game.Attack {} -> True
+        Game.NoPlayEvent -> True
+        Game.Place pSpot _ hi -> go' pSpot hi
+        Game.Place' pSpot _ id ->
+          case Game.idToHandIndex board pSpot id of
+            Nothing -> traceShow ("Card not found:" ++ show id) False
+            Just hi -> go' pSpot hi
+      where
+        go' pSpot hi =
+          case go pSpot hi of
+            Left errMsg -> traceShow errMsg False
+            _ -> True
+        go pSpot HandIndex {unHandIndex = i} = do
+          id :: Card.ID <- card
+          card :: Card 'UI <-
+            SharedModel.identToCard shared id
+              & (\case Nothing -> Left "card not found"; Just x -> Right x)
+          return $ (Card.toCommon card & Card.mana) <= avail
+          where
+            card :: Either Text Card.ID =
+              Board.lookupHand (Board.toHand board pSpot) i & runExcept
+
 testPlague shared =
   describe "Plague" $ do
     prop "Plague kills creatures with hp <= 1" $
@@ -628,7 +631,6 @@ main = hspec $ do
   testApplyDifficulty $ SharedModel.getStdGen shared
   testNoPlayEventNeutral shared
   testPlayScoreMonotonic shared
-  testPlayLastHandCard shared
   Invariants.main shared
   Match.main shared
   Balance.main shared

@@ -121,9 +121,12 @@ play difficulty shared board pSpot =
     [] -> []
     (_, events) : _ -> events
   where
+    availMana = Board.toPart board pSpot & Board.mana
     hands :: [[Card.ID]] =
       Board.toHand board pSpot
-        & map (Card.unlift . SharedModel.unsafeIdentToCard shared)
+        & map (SharedModel.unsafeIdentToCard shared)
+        & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
+        & map Card.unlift
         & sortOn scoreHandCard
         & map cardToIdentifier
         & applyDifficulty difficulty (SharedModel.getStdGen shared)

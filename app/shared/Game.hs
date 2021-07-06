@@ -189,24 +189,33 @@ playM board NoPlayEvent = return (board, Nothing)
 playM board (Place pSpot target (handhi :: HandIndex)) = do
   shared <- get
   ident <- lookupHand hand handi
-  let card = SharedModel.identToCard shared ident <&> unlift
-  case (target, card) of
-    (CardTarget pSpot cSpot, Just (CreatureCard _ creature)) -> do
-      board'' <- playCreatureM board' pSpot cSpot creature
-      return (board'', Nothing)
-    (CardTarget pSpot cSpot, Just (ItemCard _ itemObj)) -> do
-      board'' <- playItemM board' pSpot cSpot $ Card.item itemObj
-      return (board'', Nothing)
-    (_, Just (NeutralCard _ NeutralObject {neutral})) ->
-      playPlayerTargetM board' pSpot target neutral
-    (_, Nothing) ->
+  let uiCard = SharedModel.identToCard shared ident
+  let card = unlift <$> uiCard
+  case (target, card, uiCard <&> Card.toCommon) of
+    (_, Nothing, _) ->
       throwError $ Text.pack $ "ident not found: " ++ show ident
+    (_, _, Nothing) ->
+      throwError $ Text.pack $ "Unexpected state, CardCommon should be there if Card is there"
+    (_, _, Just (CardCommon {mana = manaCost}))
+      | manaCost > manaAvail ->
+        throwError $ Text.pack $ "Cannot play " ++ show card ++ ": mana available is " ++ show manaAvail ++ ", whereas card costs " ++ show manaCost ++ " mana"
+    (CardTarget pSpot cSpot, Just (CreatureCard _ creature), Just CardCommon {mana}) -> do
+      board'' <- playCreatureM board' pSpot cSpot creature
+      return (board'' & decreaseMana mana, Nothing)
+    (CardTarget pSpot cSpot, Just (ItemCard _ itemObj), Just CardCommon {mana}) -> do
+      board'' <- playItemM board' pSpot cSpot $ Card.item itemObj
+      return (board'' & decreaseMana mana, Nothing)
+    (_, Just (NeutralCard _ NeutralObject {neutral}), Just CardCommon {mana}) -> do
+      (board'', event) <- playNeutralM board' pSpot target neutral
+      return (board'' & decreaseMana mana, event)
     _ ->
       throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ show target ++ ", " ++ show card ++ ")"
   where
     handi = unHandIndex handhi
     (hand, hand') = (Board.toHand board pSpot, deleteAt handi hand)
     board' = Board.setHand board pSpot hand'
+    manaAvail :: Nat = Board.toPart board pSpot & Board.mana
+    decreaseMana manaCost (b :: Board 'Core) = Board.setMana (manaAvail - manaCost) pSpot b
 playM board (Place' pSpot target id) =
   case idToHandIndex board pSpot id of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
@@ -221,7 +230,8 @@ idToHandIndex board pSpot id =
     (Board.toHand board pSpot & zip [HandIndex 0 ..])
     <&> fst
 
-playPlayerTargetM ::
+-- | Play a 'Neutral'. Doesn't deal with consuming mana (done by caller)
+playNeutralM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
@@ -229,7 +239,7 @@ playPlayerTargetM ::
   Target ->
   Neutral ->
   m (Board 'Core, Maybe Event)
-playPlayerTargetM board _playingPlayer target n =
+playNeutralM board _playingPlayer target n =
   case (n, target) of
     (InfernalHaste, PlayerTarget pSpot) ->
       return (board, event)
@@ -261,6 +271,7 @@ playPlayerTargetM board _playingPlayer target n =
             c' = c {hp = hp + hps}
             board' = Board.setCreature board pSpot cSpot c'
 
+-- | Play a 'Creature'. Doesn't deal with consuming mana (done by caller)
 playCreatureM ::
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
@@ -304,6 +315,7 @@ playCreatureM board pSpot cSpot creature =
       map (Bifunctor.second applyDisciplineBoost) disciplinedNeighbors
     disciplineEffect = mempty {attackChange = boost, hitPointsChange = boost}
 
+-- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
 playItemM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>

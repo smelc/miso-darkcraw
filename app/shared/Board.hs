@@ -68,6 +68,8 @@ module Board
     toPlayerCardSpots,
     isDead,
     toData,
+    setMana,
+    Board.ManaType,
   )
 where
 
@@ -398,6 +400,12 @@ setInPlace board pSpot inPlace =
 setHand :: Board p -> PlayerSpot -> InHandType p -> Board p
 setHand board pSpot hand =
   setPart board pSpot $ part {inHand = hand}
+  where
+    part = toPart board pSpot
+
+setMana :: Nat -> PlayerSpot -> Board 'Core -> Board 'Core
+setMana mana pSpot board =
+  setPart board pSpot $ part {Board.mana = mana}
   where
     part = toPart board pSpot
 

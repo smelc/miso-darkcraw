@@ -14,6 +14,7 @@ th/.stack-work
 th/.vscode
 th/main.cabal
 th/stack.yaml.lock
+th/Main
 th/Main.dyn_hi
 th/Main.dyn_o
 th/Main.hi

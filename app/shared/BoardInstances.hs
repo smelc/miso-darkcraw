@@ -12,10 +12,12 @@ module BoardInstances where
 import Board
 import Card
 import CardInstances
+import Constants
 import qualified Data.Map.Strict as Map
 
 instance Startable (PlayerPart 'Core) where
-  start PlayerPart {..} = PlayerPart {inPlace = Map.map start inPlace, ..}
+  start PlayerPart {..} =
+    PlayerPart {inPlace = Map.map start inPlace, mana = initialMana, ..}
 
 boardStart :: Board 'Core -> PlayerSpot -> Board 'Core
 boardStart board pSpot =
