@@ -188,8 +188,8 @@ playHand shared board pSpot =
         Place' actual _ _ | expected == actual -> True
         Place {} -> False
         Place' {} -> False
-        ApplyFearNTerror _ -> True -- we don't care
-        Attack _ _ _ _ -> True -- no player, we're fine
+        ApplyFearNTerror {} -> True -- we don't care
+        Attack {} -> True -- no player, we're fine
         NoPlayEvent -> True -- no player, we're fine
 
 -- | Take the hand's first card (if any) and return a [Place] event

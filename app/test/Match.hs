@@ -38,7 +38,7 @@ main shared = do
     f (t1, t2) =
       map
         (\seed -> play (model seed) 8)
-        [1, 2]
+        [1 .. 48]
         & not . any (isError . matchResult . traceResult)
       where
         model seed = level0GameModel AI.Easy (SharedModel.withSeed shared seed) $ Teams t1 t2

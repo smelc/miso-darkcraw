@@ -191,7 +191,7 @@ playM board (Place pSpot target (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let uiCard = SharedModel.identToCard shared ident
   let card = unlift <$> uiCard
-  case (target, card, uiCard <&> Card.toCommon) of
+  case (target, traceShow ("Playing " ++ show card ++ " at " ++ show target) card, uiCard <&> Card.toCommon) of
     (_, Nothing, _) ->
       throwError $ Text.pack $ "ident not found: " ++ show ident
     (_, _, Nothing) ->
@@ -327,7 +327,7 @@ playItemM ::
 playItemM board pSpot cSpot item =
   case inPlace Map.!? cSpot of
     Nothing ->
-      throwError $ "Cannot place item on empty spot: " <> Text.pack (show cSpot)
+      throwError $ "Cannot place item on empty spot: " <> Text.pack (show item) <> " at " <> Text.pack (show cSpot)
     Just creature -> do
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       -- TODO @smelc record animation for item arrival
