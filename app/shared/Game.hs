@@ -191,7 +191,7 @@ playM board (Place pSpot target (handhi :: HandIndex)) = do
   ident <- lookupHand hand handi
   let uiCard = SharedModel.identToCard shared ident
   let card = unlift <$> uiCard
-  case (target, traceShow ("Playing " ++ show card ++ " at " ++ show target) card, uiCard <&> Card.toCommon) of
+  case (target, card, uiCard <&> Card.toCommon) of
     (_, Nothing, _) ->
       throwError $ Text.pack $ "ident not found: " ++ show ident
     (_, _, Nothing) ->

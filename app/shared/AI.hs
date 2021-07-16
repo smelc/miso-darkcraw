@@ -168,29 +168,19 @@ playHand ::
 playHand shared board pSpot =
   case aiPlayFirst shared board pSpot of
     Nothing -> []
-    Just event ->
-      assert (eventPlayerIs pSpot event) $
-        case Game.playAll shared board [event] of
-          Right (Game.Result shared' b' () _) ->
-            event : playHand shared' b' pSpot
-          Left msg ->
-            traceShow ("Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it.") $
-              playHand shared board' pSpot
-            where
-              -- The call to tail is safe because the hand must be non-empty,
-              -- by aiPlayFirst returning Just _
-              hand' = Board.toHand board pSpot & tail
-              board' = Board.setHand board pSpot hand' -- Skip first card
-  where
-    eventPlayerIs expected =
-      \case
-        Place actual _ _ | expected == actual -> True
-        Place' actual _ _ | expected == actual -> True
-        Place {} -> False
-        Place' {} -> False
-        ApplyFearNTerror {} -> True -- we don't care
-        Attack {} -> True -- no player, we're fine
-        NoPlayEvent -> True -- no player, we're fine
+    Just (f, s, t) ->
+      case Game.playAll shared board [event] of
+        Right (Game.Result shared' b' () _) -> event : playHand shared' b' pSpot
+        Left msg ->
+          traceShow ("Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it.") $
+            playHand shared board' pSpot
+          where
+            -- The call to tail is safe because the hand must be non-empty,
+            -- by aiPlayFirst returning Just _
+            hand' = Board.toHand board pSpot & tail
+            board' = Board.setHand board pSpot hand' -- Skip first card
+      where
+        event = Place' f s t
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
@@ -200,7 +190,7 @@ aiPlayFirst ::
   -- | The playing player, i.e. the player whose hand should the
   -- the card be picked from.
   PlayerSpot ->
-  Maybe Game.Event
+  Maybe (PlayerSpot, Target, Card.ID)
 aiPlayFirst shared board pSpot =
   case Board.toHand board pSpot of
     [] -> Nothing
@@ -209,7 +199,7 @@ aiPlayFirst shared board pSpot =
       -- Take all targets that have the same best score and pick one randomly
       -- Should I returned a mutated SharedModel?
       target <- takeBestOnes scores' & SharedModel.shuffle shared & snd & listToMaybe
-      return $ Place' pSpot target id
+      return (pSpot, target, id)
   where
     handIndex = HandIndex 0
     scores :: ID -> [(Int, Target)] = \id ->
