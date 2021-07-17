@@ -25,7 +25,7 @@ import Control.Lens
 import Control.Monad.Freer as Eff
 import Control.Monad.Freer.State as Eff
 import Control.Monad.IO.Class (liftIO)
-import qualified Data.Bifunctor as DataBifunctor
+import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable (asum, toList)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, isJust, maybeToList)
@@ -505,7 +505,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       putAll triplet
       board <- get @(Board 'Core)
       let fearMatters = (Game.applyFearNTerror board otherSpot & fst) /= board
-      let events1 = [(1, GamePlay $ Game.ApplyFearNTerror otherSpot) | fearMatters]
+      let events1 = [Game.ApplyFearNTerror otherSpot | fearMatters]
       shared <- get @SharedModel
       board <- get @(Board 'Core)
       let events2 =
@@ -515,9 +515,12 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
             -- player case: we drew the first card already (see drawNow),
             --              enqueue next event (if any)
             if isAI
-              then
-                let plays = AI.play difficulty shared board pSpot
-                 in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
+              then -- We need to apply fear before computing the AI's events, hence:
+              case Game.playAll shared board events1 of
+                Left errMsg -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
+                Right (Game.Result _ board' _ _) ->
+                  let plays = AI.play difficulty shared board' pSpot
+                   in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
               else
                 let drawSoon = Prelude.drop 1 drawSrcs
                  in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
@@ -525,7 +528,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       board <- get @(Board 'Core)
       boardui <- get @(Board 'UI)
       let m' = m {anims = boardui, board = board, gameShared = shared, turn = turn'}
-      return $ Right (m', events1 ++ events2)
+      return $ Right (m', [(1, GamePlay event1) | event1 <- events1] ++ events2)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
@@ -787,7 +790,7 @@ updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
     m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl
-    prepare as = map (DataBifunctor.bimap toSecs GameAction') $ sumDelays 0 as
+    prepare as = map (Bifunctor.bimap toSecs GameAction') $ sumDelays 0 as
     check ((0, event) : _) = error $ "updateGameModel should not return event with 0 delay, but " ++ show event ++ " did"
     check as = as
 updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =

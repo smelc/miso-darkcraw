@@ -327,7 +327,7 @@ playItemM ::
 playItemM board pSpot cSpot item =
   case inPlace Map.!? cSpot of
     Nothing ->
-      throwError $ "Cannot place item on empty spot: " <> Text.pack (show item) <> " at " <> Text.pack (show cSpot)
+      throwError $ "Cannot place item on empty spot: " <> Text.pack (show item) <> " at " <> Text.pack (show cSpot ++ " " ++ show pSpot)
     Just creature -> do
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       -- TODO @smelc record animation for item arrival

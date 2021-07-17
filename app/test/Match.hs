@@ -31,7 +31,7 @@ import Update
 main :: SharedModel -> SpecWith ()
 main shared = do
   describe "Playing a match doesn't return Error" $
-    xit "forall t1, t2 :: Team, play shared t1 t2 8 isn't Error" $
+    it "forall t1, t2 :: Team, play shared t1 t2 8 isn't Error" $
       all f teamProduct
   testStupidity shared
   where
