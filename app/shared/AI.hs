@@ -69,6 +69,7 @@ placeCards difficulty shared board turn =
     events = AI.play difficulty shared board turn
     isPlaceEvent ApplyFearNTerror {} = False
     isPlaceEvent Attack {} = False
+    isPlaceEvent FillTheFrontline {} = False
     isPlaceEvent NoPlayEvent = False
     isPlaceEvent Place {} = True
     isPlaceEvent Place' {} = True

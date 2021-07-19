@@ -170,8 +170,9 @@ eventToGameActions ::
   [Update.GameAction]
 eventToGameActions board event =
   case event of
-    Game.Attack {} -> [Update.GamePlay event]
-    Game.ApplyFearNTerror {} -> [Update.GamePlay event]
+    Game.Attack {} -> lift event
+    Game.ApplyFearNTerror {} -> lift event
+    Game.FillTheFrontline {} -> lift event
     Game.NoPlayEvent -> []
     Game.Place _ target handIndex ->
       [ Update.DragStart handIndex,
@@ -187,3 +188,5 @@ eventToGameActions board event =
         Update.DragEnd
       ]
         & map GameDnD
+  where
+    lift e = [Update.GamePlay e]

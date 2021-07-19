@@ -70,6 +70,7 @@ module Board
     toData,
     setMana,
     Board.ManaType,
+    switchLine,
   )
 where
 
@@ -559,6 +560,16 @@ inTheBack TopLeft = True
 inTheBack Top = True
 inTheBack TopRight = True
 inTheBack _ = False
+
+-- | Given a frontline spot, the corresponding backline spot. Given
+-- a backline spot, the corresponding frontline spot.
+switchLine :: CardSpot -> CardSpot
+switchLine TopLeft = BottomLeft
+switchLine Top = Bottom
+switchLine TopRight = BottomRight
+switchLine BottomLeft = TopLeft
+switchLine Bottom = Top
+switchLine BottomRight = TopRight
 
 botSpots :: [CardSpot]
 botSpots = filter (not . inTheBack) allCardsSpots

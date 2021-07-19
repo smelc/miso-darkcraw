@@ -15,6 +15,7 @@
 module Game
   ( allEnemySpots,
     applyFearNTerror,
+    applyFillTheFrontline,
     applyPlague,
     attackOrder, -- exported for tests only
     nextAttackSpot,
@@ -102,6 +103,9 @@ data Event
     -- whether 'GameIncrTurn' (change player turn) should be performed
     -- after solving this attack.
     Attack PlayerSpot CardSpot Bool Bool
+  | -- | Ranged creatures with the 'Ranged' skill, that: 1/ are in the
+    -- back line and 2/ have no creature in from of them; move frontward
+    FillTheFrontline PlayerSpot
   | -- | A Nothing case, for convenience
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board. First
@@ -185,6 +189,8 @@ playM board (ApplyFearNTerror pSpot) = do
 playM board (Attack pSpot cSpot _ _) = do
   board' <- Game.attack board pSpot cSpot
   return (board', Nothing)
+playM board (FillTheFrontline pSpot) = do
+  return (applyFillTheFrontline board pSpot, Nothing)
 playM board NoPlayEvent = return (board, Nothing)
 playM board (Place pSpot target (handhi :: HandIndex)) = do
   shared <- get
@@ -350,6 +356,30 @@ installItem c@Creature {hp, items} item =
       case item of
         SwordOfMight -> 1
         _ -> 0 -- wildcard intentional
+
+applyFillTheFrontline ::
+  Board 'Core ->
+  PlayerSpot ->
+  Board 'Core
+applyFillTheFrontline board pSpot =
+  Board.setPart board pSpot part {inPlace = Map.fromList bindings'}
+  where
+    part = Board.toPart board pSpot
+    inPlace = Board.inPlace part
+    spots = Map.keys inPlace
+    bindings' =
+      Map.toList inPlace
+        & map
+          ( \(cSpot, v) ->
+              ( if Board.inTheBack cSpot
+                  && applies v
+                  && Board.switchLine cSpot `notElem` spots
+                  then Board.switchLine cSpot
+                  else cSpot,
+                v
+              )
+          )
+    applies Creature {skills} = Ranged' `elem` skills
 
 applyPlague ::
   Board 'Core ->

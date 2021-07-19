@@ -470,6 +470,7 @@ testMana shared =
       \case
         Game.ApplyFearNTerror {} -> True
         Game.Attack {} -> True
+        Game.FillTheFrontline {} -> True
         Game.NoPlayEvent -> True
         Game.Place pSpot _ hi -> go' pSpot hi
         Game.Place' pSpot _ id ->
@@ -525,21 +526,43 @@ testPlague shared =
         pSpot = PlayerTop
         board = mkBoard teams pSpot cids & mapInPlace f pSpot
 
+mkCreature :: SharedModel -> CreatureKind -> Team -> Bool -> Creature 'Core
+mkCreature shared kind team transient =
+  SharedModel.idToCreature shared (CreatureID kind team) []
+    & fromJust
+    & Card.unlift
+    & (\c -> c {transient})
+
+testFillTheFrontline shared =
+  describe "Fill the frontline" $ do
+    it "Fill the frontline applies only to Ranged creatures" $ do
+      board' `shouldSatisfy` pred
+  where
+    (team, pSpot) = (Human, PlayerTop)
+    mkCreature' kind team = mkCreature shared kind team False
+    board =
+      Board.empty (Teams team team)
+        & (\b -> Board.setCreature b pSpot Top $ mkCreature' Archer team)
+        & (\b -> Board.setCreature b pSpot TopLeft $ mkCreature' Spearman team)
+    board' = Game.play shared board $ Game.FillTheFrontline pSpot
+    pred (Left errMsg) = traceShow errMsg False
+    pred (Right (Game.Result _ board'' _ _)) =
+      Board.toInPlaceCreature board'' pSpot Top == Nothing -- Archer moved
+        && (Board.toInPlaceCreature board'' pSpot Bottom ~= Archer) -- to frontline spot
+        && (Board.toInPlaceCreature board'' pSpot TopLeft ~= Spearman) -- Spearman stayed in position
+    (~=) Nothing _ = False
+    (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
+
 testTransient shared =
   describe "Transient" $ do
     it "Transient creatures don't go to any stack when killed" $ do
       board' `shouldSatisfy` pred
   where
-    mkCreature kind team transient =
-      SharedModel.idToCreature shared (CreatureID kind team) []
-        & fromJust
-        & Card.unlift
-        & (\c -> c {transient})
     botCardSpot = bottomSpotOfTopVisual Top
     board =
       Board.empty (Teams Undead Human)
-        & (\b -> Board.setCreature b PlayerTop Bottom $ mkCreature Skeleton Undead True)
-        & (\b -> Board.setCreature b PlayerBot botCardSpot $ mkCreature Vampire Undead True)
+        & (\b -> Board.setCreature b PlayerTop Bottom $ mkCreature shared Skeleton Undead True)
+        & (\b -> Board.setCreature b PlayerBot botCardSpot $ mkCreature shared Vampire Undead True)
     board' = Game.play shared board $ Game.Attack PlayerBot botCardSpot False False
     pred (Left errMsg) = traceShow errMsg False
     pred (Right (Game.Result _ board'' _ _)) =
@@ -549,7 +572,7 @@ testTransient shared =
 testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
-      play (board1 (mkCreature Archer Undead) (mkCreature Vampire Undead) SwordOfMight)
+      play (board1 (mkCreature' Archer Undead) (mkCreature' Vampire Undead) SwordOfMight)
         `shouldSatisfy` ( \case
                             Left errMsg -> traceShow errMsg False
                             Right (Game.Result _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight
@@ -562,10 +585,7 @@ testItemsAI shared =
         & setCreature pSpot Bottom id2
         & (\b -> Board.addToHand b pSpot (IDI item))
     teams = Teams Undead Undead
-    mkCreature kind team =
-      SharedModel.idToCreature shared (CreatureID kind team) []
-        & fromJust
-        & Card.unlift
+    mkCreature' kind team = mkCreature shared kind team False
     setCreature pSpot cSpot c board =
       Board.setCreature board pSpot cSpot c
     play board =
@@ -622,6 +642,7 @@ main = hspec $ do
   testFearNTerror shared
   testItemsAI shared
   testPlague shared
+  testFillTheFrontline shared
   testTransient shared
   testPlayFraming shared
   testDrawCards shared

@@ -52,21 +52,21 @@ main shared =
         teams = Teams t1 t2 <&> (\t -> (t, Card.teamDeck uiCards t))
         uiCards = SharedModel.getCards shared
     seeds = [0, 31 ..]
-    (nbMatches, nbEndoMatches) = (40, nbMatches)
+    (nbMatches, nbEndoMatches) = (64, nbMatches)
     nbTurns :: Int = 8
     -- actualSpec is a cheap way to track changes to the balance
     actualSpec r@Balance.Result {..}
       | topTeam == Human
           && botTeam == Undead
-          && topWins == 22
-          && botWins == 17
+          && topWins == 40
+          && botWins == 22
           && level == Campaign.Level0 =
         traceShow (showBalanced r) True
     actualSpec r@Balance.Result {..}
       | topTeam == Human
           && botTeam == Undead
-          && topWins == 26
-          && botWins == 14
+          && topWins == 44
+          && botWins == 20
           && level == Campaign.Level1 =
         traceShow (showBalanced r) True
     actualSpec r =

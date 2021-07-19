@@ -36,7 +36,7 @@ import qualified Data.Text.Lazy as LazyText
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
-import qualified Game (DrawSource (..), Event (..), PolyResult (..), Target (..), applyFearNTerror, cardsToDraw, drawCards, nextAttackSpot, play, playAll, transferCards)
+import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
@@ -504,19 +504,25 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
     Right triplet -> do
       putAll triplet
       board <- get @(Board 'Core)
-      let fearMatters = (Game.applyFearNTerror board otherSpot & fst) /= board
+      -- See if fear has an effect
+      let boardAfterFear = Game.applyFearNTerror board otherSpot & fst
+      let fearMatters = boardAfterFear /= board
       let events1 = [Game.ApplyFearNTerror otherSpot | fearMatters]
+      -- See if fillTheFrontline has an effect
+      let boardAfterFillTheFrontline = Game.applyFillTheFrontline boardAfterFear pSpot
+      let fillTheFrontlineMatters = boardAfterFear /= boardAfterFillTheFrontline
+      let events2 = [Game.FillTheFrontline pSpot | fillTheFrontlineMatters]
       shared <- get @SharedModel
       board <- get @(Board 'Core)
-      let events2 =
+      let events3 =
             -- AI case: after drawing cards and playing its events
             --          press "End Turn". We want a one second delay, it makes
             --          it easier to understand what's going on
             -- player case: we drew the first card already (see drawNow),
             --              enqueue next event (if any)
             if isAI
-              then -- We need to apply fear before computing the AI's events, hence:
-              case Game.playAll shared board events1 of
+              then -- We need to apply fear and fill the frontline before computing the AI's events, hence:
+              case Game.playAll shared board $ events1 ++ events2 of
                 Left errMsg -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
                 Right (Game.Result _ board' _ _) ->
                   let plays = AI.play difficulty shared board' pSpot
@@ -528,7 +534,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       board <- get @(Board 'Core)
       boardui <- get @(Board 'UI)
       let m' = m {anims = boardui, board = board, gameShared = shared, turn = turn'}
-      return $ Right (m', [(1, GamePlay event1) | event1 <- events1] ++ events2)
+      return $ Right (m', [(1, GamePlay event) | event <- events1 ++ events2] ++ events3)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
