@@ -34,6 +34,7 @@ import GameViewInternal
 import Miso hiding (at)
 import Miso.String hiding (concat, intersperse, last, length, map, null, zip)
 import Model
+import Nat
 import PCWViewInternal
 import SharedModel
 import Update
@@ -307,7 +308,8 @@ toHandDrawingInput GameModel {gameShared = shared, ..} =
     hdiInteraction = Just interaction
     hdiOffseter = id
     hdiShared = shared
-    hdiTeam = Board.toPart board playingPlayer & Board.team
+    part = Board.toPart board playingPlayer
+    (hdiMana, hdiTeam) = (Board.mana part, Board.team part)
     hdiPlayingPlayer = playingPlayer
 
 data HandActionizer a = HandActionizer
@@ -327,9 +329,10 @@ type HandOffseter = (Int, Int) -> (Int, Int)
 data HandDrawingInput = HandDrawingInput
   { -- | The hand, and whether the corresponding card is being faded in
     hdiHand :: [(Card 'Core, Bool)],
-    -- | The current interaction, if any
-    hdiInteraction :: Maybe (Interaction Game.Target), -- FIXME @smelc do not hardcode Game.Target
-
+    -- | The current interaction, if any. FIXME @smelc do not hardcode Game.Target
+    hdiInteraction :: Maybe (Interaction Game.Target),
+    -- | The mana of the team being drawn
+    hdiMana :: Nat,
     -- | How to offset the default position of the hand's cards
     hdiOffseter :: HandOffseter,
     -- | The team of the hand being drawn
@@ -351,6 +354,7 @@ boardToInHandCell
   HandDrawingInput
     { hdiHand = hand,
       hdiInteraction = interaction,
+      hdiMana = availMana,
       hdiOffseter = offseter,
       hdiShared = shared,
       hdiTeam = team
@@ -397,7 +401,12 @@ boardToInHandCell
           onMouseEnter' "card" $ onMouseEnter i,
           onMouseLeave' "card" $ onMouseLeave i
         ]
+          ++ [style_ $ "filter" =: "brightness(50%)" | not playable]
       cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
+      playable =
+        case mlift shared card <&> Card.toCommon of
+          Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True
+          Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
 
 cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =

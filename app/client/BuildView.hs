@@ -56,6 +56,8 @@ toHandDrawingInput BuildModel {buildShared = shared, ..} =
         & filter (\case ItemCard {} -> True; _ -> False)
     hdiHand = zip (map Card.unlift itemCards) $ repeat False
     hdiInteraction = Nothing
+    hdiMana = maxBound -- Simulate gigantic amount of mana, so that
+    -- all cards are playable (no grey overlay)
     hdiOffseter (x, y) = (x + boardPixelWidth `div` 2, y - cps)
     (hdiPlayingPlayer, hdiTeam) = buildPlayer
     hdiShared = shared
