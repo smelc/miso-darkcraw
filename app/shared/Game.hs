@@ -580,7 +580,6 @@ applyFearNTerrorM board affectingSpot = do
     terrorAffectedSpots :: [CardSpot] = Map.keys causingTerror & mapMaybe switch
     fearAffectedSpots :: [CardSpot] =
       Map.keys causingFear
-        -- & flip removeAll terrorAffectedSpots -- Terror is stronger than fear: nope, seems to turn Fear off!?
         & mapMaybe switch
     removeAll l1 l2 = [x | x <- l1, x `notElem` l2]
     affectedInPlace = Board.toInPlace board affectedSpot
@@ -599,22 +598,20 @@ applyFearNTerrorM board affectingSpot = do
         & catMaybes
         & filter (\Creature {transient} -> not transient) -- Transient creatures do not got to discarded stack
         & map (\Creature {creatureId, items} -> IDC creatureId items)
-    affectedInPlace' =
+    affectedInPlace' :: Map CardSpot (Creature 'Core) =
       -- remove creatures killed by terror
       removeKeys affectedInPlace terrorAffected
     terrorKillers :: [CardSpot] =
       -- Affecting spots that cause a death by terror
-      removeAll (Map.keys affectedInPlace') $
-        Map.keys affectedInPlace
-          & mapMaybe switch
-    affectedInPlace'' =
+      removeAll (Map.keys affectedInPlace) (Map.keys affectedInPlace')
+        & mapMaybe switch
+    affectedInPlace'' :: Map CardSpot (Creature 'Core) =
       -- remove creatures killed by fear
       removeKeys affectedInPlace' fearAffected
     fearKillers :: [CardSpot] =
       -- Affecting spots that cause a death by fear
-      removeAll (Map.keys affectedInPlace'') $
-        Map.keys affectedInPlace'
-          & mapMaybe switch
+      removeAll (Map.keys affectedInPlace') (Map.keys affectedInPlace'')
+        & mapMaybe switch
     removeKeys map [] = map
     removeKeys map (k : rest) = removeKeys (Map.delete k map) rest
     affectingInPlace' =

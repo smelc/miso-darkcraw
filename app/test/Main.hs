@@ -42,7 +42,7 @@ import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
-import TestLib (shouldAllSatisfy)
+import TestLib (shouldAllSatisfy, shouldSatisfyJust)
 import qualified Total
 import Turn
 
@@ -411,6 +411,8 @@ testFear shared =
       (Board.toDiscarded board'' PlayerBot `shouldBe` [IDC fearTarget []])
     it "fear does not trigger when expected" $
       (Board.toPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null
+    it "fear skill is consumed when it triggers" $
+      Board.toInPlaceCreature board'' PlayerTop Bottom `shouldSatisfyJust` hasConsumedFear
   where
     teams = Teams Undead Human
     causingFear = CreatureID Skeleton Undead
@@ -429,7 +431,6 @@ testFear shared =
     board'' = Game.play shared board' (Game.ApplyFearNTerror PlayerTop) & extract
     extract (Left _) = error "Test failure"
     extract (Right (Game.Result _ b _ _)) = b
-    -- Second test
     boardBis' =
       Board.setCreature
         board
@@ -437,6 +438,12 @@ testFear shared =
         (bottomSpotOfTopVisual Top)
         affectedByFear
     boardBis'' = Game.play shared boardBis' (Game.ApplyFearNTerror PlayerTop) & extract
+    hasConsumedFear :: Creature 'Core -> Bool
+    hasConsumedFear Creature {skills} = go skills
+      where
+        go [] = False
+        go (Fear' False : _) = True -- Fear unavailable: it has been consumed
+        go (_ : tail) = go tail
 
 testFearNTerror shared =
   describe "Fear and terror" $ do
