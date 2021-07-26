@@ -21,13 +21,17 @@ where
 import Card
 import Constants (defaultManaCost)
 import Data.Aeson
+import Data.Aeson.Types (Parser)
 import Data.ByteString.Lazy hiding (map)
 import Data.Function ((&))
 import Data.List.Extra (lower)
+import Data.Text (Text, splitOn)
+import qualified Data.Text as Text
 import qualified Data.Text.Encoding
 import GHC.Generics
 import JsonData
 import Nat
+import Text.Read
 import Tile
 
 instance FromJSON Team where
@@ -65,7 +69,27 @@ toLowerConstructorOptions =
     { constructorTagModifier = lower
     }
 
-instance FromJSON Skill
+instance FromJSON Skill where
+  parseJSON = withText "Skill" go
+    where
+      go :: Text -> Parser Skill =
+        \case
+          "Blow" -> return Blow
+          "Discipline" -> return Discipline
+          "DrawCard" -> return DrawCard
+          "Fear" -> return Fear
+          "LongReach" -> return LongReach
+          "Ranged" -> return Ranged
+          "Stupid4" -> return Stupid4
+          "Terror" -> return Terror
+          "Unique" -> return Unique
+          s ->
+            case Data.Text.splitOn " " s of
+              ["Source", n] ->
+                case readMaybe $ Text.unpack n of
+                  Nothing -> fail $ "Invalid Source suffix (not a Nat): " ++ Text.unpack n
+                  Just n -> return $ Source n
+              _ -> fail $ "Invalid Skill string: " ++ show s
 
 -- TODO @smelc Rename me into skillPackOptions
 skillUIOptions :: Options

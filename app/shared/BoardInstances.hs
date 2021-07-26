@@ -13,11 +13,19 @@ import Board
 import Card
 import CardInstances
 import Constants
+import Data.Foldable
 import qualified Data.Map.Strict as Map
+import Nat
 
 instance Startable (PlayerPart 'Core) where
   start PlayerPart {..} =
-    PlayerPart {inPlace = Map.map start inPlace, mana = initialMana, ..}
+    PlayerPart {inPlace = Map.map start inPlace, mana = initialMana + extraMana, ..}
+    where
+      extraMana = foldr' (\Creature {skills} acc -> acc + sumSources skills) (0 :: Nat) inPlace
+      sumSources [] = 0
+      sumSources (Source' n _ : skills) = n + sumSources skills -- Not inspecting
+      -- the flag value, it's anyway simultaneously set to False.
+      sumSources (_ : skills) = sumSources skills
 
 boardStart :: Board 'Core -> PlayerSpot -> Board 'Core
 boardStart board pSpot =

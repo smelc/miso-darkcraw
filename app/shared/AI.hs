@@ -325,6 +325,7 @@ scoreSkill s =
     Fear' b -> if b then -1 else 0
     LongReach' -> -1
     Ranged' -> -1
+    Source' n avail -> if avail then - (natToInt n) else 0
     Stupid4' _ -> if isStupid s then 2 else 1
     Terror' b -> if b then -2 else 0
     Unique' -> 0

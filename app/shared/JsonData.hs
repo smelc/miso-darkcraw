@@ -21,7 +21,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\",  \"skills\":[\"Terror\"], \"mana\":3 },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadArcher\",   \"skills\":[\"Fear\", \"Ranged\"]   },\n\
          \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":2, \"victory_points\":2, \"tile\":\"UndeadMummy\",    \"skills\":[\"Fear\"], \"mana\":2    },\n\
-         \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\"] },\n\
+         \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\", \"Source 1\"] },\n\
          \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadWarrior\",  \"skills\":[\"Fear\"]  },\n\
          \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]    },\n\
          \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]    }\n\
@@ -88,10 +88,11 @@ jsonData = "{\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Blow\",        \"title\":\"Blow\",       \"text\":\"+2 :crossed_swords: during first turn\"},\n\
          \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:\"},\n\
-         \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of your turn\"},\n\
+         \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"Hits 2 cells away when in the back line\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
+         \    { \"skill\":\"Source 1\",    \"title\":\"Source 1\",   \"text\":\"Gain 1 extra mana at beginning of turn\"},\n\
          \    { \"skill\":\"Stupid4\",     \"title\":\"Stupid\",     \"text\":\"1 out of 4 turns: does not attack\"},\n\
          \    { \"skill\":\"Terror\",      \"title\":\"Terror\",     \"text\":\"Nearby opponent with 2 :heart: (or less) dies at beginning of its turn. Immune to to fear and terror.\"},\n\
          \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"Never goes back to the stack\"}\n\

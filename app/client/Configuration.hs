@@ -26,4 +26,4 @@ isDev =
 
 -- | The current configuration
 get :: Configuration
-get = Schplaf Legendary "4c39200"
+get = Dev

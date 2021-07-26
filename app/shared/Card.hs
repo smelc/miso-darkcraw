@@ -40,12 +40,14 @@ data Skill
   = Blow
   | Discipline
   | DrawCard
-  | -- Creature causes fear
+  | -- | Creature causes fear
     Fear
   | LongReach
   | Ranged
+  | -- | Creature creates mana at beginning of turn
+    Source Nat
   | Stupid4
-  | -- Creature causes terror
+  | -- | Creature causes terror
     Terror
   | Unique
   deriving (Eq, Generic, Ord, Show)
@@ -61,6 +63,9 @@ data SkillCore
     Fear' Bool
   | LongReach'
   | Ranged'
+  | -- | Creature create mana at beginning of turn. Boolean indicates
+    -- whether the skill is available (True) or used already (False)
+    Source' Nat Bool
   | -- | The turn, at 0, 1, or 2 not stupide; at 3 stupid; then back to 0
     Stupid4' Int
   | -- | Creature causes terror, the Boolean indicates whether the skill
@@ -287,6 +292,7 @@ liftSkill skill =
     Fear' _ -> Fear
     LongReach' -> LongReach
     Ranged' -> Ranged
+    Source' n _ -> Source n
     Stupid4' _ -> Stupid4
     Terror' _ -> Terror
     Unique' -> Unique
@@ -330,6 +336,7 @@ unliftSkill skill =
     Fear -> Fear' True
     LongReach -> LongReach'
     Ranged -> Ranged'
+    Source n -> Source' n True
     Stupid4 -> Stupid4' 0
     Terror -> Terror' True
     Unique -> Unique'
