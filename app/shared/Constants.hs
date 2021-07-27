@@ -27,6 +27,9 @@ assetFilenameMana = "16x16_5_0.png"
 assetFilenameShade :: MisoString
 assetFilenameShade = "24x24_6_3.png"
 
+assetFilenameSnowflake :: MisoString
+assetFilenameSnowflake = "24x24_0_9.png"
+
 assetFilenameSkull :: MisoString
 assetFilenameSkull = "16x16_1_1.png"
 

@@ -58,6 +58,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Data.Tuple (swap)
 import Debug.Trace
 import GHC.Generics (Generic)
 import Nat
@@ -648,21 +649,13 @@ attack board pSpot cSpot =
         -- TODO @smelc record an animation
         return board
     (_, Just _, _) -> return board -- an ally blocks the way
-    (Just hitter, _, Just (hitSpot, hittee)) ->
-      -- attack can proceed
-      let effect = singleAttack hitter hittee
-          board' = applyInPlaceEffectOnBoard effect board (attackeePSpot, hitSpot, hittee)
-       in do
-            reportEffect pSpot cSpot $ mempty {attackBump = True}
-            reportEffect attackeePSpot hitSpot effect -- hittee
-            if (isDead . death) effect
-              then applyFlailOfTheDamned board' hitter pSpot
-              else pure board'
-    (Just hitter, _, Nothing) -> do
+    (Just hitter, _, []) -> do
       -- nothing to attack, contribute to the score!
       let hit = Total.attack hitter & natToInt
       reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
+    (Just hitter, _, attackees) ->
+      foldM (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) $ attackee) board attackees
   where
     pSpotLens = spotToLens pSpot
     attackeePSpot = otherPlayerSpot pSpot
@@ -680,10 +673,35 @@ attack board pSpot cSpot =
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
     attackedSpots :: [CardSpot] = enemySpots attackerCanAttack attackerSkills cSpot
-    -- For the moment a card attacks the first card in front of it. If
-    -- later there's a skill Rampage, this will change:
-    attackee :: Maybe (CardSpot, Creature 'Core) =
-      asum [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots]
+    attackee :: [(Creature 'Core, CardSpot)] =
+      [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots]
+        & catMaybes
+        -- Breath attack makes the attacker attack the two spots, otherwise
+        -- take the first one
+        & (if BreathIce `elem` attackerSkills then id else take 1)
+        & map swap
+
+-- | @attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot)@
+-- returns the board after having @hitter@ (at @(pSpot, cSpot)@) attacked
+-- @hit@ at @hitSpot@.
+attackOneSpot ::
+  MonadWriter (Board 'UI) m =>
+  MonadState SharedModel m =>
+  Board 'Core ->
+  (Creature 'Core, PlayerSpot, CardSpot) ->
+  (Creature 'Core, CardSpot) ->
+  m (Board 'Core)
+attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
+  reportEffect pSpot cSpot $ mempty {attackBump = True} -- hitter
+  reportEffect hitPspot hitSpot effect -- hittee
+  if (isDead . death) effect
+    then applyFlailOfTheDamned board' hitter pSpot
+    else pure board'
+  where
+    hitPspot = otherPlayerSpot pSpot
+    -- attack can proceed
+    effect = singleAttack hitter hit
+    board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
 
 applyInPlaceEffectOnBoard ::
   -- | The effect of the attacker on the hittee
@@ -759,12 +777,16 @@ applyFlailOfTheDamned board creature pSpot =
 
 -- The effect of an attack on the defender
 singleAttack :: Creature 'Core -> Creature 'Core -> InPlaceEffect
-singleAttack attacker defender
-  | hps' <= 0 = mempty {death = UsualDeath}
+singleAttack attacker@Creature {skills} defender
+  | hps' <= 0 = mempty {death}
   | otherwise = mempty {hitPointsChange = - (natToInt hit)}
   where
     hit = Total.attack attacker
     hps' = Card.hp defender `minusNatClamped` hit
+    death =
+      if any (\skill -> case skill of BreathIce' -> True; _ -> False) skills
+        then DeathByBreathIce
+        else UsualDeath
 
 -- | The spot that blocks a spot from attacking, which happens
 -- | if the input spot is in the back line
@@ -788,10 +810,11 @@ allEnemySpots :: CardSpot -> [CardSpot]
 allEnemySpots = enemySpots True [Ranged]
 
 -- | Spots that can be attacked from a spot
--- | Spot as argument is in one player part while spots returned
--- | are in the other player part.
--- | The order in the result matters, the first element is the first spot
--- | attacked, then the second element is attacked if the first spot is empty
+-- Spot as argument is in one player part while spots returned
+-- are in the other player part.
+-- The order in the result matters, the first element is the first spot
+-- attacked, then the second element is attacked if the first spot is empty
+-- or if the creature can attack multiple spots for some reasons.
 enemySpots :: Bool -> [Skill] -> CardSpot -> [CardSpot]
 enemySpots canAttack skills cSpot =
   map bottomSpotOfTopVisual base'
@@ -808,6 +831,7 @@ enemySpots canAttack skills cSpot =
       if
           | Ranged `elem` skills -> spotsInSight
           | inTheBack cSpot -> if LongReach `elem` skills then take 1 spotsInSight else []
+          | BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
           | otherwise -> take 1 spotsInSight
     base' = if canAttack then base else []
 

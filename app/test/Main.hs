@@ -539,6 +539,9 @@ mkCreature shared kind team transient =
     & fromJust
     & Card.unlift
     & (\c -> c {transient})
+  where
+    fromJust Nothing = error $ "mkCreature: (" ++ show kind ++ "," ++ show team ++ ") not found"
+    fromJust (Just x) = x
 
 testFillTheFrontline shared =
   describe "Fill the frontline" $ do
@@ -557,6 +560,34 @@ testFillTheFrontline shared =
       Board.toInPlaceCreature board'' pSpot Top == Nothing -- Archer moved
         && (Board.toInPlaceCreature board'' pSpot Bottom ~= Archer) -- to frontline spot
         && (Board.toInPlaceCreature board'' pSpot TopLeft ~= Spearman) -- Spearman stayed in position
+    (~=) Nothing _ = False
+    (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
+
+testBreathIce :: SharedModel -> SpecWith ()
+testBreathIce shared =
+  describe "Breath ice" $ do
+    it "Breath ice creature hits two creatures in a row when in the frontline" $ do
+      board' Bottom `shouldSatisfy` pred
+    it "Breath ice creature does nothing when in the backline" $ do
+      board' Top `shouldSatisfy` pred'
+  where
+    (team, pSpot, otherpSpot) = (Undead, PlayerTop, otherPlayerSpot pSpot)
+    mkCreature' kind team = mkCreature shared kind team False
+    (dummy1, dummy2) = (Archer, Skeleton)
+    mkBoard specterSpot =
+      Board.empty (Teams team team)
+        & (\b -> Board.setCreature b pSpot specterSpot $ mkCreature' Specter team)
+        & (\b -> Board.setCreature b otherpSpot Top $ mkCreature' dummy1 team)
+        & (\b -> Board.setCreature b otherpSpot Bottom $ mkCreature' dummy2 team)
+    board' specterSpot =
+      Game.play shared (mkBoard specterSpot) $ Game.Attack pSpot specterSpot False False
+    pred (Left errMsg) = traceShow errMsg False
+    pred (Right (Game.Result _ board'' _ _)) =
+      Board.toInPlace board'' otherpSpot == mempty -- Both dummies killed
+    pred' (Left errMsg) = traceShow errMsg False
+    pred' (Right (Game.Result _ board'' _ _)) =
+      Board.toInPlaceCreature board'' otherpSpot Top ~= dummy1 -- dummy1 stayed alive
+        && (Board.toInPlaceCreature board'' otherpSpot Bottom ~= dummy2) -- dummy2 stayed alive
     (~=) Nothing _ = False
     (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
 

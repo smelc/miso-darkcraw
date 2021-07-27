@@ -38,6 +38,7 @@ allTeams = [Human ..]
 
 data Skill
   = Blow
+  | BreathIce
   | Discipline
   | DrawCard
   | -- | Creature causes fear
@@ -55,6 +56,7 @@ data Skill
 data SkillCore
   = -- | Whether the skill is available (True) or used already (False)
     Blow' Bool
+  | BreathIce'
   | Discipline'
   | -- | Whether the skill is available (True) or used already (False)
     DrawCard' Bool
@@ -148,6 +150,7 @@ data CreatureKind
   | Skeleton
   | Shade
   | Spearman
+  | Specter
   | Swordsman
   | Ogre
   | Vampire
@@ -287,6 +290,7 @@ liftSkill :: SkillCore -> Skill
 liftSkill skill =
   case skill of
     Blow' _ -> Blow
+    BreathIce' -> BreathIce
     Discipline' -> Discipline
     DrawCard' _ -> DrawCard
     Fear' _ -> Fear
@@ -331,6 +335,7 @@ unliftSkill :: Skill -> SkillCore
 unliftSkill skill =
   case skill of
     Blow -> Blow' True
+    BreathIce -> BreathIce'
     Discipline -> Discipline'
     DrawCard -> DrawCard' True
     Fear -> Fear' True

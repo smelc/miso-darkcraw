@@ -24,7 +24,8 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\", \"Source 1\"] },\n\
          \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadWarrior\",  \"skills\":[\"Fear\"]  },\n\
          \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]    },\n\
-         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]    }\n\
+         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]    },\n\
+         \    { \"id\": { \"name\":\"specter\",   \"team\":\"undead\" }, \"title\":\"specter\",   \"hp\":2, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadSpecter\",  \"skills\":[\"Terror\", \"BreathIce\"]    }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
@@ -79,6 +80,7 @@ jsonData = "{\n\
          \    { \"tile\":\"UndeadGhost\",   \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadShade\",   \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadNecromancer\", \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":3 } },\n\
+         \    { \"tile\":\"UndeadSpecter\", \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":3 } },\n\
          \    { \"tile\":\"WhiteAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears1\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears2\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":5 } },\n\
@@ -87,6 +89,7 @@ jsonData = "{\n\
          \  ],\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Blow\",        \"title\":\"Blow\",       \"text\":\"+2 :crossed_swords: during first turn\"},\n\
+         \    { \"skill\":\"BreathIce\",   \"title\":\"Ice Breath\", \"text\":\"Attacks enemy in front as well as enemy behind\"},\n\
          \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\

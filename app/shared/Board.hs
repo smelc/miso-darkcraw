@@ -132,6 +132,8 @@ bottomSpotOfTopVisual = \case
 data DeathCause
   = -- | Creature was killed by fear
     DeathByFear
+  | -- | Creature killed by 'BreathIce' attack
+    DeathByBreathIce
   | -- | Creature was killed by terror
     DeathByTerror
   | -- | Creature was not killed
@@ -150,6 +152,8 @@ instance Semigroup DeathCause where
   _ <> DeathByTerror = DeathByTerror
   DeathByFear <> _ = DeathByFear
   _ <> DeathByFear = DeathByFear
+  DeathByBreathIce <> _ = DeathByBreathIce
+  _ <> DeathByBreathIce = DeathByBreathIce
   UsualDeath <> _ = UsualDeath
   NoDeath <> d = d
 

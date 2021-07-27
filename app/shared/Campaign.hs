@@ -8,6 +8,7 @@ module Campaign (Level (..), rewards, decks, succ, rewardsUpTo, nbRewards, preds
 import Card (Team (..))
 import qualified Card
 import Data.Function ((&))
+import Data.Maybe (fromMaybe)
 import GHC.Generics
 import Nat
 import Prelude hiding (pred, succ)
@@ -50,20 +51,18 @@ nbRewards level =
 rewards :: Level -> Team -> [Card.ID]
 rewards level team =
   case (level, team) of
-    (Level0, Human) -> [mkCreatureID Card.Knight team]
+    (Level0, Human) -> map (mkIDC team) [Card.Knight]
     (Level1, Human) -> []
-    (Level0, Undead) -> [mkCreatureID Card.Necromancer team]
+    (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
     (Level1, Undead) -> []
   where
-    mkCreatureID kind team = Card.IDC (Card.CreatureID kind team) []
+    mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
 
 -- | All possible rewards that can have been obtained from the start,
 -- when playing the given level
 rewardsUpTo :: Level -> Team -> [[Card.ID]]
 rewardsUpTo level team =
-  case go rewardsSeq of
-    Nothing -> []
-    Just res -> res
+  fromMaybe [] $ go rewardsSeq
   where
     rewardsSeq = preds level & map (`rewards` team)
     go :: [[Card.ID]] -> Maybe [[Card.ID]]

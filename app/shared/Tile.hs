@@ -65,6 +65,7 @@ data Tile
   | UndeadNecromancer
   | UndeadShade
   | UndeadSkeleton
+  | UndeadSpecter
   | UndeadVampire
   | UndeadWarrior
   | WhiteAppears0

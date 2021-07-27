@@ -13,7 +13,8 @@
     { "id": { "name":"necromancer", "team":"undead" }, "title":"necromancer", "hp":1, "attack":0, "victory_points":0, "tile":"UndeadNecromancer", "skills":["DrawCard", "Fear", "Source 1"] },
     { "id": { "name":"warrior",   "team":"undead" }, "title":"warrior",   "hp":1, "attack":2, "victory_points":0, "tile":"UndeadWarrior",  "skills":["Fear"]  },
     { "id": { "name":"ghost",     "team":"undead" }, "title":"ghost",     "hp":1, "attack":0, "victory_points":0, "tile":"UndeadGhost",    "skills":["Fear"]    },
-    { "id": { "name":"shade",     "team":"undead" }, "title":"shade",     "hp":1, "attack":2, "victory_points":0, "tile":"UndeadShade",    "skills":["Fear"]    }
+    { "id": { "name":"shade",     "team":"undead" }, "title":"shade",     "hp":1, "attack":2, "victory_points":0, "tile":"UndeadShade",    "skills":["Fear"]    },
+    { "id": { "name":"specter",   "team":"undead" }, "title":"specter",   "hp":2, "attack":2, "victory_points":0, "tile":"UndeadSpecter",  "skills":["Terror", "BreathIce"]    }
   ],
   "neutrals": [
     { "name":"infernalhaste", "title":"Haste",  "tile":"SkullRedEyes", "text":"All creatures attack now!", "teams": ["undead"] },
@@ -68,6 +69,7 @@
     { "tile":"UndeadGhost",   "filepath": { "root": "24x24", "x":5, "y":3 } },
     { "tile":"UndeadShade",   "filepath": { "root": "24x24", "x":6, "y":3 } },
     { "tile":"UndeadNecromancer", "filepath": { "root": "24x24", "x":7, "y":3 } },
+    { "tile":"UndeadSpecter", "filepath": { "root": "24x24", "x":8, "y":3 } },
     { "tile":"WhiteAppears0", "filepath": { "root": "24x24", "x":0, "y":5 } },
     { "tile":"WhiteAppears1", "filepath": { "root": "24x24", "x":1, "y":5 } },
     { "tile":"WhiteAppears2", "filepath": { "root": "24x24", "x":2, "y":5 } },
@@ -76,6 +78,7 @@
   ],
   "skills": [
     { "skill":"Blow",        "title":"Blow",       "text":"+2 :crossed_swords: during first turn"},
+    { "skill":"BreathIce",   "title":"Ice Breath", "text":"Attacks enemy in front as well as enemy behind"},
     { "skill":"Discipline",  "title":"Discipline", "text":"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:"},
     { "skill":"DrawCard",    "title":"Librarian",  "text":"Draw an additional card at beginning of turn"},
     { "skill":"Fear",        "title":"Fear",       "text":"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear."},

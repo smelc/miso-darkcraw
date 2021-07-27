@@ -320,6 +320,7 @@ scoreSkill :: SkillCore -> Int
 scoreSkill s =
   case s of
     Blow' b -> if b then -1 else 0
+    BreathIce' -> -2
     Discipline' -> -1
     DrawCard' b -> if b then -1 else 0
     Fear' b -> if b then -1 else 0

@@ -75,6 +75,7 @@ instance FromJSON Skill where
       go :: Text -> Parser Skill =
         \case
           "Blow" -> return Blow
+          "BreathIce" -> return BreathIce
           "Discipline" -> return Discipline
           "DrawCard" -> return DrawCard
           "Fear" -> return Fear
@@ -89,7 +90,7 @@ instance FromJSON Skill where
                 case readMaybe $ Text.unpack n of
                   Nothing -> fail $ "Invalid Source suffix (not a Nat): " ++ Text.unpack n
                   Just n -> return $ Source n
-              _ -> fail $ "Invalid Skill string: " ++ show s
+              _ -> fail $ "Invalid Skill string: " ++ show s ++ " (did you forget to update Json.hs?)"
 
 -- TODO @smelc Rename me into skillPackOptions
 skillUIOptions :: Options
