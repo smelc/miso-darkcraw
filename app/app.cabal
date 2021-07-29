@@ -127,6 +127,7 @@ Test-Suite test-darkcraw
     Invariants
     Json
     JsonData
+    Logic
     Match
     Model
     Movie

@@ -27,11 +27,12 @@ import Data.Maybe
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Debug.Trace (traceShow)
-import Game (Target (..), applyPlague, cardsToDraw, drawCards, idToHandIndex)
-import qualified Game (Event (..), PolyResult (..), attackOrder, play, playAll)
+import Game (Target (..))
+import qualified Game
 import Generators
 import qualified Invariants
 import Json
+import qualified Logic (main, mkCreature)
 import qualified Match
 import Movie
 import Nat
@@ -42,7 +43,7 @@ import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
-import TestLib (shouldAllSatisfy, shouldSatisfyJust)
+import TestLib (shouldAllSatisfy)
 import qualified Total
 import Turn
 
@@ -64,84 +65,6 @@ testAIRanged shared turn =
     pSpot = Turn.toPlayerSpot turn
     board = Board.addToHand (Board.empty teams) pSpot archer
     events = AI.play AI.Easy shared board pSpot
-
--- Tests that playing a creature only affects the target spot. Some
--- creatures are omitted: the ones with Discipline, because it breaks this
--- property. This test is not plugged yet because it breaks: if you
--- play a creature close to a creature with Discipline, the creature
--- with Discipline is affected (whereas it shouldn't be!).
-testPlayFraming :: SharedModel -> SpecWith ()
-testPlayFraming shared =
-  describe
-    "Playing some cards doesn't change"
-    $ prop "other spots of the board when placing non-Discipline creature" $
-      \(Pretty board, Pretty turn) ->
-        let pSpot = Turn.toPlayerSpot turn
-         in let pair = pickCardSpot board 0 pSpot
-             in isJust pair
-                  ==> let (i, cSpot) = fromJust pair
-                       in Game.play shared board (Game.Place pSpot (Game.CardTarget pSpot cSpot) (HandIndex i))
-                            `shouldSatisfy` relation board pSpot cSpot
-  where
-    -- Very simple AI-like function
-    pickCardSpot (board :: Board 'Core) i pSpot =
-      case Board.toHand board pSpot of
-        [] -> Nothing
-        id : hand' ->
-          if breaksFraming id
-            then pickCardSpot (Board.setHand board pSpot hand') (i + 1) pSpot -- try next card
-            else case targetType id of
-              PlayerTargetType -> Nothing
-              CardTargetType ctk ->
-                Board.toPlayerCardSpots board pSpot ctk
-                  & listToMaybe
-                  <&> (i,)
-    breaksFraming (IDC id items) =
-      SharedModel.idToCreature shared id items
-        & fromJust
-        & Card.unlift
-        & Total.isDisciplined
-    breaksFraming _ = False
-    relation _ _ _ (Left _) = True
-    relation board pSpot cSpot (Right (Game.Result _ board' _ _)) = boardEq board pSpot [cSpot] board'
-    boardEq (board :: Board 'Core) pSpot cSpots board' =
-      let otherSpot = otherPlayerSpot pSpot
-       in -- Board must be completely equivalent on part of player that doesn't play
-          (Board.toPart board otherSpot == Board.toPart board' otherSpot)
-            -- and agree w.r.t. partEq on the part of the player that played
-            && partEq (Board.toPart board pSpot) (Board.toPart board' pSpot) cSpots
-    partEq
-      (PlayerPart {..} :: PlayerPart 'Core)
-      (PlayerPart {inPlace = inPlace', score = score', stack = stack', discarded = discarded', team = team'} :: PlayerPart 'Core)
-      cSpots =
-        score == score' && stack == stack' && discarded == discarded' && team == team'
-          && (Map.withoutKeys inPlace (Set.fromList cSpots) == Map.withoutKeys inPlace' (Set.fromList cSpots))
-
-testDrawCards :: SharedModel -> SpecWith ()
-testDrawCards shared =
-  describe
-    "Drawing cards"
-    $ prop "draws the expected number" $
-      \(Pretty board, Pretty turn) ->
-        let pSpot = Turn.toPlayerSpot turn
-         in let srcs = Game.cardsToDraw board pSpot True
-             in Game.drawCards shared board pSpot srcs `shouldSatisfy` cond board pSpot
-  where
-    cond _ _ (Left errMsg) = traceShow errMsg False
-    cond board pSpot (Right (_, board', _)) =
-      (len' - len)
-        == min (Constants.nbCardsToDraw + nbCardDrawSkills) (Board.toStack board pSpot & length)
-      where
-        len = Board.toHand board pSpot & length
-        len' = Board.toHand board' pSpot & length
-        nbCardDrawSkills =
-          Board.toPlayerHoleyInPlace board pSpot
-            & map snd
-            & catMaybes
-            & map skills
-            & concat
-            & filter (\case DrawCard' b -> b; _ -> False)
-            & length
 
 testShared shared =
   describe "SharedModel" $ do
@@ -372,14 +295,6 @@ testInPlaceEffectsMonoid =
     rmFadeout InPlaceEffects {unInPlaceEffects = effects} =
       Map.map (\effect -> effect {fadeOut = []}) effects & InPlaceEffects
 
-testNoPlayEventNeutral shared =
-  describe "Game.NoPlayEvent is neutral w.r.t Game.playAll" $
-    prop "Game.playAll $ [NoPlayEvent] ++ es == Game.playAll $ es ++ [NoPlayEvent]" $
-      \(board, events) ->
-        let left = [Game.NoPlayEvent] ++ events
-         in let right = events ++ [Game.NoPlayEvent]
-             in Game.playAll shared board left `shouldBe` Game.playAll shared board right
-
 testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
@@ -403,65 +318,31 @@ testRewards =
         Campaign.decks [] level team
           `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
 
-testFear shared =
-  describe "Fear works as expected" $ do
-    it "fear triggers when expected" $
-      (Board.toPart board'' PlayerBot & Board.inPlace) `shouldSatisfy` Map.null
-    it "fear kills go to discarded stack" $
-      (Board.toDiscarded board'' PlayerBot `shouldBe` [IDC fearTarget []])
-    it "fear does not trigger when expected" $
-      (Board.toPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null
-    it "fear skill is consumed when it triggers" $
-      Board.toInPlaceCreature board'' PlayerTop Bottom `shouldSatisfyJust` hasConsumedFear
+testItemsAI shared =
+  describe "AI" $ do
+    it "Sword of Might is put on most potent in place creature" $
+      play (board1 (mkCreature' Archer Undead) (mkCreature' Vampire Undead) SwordOfMight)
+        `shouldSatisfy` ( \case
+                            Left errMsg -> traceShow errMsg False
+                            Right (Game.Result _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight
+                        )
   where
-    teams = Teams Undead Human
-    causingFear = CreatureID Skeleton Undead
-    fearTarget = CreatureID Archer Human
-    board = Board.small shared teams causingFear [] PlayerTop Bottom
-    affectedByFear =
-      SharedModel.idToCreature shared fearTarget []
-        & fromJust
-        & Card.unlift
-    board' =
-      Board.setCreature
-        board
-        PlayerBot
-        (bottomSpotOfTopVisual Top)
-        (affectedByFear & (\Creature {..} -> Creature {hp = 1, ..}))
-    board'' = Game.play shared board' (Game.ApplyFearNTerror PlayerTop) & extract
-    extract (Left _) = error "Test failure"
-    extract (Right (Game.Result _ b _ _)) = b
-    boardBis' =
-      Board.setCreature
-        board
-        PlayerBot
-        (bottomSpotOfTopVisual Top)
-        affectedByFear
-    boardBis'' = Game.play shared boardBis' (Game.ApplyFearNTerror PlayerTop) & extract
-    hasConsumedFear :: Creature 'Core -> Bool
-    hasConsumedFear Creature {skills} = go skills
-      where
-        go [] = False
-        go (Fear' False : _) = True -- Fear unavailable: it has been consumed
-        go (_ : tail) = go tail
-
-testFearNTerror shared =
-  describe "Fear and terror" $ do
-    prop "Creature causing fear is immune to fear" $
-      causingFear `shouldAllSatisfy` (not . Total.affectedByFear False)
-    it "Creature causing terror is immune to fear" $
-      causingTerror `shouldAllSatisfy` (not . Total.affectedByFear False)
-    it "Creature causing terror is immune to terror" $
-      causingTerror `shouldAllSatisfy` (not . Total.affectedByTerror False)
-    it "Creature affected by fear is affected by terror" $
-      causingFear `shouldAllSatisfy` Total.affectedByTerror False
-  where
-    creatures =
-      SharedModel.getCards shared
-        & mapMaybe (\case CreatureCard _ c -> Just c; _ -> Nothing)
-        & map Card.unlift
-    causingTerror = creatures & filter Total.causesTerror
-    causingFear = creatures & filter Total.causesFear
+    pSpot = PlayerTop
+    board1 id1 id2 item =
+      Board.empty teams
+        & setCreature pSpot TopLeft id1
+        & setCreature pSpot Bottom id2
+        & (\b -> Board.addToHand b pSpot (IDI item))
+    teams = Teams Undead Undead
+    mkCreature' kind team = Logic.mkCreature shared kind team False
+    setCreature pSpot cSpot c board =
+      Board.setCreature board pSpot cSpot c
+    play board =
+      Game.playAll shared board $ AI.play AI.Easy shared board pSpot
+    hasItem board pSpot cSpot item =
+      case Board.toInPlaceCreature board pSpot cSpot of
+        Nothing -> False
+        Just Creature {items} -> item `elem` items
 
 testMana shared =
   describe "AI" $ do
@@ -498,140 +379,6 @@ testMana shared =
           where
             card :: Either Text Card.ID =
               Board.lookupHand (Board.toHand board pSpot) i & runExcept
-
-testPlague shared =
-  describe "Plague" $ do
-    prop "Plague kills creatures with hp <= 1" $
-      \(teams :: Teams Team, cids :: [(CreatureID, [Item])]) ->
-        applyPlague (setHp 1) teams cids `shouldSatisfy` Map.null
-    prop "Plague doesn't kill creatures with hp > 1" $
-      \(teams :: Teams Team, cids :: [(CreatureID, [Item])]) ->
-        (applyPlague (setHp 2) teams cids & Map.size) `shouldBe` min 6 (length cids)
-  where
-    addAllToInPlace b pSpot cids = foldr (\pair b -> addToInPlace b pSpot pair) b cids
-    addToInPlace (b :: Board 'Core) pSpot (cid, items) =
-      case firstEmpty of
-        Nothing -> b
-        Just cSpot ->
-          let creature = SharedModel.idToCreature shared cid items & fromJust & Card.unlift
-           in Board.setInPlace b pSpot (Board.toInPlace b pSpot & Map.insert cSpot creature)
-      where
-        firstEmpty =
-          Board.toPlayerHoleyInPlace b pSpot
-            & filter (\(_, m) -> isNothing m)
-            & listToMaybe
-            <&> fst
-    mkBoard teams pSpot cids = addAllToInPlace (Board.empty teams) pSpot cids
-    mapInPlace f pSpot (board :: Board 'Core) =
-      Board.toInPlace board pSpot
-        & Map.map f
-        & Board.setInPlace board pSpot
-    setHp i c = c {hp = i}
-    applyPlague f teams cids =
-      Game.applyPlague board pSpot & flip Board.toInPlace pSpot
-      where
-        pSpot = PlayerTop
-        board = mkBoard teams pSpot cids & mapInPlace f pSpot
-
-mkCreature :: SharedModel -> CreatureKind -> Team -> Bool -> Creature 'Core
-mkCreature shared kind team transient =
-  SharedModel.idToCreature shared (CreatureID kind team) []
-    & fromJust
-    & Card.unlift
-    & (\c -> c {transient})
-  where
-    fromJust Nothing = error $ "mkCreature: (" ++ show kind ++ "," ++ show team ++ ") not found"
-    fromJust (Just x) = x
-
-testFillTheFrontline shared =
-  describe "Fill the frontline" $ do
-    it "Fill the frontline applies only to Ranged creatures" $ do
-      board' `shouldSatisfy` pred
-  where
-    (team, pSpot) = (Human, PlayerTop)
-    mkCreature' kind team = mkCreature shared kind team False
-    board =
-      Board.empty (Teams team team)
-        & (\b -> Board.setCreature b pSpot Top $ mkCreature' Archer team)
-        & (\b -> Board.setCreature b pSpot TopLeft $ mkCreature' Spearman team)
-    board' = Game.play shared board $ Game.FillTheFrontline pSpot
-    pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.Result _ board'' _ _)) =
-      Board.toInPlaceCreature board'' pSpot Top == Nothing -- Archer moved
-        && (Board.toInPlaceCreature board'' pSpot Bottom ~= Archer) -- to frontline spot
-        && (Board.toInPlaceCreature board'' pSpot TopLeft ~= Spearman) -- Spearman stayed in position
-    (~=) Nothing _ = False
-    (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
-
-testBreathIce :: SharedModel -> SpecWith ()
-testBreathIce shared =
-  describe "Breath ice" $ do
-    it "Breath ice creature hits two creatures in a row when in the frontline" $ do
-      board' Bottom `shouldSatisfy` pred
-    it "Breath ice creature does nothing when in the backline" $ do
-      board' Top `shouldSatisfy` pred'
-  where
-    (team, pSpot, otherpSpot) = (Undead, PlayerTop, otherPlayerSpot pSpot)
-    mkCreature' kind team = mkCreature shared kind team False
-    (dummy1, dummy2) = (Archer, Skeleton)
-    mkBoard specterSpot =
-      Board.empty (Teams team team)
-        & (\b -> Board.setCreature b pSpot specterSpot $ mkCreature' Specter team)
-        & (\b -> Board.setCreature b otherpSpot Top $ mkCreature' dummy1 team)
-        & (\b -> Board.setCreature b otherpSpot Bottom $ mkCreature' dummy2 team)
-    board' specterSpot =
-      Game.play shared (mkBoard specterSpot) $ Game.Attack pSpot specterSpot False False
-    pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.Result _ board'' _ _)) =
-      Board.toInPlace board'' otherpSpot == mempty -- Both dummies killed
-    pred' (Left errMsg) = traceShow errMsg False
-    pred' (Right (Game.Result _ board'' _ _)) =
-      Board.toInPlaceCreature board'' otherpSpot Top ~= dummy1 -- dummy1 stayed alive
-        && (Board.toInPlaceCreature board'' otherpSpot Bottom ~= dummy2) -- dummy2 stayed alive
-    (~=) Nothing _ = False
-    (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
-
-testTransient shared =
-  describe "Transient" $ do
-    it "Transient creatures don't go to any stack when killed" $ do
-      board' `shouldSatisfy` pred
-  where
-    botCardSpot = bottomSpotOfTopVisual Top
-    board =
-      Board.empty (Teams Undead Human)
-        & (\b -> Board.setCreature b PlayerTop Bottom $ mkCreature shared Skeleton Undead True)
-        & (\b -> Board.setCreature b PlayerBot botCardSpot $ mkCreature shared Vampire Undead True)
-    board' = Game.play shared board $ Game.Attack PlayerBot botCardSpot False False
-    pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.Result _ board'' _ _)) =
-      Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
-        && (map (Board.toDiscarded board'') allPlayersSpots & all null) -- Discarded stack is empty
-
-testItemsAI shared =
-  describe "AI" $ do
-    it "Sword of Might is put on most potent in place creature" $
-      play (board1 (mkCreature' Archer Undead) (mkCreature' Vampire Undead) SwordOfMight)
-        `shouldSatisfy` ( \case
-                            Left errMsg -> traceShow errMsg False
-                            Right (Game.Result _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight
-                        )
-  where
-    pSpot = PlayerTop
-    board1 id1 id2 item =
-      Board.empty teams
-        & setCreature pSpot TopLeft id1
-        & setCreature pSpot Bottom id2
-        & (\b -> Board.addToHand b pSpot (IDI item))
-    teams = Teams Undead Undead
-    mkCreature' kind team = mkCreature shared kind team False
-    setCreature pSpot cSpot c board =
-      Board.setCreature board pSpot cSpot c
-    play board =
-      Game.playAll shared board $ AI.play AI.Easy shared board pSpot
-    hasItem board pSpot cSpot item =
-      case Board.toInPlaceCreature board pSpot cSpot of
-        Nothing -> False
-        Just Creature {items} -> item `elem` items
 
 testApplyDifficulty stdgen =
   describe "applyDifficulty" $ do
@@ -675,22 +422,18 @@ main = hspec $ do
        in all (\(_, cSpot, _) -> inTheBack cSpot) occupiedSpots
             && not (null occupiedSpots)
   -- From fast tests to slow tests (to maximize failing early)
-  testRewards
-  testFear shared
-  testFearNTerror shared
+  -- Unit tests
   testItemsAI shared
-  testPlague shared
-  testFillTheFrontline shared
-  testTransient shared
-  testPlayFraming shared
-  testDrawCards shared
+  -- PBT tests
+  testRewards
   testShared shared
   testAIPlace shared
   testInPlaceEffectsMonoid
   testApplyDifficulty $ SharedModel.getStdGen shared
-  testNoPlayEventNeutral shared
   testPlayScoreMonotonic shared
+  -- Onto other files
   Invariants.main shared
+  Logic.main shared
   Match.main shared
   Balance.main shared
   -- Onto tests of scenes
