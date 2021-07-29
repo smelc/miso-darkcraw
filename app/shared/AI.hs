@@ -302,7 +302,7 @@ scoreCreatureItems c@Creature {attack, hp, items} cSpot =
 scoreHandCard :: Card 'Core -> Int
 scoreHandCard = \case
   CreatureCard _ Creature {..} ->
-    sum $ [- (natToInt hp), - (natToInt attack), - (fromMaybe 0 moral)] ++ map scoreSkill skills
+    sum $ [- (natToInt hp), - (natToInt attack)] ++ map scoreSkill skills
   NeutralCard _ NeutralObject {neutral} ->
     case neutral of
       Health -> -1

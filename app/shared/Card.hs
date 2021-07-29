@@ -169,8 +169,7 @@ data Creature (p :: Phase) = Creature
     -- | Beware when using this accessor, you may want 'totalAttack' instead
     attack :: Nat,
     items :: [ItemType p],
-    moral :: Maybe Int,
-    victoryPoints :: Nat,
+    moral :: Int,
     skills :: [SkillType p],
     -- | Creature doesn't go to the discarded stack when killed
     transient :: TransientType p

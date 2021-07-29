@@ -11,21 +11,21 @@ import Data.Text
 jsonData :: Text
 jsonData = "{\n\
          \  \"creatures\": [\n\
-         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"LongReach\"] },\n\
-         \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
-         \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"moral\":3, \"victory_points\":2, \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
-         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":3, \"moral\":5, \"victory_points\":5, \"tile\":\"HumanGeneral\",   \"skills\":[\"Unique\"], \"mana\":3 },\n\
-         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"moral\":4, \"victory_points\":5, \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"], \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":3, \"moral\":4, \"victory_points\":5, \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"], \"mana\":3 },\n\
-         \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadSkeleton\", \"skills\":[\"Fear\"] },\n\
-         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"victory_points\":5, \"tile\":\"UndeadVampire\",  \"skills\":[\"Terror\"], \"mana\":3 },\n\
-         \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"victory_points\":1, \"tile\":\"UndeadArcher\",   \"skills\":[\"Fear\", \"Ranged\"]   },\n\
-         \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":2, \"victory_points\":2, \"tile\":\"UndeadMummy\",    \"skills\":[\"Fear\"], \"mana\":2    },\n\
-         \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\", \"Source 1\"] },\n\
-         \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadWarrior\",  \"skills\":[\"Fear\"]  },\n\
-         \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"victory_points\":0, \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]    },\n\
-         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]    },\n\
-         \    { \"id\": { \"name\":\"specter\",   \"team\":\"undead\" }, \"title\":\"specter\",   \"hp\":2, \"attack\":2, \"victory_points\":0, \"tile\":\"UndeadSpecter\",  \"skills\":[\"Terror\", \"BreathIce\"]    }\n\
+         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":1, \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"LongReach\"] },\n\
+         \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":1, \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
+         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":3, \"tile\":\"HumanGeneral\",   \"skills\":[\"Unique\"], \"mana\":3 },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":2, \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"], \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":3, \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"], \"mana\":3 },\n\
+         \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":1, \"tile\":\"UndeadSkeleton\", \"skills\":[\"Fear\"] },\n\
+         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":3, \"tile\":\"UndeadVampire\",  \"skills\":[\"Terror\"], \"mana\":3 },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":1, \"tile\":\"UndeadArcher\",   \"skills\":[\"Fear\", \"Ranged\"]   },\n\
+         \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":2, \"tile\":\"UndeadMummy\",    \"skills\":[\"Fear\"], \"mana\":2    },\n\
+         \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":0, \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\", \"Source 1\"] },\n\
+         \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"tile\":\"UndeadWarrior\",  \"skills\":[\"Fear\"]  },\n\
+         \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]    },\n\
+         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]    },\n\
+         \    { \"id\": { \"name\":\"specter\",   \"team\":\"undead\" }, \"title\":\"specter\",   \"hp\":2, \"attack\":2, \"tile\":\"UndeadSpecter\",  \"skills\":[\"Terror\", \"BreathIce\"]    }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\

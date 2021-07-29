@@ -216,7 +216,7 @@ parseJson json = do
     mkCreatureCard CreatureObjectJSON {..} =
       CreatureCard
         (CardCommon mana tile)
-        (Creature {items = [], moral = Nothing, victoryPoints = 0, transient = (), ..})
+        (Creature {items = [], moral = 0, transient = (), ..})
     mkItemCard :: ItemObjectJSON -> Card 'UI
     mkItemCard ItemObjectJSON {..} =
       ItemCard
