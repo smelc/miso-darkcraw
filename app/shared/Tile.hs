@@ -44,6 +44,7 @@ data Tile
   | Bones6
   | Crown
   | DropBlue
+  | EvilKnight
   | FlailOfTheDamned
   | GreenPotion
   | Heart

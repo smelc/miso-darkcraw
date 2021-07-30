@@ -25,7 +25,8 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":2, \"tile\":\"UndeadWarrior\",  \"skills\":[\"Fear\"]  },\n\
          \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":0, \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]    },\n\
          \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":2, \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]    },\n\
-         \    { \"id\": { \"name\":\"specter\",   \"team\":\"undead\" }, \"title\":\"specter\",   \"hp\":2, \"attack\":2, \"tile\":\"UndeadSpecter\",  \"skills\":[\"Terror\", \"BreathIce\"]    }\n\
+         \    { \"id\": { \"name\":\"specter\",   \"team\":\"undead\" }, \"title\":\"specter\",   \"hp\":2, \"attack\":2, \"tile\":\"UndeadSpecter\",  \"skills\":[\"Terror\", \"BreathIce\"]    },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"evil\" },   \"title\":\"Knight\",    \"hp\":2, \"attack\":3, \"tile\":\"EvilKnight\",     \"skills\":[\"Blow\"], \"mana\":2 }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
@@ -34,9 +35,9 @@ jsonData = "{\n\
          \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All creatures lose 1 HP\"  , \"teams\": [\"undead\"] }\n\
          \  ],\n\
          \  \"items\": [\n\
-         \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\" },\n\
+         \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\" }\n\
+         \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\"] }\n\
          \  ],\n\
          \  \"tiles\": [\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\
@@ -56,6 +57,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"DropBlue\",      \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":0 } },\n\
+         \    { \"tile\":\"EvilKnight\",    \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":10 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
          \    { \"tile\":\"HeartBroken\",   \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":0 } },\n\
          \    { \"tile\":\"HumanSwordsman\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":0 } },\n\

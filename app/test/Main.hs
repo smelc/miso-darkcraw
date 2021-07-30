@@ -313,9 +313,10 @@ testRewards =
   describe "Rewards work as expected" $ do
     it "initialisation" $ do
       Campaign.decks [] Campaign.Level0 Human == [[]]
-    prop "one card is received at every reward" $ do
+    prop "one card is received at every reward (except Evil)" $ do
       \(level, team) ->
-        Campaign.decks [] level team
+        team /= Evil
+          ==> Campaign.decks [] level team
           `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
 
 testItemsAI shared =

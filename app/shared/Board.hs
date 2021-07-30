@@ -670,8 +670,10 @@ showID (IDI i) = show i
 showID (IDN n) = show n
 
 showTeamShort :: Team -> String
-showTeamShort Human = "H"
-showTeamShort Undead = "UD"
+showTeamShort = \case
+  Evil -> "E"
+  Human -> "H"
+  Undead -> "UD"
 
 cardsLines :: Board 'Core -> PlayerSpot -> [CardSpot] -> [String]
 cardsLines board pSpot cSpots =

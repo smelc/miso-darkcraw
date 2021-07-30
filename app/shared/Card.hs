@@ -26,15 +26,14 @@ import Tile
 
 -- If you change the first member, change 'allTeams' too
 -- If you add a member, augment the tests in 'Balance.hs'
-data Team = Human | Undead
+data Team = Evil | Human | Undead
   deriving (Enum, Eq, Generic, Show, Ord)
 
--- >>> show Undead
 ppTeam :: Team -> String
 ppTeam = show
 
 allTeams :: [Team]
-allTeams = [Human ..]
+allTeams = [Evil ..]
 
 data Skill
   = Blow
@@ -405,6 +404,7 @@ teamDeck cards t =
     -- Initial creatures:
     creatures =
       case t of
+        Evil -> 1 * Knight
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
     kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
@@ -417,6 +417,7 @@ teamDeck cards t =
     (**) i k = replicate i $ kindToNeutral Map.! k
     neutrals =
       case t of
+        Evil -> []
         Human -> 1 ** Health ++ 1 ** Life
         Undead -> 2 ** InfernalHaste ++ 1 ** Plague
     items =

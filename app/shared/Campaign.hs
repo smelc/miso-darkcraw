@@ -51,6 +51,7 @@ nbRewards level =
 rewards :: Level -> Team -> [Card.ID]
 rewards level team =
   case (level, team) of
+    (_, Evil) -> []
     (Level0, Human) -> map (mkIDC team) [Card.Knight]
     (Level1, Human) -> []
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]

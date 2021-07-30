@@ -127,7 +127,12 @@ teamButton smodel z chosen team = do
         <&> SharedModel.cardToFilepath smodel
         & fromMaybe default24Filepath
         & filepathToString
-    tile team = (case team of Human -> General; Undead -> Vampire) & path team
+    tile team =
+      path team $
+        case team of
+          Evil -> Knight
+          Human -> General
+          Undead -> Vampire
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
         imgCell $ ms $ tile team
