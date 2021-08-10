@@ -249,7 +249,7 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
         (plusFontSize', "#FFFFFF", True)
     plusBuilder x = div_ x [text $ ms ("+" :: MisoString) <> ms (show plusValue)]
 
--- | Draw border around some cards if:
+-- | Draw border around target if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around
 --    valid drag targets
 -- or 2/ card in place is being hovered -> draw borders around cards

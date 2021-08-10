@@ -119,12 +119,12 @@ boardToInPlaceCells ::
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
   Styled [View Action]
-boardToInPlaceCells z m@GameModel {board, playingPlayer} dragTargetType = do
+boardToInPlaceCells z m@GameModel {board} dragTargetType = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
-  let playerTargets = [boardToPlayerTarget playerTargetZ m dragTargetType pSpot | pSpot <- allPlayersSpots]
-  return [div_ [] $ main ++ playerTargets]
+  let playerTargets = [boardToPlayerTarget (z + 1) m dragTargetType pSpot | pSpot <- allPlayersSpots]
+  return [div_ [] $ main ++ catMaybes playerTargets]
   where
     mainM =
       sequence
@@ -137,8 +137,6 @@ boardToInPlaceCells z m@GameModel {board, playingPlayer} dragTargetType = do
     bump50 upOrDown = "transform: translateY(" ++ sign upOrDown ++ show cellPixelSize ++ "px);"
     bumpKeyFrames upOrDown =
       keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
-    playerTargetActive = borderWidth m (Game.PlayerTarget playingPlayer) > 0
-    playerTargetZ = if playerTargetActive then z + 1 else z - 1
 
 boardToInPlaceCell ::
   Int ->
@@ -222,22 +220,27 @@ boardToInPlaceCell z m@GameModel {anims, board, gameShared = shared, interaction
         (Just (CardTargetType Occupied), Just _) -> Just target
         _ -> Nothing
 
+-- | Whether to show the player target at @pSpot@
 boardToPlayerTarget ::
   Int ->
   GameModel ->
   Maybe TargetType ->
   PlayerSpot ->
-  View Action
+  Maybe (View Action)
 boardToPlayerTarget z m@GameModel {interaction} dragTargetType pSpot =
-  nodeHtmlKeyed
-    "div"
-    (Key $ ms key)
-    ( [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
-        cardBoxShadowStyle rgb bwidth "ease-in-out"
-      ]
-        ++ (dragDropEvents <$> dragTarget & concat)
-    )
-    []
+  if bwidth <= 0
+    then Nothing
+    else
+      Just $
+        nodeHtmlKeyed
+          "div"
+          (Key $ ms key)
+          ( [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
+              cardBoxShadowStyle rgb bwidth "ease-in-out"
+            ]
+              ++ (dragDropEvents <$> dragTarget & concat)
+          )
+          []
   where
     key = show pSpot ++ "-target"
     (x, y) = cardCellsBoardOffset pSpot cSpot
