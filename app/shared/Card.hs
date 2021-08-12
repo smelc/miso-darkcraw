@@ -162,6 +162,14 @@ allCreatureKinds = [Archer ..]
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
 
+isSkeleton :: CreatureID -> Bool
+isSkeleton CreatureID {creatureKind = kind, team} =
+  case (kind, team) of
+    (Archer, Undead) -> True
+    (Skeleton, Undead) -> True
+    (Warrior, Undead) -> True
+    _ -> False
+
 data Creature (p :: Phase) = Creature
   { creatureId :: CreatureID,
     hp :: Nat,
@@ -223,6 +231,7 @@ deriving instance Forall Show p => Show (NeutralObject p)
 data Item
   = Crown
   | FlailOfTheDamned
+  | SkBanner
   | SwordOfMight
   deriving (Enum, Eq, Generic, Ord, Show)
 
@@ -393,36 +402,47 @@ teamDeck cards t =
     ++ map (NeutralCard mkCoreCardCommon) neutrals
     ++ map (ItemCard mkCoreCardCommon) items
   where
-    kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
-      map cardToCreature cards
-        & catMaybes
-        & filter (\c -> (creatureId c & team) == t)
-        & map unlift
-        & map ((creatureKind . creatureId) &&& id)
-        & Map.fromList
-    (*) i k = replicate i $ kindToCreature Map.! k
     -- Initial creatures:
     creatures =
       case t of
         Evil -> 1 * Knight
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
-    kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
-      map cardToNeutralObject cards
-        & catMaybes
-        & filter (\nobj -> t `Prelude.elem` neutralTeams nobj)
-        & map unlift
-        & map (\nobj -> (neutral nobj, nobj))
-        & Map.fromList
-    (**) i k = replicate i $ kindToNeutral Map.! k
+      where
+        kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
+          map cardToCreature cards
+            & catMaybes
+            & filter (\c -> (creatureId c & team) == t)
+            & map unlift
+            & map ((creatureKind . creatureId) &&& id)
+            & Map.fromList
+        (*) i k = replicate i $ kindToCreature Map.! k
+    -- Initial neutrals
     neutrals =
       case t of
         Evil -> []
-        Human -> 1 ** Health ++ 1 ** Life
-        Undead -> 2 ** InfernalHaste ++ 1 ** Plague
+        Human -> 1 * Health ++ 1 * Life
+        Undead -> 2 * InfernalHaste ++ 1 * Plague
+      where
+        kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
+          mapMaybe cardToNeutralObject cards
+            & filter (\nobj -> t `Prelude.elem` neutralTeams nobj)
+            & map unlift
+            & map (\nobj -> (neutral nobj, nobj))
+            & Map.fromList
+        (*) i k = replicate i $ kindToNeutral Map.! k
+    -- Initial items
     items =
-      mapMaybe (\case ItemCard _ i@ItemObject {teams} | t `elem` teams -> Just i; _ -> Nothing) cards
-        & map unlift
+      case t of
+        Evil -> []
+        Human -> 1 * Card.Crown ++ 1 * SwordOfMight
+        Undead -> 1 * Card.FlailOfTheDamned
+      where
+        itemToItemObj :: Map.Map Item (ItemObject 'Core) =
+          mapMaybe cardToItemObject cards
+            & map (\iobj@ItemObject {item} -> (item, Card.unlift iobj))
+            & Map.fromList
+        (*) i k = replicate i $ itemToItemObj Map.! k
 
 data CardTargetKind
   = -- | Card targets empty 'CardSpot'

@@ -33,6 +33,8 @@ instance Show View where
 data Command
   = -- | Command to obtain an extra card in the hand in GameView
     Gimme Card.ID
+  | -- | Command to obtain mana
+    GimmeMana
   | -- | Command to go to another view GameView
     Goto View
 
@@ -44,6 +46,7 @@ allCommands =
   [Gimme $ Card.IDC (CreatureID kind team) [] | kind <- allCreatureKinds, team <- allTeams]
     ++ [Gimme $ Card.IDI item | item <- allItems]
     ++ [Gimme $ Card.IDN neutral | neutral <- allNeutrals]
+    ++ [GimmeMana]
     ++ [Goto v | v <- allViews]
 
 instance Show Command where
@@ -53,6 +56,8 @@ instance Show Command where
     "gimme " ++ (show item & toLowerString)
   show (Gimme (Card.IDN neutral)) =
     "gimme " ++ (show neutral & toLowerString)
+  show GimmeMana =
+    "gimme mana"
   show (Goto v) =
     "goto " ++ show v
 

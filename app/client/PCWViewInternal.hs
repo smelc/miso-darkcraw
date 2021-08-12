@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -49,7 +50,19 @@ import ViewInternal
 data DisplayMode = NormalMode | DebugMode
 
 -- | Where a card is being drawn
-data DisplayLocation = GameInPlaceLoc | GameHandLoc | GameDragLoc | DeckLoc
+data DisplayLocation
+  = GameInPlaceLoc Total.Part
+  | GameHandLoc
+  | GameDragLoc
+  | DeckLoc
+
+toPart :: DisplayLocation -> Maybe Total.Part
+toPart =
+  \case
+    GameInPlaceLoc part -> Just part
+    GameHandLoc -> Nothing
+    GameDragLoc -> Nothing
+    DeckLoc -> Nothing
 
 data CardDrawStyle = CardDrawStyle
   { -- | Whether the card should fade in
@@ -133,7 +146,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
       div_ (attrs ++ extraAttrs) $
         [div_ [style_ avatarPicStyle] [avatarPicCell]]
           ++ manaDiv
-          ++ cardView' z shared card
+          ++ cardView' z shared (toPart loc) card
           ++ [PCWViewInternal.cardBackground z team cdsty]
     animData =
       (animationData "handCardFadein" "1s" "ease")
@@ -158,8 +171,9 @@ scrollbarStyle =
   "scrollbar-width" =: "thin"
     <> "scrollbar-color" =: "#9d9fa0 #333333"
 
-cardView' :: Int -> SharedModel -> Card 'Core -> [View Action]
-cardView' z shared card =
+-- | The 'Total.Part' argument is where the @Card 'Core@ is, if any.
+cardView' :: Int -> SharedModel -> Maybe Total.Part -> Card 'Core -> [View Action]
+cardView' z shared part card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI
   -- only fields; we don't want to force callers to do it. That was the point
@@ -176,9 +190,14 @@ cardView' z shared card =
             [style_ inStatsStyle]
             [ Miso.text $ ms hp,
               imgCell assetFilenameHeart,
-              Miso.text $ ms $ Total.attack core,
+              div_ [style_ attackStyle] [Miso.text $ ms $ totalAttack],
               imgCell assetFilenameSword
             ]
+        (attack, totalAttack) = (Card.attack core, Total.attack part core)
+        attackStyle =
+          if attack == totalAttack
+            then mempty
+            else "color" =: greenHTML <> "display" =: "inline-block"
         skillsTopMargin = statsTopMargin + skillFontSize + (skillFontSize `div` 2)
         skillsHeight = cps * length skills
         skillsStyle =

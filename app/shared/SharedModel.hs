@@ -107,6 +107,7 @@ getAllCommands shared =
   map Gimme cids
     ++ map Gimme items
     ++ map Gimme neutrals
+    ++ [GimmeMana]
     ++ [Goto v | v <- Command.allViews]
   where
     cids =

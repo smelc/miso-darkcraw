@@ -705,12 +705,13 @@ cardLine board pSpot cSpot lineNb =
     emptyLine :: String = replicate cardWidth '.'
     base = case maybeCreature of
       Nothing -> if lineNb == 0 then show cSpot else emptyLine
-      Just creature -> fromMaybe emptyLine $ creatureToAscii creature lineNb
+      Just creature -> fromMaybe emptyLine $ creatureToAscii part creature lineNb
+    part = Board.toInPlace board pSpot & Map.elems & Just
 
 -- | The n-th line of a creature card, or None
-creatureToAscii :: Creature 'Core -> LineNumber -> Maybe String
-creatureToAscii Creature {creatureId = CreatureID {..}} 0 =
+creatureToAscii :: Maybe Total.Part -> Creature 'Core -> LineNumber -> Maybe String
+creatureToAscii _ (Creature {creatureId = CreatureID {..}}) 0 =
   Just $ show team ++ " " ++ show creatureKind
-creatureToAscii c@Creature {..} 1 =
-  Just $ show hp ++ "<3 " ++ show (Total.attack c) ++ "X"
-creatureToAscii _ _ = Nothing
+creatureToAscii part (c@Creature {..}) 1 =
+  Just $ show hp ++ "<3 " ++ show (Total.attack part c) ++ "X"
+creatureToAscii _ _ _ = Nothing

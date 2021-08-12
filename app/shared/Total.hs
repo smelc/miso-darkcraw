@@ -29,19 +29,31 @@ affectedByTerror True Creature {hp} | hp > 2 = False
 affectedByTerror _ c | causesTerror c = False -- Creature causing terror are immune to terror
 affectedByTerror _ _ = True
 
+type Part = [Creature 'Core]
+
 -- | The total attack of a creature, including boosts of skills and items.
--- This would make more sense to be in 'Game', but alas this is more
--- convenient to have it here dependency-wise.
-attack :: Creature 'Core -> Nat
-attack Creature {Card.attack, skills, items} =
+-- The first list is the part where the creature is (if applicable)
+attack :: Maybe Part -> Creature 'Core -> Nat
+attack part (Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
-  attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight
+  attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus
   where
     nbBlows =
       filter (\case Blow' True -> True; _ -> False) skills & natLength
     nbSwordsOfMight =
       filter (== SwordOfMight) items & natLength
+    skBannerBonus =
+      case (Card.isSkeleton id, part) of
+        (False, _) -> 0
+        (_, Nothing) -> 0
+        (True, Just part) ->
+          map Card.items part -- Count the number of banners, so
+          -- that you have multiple bonuses
+          -- if you put the banner more than once on a creature!
+            & concat
+            & filter ((==) SkBanner)
+            & natLength
 
 -- | Whether a creature causes fear
 causesFear ::

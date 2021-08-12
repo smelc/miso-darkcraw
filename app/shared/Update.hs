@@ -743,10 +743,14 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameSh
             let errMsg = "Unrecognized command: " ++ cmdStr
              in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
           Just (Command.Gimme cid) ->
-            let board' = Board.addToHand board playingPlayer cid
-             in noEff $ GameModel' $ gm {board = board'}
+            withBoard $ Board.addToHand board playingPlayer cid
+          Just (Command.GimmeMana) ->
+            let mana = Board.toPart board playingPlayer & Board.mana
+             in withBoard $ Board.setMana (mana + 1) playingPlayer board
           Just (Command.Goto _) ->
             noEff $ BuildModel' $ Model.gameToBuild gm
+  where
+    withBoard board' = noEff $ GameModel' $ gm {board = board'}
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack

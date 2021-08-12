@@ -58,7 +58,7 @@ main shared =
     actualSpec r@Balance.Result {..}
       | topTeam == Human
           && botTeam == Undead
-          && topWins == 30
+          && topWins == 31
           && botWins == 33
           && level == Campaign.Level0 =
         traceShow (showBalanced r) True
@@ -79,7 +79,7 @@ main shared =
     actualSpec r@Balance.Result {..}
       | topTeam == Human -- Case where Undead picked the Necromancer reward
           && botTeam == Undead
-          && topWins == 35
+          && topWins == 34
           && botWins == 29
           && level == Campaign.Level1 =
         traceShow (showBalanced r) True
@@ -87,7 +87,7 @@ main shared =
       | topTeam == Human -- Case where Undead picked the Specter reward
           && botTeam == Undead
           && topWins == 28
-          && botWins == 36
+          && botWins == 35
           && level == Campaign.Level1 =
         traceShow (showBalanced r) True
     actualSpec r =

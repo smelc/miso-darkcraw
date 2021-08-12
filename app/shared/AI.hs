@@ -275,12 +275,13 @@ scorePlace board inPlace pSpot cSpot =
     yieldsVictoryPoints = all isNothing enemiesInColumn
     victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
     maluses :: Nat = sum [lineMalus, victoryPointsMalus]
-    result = (natToInt maluses) - (natToInt $ scoreCreatureItems inPlace cSpot)
+    result = (natToInt maluses) - (natToInt $ scoreCreatureItems board inPlace pSpot cSpot)
 
 -- | The score of the items of this creature (which is on the passed spot).
--- 0 is the worst. Higher values are better.
-scoreCreatureItems :: Creature 'Core -> CardSpot -> Nat
-scoreCreatureItems c@Creature {attack, hp, items} cSpot =
+-- 0 is the worst. Higher values are better. The spots are where
+-- the creature is.
+scoreCreatureItems :: Board 'Core -> Creature 'Core -> PlayerSpot -> CardSpot -> Nat
+scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
   result
   where
     scoreCreatureItem :: Item -> Nat = \case
@@ -293,6 +294,16 @@ scoreCreatureItems c@Creature {attack, hp, items} cSpot =
               then 1 -- Creature is in a central spot
               else 0
       FlailOfTheDamned -> attack + hp -- Prefer strong creatures
+      SkBanner ->
+        backBonus + skNeighborsBonus
+        where
+          backBonus = if Board.inTheBack cSpot then 2 else 0 -- Prefer banner bearer to be in the back
+          skNeighborsBonus =
+            Board.toInPlace board pSpot
+              & Map.elems
+              & filter (Card.isSkeleton . Card.creatureId)
+              & length
+              & intToNat
       SwordOfMight -> attack + hp -- Prefer strong creatures
     result = sum $ map scoreCreatureItem items
 
@@ -313,6 +324,7 @@ scoreHandCard = \case
     case item of
       Crown -> -1
       FlailOfTheDamned -> -1
+      SkBanner -> -1
       SwordOfMight -> -1
 
 -- | The score of a skill, smaller values are better. Negative values returned.

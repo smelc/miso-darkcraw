@@ -55,7 +55,7 @@ rewards level team =
     (Level0, Human) -> map (mkIDC team) [Card.Knight]
     (Level1, Human) -> []
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
-    (Level1, Undead) -> []
+    (Level1, Undead) -> [Card.IDI Card.SkBanner]
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
 
