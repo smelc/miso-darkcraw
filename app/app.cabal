@@ -29,7 +29,6 @@ common client-server-shared
     Total
     Turn
     Update
-    Utils
   build-depends:
     aeson,
     ansi-wl-pprint,
