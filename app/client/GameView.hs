@@ -376,8 +376,10 @@ boardToInHandCell
             (hoveredCard == i, False)
           Just (DragInteraction Dragging {draggedCard}) ->
             (False, draggedCard == i)
+          Just (HoverInPlaceInteraction _) -> (False, False)
+          Just NoInteraction -> (False, False)
           Just (ShowErrorInteraction _) -> (False, False)
-          _ -> (False, False)
+          Nothing -> (False, False)
       loc = if beingDragged then GameDragLoc else GameHandLoc
       rightmargin = cps * 2
       hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards

@@ -148,10 +148,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
           ++ manaDiv
           ++ cardView' z shared (toPart loc) card
           ++ [PCWViewInternal.cardBackground z team cdsty]
-    animData =
-      (animationData "handCardFadein" "1s" "ease")
-        { animDataFillMode = Just "forwards"
-        }
+    animData = animationData "handCardFadein" "1s" "ease"
     extraAttrs =
       case card of
         CreatureCard {} ->
