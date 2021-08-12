@@ -1,8 +1,9 @@
-# Dark Craw
+# Pixel Card Wars
 
 A card game done with Haskell's [miso](https://github.com/dmjio/miso).
 
-You can see the current game [here](https://schplaf.org/hgames/darkcraw).
+* You can see the dev version [here](https://schplaf.org/hgames/darkcraw).
+* You can see the last release on [itch.io](https://hgames.itch.io/pixel-card-wars).
 
 # Developers
 
