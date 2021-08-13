@@ -1,8 +1,10 @@
 cabal-version: 2.2
 name:                app
 version:             0.1.0.0
-synopsis:            First miso app
-category:            Web
+homepage:            https://github.com/smelc/miso-darkcraw
+synopsis:            Pixel Card Wars
+category:            Game
+license:             Unlicense
 build-type:          Simple
 extra-source-files:
   assets/*.png

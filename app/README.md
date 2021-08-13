@@ -24,6 +24,17 @@ nix-shell -A release.env default.nix
 cabal --project-file=cabal.config build all
 ```
 
+# Documentation
+
+To generate the documentation of Haskell files:
+
+```shell
+nix-shell
+cabal --project-file=cabal-haddock.config haddock app
+# Documentation gets created in dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/x/app/doc/html/app/app/index.html
+hoogle generate --local
+```
+
 # neovim integration
 
 To have GHC feedback within `neovim`:
