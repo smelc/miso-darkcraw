@@ -60,6 +60,7 @@ data Tile
   | SkullRedEyes
   | Sword1
   | Sword2
+  | Sword3
   | RedPotion
   | UndeadArcher
   | UndeadGhost

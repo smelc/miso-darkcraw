@@ -59,6 +59,7 @@
     { "tile":"SkullRedEyes",  "filepath": { "root": "16x16", "x":1, "y":2 } },
     { "tile":"Sword1",        "filepath": { "root": "16x16", "x":1, "y":0 } },
     { "tile":"Sword2",        "filepath": { "root": "16x16", "x":3, "y":1 } },
+    { "tile":"Sword3",        "filepath": { "root": "16x16", "x":5, "y":1 } },
     { "tile":"RedPotion",     "filepath": { "root": "16x16", "x":2, "y":0 } },
     { "tile":"GreenPotion",   "filepath": { "root": "16x16", "x":3, "y":0 } },
     { "tile":"Crown",         "filepath": { "root": "16x16", "x":0, "y":1 } },

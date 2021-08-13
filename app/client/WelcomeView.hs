@@ -12,8 +12,9 @@ module WelcomeView (viewWelcomeModel) where
 
 import Cinema (TimedFrame (..))
 import Configuration (Configuration (..), Edition (..))
-import qualified Configuration
+import qualified Configuration as Config
 import Constants
+import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V
 import Miso
@@ -21,13 +22,16 @@ import Miso.String (fromMisoString, ms)
 import Miso.Util ((=:))
 import Model (SceneModel (..), TimedFrames, WelcomeModel (..))
 import PCWViewInternal (DisplayMode (..), viewFrame)
+import SharedModel (SharedModel)
+import qualified SharedModel
+import qualified Tile
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> Styled (View Action)
-viewWelcomeModel WelcomeModel {..} = do
+viewWelcomeModel WelcomeModel {welcomeShared = shared, ..} = do
   multiPlayerDiv <-
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-
@@ -36,7 +40,7 @@ viewWelcomeModel WelcomeModel {..} = do
         div_
           [style_ bgStyle]
           $ [ torchesDiv zpp, -- Absolute placement
-              versionDiv zpp Configuration.get, -- Absolute placement
+              versionDiv shared zpp Config.get, -- Absolute placement
               div_
                 [style_ flexColumnStyle]
                 -- top level flex, layout things in a column
@@ -45,7 +49,7 @@ viewWelcomeModel WelcomeModel {..} = do
             ++ viewWelcomeScene welcomeSceneModel
             ++ debugSlider
   let support =
-        case Configuration.get of
+        case Config.get of
           Itch {} -> []
           Dev -> [supportDiv]
           Schplaf {} -> [supportDiv]
@@ -68,7 +72,7 @@ viewWelcomeModel WelcomeModel {..} = do
       textStyle
         <> "font-size" =: px subtitleFontSize
         <> "z-index" =: ms zpp
-    multiplayerEnabled = Configuration.isDev
+    multiplayerEnabled = Config.isDev
     -- A flex right below the top level, layout things in a line
     -- It has two cells: ["single player"; "choose your team -> start"]
     createButtonDivM customStyle dest text =
@@ -107,7 +111,7 @@ viewWelcomeModel WelcomeModel {..} = do
     viewFrameAt :: DisplayMode -> TimedFrames -> Int -> [View Action]
     viewFrameAt mode frames i =
       let TimedFrame {frame} = frames V.! i
-       in [viewFrame mode zpppp welcomeShared frame]
+       in [viewFrame mode zpppp shared frame]
 
 torchesDiv :: Int -> View Action
 torchesDiv z =
@@ -129,14 +133,14 @@ torchesDiv z =
         <> "animation" =: ("torch " <> duration x <> " steps(2) infinite")
     duration x = if x then "2s" else "2.5s"
 
-versionDiv :: Int -> Configuration -> View Action
-versionDiv z config =
+versionDiv :: SharedModel -> Int -> Configuration -> View Action
+versionDiv shared z config =
   div_
     [style_ $ style <> textStyle, style_ flexLineStyle]
     $ [text $ ms txt]
-      ++ [img_ [src_ (assetsPath assetFilenameCrown)] | legendary]
+      ++ [img_ [src_ $ tile16 (if legendary then Tile.Crown else Tile.Sword3)]]
   where
-    txt = "Version: " ++ location ++ hashString' ++ ", " ++ (if legendary then "Legendary" else "")
+    txt = "Version: " ++ location ++ hashString' ++ ", " ++ (if legendary then "Legendary, " else "")
     textStyle = Map.fromList textRawStyle
     (location, legendary, hashString) =
       case config of
@@ -152,6 +156,11 @@ versionDiv z config =
     x = cps
     y = lobbiesPixelHeight - cps
     style = zplt z Absolute x y
+    tile16 tile =
+      SharedModel.tileToFilepath shared tile Tile.Sixteen
+        & Tile.filepathToString
+        & ms
+        & Constants.assetsPath
 
 supportDiv :: View a
 supportDiv =
