@@ -169,7 +169,7 @@ play shareds level teams nbTurns =
     & count (mkEmpty level $ fmap fst teams)
   where
     go (shared : rest) =
-      let result = Match.play (Update.levelNGameModel AI.Easy shared teams) nbTurns
+      let result = Match.play (Update.levelNGameModel AI.Easy shared level teams) nbTurns
        in traceShow (logString result) result : go rest
     go [] = []
     count acc [] = acc

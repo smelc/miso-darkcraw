@@ -7,6 +7,7 @@ module Model where
 
 import AI (Difficulty)
 import Board
+import qualified Campaign
 import Card
 import Cinema (TimedFrame)
 import Data.Function ((&))
@@ -61,6 +62,8 @@ data GameModel = GameModel
     difficulty :: Difficulty,
     -- | What user interaction is going on
     interaction :: Interaction Game.Target,
+    -- | The current level
+    level :: Campaign.Level,
     -- | Where the player plays
     playingPlayer :: PlayerSpot,
     -- | The deck of 'playingPlayer'

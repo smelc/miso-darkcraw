@@ -17,6 +17,7 @@ import AI (Difficulty)
 import qualified AI
 import Board
 import BoardInstances (boardStart)
+import qualified Campaign
 import Card
 import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
 import qualified Command
@@ -131,6 +132,8 @@ instance ToExpr Card.SkillPack
 instance ToExpr SharedModel
 
 instance ToExpr Difficulty
+
+instance ToExpr Campaign.Level
 
 instance ToExpr GameModel
 
@@ -825,6 +828,7 @@ level0GameModel difficulty shared teams =
   levelNGameModel
     difficulty
     shared
+    Campaign.Level0
     $ (teams <&> (\t -> (t, SharedModel.getInitialDeck shared t)))
 
 -- | A model that takes the decks as parameters, for use after the initial
@@ -832,15 +836,17 @@ level0GameModel difficulty shared teams =
 levelNGameModel ::
   Difficulty ->
   SharedModel ->
+  Campaign.Level ->
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
   GameModel
-levelNGameModel difficulty shared teams =
+levelNGameModel difficulty shared level teams =
   GameModel
     shared
     board
     difficulty
     NoInteraction
+    level
     startingPlayerSpot
     playingPlayerDeck
     Turn.initial
@@ -867,6 +873,7 @@ unsafeInitialGameModel difficulty shared teamsData board =
     board
     difficulty
     NoInteraction
+    Campaign.Level0
     startingPlayerSpot
     playingPlayerDeck
     Turn.initial
