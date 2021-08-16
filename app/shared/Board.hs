@@ -103,10 +103,10 @@ data CardSpot
   | BottomLeft
   | Bottom
   | BottomRight
-  deriving (Enum, Eq, Ord, Show, Generic)
+  deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 allCardsSpots :: [CardSpot]
-allCardsSpots = [TopLeft ..]
+allCardsSpots = [minBound ..]
 
 type CardsOnTable = Map.Map CardSpot (Creature 'Core)
 
@@ -310,10 +310,10 @@ lookupHand hand i
     handLength = length hand
 
 data PlayerSpot = PlayerBot | PlayerTop
-  deriving (Enum, Eq, Ord, Show, Generic)
+  deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 allPlayersSpots :: [PlayerSpot]
-allPlayersSpots = [PlayerBot ..]
+allPlayersSpots = [minBound ..]
 
 startingPlayerSpot :: PlayerSpot
 startingPlayerSpot = PlayerBot

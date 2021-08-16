@@ -24,16 +24,15 @@ import GHC.Generics (Generic)
 import Nat
 import Tile
 
--- If you change the first member, change 'allTeams' too
 -- If you add a member, augment the tests in 'Balance.hs'
 data Team = Evil | Human | Undead
-  deriving (Enum, Eq, Generic, Show, Ord)
+  deriving (Bounded, Enum, Eq, Generic, Show, Ord)
 
 ppTeam :: Team -> String
 ppTeam = show
 
 allTeams :: [Team]
-allTeams = [Evil ..]
+allTeams = [minBound ..]
 
 data Skill
   = Blow
@@ -138,7 +137,6 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
     c (TransientType p)
   )
 
--- If you change the first member, change 'allCreatureKinds' too
 data CreatureKind
   = Archer
   | General
@@ -154,10 +152,10 @@ data CreatureKind
   | Ogre
   | Vampire
   | Warrior
-  deriving (Enum, Eq, Generic, Ord, Show)
+  deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
 allCreatureKinds :: [CreatureKind]
-allCreatureKinds = [Archer ..]
+allCreatureKinds = [minBound ..]
 
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
@@ -198,16 +196,15 @@ instance Itemizable (Creature 'UI) where
 instance Itemizable (Creature 'Core) where
   getItems Creature {items} = items
 
--- If you change the first member, change 'allNeutrals' too
 data Neutral
   = Health
   | InfernalHaste
   | Life
   | Plague
-  deriving (Enum, Eq, Generic, Ord, Show)
+  deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
 allNeutrals :: [Neutral]
-allNeutrals = [Health ..]
+allNeutrals = [minBound ..]
 
 -- If Creature and NeutralObject start having more in common than solely
 -- tile/ntile, a new record can be introduced; to share code.
@@ -227,16 +224,15 @@ deriving instance Forall Ord p => Ord (NeutralObject p)
 
 deriving instance Forall Show p => Show (NeutralObject p)
 
--- If you change the first member, update 'allItems'
 data Item
   = Crown
   | FlailOfTheDamned
   | SkBanner
   | SwordOfMight
-  deriving (Enum, Eq, Generic, Ord, Show)
+  deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
 allItems :: [Item]
-allItems = [Card.Crown ..]
+allItems = [minBound ..]
 
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,

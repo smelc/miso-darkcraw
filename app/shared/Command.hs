@@ -16,14 +16,13 @@ import Data.List (find)
 toLowerString :: String -> String
 toLowerString = map toLower
 
--- If you change the first member of this type, change 'allViews' too
 data View
   = -- | Identifier of BuildView.
     Build
-  deriving (Enum)
+  deriving (Bounded, Enum)
 
 allViews :: [View]
-allViews = [Build ..]
+allViews = [minBound ..]
 
 instance Show View where
   show Build = "build"
