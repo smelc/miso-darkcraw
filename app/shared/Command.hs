@@ -12,6 +12,7 @@ import Data.Char
 import Data.Function ((&))
 import Data.Functor
 import Data.List (find)
+import Data.List.Extra
 
 toLowerString :: String -> String
 toLowerString = map toLower
@@ -37,16 +38,22 @@ data Command
   | -- | Command to go to another view GameView
     Goto View
 
--- We could use SharedModel to restrict this list to members that
--- make sense at runtime, but dependency-wise, I don't want this module
--- to depend on SharedModel.
-allCommands :: [Command]
-allCommands =
-  [Gimme $ Card.IDC (CreatureID kind team) [] | kind <- allCreatureKinds, team <- allTeams]
-    ++ [Gimme $ Card.IDI item | item <- allItems]
-    ++ [Gimme $ Card.IDN neutral | neutral <- allNeutrals]
+-- See 'SharedModel' for the version that uses content from 'SharedModel'
+-- to instantiate the parameter.
+allCommands :: [CreatureID] -> [Command]
+allCommands cids =
+  [Gimme $ Card.IDC cid [] | cid <- sortBy compareCID cids]
+    ++ [Gimme $ Card.IDI item | item <- sortOn show allItems]
+    ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
     ++ [GimmeMana]
     ++ [Goto v | v <- allViews]
+  where
+    compareCID
+      CreatureID {creatureKind = ck1, team = t1}
+      CreatureID {creatureKind = ck2, team = t2} =
+        case compare t1 t2 of
+          EQ -> compare ck1 ck2
+          x -> x
 
 instance Show Command where
   show (Gimme (Card.IDC CreatureID {..} _)) =
@@ -65,7 +72,9 @@ class Read a where
 
 instance Command.Read Command where
   read s =
-    allCommands
+    allCommands cids
       & map (\c -> (c, show c))
       & find (\(_, s') -> s' == s)
       <&> fst
+    where
+      cids = [CreatureID kind team | kind <- allCreatureKinds, team <- allTeams]

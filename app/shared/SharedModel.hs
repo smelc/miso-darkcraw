@@ -31,7 +31,7 @@ module SharedModel
     getCardIdentifiers,
     cardToFilepath,
     withSeed,
-    getAllCommands,
+    SharedModel.allCommands,
     toCardCommon,
     unsafeToCardCommon,
     identToItem,
@@ -49,7 +49,6 @@ import Control.Monad.Random hiding (lift)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -102,38 +101,13 @@ cardToFilepath shared = \case
   where
     go = tileToFilepath shared
 
-getAllCommands :: SharedModel -> [Command]
-getAllCommands shared =
-  map Gimme cids
-    ++ map Gimme items
-    ++ map Gimme neutrals
-    ++ [GimmeMana]
-    ++ [Goto v | v <- Command.allViews]
+allCommands :: SharedModel -> [Command]
+allCommands shared = Command.allCommands cids
   where
     cids =
       getCardIdentifiers shared
         & map (\case IDC cid _ -> Just cid; _ -> Nothing)
         & catMaybes
-        & sortBy compareCID
-        & map (\cid -> IDC cid [])
-    compareCID
-      CreatureID {creatureKind = ck1, team = t1}
-      CreatureID {creatureKind = ck2, team = t2} =
-        case compare t1 t2 of
-          EQ -> compare ck1 ck2
-          x -> x
-    items =
-      getCardIdentifiers shared
-        & map (\case IDI i -> Just i; _ -> Nothing)
-        & catMaybes
-        & sortOn show
-        & map IDI
-    neutrals =
-      getCardIdentifiers shared
-        & map (\case IDN n -> Just n; _ -> Nothing)
-        & catMaybes
-        & sortOn show
-        & map IDN
 
 getCardIdentifiers :: SharedModel -> [Card.ID]
 getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards

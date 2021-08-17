@@ -109,7 +109,7 @@ cmdDiv shared =
         [ div_ [style_ $ "margin-top" =: px 8] [text "Available commands:"],
           ul_
             []
-            [li_ [] [text $ show cmd & ms] | cmd <- getAllCommands shared]
+            [li_ [] [text $ show cmd & ms] | cmd <- SharedModel.allCommands shared]
         ]
 
 boardToInPlaceCells ::

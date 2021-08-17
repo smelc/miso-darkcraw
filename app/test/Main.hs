@@ -16,7 +16,7 @@ import Board
 import qualified Campaign
 import Card
 import Cinema
-import Command
+import qualified Command
 import Constants
 import Control.Lens hiding (at, (+=))
 import Control.Lens.Extras
@@ -97,8 +97,9 @@ testShowCommands =
     it "is injective" $
       allStrings `shouldBe` uniqueStrings
   where
-    allStrings = map show allCommands & sort
+    allStrings = map show (Command.allCommands cids) & sort
     uniqueStrings = allStrings & Set.fromList & Set.toList & sort
+    cids = [CreatureID kind team | kind <- allCreatureKinds, team <- allTeams]
 
 testSceneInvariant :: Int -> TimedFrame -> Spec
 testSceneInvariant idx TimedFrame {..} =
