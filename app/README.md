@@ -40,16 +40,8 @@ hoogle generate --local
 To have GHC feedback within `neovim`:
 
 ```
-# At the root of the repo
-mkdir hls
-cd hls
-# This mentions release 1.2.0, use a newer version if available!
-wget https://github.com/haskell/haskell-language-server/releases/download/1.2.0/haskell-language-server-Linux-8.6.5.gz
-wget https://github.com/haskell/haskell-language-server/releases/download/1.2.0/haskell-language-server-wrapper-Linux.gz
-gunzip *.gz
-mv haskell-language-server-Linux-8.6.5 haskell-language-server-8.6.5
-mv haskell-language-server-wrapper-Linux haskell-language-server-wrapper
-cd .. # back to the repo's root
+# This installs hls locally in the "hls/" directory
+./scripts/install-hls.sh 1.3.0  # 1.3.0 is the version of HLS at the time of writing
 export PATH="$(pwd)/hls:$PATH"
 
 cd app
