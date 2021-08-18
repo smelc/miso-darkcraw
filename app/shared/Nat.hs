@@ -22,7 +22,7 @@ intToClampedNat i = toEnum i
 
 natLength :: [a] -> Nat
 natLength [] = 0
-natLength (_ : tail) = 1 + natLength tail
+natLength (_ : rest) = 1 + natLength rest
 
 -- | minusNatClamped n m returns n - m if n >= m, otherwise it returns 0.
 minusNatClamped :: Nat -> Nat -> Nat

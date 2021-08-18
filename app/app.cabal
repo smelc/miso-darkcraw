@@ -18,7 +18,6 @@ common client-server-shared
     Card
     CardInstances
     Constants
-    Debugging
     Event
     Game
     JsonData
@@ -80,6 +79,7 @@ executable app
     Cinema
     Command
     Configuration
+    Debugging
     DeckView
     GameView
     GameViewInternal
