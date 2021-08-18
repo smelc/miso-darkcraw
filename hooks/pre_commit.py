@@ -12,6 +12,9 @@ import subprocess
 import sys
 from typing import List, Optional
 
+_BUILD_TEST = False  # Whether to build and run tests in the precommit hook.
+# Set to False since it's done by the CI.
+
 
 def _git_diff(staged_or_modified: bool, extension: str) -> List[str]:
     """
@@ -131,11 +134,13 @@ def main() -> int:
         ormolu_rc = _call_tool(relevant_hs_files, staged,
                                ["ormolu", "-m", "inplace"])
         return_code = max(return_code, ormolu_rc)
-        return_code = max(return_code, _build())
-        return_code = max(return_code, _test())
+        if _BUILD_TEST:
+            return_code = max(return_code, _build())
+            return_code = max(return_code, _test())
     else:
         print("No %s *.hs relevant file found, nothing to format" % adjective)
-        print("Not calling nix-build/cabal test either")
+        if _BUILD_TEST:
+            print("Not calling nix-build/cabal test either")
 
     return_code = max(return_code, _check_jsondata_dot_hs())
 
