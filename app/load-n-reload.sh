@@ -143,6 +143,6 @@ then
   cabal_test_listen  # Not executing in the background, so that ctrl-c
   # this script exits 'entr'
 else
-  echo "Unrecognized argument: $1. Expecting no argument or 'release' or 'test'"
+  echo "Unrecognized argument: $1. Expecting no argument or one of: 'server', 'release', or 'test'"
   exit 1
 fi

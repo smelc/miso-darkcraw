@@ -62,6 +62,15 @@ with my usual configuration, nice! Make sure it has:
 
 so that it matches the filenames above in `hls/`.
 
+# [ghcid](https://github.com/ndmitchell/ghcid)
+
+```shell
+nix-shell
+cabal install ghcid
+ghcid  # See the .ghcid for the --command used
+ghcid | source-highlight -s haskell -f esc  # To have syntax highlighting in error messages
+```
+
 # [hlint](https://github.com/ndmitchell/hlint)
 
 `hlint $(git ls-files "*.hs")`
@@ -118,8 +127,7 @@ the backtrace may only happen when `Ctrl-c`ing `test-darkcraw`
 
 # Fast feedback
 
-* To launch [`ghcid`](https://github.com/ndmitchell/ghcid) in a terminal
-  that will update the webserver automatically:
+* To launch a `jsaddle` webserver that updates automatically:
 
   `./load-n-reload.sh` (`nix-shell --run reload` under the hood)
 * To update the released version automatically (is closer to what players
