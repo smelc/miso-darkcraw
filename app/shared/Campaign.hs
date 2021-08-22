@@ -1,9 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
 -- This module deals with the succession of matches
 -- |
-module Campaign (Level (..), rewards, decks, succ, rewardsUpTo, nbRewards, preds) where
+module Campaign (Level (..), Outcome (..), decks, loot, nbRewards, succ) where
 
 import Card (Team (..))
 import qualified Card
@@ -19,6 +20,16 @@ data Level
   = Level0
   | Level1
   deriving (Eq, Generic, Show)
+
+-- | The outcome of playing a single game
+data Outcome
+  = -- | Player wins
+    Win
+  | -- | Draw
+    Draw
+  | -- | Player loses
+    Loss
+  deriving (Bounded, Enum)
 
 -- | Given a level, its predecessor
 pred :: Level -> Maybe Level
@@ -58,6 +69,25 @@ rewards level team =
     (Level1, Undead) -> [Card.IDI Card.SkBanner]
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
+
+-- | The possible rewards when finishing the given 'Level' with the given 'Outcome'
+loot :: Outcome -> Level -> Team -> [Card.ID]
+loot Win level team = rewards level team
+loot Draw level team =
+  altTake True (win, loss) & take (length win)
+  where
+    win = loot Win level team
+    loss = loot Loss level team
+    altTake :: Bool -> ([a], [a]) -> [a]
+    altTake _ ([], []) = []
+    altTake True (firstWin : restWin, loss) = firstWin : altTake False (restWin, loss)
+    altTake False (win, firstLoss : restLoss) = firstLoss : altTake True (win, restLoss)
+    altTake _ ([], loss) = loss
+    altTake _ (win, []) = win
+loot Loss level team =
+  case pred level of
+    Nothing -> []
+    Just levelb -> rewards levelb team
 
 -- | All possible rewards that can have been obtained from the start,
 -- when playing the given level

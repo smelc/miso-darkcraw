@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RecordWildCards #-}
 
 -- |
@@ -7,6 +8,7 @@
 -- |
 module Command where
 
+import qualified Campaign
 import Card
 import Data.Char
 import Data.Function ((&))
@@ -31,7 +33,10 @@ instance Show View where
 -- If you extend this datatype, extend 'allCommands' below
 -- and 'getAllCommands' in SharedModel
 data Command
-  = -- | Command to obtain an extra card in the hand in GameView
+  = -- | Command to end the current game. Parameter indicates how
+    -- the playing player performed.
+    EndGame Campaign.Outcome
+  | -- | Command to obtain an extra card in the hand in GameView
     Gimme Card.ID
   | -- | Command to obtain mana
     GimmeMana
@@ -45,6 +50,7 @@ allCommands cids =
   [Gimme $ Card.IDC cid [] | cid <- sortBy compareCID cids]
     ++ [Gimme $ Card.IDI item | item <- sortOn show allItems]
     ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
+    ++ [EndGame r | r <- [minBound ..]]
     ++ [GimmeMana]
     ++ [Goto v | v <- allViews]
   where
@@ -56,6 +62,13 @@ allCommands cids =
           x -> x
 
 instance Show Command where
+  show (EndGame r) =
+    ( case r of
+        Campaign.Win -> "win"
+        Campaign.Draw -> "draw"
+        Campaign.Loss -> "lose"
+    )
+      ++ "game"
   show (Gimme (Card.IDC CreatureID {..} _)) =
     "gimme " ++ (show team & toLowerString) ++ " " ++ (show creatureKind & toLowerString)
   show (Gimme (Card.IDI item)) =

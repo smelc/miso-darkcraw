@@ -7,7 +7,7 @@ module Model where
 
 import AI (Difficulty)
 import Board
-import qualified Campaign
+import Campaign
 import Card
 import Cinema (TimedFrame)
 import Data.Function ((&))
@@ -18,6 +18,7 @@ import qualified Data.Text as Text
 import qualified Data.Vector as V
 import GHC.Generics
 import qualified Game (Target)
+import Nat
 import ServerMessages
 import SharedModel (SharedModel)
 import Turn (Turn)
@@ -109,6 +110,24 @@ gameToDeck GameModel {..} =
     PlayerPart {..} = Board.toPart board playingPlayer
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
+endGame :: GameModel -> Campaign.Outcome -> Model
+endGame
+  GameModel
+    { board,
+      gameShared = podiumShared,
+      level,
+      playingPlayer = pSpot,
+      playingPlayerDeck = podiumDeck
+    }
+  outcome =
+    case Campaign.succ level of
+      Nothing -> error "You've finished the game!" -- Not really a nice end for now
+      Just next -> LootModel' $ LootModel {..}
+    where
+      nbRewards = 1
+      rewards = Campaign.loot outcome level team
+      team = Board.toPart board pSpot & Board.team
+
 instance Show GameModel where
   show GameModel {..} =
     "{ gameShared = omitted\n"
@@ -199,12 +218,26 @@ data DeckModel = DeckModel
   }
   deriving (Eq, Generic, Show)
 
--- | The top level model, later it will be a disjunction
--- | of the model of each page
+data LootModel = LootModel
+  { -- | The number of rewards to be picked from 'rewards'
+    nbRewards :: Nat,
+    -- | The next level
+    next :: Level,
+    -- | The deck of the playing player
+    podiumDeck :: [Card.ID],
+    -- | Part of the model shared among all pages
+    podiumShared :: SharedModel,
+    -- | The possible rewards
+    rewards :: [Card.ID]
+  }
+  deriving (Eq, Generic, Show)
+
+-- | The top level model
 data Model
   = BuildModel' BuildModel
   | DeckModel' DeckModel
   | GameModel' GameModel
+  | LootModel' LootModel
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel
   | WelcomeModel' WelcomeModel
   | MultiPlayerLobbyModel' MultiPlayerLobbyModel

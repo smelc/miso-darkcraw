@@ -171,6 +171,8 @@ instance ToExpr BuildModel
 
 instance ToExpr DeckModel
 
+instance ToExpr LootModel
+
 instance ToExpr Model
 
 data MultiPlayerLobbyAction
@@ -251,6 +253,8 @@ data Action
   | -- | Leave a view, go to 'DeckView'
     DeckGo DeckViewInput
   | GameAction' GameAction
+  | -- | Go to 'LootView'
+    LootGo
   | NoOp
   | MultiPlayerLobbyAction' MultiPlayerLobbyAction
   | SayHelloWorld
@@ -745,6 +749,8 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameSh
           Nothing ->
             let errMsg = "Unrecognized command: " ++ cmdStr
              in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
+          Just (Command.EndGame outcome) ->
+            noEff $ Model.endGame gm outcome
           Just (Command.Gimme cid) ->
             withBoard $ Board.addToHand board playingPlayer cid
           Just (Command.GimmeMana) ->
