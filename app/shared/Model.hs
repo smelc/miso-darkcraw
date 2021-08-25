@@ -114,10 +114,10 @@ endGame :: GameModel -> Campaign.Outcome -> Model
 endGame
   GameModel
     { board,
-      gameShared = podiumShared,
+      gameShared = lootShared,
       level,
       playingPlayer = pSpot,
-      playingPlayerDeck = podiumDeck
+      playingPlayerDeck = lootDeck
     }
   outcome =
     case Campaign.succ level of
@@ -224,9 +224,9 @@ data LootModel = LootModel
     -- | The next level
     next :: Level,
     -- | The deck of the playing player
-    podiumDeck :: [Card.ID],
+    lootDeck :: [Card.ID],
     -- | Part of the model shared among all pages
-    podiumShared :: SharedModel,
+    lootShared :: SharedModel,
     -- | The possible rewards
     rewards :: [Card.ID]
   }
