@@ -122,11 +122,12 @@ endGame
   outcome =
     case Campaign.succ level of
       Nothing -> error "You've finished the game!" -- Not really a nice end for now
-      Just next -> LootModel' $ LootModel {..}
+      Just next -> LootModel' $ LootModel {lootTeam = team, ..}
     where
       nbRewards = 1
       rewards = Campaign.loot outcome level team
       team = Board.toPart board pSpot & Board.team
+      firstVisibleCard = if null lootDeck then Nothing else Just 0
 
 instance Show GameModel where
   show GameModel {..} =
@@ -219,12 +220,17 @@ data DeckModel = DeckModel
   deriving (Eq, Generic, Show)
 
 data LootModel = LootModel
-  { -- | The number of rewards to be picked from 'rewards'
+  { -- | The index of the first card to show in 'lootDeck'. 'None' if nothing
+    -- to show.
+    firstVisibleCard :: Maybe Nat,
+    -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
     -- | The next level
     next :: Level,
     -- | The deck of the playing player
     lootDeck :: [Card.ID],
+    -- | To which team the deck being shown belongs
+    lootTeam :: Team,
     -- | Part of the model shared among all pages
     lootShared :: SharedModel,
     -- | The possible rewards
