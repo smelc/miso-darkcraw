@@ -55,6 +55,7 @@ data DisplayLocation
   | GameHandLoc
   | GameDragLoc
   | DeckLoc
+  | LootLoc
 
 toPart :: DisplayLocation -> Maybe Total.Part
 toPart =
@@ -63,6 +64,7 @@ toPart =
     GameHandLoc -> Nothing
     GameDragLoc -> Nothing
     DeckLoc -> Nothing
+    LootLoc -> Nothing
 
 data CardDrawStyle = CardDrawStyle
   { -- | Whether the card should fade in

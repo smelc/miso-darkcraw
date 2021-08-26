@@ -83,6 +83,7 @@ executable app
     DeckView
     GameView
     GameViewInternal
+    LootView
     Movie
     MultiPlayerLobbyView
     PCWViewInternal
