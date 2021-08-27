@@ -29,16 +29,21 @@ import ViewInternal
 -- |
 view :: LootModel -> Styled (View Action)
 view LootModel {firstVisibleCard = first, lootDeck = deck, lootShared = shared, lootTeam = team} = do
-  deck <- deckView ctxt 1 deck first
+  deck <- deckView ctxt zpppp deck first
   return $
     div_
-      [style_ $ bgStyle 0]
-      [deck]
+      [style_ $ bgStyle z]
+      [ deck,
+        div_
+          [style_ $ "position" =: "absolute" <> "top" =: "0" <> "right" =: "0" <> "z-index" =: ms zpp]
+          [img_ [src_ $ Constants.assetsPath "loot-top-sand.png"]]
+      ]
   where
+    (z, zpp, zpppp) = (0, z + 1, z + 2)
     bgStyle :: Int -> Map.Map MisoString MisoString
     bgStyle z =
       zpltwh z Relative 0 0 Constants.lobbiesPixelWidth Constants.boardPixelHeight
-        <> "background-image" =: Constants.assetsUrl "loot-forest-sand.png"
+        <> "background-image" =: Constants.assetsUrl "loot-bot-forest.png"
     ctxt = Context {..}
 
 -- | Context that is common to all calls to 'deckView'

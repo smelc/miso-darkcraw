@@ -20,7 +20,7 @@ import GHC.Generics
 import qualified Game (Target)
 import Nat
 import ServerMessages
-import SharedModel (SharedModel)
+import SharedModel (SharedModel, getInitialDeck)
 import Turn (Turn)
 import qualified Turn
 
@@ -128,6 +128,21 @@ endGame
       rewards = Campaign.loot outcome level team
       team = Board.toPart board pSpot & Board.team
       firstVisibleCard = if null lootDeck then Nothing else Just 0
+
+-- | Function for debugging only. To be deleted at some point.
+unsafeLootModel :: WelcomeModel -> Model
+unsafeLootModel WelcomeModel {welcomeShared = shared} =
+  LootModel' $ LootModel {lootTeam = Human, ..}
+  where
+    lootShared = shared
+    nbRewards = 1
+    team = Human
+    rewards = Campaign.loot Campaign.Win Campaign.Level0 team
+    firstVisibleCard = Just 0
+    next = Campaign.Level1
+    lootDeck =
+      SharedModel.getInitialDeck shared team
+        & map Card.cardToIdentifier
 
 instance Show GameModel where
   show GameModel {..} =
