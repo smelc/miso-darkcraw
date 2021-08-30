@@ -33,29 +33,23 @@ import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 
 data GenericModel = GenericModel
   { -- | The background to use
-    gBackground :: MisoString,
+    background :: MisoString,
     -- | The deck to show
-    gDeck :: [Card 'Core],
+    deck :: [Card 'Core],
     -- | To which player 'gDeck' belongs
-    gPlayer :: PlayerSpot,
+    player :: PlayerSpot,
     -- | To which team the deck being shown belongs
-    gTeam :: Team,
+    team :: Team,
     -- | Part of the model shared among all pages
-    gShared :: SharedModel
+    shared :: SharedModel
   }
 
 viewDeck :: DeckModel -> Styled (View Action)
 viewDeck DeckModel {..} =
-  viewGeneric GenericModel {..}
-  where
-    gBackground = "deck.png"
-    gDeck = deck
-    gPlayer = deckPlayer
-    gTeam = deckTeam
-    gShared = deckShared
+  viewGeneric GenericModel {background = "deck.png", ..}
 
 viewGeneric :: GenericModel -> Styled (View Action)
-viewGeneric GenericModel {gBackground = bg, gDeck = deck, gPlayer = player, gTeam = team, gShared = shared} = do
+viewGeneric GenericModel {background = bg, ..} = do
   backDiv <- backDivM
   cardsDiv <- cardsDiver 0 0 cards
   return $

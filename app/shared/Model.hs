@@ -81,7 +81,7 @@ data BuildModel = BuildModel
   { -- | Part of the model shared among all pages
     shared :: SharedModel,
     -- | The actual deck
-    buildDeck :: [Card.ID],
+    deck :: [Card.ID],
     -- | The playing player's spot and team
     buildPlayer :: (PlayerSpot, Team),
     -- | The number of cards that can still be drawn from 'hand'
@@ -95,7 +95,7 @@ gameToBuild :: GameModel -> BuildModel
 gameToBuild gm@GameModel {..} =
   BuildModel {..}
   where
-    buildDeck = gameToDeck gm
+    deck = gameToDeck gm
     buildPlayer = (playingPlayer, Board.toPart board playingPlayer & Board.team)
     free = 0 -- for the moment
     hand = [] -- for the moment
@@ -116,30 +116,30 @@ endGame
     { board,
       level,
       playingPlayer = pSpot,
-      playingPlayerDeck = lootDeck,
+      playingPlayerDeck = deck,
       ..
     }
   outcome =
     case Campaign.succ level of
       Nothing -> error "You've finished the game!" -- Not really a nice end for now
-      Just next -> LootModel' $ LootModel {lootTeam = team, ..}
+      Just next -> LootModel' $ LootModel {..}
     where
       nbRewards = 1
       rewards = Campaign.loot outcome level team
       team = Board.toPart board pSpot & Board.team
-      firstVisibleCard = if null lootDeck then Nothing else Just 0
+      firstVisibleCard = if null deck then Nothing else Just 0
 
 -- | Function for debugging only. To be deleted at some point.
 unsafeLootModel :: WelcomeModel -> Model
 unsafeLootModel WelcomeModel {shared} =
-  LootModel' $ LootModel {lootTeam = Human, ..}
+  LootModel' $ LootModel {..}
   where
     nbRewards = 1
     team = Human
     rewards = Campaign.loot Campaign.Win Campaign.Level0 team
     firstVisibleCard = Just 0
     next = Campaign.Level1
-    lootDeck =
+    deck =
       SharedModel.getInitialDeck shared team
         & map Card.cardToIdentifier
 
@@ -176,7 +176,7 @@ data SceneModel
 -- | The model of the welcome page
 data WelcomeModel = WelcomeModel
   { -- The state of the scene
-    welcomeSceneModel :: SceneModel,
+    sceneModel :: SceneModel,
     -- | Part of the model shared among all pages
     shared :: SharedModel,
     -- | Keys currently down
@@ -225,11 +225,11 @@ data DeckModel = DeckModel
     -- | The model to use when closing the deck view
     deckBack :: Model,
     -- | To which player 'deckBack' belongs
-    deckPlayer :: PlayerSpot,
+    player :: PlayerSpot,
     -- | To which team the deck being shown belongs
-    deckTeam :: Team,
+    team :: Team,
     -- | Part of the model shared among all pages
-    deckShared :: SharedModel
+    shared :: SharedModel
   }
   deriving (Eq, Generic, Show)
 
@@ -242,9 +242,9 @@ data LootModel = LootModel
     -- | The next level
     next :: Level,
     -- | The deck of the playing player
-    lootDeck :: [Card.ID],
+    deck :: [Card.ID],
     -- | To which team the deck being shown belongs
-    lootTeam :: Team,
+    team :: Team,
     -- | Part of the model shared among all pages
     shared :: SharedModel,
     -- | The possible rewards

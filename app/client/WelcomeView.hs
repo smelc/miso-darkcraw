@@ -46,7 +46,7 @@ viewWelcomeModel WelcomeModel {..} = do
                 -- top level flex, layout things in a column
                 [titleDiv, singlePlayerDiv, multiPlayerDiv]
             ]
-            ++ viewWelcomeScene welcomeSceneModel
+            ++ viewWelcomeScene sceneModel
             ++ debugSlider
   let support =
         case Config.get of
@@ -91,7 +91,7 @@ viewWelcomeModel WelcomeModel {..} = do
             MultiPlayerDestination -> multiplayerEnabled
     debugSlider :: [View Action]
     debugSlider
-      | (ScenePausedForDebugging frames i) <- welcomeSceneModel =
+      | (ScenePausedForDebugging frames i) <- sceneModel =
         [ input_
             [ type_ "range",
               min_ "0",

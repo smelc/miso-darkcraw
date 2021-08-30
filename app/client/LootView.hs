@@ -28,7 +28,7 @@ import ViewInternal
 -- cards to augment its deck.
 -- |
 view :: LootModel -> Styled (View Action)
-view LootModel {firstVisibleCard = first, lootDeck = deck, lootTeam = team, ..} = do
+view LootModel {firstVisibleCard = first, ..} = do
   deck <- deckView ctxt zpppp deck first
   return $
     div_

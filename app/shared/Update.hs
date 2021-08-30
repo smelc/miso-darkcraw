@@ -788,13 +788,13 @@ updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
 -- Actions that do not change the page delegate to more specialized versions
-updateModel (SceneAction' action) (WelcomeModel' wm@WelcomeModel {welcomeSceneModel}) = do
-  newWelcomeSceneModel <- updateSceneModel action welcomeSceneModel
-  return (WelcomeModel' wm {welcomeSceneModel = newWelcomeSceneModel})
+updateModel (SceneAction' action) (WelcomeModel' wm@WelcomeModel {sceneModel}) = do
+  newSceneModel <- updateSceneModel action sceneModel
+  return (WelcomeModel' wm {sceneModel = newSceneModel})
 updateModel (SceneAction' _) model = noEff model
-updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, welcomeSceneModel}) = do
-  newWelcomeSceneModel <- maybe (return welcomeSceneModel) (`updateSceneModel` welcomeSceneModel) sceneAction
-  return $ WelcomeModel' wm {keysDown = newKeysDown, welcomeSceneModel = newWelcomeSceneModel}
+updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, sceneModel}) = do
+  newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
+  return $ WelcomeModel' wm {keysDown = newKeysDown, sceneModel = newSceneModel}
   where
     sceneAction :: Maybe SceneAction
     sceneAction = asum (map keyCodeToSceneAction (toList (Set.difference newKeysDown keysDown)))
@@ -895,7 +895,7 @@ unsafeInitialGameModel difficulty shared teamsData board =
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel shared =
   WelcomeModel
-    { welcomeSceneModel = toSceneModel Movie.welcomeMovie,
+    { sceneModel = toSceneModel Movie.welcomeMovie,
       keysDown = mempty,
       ..
     }

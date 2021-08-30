@@ -39,12 +39,11 @@ view b = do
 -- | Used to draw the upper part (relies on 'DeckView')
 toGenericModel :: BuildModel -> Deck.GenericModel
 toGenericModel BuildModel {..} =
-  Deck.GenericModel {..}
+  Deck.GenericModel {deck = gDeck, ..}
   where
-    gBackground = "build.png"
-    gDeck = map (Card.unlift . SharedModel.unsafeIdentToCard shared) buildDeck
-    (gPlayer, gTeam) = buildPlayer
-    gShared = shared
+    background = "build.png"
+    gDeck = map (Card.unlift . SharedModel.unsafeIdentToCard shared) deck
+    (player, team) = buildPlayer
 
 -- | Used to draw the bottom part (relies on 'GameView')
 toHandDrawingInput :: BuildModel -> GameView.HandDrawingInput
