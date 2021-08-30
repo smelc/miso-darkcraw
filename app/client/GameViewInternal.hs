@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -193,7 +194,7 @@ data StackWidgetType
 
 -- | The widget showing the number of cards in the stack/discarded stack
 stackView :: GameModel -> Int -> PlayerSpot -> StackPosition -> StackKind -> Styled [View Action]
-stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
+stackView GameModel {anims, board, shared} z pSpot stackPos stackType = do
   button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show atColonSize)
   plus <- keyframed plusBuilder plusFrames animData
   return $
@@ -231,7 +232,7 @@ stackView GameModel {anims, board, gameShared} z pSpot stackPos stackType = do
     plusValue = case stackType of
       Stacked -> Board.toStack anims pSpot
       Discarded -> Board.toDiscarded anims pSpot + nbDeaths
-    deck :: [Card 'Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard gameShared) & map Card.unlift
+    deck :: [Card 'Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard shared) & map Card.unlift
     atColonSize = length deck
     attackEffects = anims ^. spotToLens pSpot . #inPlace & unInPlaceEffects
     nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 attackEffects

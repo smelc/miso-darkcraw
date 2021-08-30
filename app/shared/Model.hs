@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 
@@ -56,7 +57,7 @@ data HandFiddle
 -- | The model of the gaming page
 data GameModel = GameModel
   { -- | Part of the model shared among all pages
-    gameShared :: SharedModel,
+    shared :: SharedModel,
     -- | The core part of the model
     board :: Board 'Core,
     -- | The game's difficulty
@@ -78,7 +79,7 @@ data GameModel = GameModel
 
 data BuildModel = BuildModel
   { -- | Part of the model shared among all pages
-    buildShared :: SharedModel,
+    shared :: SharedModel,
     -- | The actual deck
     buildDeck :: [Card.ID],
     -- | The playing player's spot and team
@@ -94,7 +95,6 @@ gameToBuild :: GameModel -> BuildModel
 gameToBuild gm@GameModel {..} =
   BuildModel {..}
   where
-    buildShared = gameShared
     buildDeck = gameToDeck gm
     buildPlayer = (playingPlayer, Board.toPart board playingPlayer & Board.team)
     free = 0 -- for the moment
@@ -114,10 +114,10 @@ endGame :: GameModel -> Campaign.Outcome -> Model
 endGame
   GameModel
     { board,
-      gameShared = lootShared,
       level,
       playingPlayer = pSpot,
-      playingPlayerDeck = lootDeck
+      playingPlayerDeck = lootDeck,
+      ..
     }
   outcome =
     case Campaign.succ level of
@@ -131,10 +131,9 @@ endGame
 
 -- | Function for debugging only. To be deleted at some point.
 unsafeLootModel :: WelcomeModel -> Model
-unsafeLootModel WelcomeModel {welcomeShared = shared} =
+unsafeLootModel WelcomeModel {shared} =
   LootModel' $ LootModel {lootTeam = Human, ..}
   where
-    lootShared = shared
     nbRewards = 1
     team = Human
     rewards = Campaign.loot Campaign.Win Campaign.Level0 team
@@ -179,7 +178,7 @@ data WelcomeModel = WelcomeModel
   { -- The state of the scene
     welcomeSceneModel :: SceneModel,
     -- | Part of the model shared among all pages
-    welcomeShared :: SharedModel,
+    shared :: SharedModel,
     -- | Keys currently down
     keysDown :: Set Int
   }
@@ -247,7 +246,7 @@ data LootModel = LootModel
     -- | To which team the deck being shown belongs
     lootTeam :: Team,
     -- | Part of the model shared among all pages
-    lootShared :: SharedModel,
+    shared :: SharedModel,
     -- | The possible rewards
     rewards :: [Card.ID]
   }

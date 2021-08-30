@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -138,7 +139,7 @@ toMatchResult GameModel {board} =
     (scoreTop, scoreBot) = (score PlayerTop, score PlayerBot)
 
 playOneTurn :: GameModel -> Either Text GameModel
-playOneTurn m@GameModel {board, gameShared = shared, playingPlayer, turn} =
+playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
   -- We need to play for the player
   case (playingPlayer == pSpot, AI.play AI.Easy shared board pSpot) of
     (False, _) -> Left $ Text.pack $ "It should be the player turn (" ++ show playingPlayer ++ "), but found: " ++ show pSpot

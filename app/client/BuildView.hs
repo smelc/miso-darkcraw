@@ -38,7 +38,7 @@ view b = do
 
 -- | Used to draw the upper part (relies on 'DeckView')
 toGenericModel :: BuildModel -> Deck.GenericModel
-toGenericModel BuildModel {buildShared = shared, ..} =
+toGenericModel BuildModel {..} =
   Deck.GenericModel {..}
   where
     gBackground = "build.png"
@@ -48,7 +48,7 @@ toGenericModel BuildModel {buildShared = shared, ..} =
 
 -- | Used to draw the bottom part (relies on 'GameView')
 toHandDrawingInput :: BuildModel -> GameView.HandDrawingInput
-toHandDrawingInput BuildModel {buildShared = shared, ..} =
+toHandDrawingInput BuildModel {..} =
   GameView.HandDrawingInput {..}
   where
     itemCards =

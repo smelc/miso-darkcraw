@@ -1,5 +1,6 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -23,13 +24,14 @@ import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (
 import qualified Command
 import Control.Concurrent (threadDelay)
 import Control.Lens
+import Control.Monad (join)
 import Control.Monad.Freer as Eff
 import Control.Monad.Freer.State as Eff
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable (asum, toList)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, isJust, maybeToList)
+import Data.Maybe (isJust, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -388,15 +390,15 @@ updateGameModel m (GameDnD a@Drop) i = act m a i
 updateGameModel m (GameDnD a@(DragEnter _)) i = act m a i
 updateGameModel m (GameDnD a@(DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute
-updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
-  case Game.play gameShared board gameEvent of
+updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ =
+  case Game.play shared board gameEvent of
     Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
     Right (Game.Result shared' board' nexts anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
       (m', zip (repeat 1) $ maybeToList event)
       where
-        m' = m {board = board', gameShared = shared', anims = anims'}
+        m' = m {board = board', shared = shared', anims = anims'}
         event = case (gameEvent, nexts) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
             -- enqueue resolving next attack if applicable
@@ -411,18 +413,18 @@ updateGameModel m@GameModel {board, gameShared} (GamePlay gameEvent) _ =
           (_, _) -> nexts <&> GamePlay
 updateGameModel m (GameDrawCards []) _ =
   traceShow ("GameDrawCards [] should not happen (but is harmless)" :: String) (m, [])
-updateGameModel m@GameModel {board, gameShared, turn} (GameDrawCards (fst : rest)) _ =
-  case Game.drawCards gameShared board pSpot [fst] of
+updateGameModel m@GameModel {board, shared, turn} (GameDrawCards (fst : rest)) _ =
+  case Game.drawCards shared board pSpot [fst] of
     Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
     Right (shared', board', boardui') ->
-      ( m {anims = boardui', board = board', gameShared = shared'},
+      ( m {anims = boardui', board = board', shared = shared'},
         -- enqueue next event (if any)
         [(1, GameDrawCards rest) | not $ null rest]
       )
   where
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-updateGameModel m@GameModel {board, difficulty, gameShared, turn} GameEndTurnPressed _ =
+updateGameModel m@GameModel {board, difficulty, shared, turn} GameEndTurnPressed _ =
   case em' of
     Left err -> updateDefault m $ ShowErrorInteraction err
     Right m'@GameModel {board = board'} ->
@@ -450,18 +452,18 @@ updateGameModel m@GameModel {board, difficulty, gameShared, turn} GameEndTurnPre
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
-          let placements = AI.placeCards difficulty gameShared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
-          Game.Result shared' board' () boardui' <- Game.playAll gameShared board placements
-          return $ m {anims = boardui', board = board', gameShared = shared'}
+          let placements = AI.placeCards difficulty shared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
+          Game.Result shared' board' () boardui' <- Game.playAll shared board placements
+          return $ m {anims = boardui', board = board', shared = shared'}
         else Right m
-updateGameModel m@GameModel {board, gameShared} GameIncrTurn _ =
+updateGameModel m@GameModel {board, shared} GameIncrTurn _ =
   case x of
     Left err -> updateDefault m $ ShowErrorInteraction err
     Right res -> res
   where
     x =
       updateGameIncrTurn m
-        & Eff.evalState gameShared
+        & Eff.evalState shared
         & Eff.evalState board
         & Eff.evalState (mempty :: Board 'UI)
         & Eff.run
@@ -478,9 +480,9 @@ updateGameModel m (GameInPlaceMouseLeave _) _ =
 -- Debug cmd
 updateGameModel m GameExecuteCmd _ =
   updateDefault m $ ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
-updateGameModel m@GameModel {gameShared} (GameUpdateCmd misoStr) i =
+updateGameModel m@GameModel {shared} (GameUpdateCmd misoStr) i =
   updateDefault
-    (m {gameShared = SharedModel.withCmd gameShared (Just $ fromMisoString misoStr)})
+    ((m {shared = SharedModel.withCmd shared (Just $ fromMisoString misoStr)}) :: GameModel)
     i
 -- default
 updateGameModel m _ i =
@@ -540,7 +542,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       shared <- get @SharedModel
       board <- get @(Board 'Core)
       boardui <- get @(Board 'UI)
-      let m' = m {anims = boardui, board = board, gameShared = shared, turn = turn'}
+      let m' = m {anims = boardui, board = board, shared, turn = turn'}
       return $ Right (m', [(1, GamePlay event) | event <- events1 ++ events2] ++ events3)
   where
     turn' = Turn.next turn
@@ -738,16 +740,16 @@ updateModel DeckBack (DeckModel' DeckModel {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
 updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
-  noEff $ DeckModel' $ DeckModel deck m playingPlayer t gameShared
+  noEff $ DeckModel' $ DeckModel deck m playingPlayer t shared
   where
     t = Board.toPart board playingPlayer & Board.team
 -- Leave 'GameView' (maybe)
-updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, gameShared, playingPlayer})
-  | SharedModel.getCmd gameShared & isJust =
-    let cmdStr = SharedModel.getCmd gameShared & fromJust
-     in case Command.read cmdStr of
+updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared, playingPlayer})
+  | SharedModel.getCmd shared & isJust =
+    let cmdStr = SharedModel.getCmd shared
+     in case cmdStr <&> Command.read & join of
           Nothing ->
-            let errMsg = "Unrecognized command: " ++ cmdStr
+            let errMsg = "Unrecognized command: " ++ show cmdStr
              in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
           Just (Command.EndGame outcome) ->
             noEff $ Model.endGame gm outcome
@@ -777,8 +779,8 @@ updateModel
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
-  (WelcomeModel' WelcomeModel {welcomeShared}) =
-    noEff $ SinglePlayerLobbyModel' $ SinglePlayerLobbyModel Nothing welcomeShared
+  (WelcomeModel' WelcomeModel {shared}) =
+    noEff $ SinglePlayerLobbyModel' $ SinglePlayerLobbyModel Nothing shared
 updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
   effectSub (MultiPlayerLobbyModel' (CollectingUserName "")) $
     websocketSub (URL "ws://127.0.0.1:9160") (Protocols []) handleWebSocket
@@ -891,7 +893,7 @@ unsafeInitialGameModel difficulty shared teamsData board =
         & map Card.cardToIdentifier
 
 initialWelcomeModel :: SharedModel -> WelcomeModel
-initialWelcomeModel welcomeShared =
+initialWelcomeModel shared =
   WelcomeModel
     { welcomeSceneModel = toSceneModel Movie.welcomeMovie,
       keysDown = mempty,

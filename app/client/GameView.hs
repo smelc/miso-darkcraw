@@ -43,13 +43,13 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: GameModel -> Styled (View Action)
-viewGameModel model@GameModel {board, gameShared, interaction, playingPlayer} = do
+viewGameModel model@GameModel {board, shared, interaction, playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
   return $
     div_ [] $
       [boardDiv, handDiv]
-        ++ if Configuration.isDev then cmdDiv gameShared else []
+        ++ if Configuration.isDev then cmdDiv shared else []
   where
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
@@ -146,7 +146,7 @@ boardToInPlaceCell ::
   PlayerSpot ->
   CardSpot ->
   Styled (View Action)
-boardToInPlaceCell z m@GameModel {anims, board, gameShared = shared, interaction} dragTargetType pSpot cSpot =
+boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetType pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
@@ -297,7 +297,7 @@ boardToInHandCells z hdi@HandDrawingInput {hdiHand} =
         <&> GameAction'
 
 toHandDrawingInput :: GameModel -> HandDrawingInput
-toHandDrawingInput GameModel {gameShared = shared, ..} =
+toHandDrawingInput GameModel {shared, ..} =
   HandDrawingInput {..}
   where
     hdiHand =

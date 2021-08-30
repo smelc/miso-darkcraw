@@ -31,7 +31,7 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
 viewWelcomeModel :: WelcomeModel -> Styled (View Action)
-viewWelcomeModel WelcomeModel {welcomeShared = shared, ..} = do
+viewWelcomeModel WelcomeModel {..} = do
   multiPlayerDiv <-
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-
