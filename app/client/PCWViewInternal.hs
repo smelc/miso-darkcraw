@@ -274,15 +274,13 @@ skillDiv shared skill =
     ui = Card.liftSkill skill & SharedModel.liftSkill shared
     color =
       case skill of
-        DrawCard' False -> "color" =: grey
-        Blow' False -> "color" =: grey
+        DrawCard' False -> "color" =: greyHTML
+        Blow' False -> "color" =: greyHTML
         Blow' True -> "color" =: greenHTML
-        Fear' False -> "color" =: grey
-        Terror' False -> "color" =: grey
+        Fear' False -> "color" =: greyHTML
+        Terror' False -> "color" =: greyHTML
         _ | isStupid skill -> "color" =: redHTML
         _ -> mempty
-      where
-        grey = "#555555"
     label =
       case skill of
         Stupid4' i -> skillTitle ui ++ " " ++ show (i + 1) ++ "/4"

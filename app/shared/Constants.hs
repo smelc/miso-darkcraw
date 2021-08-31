@@ -199,6 +199,9 @@ beigeHTML = "#F6E795"
 greenHTML :: MisoString
 greenHTML = "#00FF00"
 
+greyHTML :: MisoString
+greyHTML = "#555555"
+
 greenRGB :: (Int, Int, Int)
 greenRGB = (0, 255, 0)
 

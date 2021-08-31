@@ -7,19 +7,21 @@
 module LootView where
 
 import Card
+import qualified Cinema
 import qualified Constants
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Miso
-import Miso.String hiding (drop, map, take, zip)
+import Miso.String hiding (drop, length, map, take, zip)
 import Model (LootModel (..))
 import Nat
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle)
 import qualified PCWViewInternal
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Update (Action)
+import Update (Action (LootAction'), LootAction (DeckTo))
 import ViewInternal
 
 -- |
@@ -77,27 +79,38 @@ deckView Context {shared, LootView.team} z cards first = do
     bracket leftBracket =
       div_
         [ style_ $
-            "font-size" =: px 48
-              <> "position" =: "absolute"
-              <> "left" =: px left
+            "position" =: "absolute"
+              <> margin =: (ms (px (Constants.cps * 3)))
               <> "height" =: px height -- Needed to center vertically
               <> flexColumnStyle
               <> "justify-content" =: "center" -- Center vertically
         ]
-        [div_ [] [text (if leftBracket then "<" else ">")]] -- We need an extra div, so that
+        [button_ attrs [text (if leftBracket then "<" else ">")]] -- We need an extra div, so that
         -- the flex style applies (it doesn't apply to inline text).
       where
-        left =
-          Constants.cps
-            * ( if leftBracket
-                  then (Constants.boardToLeftCardCellsOffset - 2)
-                  else
-                    ( Constants.boardToLeftCardCellsOffset
-                        + (Constants.cardCellWidth * maxNbCards) -- cards
-                        + (maxNbCards - 1) -- gap between cards
-                        + 1 -- margin from rightmost card
-                    )
-              )
+        margin :: MisoString = if leftBracket then "left" else "right"
+        attrs =
+          -- Attributes of the angle bracket buttons
+          (action <&> onClick & maybeToList)
+            ++ [ style_ $
+                   "color" =: bracketColor
+                     <> "background-color" =: "transparent" -- no background
+                     <> "border" =: "none"
+                     <> "font-size" =: px 48
+               ]
+        bracketColor =
+          case action of
+            Nothing -> Constants.greyHTML
+            Just _ -> Constants.greenHTML
+        action :: Maybe Action =
+          Update.LootAction'
+            <$> case (first, leftBracket) of
+              (Nothing, _) -> Nothing
+              (Just first, True) | first <= 0 -> Nothing
+              (Just first, False) | natToInt first >= (length cards - 1) -> Nothing
+              (Just first, True) | first >= 1 -> Just $ Update.DeckTo Cinema.ToLeft
+              (Just first, False) | natToInt first < (length cards - 1) -> Just $ Update.DeckTo Cinema.ToRight
+              _ -> Nothing
     cards' :: [Card 'Core] =
       map (SharedModel.identToCard shared) cards
         & catMaybes

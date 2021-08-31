@@ -20,7 +20,7 @@ import Board
 import BoardInstances (boardStart)
 import qualified Campaign
 import Card
-import Cinema (Actor, ActorState, Direction, Element, Frame, Scene, TimedFrame (TimedFrame, duration), render)
+import Cinema
 import qualified Command
 import Control.Concurrent (threadDelay)
 import Control.Lens
@@ -239,6 +239,11 @@ data GameAction
     GameUpdateCmd MisoString
   deriving (Show, Eq)
 
+-- | Actions internal to 'LootView'
+data LootAction
+  = DeckTo Direction
+  deriving (Eq, Show)
+
 -- | To which page to go to, from the welcome page
 data WelcomeDestination
   = MultiPlayerDestination
@@ -255,6 +260,8 @@ data Action
   | -- | Leave a view, go to 'DeckView'
     DeckGo DeckViewInput
   | GameAction' GameAction
+  | -- | Actions internal to 'LootView'
+    LootAction' LootAction
   | -- | Go to 'LootView'
     LootGo
   | NoOp
@@ -559,6 +566,12 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       ui <- get @(Board 'UI)
       put @(Board 'UI) (ui <> ui') -- animations accumulate
 
+updateLootModel :: LootAction -> LootModel -> LootModel
+updateLootModel action LootModel {..} =
+  case action of
+    DeckTo Cinema.ToLeft -> undefined
+    DeckTo Cinema.ToRight -> undefined
+
 updateSinglePlayerLobbyModel ::
   SinglePlayerLobbyAction ->
   SinglePlayerLobbyModel ->
@@ -814,6 +827,8 @@ updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
     prepare as = map (Bifunctor.bimap toSecs GameAction') $ sumDelays 0 as
     check ((0, event) : _) = error $ "updateGameModel should not return event with 0 delay, but " ++ show event ++ " did"
     check as = as
+updateModel (LootAction' a) (LootModel' m) =
+  noEff $ LootModel' $ updateLootModel a m
 updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
   noEff $ SinglePlayerLobbyModel' $ updateSinglePlayerLobbyModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
