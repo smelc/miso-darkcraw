@@ -278,10 +278,10 @@ boardToInHandCells ::
   Int ->
   HandDrawingInput ->
   Styled [View Action]
-boardToInHandCells z hdi@HandDrawingInput {hdiHand} =
+boardToInHandCells z hdi@HandDrawingInput {hand} =
   traverse (boardToInHandCell hdi actionizer bigZ) zicreatures'
   where
-    cards = map fst hdiHand
+    cards = map fst hand
     icreatures = zip cards [HandIndex 0 ..]
     zicreatures = zip [z, z + 2 ..] icreatures
     bigZ = case safeLast zicreatures of Nothing -> z; Just (z', _) -> z' + 2
@@ -297,10 +297,10 @@ boardToInHandCells z hdi@HandDrawingInput {hdiHand} =
         <&> GameAction'
 
 toHandDrawingInput :: GameModel -> HandDrawingInput
-toHandDrawingInput GameModel {shared, ..} =
+toHandDrawingInput GameModel {interaction = gInteraction, ..} =
   HandDrawingInput {..}
   where
-    hdiHand =
+    hand =
       [ (card, fadeIn)
         | (i, card) <-
             zip
@@ -310,12 +310,10 @@ toHandDrawingInput GameModel {shared, ..} =
               ),
           let fadeIn = i `elem` Board.toHand anims playingPlayer
       ]
-    hdiInteraction = Just interaction
-    hdiOffseter = id
-    hdiShared = shared
+    interaction = Just gInteraction
+    offseter = id
     part = Board.toPart board playingPlayer
-    (hdiMana, hdiTeam) = (Board.mana part, Board.team part)
-    hdiPlayingPlayer = playingPlayer
+    (mana, team) = (Board.mana part, Board.team part)
 
 data HandActionizer a = HandActionizer
   { -- The event to raise when starting to drag a card
@@ -333,18 +331,18 @@ type HandOffseter = (Int, Int) -> (Int, Int)
 
 data HandDrawingInput = HandDrawingInput
   { -- | The hand, and whether the corresponding card is being faded in
-    hdiHand :: [(Card 'Core, Bool)],
+    hand :: [(Card 'Core, Bool)],
     -- | The current interaction, if any. FIXME @smelc do not hardcode Game.Target
-    hdiInteraction :: Maybe (Interaction Game.Target),
+    interaction :: Maybe (Interaction Game.Target),
     -- | The mana of the team being drawn
-    hdiMana :: Nat,
+    mana :: Nat,
     -- | How to offset the default position of the hand's cards
-    hdiOffseter :: HandOffseter,
+    offseter :: HandOffseter,
     -- | The team of the hand being drawn
-    hdiTeam :: Team,
+    team :: Team,
     -- | The player of the hand being drawn
-    hdiPlayingPlayer :: PlayerSpot,
-    hdiShared :: SharedModel
+    playingPlayer :: PlayerSpot,
+    shared :: SharedModel
   }
 
 boardToInHandCell ::
@@ -357,12 +355,8 @@ boardToInHandCell ::
   Styled (View Action)
 boardToInHandCell
   HandDrawingInput
-    { hdiHand = hand,
-      hdiInteraction = interaction,
-      hdiMana = availMana,
-      hdiOffseter = offseter,
-      hdiShared = shared,
-      hdiTeam = team
+    { mana = availMana,
+      ..
     }
   HandActionizer {..}
   bigZ

@@ -8,6 +8,8 @@
 -- Module to display an instance of the view in-between games,
 -- when augmenting the deck with new cards. Can depend on 'DeckView'
 -- and 'GameView'.
+--
+-- DEPRECATED FIXME @smelc REMOVE ME
 -- |
 module BuildView (view) where
 
@@ -53,10 +55,9 @@ toHandDrawingInput BuildModel {..} =
     itemCards =
       SharedModel.getCards shared
         & filter (\case ItemCard {} -> True; _ -> False)
-    hdiHand = zip (map Card.unlift itemCards) $ repeat False
-    hdiInteraction = Nothing
-    hdiMana = maxBound -- Simulate gigantic amount of mana, so that
+    hand = zip (map Card.unlift itemCards) $ repeat False
+    interaction = Nothing
+    mana = maxBound -- Simulate gigantic amount of mana, so that
     -- all cards are playable (no grey overlay)
-    hdiOffseter (x, y) = (x + boardPixelWidth `div` 2, y - cps)
-    (hdiPlayingPlayer, hdiTeam) = buildPlayer
-    hdiShared = shared
+    offseter (x, y) = (x + boardPixelWidth `div` 2, y - cps)
+    (playingPlayer, team) = buildPlayer
