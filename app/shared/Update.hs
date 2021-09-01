@@ -45,6 +45,7 @@ import Miso.String (MisoString, fromMisoString)
 import Model
 import qualified Model (gameToBuild)
 import Movie (welcomeMovie)
+import Nat
 import ServerMessages
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -567,10 +568,16 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       put @(Board 'UI) (ui <> ui') -- animations accumulate
 
 updateLootModel :: LootAction -> LootModel -> LootModel
-updateLootModel action LootModel {..} =
-  case action of
-    DeckTo Cinema.ToLeft -> undefined
-    DeckTo Cinema.ToRight -> undefined
+updateLootModel action lm@LootModel {..} =
+  case (firstVisibleCard, action) of
+    (Nothing, _) -> lm
+    (Just first, DeckTo Cinema.ToLeft)
+      | 0 < first ->
+        lm {firstVisibleCard = Just (first - 1)}
+    (Just first, DeckTo Cinema.ToRight)
+      | natToInt first < (length deck) - 1 ->
+        lm {firstVisibleCard = Just (first + 1)}
+    _ -> lm
 
 updateSinglePlayerLobbyModel ::
   SinglePlayerLobbyAction ->
