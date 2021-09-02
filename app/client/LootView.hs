@@ -7,10 +7,8 @@
 module LootView where
 
 import Card
-import qualified Cinema
 import qualified Constants
 import Data.Function ((&))
-import Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Miso
@@ -21,7 +19,7 @@ import PCWViewInternal (DisplayLocation (..), cardPositionStyle)
 import qualified PCWViewInternal
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Update (Action (LootAction'), LootAction (DeckTo))
+import Update (Action)
 import ViewInternal
 
 -- |
@@ -30,8 +28,8 @@ import ViewInternal
 -- cards to augment its deck.
 -- |
 view :: LootModel -> Styled (View Action)
-view LootModel {firstVisibleCard = first, ..} = do
-  deck <- deckView ctxt zpppp deck first
+view LootModel {..} = do
+  deck <- deckView ctxt zpppp deck
   return $
     div_
       [style_ $ bgStyle z]
@@ -92,9 +90,9 @@ deckViewWidth =
 
 -- | The div for the < card1 card2 card3 > view, the left and right
 -- angle brackets being buttons.
-deckView :: Context -> Int -> [Card.ID] -> Maybe Nat -> Styled (View Action)
-deckView Context {shared, LootView.team} z cards first = do
-  cardViews :: [View Action] <- traverse divCards (zip [0 ..] cardsShown)
+deckView :: Context -> Int -> [Card.ID] -> Styled (View Action)
+deckView Context {shared, LootView.team} z cards = do
+  cardViews :: [View Action] <- traverse divCards (zip [0 ..] cards')
   return $
     div_
       [ style_ $
@@ -108,53 +106,12 @@ deckView Context {shared, LootView.team} z cards first = do
             <> "overflow-y" =: "auto"
             <> PCWViewInternal.scrollbarStyle
       ]
-      $ [bracket True]
-        ++ cardViews
-        ++ [bracket False]
+      cardViews
   where
-    bracket leftBracket =
-      div_
-        [ style_ $
-            "position" =: "absolute"
-              <> margin =: (ms (px (Constants.cps * 3)))
-              <> "height" =: px deckViewHeight -- Needed to center vertically
-              <> flexColumnStyle -- Vertical layouting
-              <> "justify-content" =: "center" -- Center vertically
-        ]
-        [button_ attrs [text (if leftBracket then "<" else ">")]] -- We need an extra div, so that
-        -- the flex style applies (it doesn't apply to inline text).
-      where
-        margin :: MisoString = if leftBracket then "left" else "right"
-        attrs =
-          -- Attributes of the angle bracket buttons
-          (action <&> onClick & maybeToList)
-            ++ [ style_ $
-                   "color" =: bracketColor
-                     <> "background-color" =: "transparent" -- no background
-                     <> "border" =: "none"
-                     <> "font-size" =: px 48
-               ]
-        bracketColor =
-          case action of
-            Nothing -> Constants.greyHTML
-            Just _ -> Constants.greenHTML
-        action :: Maybe Action =
-          Update.LootAction'
-            <$> case (first, leftBracket) of
-              (Nothing, _) -> Nothing
-              (Just first, True) | first <= 0 -> Nothing
-              (Just first, False) | natToInt first >= (length cards - 1) -> Nothing
-              (Just first, True) | first >= 1 -> Just $ Update.DeckTo Cinema.ToLeft
-              (Just first, False) | natToInt first < (length cards - 1) -> Just $ Update.DeckTo Cinema.ToRight
-              _ -> Nothing
     cards' :: [Card 'Core] =
       map (SharedModel.identToCard shared) cards
         & catMaybes
         & map unlift
-    cardsShown =
-      case first of
-        Nothing -> []
-        Just first -> drop (natToInt first) cards'
     divCards :: (Nat, Card 'Core) -> Styled (View Action)
     divCards (i, card) = do
       inner <- PCWViewInternal.cardView LootLoc z shared team card mempty

@@ -127,7 +127,6 @@ endGame
       nbRewards = 1
       rewards = Campaign.loot outcome level team
       team = Board.toPart board pSpot & Board.team
-      firstVisibleCard = if null deck then Nothing else Just 0
 
 -- | Function for debugging only. To be deleted at some point.
 unsafeLootModel :: WelcomeModel -> Model
@@ -137,7 +136,6 @@ unsafeLootModel WelcomeModel {shared} =
     nbRewards = 1
     team = Human
     rewards = Campaign.loot Campaign.Win Campaign.Level0 team
-    firstVisibleCard = Just 0
     next = Campaign.Level1
     deck =
       SharedModel.getInitialDeck shared team
@@ -234,10 +232,7 @@ data DeckModel = DeckModel
   deriving (Eq, Generic, Show)
 
 data LootModel = LootModel
-  { -- | The index of the first card to show in 'lootDeck'. 'None' if nothing
-    -- to show.
-    firstVisibleCard :: Maybe Nat,
-    -- | The number of rewards to be picked from 'rewards'
+  { -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
     -- | The next level
     next :: Level,
