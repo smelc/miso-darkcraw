@@ -9,13 +9,14 @@ module LootView where
 import Card
 import qualified Constants
 import Data.Function ((&))
+import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Miso
 import Miso.String hiding (drop, length, map, take, zip)
 import Model (LootModel (..))
 import Nat
-import PCWViewInternal (DisplayLocation (..), cardPositionStyle)
+import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
 import qualified PCWViewInternal
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -77,7 +78,11 @@ deckViewTopMargin :: Int
 deckViewTopMargin = Constants.cps * 14
 
 deckViewHeight :: Int
-deckViewHeight = (Constants.cardPixelHeight * 2) + Constants.cps -- 2 cards high + vertical gap
+deckViewHeight =
+  (Constants.cardPixelHeight * 2)
+    + Constants.cps -- 2 cards high + vertical gap
+    + (Constants.cps `div` 2) -- Give a bit more space, so that we don't have
+    -- a scrollbar if there are less than 8 stacks
 
 deckCardsPerRow :: Int
 deckCardsPerRow = 4
@@ -91,8 +96,8 @@ deckViewWidth =
 -- | The div for the < card1 card2 card3 > view, the left and right
 -- angle brackets being buttons.
 deckView :: Context -> Int -> [Card.ID] -> Styled (View Action)
-deckView Context {shared, LootView.team} z cards = do
-  cardViews :: [View Action] <- traverse divCards (zip [0 ..] cards')
+deckView Context {shared, LootView.team} _z cards = do
+  cardViews :: [View Action] <- traverse divStack (zip [0 ..] $ Map.toList cards'')
   return $
     div_
       [ style_ $
@@ -108,20 +113,30 @@ deckView Context {shared, LootView.team} z cards = do
       ]
       cardViews
   where
+    z = 64
+    cards'' :: Map (Card 'Core) Int
+    cards'' = Map.fromListWith (+) (zip cards' (repeat 1))
     cards' :: [Card 'Core] =
       map (SharedModel.identToCard shared) cards
         & catMaybes
         & map unlift
-    divCards :: (Nat, Card 'Core) -> Styled (View Action)
-    divCards (i, card) = do
+    divStack :: (Nat, (Card 'Core, Int)) -> Styled (View Action)
+    divStack (i, (card, cardinal)) = do
+      cards <-
+        traverse
+          (\offset -> divCard (i, card) offset)
+          $ [(cardinal - 1), (cardinal - 2) .. 0]
+      return $ div_ [] cards
+    divCard :: (Nat, Card 'Core) -> Int -> Styled (View Action)
+    divCard (i, card) stackIdx = do
       inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
       return $
         div_
           [ style_ $
-              cardPositionStyle
-                x
-                y
-                <> "z-index" =: ms z
+              cardPositionStyle'
+                ((Constants.cps * x) + (stackIdx * 4))
+                ((Constants.cps * y) + (stackIdx * 4))
+                <> "z-index" =: ms (z - (stackIdx * 3))
           ]
           [inner]
       where
