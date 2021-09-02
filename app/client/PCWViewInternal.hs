@@ -20,6 +20,7 @@ module PCWViewInternal
     cardView,
     cardPositionStyle,
     cardPositionStyle',
+    scrollbarStyle,
     viewFrame,
     CardDrawStyle (..),
     DisplayLocation (..),

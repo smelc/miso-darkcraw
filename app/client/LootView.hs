@@ -76,10 +76,19 @@ data Context = Context
   }
 
 deckViewTopMargin :: Int
-deckViewTopMargin = Constants.cps * 17
+deckViewTopMargin = Constants.cps * 14
 
 deckViewHeight :: Int
-deckViewHeight = Constants.cps * Constants.cardCellHeight
+deckViewHeight = (Constants.cardPixelHeight * 2) + Constants.cps -- 2 cards high + vertical gap
+
+deckCardsPerRow :: Int
+deckCardsPerRow = 4
+
+deckViewWidth :: Int
+deckViewWidth =
+  (Constants.cardPixelWidth * deckCardsPerRow) -- Cards
+    + (deckCardsPerRow - 1) * Constants.cps -- Gaps between cards
+    + Constants.cps -- Space for scrollbar
 
 -- | The div for the < card1 card2 card3 > view, the left and right
 -- angle brackets being buttons.
@@ -92,10 +101,12 @@ deckView Context {shared, LootView.team} z cards first = do
           zpltwh
             z
             Absolute
-            0
+            (Constants.cps * 3)
             deckViewTopMargin
-            Constants.lobbiesPixelWidth
+            deckViewWidth
             deckViewHeight
+            <> "overflow-y" =: "auto"
+            <> PCWViewInternal.scrollbarStyle
       ]
       $ [bracket True]
         ++ cardViews
@@ -140,11 +151,10 @@ deckView Context {shared, LootView.team} z cards first = do
       map (SharedModel.identToCard shared) cards
         & catMaybes
         & map unlift
-    maxNbCards = 3
     cardsShown =
       case first of
         Nothing -> []
-        Just first -> drop (natToInt first) cards' & take maxNbCards
+        Just first -> drop (natToInt first) cards'
     divCards :: (Nat, Card 'Core) -> Styled (View Action)
     divCards (i, card) = do
       inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
@@ -152,8 +162,13 @@ deckView Context {shared, LootView.team} z cards first = do
         div_
           [ style_ $
               cardPositionStyle
-                (Constants.boardToLeftCardCellsOffset + ((Constants.cardCellWidth + 1) * (natToInt i)))
-                0
+                x
+                y
                 <> "z-index" =: ms z
           ]
           [inner]
+      where
+        xCellsOffset = Constants.cardCellWidth + 1 -- card width + horizontal margin
+        yCellsOffset = Constants.cardCellHeight + 1 -- card height + vertical margin
+        x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
+        y = (natToInt i `div` deckCardsPerRow) * yCellsOffset
