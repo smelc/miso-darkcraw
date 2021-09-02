@@ -36,6 +36,7 @@ view LootModel {firstVisibleCard = first, ..} = do
     div_
       [style_ $ bgStyle z]
       [ deck,
+        deckLegend,
         div_
           [style_ $ "position" =: "absolute" <> "top" =: "0" <> "right" =: "0" <> "z-index" =: ms zpp]
           [img_ [src_ $ Constants.assetsPath "loot-top-sand.png"]]
@@ -47,12 +48,38 @@ view LootModel {firstVisibleCard = first, ..} = do
       zpltwh z Relative 0 0 Constants.lobbiesPixelWidth Constants.boardPixelHeight
         <> "background-image" =: Constants.assetsUrl "loot-bot-forest.png"
     ctxt = Context {..}
+    deckLegend =
+      div_
+        [ style_ $
+            zpltwh
+              z
+              Absolute
+              0 -- left
+              ((deckViewTopMargin + deckViewHeight) + (Constants.cps `div` 4)) -- below deck + margin
+              Constants.lobbiesPixelWidth -- width
+              Constants.cps -- height
+        ]
+        [ div_
+            [ style_ $
+                textStyle
+                  <> flexLineStyle -- Horizontal layouting
+                  <> "width" =: px Constants.lobbiesPixelWidth -- Needed to center horizontally
+                  <> "justify-content" =: "center" -- Center horizontally
+            ]
+            [text "Your deck"]
+        ]
 
 -- | Context that is common to all calls to 'deckView'
 data Context = Context
   { shared :: SharedModel,
     team :: Team
   }
+
+deckViewTopMargin :: Int
+deckViewTopMargin = Constants.cps * 17
+
+deckViewHeight :: Int
+deckViewHeight = Constants.cps * Constants.cardCellHeight
 
 -- | The div for the < card1 card2 card3 > view, the left and right
 -- angle brackets being buttons.
@@ -64,25 +91,23 @@ deckView Context {shared, LootView.team} z cards first = do
       [ style_ $
           zpltwh
             z
-            Relative
+            Absolute
             0
-            topMargin
+            deckViewTopMargin
             Constants.lobbiesPixelWidth
-            height
+            deckViewHeight
       ]
       $ [bracket True]
         ++ cardViews
         ++ [bracket False]
   where
-    height = Constants.cps * Constants.cardCellHeight
-    topMargin = Constants.cps * 17
     bracket leftBracket =
       div_
         [ style_ $
             "position" =: "absolute"
               <> margin =: (ms (px (Constants.cps * 3)))
-              <> "height" =: px height -- Needed to center vertically
-              <> flexColumnStyle
+              <> "height" =: px deckViewHeight -- Needed to center vertically
+              <> flexColumnStyle -- Vertical layouting
               <> "justify-content" =: "center" -- Center vertically
         ]
         [button_ attrs [text (if leftBracket then "<" else ">")]] -- We need an extra div, so that
