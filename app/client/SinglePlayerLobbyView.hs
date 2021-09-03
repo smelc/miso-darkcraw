@@ -10,6 +10,8 @@
 module SinglePlayerLobbyView (viewSinglePlayerLobbyModel) where
 
 import Card
+import Configuration (Configuration (..))
+import qualified Configuration
 import Constants
 import Control.Lens
 import Data.Maybe (fromMaybe, isJust)
@@ -22,6 +24,15 @@ import Tile
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
 import ViewInternal
+
+pickable :: [Team]
+pickable =
+  case Configuration.get of
+    Dev -> allTeams
+    Itch {} -> subset
+    Schplaf {} -> subset
+  where
+    subset = [Human, Undead]
 
 -- | Constructs a virtual DOM from a 'SinglePlayerLobbyModel'
 viewSinglePlayerLobbyModel :: SinglePlayerLobbyModel -> Styled (View Action)
@@ -80,7 +91,7 @@ viewSinglePlayerLobbyModel SinglePlayerLobbyModel {..} = do
           "Start"
       return $ div_ [style_ $ "margin-top" =: px (cps * 2)] [button]
     backDivM = do
-      let voffset = px $ (11 - length allTeams) * cps
+      let voffset = px $ (11 - length pickable) * cps
       button <-
         textButton
           gui
@@ -93,7 +104,7 @@ viewSinglePlayerLobbyModel SinglePlayerLobbyModel {..} = do
 selectTeamDiv :: SharedModel -> Int -> Maybe Team -> Styled (View Action)
 selectTeamDiv smodel z chosen = do
   -- startButtonDiv <- startButtonDivM
-  teamButtons <- sequence [teamButton smodel z chosen t | t <- allTeams]
+  teamButtons <- sequence [teamButton smodel z chosen t | t <- pickable]
   return $
     div_
       [style_ flexLineStyle]
