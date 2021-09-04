@@ -1,6 +1,10 @@
 ![lint](https://github.com/smelc/miso-darkcraw/actions/workflows/lint.yml/badge.svg)
 ![build, test](https://github.com/smelc/miso-darkcraw/actions/workflows/build.yml/badge.svg)
 
+<p align="center">
+  <img src="https://i.imgur.com/7cGLC8o.png" height="588"/>
+</p>
+
 # Pixel Card Wars
 
 A card game done with Haskell's [miso](https://github.com/dmjio/miso).
