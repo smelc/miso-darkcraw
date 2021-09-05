@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Command</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Command</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>This module contains the debug commands that can be entered in dev mode.
+ It isin  the shared/ folder, for testing purpose: we don't want to compile
+ client/ in tests.
+ |</p></div>
+</div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top"><p class="src"><a id="v:toLowerString" class="def">toLowerString</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:toLowerString" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:View" class="def">View</a> <a href="#t:View" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table><tr>
+<td class="src"><a id="v:Build" class="def">Build</a></td>
+<td class="doc"><p>Identifier of BuildView.</p></td>
+</tr></table>
+</div>
+<div class="subs instances"><details id="i:View" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:View:Bounded:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Bounded" title="Prelude">Bounded</a> <a href="Command.html#t:View" title="Command">View</a></span> <a href="#t:View" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:View:Bounded:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Command.html">Command</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:minBound">minBound</a> :: <a href="Command.html#t:View" title="Command">View</a> <a href="#v:minBound" class="selflink">#</a></p>
+<p class="src"><a href="#v:maxBound">maxBound</a> :: <a href="Command.html#t:View" title="Command">View</a> <a href="#v:maxBound" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:View:Enum:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Enum" title="Prelude">Enum</a> <a href="Command.html#t:View" title="Command">View</a></span> <a href="#t:View" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:View:Enum:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Command.html">Command</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:succ">succ</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> <a href="#v:succ" class="selflink">#</a></p>
+<p class="src"><a href="#v:pred">pred</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> <a href="#v:pred" class="selflink">#</a></p>
+<p class="src"><a href="#v:toEnum">toEnum</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> <a href="#v:toEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:fromEnum">fromEnum</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:fromEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFrom">enumFrom</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; [<a href="Command.html#t:View" title="Command">View</a>] <a href="#v:enumFrom" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThen">enumFromThen</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> -&gt; [<a href="Command.html#t:View" title="Command">View</a>] <a href="#v:enumFromThen" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromTo">enumFromTo</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> -&gt; [<a href="Command.html#t:View" title="Command">View</a>] <a href="#v:enumFromTo" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThenTo">enumFromThenTo</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> -&gt; [<a href="Command.html#t:View" title="Command">View</a>] <a href="#v:enumFromThenTo" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:View:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Command.html#t:View" title="Command">View</a></span> <a href="#t:View" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:View:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Command.html">Command</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Command.html#t:View" title="Command">View</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Command.html#t:View" title="Command">View</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:allViews" class="def">allViews</a> :: [<a href="Command.html#t:View" title="Command">View</a>] <a href="#v:allViews" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Command" class="def">Command</a> <a href="#t:Command" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src">
+<a id="v:EndGame" class="def">EndGame</a> <a href="Campaign.html#t:Outcome" title="Campaign">Outcome</a>
+</td>
+<td class="doc"><p>Command to end the current game. Parameter indicates how
+ the playing player performed.</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:Gimme" class="def">Gimme</a> <a href="Card.html#t:ID" title="Card">ID</a>
+</td>
+<td class="doc"><p>Command to obtain an extra card in the hand in GameView</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:GimmeMana" class="def">GimmeMana</a></td>
+<td class="doc"><p>Command to obtain mana</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:Goto" class="def">Goto</a> <a href="Command.html#t:View" title="Command">View</a>
+</td>
+<td class="doc"><p>Command to go to another view GameView</p></td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Command" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Command:Show:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Command.html#t:Command" title="Command">Command</a></span> <a href="#t:Command" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Command:Show:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Command.html">Command</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Command.html#t:Command" title="Command">Command</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Command.html#t:Command" title="Command">Command</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Command.html#t:Command" title="Command">Command</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Command:Read:2"></span> <a href="Command.html#t:Read" title="Command">Read</a> <a href="Command.html#t:Command" title="Command">Command</a></span> <a href="#t:Command" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Command:Read:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Command.html">Command</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:read">read</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Command.html#t:Command" title="Command">Command</a> <a href="#v:read" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:allCommands" class="def">allCommands</a> :: [<a href="Card.html#t:CreatureID" title="Card">CreatureID</a>] -&gt; [<a href="Command.html#t:Command" title="Command">Command</a>] <a href="#v:allCommands" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">class</span> <a id="t:Read" class="def">Read</a> a <span class="keyword">where</span> <a href="#t:Read" class="selflink">#</a></p>
+<div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a id="v:read" class="def">read</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a <a href="#v:read" class="selflink">#</a></p>
+</div>
+<div class="subs instances"><details id="i:Read" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Read:Read:1"></span> <a href="Command.html#t:Read" title="Command">Read</a> <a href="Command.html#t:Command" title="Command">Command</a></span> <a href="#t:Read" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Read:Read:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Command.html">Command</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:read">read</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Command.html#t:Command" title="Command">Command</a> <a href="#v:read" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

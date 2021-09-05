@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>app</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="description">
+<h1>app</h1>
+<div class="doc"><p>Pixel Card Wars</p></div>
+</div>
+<div id="module-list"><p class="caption">Signatures</p></div>
+<div id="module-list">
+<p class="caption">Modules</p>
+<ul>
+<li><span class="module"><a href="AI.html">AI</a></span></li>
+<li><span class="module"><a href="Board.html">Board</a></span></li>
+<li><span class="module"><a href="BoardInstances.html">BoardInstances</a></span></li>
+<li><span class="module"><a href="BuildView.html">BuildView</a></span></li>
+<li><span class="module"><a href="Campaign.html">Campaign</a></span></li>
+<li><span class="module"><a href="Card.html">Card</a></span></li>
+<li><span class="module"><a href="CardInstances.html">CardInstances</a></span></li>
+<li><span class="module"><a href="Cinema.html">Cinema</a></span></li>
+<li><span class="module"><a href="Command.html">Command</a></span></li>
+<li><span class="module"><a href="Configuration.html">Configuration</a></span></li>
+<li><span class="module"><a href="Constants.html">Constants</a></span></li>
+<li><span class="module"><a href="Debugging.html">Debugging</a></span></li>
+<li><span class="module"><a href="DeckView.html">DeckView</a></span></li>
+<li><span class="module"><a href="Event.html">Event</a></span></li>
+<li><span class="module"><a href="Game.html">Game</a></span></li>
+<li><span class="module"><a href="GameView.html">GameView</a></span></li>
+<li><span class="module"><a href="GameViewInternal.html">GameViewInternal</a></span></li>
+<li><span class="module"><a href="Json.html">Json</a></span></li>
+<li><span class="module"><a href="JsonData.html">JsonData</a></span></li>
+<li><span class="module"><a href="LootView.html">LootView</a></span></li>
+<li><span class="module"><a href="Main.html">Main</a></span></li>
+<li><span class="module"><a href="Model.html">Model</a></span></li>
+<li><span class="module"><a href="Movie.html">Movie</a></span></li>
+<li><span class="module"><a href="MultiPlayerLobbyView.html">MultiPlayerLobbyView</a></span></li>
+<li><span class="module"><a href="Nat.html">Nat</a></span></li>
+<li><span class="module"><a href="PCWViewInternal.html">PCWViewInternal</a></span></li>
+<li><span class="module"><a href="ServerMessages.html">ServerMessages</a></span></li>
+<li><span class="module"><a href="SharedModel.html">SharedModel</a></span></li>
+<li><span class="module"><a href="SinglePlayerLobbyView.html">SinglePlayerLobbyView</a></span></li>
+<li><span class="module"><a href="Tile.html">Tile</a></span></li>
+<li><span class="module"><a href="Total.html">Total</a></span></li>
+<li><span class="module"><a href="Turn.html">Turn</a></span></li>
+<li><span class="module"><a href="Update.html">Update</a></span></li>
+<li><span class="module"><a href="View.html">View</a></span></li>
+<li><span class="module"><a href="ViewBlocks.html">ViewBlocks</a></span></li>
+<li><span class="module"><a href="ViewInternal.html">ViewInternal</a></span></li>
+<li><span class="module"><a href="WelcomeView.html">WelcomeView</a></span></li>
+</ul>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

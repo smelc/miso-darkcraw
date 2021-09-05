@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>SharedModel</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">SharedModel</p>
+</div>
+<div id="table-of-contents">
+<p class="caption">Contents</p>
+<ul><li><a href="#section.orphans">Orphan instances</a></li></ul>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>This module contains the subset of the model that is needed by <code>Game</code>
+ I didn't want to make <code>Game</code> depend on <code>Model</code>, because it seemed overkill
+ and dangerous cyclewise in the long run. Hence I introduced this module.
+ |</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<a href="#v:identToCard">identToCard</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
+<li class="src short">
+<a href="#v:idToCreature">idToCreature</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
+<li class="src short">
+<span class="keyword">class</span> <a href="#t:Lift">Lift</a> p <span class="keyword">where</span><ul class="subs"><li>
+<a href="#v:lift">lift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; p <a href="Card.html#v:Core" title="Card">Core</a> -&gt; p <a href="Card.html#v:UI" title="Card">UI</a>
+</li></ul>
+</li>
+<li class="src short">
+<span class="keyword">class</span> <a href="#t:Mlift">Mlift</a> p <span class="keyword">where</span><ul class="subs"><li>
+<a href="#v:mlift">mlift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; p <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (p <a href="Card.html#v:UI" title="Card">UI</a>)</li></ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:SharedModel">SharedModel</a>
+</li>
+<li class="src short">
+<a href="#v:tileToFilepath">tileToFilepath</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Tile.html#t:Tile" title="Tile">Tile</a> -&gt; <a href="Tile.html#t:Size" title="Tile">Size</a> -&gt; <a href="Tile.html#t:Filepath" title="Tile">Filepath</a>
+</li>
+<li class="src short">
+<a href="#v:unsafeGet">unsafeGet</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</li>
+<li class="src short">
+<a href="#v:unsafeIdentToCard">unsafeIdentToCard</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>
+</li>
+<li class="src short">
+<a href="#v:liftSkill">liftSkill</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Skill" title="Card">Skill</a> -&gt; <a href="Card.html#t:SkillPack" title="Card">SkillPack</a>
+</li>
+<li class="src short">
+<a href="#v:shuffle">shuffle</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [a] -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, [a])</li>
+<li class="src short">
+<a href="#v:create">create</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; [<a href="Card.html#t:SkillPack" title="Card">SkillPack</a>] -&gt; [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>] -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</li>
+<li class="src short">
+<a href="#v:getStdGen">getStdGen</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a>
+</li>
+<li class="src short">
+<a href="#v:getCards">getCards</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>]</li>
+<li class="src short">
+<a href="#v:getCmd">getCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a>
+</li>
+<li class="src short">
+<a href="#v:withCmd">withCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</li>
+<li class="src short">
+<a href="#v:withStdGen">withStdGen</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</li>
+<li class="src short">
+<a href="#v:getCardIdentifiers">getCardIdentifiers</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>]</li>
+<li class="src short">
+<a href="#v:cardToFilepath">cardToFilepath</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Tile.html#t:Filepath" title="Tile">Filepath</a>
+</li>
+<li class="src short">
+<a href="#v:withSeed">withSeed</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</li>
+<li class="src short">
+<a href="#v:allCommands">allCommands</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Command.html#t:Command" title="Command">Command</a>]</li>
+<li class="src short">
+<a href="#v:toCardCommon">toCardCommon</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
+<li class="src short">
+<a href="#v:unsafeToCardCommon">unsafeToCardCommon</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>
+</li>
+<li class="src short">
+<a href="#v:identToItem">identToItem</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Item" title="Card">Item</a> -&gt; <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a>
+</li>
+<li class="src short">
+<a href="#v:identToNeutral">identToNeutral</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Neutral" title="Card">Neutral</a> -&gt; <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a>
+</li>
+<li class="src short">
+<a href="#v:pick">pick</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [a] -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</li>
+<li class="src short">
+<a href="#v:getInitialDeck">getInitialDeck</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top"><p class="src"><a id="v:identToCard" class="def">identToCard</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:identToCard" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:idToCreature" class="def">idToCreature</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:idToCreature" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">class</span> <a id="t:Lift" class="def">Lift</a> p <span class="keyword">where</span> <a href="#t:Lift" class="selflink">#</a></p>
+<div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a id="v:lift" class="def">lift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; p <a href="Card.html#v:Core" title="Card">Core</a> -&gt; p <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:lift" class="selflink">#</a></p>
+</div>
+<div class="subs instances"><details id="i:Lift" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Lift:Lift:1"></span> <a href="SharedModel.html#t:Lift" title="SharedModel">Lift</a> <a href="Card.html#t:ItemObject" title="Card">ItemObject</a></span> <a href="#t:Lift" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Lift:Lift:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:lift">lift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:lift" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Lift:Lift:2"></span> <a href="SharedModel.html#t:Lift" title="SharedModel">Lift</a> <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a></span> <a href="#t:Lift" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Lift:Lift:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:lift">lift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:lift" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">class</span> <a id="t:Mlift" class="def">Mlift</a> p <span class="keyword">where</span> <a href="#t:Mlift" class="selflink">#</a></p>
+<div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a id="v:mlift" class="def">mlift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; p <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (p <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:mlift" class="selflink">#</a></p>
+</div>
+<div class="subs instances"><details id="i:Mlift" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Mlift:Mlift:1"></span> <a href="SharedModel.html#t:Mlift" title="SharedModel">Mlift</a> <a href="Card.html#t:Card" title="Card">Card</a></span> <a href="#t:Mlift" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Mlift:Mlift:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:mlift">mlift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:mlift" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Mlift:Mlift:2"></span> <a href="SharedModel.html#t:Mlift" title="SharedModel">Mlift</a> <a href="Card.html#t:Creature" title="Card">Creature</a></span> <a href="#t:Mlift" class="selflink">#</a>
+</td>
+<td class="doc"><p>Translates a <code><a href="Card.html#v:Core" title="Card">Core</a></code> <code><a href="Card.html#t:Creature" title="Card">Creature</a></code> into an <code><a href="Card.html#v:UI" title="Card">UI</a></code> one, keeping its stats
+ An alternative implementation could return the pristine, formal, UI card.</p></td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Mlift:Mlift:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:mlift">mlift</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:mlift" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:SharedModel" class="def">SharedModel</a> <a href="#t:SharedModel" class="selflink">#</a></p>
+<div class="doc"><p>The part of the model that is likely to be used by all pages
+ | i.e. all possible models</p></div>
+<div class="subs instances"><details id="i:SharedModel" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SharedModel:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></span> <a href="#t:SharedModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SharedModel:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SharedModel:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></span> <a href="#t:SharedModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SharedModel:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SharedModel:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></span> <a href="#t:SharedModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SharedModel:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> x -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SharedModel:ToExpr:4"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></span> <a href="#t:ToExpr" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SharedModel:ToExpr:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SharedModel:Rep:5"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></span> <a href="#t:SharedModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SharedModel:Rep:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="SharedModel.html">SharedModel</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "SharedModel" "SharedModel" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "SharedModel" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) ((<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "sharedCards") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:ID" title="Card">ID</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>))) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "sharedCmd") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a>))) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "sharedSkills") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Skill" title="Card">Skill</a> <a href="Card.html#t:SkillPack" title="Card">SkillPack</a>)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "sharedTiles") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Tile.html#t:Tile" title="Tile">Tile</a> <a href="Tile.html#t:TileUI" title="Tile">TileUI</a>)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "sharedStdGen") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a>)))))</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:tileToFilepath" class="def">tileToFilepath</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Tile.html#t:Tile" title="Tile">Tile</a> -&gt; <a href="Tile.html#t:Size" title="Tile">Size</a> -&gt; <a href="Tile.html#t:Filepath" title="Tile">Filepath</a> <a href="#v:tileToFilepath" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:unsafeGet" class="def">unsafeGet</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:unsafeGet" class="selflink">#</a></p>
+<div class="doc"><p>An instance of <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code> that is fine for debugging. Don't use
+ it in production!</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:unsafeIdentToCard" class="def">unsafeIdentToCard</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:unsafeIdentToCard" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:liftSkill" class="def">liftSkill</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Skill" title="Card">Skill</a> -&gt; <a href="Card.html#t:SkillPack" title="Card">SkillPack</a> <a href="#v:liftSkill" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:shuffle" class="def">shuffle</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [a] -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, [a]) <a href="#v:shuffle" class="selflink">#</a></p>
+<div class="doc"><p>Shuffles the second argument with the random generator
+ of <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code>. Returns the shuffle and the updated <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code></p></div>
+</div>
+<div class="top"><p class="src"><a id="v:create" class="def">create</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; [<a href="Card.html#t:SkillPack" title="Card">SkillPack</a>] -&gt; [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>] -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:create" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:getStdGen" class="def">getStdGen</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> <a href="#v:getStdGen" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:getCards" class="def">getCards</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] <a href="#v:getCards" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:getCmd" class="def">getCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:getCmd" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:withCmd" class="def">withCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:withCmd" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:withStdGen" class="def">withStdGen</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:withStdGen" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:getCardIdentifiers" class="def">getCardIdentifiers</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>] <a href="#v:getCardIdentifiers" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:cardToFilepath" class="def">cardToFilepath</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Tile.html#t:Filepath" title="Tile">Filepath</a> <a href="#v:cardToFilepath" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:withSeed" class="def">withSeed</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:withSeed" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:allCommands" class="def">allCommands</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Command.html#t:Command" title="Command">Command</a>] <a href="#v:allCommands" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toCardCommon" class="def">toCardCommon</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:toCardCommon" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:unsafeToCardCommon" class="def">unsafeToCardCommon</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:unsafeToCardCommon" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:identToItem" class="def">identToItem</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Item" title="Card">Item</a> -&gt; <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:identToItem" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:identToNeutral" class="def">identToNeutral</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Neutral" title="Card">Neutral</a> -&gt; <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:identToNeutral" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:pick" class="def">pick</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [a] -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a) <a href="#v:pick" class="selflink">#</a></p>
+<div class="doc"><p>Pick one element at random from the second argument, using the random
+ generator of <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code>. Returns the updated <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code> and the
+ picked element (being <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a></code> if the list non-empty)</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:getInitialDeck" class="def">getInitialDeck</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>] <a href="#v:getInitialDeck" class="selflink">#</a></p>
+<div class="doc"><p>The starting deck of the given team, not shuffled</p></div>
+</div>
+<h1>Orphan instances</h1>
+<div id="section.orphans"><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:Eq:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a></span> <a href="#v:-36-fEqStdGen" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:Eq:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

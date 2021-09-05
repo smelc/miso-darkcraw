@@ -1,0 +1,1568 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Update</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Update</p>
+</div>
+<div id="table-of-contents">
+<p class="caption">Contents</p>
+<ul><li><a href="#section.orphans">Orphan instances</a></li></ul>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:MultiPlayerLobbyAction">MultiPlayerLobbyAction</a><ul class="subs">
+<li>= <a href="#v:LobbyUpdateUsername">LobbyUpdateUsername</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+<li>| <a href="#v:LobbySubmitUsername">LobbySubmitUsername</a>
+</li>
+<li>| <a href="#v:LobbyInviteUser">LobbyInviteUser</a> <a href="ServerMessages.html#t:UserName" title="ServerMessages">UserName</a>
+</li>
+<li>| <a href="#v:CancelInvitationClicked">CancelInvitationClicked</a>
+</li>
+<li>| <a href="#v:AcceptInvitationClicked">AcceptInvitationClicked</a>
+</li>
+<li>| <a href="#v:RejectInvitationClicked">RejectInvitationClicked</a>
+</li>
+<li>| <a href="#v:LobbyServerMessage">LobbyServerMessage</a> <a href="ServerMessages.html#t:OutMessage" title="ServerMessages">OutMessage</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:SinglePlayerLobbyAction">SinglePlayerLobbyAction</a> = <a href="#v:LobbySelectTeam">LobbySelectTeam</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>)</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:DnDAction">DnDAction</a> a<ul class="subs">
+<li>= <a href="#v:DragEnd">DragEnd</a>
+</li>
+<li>| <a href="#v:DragStart">DragStart</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+</li>
+<li>| <a href="#v:Drop">Drop</a>
+</li>
+<li>| <a href="#v:DragEnter">DragEnter</a> a</li>
+<li>| <a href="#v:DragLeave">DragLeave</a> a</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:GameAction">GameAction</a><ul class="subs">
+<li>= <a href="#v:GameDnD">GameDnD</a> (<a href="Update.html#t:DnDAction" title="Update">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</li>
+<li>| <a href="#v:GamePlay">GamePlay</a> <a href="Game.html#t:Event" title="Game">Event</a>
+</li>
+<li>| <a href="#v:GameDrawCards">GameDrawCards</a> [<a href="Game.html#t:DrawSource" title="Game">DrawSource</a>]</li>
+<li>| <a href="#v:GameIncrTurn">GameIncrTurn</a>
+</li>
+<li>| <a href="#v:GameEndTurnPressed">GameEndTurnPressed</a>
+</li>
+<li>| <a href="#v:GameInHandMouseEnter">GameInHandMouseEnter</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+</li>
+<li>| <a href="#v:GameInHandMouseLeave">GameInHandMouseLeave</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+</li>
+<li>| <a href="#v:GameInPlaceMouseEnter">GameInPlaceMouseEnter</a> <a href="Game.html#t:Target" title="Game">Target</a>
+</li>
+<li>| <a href="#v:GameInPlaceMouseLeave">GameInPlaceMouseLeave</a> <a href="Game.html#t:Target" title="Game">Target</a>
+</li>
+<li>| <a href="#v:GameExecuteCmd">GameExecuteCmd</a>
+</li>
+<li>| <a href="#v:GameUpdateCmd">GameUpdateCmd</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:LootAction">LootAction</a> = <a href="#v:DeckTo">DeckTo</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:WelcomeDestination">WelcomeDestination</a><ul class="subs">
+<li>= <a href="#v:MultiPlayerDestination">MultiPlayerDestination</a>
+</li>
+<li>| <a href="#v:SinglePlayerDestination">SinglePlayerDestination</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">type</span> <a href="#t:DeckViewInput">DeckViewInput</a> = [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Action">Action</a><ul class="subs">
+<li>= <a href="#v:DeckBack">DeckBack</a>
+</li>
+<li>| <a href="#v:DeckGo">DeckGo</a> <a href="Update.html#t:DeckViewInput" title="Update">DeckViewInput</a>
+</li>
+<li>| <a href="#v:GameAction-39-">GameAction'</a> <a href="Update.html#t:GameAction" title="Update">GameAction</a>
+</li>
+<li>| <a href="#v:LootAction-39-">LootAction'</a> <a href="Update.html#t:LootAction" title="Update">LootAction</a>
+</li>
+<li>| <a href="#v:LootGo">LootGo</a>
+</li>
+<li>| <a href="#v:NoOp">NoOp</a>
+</li>
+<li>| <a href="#v:MultiPlayerLobbyAction-39-">MultiPlayerLobbyAction'</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a>
+</li>
+<li>| <a href="#v:SayHelloWorld">SayHelloWorld</a>
+</li>
+<li>| <a href="#v:SinglePlayerLobbyAction-39-">SinglePlayerLobbyAction'</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a>
+</li>
+<li>| <a href="#v:SinglePlayerBack">SinglePlayerBack</a>
+</li>
+<li>| <a href="#v:SinglePlayerGo">SinglePlayerGo</a>
+</li>
+<li>| <a href="#v:SceneAction-39-">SceneAction'</a> <a href="Update.html#t:SceneAction" title="Update">SceneAction</a>
+</li>
+<li>| <a href="#v:Keyboard">Keyboard</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Set.html#t:Set" title="Data.Set">Set</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</li>
+<li>| <a href="#v:WelcomeGo">WelcomeGo</a> <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:SceneAction">SceneAction</a><ul class="subs">
+<li>= <a href="#v:StepScene">StepScene</a>
+</li>
+<li>| <a href="#v:PauseOrResumeSceneForDebugging">PauseOrResumeSceneForDebugging</a>
+</li>
+<li>| <a href="#v:JumpToFrameForDebugging">JumpToFrameForDebugging</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<a href="#v:logUpdates">logUpdates</a> :: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Control-Monad.html#t:Monad" title="Control.Monad">Monad</a> m, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a, <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> a) =&gt; (<a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a) -&gt; <a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a</li>
+<li class="src short">
+<span class="keyword">class</span> <a href="#t:Interactable">Interactable</a> m t mseq | m -&gt; t, m -&gt; mseq <span class="keyword">where</span><ul class="subs">
+<li>
+<a href="#v:considerAction">considerAction</a> :: m -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> t -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li>
+<a href="#v:drop">drop</a> :: m -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; t -&gt; mseq</li>
+<li>
+<a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: m -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a>
+</li>
+<li>
+<a href="#v:stopWrongDrop">stopWrongDrop</a> :: m -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li>
+<a href="#v:updateDefault">updateDefault</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; mseq</li>
+<li>
+<a href="#v:withInteraction">withInteraction</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; m</li>
+</ul>
+</li>
+<li class="src short">
+<a href="#v:act">act</a> :: <span class="keyword">forall</span> m t mseq. <a href="Update.html#t:Interactable" title="Update">Interactable</a> m t mseq =&gt; m -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> t -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; mseq</li>
+<li class="src short">
+<span class="keyword">type</span> <a href="#t:GameActionSeq">GameActionSeq</a> = [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:GameAction" title="Update">GameAction</a>)]</li>
+<li class="src short">
+<a href="#v:playOne">playOne</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>)</li>
+<li class="src short">
+<a href="#v:updateGameModel">updateGameModel</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>)</li>
+<li class="src short">
+<a href="#v:updateGameIncrTurn">updateGameIncrTurn</a> :: <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Data-OpenUnion.html#t:Members" title="Data.OpenUnion">Members</a> '[<a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer-State.html#t:State" title="Control.Monad.Freer.State">State</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer-State.html#t:State" title="Control.Monad.Freer.State">State</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>), <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer-State.html#t:State" title="Control.Monad.Freer.State">State</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)] eff =&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer.html#t:Eff" title="Control.Monad.Freer">Eff</a> eff (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>))</li>
+<li class="src short">
+<a href="#v:updateLootModel">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a>
+</li>
+<li class="src short">
+<a href="#v:updateSinglePlayerLobbyModel">updateSinglePlayerLobbyModel</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a>
+</li>
+<li class="src short">
+<a href="#v:updateMultiPlayerLobbyModel">updateMultiPlayerLobbyModel</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a>
+</li>
+<li class="src short">
+<a href="#v:delayActions">delayActions</a> :: m -&gt; [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:Action" title="Update">Action</a>)] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> m</li>
+<li class="src short">
+<a href="#v:toSceneModel">toSceneModel</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Model.html#t:SceneModel" title="Model">SceneModel</a>
+</li>
+<li class="src short">
+<a href="#v:toSecs">toSecs</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+<li class="src short">
+<a href="#v:tenthToSecs">tenthToSecs</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+<li class="src short">
+<a href="#v:updateSceneModel">updateSceneModel</a> :: <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="Model.html#t:SceneModel" title="Model">SceneModel</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:SceneModel" title="Model">SceneModel</a>
+</li>
+<li class="src short">
+<a href="#v:updateModel">updateModel</a> :: <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:Model" title="Model">Model</a>
+</li>
+<li class="src short">
+<a href="#v:level0GameModel">level0GameModel</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a>
+</li>
+<li class="src short">
+<a href="#v:levelNGameModel">levelNGameModel</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a>
+</li>
+<li class="src short">
+<a href="#v:unsafeInitialGameModel">unsafeInitialGameModel</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a>
+</li>
+<li class="src short">
+<a href="#v:initialWelcomeModel">initialWelcomeModel</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a>
+</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:MultiPlayerLobbyAction" class="def">MultiPlayerLobbyAction</a> <a href="#t:MultiPlayerLobbyAction" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src">
+<a id="v:LobbyUpdateUsername" class="def">LobbyUpdateUsername</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:LobbySubmitUsername" class="def">LobbySubmitUsername</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:LobbyInviteUser" class="def">LobbyInviteUser</a> <a href="ServerMessages.html#t:UserName" title="ServerMessages">UserName</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:CancelInvitationClicked" class="def">CancelInvitationClicked</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:AcceptInvitationClicked" class="def">AcceptInvitationClicked</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:RejectInvitationClicked" class="def">RejectInvitationClicked</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:LobbyServerMessage" class="def">LobbyServerMessage</a> <a href="ServerMessages.html#t:OutMessage" title="ServerMessages">OutMessage</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:MultiPlayerLobbyAction" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:MultiPlayerLobbyAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a></span> <a href="#t:MultiPlayerLobbyAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:MultiPlayerLobbyAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:MultiPlayerLobbyAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a></span> <a href="#t:MultiPlayerLobbyAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:MultiPlayerLobbyAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:SinglePlayerLobbyAction" class="def">SinglePlayerLobbyAction</a> <a href="#t:SinglePlayerLobbyAction" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table><tr>
+<td class="src">
+<a id="v:LobbySelectTeam" class="def">LobbySelectTeam</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>)</td>
+<td class="doc empty">&nbsp;</td>
+</tr></table>
+</div>
+<div class="subs instances"><details id="i:SinglePlayerLobbyAction" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SinglePlayerLobbyAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a></span> <a href="#t:SinglePlayerLobbyAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SinglePlayerLobbyAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SinglePlayerLobbyAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a></span> <a href="#t:SinglePlayerLobbyAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SinglePlayerLobbyAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:DnDAction" class="def">DnDAction</a> a <a href="#t:DnDAction" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:DragEnd" class="def">DragEnd</a></td>
+<td class="doc"><p>Dragging card in hand ends. When a successful drop is done,
+ this event is fired right after <code><a href="Update.html#v:Drop" title="Update">Drop</a></code>. We rely on that. If Drop
+ was fired last, we would miss it. Be careful on untested browsers.</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:DragStart" class="def">DragStart</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+</td>
+<td class="doc"><p>Dragging card in hand</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:Drop" class="def">Drop</a></td>
+<td class="doc"><p>In <code>GameView</code>, this can play the <code>GamePlayEvent</code> <code>Place</code></p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:DragEnter" class="def">DragEnter</a> a</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:DragLeave" class="def">DragLeave</a> a</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:DnDAction" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DnDAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> (<a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a)</span> <a href="#t:DnDAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:DnDAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DnDAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> (<a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a)</span> <a href="#t:DnDAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:DnDAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:DnDAction" title="Update">DnDAction</a> a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:GameAction" class="def">GameAction</a> <a href="#t:GameAction" class="selflink">#</a></p>
+<div class="doc"><p>Actions that are raised by <code>GameView</code></p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src">
+<a id="v:GameDnD" class="def">GameDnD</a> (<a href="Update.html#t:DnDAction" title="Update">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</td>
+<td class="doc"><p>A drag an drop event</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GamePlay" class="def">GamePlay</a> <a href="Game.html#t:Event" title="Game">Event</a>
+</td>
+<td class="doc"><p>Play some game event. It can be an event scheduled by the AI
+ Or a <code>EndTurn</code> <code>GamePlayEvent</code> scheduled because the player
+ pressed "End Turn".</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GameDrawCards" class="def">GameDrawCards</a> [<a href="Game.html#t:DrawSource" title="Game">DrawSource</a>]</td>
+<td class="doc"><p>Turn was updated previously by <code><a href="Update.html#v:GameIncrTurn" title="Update">GameIncrTurn</a></code>,
+ time to draw cards from the stack. Then the handler of this event
+ will take care of giving the player control back. This event
+ is translated to a list of events, iteratively consuming the list.</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:GameIncrTurn" class="def">GameIncrTurn</a></td>
+<td class="doc"><p>All actions have been resolved, time to update the turn widget
+ and to schedule <code>GameDrawCard</code>. This does NOT translate
+ to a <code>GamePlayEvent</code>.</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:GameEndTurnPressed" class="def">GameEndTurnPressed</a></td>
+<td class="doc"><p>End Turn button pressed in turn widget. For player, schedule
+ attacks then <code><a href="Update.html#v:GameIncrTurn" title="Update">GameIncrTurn</a></code>; for AI, compute its actions,
+ schedule them, and then schedule attack and <code><a href="Update.html#v:GameIncrTurn" title="Update">GameIncrTurn</a></code>.</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GameInHandMouseEnter" class="def">GameInHandMouseEnter</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+</td>
+<td class="doc"><p>Starting hovering card in hand</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GameInHandMouseLeave" class="def">GameInHandMouseLeave</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+</td>
+<td class="doc"><p>Ending hovering card in hand</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GameInPlaceMouseEnter" class="def">GameInPlaceMouseEnter</a> <a href="Game.html#t:Target" title="Game">Target</a>
+</td>
+<td class="doc"><p>Starting hovering a target</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GameInPlaceMouseLeave" class="def">GameInPlaceMouseLeave</a> <a href="Game.html#t:Target" title="Game">Target</a>
+</td>
+<td class="doc"><p>Ending hovering a target</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:GameExecuteCmd" class="def">GameExecuteCmd</a></td>
+<td class="doc"><p>Execute a command (dev mode only)</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GameUpdateCmd" class="def">GameUpdateCmd</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</td>
+<td class="doc"><p>Update the command to execute soon (dev mode only)</p></td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:GameAction" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:GameAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:GameAction" title="Update">GameAction</a></span> <a href="#t:GameAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:GameAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:GameAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:GameAction" title="Update">GameAction</a></span> <a href="#t:GameAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:GameAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:GameAction" title="Update">GameAction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:GameAction:Interactable:3"></span> <a href="Update.html#t:Interactable" title="Update">Interactable</a> <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="Game.html#t:Target" title="Game">Target</a> (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>)</span> <a href="#t:GameAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:GameAction:Interactable:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:considerAction">considerAction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
+<p class="src"><a href="#v:drop">drop</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>) <a href="#v:drop" class="selflink">#</a></p>
+<p class="src"><a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
+<p class="src"><a href="#v:stopWrongDrop">stopWrongDrop</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
+<p class="src"><a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>) <a href="#v:updateDefault" class="selflink">#</a></p>
+<p class="src"><a href="#v:withInteraction">withInteraction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="#v:withInteraction" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:LootAction" class="def">LootAction</a> <a href="#t:LootAction" class="selflink">#</a></p>
+<div class="doc"><p>Actions internal to <code>LootView</code></p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table><tr>
+<td class="src">
+<a id="v:DeckTo" class="def">DeckTo</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a>
+</td>
+<td class="doc"><p>TODO @smelc delete me</p></td>
+</tr></table>
+</div>
+<div class="subs instances"><details id="i:LootAction" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:LootAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:LootAction" title="Update">LootAction</a></span> <a href="#t:LootAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:LootAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:LootAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:LootAction" title="Update">LootAction</a></span> <a href="#t:LootAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:LootAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:LootAction" title="Update">LootAction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:WelcomeDestination" class="def">WelcomeDestination</a> <a href="#t:WelcomeDestination" class="selflink">#</a></p>
+<div class="doc"><p>To which page to go to, from the welcome page</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:MultiPlayerDestination" class="def">MultiPlayerDestination</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:SinglePlayerDestination" class="def">SinglePlayerDestination</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:WelcomeDestination" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:WelcomeDestination:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a></span> <a href="#t:WelcomeDestination" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:WelcomeDestination:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a> -&gt; <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a> -&gt; <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:WelcomeDestination:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a></span> <a href="#t:WelcomeDestination" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:WelcomeDestination:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><span class="keyword">type</span> <a id="t:DeckViewInput" class="def">DeckViewInput</a> = [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>] <a href="#t:DeckViewInput" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Action" class="def">Action</a> <a href="#t:Action" class="selflink">#</a></p>
+<div class="doc"><p>Sum type for application events. If drop stuff doesn't work
+ | think whether it's affected by <a href="https://github.com/dmjio/miso/issues/478">https://github.com/dmjio/miso/issues/478</a></p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:DeckBack" class="def">DeckBack</a></td>
+<td class="doc"><p>Leave <code>DeckView</code>, go to another view</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:DeckGo" class="def">DeckGo</a> <a href="Update.html#t:DeckViewInput" title="Update">DeckViewInput</a>
+</td>
+<td class="doc"><p>Leave a view, go to <code>DeckView</code></p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:GameAction-39-" class="def">GameAction'</a> <a href="Update.html#t:GameAction" title="Update">GameAction</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:LootAction-39-" class="def">LootAction'</a> <a href="Update.html#t:LootAction" title="Update">LootAction</a>
+</td>
+<td class="doc"><p>Actions internal to <code>LootView</code></p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:LootGo" class="def">LootGo</a></td>
+<td class="doc"><p>Go to <code>LootView</code></p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:NoOp" class="def">NoOp</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:MultiPlayerLobbyAction-39-" class="def">MultiPlayerLobbyAction'</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:SayHelloWorld" class="def">SayHelloWorld</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:SinglePlayerLobbyAction-39-" class="def">SinglePlayerLobbyAction'</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:SinglePlayerBack" class="def">SinglePlayerBack</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:SinglePlayerGo" class="def">SinglePlayerGo</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:SceneAction-39-" class="def">SceneAction'</a> <a href="Update.html#t:SceneAction" title="Update">SceneAction</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:Keyboard" class="def">Keyboard</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Set.html#t:Set" title="Data.Set">Set</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:WelcomeGo" class="def">WelcomeGo</a> <a href="Update.html#t:WelcomeDestination" title="Update">WelcomeDestination</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Action" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Action:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:Action" title="Update">Action</a></span> <a href="#t:Action" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Action:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Action:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:Action" title="Update">Action</a></span> <a href="#t:Action" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Action:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:Action" title="Update">Action</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:SceneAction" class="def">SceneAction</a> <a href="#t:SceneAction" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:StepScene" class="def">StepScene</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:PauseOrResumeSceneForDebugging" class="def">PauseOrResumeSceneForDebugging</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:JumpToFrameForDebugging" class="def">JumpToFrameForDebugging</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:SceneAction" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SceneAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:SceneAction" title="Update">SceneAction</a></span> <a href="#t:SceneAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SceneAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SceneAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:SceneAction" title="Update">SceneAction</a></span> <a href="#t:SceneAction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:SceneAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:SceneAction" title="Update">SceneAction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:logUpdates" class="def">logUpdates</a> :: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Control-Monad.html#t:Monad" title="Control.Monad">Monad</a> m, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a, <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> a) =&gt; (<a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a) -&gt; <a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a <a href="#v:logUpdates" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">class</span> <a id="t:Interactable" class="def">Interactable</a> m t mseq | m -&gt; t, m -&gt; mseq <span class="keyword">where</span> <a href="#t:Interactable" class="selflink">#</a></p>
+<div class="doc"><p>Class defining the behavior of updating <code>m</code> w.r.t. <code><a href="Model.html#t:Interaction" title="Model">Interaction</a></code>
+ and <code><a href="Update.html#t:DnDAction" title="Update">DnDAction</a></code></p></div>
+<div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a id="v:considerAction" class="def">considerAction</a> :: m -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> t -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
+<p class="src"><a id="v:drop" class="def">drop</a> :: m -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; t -&gt; mseq <a href="#v:drop" class="selflink">#</a></p>
+<div class="doc"><p>What to do when dropping card at given index, on the given <code>t</code> target
+ The spot indicates the player whose card is being played</p></div>
+<p class="src"><a id="v:getPlayingPlayer" class="def">getPlayingPlayer</a> :: m -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
+<p class="src"><a id="v:stopWrongDrop" class="def">stopWrongDrop</a> :: m -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
+<div class="doc"><p>When to stop a dropping action</p></div>
+<p class="src"><a id="v:updateDefault" class="def">updateDefault</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; mseq <a href="#v:updateDefault" class="selflink">#</a></p>
+<div class="doc"><p>The default behavior</p></div>
+<p class="src"><a id="v:withInteraction" class="def">withInteraction</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; m <a href="#v:withInteraction" class="selflink">#</a></p>
+<div class="doc"><p>How to update the abstract state <code>m</code> with the given <code><a href="Model.html#t:Interaction" title="Model">Interaction</a></code></p></div>
+</div>
+<div class="subs instances"><details id="i:Interactable" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Interactable:Interactable:1"></span> <a href="Update.html#t:Interactable" title="Update">Interactable</a> <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="Game.html#t:Target" title="Game">Target</a> (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>)</span> <a href="#t:Interactable" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Interactable:Interactable:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:considerAction">considerAction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
+<p class="src"><a href="#v:drop">drop</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>) <a href="#v:drop" class="selflink">#</a></p>
+<p class="src"><a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
+<p class="src"><a href="#v:stopWrongDrop">stopWrongDrop</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
+<p class="src"><a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>) <a href="#v:updateDefault" class="selflink">#</a></p>
+<p class="src"><a href="#v:withInteraction">withInteraction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="#v:withInteraction" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:act" class="def">act</a> :: <span class="keyword">forall</span> m t mseq. <a href="Update.html#t:Interactable" title="Update">Interactable</a> m t mseq =&gt; m -&gt; <a href="Update.html#t:DnDAction" title="Update">DnDAction</a> t -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; mseq <a href="#v:act" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">type</span> <a id="t:GameActionSeq" class="def">GameActionSeq</a> = [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:GameAction" title="Update">GameAction</a>)] <a href="#t:GameActionSeq" class="selflink">#</a></p>
+<div class="doc"><p>Event to fire after the given delays (in seconds). Delays add up.</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:playOne" class="def">playOne</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>) <a href="#v:playOne" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:updateGameModel" class="def">updateGameModel</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Update.html#t:GameAction" title="Update">GameAction</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>) <a href="#v:updateGameModel" class="selflink">#</a></p>
+<div class="doc"><p>We MUST return GameAction as the second element (as opposed to
+ <code>GamePlayEvent</code>). This is used for <code><a href="Update.html#v:GameIncrTurn" title="Update">GameIncrTurn</a></code> for example.
+ The second element must only contain delayed stuff, it's invalid
+ to return a list whose first element has 0. If we did that, we would
+ need to play this event right away, and then we would have new delayed
+ actions to consider which we wouldn't know how to merge with the first ones.
+ If you feel like adding a 0 event, you instead need to play this event
+ right away by doing a recursive call (or use <code><a href="Update.html#v:playOne" title="Update">playOne</a></code>)</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:updateGameIncrTurn" class="def">updateGameIncrTurn</a> :: <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Data-OpenUnion.html#t:Members" title="Data.OpenUnion">Members</a> '[<a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer-State.html#t:State" title="Control.Monad.Freer.State">State</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer-State.html#t:State" title="Control.Monad.Freer.State">State</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>), <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer-State.html#t:State" title="Control.Monad.Freer.State">State</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)] eff =&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer.html#t:Eff" title="Control.Monad.Freer">Eff</a> eff (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Update.html#t:GameActionSeq" title="Update">GameActionSeq</a>)) <a href="#v:updateGameIncrTurn" class="selflink">#</a></p>
+<div class="doc"><p>This function uses <code><a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer.html#t:Eff" title="Control.Monad.Freer">Eff</a></code> to have multiple <code><a href="file:///nix/store/1wc2xj2lsvjn51jqsp8b1w9hwvlam1gb-freer-simple-1.2.1.0-doc/share/doc/freer-simple-1.2.1.0/html/Control-Monad-Freer-State.html#t:State" title="Control.Monad.Freer.State">State</a></code> for different types
+ This allows to use put/get to track updates to the state, instead
+ of having variables with increasing version numbers (ticks)</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:updateLootModel" class="def">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a> <a href="#v:updateLootModel" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:updateSinglePlayerLobbyModel" class="def">updateSinglePlayerLobbyModel</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> <a href="#v:updateSinglePlayerLobbyModel" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:updateMultiPlayerLobbyModel" class="def">updateMultiPlayerLobbyModel</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> <a href="#v:updateMultiPlayerLobbyModel" class="selflink">#</a></p>
+<div class="doc"><p>Updates a <code><a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a></code></p></div>
+</div>
+<div class="top"><p class="src"><a id="v:delayActions" class="def">delayActions</a> :: m -&gt; [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:Action" title="Update">Action</a>)] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> m <a href="#v:delayActions" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toSceneModel" class="def">toSceneModel</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Model.html#t:SceneModel" title="Model">SceneModel</a> <a href="#v:toSceneModel" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:toSecs" class="def">toSecs</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:toSecs" class="selflink">#</a></p>
+<div class="doc"><p>Seconds to scheduling delay</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:tenthToSecs" class="def">tenthToSecs</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:tenthToSecs" class="selflink">#</a></p>
+<div class="doc"><p>Tenth of seconds to scheduling delay</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:updateSceneModel" class="def">updateSceneModel</a> :: <a href="Update.html#t:SceneAction" title="Update">SceneAction</a> -&gt; <a href="Model.html#t:SceneModel" title="Model">SceneModel</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:SceneModel" title="Model">SceneModel</a> <a href="#v:updateSceneModel" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:updateModel" class="def">updateModel</a> :: <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:Model" title="Model">Model</a> <a href="#v:updateModel" class="selflink">#</a></p>
+<div class="doc"><p>Updates model, optionally introduces side effects
+ | This function delegates to the various specialized functions
+ | and is the only one to handle page changes. A page change event
+ | is one that takes a model from a page and returns a model of another page.
+ | Such an event cannot be dealt with a specialized function
+ | (SpecializedAction -&gt; SpecializedModel -&gt; SpecializedModel),
+ | it needs to be in `Action -&gt; Model -&gt; Model`.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:level0GameModel" class="def">level0GameModel</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="#v:level0GameModel" class="selflink">#</a></p>
+<div class="doc"><p>The initial model, appropriately shuffled with <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code> rng</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:levelNGameModel" class="def">levelNGameModel</a> <a href="#v:levelNGameModel" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>])</td>
+<td class="doc"><p>The initial decks</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>A model that takes the decks as parameters, for use after the initial
+ start of the game</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:unsafeInitialGameModel" class="def">unsafeInitialGameModel</a> <a href="#v:unsafeInitialGameModel" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>])</td>
+<td class="doc"><p>The initial decks</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+</td>
+<td class="doc"><p>The board</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>An initial model, with a custom board</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:initialWelcomeModel" class="def">initialWelcomeModel</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> <a href="#v:initialWelcomeModel" class="selflink">#</a></p></div>
+<h1>Orphan instances</h1>
+<div id="section.orphans"><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:1"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a></span> <a href="#v:-36-fToExprStdGen" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:1"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:2"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Tile.html#t:TileUI" title="Tile">TileUI</a></span> <a href="#v:-36-fToExprTileUI" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:2"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Tile.html#t:TileUI" title="Tile">TileUI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:3"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Tile.html#t:Tile" title="Tile">Tile</a></span> <a href="#v:-36-fToExprTile" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:3"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Tile.html#t:Tile" title="Tile">Tile</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Tile.html#t:Tile" title="Tile">Tile</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:4"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Tile.html#t:Filepath" title="Tile">Filepath</a></span> <a href="#v:-36-fToExprFilepath" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:4"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Tile.html#t:Filepath" title="Tile">Filepath</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Tile.html#t:Filepath" title="Tile">Filepath</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:5"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:ID" title="Card">ID</a></span> <a href="#v:-36-fToExprID" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:5"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:ID" title="Card">ID</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:6"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:Item" title="Card">Item</a></span> <a href="#v:-36-fToExprItem" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:6"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Item" title="Card">Item</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:7"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:Neutral" title="Card">Neutral</a></span> <a href="#v:-36-fToExprNeutral" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:7"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Neutral" title="Card">Neutral</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Neutral" title="Card">Neutral</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:8"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:CreatureID" title="Card">CreatureID</a></span> <a href="#v:-36-fToExprCreatureID" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:8"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:CreatureID" title="Card">CreatureID</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:9"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a></span> <a href="#v:-36-fToExprCreatureKind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:9"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:10"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:SkillPack" title="Card">SkillPack</a></span> <a href="#v:-36-fToExprSkillPack" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:10"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:SkillPack" title="Card">SkillPack</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:SkillPack" title="Card">SkillPack</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:11"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:SkillCore" title="Card">SkillCore</a></span> <a href="#v:-36-fToExprSkillCore" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:11"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:SkillCore" title="Card">SkillCore</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:SkillCore" title="Card">SkillCore</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:12"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:Skill" title="Card">Skill</a></span> <a href="#v:-36-fToExprSkill" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:12"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Skill" title="Card">Skill</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Skill" title="Card">Skill</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:13"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Card.html#t:Team" title="Card">Team</a></span> <a href="#v:-36-fToExprTeam" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:13"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Team" title="Card">Team</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:14"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a></span> <a href="#v:-36-fToExprTimedFrame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:14"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:15"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></span> <a href="#v:-36-fToExprFrame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:15"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Frame" title="Cinema">Frame</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:16"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></span> <a href="#v:-36-fToExprActor" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:16"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Actor" title="Cinema">Actor</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:17"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a></span> <a href="#v:-36-fToExprElement" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:17"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Element" title="Cinema">Element</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:18"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></span> <a href="#v:-36-fToExprActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:18"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:19"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></span> <a href="#v:-36-fToExprDirection" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:19"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Direction" title="Cinema">Direction</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:20"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#v:-36-fToExprLevel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:20"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Campaign.html#t:Level" title="Campaign">Level</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:21"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></span> <a href="#v:-36-fToExprSharedModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:21"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:22"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a></span> <a href="#v:-36-fToExprPlayerSpot" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:22"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:23"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a></span> <a href="#v:-36-fToExprHandIndex" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:23"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:HandIndex" title="Board">HandIndex</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:24"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Board.html#t:InPlaceEffects" title="Board">InPlaceEffects</a></span> <a href="#v:-36-fToExprInPlaceEffects" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:24"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:InPlaceEffects" title="Board">InPlaceEffects</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:InPlaceEffects" title="Board">InPlaceEffects</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:25"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a></span> <a href="#v:-36-fToExprInPlaceEffect" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:25"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:26"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></span> <a href="#v:-36-fToExprDeathCause" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:26"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:DeathCause" title="Board">DeathCause</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:27"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a></span> <a href="#v:-36-fToExprCardSpot" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:27"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:28"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Game.html#t:Target" title="Game">Target</a></span> <a href="#v:-36-fToExprTarget" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:28"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Game.html#t:Target" title="Game">Target</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:29"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="AI.html#t:Difficulty" title="AI">Difficulty</a></span> <a href="#v:-36-fToExprDifficulty" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:29"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="AI.html#t:Difficulty" title="AI">Difficulty</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:30"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Turn.html#t:Turn" title="Turn">Turn</a></span> <a href="#v:-36-fToExprTurn" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:30"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Turn.html#t:Turn" title="Turn">Turn</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:31"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:Model" title="Model">Model</a></span> <a href="#v:-36-fToExprModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:31"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Model" title="Model">Model</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Model" title="Model">Model</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:32"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:LootModel" title="Model">LootModel</a></span> <a href="#v:-36-fToExprLootModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:32"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:LootModel" title="Model">LootModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:LootModel" title="Model">LootModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:33"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:DeckModel" title="Model">DeckModel</a></span> <a href="#v:-36-fToExprDeckModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:33"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:DeckModel" title="Model">DeckModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:DeckModel" title="Model">DeckModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:34"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:InvitedActorState" title="Model">InvitedActorState</a></span> <a href="#v:-36-fToExprInvitedActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:34"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:InvitedActorState" title="Model">InvitedActorState</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:InvitedActorState" title="Model">InvitedActorState</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:35"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:InvitationActorState" title="Model">InvitationActorState</a></span> <a href="#v:-36-fToExprInvitationActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:35"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:InvitationActorState" title="Model">InvitationActorState</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:InvitationActorState" title="Model">InvitationActorState</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:36"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a></span> <a href="#v:-36-fToExprMultiPlayerLobbyModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:36"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:37"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:MultiPlayerLobbyError" title="Model">MultiPlayerLobbyError</a></span> <a href="#v:-36-fToExprMultiPlayerLobbyError" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:37"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:MultiPlayerLobbyError" title="Model">MultiPlayerLobbyError</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:MultiPlayerLobbyError" title="Model">MultiPlayerLobbyError</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:38"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a></span> <a href="#v:-36-fToExprSinglePlayerLobbyModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:38"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:39"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a></span> <a href="#v:-36-fToExprWelcomeModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:39"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:40"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:SceneModel" title="Model">SceneModel</a></span> <a href="#v:-36-fToExprSceneModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:40"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:SceneModel" title="Model">SceneModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:SceneModel" title="Model">SceneModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:41"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:PlayingMode" title="Model">PlayingMode</a></span> <a href="#v:-36-fToExprPlayingMode" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:41"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:PlayingMode" title="Model">PlayingMode</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:PlayingMode" title="Model">PlayingMode</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:42"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:BuildModel" title="Model">BuildModel</a></span> <a href="#v:-36-fToExprBuildModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:42"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:BuildModel" title="Model">BuildModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:BuildModel" title="Model">BuildModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:43"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:GameModel" title="Model">GameModel</a></span> <a href="#v:-36-fToExprGameModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:43"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:GameModel" title="Model">GameModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:44"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:HandFiddle" title="Model">HandFiddle</a></span> <a href="#v:-36-fToExprHandFiddle" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:44"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:HandFiddle" title="Model">HandFiddle</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:HandFiddle" title="Model">HandFiddle</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:45"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:Hovering" title="Model">Hovering</a></span> <a href="#v:-36-fToExprHovering" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:45"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Hovering" title="Model">Hovering</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Hovering" title="Model">Hovering</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:46"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCard0" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:46"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:47"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCard" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:47"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:48"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCardCommon0" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:48"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:49"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCardCommon" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:49"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:50"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprItemObject0" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:50"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:51"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprItemObject" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:51"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:52"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprNeutralObject0" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:52"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:53"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprNeutralObject" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:53"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:54"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCreature0" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:54"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:55"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCreature" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:55"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:56"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprBoard0" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:56"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:57"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprBoard" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:57"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:58"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprPlayerPart0" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:58"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:59"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprPlayerPart" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:59"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:60"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Model.html#t:Dragging" title="Model">Dragging</a> <a href="Game.html#t:Target" title="Game">Target</a>)</span> <a href="#v:-36-fToExprDragging" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:60"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Dragging" title="Model">Dragging</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Dragging" title="Model">Dragging</a> <a href="Game.html#t:Target" title="Game">Target</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:61"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</span> <a href="#v:-36-fToExprInteraction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:61"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

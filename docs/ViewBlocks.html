@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ViewBlocks</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">ViewBlocks</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>This module defines the basic building blocks used by views,
+ so that they have a uniform look<code>n</code>feel
+ |</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:ButtonState">ButtonState</a><ul class="subs">
+<li>= <a href="#v:Disabled">Disabled</a>
+</li>
+<li>| <a href="#v:Enabled">Enabled</a>
+</li>
+<li>| <a href="#v:Selected">Selected</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<a href="#v:dummyOn">dummyOn</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> <a href="Update.html#t:Action" title="Update">Action</a>
+</li>
+<li class="src short">
+<a href="#v:gui">gui</a> :: <a href="ViewBlocks.html#t:GUI" title="ViewBlocks">GUI</a> a</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:GUI">GUI</a> a = <a href="#v:GUI">GUI</a> {<ul class="subs">
+<li>
+<a href="#v:anyButton">anyButton</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="ViewBlocks.html#t:ButtonState" title="ViewBlocks">ButtonState</a> -&gt; ([<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a) -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a)</li>
+<li>
+<a href="#v:textButton">textButton</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="ViewBlocks.html#t:ButtonState" title="ViewBlocks">ButtonState</a> -&gt; [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a)</li>
+</ul>}</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:ButtonState" class="def">ButtonState</a> <a href="#t:ButtonState" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Disabled" class="def">Disabled</a></td>
+<td class="doc"><p>Button is disabled</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:Enabled" class="def">Enabled</a></td>
+<td class="doc"><p>Button is enabled</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:Selected" class="def">Selected</a></td>
+<td class="doc"><p>Button was enabled and has been chosen</p></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="top">
+<p class="src"><a id="v:dummyOn" class="def">dummyOn</a> <a href="#v:dummyOn" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</td>
+<td class="doc"><p>One of "dragenter" or "dragover"</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> <a href="Update.html#t:Action" title="Update">Action</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>Dummy [onWithOptions] instance.
+ | See <a href="https://github.com/dmjio/miso/issues/478">https://github.com/dmjio/miso/issues/478</a></p></div>
+</div>
+<div class="top"><p class="src"><a id="v:gui" class="def">gui</a> :: <a href="ViewBlocks.html#t:GUI" title="ViewBlocks">GUI</a> a <a href="#v:gui" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:GUI" class="def">GUI</a> a <a href="#t:GUI" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:GUI" class="def">GUI</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:anyButton" class="def">anyButton</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="ViewBlocks.html#t:ButtonState" title="ViewBlocks">ButtonState</a> -&gt; ([<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a) -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a)</dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:textButton" class="def">textButton</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="ViewBlocks.html#t:ButtonState" title="ViewBlocks">ButtonState</a> -&gt; [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a)</dfn><div class="doc"><p>argument #1 is the z-index
+ | argument #2 is the button's state
+ | argument #3 is the style
+ | argument #4 is the button's text</p></div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

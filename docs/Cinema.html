@@ -1,0 +1,828 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Cinema</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Cinema</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>Module containing the base for animating scenes in lobbies</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Actor">Actor</a> = <a href="#v:Actor">Actor</a> {<ul class="subs">
+<li>
+<a href="#v:actorName">actorName</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a>
+</li>
+<li>
+<a href="#v:actorState">actorState</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a>
+</li>
+</ul>}</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:ActorKind">ActorKind</a><ul class="subs">
+<li>= <a href="#v:CreatureKind">CreatureKind</a>
+</li>
+<li>| <a href="#v:TileKind">TileKind</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:ActorState">ActorState</a> = <a href="#v:ActorState">ActorState</a> {<ul class="subs">
+<li>
+<a href="#v:direction">direction</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a>
+</li>
+<li>
+<a href="#v:sprite">sprite</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> Sprite</li>
+<li>
+<a href="#v:telling">telling</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a>
+</li>
+<li>
+<a href="#v:x">x</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+<li>
+<a href="#v:y">y</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+</ul>}</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Direction">Direction</a><ul class="subs">
+<li>= <a href="#v:ToLeft">ToLeft</a>
+</li>
+<li>| <a href="#v:ToRight">ToRight</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Element">Element</a>
+</li>
+<li class="src short">
+<span class="keyword">newtype</span> <a href="#t:Frame">Frame</a> = <a href="#v:Frame">Frame</a> {<ul class="subs"><li>
+<a href="#v:unFrame">unFrame</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a>
+</li></ul>}</li>
+<li class="src short">
+<span class="keyword">type</span> <a href="#t:Scene">Scene</a> = <a href="file:///nix/store/hl19smyxayizam7gi4f8xywa072kav3q-operational-0.2.3.5-doc/share/doc/operational-0.2.3.5/html/Control-Monad-Operational.html#t:Program" title="Control.Monad.Operational">Program</a> SceneInstruction</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:TimedFrame">TimedFrame</a> = <a href="#v:TimedFrame">TimedFrame</a> {<ul class="subs">
+<li>
+<a href="#v:duration">duration</a> :: Duration</li>
+<li>
+<a href="#v:frame">frame</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a>
+</li>
+</ul>}</li>
+<li class="src short">
+<a href="#v:-124--124--124-">(|||)</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:creatureSprite">creatureSprite</a> :: <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; Sprite</li>
+<li class="src short">
+<a href="#v:defaultDirection">defaultDirection</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a>
+</li>
+<li class="src short">
+<a href="#v:dress">dress</a> :: Sprite -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:down">down</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:dot">dot</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; (<a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; a) -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> a</li>
+<li class="src short">
+<a href="#v:getActorState">getActorState</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a>
+</li>
+<li class="src short">
+<a href="#v:fork">fork</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:forkWithId">forkWithId</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ThreadId</li>
+<li class="src short">
+<a href="#v:joinThread">joinThread</a> :: ThreadId -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:hide">hide</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:left">left</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:newActor">newActor</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a>
+</li>
+<li class="src short">
+<a href="#v:newActorAt">newActorAt</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; Sprite -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a>
+</li>
+<li class="src short">
+<a href="#v:newActorAt-39-">newActorAt'</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; Sprite -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a>
+</li>
+<li class="src short">
+<a href="#v:render">render</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; [<a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a>]</li>
+<li class="src short">
+<a href="#v:right">right</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:setActorState">setActorState</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:shutup">shutup</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:spriteToKind">spriteToKind</a> :: Sprite -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a>
+</li>
+<li class="src short">
+<a href="#v:tell">tell</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:tileSprite">tileSprite</a> :: <a href="Tile.html#t:Tile" title="Tile">Tile</a> -&gt; Sprite</li>
+<li class="src short">
+<a href="#v:turnAround">turnAround</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:up">up</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:during">during</a> :: Duration -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> a -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> a</li>
+<li class="src short">
+<a href="#v:-61-:">(=:)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:newHiddenActor">newHiddenActor</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a>
+</li>
+<li class="src short">
+<a href="#v:moveTo">moveTo</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:resetAt">resetAt</a> :: Sprite -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:turnTo">turnTo</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:resetAt-39-">resetAt'</a> :: Sprite -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+<li class="src short">
+<a href="#v:wait">wait</a> :: Duration -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ()</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Actor" class="def">Actor</a> <a href="#t:Actor" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Actor" class="def">Actor</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:actorName" class="def">actorName</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a></dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:actorState" class="def">actorState</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></dfn><div class="doc empty">&nbsp;</div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Actor" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Actor:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></span> <a href="#t:Actor" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Actor:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Actor:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></span> <a href="#t:Actor" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Actor:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Actor:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></span> <a href="#t:Actor" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Actor:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Cinema.html#t:Actor" title="Cinema">Actor</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Actor:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></span> <a href="#t:Actor" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Actor:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> x -&gt; <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Actor:ToExpr:5"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></span> <a href="#t:ToExpr" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Actor:ToExpr:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Actor" title="Cinema">Actor</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Actor:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></span> <a href="#t:Actor" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Actor:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Actor" "Cinema" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Actor" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "actorName") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a>)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "actorState") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a>)))</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:ActorKind" class="def">ActorKind</a> <a href="#t:ActorKind" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:CreatureKind" class="def">CreatureKind</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:TileKind" class="def">TileKind</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:ActorKind" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorKind:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a></span> <a href="#t:ActorKind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorKind:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorKind:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a></span> <a href="#t:ActorKind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorKind:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorKind:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a></span> <a href="#t:ActorKind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorKind:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:ActorState" class="def">ActorState</a> <a href="#t:ActorState" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:ActorState" class="def">ActorState</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:direction" class="def">direction</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></dfn><div class="doc"><p>In which direction the sprite is looking at</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:sprite" class="def">sprite</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> Sprite</dfn><div class="doc"><p>How to draw this actor</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:telling" class="def">telling</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a></dfn><div class="doc"><p>Whether the element says something</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:x" class="def">x</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a></dfn><div class="doc"><p>0 means on the left</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:y" class="def">y</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a></dfn><div class="doc"><p>0 means top</p></div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:ActorState" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorState:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></span> <a href="#t:ActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorState:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorState:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></span> <a href="#t:ActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorState:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorState:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></span> <a href="#t:ActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorState:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorState:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></span> <a href="#t:ActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorState:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> x -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorState:ToExpr:5"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></span> <a href="#t:ToExpr" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorState:ToExpr:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:ActorState:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a></span> <a href="#t:ActorState" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:ActorState:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Direction" class="def">Direction</a> <a href="#t:Direction" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:ToLeft" class="def">ToLeft</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:ToRight" class="def">ToRight</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Direction" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Direction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></span> <a href="#t:Direction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Direction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Direction:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></span> <a href="#t:Direction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Direction:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Direction:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></span> <a href="#t:Direction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Direction:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Cinema.html#t:Direction" title="Cinema">Direction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Direction:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></span> <a href="#t:Direction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Direction:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> x -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Direction:ToExpr:5"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></span> <a href="#t:ToExpr" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Direction:ToExpr:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Direction" title="Cinema">Direction</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Direction:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a></span> <a href="#t:Direction" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Direction:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Direction" "Cinema" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "ToLeft" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "ToRight" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>))</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Element" class="def">Element</a> <a href="#t:Element" class="selflink">#</a></p>
+<div class="subs instances"><details id="i:Element" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Element:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a></span> <a href="#t:Element" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Element:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Element:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a></span> <a href="#t:Element" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Element:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Element:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a></span> <a href="#t:Element" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Element:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Cinema.html#t:Element" title="Cinema">Element</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Element:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a></span> <a href="#t:Element" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Element:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> x -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Element:ToExpr:5"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a></span> <a href="#t:ToExpr" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Element:ToExpr:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Element" title="Cinema">Element</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Element:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a></span> <a href="#t:Element" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Element:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Element" "Cinema" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Element" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-TypeLits.html#t:Symbol" title="GHC.TypeLits">Symbol</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)))</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">newtype</span> <a id="t:Frame" class="def">Frame</a> <a href="#t:Frame" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Frame" class="def">Frame</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul><li>
+<dfn class="src"><a id="v:unFrame" class="def">unFrame</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a></dfn><div class="doc empty">&nbsp;</div>
+</li></ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Frame" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Frame:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></span> <a href="#t:Frame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Frame:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Frame:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></span> <a href="#t:Frame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Frame:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Frame:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></span> <a href="#t:Frame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Frame:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Cinema.html#t:Frame" title="Cinema">Frame</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Frame:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></span> <a href="#t:Frame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Frame:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> x -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Frame:ToExpr:5"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></span> <a href="#t:ToExpr" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Frame:ToExpr:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:Frame" title="Cinema">Frame</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Frame:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></span> <a href="#t:Frame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Frame:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Frame" "Cinema" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Frame" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "unFrame") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="Cinema.html#t:Actor" title="Cinema">Actor</a>))))</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><span class="keyword">type</span> <a id="t:Scene" class="def">Scene</a> = <a href="file:///nix/store/hl19smyxayizam7gi4f8xywa072kav3q-operational-0.2.3.5-doc/share/doc/operational-0.2.3.5/html/Control-Monad-Operational.html#t:Program" title="Control.Monad.Operational">Program</a> SceneInstruction <a href="#t:Scene" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:TimedFrame" class="def">TimedFrame</a> <a href="#t:TimedFrame" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:TimedFrame" class="def">TimedFrame</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:duration" class="def">duration</a> :: Duration</dfn><div class="doc"><p>The duration of a frame, in tenth of seconds</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:frame" class="def">frame</a> :: <a href="Cinema.html#t:Frame" title="Cinema">Frame</a></dfn><div class="doc"><p>The frame</p></div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:TimedFrame" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:TimedFrame:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a></span> <a href="#t:TimedFrame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:TimedFrame:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:TimedFrame:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a></span> <a href="#t:TimedFrame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:TimedFrame:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:TimedFrame:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a></span> <a href="#t:TimedFrame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:TimedFrame:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:TimedFrame:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a></span> <a href="#t:TimedFrame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:TimedFrame:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> x -&gt; <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:TimedFrame:ToExpr:5"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a></span> <a href="#t:ToExpr" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:TimedFrame:ToExpr:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:TimedFrame:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a></span> <a href="#t:TimedFrame" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:TimedFrame:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Cinema.html">Cinema</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:-124--124--124-" class="def">(|||)</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:-124--124--124-" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:creatureSprite" class="def">creatureSprite</a> :: <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; Sprite <a href="#v:creatureSprite" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:defaultDirection" class="def">defaultDirection</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> <a href="#v:defaultDirection" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:dress" class="def">dress</a> :: Sprite -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:dress" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:down" class="def">down</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:down" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:dot" class="def">dot</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; (<a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; a) -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> a <a href="#v:dot" class="selflink">#</a></p>
+<div class="doc"><p>Typical usage: archerX &lt;- archer <code><a href="Cinema.html#v:dot" title="Cinema">dot</a></code> x</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:getActorState" class="def">getActorState</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> <a href="#v:getActorState" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:fork" class="def">fork</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:fork" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:forkWithId" class="def">forkWithId</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> ThreadId <a href="#v:forkWithId" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:joinThread" class="def">joinThread</a> :: ThreadId -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:joinThread" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:hide" class="def">hide</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:hide" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:left" class="def">left</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:left" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:newActor" class="def">newActor</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="#v:newActor" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:newActorAt" class="def">newActorAt</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; Sprite -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="#v:newActorAt" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:newActorAt-39-" class="def">newActorAt'</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; Sprite -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="#v:newActorAt-39-" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:render" class="def">render</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; [<a href="Cinema.html#t:TimedFrame" title="Cinema">TimedFrame</a>] <a href="#v:render" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:right" class="def">right</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:right" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setActorState" class="def">setActorState</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:setActorState" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:shutup" class="def">shutup</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:shutup" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:spriteToKind" class="def">spriteToKind</a> :: Sprite -&gt; <a href="Cinema.html#t:ActorKind" title="Cinema">ActorKind</a> <a href="#v:spriteToKind" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:tell" class="def">tell</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:tell" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:tileSprite" class="def">tileSprite</a> :: <a href="Tile.html#t:Tile" title="Tile">Tile</a> -&gt; Sprite <a href="#v:tileSprite" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:turnAround" class="def">turnAround</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:turnAround" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:up" class="def">up</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:up" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:during" class="def">during</a> :: Duration -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> a -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> a <a href="#v:during" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:-61-:" class="def">(=:)</a> :: <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:ActorState" title="Cinema">ActorState</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:-61-:" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:newHiddenActor" class="def">newHiddenActor</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> <a href="Cinema.html#t:Element" title="Cinema">Element</a> <a href="#v:newHiddenActor" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:moveTo" class="def">moveTo</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:moveTo" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:resetAt" class="def">resetAt</a> :: Sprite -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:resetAt" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:turnTo" class="def">turnTo</a> :: <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:turnTo" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:resetAt-39-" class="def">resetAt'</a> :: Sprite -&gt; <a href="Cinema.html#t:Direction" title="Cinema">Direction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Cinema.html#t:Element" title="Cinema">Element</a> -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:resetAt-39-" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:wait" class="def">wait</a> :: Duration -&gt; <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () <a href="#v:wait" class="selflink">#</a></p></div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

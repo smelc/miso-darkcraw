@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Nat</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>Safe</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Nat</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>This module defines functions to deal with <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Word.html#t:Word16" title="Data.Word">Word16</a></code>
+ |</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">type</span> <a href="#t:Nat">Nat</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Word.html#t:Word16" title="Data.Word">Word16</a>
+</li>
+<li class="src short">
+<a href="#v:intToNat">intToNat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+<li class="src short">
+<a href="#v:natToInt">natToInt</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+<li class="src short">
+<a href="#v:intToClampedNat">intToClampedNat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+<li class="src short">
+<a href="#v:natLength">natLength</a> :: [a] -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+<li class="src short">
+<a href="#v:minusNatClamped">minusNatClamped</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top"><p class="src"><span class="keyword">type</span> <a id="t:Nat" class="def">Nat</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Word.html#t:Word16" title="Data.Word">Word16</a> <a href="#t:Nat" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:intToNat" class="def">intToNat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:intToNat" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:natToInt" class="def">natToInt</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:natToInt" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:intToClampedNat" class="def">intToClampedNat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:intToClampedNat" class="selflink">#</a></p>
+<div class="doc"><p>Transforms an <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a></code> into a <code>Natural</code>. Returns 0 if the input <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a></code>
+ is negative.</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:natLength" class="def">natLength</a> :: [a] -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:natLength" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:minusNatClamped" class="def">minusNatClamped</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:minusNatClamped" class="selflink">#</a></p>
+<div class="doc"><p>minusNatClamped n m returns n - m if n &gt;= m, otherwise it returns 0.</p></div>
+</div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

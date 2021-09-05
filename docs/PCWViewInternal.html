@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>PCWViewInternal</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">PCWViewInternal</p>
+</div>
+<div id="table-of-contents">
+<p class="caption">Contents</p>
+<ul><li><a href="#section.orphans">Orphan instances</a></li></ul>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>This module contains generic things to be used in *View.hs
+ and *ViewInternal.hs files. Contrary to <code>ViewInternal</code>, it contains
+ things that are specific to the game; not solely pure HTML/CSS stuff.
+ |</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<a href="#v:cardBoxShadowStyle">cardBoxShadowStyle</a> :: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a</li>
+<li class="src short">
+<a href="#v:cardView">cardView</a> :: <a href="PCWViewInternal.html#t:DisplayLocation" title="PCWViewInternal">DisplayLocation</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
+<li class="src short">
+<a href="#v:cardPositionStyle">cardPositionStyle</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+<li class="src short">
+<a href="#v:cardPositionStyle-39-">cardPositionStyle'</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+<li class="src short">
+<a href="#v:scrollbarStyle">scrollbarStyle</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+<li class="src short">
+<a href="#v:viewFrame">viewFrame</a> :: <a href="PCWViewInternal.html#t:DisplayMode" title="PCWViewInternal">DisplayMode</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:CardDrawStyle">CardDrawStyle</a> = <a href="#v:CardDrawStyle">CardDrawStyle</a> {<ul class="subs">
+<li>
+<a href="#v:fadeIn">fadeIn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li>
+<a href="#v:hover">hover</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+</ul>}</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:DisplayLocation">DisplayLocation</a><ul class="subs">
+<li>= <a href="#v:GameInPlaceLoc">GameInPlaceLoc</a> <a href="Total.html#t:Part" title="Total">Part</a>
+</li>
+<li>| <a href="#v:GameHandLoc">GameHandLoc</a>
+</li>
+<li>| <a href="#v:GameDragLoc">GameDragLoc</a>
+</li>
+<li>| <a href="#v:DeckLoc">DeckLoc</a>
+</li>
+<li>| <a href="#v:LootLoc">LootLoc</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:DisplayMode">DisplayMode</a><ul class="subs">
+<li>= <a href="#v:NormalMode">NormalMode</a>
+</li>
+<li>| <a href="#v:DebugMode">DebugMode</a>
+</li>
+</ul>
+</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><a id="v:cardBoxShadowStyle" class="def">cardBoxShadowStyle</a> <a href="#v:cardBoxShadowStyle" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</td>
+<td class="doc"><p>The (r, g, b) of the border</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</td>
+<td class="doc"><p>The width of the border</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</td>
+<td class="doc"><p>The timing-function of the transition</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="top">
+<p class="src"><a id="v:cardView" class="def">cardView</a> <a href="#v:cardView" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="PCWViewInternal.html#t:DisplayLocation" title="PCWViewInternal">DisplayLocation</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</td>
+<td class="doc"><p>The z index</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Card.html#t:Team" title="Card">Team</a>
+</td>
+<td class="doc"><p>The team of the card, for selecting the background</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>Div displaying a card. Draws the picture and the background
+ and delegate most stuff to <code>cardView'</code></p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:cardPositionStyle" class="def">cardPositionStyle</a> <a href="#v:cardPositionStyle" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</td>
+<td class="doc"><p>The horizontal offset from the enclosing container, in number of cells</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</td>
+<td class="doc"><p>The vertical offset from the enclosing container, in number of cells</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="top">
+<p class="src"><a id="v:cardPositionStyle-39-" class="def">cardPositionStyle'</a> <a href="#v:cardPositionStyle-39-" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</td>
+<td class="doc"><p>The horizontal offset from the enclosing container, in pixels</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</td>
+<td class="doc"><p>The vertical offset from the enclosing container, in pixels</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="top"><p class="src"><a id="v:scrollbarStyle" class="def">scrollbarStyle</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="#v:scrollbarStyle" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:viewFrame" class="def">viewFrame</a> :: <a href="PCWViewInternal.html#t:DisplayMode" title="PCWViewInternal">DisplayMode</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a <a href="#v:viewFrame" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:CardDrawStyle" class="def">CardDrawStyle</a> <a href="#t:CardDrawStyle" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:CardDrawStyle" class="def">CardDrawStyle</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:fadeIn" class="def">fadeIn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a></dfn><div class="doc"><p>Whether the card should fade in</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:hover" class="def">hover</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a></dfn><div class="doc"><p>Whether the card is being hovered</p></div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:CardDrawStyle" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:CardDrawStyle:Semigroup:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a></span> <a href="#t:CardDrawStyle" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:CardDrawStyle:Semigroup:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="PCWViewInternal.html">PCWViewInternal</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> <a href="#v:-60--62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> <a href="#v:sconcat" class="selflink">#</a></p>
+<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> <a href="#v:stimes" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:CardDrawStyle:Monoid:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a></span> <a href="#t:CardDrawStyle" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:CardDrawStyle:Monoid:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="PCWViewInternal.html">PCWViewInternal</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:mempty">mempty</a> :: <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> <a href="#v:mempty" class="selflink">#</a></p>
+<p class="src"><a href="#v:mappend">mappend</a> :: <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> <a href="#v:mappend" class="selflink">#</a></p>
+<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a>] -&gt; <a href="PCWViewInternal.html#t:CardDrawStyle" title="PCWViewInternal">CardDrawStyle</a> <a href="#v:mconcat" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:DisplayLocation" class="def">DisplayLocation</a> <a href="#t:DisplayLocation" class="selflink">#</a></p>
+<div class="doc"><p>Where a card is being drawn</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src">
+<a id="v:GameInPlaceLoc" class="def">GameInPlaceLoc</a> <a href="Total.html#t:Part" title="Total">Part</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:GameHandLoc" class="def">GameHandLoc</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:GameDragLoc" class="def">GameDragLoc</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:DeckLoc" class="def">DeckLoc</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:LootLoc" class="def">LootLoc</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:DisplayMode" class="def">DisplayMode</a> <a href="#t:DisplayMode" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:NormalMode" class="def">NormalMode</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:DebugMode" class="def">DebugMode</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+</div>
+<h1>Orphan instances</h1>
+<div id="section.orphans"><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToMisoString:ToMisoString:1"></span> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:ToMisoString" title="Miso.String">ToMisoString</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a></span> <a href="#v:-36-fToMisoStringWord16" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToMisoString:ToMisoString:1"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toMisoString">toMisoString</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="#v:toMisoString" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>
