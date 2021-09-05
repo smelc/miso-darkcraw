@@ -12,6 +12,7 @@ import Data.Function ((&))
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import Debug.Trace (traceShow)
 import Miso
 import Miso.String hiding (drop, length, map, take, zip)
 import Model (LootModel (..))
@@ -30,11 +31,14 @@ import ViewInternal
 -- |
 view :: LootModel -> Styled (View Action)
 view LootModel {..} = do
+  rewards <- rewardsView ctxt zpppp rewards
   deck <- deckView ctxt zpppp deck
   return $
     div_
       [style_ $ bgStyle z]
-      [ deck,
+      [ rewards,
+        rewardsLegend,
+        deck,
         deckLegend,
         div_
           [style_ $ "position" =: "absolute" <> "top" =: "0" <> "right" =: "0" <> "z-index" =: ms zpp]
@@ -47,32 +51,99 @@ view LootModel {..} = do
       zpltwh z Relative 0 0 Constants.lobbiesPixelWidth Constants.boardPixelHeight
         <> "background-image" =: Constants.assetsUrl "loot-bot-forest.png"
     ctxt = Context {..}
+    rewardsLegend =
+      div_
+        [ legendStyle
+            ((rewardsViewTopMargin + rewardsViewHeight) + (Constants.cps `div` 4)) -- below rewards + margin
+        ]
+        [div_ [legendTextStyle] [text rewardsTextLegend]]
+    rewardsTextLegend :: MisoString =
+      ms $
+        "Rewards: pick " ++ show nbRewards ++ if nbRewards > 1 then " of them" else ""
     deckLegend =
       div_
-        [ style_ $
-            zpltwh
-              z
-              Absolute
-              0 -- left
-              ((deckViewTopMargin + deckViewHeight) + (Constants.cps `div` 4)) -- below deck + margin
-              Constants.lobbiesPixelWidth -- width
-              Constants.cps -- height
+        [ legendStyle
+            ((deckViewTopMargin + deckViewHeight) + (Constants.cps `div` 4)) -- below deck + margin
         ]
-        [ div_
-            [ style_ $
-                textStyle
-                  <> flexLineStyle -- Horizontal layouting
-                  <> "width" =: px Constants.lobbiesPixelWidth -- Needed to center horizontally
-                  <> "justify-content" =: "center" -- Center horizontally
-            ]
-            [text "Your deck"]
-        ]
+        [div_ [legendTextStyle] [text "Your deck"]]
+    legendStyle top =
+      style_ $
+        zpltwh
+          z
+          Absolute
+          0 -- left
+          top
+          Constants.lobbiesPixelWidth -- width
+          Constants.cps -- height
+    legendTextStyle =
+      style_ $
+        textStyle
+          <> flexLineStyle -- Horizontal layouting
+          <> "width" =: px Constants.lobbiesPixelWidth -- Needed to center horizontally
+          <> "justify-content" =: "center" -- Center horizontally
 
 -- | Context that is common to all calls to 'deckView'
 data Context = Context
   { shared :: SharedModel,
     team :: Team
   }
+
+rewardsViewTopMargin :: Int
+rewardsViewTopMargin = Constants.cps * 8
+
+rewardsViewHeight :: Int
+rewardsViewHeight = Constants.cardPixelHeight
+
+-- | The div showing the rewards. It's displayed above 'deckView'
+rewardsView :: Context -> Int -> [Card.ID] -> Styled (View Action)
+rewardsView Context {shared, LootView.team} z cards = do
+  cardViews :: [View Action] <- traverse divCard $ zip [0 ..] cards'
+  return $
+    div_
+      [ style_ $
+          zpltwh
+            z
+            Absolute
+            viewLeft -- left margin
+            rewardsViewTopMargin -- top margin
+            viewWidth -- width
+            rewardsViewHeight -- height
+      ]
+      cardViews
+  where
+    nbCards = length cards
+    viewWidth =
+      (nbCards * Constants.cardPixelWidth) -- Cards horizontally
+        + ((max 0 (nbCards - 1)) * Constants.cps) -- 1 cell gap between cards
+    viewLeft =
+      Constants.cps
+        * ( case nbCards of
+              1 -> 9
+              2 -> 7
+              3 -> 5
+              _ -> traceShow ("Unexpected number of rewards cards: " ++ show nbCards) 5
+          )
+    cards' :: [Card 'Core] =
+      map (SharedModel.identToCard shared) cards
+        & catMaybes
+        & map unlift
+    divCard :: (Nat, Card 'Core) -> Styled (View Action)
+    divCard (i, card) = do
+      inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
+      return $
+        div_
+          [ style_ $
+              cardPositionStyle'
+                (Constants.cps * x)
+                (Constants.cps * y)
+                <> "z-index" =: ms z
+          ]
+          [inner]
+      where
+        xCellsOffset = Constants.cardCellWidth + 1 -- card width + horizontal margin
+        yCellsOffset = Constants.cardCellHeight + 1 -- card height + vertical margin
+        x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
+        y = (natToInt i `div` deckCardsPerRow) * yCellsOffset
 
 deckViewTopMargin :: Int
 deckViewTopMargin = Constants.cps * 14
@@ -90,11 +161,10 @@ deckCardsPerRow = 4
 deckViewWidth :: Int
 deckViewWidth =
   (Constants.cardPixelWidth * deckCardsPerRow) -- Cards
-    + (deckCardsPerRow - 1) * Constants.cps -- Gaps between cards
+    + (max 0 (deckCardsPerRow - 1)) * Constants.cps -- Gaps between cards
     + Constants.cps -- Space for scrollbar
 
--- | The div for the < card1 card2 card3 > view, the left and right
--- angle brackets being buttons.
+-- | The div showing the deck
 deckView :: Context -> Int -> [Card.ID] -> Styled (View Action)
 deckView Context {shared, LootView.team} _z cards = do
   cardViews :: [View Action] <- traverse divStack (zip [0 ..] $ Map.toList cards'')
