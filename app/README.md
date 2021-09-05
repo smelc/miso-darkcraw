@@ -26,6 +26,14 @@ cabal --project-file=cabal.config build all
 
 # Documentation
 
+## Online version
+
+The haddock is automatically updated by
+the [pre-commit hook](https://github.com/smelc/miso-darkcraw/blob/master/hooks/pre_commit.py) and
+is visible online [here](https://smelc.github.io/miso-darkcraw/).
+
+## Local version
+
 To generate the documentation of Haskell files:
 
 ```shell
