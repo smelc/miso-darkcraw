@@ -107,7 +107,8 @@ then
   # Regenerate js upon .hs saving:
   nix-shell --run reload
 
-  sensible-browser "http://localhost:8080" &
+  declare -r CMD="sensible-browser \"http://localhost:8080\""
+  echo "Execute $CMD to open the webserver"
 elif [[ "$1" == *"help" ]]
 then
   display_help
@@ -126,12 +127,13 @@ then
 
   command -v ghcjs &> /dev/null || { echo "ghcjs unavailable, I bet the nix-shell's flavor is wrong. Please enter it as follows: nix-shell -A release.env default.nix"; exit 1; }
 
+  declare -r CMD="sensible-browser \"$CABAL_INDEX\""
   if [[ -e "$CABAL_INDEX" ]]
   then
-    sensible-browser "$CABAL_INDEX" &
+    echo "Execute $CMD to open the webserver"
   else
     echo "After your first compilation, issue this command to open the released game:"
-    echo "sensible-browser $CABAL_INDEX"
+    echo "$CMD"
   fi
 
   cabal_listen  # Not executing in the background, so that ctrl-c
