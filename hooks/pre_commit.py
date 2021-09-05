@@ -8,6 +8,9 @@ You can pass "--unstaged" to apply the hook on modified but not yet
 staged files. This is useful to apply the hook prior staging.
 """
 
+import glob
+import os
+import shutil
 import subprocess
 import sys
 from typing import List, Optional
@@ -94,7 +97,7 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
 def _run_unchecked_cmd(cwd: Optional[str], cmd: List[str]) -> int:
     """ Executes a command and returns it return code """
     prefix = f"{cwd}> " if cwd else ""
-    print(f'{prefix}> {" ".join(cmd)}')
+    print(f'{prefix}{" ".join(cmd)}')
     return subprocess.run(cmd, check=False, cwd=cwd).returncode
 
 
@@ -111,6 +114,30 @@ def _build() -> int:
     """
     cmd = ["nix-build", "-A", "release"]
     return _run_unchecked_cmd("app", cmd)
+
+
+def _doc() -> int:
+    """
+    Builds the documentation (haddock) and copies it to
+    the docs/ directory at the git root, then commits the changes (if any)
+    """
+    cmd = ["nix-shell", "--run", "cabal --project-file=cabal-haddock.config haddock app"]
+    rc = _run_unchecked_cmd("app", cmd)
+    if rc != 0:
+        # A failure, it's fine, we just don't update the doc
+        cmd_str = " ".join(cmd)
+        print(f"⚠️ Could not build haddock with {cmd_str} ⚠️")
+        return rc
+    dest = "docs"
+    if not os.path.exists(dest):
+        os.makedirs(dest)
+    # png and css produced by haddock are not writable O_o, hence to
+    # avoid chown calls upon overwriting the doc, we only iterate over *.html
+    for html_file in glob.glob("app/dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/x/app/doc/html/app/app/*.html"):
+        shutil.copy(html_file, dest)
+    cmd = ["git", "add", "docs"]
+    rc = subprocess.run(cmd).returncode
+    return rc
 
 
 def _test() -> int:
@@ -137,8 +164,10 @@ def main() -> int:
         if _BUILD_TEST:
             return_code = max(return_code, _build())
             return_code = max(return_code, _test())
+        if return_code == 0:
+            return_code = max(return_code, _doc())
     else:
-        print("No %s *.hs relevant file found, nothing to format" % adjective)
+        print("No %s *.hs relevant file found, nothing to format, and no doc to generate either" % adjective)
         if _BUILD_TEST:
             print("Not calling nix-build/cabal test either")
 
