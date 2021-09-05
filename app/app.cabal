@@ -52,6 +52,7 @@ common client-server-shared
     tree-diff,
     vector
   ghc-options:
+    -haddock
     -Wall
     -Werror
     -Wwarn=missing-home-modules
@@ -96,6 +97,7 @@ executable app
     client,
     shared
   ghc-options:
+    -haddock
     -Wall
     -Wno-name-shadowing
     -Werror
@@ -171,6 +173,7 @@ Test-Suite test-darkcraw
     tree-diff,
     vector
   ghc-options:
+    -haddock
     -Wall
     -Wno-name-shadowing
     -Werror
