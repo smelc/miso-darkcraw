@@ -91,7 +91,12 @@
 </ul>
 </li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:LootAction">LootAction</a> = <a href="#v:DeckTo">DeckTo</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a>
+<span class="keyword">data</span> <a href="#t:LootAction">LootAction</a><ul class="subs">
+<li>= <a href="#v:Pick">Pick</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+<li>| <a href="#v:Unpick">Unpick</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+</ul>
 </li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:WelcomeDestination">WelcomeDestination</a><ul class="subs">
@@ -499,12 +504,20 @@
 <div class="doc"><p>Actions internal to <code>LootView</code></p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
-<table><tr>
+<table>
+<tr>
 <td class="src">
-<a id="v:DeckTo" class="def">DeckTo</a> <a href="Cinema.html#t:Direction" title="Cinema">Direction</a>
+<a id="v:Pick" class="def">Pick</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </td>
-<td class="doc"><p>TODO @smelc delete me</p></td>
-</tr></table>
+<td class="doc"><p>Select a reward. The index is in the list of available rewards.</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:Unpick" class="def">Unpick</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</td>
+<td class="doc"><p>Unselect a reward. The index is in the list of available rewards.</p></td>
+</tr>
+</table>
 </div>
 <div class="subs instances"><details id="i:LootAction" open="open"><summary>Instances</summary><table>
 <tr>
@@ -1243,319 +1256,330 @@
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:33"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:DeckModel" title="Model">DeckModel</a></span> <a href="#v:-36-fToExprDeckModel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:33"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:Picked" title="Model">Picked</a></span> <a href="#v:-36-fToExprPicked" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:33"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Picked" title="Model">Picked</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
+<p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Picked" title="Model">Picked</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:34"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:DeckModel" title="Model">DeckModel</a></span> <a href="#v:-36-fToExprDeckModel" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:34"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:DeckModel" title="Model">DeckModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:DeckModel" title="Model">DeckModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:34"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:InvitedActorState" title="Model">InvitedActorState</a></span> <a href="#v:-36-fToExprInvitedActorState" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:35"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:InvitedActorState" title="Model">InvitedActorState</a></span> <a href="#v:-36-fToExprInvitedActorState" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:34"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:35"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:InvitedActorState" title="Model">InvitedActorState</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:InvitedActorState" title="Model">InvitedActorState</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:35"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:InvitationActorState" title="Model">InvitationActorState</a></span> <a href="#v:-36-fToExprInvitationActorState" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:36"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:InvitationActorState" title="Model">InvitationActorState</a></span> <a href="#v:-36-fToExprInvitationActorState" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:35"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:36"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:InvitationActorState" title="Model">InvitationActorState</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:InvitationActorState" title="Model">InvitationActorState</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:36"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a></span> <a href="#v:-36-fToExprMultiPlayerLobbyModel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:37"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a></span> <a href="#v:-36-fToExprMultiPlayerLobbyModel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:36"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:37"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:37"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:MultiPlayerLobbyError" title="Model">MultiPlayerLobbyError</a></span> <a href="#v:-36-fToExprMultiPlayerLobbyError" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:38"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:MultiPlayerLobbyError" title="Model">MultiPlayerLobbyError</a></span> <a href="#v:-36-fToExprMultiPlayerLobbyError" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:37"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:38"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:MultiPlayerLobbyError" title="Model">MultiPlayerLobbyError</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:MultiPlayerLobbyError" title="Model">MultiPlayerLobbyError</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:38"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a></span> <a href="#v:-36-fToExprSinglePlayerLobbyModel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:39"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a></span> <a href="#v:-36-fToExprSinglePlayerLobbyModel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:38"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:39"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:39"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a></span> <a href="#v:-36-fToExprWelcomeModel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:40"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a></span> <a href="#v:-36-fToExprWelcomeModel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:39"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:40"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:40"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:SceneModel" title="Model">SceneModel</a></span> <a href="#v:-36-fToExprSceneModel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:41"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:SceneModel" title="Model">SceneModel</a></span> <a href="#v:-36-fToExprSceneModel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:40"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:41"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:SceneModel" title="Model">SceneModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:SceneModel" title="Model">SceneModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:41"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:PlayingMode" title="Model">PlayingMode</a></span> <a href="#v:-36-fToExprPlayingMode" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:42"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:PlayingMode" title="Model">PlayingMode</a></span> <a href="#v:-36-fToExprPlayingMode" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:41"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:42"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:PlayingMode" title="Model">PlayingMode</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:PlayingMode" title="Model">PlayingMode</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:42"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:BuildModel" title="Model">BuildModel</a></span> <a href="#v:-36-fToExprBuildModel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:43"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:BuildModel" title="Model">BuildModel</a></span> <a href="#v:-36-fToExprBuildModel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:42"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:43"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:BuildModel" title="Model">BuildModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:BuildModel" title="Model">BuildModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:43"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:GameModel" title="Model">GameModel</a></span> <a href="#v:-36-fToExprGameModel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:44"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:GameModel" title="Model">GameModel</a></span> <a href="#v:-36-fToExprGameModel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:43"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:44"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:GameModel" title="Model">GameModel</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:44"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:HandFiddle" title="Model">HandFiddle</a></span> <a href="#v:-36-fToExprHandFiddle" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:45"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:HandFiddle" title="Model">HandFiddle</a></span> <a href="#v:-36-fToExprHandFiddle" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:44"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:45"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:HandFiddle" title="Model">HandFiddle</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:HandFiddle" title="Model">HandFiddle</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:45"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:Hovering" title="Model">Hovering</a></span> <a href="#v:-36-fToExprHovering" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:46"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> <a href="Model.html#t:Hovering" title="Model">Hovering</a></span> <a href="#v:-36-fToExprHovering" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:45"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:46"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Hovering" title="Model">Hovering</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Hovering" title="Model">Hovering</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:46"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCard0" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:47"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCard0" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:46"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:47"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:47"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCard" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:48"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCard" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:47"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:48"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:48"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCardCommon0" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:49"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCardCommon0" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:48"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:49"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:49"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCardCommon" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:50"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCardCommon" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:49"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:50"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:50"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprItemObject0" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:51"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprItemObject0" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:50"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:51"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:51"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprItemObject" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:52"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprItemObject" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:51"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:52"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:52"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprNeutralObject0" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:53"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprNeutralObject0" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:52"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:53"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:53"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprNeutralObject" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:54"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprNeutralObject" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:53"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:54"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:54"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCreature0" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:55"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprCreature0" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:54"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:55"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:55"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCreature" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:56"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprCreature" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:55"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:56"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:56"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprBoard0" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:57"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprBoard0" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:56"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:57"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:57"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprBoard" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:58"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprBoard" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:57"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:58"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:58"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprPlayerPart0" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:59"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#v:-36-fToExprPlayerPart0" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:58"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:59"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:Core" title="Card">Core</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:59"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprPlayerPart" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:60"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#v:-36-fToExprPlayerPart" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:59"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:60"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:60"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Model.html#t:Dragging" title="Model">Dragging</a> <a href="Game.html#t:Target" title="Game">Target</a>)</span> <a href="#v:-36-fToExprDragging" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:61"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Model.html#t:Dragging" title="Model">Dragging</a> <a href="Game.html#t:Target" title="Game">Target</a>)</span> <a href="#v:-36-fToExprDragging" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:60"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:61"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Dragging" title="Model">Dragging</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Dragging" title="Model">Dragging</a> <a href="Game.html#t:Target" title="Game">Target</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:61"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</span> <a href="#v:-36-fToExprInteraction" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:ToExpr:ToExpr:62"></span> <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> (<a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</span> <a href="#v:-36-fToExprInteraction" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:61"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:ToExpr:ToExpr:62"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:toExpr">toExpr</a> :: <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:toExpr" class="selflink">#</a></p>
 <p class="src"><a href="#v:listToExpr">listToExpr</a> :: [<a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a>] -&gt; <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Expr.html#t:Expr" title="Data.TreeDiff.Expr">Expr</a> <a href="#v:listToExpr" class="selflink">#</a></p>

@@ -48,7 +48,7 @@
 <a href="#v:rewardsViewHeight">rewardsViewHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
 </li>
 <li class="src short">
-<a href="#v:rewardsView">rewardsView</a> :: <a href="LootView.html#t:Context" title="LootView">Context</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>] -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
+<a href="#v:rewardsView">rewardsView</a> :: <a href="LootView.html#t:Context" title="LootView">Context</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; [(<a href="Card.html#t:ID" title="Card">ID</a>, <a href="Model.html#t:Picked" title="Model">Picked</a>)] -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
 <li class="src short">
 <a href="#v:deckViewTopMargin">deckViewTopMargin</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
 </li>
@@ -68,10 +68,13 @@
 <h1>Documentation</h1>
 <div class="top">
 <p class="src"><a id="v:view" class="def">view</a> :: <a href="Model.html#t:LootModel" title="Model">LootModel</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:view" class="selflink">#</a></p>
-<div class="doc"><p>Module to display the view reached after a successful end of <code>GameView</code>.
+<div class="doc">
+<p>Module to display the view reached after a successful end of <code>GameView</code>.
  This view sits between two games, where the player can pick new
  cards to augment its deck.
- |</p></div>
+ |</p>
+<p>Top-level rendering function</p>
+</div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Context" class="def">Context</a> <a href="#t:Context" class="selflink">#</a></p>
@@ -100,7 +103,7 @@
 <div class="top"><p class="src"><a id="v:rewardsViewTopMargin" class="def">rewardsViewTopMargin</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:rewardsViewTopMargin" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:rewardsViewHeight" class="def">rewardsViewHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:rewardsViewHeight" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:rewardsView" class="def">rewardsView</a> :: <a href="LootView.html#t:Context" title="LootView">Context</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>] -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:rewardsView" class="selflink">#</a></p>
+<p class="src"><a id="v:rewardsView" class="def">rewardsView</a> :: <a href="LootView.html#t:Context" title="LootView">Context</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; [(<a href="Card.html#t:ID" title="Card">ID</a>, <a href="Model.html#t:Picked" title="Model">Picked</a>)] -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:rewardsView" class="selflink">#</a></p>
 <div class="doc"><p>The div showing the rewards. It's displayed above <code><a href="LootView.html#v:deckView" title="LootView">deckView</a></code></p></div>
 </div>
 <div class="top"><p class="src"><a id="v:deckViewTopMargin" class="def">deckViewTopMargin</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:deckViewTopMargin" class="selflink">#</a></p></div>
