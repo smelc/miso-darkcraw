@@ -125,7 +125,7 @@ endGame
       Just next -> LootModel' $ LootModel {..}
     where
       nbRewards = 1
-      rewards = Campaign.loot outcome level team
+      rewards = zip (Campaign.loot outcome level team) $ repeat NotPicked
       team = Board.toPart board pSpot & Board.team
 
 -- | Function for debugging only. To be deleted at some point.
@@ -135,7 +135,7 @@ unsafeLootModel WelcomeModel {shared} =
   where
     nbRewards = 1
     team = Human
-    rewards = Campaign.loot Campaign.Win Campaign.Level0 team
+    rewards = zip (Campaign.loot Campaign.Win Campaign.Level0 team) $ repeat NotPicked
     next = Campaign.Level1
     deck =
       SharedModel.getInitialDeck shared team
@@ -231,6 +231,14 @@ data DeckModel = DeckModel
   }
   deriving (Eq, Generic, Show)
 
+-- | Whether a card has been picked or not in the 'LootView'
+data Picked
+  = -- | Reward has been chosen
+    Picked
+  | -- | Reward has not been chosen
+    NotPicked
+  deriving (Eq, Generic, Show)
+
 data LootModel = LootModel
   { -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
@@ -242,8 +250,9 @@ data LootModel = LootModel
     team :: Team,
     -- | Part of the model shared among all pages
     shared :: SharedModel,
-    -- | The possible rewards
-    rewards :: [Card.ID]
+    -- | The possible rewards, and whether they have been picked already
+    -- or not.
+    rewards :: [(Card.ID, Picked)]
   }
   deriving (Eq, Generic, Show)
 

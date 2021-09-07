@@ -45,6 +45,7 @@ import Miso.String (MisoString, fromMisoString)
 import Model
 import qualified Model (gameToBuild)
 import Movie (welcomeMovie)
+import Nat
 import ServerMessages
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -173,6 +174,8 @@ instance ToExpr BuildModel
 
 instance ToExpr DeckModel
 
+instance ToExpr Model.Picked
+
 instance ToExpr LootModel
 
 instance ToExpr Model
@@ -241,8 +244,10 @@ data GameAction
 
 -- | Actions internal to 'LootView'
 data LootAction
-  = -- | TODO @smelc delete me
-    DeckTo Direction
+  = -- | Select a reward. The index is in the list of available rewards.
+    Pick Nat
+  | -- | Unselect a reward. The index is in the list of available rewards.
+    Unpick Nat
   deriving (Eq, Show)
 
 -- | To which page to go to, from the welcome page

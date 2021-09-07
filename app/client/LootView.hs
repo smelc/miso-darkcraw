@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -8,6 +9,7 @@ module LootView where
 
 import Card
 import qualified Constants
+import qualified Data.Bifunctor
 import Data.Function ((&))
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -15,7 +17,7 @@ import Data.Maybe
 import Debug.Trace (traceShow)
 import Miso
 import Miso.String hiding (drop, length, map, take, zip)
-import Model (LootModel (..))
+import Model (LootModel (..), Picked (..))
 import Nat
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
 import qualified PCWViewInternal
@@ -29,6 +31,8 @@ import ViewInternal
 -- This view sits between two games, where the player can pick new
 -- cards to augment its deck.
 -- |
+
+-- | Top-level rendering function
 view :: LootModel -> Styled (View Action)
 view LootModel {..} = do
   rewards <- rewardsView ctxt zpppp rewards
@@ -95,7 +99,7 @@ rewardsViewHeight :: Int
 rewardsViewHeight = Constants.cardPixelHeight
 
 -- | The div showing the rewards. It's displayed above 'deckView'
-rewardsView :: Context -> Int -> [Card.ID] -> Styled (View Action)
+rewardsView :: Context -> Int -> [(Card.ID, Model.Picked)] -> Styled (View Action)
 rewardsView Context {shared, LootView.team} z cards = do
   cardViews :: [View Action] <- traverse divCard $ zip [0 ..] cards'
   return $
@@ -123,12 +127,16 @@ rewardsView Context {shared, LootView.team} z cards = do
               3 -> 5
               _ -> traceShow ("Unexpected number of rewards cards: " ++ show nbCards) 5
           )
-    cards' :: [Card 'Core] =
-      map (SharedModel.identToCard shared) cards
-        & catMaybes
-        & map unlift
-    divCard :: (Nat, Card 'Core) -> Styled (View Action)
-    divCard (i, card) = do
+    cards' :: [(Card 'Core, Model.Picked)] =
+      map (Data.Bifunctor.first $ SharedModel.identToCard shared) cards
+        & mapMaybe liftNothing
+        & map (Data.Bifunctor.first unlift)
+      where
+        liftNothing = \case
+          (Nothing, _) -> Nothing
+          (Just x, y) -> Just (x, y)
+    divCard :: (Nat, (Card 'Core, Model.Picked)) -> Styled (View Action)
+    divCard (i, (card, picked)) = do
       inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
       return $
         div_
@@ -137,6 +145,10 @@ rewardsView Context {shared, LootView.team} z cards = do
                 (Constants.cps * x)
                 (Constants.cps * y)
                 <> "z-index" =: ms z
+                <> ( case picked of
+                       Model.Picked -> "filter" =: "brightness(50%)"
+                       Model.NotPicked -> mempty
+                   )
           ]
           [inner]
       where
