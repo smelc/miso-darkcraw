@@ -30,6 +30,7 @@ import Control.Monad.Freer.State as Eff
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable (asum, toList)
+import Data.List.Index (setAt)
 import qualified Data.Map.Strict as Map
 import Data.Maybe (isJust, maybeToList)
 import Data.Set (Set)
@@ -572,8 +573,19 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       ui <- get @(Board 'UI)
       put @(Board 'UI) (ui <> ui') -- animations accumulate
 
+-- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel
-updateLootModel _action lm@LootModel {..} = lm
+updateLootModel action lm@LootModel {rewards = pairs, ..} =
+  lm {rewards}
+  where
+    rewards =
+      case action of
+        Pick n -> set n Model.Picked
+        Unpick n -> set n Model.NotPicked
+    set n value =
+      setAt (natToInt n) (card, value) pairs
+      where
+        card = pairs !! (natToInt n) & fst
 
 updateSinglePlayerLobbyModel ::
   SinglePlayerLobbyAction ->

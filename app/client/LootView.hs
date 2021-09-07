@@ -23,7 +23,7 @@ import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
 import qualified PCWViewInternal
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Update (Action)
+import Update (Action (LootAction'), LootAction (Pick, Unpick))
 import ViewInternal
 
 -- |
@@ -148,7 +148,13 @@ rewardsView Context {shared, LootView.team} z cards = do
                 <> ( case picked of
                        Model.Picked -> "filter" =: "brightness(50%)"
                        Model.NotPicked -> mempty
-                   )
+                   ),
+            onClick $
+              LootAction'
+                ( case picked of
+                    Picked -> Update.Unpick i
+                    NotPicked -> Update.Pick i
+                )
           ]
           [inner]
       where
