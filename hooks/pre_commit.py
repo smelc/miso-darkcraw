@@ -94,17 +94,17 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
     return return_code
 
 
-def _run_unchecked_cmd(cwd: Optional[str], cmd: List[str]) -> int:
+def _run_cmd(cwd: Optional[str], cmd: List[str], check: bool=False) -> int:
     """ Executes a command and returns it return code """
     prefix = f"{cwd}> " if cwd else ""
     print(f'{prefix}{" ".join(cmd)}')
-    return subprocess.run(cmd, check=False, cwd=cwd).returncode
+    return subprocess.run(cmd, check=check, cwd=cwd).returncode
 
 
 def _check_jsondata_dot_hs() -> int:
     """ Checks that ./th/main.py --check returns 0, i.e. that
         app/shared/JsonData.hs is up-to-date w.r.t to th/data.json """
-    return _run_unchecked_cmd(None, ["./th/main.py", "--check"])
+    return _run_cmd(None, ["./th/main.py", "--check"])
 
 
 def _build() -> int:
@@ -113,16 +113,64 @@ def _build() -> int:
     Returns: The return code of the build command
     """
     cmd = ["nix-build", "-A", "release"]
-    return _run_unchecked_cmd("app", cmd)
+    return _run_cmd("app", cmd)
 
 
-def _doc() -> int:
+def _doc_should_be_rebuilt(staged_or_modified: bool, hs_files: List[str]) -> bool:
     """
+    Args:
+        staged_or_modified (bool) Whether to consider staged files (True)
+                                  or modified ones (False)
+        hs_files (List[str]) The Haskell files that contain a change.
+                             Not empty.
+    Returns: whether the haddock should be rebuilt.
+    """
+    assert hs_files
+    git_cmd = ["git", "diff", "--unified=0"]  # unified=0 to omit context lines
+    if staged_or_modified:
+        git_cmd += ["--staged"]
+    git_cmd += hs_files
+    git_diff_result = subprocess.run(git_cmd,
+                                     check=True,
+                                     stdout=subprocess.PIPE,
+                                     universal_newlines=True)
+    # The comprehension filters empty lines
+    lines = [x for x in git_diff_result.stdout.split("\n") if x]
+    lines = lines[4:]  # Omit first 4 lines, the ones looking like:
+    # diff --git a/app/client/LootView.hs b/app/client/LootView.hs
+    # index ed11c68..425b9b2 100644
+    # --- a/app/client/LootView.hs
+    # +++ b/app/client/LootView.hs
+    lines = [x[1:] for x in lines if x[0] in ['-', '+']]  # Keep only lines starting with - or +,
+    # i.e. omit lines starting with @@. Note that we know lines are not empty
+    # by the filtering done above, so [0] is valid.
+
+    # Doc should be rebuilt if a changed line contains "--" i.e. a Haskell
+    # comment. This is slightly imprecise obviously, for example if {- ... -}
+    # comments are used, but this is fine. The point is to avoid
+    # rebuilding most of the time.
+    return any(["--" in x for x in lines])
+
+
+def _doc(staged_or_modified: bool, hs_files: List[str]) -> int:
+    """
+    Args:
+        staged_or_modified (bool) Whether to consider staged files (True)
+                                  or modified ones (False)
+        hs_files (List[str]) The Haskell files that contain a change.
+                             Not empty.
+    Returns: a return code
+
     Builds the documentation (haddock) and copies it to
     the docs/ directory at the git root, then commits the changes (if any)
     """
+    assert hs_files
+    if not _doc_should_be_rebuilt(staged_or_modified, hs_files):
+        print("No Haskell line containing '--' has been changed: not rebuilding Haddock 🐎")
+        return 0  # Nothing to do
+
     cmd = ["nix-shell", "--run", "cabal --project-file=cabal-haddock.config haddock app"]
-    rc = _run_unchecked_cmd("app", cmd)
+    rc = _run_cmd("app", cmd)
     if rc != 0:
         # A failure, it's fine, we just don't update the doc
         cmd_str = " ".join(cmd)
@@ -135,9 +183,14 @@ def _doc() -> int:
     # avoid chown calls upon overwriting the doc, we only iterate over *.html
     for html_file in glob.glob("app/dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/x/app/doc/html/app/app/*.html"):
         shutil.copy(html_file, dest)
-    cmd = ["git", "add", "docs"]
-    rc = subprocess.run(cmd).returncode
-    return rc
+        filename = os.path.basename(html_file)
+        cmd = ["xmllint", "--format", "--html", filename, "-o", f"{filename}.tmp"]
+        _run_cmd(dest, cmd, check=True)
+        shutil.move(f"{dest}/{filename}.tmp", f"{dest}/{filename}")
+        cmd = ["git", "add", filename]
+        _run_cmd(dest, cmd, check=True)
+
+    return 0
 
 
 def _test() -> int:
@@ -146,7 +199,7 @@ def _test() -> int:
     Returns: The return code of building and executing the tests
     """
     cmd = ["nix-shell", "--run", "cabal test"]
-    return _run_unchecked_cmd("app", cmd)
+    return _run_cmd("app", cmd)
 
 
 def main() -> int:
@@ -165,9 +218,9 @@ def main() -> int:
             return_code = max(return_code, _build())
             return_code = max(return_code, _test())
         if return_code == 0:
-            return_code = max(return_code, _doc())
+            return_code = max(return_code, _doc(staged, relevant_hs_files))
     else:
-        print("No %s *.hs relevant file found, nothing to format, and no doc to generate either" % adjective)
+        print(f"No {adjective} *.hs relevant file found, nothing to format, and no doc to generate either")
         if _BUILD_TEST:
             print("Not calling nix-build/cabal test either")
 
