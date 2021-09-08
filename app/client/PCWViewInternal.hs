@@ -71,15 +71,18 @@ data CardDrawStyle = CardDrawStyle
   { -- | Whether the card should fade in
     fadeIn :: Bool,
     -- | Whether the card is being hovered
-    hover :: Bool
+    hover :: Bool,
+    -- | Whether to show a green overlay border. Used for cards picked
+    -- from the rewards in 'LootView'.
+    greenBorderOverlay :: Bool
   }
 
 instance Semigroup CardDrawStyle where
-  CardDrawStyle fadeIn1 hover1 <> CardDrawStyle fadeIn2 hover2 =
-    CardDrawStyle (fadeIn1 || fadeIn2) (hover1 || hover2)
+  CardDrawStyle fadeIn1 hover1 gbo1 <> CardDrawStyle fadeIn2 hover2 gbo2 =
+    CardDrawStyle (fadeIn1 || fadeIn2) (hover1 || hover2) (gbo1 || gbo2)
 
 instance Monoid CardDrawStyle where
-  mempty = CardDrawStyle False False
+  mempty = CardDrawStyle False False False
 
 instance Miso.String.ToMisoString Nat where
   toMisoString = toMisoString . show
@@ -305,7 +308,7 @@ itemDiv z shared i iobj@ItemObject {item} =
       SharedModel.cardToFilepath shared card
         & filepathToString
         & ms
-    pictureCell = imgCellwh filepath imgSize imgSize
+    pictureCell = imgCellwh filepath imgSize imgSize Nothing
 
 picSize :: Card.ID -> Int
 picSize id = case id of IDC {} -> cps; IDN {} -> 16; IDI {} -> 16
@@ -323,22 +326,22 @@ cardBackground ::
   Team ->
   CardDrawStyle ->
   View Action
-cardBackground z team cdsty =
+cardBackground z team CardDrawStyle {greenBorderOverlay, hover} =
   div_
     [style_ $ sty1 <> sty2]
-    [ imgCellwh
-        (Constants.cardBackground (ms . stringToLower $ show team))
-        cardPixelWidth
-        cardPixelHeight
-    ]
+    $ [mkImgCellwh (Constants.cardBackground (ms . stringToLower $ show team))]
+      ++ [mkImgCellwh "card-green-fat-border.png" | greenBorderOverlay]
   where
+    mkImgCellwh filename = imgCellwh filename cardPixelWidth cardPixelHeight (Just Absolute)
     sty1 = zpwh z Absolute cardPixelWidth cardPixelHeight
     sty2 =
-      if hover cdsty
+      if hover
         then "outline" =: (ms borderSize <> "px solid red")
         else mempty
     stringToLower str = [toLower c | c <- str]
 
+-- | The position of a card, from its enclosing container. Sizes are in
+-- number of cells.
 cardPositionStyle ::
   -- | The horizontal offset from the enclosing container, in number of cells
   Int ->
@@ -348,6 +351,7 @@ cardPositionStyle ::
 cardPositionStyle xCellsOffset yCellsOffset =
   cardPositionStyle' (xCellsOffset * cps) (yCellsOffset * cps)
 
+-- | The position of a card, from its enclosing container. Sizes are in pixels.
 cardPositionStyle' ::
   -- | The horizontal offset from the enclosing container, in pixels
   Int ->

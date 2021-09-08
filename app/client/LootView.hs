@@ -11,12 +11,13 @@ import Card
 import qualified Constants
 import qualified Data.Bifunctor
 import Data.Function ((&))
+import Data.List (partition)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)
 import Miso
-import Miso.String hiding (drop, length, map, take, zip)
+import Miso.String hiding (drop, filter, length, map, partition, take, zip)
 import Model (LootModel (..), Picked (..))
 import Nat
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
@@ -36,7 +37,7 @@ import ViewInternal
 view :: LootModel -> Styled (View Action)
 view LootModel {..} = do
   rewards <- rewardsView ctxt zpppp rewards
-  deck <- deckView ctxt zpppp deck
+  deck <- deckView ctxt zpppp (zip picked (repeat Model.Picked) ++ zip deck (repeat Model.NotPicked))
   return $
     div_
       [style_ $ bgStyle z]
@@ -62,8 +63,17 @@ view LootModel {..} = do
         ]
         [div_ [legendTextStyle] [text rewardsTextLegend]]
     rewardsTextLegend :: MisoString =
-      ms $
-        "Rewards: pick " ++ show nbRewards ++ if nbRewards > 1 then " of them" else ""
+      case remainingToPick of
+        0 -> "Rewards: you picked them all!"
+        _ -> ms $ "Rewards: pick " ++ show nbRewards ++ if nbRewards > 1 then " of them" else ""
+    (picked :: [Card.ID], _notPicked :: [Card.ID]) =
+      partition ((\case Picked -> True; NotPicked -> False) . snd) rewards
+        & Data.Bifunctor.bimap (map fst) (map fst)
+    cardinalPicked =
+      map snd rewards
+        & filter (\case Picked -> True; NotPicked -> False)
+        & natLength
+    remainingToPick = nbRewards - cardinalPicked
     deckLegend =
       div_
         [ legendStyle
@@ -92,9 +102,11 @@ data Context = Context
     team :: Team
   }
 
+-- | The margin from the top to the row of the rewards
 rewardsViewTopMargin :: Int
 rewardsViewTopMargin = Constants.cps * 8
 
+-- | The height of the rewards div
 rewardsViewHeight :: Int
 rewardsViewHeight = Constants.cardPixelHeight
 
@@ -182,8 +194,10 @@ deckViewWidth =
     + (max 0 (deckCardsPerRow - 1)) * Constants.cps -- Gaps between cards
     + Constants.cps -- Space for scrollbar
 
--- | The div showing the deck
-deckView :: Context -> Int -> [Card.ID] -> Styled (View Action)
+-- | The div showing the deck. The value of type 'Model.Picked' indicates
+-- whether the card is a reward that was picked or a card from
+-- the deck of the previous game.
+deckView :: Context -> Int -> [(Card.ID, Model.Picked)] -> Styled (View Action)
 deckView Context {shared, LootView.team} _z cards = do
   cardViews :: [View Action] <- traverse divStack (zip [0 ..] $ Map.toList cards'')
   return $
@@ -202,22 +216,27 @@ deckView Context {shared, LootView.team} _z cards = do
       cardViews
   where
     z = 64
-    cards'' :: Map (Card 'Core) Int
+    cards'' :: Map (Card 'Core, Picked) Int
     cards'' = Map.fromListWith (+) (zip cards' (repeat 1))
-    cards' :: [Card 'Core] =
-      map (SharedModel.identToCard shared) cards
-        & catMaybes
-        & map unlift
-    divStack :: (Nat, (Card 'Core, Int)) -> Styled (View Action)
-    divStack (i, (card, cardinal)) = do
+    cards' :: [(Card 'Core, Picked)] =
+      map (Data.Bifunctor.first $ SharedModel.identToCard shared) cards
+        & mapMaybe liftNothing
+        & map (Data.Bifunctor.first $ unlift)
+    liftNothing (Nothing, _) = Nothing
+    liftNothing (Just x, y) = Just (x, y)
+    -- First nat is the index is the whole list of cards. Value of type
+    -- Model.Picked indicates whether the card comes from the rewards or
+    -- from the deck of the previous game.
+    divStack :: (Nat, ((Card 'Core, Model.Picked), Int)) -> Styled (View Action)
+    divStack (i, ((card, picked), cardinal)) = do
       cards <-
         traverse
-          (\offset -> divCard (i, card) offset)
+          (\offset -> divCard (i, card, picked) offset)
           $ [(cardinal - 1), (cardinal - 2) .. 0]
       return $ div_ [] cards
-    divCard :: (Nat, Card 'Core) -> Int -> Styled (View Action)
-    divCard (i, card) stackIdx = do
-      inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
+    divCard :: (Nat, Card 'Core, Model.Picked) -> Int -> Styled (View Action)
+    divCard (i, card, picked) stackIdx = do
+      inner <- PCWViewInternal.cardView LootLoc z shared team card cds
       return $
         div_
           [ style_ $
@@ -232,3 +251,9 @@ deckView Context {shared, LootView.team} _z cards = do
         yCellsOffset = Constants.cardCellHeight + 1 -- card height + vertical margin
         x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
         y = (natToInt i `div` deckCardsPerRow) * yCellsOffset
+        cds =
+          mempty
+            { PCWViewInternal.greenBorderOverlay = case picked of
+                Picked -> True
+                NotPicked -> False
+            }

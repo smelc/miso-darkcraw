@@ -576,8 +576,12 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel
 updateLootModel action lm@LootModel {rewards = pairs, ..} =
-  lm {rewards}
+  lm {hlFirst, rewards}
   where
+    hlFirst =
+      case action of
+        Pick _ -> True
+        Unpick _ -> False
     rewards =
       case action of
         Pick n -> set n Model.Picked
