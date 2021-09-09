@@ -12,12 +12,13 @@ import qualified Constants
 import qualified Data.Bifunctor
 import Data.Function ((&))
 import Data.List (partition)
-import Data.Map.Strict (Map)
+import Data.List.Extra (findIndex)
+import Data.List.Index
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)
 import Miso
-import Miso.String hiding (drop, filter, length, map, partition, take, zip)
+import Miso.String hiding (drop, filter, findIndex, length, map, partition, split, take, zip)
 import Model (LootModel (..), Picked (..))
 import Nat
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
@@ -194,12 +195,27 @@ deckViewWidth =
     + (max 0 (deckCardsPerRow - 1)) * Constants.cps -- Gaps between cards
     + Constants.cps -- Space for scrollbar
 
+-- | Gather equal items, counting them on the way; and *keep the order*.
+-- We could use Data.Map.Ordered, but it doesn't have mapFromListWith so it's not
+-- really easier.
+counts :: forall a. Eq a => [a] -> [(a, Nat)]
+counts l =
+  Prelude.reverse $ go l []
+  where
+    go :: [a] -> [(a, Nat)] -> [(a, Nat)]
+    go [] acc = acc
+    go (x : xs) acc =
+      -- Quadratic, yes.
+      case findIndex (\(xAcc, _) -> xAcc == x) acc of
+        Nothing -> go xs ((x, 1 :: Nat) : acc)
+        Just i -> go xs $ updateAt i (Just <$> Data.Bifunctor.second succ) acc
+
 -- | The div showing the deck. The value of type 'Model.Picked' indicates
 -- whether the card is a reward that was picked or a card from
 -- the deck of the previous game.
 deckView :: Context -> Int -> [(Card.ID, Model.Picked)] -> Styled (View Action)
 deckView Context {shared, LootView.team} _z cards = do
-  cardViews :: [View Action] <- traverse divStack (zip [0 ..] $ Map.toList cards'')
+  cardViews :: [View Action] <- traverse divStack (zip [0 ..] $ counts cards')
   return $
     div_
       [ style_ $
@@ -216,8 +232,6 @@ deckView Context {shared, LootView.team} _z cards = do
       cardViews
   where
     z = 64
-    cards'' :: Map (Card 'Core, Picked) Int
-    cards'' = Map.fromListWith (+) (zip cards' (repeat 1))
     cards' :: [(Card 'Core, Picked)] =
       map (Data.Bifunctor.first $ SharedModel.identToCard shared) cards
         & mapMaybe liftNothing
@@ -227,12 +241,12 @@ deckView Context {shared, LootView.team} _z cards = do
     -- First nat is the index is the whole list of cards. Value of type
     -- Model.Picked indicates whether the card comes from the rewards or
     -- from the deck of the previous game.
-    divStack :: (Nat, ((Card 'Core, Model.Picked), Int)) -> Styled (View Action)
+    divStack :: (Nat, ((Card 'Core, Model.Picked), Nat)) -> Styled (View Action)
     divStack (i, ((card, picked), cardinal)) = do
       cards <-
         traverse
           (\offset -> divCard (i, card, picked) offset)
-          $ [(cardinal - 1), (cardinal - 2) .. 0]
+          $ [(natToInt cardinal - 1), (natToInt cardinal - 2) .. 0]
       return $ div_ [] cards
     divCard :: (Nat, Card 'Core, Model.Picked) -> Int -> Styled (View Action)
     divCard (i, card, picked) stackIdx = do

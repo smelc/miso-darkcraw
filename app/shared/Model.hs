@@ -137,7 +137,8 @@ unsafeLootModel WelcomeModel {shared} =
     hlFirst = False
     nbRewards = 1
     team = Human
-    rewards = zip (Campaign.loot Campaign.Win Campaign.Level0 team) $ repeat NotPicked
+    rewards = zip (getRewards Human Campaign.Level0 ++ getRewards Undead Campaign.Level1) $ repeat NotPicked
+    getRewards team level = Campaign.loot Campaign.Win level team
     next = Campaign.Level1
     deck =
       SharedModel.getInitialDeck shared team

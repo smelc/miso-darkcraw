@@ -62,6 +62,8 @@
 <a href="#v:deckViewWidth">deckViewWidth</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
 </li>
 <li class="src short">
+<a href="#v:counts">counts</a> :: <span class="keyword">forall</span> a. <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a =&gt; [a] -&gt; [(a, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)]</li>
+<li class="src short">
 <a href="#v:deckView">deckView</a> :: <a href="LootView.html#t:Context" title="LootView">Context</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; [(<a href="Card.html#t:ID" title="Card">ID</a>, <a href="Model.html#t:Picked" title="Model">Picked</a>)] -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
 </ul></details></div>
 <div id="interface">
@@ -116,6 +118,12 @@
 <div class="top"><p class="src"><a id="v:deckViewHeight" class="def">deckViewHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:deckViewHeight" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:deckCardsPerRow" class="def">deckCardsPerRow</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:deckCardsPerRow" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:deckViewWidth" class="def">deckViewWidth</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:deckViewWidth" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:counts" class="def">counts</a> :: <span class="keyword">forall</span> a. <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a =&gt; [a] -&gt; [(a, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)] <a href="#v:counts" class="selflink">#</a></p>
+<div class="doc"><p>Gather equal items, counting them on the way; and *keep the order*.
+ We could use Data.Map.Ordered, but it doesn't have mapFromListWith so it's not
+ really easier.</p></div>
+</div>
 <div class="top">
 <p class="src"><a id="v:deckView" class="def">deckView</a> :: <a href="LootView.html#t:Context" title="LootView">Context</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; [(<a href="Card.html#t:ID" title="Card">ID</a>, <a href="Model.html#t:Picked" title="Model">Picked</a>)] -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:deckView" class="selflink">#</a></p>
 <div class="doc"><p>The div showing the deck. The value of type <code><a href="Model.html#t:Picked" title="Model">Picked</a></code> indicates
