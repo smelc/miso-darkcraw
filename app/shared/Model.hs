@@ -124,7 +124,6 @@ endGame
       Nothing -> error "You've finished the game!" -- Not really a nice end for now
       Just next -> LootModel' $ LootModel {..}
     where
-      hlFirst = False
       nbRewards = 1
       rewards = zip (Campaign.loot outcome level team) $ repeat NotPicked
       team = Board.toPart board pSpot & Board.team
@@ -134,7 +133,6 @@ unsafeLootModel :: WelcomeModel -> Model
 unsafeLootModel WelcomeModel {shared} =
   LootModel' $ LootModel {..}
   where
-    hlFirst = False
     nbRewards = 1
     team = Human
     rewards = zip (getRewards Human Campaign.Level0 ++ getRewards Undead Campaign.Level1) $ repeat NotPicked
@@ -249,9 +247,6 @@ data LootModel = LootModel
     next :: Level,
     -- | The deck of the playing player
     deck :: [Card.ID],
-    -- | Whether to highlight the first member of 'deck', because
-    -- it was just picked.
-    hlFirst :: Bool,
     -- | To which team the deck being shown belongs
     team :: Team,
     -- | Part of the model shared among all pages
