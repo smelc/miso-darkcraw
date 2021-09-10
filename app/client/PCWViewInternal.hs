@@ -22,6 +22,7 @@ module PCWViewInternal
     cardPositionStyle',
     scrollbarStyle,
     viewFrame,
+    BorderOverlay (..),
     CardDrawStyle (..),
     DisplayLocation (..),
     DisplayMode (..),
@@ -67,6 +68,25 @@ toPart =
     DeckLoc -> Nothing
     LootLoc -> Nothing
 
+-- | The overlay to show the selected card in the 'LootView'
+data BorderOverlay
+  = -- | Blue overlay
+    Blue
+  | -- | Green overlay
+    Green
+  | -- | No border. Used to avoid having to wrap values in 'Maybe'
+    None
+  | -- | Yellow overlay
+    Yellow
+
+instance Semigroup BorderOverlay where
+  None <> _ = None
+  _ <> None = None
+  left <> _ = left
+
+instance Monoid BorderOverlay where
+  mempty = None
+
 data CardDrawStyle = CardDrawStyle
   { -- | Whether the card should fade in
     fadeIn :: Bool,
@@ -74,15 +94,15 @@ data CardDrawStyle = CardDrawStyle
     hover :: Bool,
     -- | Whether to show a green overlay border. Used for cards picked
     -- from the rewards in 'LootView'.
-    greenBorderOverlay :: Bool
+    overlay :: BorderOverlay
   }
 
 instance Semigroup CardDrawStyle where
-  CardDrawStyle fadeIn1 hover1 gbo1 <> CardDrawStyle fadeIn2 hover2 gbo2 =
-    CardDrawStyle (fadeIn1 || fadeIn2) (hover1 || hover2) (gbo1 || gbo2)
+  CardDrawStyle fadeIn1 hover1 o1 <> CardDrawStyle fadeIn2 hover2 o2 =
+    CardDrawStyle (fadeIn1 || fadeIn2) (hover1 || hover2) (o1 <> o2)
 
 instance Monoid CardDrawStyle where
-  mempty = CardDrawStyle False False False
+  mempty = CardDrawStyle False False None
 
 instance Miso.String.ToMisoString Nat where
   toMisoString = toMisoString . show
@@ -326,11 +346,11 @@ cardBackground ::
   Team ->
   CardDrawStyle ->
   View Action
-cardBackground z team CardDrawStyle {greenBorderOverlay, hover} =
+cardBackground z team CardDrawStyle {overlay, hover} =
   div_
     [style_ $ sty1 <> sty2]
     $ [mkImgCellwh (Constants.cardBackground (ms . stringToLower $ show team))]
-      ++ [mkImgCellwh "card-green-fat-border.png" | greenBorderOverlay]
+      ++ (maybeToList $ mkImgCellwh <$> overlayToFilename overlay)
   where
     mkImgCellwh filename = imgCellwh filename cardPixelWidth cardPixelHeight (Just Absolute)
     sty1 = zpwh z Absolute cardPixelWidth cardPixelHeight
@@ -339,6 +359,14 @@ cardBackground z team CardDrawStyle {greenBorderOverlay, hover} =
         then "outline" =: (ms borderSize <> "px solid red")
         else mempty
     stringToLower str = [toLower c | c <- str]
+    overlayToFilename :: BorderOverlay -> Maybe MisoString
+    overlayToFilename = \case
+      None -> Nothing
+      Green -> go "green"
+      Blue -> go "blue"
+      Yellow -> go "yellow"
+      where
+        go middle = Just ("card-" <> middle <> "-fat-border.png")
 
 -- | The position of a card, from its enclosing container. Sizes are in
 -- number of cells.

@@ -238,7 +238,7 @@ deckView Context {shared, LootView.team} _z cards = do
         & map (Data.Bifunctor.first $ unlift)
     liftNothing (Nothing, _) = Nothing
     liftNothing (Just x, y) = Just (x, y)
-    -- First nat is the index is the whole list of cards. Value of type
+    -- First nat is the index in the whole list of cards. Value of type
     -- Model.Picked indicates whether the card comes from the rewards or
     -- from the deck of the previous game.
     divStack :: (Nat, ((Card 'Core, Model.Picked), Nat)) -> Styled (View Action)
@@ -267,7 +267,10 @@ deckView Context {shared, LootView.team} _z cards = do
         y = (natToInt i `div` deckCardsPerRow) * yCellsOffset
         cds =
           mempty
-            { PCWViewInternal.greenBorderOverlay = case picked of
-                Picked -> True
-                NotPicked -> False
+            { PCWViewInternal.overlay = case picked of
+                Picked ->
+                  -- If we want to use multiple colors in the future,
+                  -- this is the place to change.
+                  PCWViewInternal.Green
+                NotPicked -> PCWViewInternal.None
             }

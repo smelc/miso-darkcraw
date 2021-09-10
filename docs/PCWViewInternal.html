@@ -57,6 +57,18 @@
 <li class="src short">
 <a href="#v:viewFrame">viewFrame</a> :: <a href="PCWViewInternal.html#t:DisplayMode" title="PCWViewInternal">DisplayMode</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a</li>
 <li class="src short">
+<span class="keyword">data</span> <a href="#t:BorderOverlay">BorderOverlay</a><ul class="subs">
+<li>= <a href="#v:Blue">Blue</a>
+</li>
+<li>| <a href="#v:Green">Green</a>
+</li>
+<li>| <a href="#v:None">None</a>
+</li>
+<li>| <a href="#v:Yellow">Yellow</a>
+</li>
+</ul>
+</li>
+<li class="src short">
 <span class="keyword">data</span> <a href="#t:CardDrawStyle">CardDrawStyle</a> = <a href="#v:CardDrawStyle">CardDrawStyle</a> {<ul class="subs">
 <li>
 <a href="#v:fadeIn">fadeIn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
@@ -65,7 +77,7 @@
 <a href="#v:hover">hover</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li>
-<a href="#v:greenBorderOverlay">greenBorderOverlay</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+<a href="#v:overlay">overlay</a> :: <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a>
 </li>
 </ul>}</li>
 <li class="src short">
@@ -215,6 +227,57 @@
 <div class="top"><p class="src"><a id="v:scrollbarStyle" class="def">scrollbarStyle</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="#v:scrollbarStyle" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:viewFrame" class="def">viewFrame</a> :: <a href="PCWViewInternal.html#t:DisplayMode" title="PCWViewInternal">DisplayMode</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Cinema.html#t:Frame" title="Cinema">Frame</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a <a href="#v:viewFrame" class="selflink">#</a></p></div>
 <div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:BorderOverlay" class="def">BorderOverlay</a> <a href="#t:BorderOverlay" class="selflink">#</a></p>
+<div class="doc"><p>The overlay to show the selected card in the <code>LootView</code></p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Blue" class="def">Blue</a></td>
+<td class="doc"><p>Blue overlay</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:Green" class="def">Green</a></td>
+<td class="doc"><p>Green overlay</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:None" class="def">None</a></td>
+<td class="doc"><p>No border. Used to avoid having to wrap values in <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a></code></p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:Yellow" class="def">Yellow</a></td>
+<td class="doc"><p>Yellow overlay</p></td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:BorderOverlay" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:BorderOverlay:Semigroup:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a></span> <a href="#t:BorderOverlay" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:BorderOverlay:Semigroup:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="PCWViewInternal.html">PCWViewInternal</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> <a href="#v:-60--62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> <a href="#v:sconcat" class="selflink">#</a></p>
+<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> <a href="#v:stimes" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:BorderOverlay:Monoid:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a></span> <a href="#t:BorderOverlay" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:BorderOverlay:Monoid:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="PCWViewInternal.html">PCWViewInternal</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:mempty">mempty</a> :: <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> <a href="#v:mempty" class="selflink">#</a></p>
+<p class="src"><a href="#v:mappend">mappend</a> :: <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> <a href="#v:mappend" class="selflink">#</a></p>
+<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a>] -&gt; <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a> <a href="#v:mconcat" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:CardDrawStyle" class="def">CardDrawStyle</a> <a href="#t:CardDrawStyle" class="selflink">#</a></p>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
@@ -233,7 +296,7 @@
 <dfn class="src"><a id="v:hover" class="def">hover</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a></dfn><div class="doc"><p>Whether the card is being hovered</p></div>
 </li>
 <li>
-<dfn class="src"><a id="v:greenBorderOverlay" class="def">greenBorderOverlay</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a></dfn><div class="doc"><p>Whether to show a green overlay border. Used for cards picked
+<dfn class="src"><a id="v:overlay" class="def">overlay</a> :: <a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">BorderOverlay</a></dfn><div class="doc"><p>Whether to show a green overlay border. Used for cards picked
  from the rewards in <code>LootView</code>.</p></div>
 </li>
 </ul>
