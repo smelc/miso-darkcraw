@@ -65,8 +65,13 @@ view LootModel {..} = do
         [div_ [legendTextStyle] [text rewardsTextLegend]]
     rewardsTextLegend :: MisoString =
       case remainingToPick of
-        0 -> "Rewards: you picked them all!"
-        _ -> ms $ "Rewards: pick " ++ show nbRewards ++ if nbRewards > 1 then " of them" else ""
+        0 -> "Rewards: you picked them all! Click on a card to unpick it."
+        _ ->
+          ms $
+            "Rewards: pick "
+              ++ show nbRewards
+              ++ (if nbRewards > 1 then " of them" else "")
+              ++ " (click on a card to pick it)"
     (picked :: [Card.ID], _notPicked :: [Card.ID]) =
       partition ((\case Picked -> True; NotPicked -> False) . snd) rewards
         & Data.Bifunctor.bimap (map fst) (map fst)
@@ -99,7 +104,8 @@ view LootModel {..} = do
 
 -- | Context that is common to all calls to 'deckView'
 data Context = Context
-  { shared :: SharedModel,
+  { remainingToPick :: Nat,
+    shared :: SharedModel,
     team :: Team
   }
 
@@ -113,7 +119,7 @@ rewardsViewHeight = Constants.cardPixelHeight
 
 -- | The div showing the rewards. It's displayed above 'deckView'
 rewardsView :: Context -> Int -> [(Card.ID, Model.Picked)] -> Styled (View Action)
-rewardsView Context {shared, LootView.team} z cards = do
+rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
   cardViews :: [View Action] <- traverse divCard $ zip [0 ..] cards'
   return $
     div_
@@ -153,24 +159,28 @@ rewardsView Context {shared, LootView.team} z cards = do
       inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
       return $
         div_
-          [ style_ $
-              cardPositionStyle'
-                (Constants.cps * x)
-                (Constants.cps * y)
-                <> "z-index" =: ms z
-                <> ( case picked of
-                       Model.Picked -> "filter" =: "brightness(50%)"
-                       Model.NotPicked -> mempty
-                   ),
-            onClick $
-              LootAction'
-                ( case picked of
-                    Picked -> Update.Unpick i
-                    NotPicked -> Update.Pick i
-                )
-          ]
+          ( [ style_ $
+                cardPositionStyle'
+                  (Constants.cps * x)
+                  (Constants.cps * y)
+                  <> "z-index" =: ms z
+                  <> ( if picked'
+                         then "filter" =: "brightness(50%)"
+                         else mempty
+                     )
+            ]
+              ++ [ onClick $
+                     LootAction'
+                       ( if picked'
+                           then Update.Unpick i
+                           else Update.Pick i
+                       )
+                   | remainingToPick > 0 || picked'
+                 ]
+          )
           [inner]
       where
+        picked' = case picked of Model.Picked -> True; Model.NotPicked -> False
         xCellsOffset = Constants.cardCellWidth + 1 -- card width + horizontal margin
         yCellsOffset = Constants.cardCellHeight + 1 -- card height + vertical margin
         x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
