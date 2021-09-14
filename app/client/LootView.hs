@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -38,7 +39,12 @@ import ViewInternal
 view :: LootModel -> Styled (View Action)
 view LootModel {..} = do
   rewards <- rewardsView ctxt zpppp rewards
-  deck <- deckView ctxt zpppp (zip picked (repeat Model.Picked) ++ zip deck (repeat Model.NotPicked))
+  deck <-
+    deckView
+      ctxt
+      zpppp
+      $ (map (flip DeckCard Model.Picked) picked)
+        ++ (map (flip DeckCard Model.NotPicked) deck)
   return $
     div_
       [style_ $ bgStyle z]
@@ -220,10 +226,20 @@ counts l =
         Nothing -> go xs ((x, 1 :: Nat) : acc)
         Just i -> go xs $ updateAt i (Just <$> Data.Bifunctor.second succ) acc
 
+-- | A dumb container for passing structured data to 'deckView'
+data DeckCard a = DeckCard
+  { -- | The card
+    card :: a,
+    -- | If the card comes from the reward, its index in the list of rewards;
+    -- otherwise Nothing. TODO @smelc implement this description
+    picked :: Model.Picked
+  }
+  deriving (Eq, Functor)
+
 -- | The div showing the deck. The value of type 'Model.Picked' indicates
 -- whether the card is a reward that was picked or a card from
 -- the deck of the previous game.
-deckView :: Context -> Int -> [(Card.ID, Model.Picked)] -> Styled (View Action)
+deckView :: Context -> Int -> [DeckCard Card.ID] -> Styled (View Action)
 deckView Context {shared, LootView.team} _z cards = do
   cardViews :: [View Action] <- traverse divStack (zip [0 ..] $ counts cards')
   return $
@@ -242,17 +258,18 @@ deckView Context {shared, LootView.team} _z cards = do
       cardViews
   where
     z = 64
-    cards' :: [(Card 'Core, Picked)] =
-      map (Data.Bifunctor.first $ SharedModel.identToCard shared) cards
+    cards' :: [DeckCard (Card 'Core)] =
+      map (fmap $ SharedModel.identToCard shared) cards
         & mapMaybe liftNothing
-        & map (Data.Bifunctor.first $ unlift)
-    liftNothing (Nothing, _) = Nothing
-    liftNothing (Just x, y) = Just (x, y)
-    -- First nat is the index in the whole list of cards. Value of type
-    -- Model.Picked indicates whether the card comes from the rewards or
-    -- from the deck of the previous game.
-    divStack :: (Nat, ((Card 'Core, Model.Picked), Nat)) -> Styled (View Action)
-    divStack (i, ((card, picked), cardinal)) = do
+        & map (fmap unlift)
+    liftNothing dc@DeckCard {card} =
+      case card of
+        Nothing -> Nothing
+        Just c -> Just $ dc {card = c}
+    -- First nat is the index in the whole list of cards. Last nat
+    -- indicates the number of such identical cards.
+    divStack :: (Nat, (DeckCard (Card 'Core), Nat)) -> Styled (View Action)
+    divStack (i, (DeckCard {card, picked}, cardinal)) = do
       cards <-
         traverse
           (\offset -> divCard (i, card, picked) offset)
