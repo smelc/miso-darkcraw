@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -252,7 +254,7 @@ data DeckCard a = DeckCard
     -- otherwise Nothing.
     picked :: Maybe Nat
   }
-  deriving (Eq, Functor)
+  deriving (Eq, Foldable, Functor, Traversable)
 
 -- | The div showing the deck. The value of type 'Model.Picked' indicates
 -- whether the card is a reward that was picked or a card from
@@ -278,12 +280,8 @@ deckView Context {shared, LootView.team} _z cards = do
     z = 64
     cards' :: [DeckCard (Card 'Core)] =
       map (fmap $ SharedModel.identToCard shared) cards
-        & mapMaybe liftNothing
+        & mapMaybe sequence -- Pull Maybe out of DeckCard.card
         & map (fmap unlift)
-    liftNothing dc@DeckCard {card} =
-      case card of
-        Nothing -> Nothing
-        Just c -> Just $ dc {card = c}
     -- First nat is the index in the whole list of cards. Last nat
     -- indicates the number of such identical cards.
     divStack :: (Nat, (DeckCard (Card 'Core), Nat)) -> Styled (View Action)
