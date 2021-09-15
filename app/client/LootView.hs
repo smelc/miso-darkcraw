@@ -12,7 +12,7 @@ import Card
 import qualified Constants
 import qualified Data.Bifunctor
 import Data.Function ((&))
-import Data.List (partition)
+import Data.Functor ((<&>))
 import Data.List.Extra (findIndex)
 import Data.List.Index
 import qualified Data.Map.Strict as Map
@@ -43,8 +43,8 @@ view LootModel {..} = do
     deckView
       ctxt
       zpppp
-      $ (map (flip DeckCard Model.Picked) picked)
-        ++ (map (flip DeckCard Model.NotPicked) deck)
+      $ (map (\(idx, id) -> DeckCard id (Just idx)) picked)
+        ++ (map (flip DeckCard Nothing) deck)
   return $
     div_
       [style_ $ bgStyle z]
@@ -78,9 +78,10 @@ view LootModel {..} = do
               ++ show nbRewards
               ++ (if nbRewards > 1 then " of them" else "")
               ++ " (click on a card to pick it)"
-    (picked :: [Card.ID], _notPicked :: [Card.ID]) =
-      partition ((\case Picked -> True; NotPicked -> False) . snd) rewards
-        & Data.Bifunctor.bimap (map fst) (map fst)
+    picked :: [(Nat, ID)] =
+      zip [(0 :: Nat) ..] rewards
+        & filter (\(_idx, (_id, picked)) -> case picked of Picked -> True; NotPicked -> False)
+        & map (\(idx, (id, _)) -> (idx, id))
     cardinalPicked =
       map snd rewards
         & filter (\case Picked -> True; NotPicked -> False)
@@ -230,9 +231,9 @@ counts l =
 data DeckCard a = DeckCard
   { -- | The card
     card :: a,
-    -- | If the card comes from the reward, its index in the list of rewards;
-    -- otherwise Nothing. TODO @smelc implement this description
-    picked :: Model.Picked
+    -- | If the card comes from the reward, its index in the list of rewards
+    -- otherwise Nothing.
+    picked :: Maybe Nat
   }
   deriving (Eq, Functor)
 
@@ -269,25 +270,28 @@ deckView Context {shared, LootView.team} _z cards = do
     -- First nat is the index in the whole list of cards. Last nat
     -- indicates the number of such identical cards.
     divStack :: (Nat, (DeckCard (Card 'Core), Nat)) -> Styled (View Action)
-    divStack (i, (DeckCard {card, picked}, cardinal)) = do
+    divStack (i, (dc, cardinal)) = do
       cards <-
         traverse
-          (\offset -> divCard (i, card, picked) offset)
+          (\offset -> divCard (i, dc) offset)
           $ [(natToInt cardinal - 1), (natToInt cardinal - 2) .. 0]
       return $ div_ [] cards
-    divCard :: (Nat, Card 'Core, Model.Picked) -> Int -> Styled (View Action)
-    divCard (i, card, picked) stackIdx = do
+    divCard :: (Nat, DeckCard (Card 'Core)) -> Int -> Styled (View Action)
+    divCard (i, DeckCard {card, picked}) stackIdx = do
       inner <- PCWViewInternal.cardView LootLoc z shared team card cds
       return $
         div_
-          [ style_ $
-              cardPositionStyle'
-                ((Constants.cps * x) + (stackIdx * 4))
-                ((Constants.cps * y) + (stackIdx * 4))
-                <> "z-index" =: ms (z - (stackIdx * 3))
-          ]
+          ( [ style_ $
+                cardPositionStyle'
+                  ((Constants.cps * x) + (stackIdx * 4))
+                  ((Constants.cps * y) + (stackIdx * 4))
+                  <> "z-index" =: ms (z - (stackIdx * 3))
+            ]
+              ++ maybeToList clickHandler
+          )
           [inner]
       where
+        clickHandler = picked <&> (\j -> LootAction' (Update.Unpick j)) <&> onClick
         xCellsOffset = Constants.cardCellWidth + 1 -- card width + horizontal margin
         yCellsOffset = Constants.cardCellHeight + 1 -- card height + vertical margin
         x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
@@ -295,9 +299,9 @@ deckView Context {shared, LootView.team} _z cards = do
         cds =
           mempty
             { PCWViewInternal.overlay = case picked of
-                Picked ->
+                Just _ ->
                   -- If we want to use multiple colors in the future,
                   -- this is the place to change.
                   PCWViewInternal.Green
-                NotPicked -> PCWViewInternal.None
+                Nothing -> PCWViewInternal.None
             }
