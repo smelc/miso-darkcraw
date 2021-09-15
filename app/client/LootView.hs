@@ -71,13 +71,8 @@ view LootModel {..} = do
         [div_ [legendTextStyle] [text rewardsTextLegend]]
     rewardsTextLegend :: MisoString =
       case remainingToPick of
-        0 -> "Rewards: you picked them all! Click on a card to unpick it."
-        _ ->
-          ms $
-            "Rewards: pick "
-              ++ show nbRewards
-              ++ (if nbRewards > 1 then " of them" else "")
-              ++ " (click on a card to pick it)"
+        0 -> "All rewards picked!"
+        _ -> ms $ "Rewards: pick " ++ show nbRewards
     picked :: [(Nat, ID)] =
       zip [(0 :: Nat) ..] rewards
         & filter (\(_idx, (_id, picked)) -> case picked of Picked -> True; NotPicked -> False)
@@ -89,9 +84,7 @@ view LootModel {..} = do
     remainingToPick = nbRewards - cardinalPicked
     deckLegend =
       div_
-        [ legendStyle
-            ((deckViewTopMargin + deckViewHeight) + (Constants.cps `div` 4)) -- below deck + margin
-        ]
+        [legendStyle (deckViewTopMargin + deckViewHeight)] -- below deck + margin
         [div_ [legendTextStyle] [text "Your deck"]]
     legendStyle top =
       style_ $
@@ -118,15 +111,17 @@ data Context = Context
 
 -- | The margin from the top to the row of the rewards
 rewardsViewTopMargin :: Int
-rewardsViewTopMargin = Constants.cps * 8
+rewardsViewTopMargin = Constants.cps * 7
 
--- | The height of the rewards div
+-- | The height of the rewards div: the height of a card plus space
+-- for the individual legends atop each card
 rewardsViewHeight :: Int
-rewardsViewHeight = Constants.cardPixelHeight
+rewardsViewHeight = Constants.cardPixelHeight + (Constants.cps `div` 2)
 
 -- | The div showing the rewards. It's displayed above 'deckView'
 rewardsView :: Context -> Int -> [(Card.ID, Model.Picked)] -> Styled (View Action)
 rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
+  let legends :: [View Action] = map mkLegend $ zip [0 ..] $ map snd cards'
   cardViews :: [View Action] <- traverse divCard $ zip [0 ..] cards'
   return $
     div_
@@ -139,7 +134,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
             viewWidth -- width
             rewardsViewHeight -- height
       ]
-      cardViews
+      $ legends ++ cardViews
   where
     nbCards = length cards
     viewWidth =
@@ -161,6 +156,30 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
         liftNothing = \case
           (Nothing, _) -> Nothing
           (Just x, y) -> Just (x, y)
+    mkLegend :: (Nat, Model.Picked) -> (View Action)
+    mkLegend (i, picked) =
+      div_
+        [legendStyle i]
+        [div_ [legendTextStyle] [text $ "Click to " <> verb]]
+      where
+        verb = case picked of Picked -> "unpick"; NotPicked -> "pick"
+    legendStyle i =
+      style_ $
+        zpltwh
+          z
+          Absolute
+          (natToInt i * (Constants.cardPixelWidth + Constants.cps)) -- left
+          0 -- top
+          Constants.cardPixelWidth -- width
+          legendHeight -- height
+    legendHeight = 14
+    legendTextStyle =
+      style_ $
+        textStyle
+          <> flexLineStyle -- Horizontal layouting
+          <> "width" =: px Constants.cardPixelWidth -- Needed to center horizontally
+          <> "justify-content" =: "center" -- Center horizontally
+          <> "font-size" =: px 10
     divCard :: (Nat, (Card 'Core, Model.Picked)) -> Styled (View Action)
     divCard (i, (card, picked)) = do
       inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
@@ -168,8 +187,8 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
         div_
           ( [ style_ $
                 cardPositionStyle'
-                  (Constants.cps * x)
-                  (Constants.cps * y)
+                  (Constants.cps * x) -- left
+                  legendHeight -- top: leave space above for individual legend
                   <> "z-index" =: ms z
                   <> ( if picked'
                          then "filter" =: "brightness(50%)"
@@ -189,9 +208,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
       where
         picked' = case picked of Model.Picked -> True; Model.NotPicked -> False
         xCellsOffset = Constants.cardCellWidth + 1 -- card width + horizontal margin
-        yCellsOffset = Constants.cardCellHeight + 1 -- card height + vertical margin
         x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
-        y = (natToInt i `div` deckCardsPerRow) * yCellsOffset
 
 deckViewTopMargin :: Int
 deckViewTopMargin = Constants.cps * 14
@@ -200,7 +217,7 @@ deckViewHeight :: Int
 deckViewHeight =
   (Constants.cardPixelHeight * 2)
     + Constants.cps -- 2 cards high + vertical gap
-    + (Constants.cps `div` 2) -- Give a bit more space, so that we don't have
+    + (Constants.cps `div` 4) -- Give a bit more space, so that we don't have
     -- a scrollbar if there are less than 8 stacks
 
 deckCardsPerRow :: Int
