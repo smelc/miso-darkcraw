@@ -6,12 +6,13 @@
 
 module Model where
 
-import AI (Difficulty)
+import AI (Difficulty (Easy))
 import Board
 import Campaign
 import Card
 import Cinema (TimedFrame)
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.Generics.Labels ()
 import qualified Data.Map.Strict as Map
 import Data.Set (Set)
@@ -128,7 +129,8 @@ endGame
       rewards = zip (Campaign.loot outcome level team) $ repeat NotPicked
       team = Board.toPart board pSpot & Board.team
 
--- | Function for debugging only. To be deleted at some point.
+-- | Function for debugging only. Used to
+-- make the game start directly on the 'LootView'.
 unsafeLootModel :: WelcomeModel -> Model
 unsafeLootModel WelcomeModel {shared} =
   LootModel' $ LootModel {..}
@@ -140,6 +142,27 @@ unsafeLootModel WelcomeModel {shared} =
     next = Campaign.Level1
     deck =
       SharedModel.getInitialDeck shared team
+        & map Card.cardToIdentifier
+
+-- | Function for debugging only. Used to
+-- make the game start directly on the 'GameView'. Similar to a function
+-- in 'Update' (but we don't want to grow 'Update' if we can avoid).
+unsafeGameModel :: WelcomeModel -> Model
+unsafeGameModel WelcomeModel {shared} =
+  GameModel' $ GameModel {..}
+  where
+    anims = mempty
+    teams = Teams Undead Human
+    teams' = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
+    turn = Turn.initial
+    level = Campaign.Level0
+    difficulty = AI.Easy
+    interaction = NoInteraction
+    playingPlayer = startingPlayerSpot
+    (_, board) = Board.initial shared teams'
+    playingPlayerDeck =
+      toData startingPlayerSpot teams'
+        & snd
         & map Card.cardToIdentifier
 
 instance Show GameModel where

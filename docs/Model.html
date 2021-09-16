@@ -118,6 +118,9 @@
 <a href="#v:unsafeLootModel">unsafeLootModel</a> :: <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a>
 </li>
 <li class="src short">
+<a href="#v:unsafeGameModel">unsafeGameModel</a> :: <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a>
+</li>
+<li class="src short">
 <a href="#v:isPlayerTurn">isPlayerTurn</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li class="src short">
@@ -819,7 +822,14 @@
 <div class="top"><p class="src"><a id="v:endGame" class="def">endGame</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Campaign.html#t:Outcome" title="Campaign">Outcome</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a> <a href="#v:endGame" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:unsafeLootModel" class="def">unsafeLootModel</a> :: <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a> <a href="#v:unsafeLootModel" class="selflink">#</a></p>
-<div class="doc"><p>Function for debugging only. To be deleted at some point.</p></div>
+<div class="doc"><p>Function for debugging only. Used to
+ make the game start directly on the <code>LootView</code>.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:unsafeGameModel" class="def">unsafeGameModel</a> :: <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a> <a href="#v:unsafeGameModel" class="selflink">#</a></p>
+<div class="doc"><p>Function for debugging only. Used to
+ make the game start directly on the <code>GameView</code>. Similar to a function
+ in <code>Update</code> (but we don't want to grow <code>Update</code> if we can avoid).</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:isPlayerTurn" class="def">isPlayerTurn</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:isPlayerTurn" class="selflink">#</a></p>

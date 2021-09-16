@@ -5,12 +5,14 @@ module Turn
     next,
     Turn,
     toInt,
+    toNat,
     toPlayerSpot,
   )
 where
 
 import Board (PlayerSpot (..), endingPlayerSpot, startingPlayerSpot)
 import GHC.Generics (Generic)
+import Nat
 
 -- FIXME @smelc Int->Nat
 newtype Turn = Turn (Int, PlayerSpot)
@@ -26,6 +28,9 @@ next (Turn (i, _)) = Turn (i + 1, startingPlayerSpot)
 
 toInt :: Turn -> Int
 toInt (Turn (i, _)) = i
+
+toNat :: Turn -> Nat
+toNat = intToNat . toInt
 
 toPlayerSpot :: Turn -> PlayerSpot
 toPlayerSpot (Turn (_, pSpot)) = pSpot

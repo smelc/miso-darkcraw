@@ -22,6 +22,7 @@ import qualified Campaign
 import Card
 import Cinema
 import qualified Command
+import qualified Constants
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad (join)
@@ -470,10 +471,13 @@ updateGameModel m@GameModel {board, difficulty, shared, turn} GameEndTurnPressed
           Game.Result shared' board' () boardui' <- Game.playAll shared board placements
           return $ m {anims = boardui', board = board', shared = shared'}
         else Right m
-updateGameModel m@GameModel {board, shared} GameIncrTurn _ =
-  case x of
-    Left err -> updateDefault m $ ShowErrorInteraction err
-    Right res -> res
+updateGameModel m@GameModel {board, shared, turn} GameIncrTurn _ =
+  case (Turn.next turn, x) of
+    (turn', _)
+      | Turn.toNat turn' > Constants.nbTurns ->
+        undefined -- TODO @smelc Go to LootView
+    (_, Left err) -> updateDefault m $ ShowErrorInteraction err
+    (_, Right res) -> res
   where
     x =
       updateGameIncrTurn m

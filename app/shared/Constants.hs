@@ -103,6 +103,10 @@ initialHandSize = 7 -- For testing, FIXME @smelc revert me to 5
 initialMana :: Nat
 initialMana = 3
 
+-- | The number of turns during a game
+nbTurns :: Nat
+nbTurns = 8
+
 -- The yellowish background of a card
 cardBackground :: MisoString -> MisoString
 cardBackground team = "card-bg-" <> team <> ".png"
