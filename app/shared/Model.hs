@@ -111,7 +111,7 @@ gameToDeck GameModel {..} =
     PlayerPart {..} = Board.toPart board playingPlayer
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
-endGame :: GameModel -> Campaign.Outcome -> Model
+endGame :: GameModel -> Campaign.Outcome -> LootModel
 endGame
   GameModel
     { board,
@@ -123,9 +123,9 @@ endGame
   outcome =
     case Campaign.succ level of
       Nothing -> error "You've finished the game!" -- Not really a nice end for now
-      Just next -> LootModel' $ LootModel {..}
+      Just next -> LootModel {..}
     where
-      nbRewards = 1
+      nbRewards = 1 -- Change this?
       rewards = zip (Campaign.loot outcome level team) $ repeat NotPicked
       team = Board.toPart board pSpot & Board.team
 

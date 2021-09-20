@@ -271,7 +271,7 @@ data Action
   | -- | Actions internal to 'LootView'
     LootAction' LootAction
   | -- | Go to 'LootView'
-    LootGo
+    LootGo LootModel
   | NoOp
   | MultiPlayerLobbyAction' MultiPlayerLobbyAction
   | SayHelloWorld
@@ -471,13 +471,10 @@ updateGameModel m@GameModel {board, difficulty, shared, turn} GameEndTurnPressed
           Game.Result shared' board' () boardui' <- Game.playAll shared board placements
           return $ m {anims = boardui', board = board', shared = shared'}
         else Right m
-updateGameModel m@GameModel {board, shared, turn} GameIncrTurn _ =
-  case (Turn.next turn, x) of
-    (turn', _)
-      | Turn.toNat turn' > Constants.nbTurns ->
-        undefined -- TODO @smelc Go to LootView
-    (_, Left err) -> updateDefault m $ ShowErrorInteraction err
-    (_, Right res) -> res
+updateGameModel m@GameModel {board, shared} GameIncrTurn _ =
+  case x of
+    Left err -> updateDefault m $ ShowErrorInteraction err
+    Right res -> res
   where
     x =
       updateGameIncrTurn m
@@ -775,6 +772,25 @@ updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
   noEff $ DeckModel' $ DeckModel deck m playingPlayer t shared
   where
     t = Board.toPart board playingPlayer & Board.team
+-- Go to 'LootView'
+updateModel (LootGo model) _ =
+  noEff $ LootModel' model
+-- Schedule leaving 'GameView', to go to 'LootView'
+updateModel _ m@(GameModel' gm@GameModel {board, level, playingPlayer, turn})
+  | (Turn.next turn & Turn.toNat) > Constants.nbTurns =
+    case Campaign.succ level of
+      Nothing -> noEff m -- TODO, go to global victory view
+      Just _ ->
+        delayActions m [(toSecs 1, LootGo $ Model.endGame gm outcome)]
+        where
+          part = Board.toPart board playingPlayer
+          (score, enemy) =
+            (Board.score part, Board.toPart board (otherPlayerSpot playingPlayer) & Board.score)
+          outcome :: Campaign.Outcome =
+            case compare score enemy of
+              LT -> Campaign.Loss
+              EQ -> Campaign.Draw
+              GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
 updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared, playingPlayer})
   | SharedModel.getCmd shared & isJust =
@@ -784,7 +800,7 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
             let errMsg = "Unrecognized command: " ++ show cmdStr
              in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
           Just (Command.EndGame outcome) ->
-            noEff $ Model.endGame gm outcome
+            noEff $ LootModel' $ Model.endGame gm outcome
           Just (Command.Gimme cid) ->
             withBoard $ Board.addToHand board playingPlayer cid
           Just (Command.GimmeMana) ->
