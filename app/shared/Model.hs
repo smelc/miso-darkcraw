@@ -112,22 +112,14 @@ gameToDeck GameModel {..} =
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 endGame :: GameModel -> Campaign.Outcome -> LootModel
-endGame
-  GameModel
-    { board,
-      level,
-      playingPlayer = pSpot,
-      playingPlayerDeck = deck,
-      ..
-    }
-  outcome =
-    case Campaign.succ level of
-      Nothing -> error "You've finished the game!" -- Not really a nice end for now
-      Just next -> LootModel {..}
-    where
-      nbRewards = 1 -- Change this?
-      rewards = zip (Campaign.loot outcome level team) $ repeat NotPicked
-      team = Board.toPart board pSpot & Board.team
+endGame GameModel {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, ..} outcome =
+  case Campaign.succ level of
+    Nothing -> error "You've finished the game!" -- Not really a nice end for now
+    Just next -> LootModel {..}
+  where
+    nbRewards = 1 -- Change this?
+    rewards = zip (Campaign.loot outcome level team) $ repeat NotPicked
+    team = Board.toPart board pSpot & Board.team
 
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'LootView'.
