@@ -55,6 +55,12 @@ data HandFiddle
     HandDragging HandIndex
   deriving (Eq, Show, Generic)
 
+data GameAnimation
+  = NoGameAnimation
+  | -- | Game view should fadeout
+    Fadeout
+  deriving (Eq, Generic)
+
 -- | The model of the gaming page
 data GameModel = GameModel
   { -- | Part of the model shared among all pages
@@ -74,7 +80,9 @@ data GameModel = GameModel
     -- | The current turn
     turn :: Turn,
     -- | Animations to perform next
-    anims :: Board 'UI
+    anims :: Board 'UI,
+    -- | Animation unrelated to 'Board'
+    anim :: GameAnimation
   }
   deriving (Eq, Generic)
 
@@ -143,6 +151,7 @@ unsafeGameModel :: WelcomeModel -> Model
 unsafeGameModel WelcomeModel {shared} =
   GameModel' $ GameModel {..}
   where
+    anim = NoGameAnimation
     anims = mempty
     teams = Teams Undead Human
     teams' = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))

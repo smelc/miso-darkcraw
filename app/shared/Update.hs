@@ -140,6 +140,8 @@ instance ToExpr Difficulty
 
 instance ToExpr Campaign.Level
 
+instance ToExpr GameAnimation
+
 instance ToExpr GameModel
 
 instance ToExpr PlayingMode
@@ -781,8 +783,9 @@ updateModel _ m@(GameModel' gm@GameModel {board, level, playingPlayer, turn})
     case Campaign.succ level of
       Nothing -> noEff m -- TODO, go to global victory view
       Just _ ->
-        delayActions m [(toSecs 1, LootGo $ Model.endGame gm outcome)]
+        delayActions m' [(toSecs 1, LootGo $ Model.endGame gm outcome)]
         where
+          m' = GameModel' gm {anim = Fadeout}
           part = Board.toPart board playingPlayer
           (score, enemy) =
             (Board.score part, Board.toPart board (otherPlayerSpot playingPlayer) & Board.score)
@@ -909,6 +912,7 @@ levelNGameModel difficulty shared level teams =
     playingPlayerDeck
     Turn.initial
     mempty
+    NoGameAnimation
   where
     (_, board) = Board.initial shared teams
     playingPlayerDeck =
@@ -936,6 +940,7 @@ unsafeInitialGameModel difficulty shared teamsData board =
     playingPlayerDeck
     Turn.initial
     mempty
+    NoGameAnimation
   where
     playingPlayerDeck =
       toData startingPlayerSpot teamsData

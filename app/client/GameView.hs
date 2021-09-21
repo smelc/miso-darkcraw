@@ -43,14 +43,23 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: GameModel -> Styled (View Action)
-viewGameModel model@GameModel {board, shared, interaction, playingPlayer} = do
+viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
-  return $
-    div_ [] $
-      [boardDiv, handDiv]
-        ++ if Configuration.isDev then cmdDiv shared else []
+  let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
+  let builder attrs = div_ attrs divs
+  if fadeout
+    then
+      keyframed
+        builder
+        (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
+        animData
+    else return $ builder []
   where
+    animData = animationData "gameViewFadein" "2s" "ease"
+    fadeout = case anim of
+      NoGameAnimation -> False
+      Fadeout -> True
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
     boardCardsM = boardToInPlaceCells zpp model dragTargetType
