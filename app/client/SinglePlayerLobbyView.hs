@@ -91,7 +91,7 @@ viewSinglePlayerLobbyModel SinglePlayerLobbyModel {..} = do
           "Start"
       return $ div_ [style_ $ "margin-top" =: px (cps * 2)] [button]
     backDivM = do
-      let voffset = px $ (11 - length pickable) * cps
+      let voffset = px $ (9 - length pickable) * cps
       button <-
         textButton
           gui
