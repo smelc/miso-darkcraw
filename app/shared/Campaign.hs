@@ -4,7 +4,7 @@
 -- |
 -- This module deals with the succession of matches
 -- |
-module Campaign (Level (..), Outcome (..), decks, loot, nbRewards, succ) where
+module Campaign (Level (..), Outcome (..), augment, loot, nbRewards, succ) where
 
 import Card (Team (..))
 import qualified Card
@@ -29,7 +29,7 @@ data Outcome
     Draw
   | -- | Player loses
     Loss
-  deriving (Bounded, Enum)
+  deriving (Bounded, Enum, Generic, Show)
 
 -- | Given a level, its predecessor
 pred :: Level -> Maybe Level
@@ -86,7 +86,7 @@ loot Draw level team =
     altTake _ (win, []) = win
 loot Loss level team =
   case pred level of
-    Nothing -> []
+    Nothing -> rewards level team & drop 1
     Just levelb -> rewards levelb team
 
 -- | All possible rewards that can have been obtained from the start,
@@ -109,9 +109,9 @@ rewardsUpTo level team =
                 next <- nextRewards
             ]
 
--- | Given the initial deck, all decks that are possible at the given level
-decks :: [Card.ID] -> Level -> Team -> [[Card.ID]]
-decks deck team level =
+-- | Given the current deck, all decks that are possible at the given level
+augment :: [Card.ID] -> Level -> Team -> [[Card.ID]]
+augment deck team level =
   case rewardsUpTo team level of
     [] -> [deck]
     _ -> [rewards ++ deck | rewards <- rewardsUpTo team level]

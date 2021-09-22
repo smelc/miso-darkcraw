@@ -313,12 +313,19 @@ testPlayScoreMonotonic shared =
 testRewards =
   describe "Rewards work as expected" $ do
     it "initialisation" $ do
-      Campaign.decks [] Campaign.Level0 Human == [[]]
+      Campaign.augment [] Campaign.Level0 Human == [[]]
+    -- TODO @smelc, test Evil too
     prop "one card is received at every reward (except Evil)" $ do
       \(level, team) ->
         team /= Evil
-          ==> Campaign.decks [] level team
+          ==> Campaign.augment [] level team
           `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
+    -- TODO @smelc, test Evil too
+    xit "There is always at least one reward (except Evil)" $
+      property $ do
+        \(outcome, level, team) ->
+          team /= Evil
+            ==> Campaign.loot outcome level team `shouldSatisfy` (not . null)
 
 testItemsAI shared =
   describe "AI" $ do

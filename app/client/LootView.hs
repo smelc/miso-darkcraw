@@ -120,7 +120,7 @@ rewardsViewTopMargin = Constants.cps * 7
 rewardsViewHeight :: Int
 rewardsViewHeight = Constants.cardPixelHeight + (Constants.cps `div` 2)
 
--- | The div showing the rewards. It's displayed above 'deckView'
+-- | The div showing the rewards. It is displayed above 'deckView'
 rewardsView :: Context -> Int -> [(Card.ID, Model.Picked)] -> Styled (View Action)
 rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
   let legends :: [View Action] = map mkLegend $ zip [0 ..] $ map snd cards'

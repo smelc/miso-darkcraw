@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -25,6 +26,7 @@ import qualified Data.Set as Set
 import Miso hiding (at)
 import Miso.String hiding (length, map, take, zip)
 import Miso.Util ((=:))
+import Nat
 
 newtype Styled a = Styled (Writer (Set.Set MisoString) a)
   deriving (Functor, Applicative, Monad, MonadWriter (Set.Set MisoString))
@@ -139,6 +141,14 @@ keyframes name from steps to =
     to_ = "100% { " <> to <> " }"
     tail = from_ <> " " <> ms steps' <> " " <> to_
 
+data Fade
+  = -- | Fadein (transparent->visible)
+    FadeIn
+  | -- | Fadeout (visible->transparent)
+    FadeOut
+  | -- | Don't do any fadeing
+    DontFade
+
 -- XXX smelc Get rid of this function altogether?
 keyframed ::
   -- | How to build the element
@@ -151,6 +161,28 @@ keyframed ::
 keyframed e keyframes animData = do
   emitTopLevelStyle keyframes
   return $ e [animDataToStyle animData]
+
+fade ::
+  -- | How to build the element
+  ([Attribute a] -> View a) ->
+  -- | The duration, in seconds
+  Nat ->
+  -- | Whether it's a fadein ('True'), or a fadeout ('False')
+  Fade ->
+  Styled (View a)
+fade builder duration =
+  \case
+    FadeIn -> go "opacity: 0;" "opacity: 1;"
+    FadeOut -> go "opacity: 1;" "opacity: 0;"
+    DontFade -> return $ builder []
+  where
+    go start end =
+      keyframed
+        builder
+        (keyframes (animDataName animData) start [] end)
+        animData
+    duration' = ms (show duration ++ "s")
+    animData = animationData ("fadein_" <> duration') duration' "ease"
 
 textFrames :: MisoString -> (Int, MisoString, Bool) -> (Int, MisoString, Bool) -> MisoString
 textFrames name (startFontSize, startColor, startTransparent) (endFontSize, endColor, endTransparent) =

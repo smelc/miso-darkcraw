@@ -184,6 +184,10 @@ instance Arbitrary (Difficulty) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary (Campaign.Outcome) where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 newtype SmallList a = SmallList a
   deriving (Show)
 

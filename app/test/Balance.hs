@@ -140,13 +140,12 @@ playAll shareds team level nbTurns =
   where
     otherTeams = [t | t <- Card.allTeams, t /= team]
     ids t =
-      Campaign.decks
+      Campaign.augment
         (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
         level
         t
     decks t =
-      [ map (SharedModel.identToCard shared) cards
-          & catMaybes
+      [ mapMaybe (SharedModel.identToCard shared) cards
           & map Card.unlift
         | cards <- ids t
       ]

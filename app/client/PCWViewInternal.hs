@@ -137,14 +137,9 @@ cardView ::
   CardDrawStyle ->
   Styled (View Action)
 cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
-  if fadeIn
-    then
-      keyframed
-        builder
-        (keyframes (animDataName animData) "opacity: 0;" [] "opacity: 1;")
-        animData
-    else pure $ builder []
+  ViewInternal.fade builder 1 fade
   where
+    fade = if fadeIn then ViewInternal.FadeIn else ViewInternal.DontFade
     avatarPicStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize id) `div` 2) picTopMargin
     id = Card.cardToIdentifier card
@@ -174,7 +169,6 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
           ++ manaDiv
           ++ cardView' z shared (toPart loc) card
           ++ [PCWViewInternal.cardBackground z team cdsty]
-    animData = animationData "handCardFadein" "1s" "ease"
     extraAttrs =
       case card of
         CreatureCard {} ->

@@ -48,18 +48,11 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
   handDiv <- handDivM
   let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
   let builder attrs = div_ attrs divs
-  if fadeout
-    then
-      keyframed
-        builder
-        (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
-        animData
-    else return $ builder []
+  ViewInternal.fade builder 2 fade
   where
-    animData = animationData "gameViewFadein" "2s" "ease"
-    fadeout = case anim of
-      NoGameAnimation -> False
-      Fadeout -> True
+    fade = case anim of
+      NoGameAnimation -> ViewInternal.DontFade
+      Fadeout -> ViewInternal.FadeOut
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
     boardCardsM = boardToInPlaceCells zpp model dragTargetType
