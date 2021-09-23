@@ -64,7 +64,7 @@ rewards level team =
   case (level, team) of
     (_, Evil) -> []
     (Level0, Human) -> map (mkIDC team) [Card.Knight]
-    (Level1, Human) -> []
+    (Level1, Human) -> map (mkIDC team) [Card.Ogre]
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
     (Level1, Undead) -> [Card.IDI Card.SkBanner]
   where
@@ -86,7 +86,7 @@ loot Draw level team =
     altTake _ (win, []) = win
 loot Loss level team =
   case pred level of
-    Nothing -> rewards level team & drop 1
+    Nothing -> rewards level team & (\l -> if length l > 1 then drop 1 l else l)
     Just levelb -> rewards levelb team
 
 -- | All possible rewards that can have been obtained from the start,

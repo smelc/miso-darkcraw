@@ -321,11 +321,10 @@ testRewards =
           ==> Campaign.augment [] level team
           `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
     -- TODO @smelc, test Evil too
-    xit "There is always at least one reward (except Evil)" $
-      property $ do
-        \(outcome, level, team) ->
-          team /= Evil
-            ==> Campaign.loot outcome level team `shouldSatisfy` (not . null)
+    prop "There is always at least one reward (except Evil)" $ do
+      \(outcome, level, team) ->
+        team /= Evil
+          ==> Campaign.loot outcome level team `shouldSatisfy` (not . null)
 
 testItemsAI shared =
   describe "AI" $ do
