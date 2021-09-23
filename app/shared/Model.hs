@@ -137,7 +137,7 @@ unsafeLootModel WelcomeModel {shared} =
   where
     nbRewards = 1
     team = Human
-    rewards = zip (getRewards Human Campaign.Level0 ++ getRewards Undead Campaign.Level1) $ repeat NotPicked
+    rewards = zip (getRewards team Campaign.Level0) $ repeat NotPicked
     getRewards team level = Campaign.loot Campaign.Win level team
     next = Campaign.Level1
     deck =

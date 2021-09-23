@@ -431,7 +431,7 @@ teamDeck cards t =
     items =
       case t of
         Evil -> []
-        Human -> 1 * Card.Crown ++ 1 * SwordOfMight
+        Human -> 1 * SwordOfMight
         Undead -> 1 * Card.FlailOfTheDamned
       where
         itemToItemObj :: Map.Map Item (ItemObject 'Core) =
