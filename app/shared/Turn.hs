@@ -4,7 +4,6 @@ module Turn
   ( initial,
     next,
     Turn,
-    toInt,
     toNat,
     toPlayerSpot,
   )
@@ -14,8 +13,7 @@ import Board (PlayerSpot (..), endingPlayerSpot, startingPlayerSpot)
 import GHC.Generics (Generic)
 import Nat
 
--- FIXME @smelc Int->Nat
-newtype Turn = Turn (Int, PlayerSpot)
+newtype Turn = Turn (Nat, PlayerSpot)
   deriving (Eq, Generic, Show)
 
 initial :: Turn
@@ -26,11 +24,8 @@ next (Turn (i, pSpot))
   | pSpot == startingPlayerSpot = Turn (i, endingPlayerSpot)
 next (Turn (i, _)) = Turn (i + 1, startingPlayerSpot)
 
-toInt :: Turn -> Int
-toInt (Turn (i, _)) = i
-
 toNat :: Turn -> Nat
-toNat = intToNat . toInt
+toNat (Turn (n, _)) = n
 
 toPlayerSpot :: Turn -> PlayerSpot
 toPlayerSpot (Turn (_, pSpot)) = pSpot

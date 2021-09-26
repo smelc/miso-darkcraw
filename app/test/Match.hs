@@ -97,7 +97,7 @@ testStupidity shared =
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
         score = Board.toScore board ogreSpot
-        turni = Turn.toInt turn & intToNat
+        turni = Turn.toNat turn
         pSpot = Turn.toPlayerSpot turn
         stupidFreq = 4
         nbAttacks played = (turni - (if played then 0 else 1)) - ((turni - 1) `div` stupidFreq)
@@ -115,13 +115,13 @@ data Result = Result
 play ::
   GameModel ->
   -- The number of turns
-  Int ->
+  Nat ->
   Result
 play model nbTurns =
   go model []
   where
     go m@GameModel {turn} models
-      | Turn.toInt turn > nbTurns =
+      | Turn.toNat turn > nbTurns =
         Result (reverse models) (toMatchResult m)
     go m models =
       case playOneTurn m of

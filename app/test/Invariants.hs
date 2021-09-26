@@ -49,7 +49,7 @@ instance Invariant Turn where
   violation turn =
     ["Turn must be >= 1 but found " ++ show i | i < 1]
     where
-      i = Turn.toInt turn
+      i = Turn.toNat turn
 
 instance Invariant a => Invariant (Maybe a) where
   violation Nothing = []
@@ -66,7 +66,7 @@ main shared =
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) seed
+         in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) 32
               `shouldSatisfy` isValidResult
   where
     difficulty = AI.Easy

@@ -21,6 +21,7 @@ import Debug.Trace
 import GHC.Float
 import qualified Match
 import Model (GameModel (..))
+import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
 import Test.Hspec
@@ -53,7 +54,7 @@ main shared =
         uiCards = SharedModel.getCards shared
     seeds = [0, 31 ..]
     (nbMatches, nbEndoMatches) = (64, nbMatches)
-    nbTurns :: Int = 8
+    nbTurns :: Nat = 8
     -- actualSpec is a cheap way to track changes to the balance
     actualSpec r@Balance.Result {..}
       | topTeam == Human
@@ -127,7 +128,7 @@ playAll ::
   -- | The level of the team
   Campaign.Level ->
   -- | The number of turns to play
-  Int ->
+  Nat ->
   -- | Results against the given team
   [(Team, Balance.Result)]
 playAll shareds team level nbTurns =
@@ -160,7 +161,7 @@ play ::
   -- | The decks to use
   Teams (Team, [Card 'Core]) ->
   -- | The number of turns to play
-  Int ->
+  Nat ->
   Balance.Result
 play shareds level teams nbTurns =
   go shareds

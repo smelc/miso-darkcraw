@@ -42,6 +42,7 @@ import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
 import Nat
+import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
 import qualified Turn
 import Update
@@ -160,7 +161,7 @@ turnView model@GameModel {turn} z = do
         <> flexColumnStyle
         <> "justify-content" =: "center"
         <> "background-image" =: assetsUrl "turn.png"
-    line1 :: View Action = text $ "Turn " <> ms (Turn.toInt turn)
+    line1 :: View Action = text $ "Turn " <> ms (Turn.toNat turn)
     playerImgY =
       case Turn.toPlayerSpot turn of
         PlayerTop -> "1"
