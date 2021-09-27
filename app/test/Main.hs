@@ -58,7 +58,7 @@ testAIRanged :: SharedModel -> Turn -> Board 'Core
 testAIRanged shared turn =
   case Game.playAll shared board events of
     Left _ -> error "AI failed"
-    Right (Game.Result _ board' () _) -> board'
+    Right (Game.PolyResult _ board' () _) -> board'
   where
     (t, teams) = (Undead, Teams Undead Undead)
     archer = IDC (CreatureID Archer t) []
@@ -232,7 +232,7 @@ testAIPlace shared =
   where
     difficulty = AI.Easy
     ignoreErrMsg (Left _) = Nothing
-    ignoreErrMsg (Right (Game.Result _ board' () _)) = Just board'
+    ignoreErrMsg (Right (Game.PolyResult _ board' () _)) = Just board'
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"
@@ -306,7 +306,7 @@ testPlayScoreMonotonic shared =
                  in monotonic initialScore nextScore
   where
     takeBoard (Left _) = Nothing
-    takeBoard (Right (Game.Result _ b _ _)) = Just b
+    takeBoard (Right (Game.PolyResult _ b _ _)) = Just b
     monotonic _ Nothing = True -- Nothing to test
     monotonic i (Just j) = j <= i -- Better score is smaller score
 
@@ -332,7 +332,7 @@ testItemsAI shared =
       play (board1 (mkCreature' Archer Undead) (mkCreature' Vampire Undead) SwordOfMight)
         `shouldSatisfy` ( \case
                             Left errMsg -> traceShow errMsg False
-                            Right (Game.Result _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight
+                            Right (Game.PolyResult _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight
                         )
   where
     pSpot = PlayerTop

@@ -72,7 +72,7 @@ testPlayFraming shared =
         & Total.isDisciplined
     breaksFraming _ = False
     relation _ _ _ (Left _) = True
-    relation board pSpot cSpot (Right (Game.Result _ board' _ _)) = boardEq board pSpot [cSpot] board'
+    relation board pSpot cSpot (Right (Game.PolyResult _ board' _ _)) = boardEq board pSpot [cSpot] board'
     boardEq (board :: Board 'Core) pSpot cSpots board' =
       let otherSpot = otherPlayerSpot pSpot
        in -- Board must be completely equivalent on part of player that doesn't play
@@ -148,7 +148,7 @@ testFear shared =
         (affectedByFear & (\Creature {..} -> Creature {hp = 1, ..}))
     board'' = Game.play shared board' (Game.ApplyFearNTerror PlayerTop) & extract
     extract (Left _) = error "Test failure"
-    extract (Right (Game.Result _ b _ _)) = b
+    extract (Right (Game.PolyResult _ b _ _)) = b
     boardBis' =
       Board.setCreature
         board
@@ -239,7 +239,7 @@ testFillTheFrontline shared =
         & (\b -> Board.setCreature b pSpot TopLeft $ mkCreature' Spearman team)
     board' = Game.play shared board $ Game.FillTheFrontline pSpot
     pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.Result _ board'' _ _)) =
+    pred (Right (Game.PolyResult _ board'' _ _)) =
       Board.toInPlaceCreature board'' pSpot Top == Nothing -- Archer moved
         && (Board.toInPlaceCreature board'' pSpot Bottom ~= Archer) -- to frontline spot
         && (Board.toInPlaceCreature board'' pSpot TopLeft ~= Spearman) -- Spearman stayed in position
@@ -265,10 +265,10 @@ testBreathIce shared =
     board' specterSpot =
       Game.play shared (mkBoard specterSpot) $ Game.Attack pSpot specterSpot False False
     pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.Result _ board'' _ _)) =
+    pred (Right (Game.PolyResult _ board'' _ _)) =
       Board.toInPlace board'' otherpSpot == mempty -- Both dummies killed
     pred' (Left errMsg) = traceShow errMsg False
-    pred' (Right (Game.Result _ board'' _ _)) =
+    pred' (Right (Game.PolyResult _ board'' _ _)) =
       Board.toInPlaceCreature board'' otherpSpot Top ~= dummy1 -- dummy1 stayed alive
         && (Board.toInPlaceCreature board'' otherpSpot Bottom ~= dummy2) -- dummy2 stayed alive
     (~=) Nothing _ = False
@@ -286,7 +286,7 @@ testTransient shared =
         & (\b -> Board.setCreature b PlayerBot botCardSpot $ mkCreature shared Vampire Undead True)
     board' = Game.play shared board $ Game.Attack PlayerBot botCardSpot False False
     pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.Result _ board'' _ _)) =
+    pred (Right (Game.PolyResult _ board'' _ _)) =
       Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
         && (map (Board.toDiscarded board'') allPlayersSpots & all null) -- Discarded stack is empty
 

@@ -120,7 +120,7 @@ data Event
 
 -- | The polymorphic version of 'Result'. Used for implementors that
 -- do not return events and hence instantiate 'a' by ()
-data PolyResult a = Result SharedModel (Board 'Core) a (Board 'UI)
+data PolyResult a = PolyResult SharedModel (Board 'Core) a (Board 'UI)
   deriving (Eq, Show)
 
 -- | The result of playing an 'Event': an updated board, the next event
@@ -153,7 +153,7 @@ play shared board action =
     & runExcept
     & fmap mkResult
   where
-    mkResult (((b, e), bui), s) = Result s b e bui
+    mkResult (((b, e), bui), s) = PolyResult s b e bui
 
 -- | Please avoid calling this function if you can. Its effect is
 -- difficult to predict because of cards that create events, as these
@@ -164,9 +164,9 @@ play shared board action =
 playAll :: SharedModel -> Board 'Core -> [Event] -> Either Text (PolyResult ())
 playAll shared board es = go board mempty es
   where
-    go b anims [] = Right $ Result shared b () anims
+    go b anims [] = Right $ PolyResult shared b () anims
     go b anims (e : tl) = do
-      Result _ board' new anims' <- play shared b e
+      PolyResult _ board' new anims' <- play shared b e
       -- /!\ We're enqueueing the event created by playing 'e' i.e. 'new',
       -- before the rest of the events ('tl'). This means 'tl' will be played in a state
       -- that is NOT the one planned when building 'e : tl' (except if the

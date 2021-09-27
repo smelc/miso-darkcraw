@@ -410,7 +410,7 @@ updateGameModel m (GameDnD a@(DragLeave _)) i = act m a i
 updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ =
   case Game.play shared board gameEvent of
     Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
-    Right (Game.Result shared' board' nexts anims') ->
+    Right (Game.PolyResult shared' board' nexts anims') ->
       -- There MUST be a delay here, otherwise it means we would need
       -- to execute this event now. We don't want that. 'playAll' checks that.
       (m', zip (repeat 1) $ maybeToList event)
@@ -470,7 +470,7 @@ updateGameModel m@GameModel {board, difficulty, shared, turn} GameEndTurnPressed
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
           let placements = AI.placeCards difficulty shared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
-          Game.Result shared' board' () boardui' <- Game.playAll shared board placements
+          Game.PolyResult shared' board' () boardui' <- Game.playAll shared board placements
           return $ m {anims = boardui', board = board', shared = shared'}
         else Right m
 updateGameModel m@GameModel {board, shared} GameIncrTurn _ =
@@ -550,7 +550,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
               then -- We need to apply fear and fill the frontline before computing the AI's events, hence:
               case Game.playAll shared board $ events1 ++ events2 of
                 Left errMsg -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
-                Right (Game.Result _ board' _ _) ->
+                Right (Game.PolyResult _ board' _ _) ->
                   let plays = AI.play difficulty shared board' pSpot
                    in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
               else
