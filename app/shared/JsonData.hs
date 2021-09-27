@@ -11,6 +11,7 @@ import Data.Text
 jsonData :: Text
 jsonData = "{\n\
          \  \"creatures\": [\n\
+         \    { \"id\": { \"name\":\"church\",    \"team\":\"human\" },  \"title\":\"Church\",    \"hp\":5, \"attack\":0, \"tile\":\"HumanChurch\",    \"mana\":3, \"text\": \"At each turn, one of: +1 :heart: to all, +1 :crossed_swords: to all, or +1 :blue_drop:\" },\n\
          \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":1, \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"LongReach\"] },\n\
          \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":1, \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":1, \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
@@ -61,6 +62,7 @@ jsonData = "{\n\
          \    { \"tile\":\"EvilKnight\",    \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":10 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
          \    { \"tile\":\"HeartBroken\",   \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":0 } },\n\
+         \    { \"tile\":\"HumanChurch\",   \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":0 } },\n\
          \    { \"tile\":\"HumanSwordsman\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":0 } },\n\
          \    { \"tile\":\"HumanSpearman\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"HumanArcher\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":0 } },\n\

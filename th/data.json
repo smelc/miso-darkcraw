@@ -1,5 +1,6 @@
 {
   "creatures": [
+    { "id": { "name":"church",    "team":"human" },  "title":"Church",    "hp":5, "attack":0, "tile":"HumanChurch",    "mana":3, "text": "At each turn, one of: +1 :heart: to all, +1 :crossed_swords: to all, or +1 :blue_drop:" },
     { "id": { "name":"spearman",  "team":"human" },  "title":"Spearman",  "hp":2, "attack":1, "tile":"HumanSpearman",  "skills":["Discipline", "LongReach"] },
     { "id": { "name":"swordsman", "team":"human" },  "title":"swordsman", "hp":2, "attack":1, "tile":"HumanSwordsman", "skills":["Discipline"] },
     { "id": { "name":"archer",    "team":"human" },  "title":"archer",    "hp":2, "attack":1, "tile":"HumanArcher",    "skills":["Ranged"] },
@@ -50,6 +51,7 @@
     { "tile":"EvilKnight",    "filepath": { "root": "24x24", "x":0, "y":10 } },
     { "tile":"Heart",         "filepath": { "root": "16x16", "x":0, "y":0 } },
     { "tile":"HeartBroken",   "filepath": { "root": "16x16", "x":4, "y":0 } },
+    { "tile":"HumanChurch",   "filepath": { "root": "24x24", "x":6, "y":0 } },
     { "tile":"HumanSwordsman","filepath": { "root": "24x24", "x":0, "y":0 } },
     { "tile":"HumanSpearman", "filepath": { "root": "24x24", "x":1, "y":0 } },
     { "tile":"HumanArcher",   "filepath": { "root": "24x24", "x":2, "y":0 } },

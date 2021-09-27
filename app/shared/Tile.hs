@@ -50,6 +50,7 @@ data Tile
   | Heart
   | HeartBroken
   | HumanArcher
+  | HumanChurch
   | HumanGeneral
   | HumanKnight
   | HumanSpearman

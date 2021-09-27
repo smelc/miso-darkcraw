@@ -109,6 +109,7 @@ data CreatureObjectJSON = CreatureObjectJSON
     attack :: Nat,
     mana :: Nat,
     skills :: [Skill],
+    text :: Maybe String,
     tile :: Tile
   }
   deriving (Show)
@@ -121,6 +122,7 @@ instance FromJSON CreatureObjectJSON where
       <*> v .: "attack"
       <*> v .:? "mana" .!= defaultManaCost
       <*> v .:? "skills" .!= []
+      <*> v .:? "text"
       <*> v .: "tile"
 
 instance FromJSON Neutral where

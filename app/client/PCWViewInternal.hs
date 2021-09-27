@@ -332,7 +332,7 @@ typeset x = go x replacements
   where
     go x [] = x
     go x ((src, img) : rest) = go (replace src img x) rest
-    replacements = [(":heart:", "❤️"), (":crossed_swords:", "⚔️")]
+    replacements = [(":heart:", "❤️"), (":crossed_swords:", "⚔️"), (":droplet:", "💧")]
 
 cardBackground ::
   -- | The z index

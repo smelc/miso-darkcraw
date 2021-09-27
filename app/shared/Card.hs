@@ -139,6 +139,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
 
 data CreatureKind
   = Archer
+  | Church
   | General
   | Ghost
   | Knight
