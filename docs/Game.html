@@ -43,10 +43,12 @@
 <li class="src short">
 <a href="#v:attackOrder">attackOrder</a> :: <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>]</li>
 <li class="src short">
+<a href="#v:enemySpots">enemySpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; [<a href="Card.html#t:Skill" title="Card">Skill</a>] -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>]</li>
+<li class="src short">
+<a href="#v:keepEffectfull">keepEffectfull</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
+<li class="src short">
 <a href="#v:nextAttackSpot">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a>
 </li>
-<li class="src short">
-<a href="#v:enemySpots">enemySpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; [<a href="Card.html#t:Skill" title="Card">Skill</a>] -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>]</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:DrawSource">DrawSource</a><ul class="subs">
 <li>= <a href="#v:Native">Native</a>
@@ -180,7 +182,6 @@
 <p class="src"><a id="v:attackOrder" class="def">attackOrder</a> :: <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>] <a href="#v:attackOrder" class="selflink">#</a></p>
 <div class="doc"><p>The order in which cards attack</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:nextAttackSpot" class="def">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> <a href="#v:nextAttackSpot" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:enemySpots" class="def">enemySpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; [<a href="Card.html#t:Skill" title="Card">Skill</a>] -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>] <a href="#v:enemySpots" class="selflink">#</a></p>
 <div class="doc"><p>Spots that can be attacked from a spot
@@ -190,6 +191,12 @@
  attacked, then the second element is attacked if the first spot is empty
  or if the creature can attack multiple spots for some reasons.</p></div>
 </div>
+<div class="top">
+<p class="src"><a id="v:keepEffectfull" class="def">keepEffectfull</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] <a href="#v:keepEffectfull" class="selflink">#</a></p>
+<div class="doc"><p>'keepEffectfull board es' returns the elements of <code>es</code>
+ that have an effect. Elements of <code>es</code> are played in sequence.</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:nextAttackSpot" class="def">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> <a href="#v:nextAttackSpot" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:DrawSource" class="def">DrawSource</a> <a href="#t:DrawSource" class="selflink">#</a></p>
 <div class="doc"><p>The reason for drawing a card</p></div>

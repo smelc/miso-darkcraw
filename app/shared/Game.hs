@@ -18,8 +18,9 @@ module Game
     applyFillTheFrontline,
     applyPlague,
     attackOrder, -- exported for tests only
-    nextAttackSpot,
     enemySpots,
+    keepEffectfull,
+    nextAttackSpot,
     DrawSource (..),
     Event (..),
     PolyResult (..),
@@ -176,6 +177,21 @@ playAll shared board es = go board mempty es
       -- they are being played in an unexpected context (imagine if
       -- Infernal Haste clears the opponent's board, next spells may be useless).
       go board' (anims <> anims') $ maybeToList new ++ tl
+
+-- | 'keepEffectfull board es' returns the elements of 'es'
+-- that have an effect. Elements of 'es' are played in sequence.
+keepEffectfull :: SharedModel -> Board 'Core -> [Event] -> [Event]
+keepEffectfull _ _ [] = []
+keepEffectfull shared board (e : es) =
+  case play shared board e of
+    Left err -> traceShow err (keepEffectfull shared board es)
+    Right (PolyResult shared' board' new _) ->
+      case playAll shared' board' (maybeToList new) of
+        Left err -> traceShow err (keepEffectfull shared' board' es)
+        Right (PolyResult shared'' board'' () _) ->
+          if board'' == board
+            then {- 'e' had no effect -} keepEffectfull shared board es
+            else {- 'e' had an effect -} e : keepEffectfull shared'' board'' es
 
 playM ::
   MonadError Text m =>

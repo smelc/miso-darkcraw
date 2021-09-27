@@ -529,26 +529,18 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
     Left errMsg -> return $ Left errMsg
     Right triplet -> do
       putAll triplet
-      board <- get @(Board 'Core)
-      -- See if fear has an effect
-      let boardAfterFear = Game.applyFearNTerror board otherSpot & fst
-      let fearMatters = boardAfterFear /= board
-      let events1 = [Game.ApplyFearNTerror otherSpot | fearMatters]
-      -- See if fillTheFrontline has an effect
-      let boardAfterFillTheFrontline = Game.applyFillTheFrontline boardAfterFear pSpot
-      let fillTheFrontlineMatters = boardAfterFear /= boardAfterFillTheFrontline
-      let events2 = [Game.FillTheFrontline pSpot | fillTheFrontlineMatters]
       shared <- get @SharedModel
       board <- get @(Board 'Core)
-      let events3 =
+      let events1 = Game.keepEffectfull shared board [Game.ApplyFearNTerror otherSpot, Game.FillTheFrontline pSpot]
+      let events2 =
             -- AI case: after drawing cards and playing its events
             --          press "End Turn". We want a one second delay, it makes
             --          it easier to understand what's going on
             -- player case: we drew the first card already (see drawNow),
             --              enqueue next event (if any)
             if isAI
-              then -- We need to apply fear and fill the frontline before computing the AI's events, hence:
-              case Game.playAll shared board $ events1 ++ events2 of
+              then -- We need to apply 'events1' before computing the AI's events, hence:
+              case Game.playAll shared board events1 of
                 Left errMsg -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
                 Right (Game.PolyResult _ board' _ _) ->
                   let plays = AI.play difficulty shared board' pSpot
@@ -560,7 +552,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       board <- get @(Board 'Core)
       boardui <- get @(Board 'UI)
       let m' = m {anims = boardui, board = board, shared, turn = turn'}
-      return $ Right (m', [(1, GamePlay event) | event <- events1 ++ events2] ++ events3)
+      return $ Right (m', [(1, GamePlay event) | event <- events1] ++ events2)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
