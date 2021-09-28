@@ -1,4 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -56,36 +58,33 @@ main shared =
     (nbMatches, nbEndoMatches) = (64, nbMatches)
     nbTurns :: Nat = 8
     -- actualSpec is a cheap way to track changes to the balance
-    actualSpec r@Balance.Result {..}
-      | topTeam == Human
-          && botTeam == Undead
-          && topWins == 40
-          && botWins == 24
-          && level == Campaign.Level0 =
-        traceShow (showBalanced r) True
-    actualSpec r@Balance.Result {..}
-      | topTeam == Human
-          && botTeam == Evil
-          && topWins == 55
-          && botWins == 9
-          && level == Campaign.Level0 =
-        traceShow (showBalanced r) True
-    actualSpec r@Balance.Result {..}
-      | topTeam == Human
-          && botTeam == Evil
-          && topWins <= 49
-          && botWins >= 15
-          && level == Campaign.Level1 =
-        traceShow (showBalanced r) True
-    actualSpec r@Balance.Result {..}
-      | topTeam == Human
-          && botTeam == Undead
-          && topWins <= 37
-          && botWins >= 26
-          && level == Campaign.Level1 =
-        traceShow (showBalanced r) True
-    actualSpec r =
-      traceShow ("Unexpected spec: " ++ show r) False
+    actualSpec r@Balance.Result {..} =
+      case find (satisfies r) specs of
+        Nothing -> traceShow ("Unexpected spec: " ++ show r) False
+        Just spec -> traceShow (show spec) True
+    specs :: [Balance.Spec] = map Eq eqSpecs ++ map Leq leqSpecs
+    eqSpecs =
+      -- Level0
+      map
+        (uncurry FullEqSpec)
+        [ ( SpecShared {topTeam = Human, botTeam = Undead, level = Campaign.Level0},
+            EqSpec {topWins = 40, botWins = 24}
+          ),
+          ( SpecShared {topTeam = Human, botTeam = Evil, level = Campaign.Level0},
+            EqSpec {topWins = 55, botWins = 9}
+          )
+        ]
+    leqSpecs =
+      -- Level1
+      map
+        (uncurry FullLeqSpec)
+        [ ( SpecShared {topTeam = Human, botTeam = Undead, level = Campaign.Level1},
+            LeqSpec {topMaxWins = 37, botMinWins = 26}
+          ),
+          ( SpecShared {topTeam = Human, botTeam = Evil, level = Campaign.Level1},
+            LeqSpec {topMaxWins = 49, botMinWins = 15}
+          )
+        ]
     _desiredSpec balanceRes@Balance.Result {..} =
       case (min <= winTop, winTop <= max) of
         (False, _) -> traceShow (showNotEnoughTopWins balanceRes) False
@@ -95,6 +94,89 @@ main shared =
         nbGames = int2Float $ topWins + botWins + draws
         winTop = int2Float topWins
         (min, max) = (nbGames * 0.4, nbGames * 0.6)
+
+-- | An expectation of the Balance
+data Spec
+  = Leq FullLeqSpec
+  | Eq FullEqSpec
+
+instance Show Balance.Spec where
+  show (Leq spec) = show spec
+  show (Eq spec) = show spec
+
+-- | A pair of a 'SpecShared' and a 'EqSpec'
+data FullEqSpec = FullEqSpec SpecShared EqSpec
+
+instance Show FullEqSpec where
+  show (FullEqSpec (SpecShared {topTeam, botTeam}) (EqSpec {topWins, botWins})) =
+    show topTeam ++ " (top): " ++ show topWins ++ " wins, " ++ show botTeam
+      ++ " (bot):"
+      ++ show botWins
+      ++ " wins"
+
+-- | A pair of a 'SpecShared' and a 'LeqSpec'
+data FullLeqSpec = FullLeqSpec SpecShared LeqSpec
+
+instance Show FullLeqSpec where
+  show (FullLeqSpec (SpecShared {topTeam, botTeam}) (LeqSpec {topMaxWins, botMinWins})) =
+    show botMinWins ++ " <= " ++ show botTeam ++ " <= _, "
+      ++ "_ <= "
+      ++ show topTeam
+      ++ " <= "
+      ++ show topMaxWins
+
+class Satisfies a where
+  satisfies :: Balance.Result -> a -> Bool
+
+instance Satisfies Balance.Spec where
+  satisfies r (Leq (FullLeqSpec shared sub)) = satisfies r shared && satisfies r sub
+  satisfies r (Eq (FullEqSpec shared sub)) = satisfies r shared && satisfies r sub
+
+instance Satisfies SpecShared where
+  satisfies
+    Balance.Result {topTeam = actualTopTeam, botTeam = actualBotTeam, level = actualLevel}
+    (SpecShared {topTeam = expectedTopTeam, botTeam = expectedBotTeam, level = expectedLevel}) =
+      actualTopTeam == expectedTopTeam
+        && actualBotTeam == expectedBotTeam
+        && actualLevel == expectedLevel
+
+instance Satisfies EqSpec where
+  satisfies
+    (Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
+    (EqSpec {..}) =
+      actualTopWins == topWins && actualBotWins == botWins
+
+instance Satisfies LeqSpec where
+  satisfies
+    (Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
+    (LeqSpec {..}) =
+      actualTopWins <= topMaxWins && botMinWins <= actualBotWins
+
+-- | A spec specifies an expectation on the balance. 'SpecShared'
+-- contains the data shared by all specs kinds.
+data SpecShared = SpecShared
+  { -- | The 'Team' in the top part
+    topTeam :: Team,
+    -- | The 'Team' in the bottom part
+    botTeam :: Team,
+    -- | The 'Level' being consider
+    level :: Campaign.Level
+  }
+
+data EqSpec = EqSpec
+  { -- | The exact expected number of the top team
+    topWins :: Int,
+    -- | The exact expected number of the bottom team
+    botWins :: Int
+  }
+
+-- | A spec with bounds
+data LeqSpec = LeqSpec
+  { -- | The upper bound (included) of the number of wins of the top team
+    topMaxWins :: Int,
+    -- | The lower bound (included) of the number of wins of the bottom team
+    botMinWins :: Int
+  }
 
 -- | The result of executing 'play': the number of wins of each team and
 -- the number of draws
@@ -165,11 +247,13 @@ play shareds level teams nbTurns =
       let result = Match.play (Update.levelNGameModel AI.Easy shared level teams) nbTurns
        in traceShow (logString result) result : go rest
     go [] = []
+    count :: Result -> [Match.MatchResult] -> Balance.Result
     count acc [] = acc
     count b@Balance.Result {draws} (Match.Draw : tail) = count b {draws = draws + 1} tail
     count tuple (Match.Error {} : tail) = count tuple tail -- not this test's business to fail on Error
     count b@Balance.Result {topWins} (Match.Win PlayerTop : tail) = count b {topWins = topWins + 1} tail
-    count b@Balance.Result {botWins} (Match.Win PlayerBot : tail) = count b {botWins = botWins + 1} tail
+    count b@Balance.Result {botWins} (Match.Win PlayerBot : tail) =
+      count b {botWins = botWins + 1} tail
     logString Match.Result {Match.models, Match.matchResult} =
       case matchResult of
         Match.Draw -> "Draw " ++ show (team PlayerTop) ++ " VS " ++ show (team PlayerBot)
