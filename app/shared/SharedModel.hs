@@ -1,9 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- |
@@ -38,6 +40,7 @@ module SharedModel
     identToNeutral,
     pick,
     getInitialDeck,
+    oneof,
   )
 where
 
@@ -46,9 +49,12 @@ import qualified Card
 import Command
 import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.Random hiding (lift)
+import Control.Monad.State hiding (lift)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import Data.List.NonEmpty (NonEmpty)
+import qualified Data.List.NonEmpty as NE
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -264,6 +270,21 @@ shuffle shared@SharedModel {sharedStdGen} l =
   (shared {sharedStdGen = stdgen'}, l')
   where
     (l', stdgen') = shuffleM l & flip runRandT sharedStdGen & runIdentity
+
+-- | Returns a random element from the list, using 'sharedStdGen' as
+-- the random generator.
+oneof ::
+  MonadState SharedModel m =>
+  -- | The elements from which something must be picked
+  NonEmpty a ->
+  m a
+oneof elems = do
+  shared@SharedModel {sharedStdGen = stdgen} <- get
+  let (idx, stdgen') = randomR (0, nbElems - 1) stdgen
+  put (shared {sharedStdGen = stdgen'})
+  return $ elems NE.!! idx
+  where
+    nbElems :: Int = NE.length elems
 
 tileToFilepath :: SharedModel -> Tile -> Tile.Size -> Filepath
 tileToFilepath SharedModel {sharedTiles} tile defaultSize =

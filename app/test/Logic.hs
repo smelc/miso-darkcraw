@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -10,7 +11,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (main, mkCreature) where
+module Logic (main, mkCreature, testChurch) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -274,6 +275,32 @@ testBreathIce shared =
     (~=) Nothing _ = False
     (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
 
+testChurch :: SharedModel -> SpecWith ()
+testChurch shared =
+  describe "Church" $ do
+    prop "Church effect is as expected" $
+      \(Pretty board, pSpot) ->
+        Game.play shared board (Game.ApplyChurch pSpot) `shouldSatisfy` (pred board pSpot)
+  where
+    pred _ _ (Left errMsg) = traceShow errMsg False
+    pred board pSpot (Right (Game.PolyResult _shared' board' _ _anim)) =
+      Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
+        && all
+          (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
+          allCardsSpots
+      where
+        otherSpot = otherPlayerSpot pSpot
+        toCreature (b :: Board 'Core) cSpot =
+          Board.toInPlace b pSpot & (Map.!? cSpot)
+        (~=) before after =
+          case (before, after) of
+            (Just _, Just _) ->
+              True -- TODO Ask @polux
+              -- if (c1 == c2) || (a1 == a2 - 1) || (hp1 == hp2 - 1)
+              -- then True
+              -- else traceShow c1 (traceShow c2 False)
+            _ -> False
+
 testTransient shared =
   describe "Transient" $ do
     it "Transient creatures don't go to any stack when killed" $ do
@@ -299,6 +326,7 @@ main shared = do
   testBreathIce shared
   -- PBT tests
   testFearNTerror shared
+  testChurch shared
   testPlague shared
   testPlayFraming shared
   testDrawCards shared

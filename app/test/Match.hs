@@ -172,6 +172,7 @@ eventToGameActions ::
 eventToGameActions board event =
   case event of
     Game.Attack {} -> lift event
+    Game.ApplyChurch {} -> lift event
     Game.ApplyFearNTerror {} -> lift event
     Game.FillTheFrontline {} -> lift event
     Game.NoPlayEvent -> []

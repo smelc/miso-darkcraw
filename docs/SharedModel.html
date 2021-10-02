@@ -113,6 +113,8 @@
 <a href="#v:pick">pick</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [a] -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</li>
 <li class="src short">
 <a href="#v:getInitialDeck">getInitialDeck</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]</li>
+<li class="src short">
+<a href="#v:oneof">oneof</a> :: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> m =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> a -&gt; m a</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
@@ -276,6 +278,28 @@
 <div class="top">
 <p class="src"><a id="v:getInitialDeck" class="def">getInitialDeck</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>] <a href="#v:getInitialDeck" class="selflink">#</a></p>
 <div class="doc"><p>The starting deck of the given team, not shuffled</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:oneof" class="def">oneof</a> <a href="#v:oneof" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> m</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> a</td>
+<td class="doc"><p>The elements from which something must be picked</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; m a</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>Returns a random element from the list, using <code>sharedStdGen</code> as
+ the random generator.</p></div>
 </div>
 <h1>Orphan instances</h1>
 <div id="section.orphans"><table>

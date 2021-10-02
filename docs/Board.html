@@ -243,13 +243,15 @@
 <li class="src short">
 <a href="#v:toData">toData</a> :: <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; a</li>
 <li class="src short">
-<a href="#v:setMana">setMana</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
-</li>
+<a href="#v:setMana">setMana</a> :: <a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
 <li class="src short">
 <span class="keyword">type family</span> <a href="#t:ManaType">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
 </li>
 <li class="src short">
 <a href="#v:switchLine">switchLine</a> :: <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a>
+</li>
+<li class="src short">
+<a href="#v:mapInPlace">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>] -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 </ul></details></div>
 <div id="interface">
@@ -1498,7 +1500,7 @@
 <div class="doc"><p>Whether this death cause represents a death</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:toData" class="def">toData</a> :: <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; a <a href="#v:toData" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:setMana" class="def">setMana</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setMana" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setMana" class="def">setMana</a> :: <a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setMana" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">type family</span> <a id="t:ManaType" class="def">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span> <a href="#t:ManaType" class="selflink">#</a></p>
 <div class="subs equations">
@@ -1523,6 +1525,10 @@
 <p class="src"><a id="v:switchLine" class="def">switchLine</a> :: <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> <a href="#v:switchLine" class="selflink">#</a></p>
 <div class="doc"><p>Given a frontline spot, the corresponding backline spot. Given
  a backline spot, the corresponding frontline spot.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:mapInPlace" class="def">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>] -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:mapInPlace" class="selflink">#</a></p>
+<div class="doc"><p>Map <code>f</code> over creatures in the given <code><a href="Board.html#t:CardSpot" title="Board">CardSpot</a></code> in the tiven <code><a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a></code></p></div>
 </div>
 </div>
 </div>

@@ -67,12 +67,14 @@ placeCards difficulty shared board turn =
   assert (all isPlaceEvent events) events
   where
     events = AI.play difficulty shared board turn
-    isPlaceEvent ApplyFearNTerror {} = False
-    isPlaceEvent Attack {} = False
-    isPlaceEvent FillTheFrontline {} = False
-    isPlaceEvent NoPlayEvent = False
-    isPlaceEvent Place {} = True
-    isPlaceEvent Place' {} = True
+    isPlaceEvent = \case
+      ApplyChurch {} -> False
+      ApplyFearNTerror {} -> False
+      Attack {} -> False
+      FillTheFrontline {} -> False
+      NoPlayEvent -> False
+      Place {} -> True
+      Place' {} -> True
 
 -- | Given the hand, the permutations to consider for playing this hand
 applyDifficulty :: forall a. Ord a => Difficulty -> StdGen -> [a] -> [[a]]

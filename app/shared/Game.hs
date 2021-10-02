@@ -54,9 +54,11 @@ import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable
 import Data.List
 import Data.List.Index (deleteAt, setAt)
+import qualified Data.List.NonEmpty as NE
 import Data.Map.Strict (Map, (!?))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import qualified Data.Set as Set
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.Tuple (swap)
@@ -97,7 +99,9 @@ whichPlayerTarget = \case
   IDN Plague -> Opponent
 
 data Event
-  = -- | Apply fear of the creatures at the given 'PlayerSpot'
+  = -- | Apply church of the creatures at the given 'PlayerSpot'
+    ApplyChurch PlayerSpot
+  | -- | Apply fear of the creatures at the given 'PlayerSpot'
     ApplyFearNTerror PlayerSpot
   | -- | A card attacks at the given spot. The first Boolean indicates
     -- whether the next spot (as defined by 'nextAttackSpot') should
@@ -146,6 +150,7 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart 'UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart 'UI = mempty {inPlace = botInPlace}
 
+-- | Play a single 'Event' on the given 'Board'
 play :: SharedModel -> Board 'Core -> Event -> Either Text Result
 play shared board action =
   playM board action
@@ -200,6 +205,9 @@ playM ::
   Board 'Core ->
   Event ->
   m (Board 'Core, Maybe Event)
+playM board (ApplyChurch pSpot) = do
+  board' <- Game.applyChurchM board pSpot
+  return (board', Nothing)
 playM board (ApplyFearNTerror pSpot) = do
   board' <- Game.applyFearNTerrorM board pSpot
   return (board', Nothing)
@@ -563,6 +571,51 @@ appliesTo board id playingPlayer target =
           Board.toInPlaceCreature board pSpot cSpot & isJust
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
+
+-- | The effect of the 'Church' card. If this enum is changed, beware
+-- to adapt 'allChurchEffects'.
+data ChurchEffect
+  = -- | All creatures in part get +1 attack
+    PlusOneAttack
+  | -- | All creatures in part get +1 health
+    PlusOneHealth
+  | -- | Player of this part gets +1 mana
+    PlusOneMana
+  deriving (Bounded, Enum)
+
+-- | All possible effects of the 'Church' card
+allChurchEffects :: NE.NonEmpty ChurchEffect
+allChurchEffects = PlusOneAttack NE.:| [PlusOneHealth ..]
+
+applyChurchM ::
+  MonadWriter (Board 'UI) m =>
+  MonadState SharedModel m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part where churchs take effect
+  PlayerSpot ->
+  m (Board 'Core)
+applyChurchM board pSpot = do
+  -- TODO @smelc generate one effect per church
+  effect <- SharedModel.oneof allChurchEffects
+  case effect of
+    PlusOneAttack ->
+      go (\c@Creature {attack} -> c {Card.attack = attack + 1}) (mempty {attackChange = 1})
+    PlusOneHealth ->
+      go (\c@Creature {hp} -> c {hp = hp + 1}) (mempty {attackChange = 1})
+    PlusOneMana -> do
+      tell (setMana 1 pSpot mempty :: Board 'UI)
+      return $ Board.setMana (Board.toPart board pSpot & Board.mana) pSpot board
+  where
+    go creatureFun effect = do
+      traverse_ (\cSpot -> reportEffect pSpot cSpot effect) (map fst others)
+      return $ Board.mapInPlace creatureFun pSpot (Set.toList affectedSpots) board
+    creatures = Board.toInPlace board pSpot
+    (churchs :: [(CardSpot, Creature 'Core)], others :: [(CardSpot, Creature 'Core)]) =
+      creatures & Map.filter isChurch & Map.toList & partition (isChurch . snd)
+    affectedSpots :: Set.Set CardSpot =
+      (Set.fromList (map fst others)) Set.\\ (Set.fromList (map fst churchs))
+    isChurch Creature {creatureId = CreatureID {creatureKind = kind}} = kind == Card.Church
 
 applyFearNTerror ::
   -- | The input board

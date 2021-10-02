@@ -71,6 +71,7 @@ module Board
     setMana,
     Board.ManaType,
     switchLine,
+    mapInPlace,
   )
 where
 
@@ -383,6 +384,17 @@ addToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
+-- TODO @smelc Use this function more often
+
+-- | Map 'f' over creatures in the given 'CardSpot' in the tiven 'PlayerSpot'
+mapInPlace :: (Creature 'Core -> Creature 'Core) -> PlayerSpot -> [CardSpot] -> Board 'Core -> Board 'Core
+mapInPlace f pSpot cSpots board =
+  setPart board pSpot (part {inPlace = inPlace'})
+  where
+    part@PlayerPart {inPlace} = Board.toPart board pSpot
+    (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) inPlace
+    inPlace' = Map.union (Map.map f changed) untouched
+
 setCreature :: Board 'Core -> PlayerSpot -> CardSpot -> Creature 'Core -> Board 'Core
 setCreature board pSpot cSpot creature =
   setPart board pSpot part'
@@ -408,7 +420,7 @@ setHand board pSpot hand =
   where
     part = toPart board pSpot
 
-setMana :: Nat -> PlayerSpot -> Board 'Core -> Board 'Core
+setMana :: Board.ManaType p -> PlayerSpot -> Board p -> Board p
 setMana mana pSpot board =
   setPart board pSpot $ part {Board.mana = mana}
   where
