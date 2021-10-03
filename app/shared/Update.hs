@@ -4,6 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -415,7 +416,15 @@ updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ =
       -- to execute this event now. We don't want that. 'playAll' checks that.
       (m', zip (repeat 1) $ maybeToList event)
       where
-        m' = m {board = board', shared = shared', anims = anims'}
+        m' = m {board = board', shared = shared', anims = anims', anim}
+        anim = case gameEvent of -- XXX @smelc Move to 'Game'?
+          Game.ApplyChurch {} -> Model.NoGameAnimation
+          Game.ApplyFearNTerror {} -> Model.NoGameAnimation
+          Game.Attack {} -> Model.NoGameAnimation
+          Game.FillTheFrontline {} -> Model.Message "Shooters! Fill the frontline! ⚔️" 2
+          Game.NoPlayEvent -> Model.NoGameAnimation
+          Game.Place {} -> Model.NoGameAnimation
+          Game.Place' {} -> Model.NoGameAnimation
         event = case (gameEvent, nexts) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
             -- enqueue resolving next attack if applicable
@@ -796,6 +805,13 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
              in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
           Just (Command.EndGame outcome) ->
             noEff $ LootModel' $ Model.endGame gm outcome
+          Just (Command.FillTheFrontline pSpot) ->
+            updateModel
+              (GameAction' (GamePlay $ Game.FillTheFrontline $ changeType pSpot))
+              (GameModel' gm)
+            where
+              -- XXX @smelc Use a single type?
+              changeType = \case Command.Top -> Board.PlayerTop; Command.Bot -> Board.PlayerBot
           Just (Command.Gimme cid) ->
             withBoard $ Board.addToHand board playingPlayer cid
           Just (Command.GimmeMana) ->
@@ -850,7 +866,8 @@ updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
     then noEff m''
     else delayActions m'' $ prepare $ check actions
   where
-    (m', actions) = updateGameModel m a interaction
+    -- 'Model.NoGameAnimation': clear animation if any
+    (m', actions) = updateGameModel (m {anim = Model.NoGameAnimation}) a interaction
     m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl

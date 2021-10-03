@@ -48,11 +48,12 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
   handDiv <- handDivM
   let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
   let builder attrs = div_ attrs divs
-  ViewInternal.fade builder 2 fade
+  ViewInternal.fade builder Nothing 2 fade
   where
     fade = case anim of
       NoGameAnimation -> ViewInternal.DontFade
       Fadeout -> ViewInternal.FadeOut
+      Message {} -> ViewInternal.DontFade
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
     boardCardsM = boardToInPlaceCells zpp model dragTargetType
@@ -62,11 +63,14 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
         if Configuration.isDev
           then traverse (stackView model z enemySpot GameViewInternal.Board) [Discarded, Stacked]
           else return []
+      msg <- messageView anim & maybeToList & sequence
       turn <- turnView model zpp
       let scores = scoreViews model zpp
       boardCards <- boardCardsM
       let manaView_ = manaView model zpp
-      return $ div_ [style_ boardStyle] $ concat stacks ++ [turn] ++ errs ++ scores ++ boardCards ++ [manaView_]
+      return $
+        div_ [style_ boardStyle] $
+          concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ [manaView_]
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl "forest.png"

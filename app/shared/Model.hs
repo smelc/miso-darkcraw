@@ -16,6 +16,7 @@ import Data.Functor ((<&>))
 import Data.Generics.Labels ()
 import qualified Data.Map.Strict as Map
 import Data.Set (Set)
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
 import GHC.Generics
@@ -59,6 +60,9 @@ data GameAnimation
   = NoGameAnimation
   | -- | Game view should fadeout
     Fadeout
+  | -- | Message to show centered. The 'Nat' is the duration during
+    -- which to show the message. Then it fades out during one second.
+    Message Text Nat
   deriving (Eq, Generic)
 
 -- | The model of the gaming page

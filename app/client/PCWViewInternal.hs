@@ -137,7 +137,7 @@ cardView ::
   CardDrawStyle ->
   Styled (View Action)
 cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
-  ViewInternal.fade builder 1 fade
+  ViewInternal.fade builder Nothing 1 fade
   where
     fade = if fadeIn then ViewInternal.FadeIn else ViewInternal.DontFade
     avatarPicStyle =

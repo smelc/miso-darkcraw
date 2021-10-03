@@ -6,7 +6,13 @@
 -- It isin  the shared/ folder, for testing purpose: we don't want to compile
 -- client/ in tests.
 -- |
-module Command where
+module Command
+  ( Command (..),
+    Command.Read (..),
+    allCommands,
+    PlayerSpot (..),
+  )
+where
 
 import qualified Campaign
 import Card
@@ -30,17 +36,27 @@ allViews = [minBound ..]
 instance Show View where
   show Build = "build"
 
+-- | We don't reuse 'Board' type, because that would create a cyclic
+-- dependency
+data PlayerSpot = Bot | Top
+  deriving (Bounded, Enum)
+
+instance Show PlayerSpot where
+  show = \case Bot -> "bot"; Top -> "top"
+
 -- If you extend this datatype, extend 'allCommands' below
 -- and 'getAllCommands' in SharedModel
 data Command
   = -- | Command to end the current game. Parameter indicates how
     -- the playing player performed.
     EndGame Campaign.Outcome
+  | -- | Command to trgger the 'fill the frontline' event
+    FillTheFrontline PlayerSpot
   | -- | Command to obtain an extra card in the hand in GameView
     Gimme Card.ID
   | -- | Command to obtain mana
     GimmeMana
-  | -- | Command to go to another view GameView
+  | -- | Command to go to another view
     Goto View
 
 -- See 'SharedModel' for the version that uses content from 'SharedModel'
@@ -51,6 +67,7 @@ allCommands cids =
     ++ [Gimme $ Card.IDI item | item <- sortOn show allItems]
     ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
     ++ [EndGame r | r <- [minBound ..]]
+    ++ [FillTheFrontline pSpot | pSpot <- [minBound ..]]
     ++ [GimmeMana]
     ++ [Goto v | v <- allViews]
   where
@@ -68,7 +85,9 @@ instance Show Command where
         Campaign.Draw -> "draw"
         Campaign.Loss -> "lose"
     )
-      ++ "game"
+      ++ " game"
+  show (FillTheFrontline pSpot) =
+    "fill the " ++ show pSpot ++ " frontline"
   show (Gimme (Card.IDC CreatureID {..} _)) =
     "gimme " ++ (show team & toLowerString) ++ " " ++ (show creatureKind & toLowerString)
   show (Gimme (Card.IDI item)) =

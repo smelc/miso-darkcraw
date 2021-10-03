@@ -1,5 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -165,12 +166,14 @@ keyframed e keyframes animData = do
 fade ::
   -- | How to build the element
   ([Attribute a] -> View a) ->
+  -- | The delay at which the animation starts, in seconds
+  Maybe Nat ->
   -- | The duration, in seconds
   Nat ->
   -- | Whether it's a fadein ('True'), or a fadeout ('False')
   Fade ->
   Styled (View a)
-fade builder duration =
+fade builder delay duration =
   \case
     FadeIn -> go "opacity: 0;" "opacity: 1;"
     FadeOut -> go "opacity: 1;" "opacity: 0;"
@@ -182,7 +185,12 @@ fade builder duration =
         (keyframes (animDataName animData) start [] end)
         animData
     duration' = ms (show duration ++ "s")
-    animData = animationData ("fadein_" <> duration') duration' "ease"
+    animData =
+      (animationData ("fadein_" <> duration') duration' "ease")
+        { animDataDelay = fmap (addSecSuffix . ms . natToInt) delay,
+          animDataFillMode = Just "forwards"
+        }
+    addSecSuffix s = s <> "s"
 
 textFrames :: MisoString -> (Int, MisoString, Bool) -> (Int, MisoString, Bool) -> MisoString
 textFrames name (startFontSize, startColor, startTransparent) (endFontSize, endColor, endTransparent) =

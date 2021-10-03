@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -18,6 +19,7 @@ module GameViewInternal
     heartWobble,
     keyframes,
     manaView,
+    messageView,
     noDrag,
     scoreViews,
     StackPosition (..),
@@ -77,6 +79,35 @@ errView GameModel {interaction} z =
         text "Please copy/paste this error in a comment of ",
         a_ [href_ itchURL] [text itchURL]
       ]
+
+messageView :: GameAnimation -> Maybe (Styled (View a))
+messageView =
+  \case
+    NoGameAnimation -> Nothing
+    Fadeout -> Nothing
+    Message txt duration ->
+      -- Message shown during 'duration' seconds and fades out during 1 second
+      Just $ ViewInternal.fade builder (Just duration) 1 ViewInternal.FadeOut
+      where
+        builder attrs = div_ (pos : attrs) [div_ [nested] [text $ ms txt]]
+        -- TODO @smelc share code with LootView
+        pos =
+          style_ $
+            zpltwh
+              1 -- z
+              Absolute
+              0 -- left
+              top
+              Constants.boardPixelWidth -- width
+              Constants.cps -- height
+        nested =
+          style_ $
+            textStyle
+              <> flexLineStyle -- Horizontal layouting
+              <> "width" =: (px Constants.boardPixelWidth) -- Required for horizontal centering
+              <> "justify-content" =: "center" -- Center horizontally
+              <> "font-size" =: "20px"
+        top = Constants.cps * 12 + (Constants.cps `div` 2)
 
 scoreViews :: GameModel -> Int -> [View Action]
 scoreViews m@GameModel {board} z =
