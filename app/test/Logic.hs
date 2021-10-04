@@ -294,11 +294,11 @@ testChurch shared =
           Board.toInPlace b pSpot & (Map.!? cSpot)
         (~=) before after =
           case (before, after) of
-            (Just _, Just _) ->
-              True -- TODO Ask @polux
-              -- if (c1 == c2) || (a1 == a2 - 1) || (hp1 == hp2 - 1)
-              -- then True
-              -- else traceShow c1 (traceShow c2 False)
+            (Just c1@Creature {attack = a1, hp = hp1}, Just c2@Creature {attack = a2, hp = hp2}) ->
+              if (c1 == c2) || (a1 == a2 - 1) || (hp1 == hp2 - 1)
+                then True
+                else traceShow c1 (traceShow c2 False)
+            (Nothing, Nothing) -> True
             _ -> False
 
 testTransient shared =
