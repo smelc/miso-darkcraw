@@ -23,7 +23,7 @@ import GHC.Generics
 import qualified Game (Target)
 import Nat
 import ServerMessages
-import SharedModel (SharedModel, getInitialDeck)
+import SharedModel (SharedModel, getInitialDeck, getStdGen)
 import Turn (Turn)
 import qualified Turn
 
@@ -124,13 +124,16 @@ gameToDeck GameModel {..} =
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 endGame :: GameModel -> Campaign.Outcome -> LootModel
-endGame GameModel {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, ..} outcome =
+endGame GameModel {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, shared} outcome =
   case Campaign.succ level of
     Nothing -> error "You've finished the game!" -- Not really a nice end for now
     Just next -> LootModel {..}
   where
     nbRewards = 1 -- Change this?
-    rewards = zip (Campaign.loot outcome level team) $ repeat NotPicked
+    rewards =
+      zip
+        (Campaign.loot (Just $ SharedModel.getStdGen shared) outcome level team)
+        (repeat NotPicked)
     team = Board.toPart board pSpot & Board.team
 
 -- | Function for debugging only. Used to
@@ -142,7 +145,7 @@ unsafeLootModel WelcomeModel {shared} =
     nbRewards = 1
     team = Human
     rewards = zip (getRewards team Campaign.Level0) $ repeat NotPicked
-    getRewards team level = Campaign.loot Campaign.Win level team
+    getRewards team level = Campaign.loot (Just $ SharedModel.getStdGen shared) Campaign.Win level team
     next = Campaign.Level1
     deck =
       SharedModel.getInitialDeck shared team

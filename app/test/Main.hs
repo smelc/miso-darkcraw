@@ -324,7 +324,7 @@ testRewards =
     prop "There is always at least one reward (except Evil)" $ do
       \(outcome, level, team) ->
         team /= Evil
-          ==> Campaign.loot outcome level team `shouldSatisfy` (not . null)
+          ==> Campaign.loot Nothing outcome level team `shouldSatisfy` (not . null)
 
 testItemsAI shared =
   describe "AI" $ do

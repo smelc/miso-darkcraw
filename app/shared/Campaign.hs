@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
@@ -12,6 +13,8 @@ import Data.Function ((&))
 import Data.Maybe (fromMaybe)
 import GHC.Generics
 import Nat
+import System.Random (Random (..), StdGen, random)
+import System.Random.Shuffle (shuffle')
 import Prelude hiding (pred, succ)
 
 -- | The levels: 'Level0' is the first level (no reward was given yet),
@@ -71,23 +74,28 @@ rewards level team =
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
 
 -- | The possible rewards when finishing the given 'Level' with the given 'Outcome'
-loot :: Outcome -> Level -> Team -> [Card.ID]
-loot Win level team = rewards level team
-loot Draw level team =
-  altTake True (win, loss) & take (length win)
+loot :: Maybe StdGen -> Outcome -> Level -> Team -> [Card.ID]
+loot stdgen outcome level team =
+  shuffle unshuffled
   where
-    win = loot Win level team
-    loss = loot Loss level team
-    altTake :: Bool -> ([a], [a]) -> [a]
-    altTake _ ([], []) = []
-    altTake True (firstWin : restWin, loss) = firstWin : altTake False (restWin, loss)
-    altTake False (win, firstLoss : restLoss) = firstLoss : altTake True (win, restLoss)
-    altTake _ ([], loss) = loss
-    altTake _ (win, []) = win
-loot Loss level team =
-  case pred level of
-    Nothing -> rewards level team & (\l -> if length l > 1 then drop 1 l else l)
-    Just levelb -> rewards levelb team
+    shuffle l =
+      case (stdgen, l) of
+        (Nothing, _) -> l
+        (_, []) -> [] -- shuffle' doesn't support []
+        (Just stdgen, _) -> shuffle' l (length l) stdgen
+    win = rewards level team
+    loss =
+      case pred level of
+        Nothing -> rewards level team & shuffle & (\l -> if length l > 1 then drop 1 l else l)
+        Just levelb -> rewards levelb team
+    unshuffled =
+      case outcome of
+        Win -> win
+        Draw ->
+          case stdgen of
+            Nothing -> win
+            Just stdgen -> if random stdgen & fst then win else loss
+        Loss -> loss
 
 -- | All possible rewards that can have been obtained from the start,
 -- when playing the given level
