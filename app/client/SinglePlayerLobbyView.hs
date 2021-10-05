@@ -53,7 +53,7 @@ viewSinglePlayerLobbyModel SinglePlayerLobbyModel {..} = do
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
         <> "background-image" =: assetsUrl "singleplayer.png"
     -- The top level flex, layout things in a column
-    titleDiv = div_ [style_ titleStyle] [text "Single Player"]
+    titleDiv = div_ [style_ titleStyle] [Miso.text "Single Player"]
     titleStyle =
       textStyle
         <> "font-size" =: px titleFontSize
@@ -68,7 +68,7 @@ viewSinglePlayerLobbyModel SinglePlayerLobbyModel {..} = do
       let chooseYourTeam =
             div_
               [style_ $ subtitleStyle <> pushRight]
-              [text "Choose your team"]
+              [Miso.text "Choose your team"]
       return $
         div_
           [ style_ $

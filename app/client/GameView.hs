@@ -106,16 +106,16 @@ cmdDiv shared =
               [ style_ $ "width" =: px 120,
                 onClick $ lift GameExecuteCmd
               ]
-              [text "Execute"]
+              [Miso.text "Execute"]
           ]
       ]
     doc =
       div_
         []
-        [ div_ [style_ $ "margin-top" =: px 8] [text "Available commands:"],
+        [ div_ [style_ $ "margin-top" =: px 8] [Miso.text "Available commands:"],
           ul_
             []
-            [li_ [] [text $ show cmd & ms] | cmd <- SharedModel.allCommands shared]
+            [li_ [] [Miso.text $ show cmd & ms] | cmd <- SharedModel.allCommands shared]
         ]
 
 boardToInPlaceCells ::

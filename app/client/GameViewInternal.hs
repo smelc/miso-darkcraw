@@ -68,7 +68,7 @@ errView GameModel {interaction} z =
         <> flexColumnStyle
         <> "justify-content" =: "center"
         <> "background-image" =: assetsUrl "errbox.png"
-    textView msg = div_ [style_ textStylePairs] [text $ ms msg]
+    textView msg = div_ [style_ textStylePairs] [Miso.text $ ms msg]
     textWidth = width - (cellPixelSize * 2)
     textWidthAttr = "width" =: px textWidth
     -- XXX It'd be better to center the error message (like the feedback text).
@@ -76,8 +76,8 @@ errView GameModel {interaction} z =
     textStylePairs = "color" =: "#FF0000" <> textWidthAttr
     feedbackViews :: [View Action] =
       [ br_ [],
-        text "Please copy/paste this error in a comment of ",
-        a_ [href_ itchURL] [text itchURL]
+        Miso.text "Please copy/paste this error in a comment of ",
+        a_ [href_ itchURL] [Miso.text itchURL]
       ]
 
 messageView :: GameAnimation -> Maybe (Styled (View a))
@@ -89,7 +89,7 @@ messageView =
       -- Message shown during 'duration' seconds and fades out during 1 second
       Just $ ViewInternal.fade builder (Just duration) 1 ViewInternal.FadeOut
       where
-        builder attrs = div_ (pos : attrs) [div_ [nested] [text $ ms txt]]
+        builder attrs = div_ (pos : attrs) [div_ [nested] [Miso.text $ ms txt]]
         -- TODO @smelc share code with LootView
         pos =
           style_ $
@@ -142,8 +142,8 @@ scoreView GameModel {board} z pSpot =
           -- Finally shift element down
           <> "margin-top" =: px (scoreMarginTop pSpot)
     ]
-    [ div_ [] [text "Score"],
-      div_ [] [text $ ms $ show score]
+    [ div_ [] [Miso.text "Score"],
+      div_ [] [Miso.text $ ms $ show score]
     ]
   where
     score = board ^. (spotToLens pSpot . #score)
@@ -152,7 +152,7 @@ manaView :: GameModel -> Int -> View a
 manaView GameModel {board, playingPlayer} z =
   div_ [style_ flexColumnStyle, style_ positioning] (manaText : imgs)
   where
-    manaText = div_ [style_ textStyle] [text "Mana"]
+    manaText = div_ [style_ textStyle] [Miso.text "Mana"]
     positioning =
       "z-index" =: ms z
         <> "position" =: ms (show Absolute)
@@ -192,7 +192,7 @@ turnView model@GameModel {turn} z = do
         <> flexColumnStyle
         <> "justify-content" =: "center"
         <> "background-image" =: assetsUrl "turn.png"
-    line1 :: View Action = text $ "Turn " <> ms (Turn.toNat turn)
+    line1 :: View Action = Miso.text $ "Turn " <> ms (Turn.toNat turn)
     playerImgY =
       case Turn.toPlayerSpot turn of
         PlayerTop -> "1"
@@ -280,7 +280,7 @@ stackView GameModel {anims, board, shared} z pSpot stackPos stackType = do
         animName
         (plusFontSize, "#FF0000", False)
         (plusFontSize', "#FFFFFF", True)
-    plusBuilder x = div_ x [text $ ms ("+" :: MisoString) <> ms (show plusValue)]
+    plusBuilder x = div_ x [Miso.text $ ms ("+" :: MisoString) <> ms (show plusValue)]
 
 -- | Draw border around target if:
 -- 1/ card in hand is being hovered or dragged -> draw borders around

@@ -1,6 +1,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
@@ -213,9 +214,9 @@ allNeutrals = [minBound ..]
 data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
-    neutralTeams :: TeamsType p,
-    ntext :: TextType p,
-    ntitle :: TextType p
+    teams :: TeamsType p,
+    text :: TextType p,
+    title :: TextType p
   }
   deriving (Generic)
 
@@ -238,10 +239,10 @@ allItems = [minBound ..]
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
     teams :: TeamsType p,
-    itext :: TextType p,
-    itextSzOffset :: OffsetType p,
-    ititle :: TextType p,
-    ititleSzOffset :: OffsetType p
+    text :: TextType p,
+    textSzOffset :: OffsetType p,
+    title :: TextType p,
+    titleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
@@ -319,11 +320,11 @@ instance Unlift Creature where
 
 instance Unlift ItemObject where
   unlift ItemObject {..} =
-    ItemObject {teams = (), item, itext = (), itextSzOffset = (), ititle = (), ititleSzOffset = ()}
+    ItemObject {teams = (), item, text = (), textSzOffset = (), title = (), titleSzOffset = ()}
 
 instance Unlift NeutralObject where
   unlift NeutralObject {..} =
-    NeutralObject {neutral, neutralTeams = (), ntext = (), ntitle = ()}
+    NeutralObject {neutral, teams = (), text = (), title = ()}
 
 instance Unlift Card where
   unlift :: Card 'UI -> Card 'Core
@@ -421,9 +422,10 @@ teamDeck cards t =
         Human -> 1 * Health ++ 1 * Life
         Undead -> 2 * InfernalHaste ++ 1 * Plague
       where
+        teams NeutralObject {teams} = teams
         kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
           mapMaybe cardToNeutralObject cards
-            & filter (\nobj -> t `Prelude.elem` neutralTeams nobj)
+            & filter (\nobj -> t `Prelude.elem` teams nobj)
             & map unlift
             & map (\nobj -> (neutral nobj, nobj))
             & Map.fromList

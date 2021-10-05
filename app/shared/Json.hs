@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
@@ -32,7 +33,7 @@ import GHC.Generics
 import JsonData
 import Nat
 import Text.Read
-import Tile
+import Tile (Filepath, Tile, TileUI)
 
 instance FromJSON Team where
   parseJSON = genericParseJSON toLowerConstructorOptions
@@ -130,11 +131,11 @@ instance FromJSON Neutral where
 
 data NeutralObjectJSON = NeutralObjectJSON
   { neutral :: Neutral,
-    neutralTeams :: [Team],
-    nmana :: Nat,
-    ntext :: String,
-    ntile :: Tile,
-    ntitle :: String
+    teams :: [Team],
+    mana :: Nat,
+    text :: String,
+    tile :: Tile,
+    title :: String
   }
   deriving (Show)
 
@@ -153,13 +154,13 @@ instance FromJSON Item where
 
 data ItemObjectJSON = ItemObjectJSON
   { item :: Item,
-    imana :: Nat,
+    mana :: Nat,
     teams :: [Team],
-    itext :: String,
-    itextSzOffset :: Int,
-    itile :: Tile,
-    ititle :: String,
-    ititleSzOffset :: Int
+    text :: String,
+    textSzOffset :: Int,
+    tile :: Tile,
+    title :: String,
+    titleSzOffset :: Int
   }
   deriving (Generic, Show)
 
@@ -222,12 +223,12 @@ parseJson json = do
     mkItemCard :: ItemObjectJSON -> Card 'UI
     mkItemCard ItemObjectJSON {..} =
       ItemCard
-        (CardCommon {mana = imana, tile = itile})
+        (CardCommon {..})
         (ItemObject {..})
     mkNeutralCard :: NeutralObjectJSON -> Card 'UI
     mkNeutralCard NeutralObjectJSON {..} =
       NeutralCard
-        (CardCommon {mana = nmana, tile = ntile})
+        (CardCommon {..})
         (NeutralObject {..})
 
 loadJson :: Either String LoadedJson

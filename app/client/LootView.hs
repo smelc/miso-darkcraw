@@ -70,7 +70,7 @@ view LootModel {..} = do
         [ legendStyle
             ((rewardsViewTopMargin + rewardsViewHeight) + (Constants.cps `div` 4)) -- below rewards + margin
         ]
-        [div_ [legendTextStyle] [text rewardsTextLegend]]
+        [div_ [legendTextStyle] [Miso.text rewardsTextLegend]]
     rewardsTextLegend :: MisoString =
       case remainingToPick of
         0 -> "All rewards picked!"
@@ -87,7 +87,7 @@ view LootModel {..} = do
     deckLegend =
       div_
         [legendStyle (deckViewTopMargin + deckViewHeight)] -- below deck + margin
-        [div_ [legendTextStyle] [text "Your deck"]]
+        [div_ [legendTextStyle] [Miso.text "Your deck"]]
     legendStyle top =
       style_ $
         zpltwh
@@ -162,7 +162,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
     mkLegend (i, picked) =
       div_
         [legendStyle i]
-        [div_ [legendTextStyle] [text $ "Click to " <> verb]]
+        [div_ [legendTextStyle] [Miso.text $ "Click to " <> verb]]
       where
         verb = case picked of Picked -> "unpick"; NotPicked -> "pick"
     legendStyle i =
