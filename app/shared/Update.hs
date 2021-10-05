@@ -46,7 +46,6 @@ import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
-import qualified Model (gameToBuild)
 import Movie (welcomeMovie)
 import Nat
 import ServerMessages
@@ -174,8 +173,6 @@ instance ToExpr MultiPlayerLobbyError
 instance ToExpr InvitationActorState
 
 instance ToExpr InvitedActorState
-
-instance ToExpr BuildModel
 
 instance ToExpr DeckModel
 
@@ -817,8 +814,6 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
           Just (Command.GimmeMana) ->
             let mana = Board.toPart board playingPlayer & Board.mana
              in withBoard $ Board.setMana (mana + 1) playingPlayer board
-          Just (Command.Goto _) ->
-            noEff $ BuildModel' $ Model.gameToBuild gm
   where
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
 -- Actions that leave 'SinglePlayerView'

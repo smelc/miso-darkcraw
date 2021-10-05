@@ -25,17 +25,6 @@ import Data.List.Extra
 toLowerString :: String -> String
 toLowerString = map toLower
 
-data View
-  = -- | Identifier of BuildView.
-    Build
-  deriving (Bounded, Enum)
-
-allViews :: [View]
-allViews = [minBound ..]
-
-instance Show View where
-  show Build = "build"
-
 -- | We don't reuse 'Board' type, because that would create a cyclic
 -- dependency
 data PlayerSpot = Bot | Top
@@ -56,8 +45,6 @@ data Command
     Gimme Card.ID
   | -- | Command to obtain mana
     GimmeMana
-  | -- | Command to go to another view
-    Goto View
 
 -- See 'SharedModel' for the version that uses content from 'SharedModel'
 -- to instantiate the parameter.
@@ -69,7 +56,6 @@ allCommands cids =
     ++ [EndGame r | r <- [minBound ..]]
     ++ [FillTheFrontline pSpot | pSpot <- [minBound ..]]
     ++ [GimmeMana]
-    ++ [Goto v | v <- allViews]
   where
     compareCID
       CreatureID {creatureKind = ck1, team = t1}
@@ -96,8 +82,6 @@ instance Show Command where
     "gimme " ++ (show neutral & toLowerString)
   show GimmeMana =
     "gimme mana"
-  show (Goto v) =
-    "goto " ++ show v
 
 class Read a where
   read :: String -> Maybe a

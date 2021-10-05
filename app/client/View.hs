@@ -4,7 +4,6 @@
 -- |
 module View where
 
-import qualified BuildView as Build
 import DeckView (viewDeck)
 import GameView (viewGameModel)
 import qualified LootView
@@ -19,7 +18,6 @@ import WelcomeView (viewWelcomeModel)
 viewModel :: Model -> View Action
 viewModel m = center $ go m
   where
-    go (BuildModel' model) = renderStyledView $ Build.view model
     go (DeckModel' model) = renderStyledView $ viewDeck model
     go (GameModel' model) = renderStyledView $ viewGameModel model
     go (MultiPlayerLobbyModel' model) = viewMultiPlayerLobbyModel model

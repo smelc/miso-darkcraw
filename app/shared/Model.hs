@@ -90,29 +90,6 @@ data GameModel = GameModel
   }
   deriving (Eq, Generic)
 
-data BuildModel = BuildModel
-  { -- | Part of the model shared among all pages
-    shared :: SharedModel,
-    -- | The actual deck
-    deck :: [Card.ID],
-    -- | The playing player's spot and team
-    buildPlayer :: (PlayerSpot, Team),
-    -- | The number of cards that can still be drawn from 'hand'
-    free :: Int,
-    -- | Cards to augment the deck
-    hand :: [Card.ID]
-  }
-  deriving (Eq, Generic, Show)
-
-gameToBuild :: GameModel -> BuildModel
-gameToBuild gm@GameModel {..} =
-  BuildModel {..}
-  where
-    deck = gameToDeck gm
-    buildPlayer = (playingPlayer, Board.toPart board playingPlayer & Board.team)
-    free = 0 -- for the moment
-    hand = [] -- for the moment
-
 -- This implementation will be wrong once volatile cards are generated
 -- during a match. When this happen, the player's deck will have to be
 -- carried on in GameModel. No big deal.
@@ -290,8 +267,7 @@ data LootModel = LootModel
 
 -- | The top level model
 data Model
-  = BuildModel' BuildModel
-  | DeckModel' DeckModel
+  = DeckModel' DeckModel
   | GameModel' GameModel
   | LootModel' LootModel
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel
