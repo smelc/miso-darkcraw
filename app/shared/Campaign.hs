@@ -63,7 +63,7 @@ rewards :: Level -> Team -> [Card.ID]
 rewards level team =
   case (level, team) of
     (_, Evil) -> []
-    (Level0, Human) -> map (mkIDC team) [Card.Knight] ++ map Card.IDI [Card.Crown]
+    (Level0, Human) -> map (mkIDC team) [Card.Knight] ++ map Card.IDI [Card.Crown] ++ map Card.IDN [Card.Life]
     (Level1, Human) -> map (mkIDC team) [Card.Ogre]
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
     (Level1, Undead) -> [Card.IDI Card.SkBanner]
