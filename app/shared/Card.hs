@@ -223,11 +223,11 @@ data NeutralObject (p :: Phase) = NeutralObject
   }
   deriving (Generic)
 
-deriving instance Forall Eq p => Eq (NeutralObject p)
+deriving instance Forall Eq p => Forall2 Eq 'A p => Eq (NeutralObject p)
 
-deriving instance Forall Ord p => Ord (NeutralObject p)
+deriving instance Forall Ord p => Forall2 Ord 'A p => Ord (NeutralObject p)
 
-deriving instance Forall Show p => Show (NeutralObject p)
+deriving instance Forall Show p => Forall2 Show 'A p => Show (NeutralObject p)
 
 data Item
   = Crown
@@ -251,11 +251,11 @@ data ItemObject (p :: Phase) = ItemObject
 mkCoreItemObject :: Item -> ItemObject 'Core
 mkCoreItemObject item = ItemObject item () () () ()
 
-deriving instance Forall Eq p => Eq (ItemObject p)
+deriving instance Forall Eq p => Forall2 Eq 'A p => Eq (ItemObject p)
 
-deriving instance Forall Ord p => Ord (ItemObject p)
+deriving instance Forall Ord p => Forall2 Ord 'A p => Ord (ItemObject p)
 
-deriving instance Forall Show p => Show (ItemObject p)
+deriving instance Forall Show p => Forall2 Show 'A p => Show (ItemObject p)
 
 data Kind
   = -- | The kind that simplifies to 'Maybe String' in UI
@@ -287,11 +287,11 @@ data Card (p :: Phase)
   | NeutralCard (CardCommon 'A p) (NeutralObject p)
   | ItemCard (CardCommon 'A p) (ItemObject p)
 
-deriving instance Forall Eq p => Forall2 Eq k p => Eq (Card p)
+deriving instance Forall Eq p => Eq (TextType 'A p) => Eq (TextType 'M p) => Eq (Card p)
 
-deriving instance Forall Ord p => Forall2 Ord k p => Ord (Card p)
+deriving instance Forall Ord p => Ord (TextType 'A p) => Ord (TextType 'M p) => Ord (Card p)
 
-deriving instance Forall Show p => Forall2 Show k p => Show (Card p)
+deriving instance Forall Show p => Show (TextType 'A p) => Show (TextType 'M p) => Show (Card p)
 
 deriving instance Generic (Card p)
 
