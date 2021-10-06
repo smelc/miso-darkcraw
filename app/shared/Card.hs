@@ -7,6 +7,7 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -115,9 +116,10 @@ type family TeamsType (p :: Phase) where
   TeamsType 'UI = [Team]
   TeamsType 'Core = ()
 
-type family TextType (p :: Phase) where
-  TextType 'UI = String
-  TextType 'Core = ()
+type family TextType (k :: Kind) (p :: Phase) where
+  TextType 'M 'UI = Maybe String
+  TextType 'A 'UI = String
+  TextType _ 'Core = ()
 
 type family TileType (p :: Phase) where
   TileType 'UI = Tile
@@ -133,10 +135,12 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
     c (OffsetType p),
     c (SkillType p),
     c (TeamsType p),
-    c (TextType p),
     c (TileType p),
     c (TransientType p)
   )
+
+type Forall2 (c :: Type -> Constraint) (k :: Kind) (p :: Phase) =
+  (c (TextType k p))
 
 data CreatureKind
   = Archer
@@ -215,8 +219,7 @@ data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
     teams :: TeamsType p,
-    text :: TextType p,
-    title :: TextType p
+    title :: TextType 'A p
   }
   deriving (Generic)
 
@@ -239,15 +242,14 @@ allItems = [minBound ..]
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
     teams :: TeamsType p,
-    text :: TextType p,
     textSzOffset :: OffsetType p,
-    title :: TextType p,
+    title :: TextType 'A p,
     titleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
 mkCoreItemObject :: Item -> ItemObject 'Core
-mkCoreItemObject item = ItemObject item () () () () ()
+mkCoreItemObject item = ItemObject item () () () ()
 
 deriving instance Forall Eq p => Eq (ItemObject p)
 
@@ -255,38 +257,45 @@ deriving instance Forall Ord p => Ord (ItemObject p)
 
 deriving instance Forall Show p => Show (ItemObject p)
 
+data Kind
+  = -- | The kind that simplifies to 'Maybe String' in UI
+    M
+  | -- | The kind that simplifies to 'String' in UI. 'A' stands for always.
+    A
+
 -- | Data that is used by all three kind of cards
-data CardCommon (p :: Phase) = CardCommon
+data CardCommon (k :: Kind) (p :: Phase) = CardCommon
   { mana :: ManaType p,
+    text :: TextType k p,
     tile :: TileType p
   }
   deriving (Generic)
 
-mkCoreCardCommon :: CardCommon 'Core
-mkCoreCardCommon = CardCommon {mana = (), tile = ()}
+mkCoreCardCommon :: CardCommon k 'Core
+mkCoreCardCommon = CardCommon {mana = (), text = (), tile = ()}
 
-deriving instance Forall Eq p => Eq (CardCommon p)
+deriving instance Forall Eq p => Forall2 Eq k p => Eq (CardCommon k p)
 
-deriving instance Forall Ord p => Ord (CardCommon p)
+deriving instance Forall Ord p => Forall2 Ord k p => Ord (CardCommon k p)
 
-deriving instance Forall Show p => Show (CardCommon p)
+deriving instance Forall Show p => Forall2 Show k p => Show (CardCommon k p)
 
 -- TODO: Get rid of the duplication of the first parameter by introducing
 -- an extra level?
 data Card (p :: Phase)
-  = CreatureCard (CardCommon p) (Creature p)
-  | NeutralCard (CardCommon p) (NeutralObject p)
-  | ItemCard (CardCommon p) (ItemObject p)
+  = CreatureCard (CardCommon 'M p) (Creature p)
+  | NeutralCard (CardCommon 'A p) (NeutralObject p)
+  | ItemCard (CardCommon 'A p) (ItemObject p)
 
-deriving instance Forall Eq p => Eq (Card p)
+deriving instance Forall Eq p => Forall2 Eq k p => Eq (Card p)
 
-deriving instance Forall Ord p => Ord (Card p)
+deriving instance Forall Ord p => Forall2 Ord k p => Ord (Card p)
 
-deriving instance Forall Show p => Show (Card p)
+deriving instance Forall Show p => Forall2 Show k p => Show (Card p)
 
 deriving instance Generic (Card p)
 
-toCommon :: Card p -> CardCommon p
+toCommon :: Card p -> CardCommon _ p
 toCommon (CreatureCard common _) = common
 toCommon (NeutralCard common _) = common
 toCommon (ItemCard common _) = common
@@ -320,11 +329,11 @@ instance Unlift Creature where
 
 instance Unlift ItemObject where
   unlift ItemObject {..} =
-    ItemObject {teams = (), item, text = (), textSzOffset = (), title = (), titleSzOffset = ()}
+    ItemObject {teams = (), item, textSzOffset = (), title = (), titleSzOffset = ()}
 
 instance Unlift NeutralObject where
   unlift NeutralObject {..} =
-    NeutralObject {neutral, teams = (), text = (), title = ()}
+    NeutralObject {neutral, teams = (), title = ()}
 
 instance Unlift Card where
   unlift :: Card 'UI -> Card 'Core
