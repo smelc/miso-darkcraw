@@ -72,16 +72,24 @@ testShared shared =
       \item ->
         let found =
               SharedModel.getCards shared
-                & map (\case ItemCard _ ItemObject {item = i} | item == i -> Just i; _ -> Nothing)
-                & catMaybes
+                & mapMaybe (\case ItemCard _ ItemObject {item = i} | item == i -> Just i; _ -> Nothing)
          in found `shouldBe` [item]
     prop "maps all Neutral values" $
       \n ->
         let found =
               SharedModel.getCards shared
-                & map (\case NeutralCard _ NeutralObject {neutral = n'} | n == n' -> Just n'; _ -> Nothing)
-                & catMaybes
+                & mapMaybe (\case NeutralCard _ NeutralObject {neutral = n'} | n == n' -> Just n'; _ -> Nothing)
          in found `shouldBe` [n]
+    it "All Item cards specify a text" $
+      ( SharedModel.getCards shared
+          & mapMaybe (\case ItemCard CardCommon {text} _ -> Just text; _ -> Nothing)
+      )
+        `shouldAllSatisfy` isJust
+    it "All Neutral cards specify a text" $
+      ( SharedModel.getCards shared
+          & mapMaybe (\case NeutralCard CardCommon {text} _ -> Just text; _ -> Nothing)
+      )
+        `shouldAllSatisfy` isJust
 
 testNeighbors :: SpecWith ()
 testNeighbors =

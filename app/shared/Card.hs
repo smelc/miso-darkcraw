@@ -115,6 +115,10 @@ type family TeamsType (p :: Phase) where
   TeamsType 'UI = [Team]
   TeamsType 'Core = ()
 
+type family MaybeTextType (p :: Phase) where
+  MaybeTextType 'UI = Maybe String
+  MaybeTextType 'Core = ()
+
 type family TextType (p :: Phase) where
   TextType 'UI = String
   TextType 'Core = ()
@@ -130,6 +134,7 @@ type family TransientType (p :: Phase) where
 type Forall (c :: Type -> Constraint) (p :: Phase) =
   ( c (ItemType p),
     c (ManaType p),
+    c (MaybeTextType p),
     c (OffsetType p),
     c (SkillType p),
     c (TeamsType p),
@@ -215,7 +220,6 @@ data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
     teams :: TeamsType p,
-    text :: TextType p,
     title :: TextType p
   }
   deriving (Generic)
@@ -239,7 +243,6 @@ allItems = [minBound ..]
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
     teams :: TeamsType p,
-    text :: TextType p,
     textSzOffset :: OffsetType p,
     title :: TextType p,
     titleSzOffset :: OffsetType p
@@ -247,7 +250,7 @@ data ItemObject (p :: Phase) = ItemObject
   deriving (Generic)
 
 mkCoreItemObject :: Item -> ItemObject 'Core
-mkCoreItemObject item = ItemObject item () () () () ()
+mkCoreItemObject item = ItemObject item () () () ()
 
 deriving instance Forall Eq p => Eq (ItemObject p)
 
@@ -258,12 +261,13 @@ deriving instance Forall Show p => Show (ItemObject p)
 -- | Data that is used by all three kind of cards
 data CardCommon (p :: Phase) = CardCommon
   { mana :: ManaType p,
+    text :: MaybeTextType p,
     tile :: TileType p
   }
   deriving (Generic)
 
 mkCoreCardCommon :: CardCommon 'Core
-mkCoreCardCommon = CardCommon {mana = (), tile = ()}
+mkCoreCardCommon = CardCommon {mana = (), text = (), tile = ()}
 
 deriving instance Forall Eq p => Eq (CardCommon p)
 
@@ -320,11 +324,11 @@ instance Unlift Creature where
 
 instance Unlift ItemObject where
   unlift ItemObject {..} =
-    ItemObject {teams = (), item, text = (), textSzOffset = (), title = (), titleSzOffset = ()}
+    ItemObject {teams = (), item, textSzOffset = (), title = (), titleSzOffset = ()}
 
 instance Unlift NeutralObject where
   unlift NeutralObject {..} =
-    NeutralObject {neutral, teams = (), text = (), title = ()}
+    NeutralObject {neutral, teams = (), title = ()}
 
 instance Unlift Card where
   unlift :: Card 'UI -> Card 'Core
