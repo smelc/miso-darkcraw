@@ -187,6 +187,7 @@ scrollbarStyle :: Map.Map MisoString MisoString
 scrollbarStyle =
   "scrollbar-width" =: "thin"
     <> "scrollbar-color" =: "#9d9fa0 #333333"
+    <> "overflow-x" =: "hidden" -- No horizontal scrollbar
 
 -- | The 'Total.Part' argument is where the @Card 'Core@ is, if any.
 cardView' :: Int -> SharedModel -> Maybe Total.Part -> Card 'Core -> [View Action]
@@ -196,9 +197,10 @@ cardView' z shared part card =
   -- only fields; we don't want to force callers to do it. That was the point
   case (card, ui) of
     -- drawing of Creature cards
-    (CreatureCard _ core@Creature {skills}, CreatureCard _ Creature {hp, items}) ->
+    (CreatureCard _ core@Creature {skills}, CreatureCard CardCommon {text} Creature {hp, items}) ->
       [div_ [style_ statsStyle] [statsCell]]
-        ++ [div_ [style_ skillsStyle] skillsDivs]
+        ++ (maybeToList $ textDiv <$> text) -- Exclusive with the next one (tested)
+        ++ [div_ [style_ skillsStyle] skillsDivs] -- Exclusive with the previous one (tested)
         ++ itemDivs
       where
         inStatsStyle = flexLineStyle <> mkFontStyle skillFontSize
@@ -215,6 +217,21 @@ cardView' z shared part card =
           if attack == totalAttack
             then mempty
             else "color" =: greenHTML <> "display" =: "inline-block"
+        textDiv text =
+          div_
+            [ style_ $
+                zpltwh
+                  (z + 1)
+                  Absolute
+                  4 -- left
+                  skillsTopMargin -- top, works because text and skills are exclusive
+                  (cardPixelWidth - (4 * 2)) -- width
+                  (cardPixelHeight - skillsTopMargin - 2) -- height, last 2 is margin from bottom
+                  <> "overflow-y" =: "auto"
+                  <> scrollbarStyle
+                  <> mkFontStyle skillFontSize
+            ]
+            [Miso.text $ ms $ typeset text]
         skillsTopMargin = statsTopMargin + skillFontSize + (skillFontSize `div` 2)
         skillsHeight = cps * length skills
         skillsStyle =

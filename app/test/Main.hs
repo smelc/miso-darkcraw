@@ -91,6 +91,8 @@ testShared shared =
       )
         `shouldAllSatisfy` isJust
 
+-- TODO @smelc: Write me: it "Text and skills are exclusive in creature cards"
+
 testNeighbors :: SpecWith ()
 testNeighbors =
   describe "Neighbors doesn't return doublons" $
