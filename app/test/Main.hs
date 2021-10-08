@@ -90,8 +90,15 @@ testShared shared =
           & mapMaybe (\case NeutralCard CardCommon {text} _ -> Just text; _ -> Nothing)
       )
         `shouldAllSatisfy` isJust
-
--- TODO @smelc: Write me: it "Text and skills are exclusive in creature cards"
+    it "Text and skills are exclusive in Creature cards" $
+      ( SharedModel.getCards shared
+          & mapMaybe (\case CreatureCard CardCommon {text} Creature {skills} -> Just (text, skills); _ -> Nothing)
+      )
+        `shouldAllSatisfy` ( \case
+                               (Nothing, _skills) -> True -- no text
+                               (Just _text, []) -> True -- no skills
+                               (Just _text, _skills) -> False -- both text and some skills
+                           )
 
 testNeighbors :: SpecWith ()
 testNeighbors =
