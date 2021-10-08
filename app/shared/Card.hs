@@ -243,14 +243,13 @@ allItems = [minBound ..]
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
     teams :: TeamsType p,
-    textSzOffset :: OffsetType p,
     title :: TextType p,
     titleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
 mkCoreItemObject :: Item -> ItemObject 'Core
-mkCoreItemObject item = ItemObject item () () () ()
+mkCoreItemObject item = ItemObject item () () ()
 
 deriving instance Forall Eq p => Eq (ItemObject p)
 
@@ -262,12 +261,13 @@ deriving instance Forall Show p => Show (ItemObject p)
 data CardCommon (p :: Phase) = CardCommon
   { mana :: ManaType p,
     text :: MaybeTextType p,
+    textSzOffset :: OffsetType p,
     tile :: TileType p
   }
   deriving (Generic)
 
 mkCoreCardCommon :: CardCommon 'Core
-mkCoreCardCommon = CardCommon {mana = (), text = (), tile = ()}
+mkCoreCardCommon = CardCommon {mana = (), text = (), textSzOffset = (), tile = ()}
 
 deriving instance Forall Eq p => Eq (CardCommon p)
 
@@ -324,7 +324,7 @@ instance Unlift Creature where
 
 instance Unlift ItemObject where
   unlift ItemObject {..} =
-    ItemObject {teams = (), item, textSzOffset = (), title = (), titleSzOffset = ()}
+    ItemObject {teams = (), item, title = (), titleSzOffset = ()}
 
 instance Unlift NeutralObject where
   unlift NeutralObject {..} =

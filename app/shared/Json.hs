@@ -111,6 +111,7 @@ data CreatureObjectJSON = CreatureObjectJSON
     mana :: Nat,
     skills :: [Skill],
     text :: Maybe String,
+    textSzOffset :: Int,
     tile :: Tile
   }
   deriving (Show)
@@ -124,6 +125,7 @@ instance FromJSON CreatureObjectJSON where
       <*> v .:? "mana" .!= defaultManaCost
       <*> v .:? "skills" .!= []
       <*> v .:? "text"
+      <*> v .:? "text_sz_offset" .!= 0
       <*> v .: "tile"
 
 instance FromJSON Neutral where
@@ -134,6 +136,7 @@ data NeutralObjectJSON = NeutralObjectJSON
     teams :: [Team],
     mana :: Nat,
     text :: String,
+    textSzOffset :: Int,
     tile :: Tile,
     title :: String
   }
@@ -146,6 +149,7 @@ instance FromJSON NeutralObjectJSON where
       <*> v .: "teams"
       <*> v .:? "mana" .!= defaultManaCost
       <*> v .: "text"
+      <*> v .:? "text_sz_offset" .!= 0
       <*> v .: "tile"
       <*> v .: "title"
 

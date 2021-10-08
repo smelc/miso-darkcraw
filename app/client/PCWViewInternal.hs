@@ -197,7 +197,7 @@ cardView' z shared part card =
   -- only fields; we don't want to force callers to do it. That was the point
   case (card, ui) of
     -- drawing of Creature cards
-    (CreatureCard _ core@Creature {skills}, CreatureCard CardCommon {text} Creature {hp, items}) ->
+    (CreatureCard _ core@Creature {skills}, CreatureCard CardCommon {text, textSzOffset} Creature {hp, items}) ->
       [div_ [style_ statsStyle] [statsCell]]
         ++ (maybeToList $ textDiv <$> text) -- Exclusive with the next one (tested)
         ++ [div_ [style_ skillsStyle] skillsDivs] -- Exclusive with the previous one (tested)
@@ -229,7 +229,7 @@ cardView' z shared part card =
                   (cardPixelHeight - skillsTopMargin - 2) -- height, last 2 is margin from bottom
                   <> "overflow-y" =: "auto"
                   <> scrollbarStyle
-                  <> mkFontStyle skillFontSize
+                  <> mkFontStyle (skillFontSize + textSzOffset)
             ]
             [Miso.text $ ms $ typeset text]
         skillsTopMargin = statsTopMargin + skillFontSize + (skillFontSize `div` 2)
@@ -244,12 +244,12 @@ cardView' z shared part card =
         itemDivs =
           map (\(i, item) -> itemDiv zpp shared i item) $ zip [0 ..] items
     -- drawing of Item cards
-    (_, ItemCard CardCommon {text} ItemObject {textSzOffset, title, titleSzOffset}) ->
+    (_, ItemCard CardCommon {text, textSzOffset} ItemObject {title, titleSzOffset}) ->
       itemNeutralGo text title $ mkFontStyle offFontSize
       where
         -- We don't distinguish textSzOffset and titleSzOffset, we just
         -- take the largest offset.
-        offFontSize = skillFontSize + min textSzOffset titleSzOffset
+        offFontSize = skillFontSize + (min textSzOffset titleSzOffset)
     -- drawing of Neutral cards
     (_, NeutralCard CardCommon {text} NeutralObject {title}) ->
       itemNeutralGo text title $ mkFontStyle skillFontSize
