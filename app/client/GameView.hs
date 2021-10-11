@@ -51,9 +51,9 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
   ViewInternal.fade builder Nothing 2 fade
   where
     fade = case anim of
-      NoGameAnimation -> ViewInternal.DontFade
-      Fadeout -> ViewInternal.FadeOut
-      Message {} -> ViewInternal.DontFade
+      Game.NoAnimation -> ViewInternal.DontFade
+      Game.Fadeout -> ViewInternal.FadeOut
+      Game.Message {} -> ViewInternal.DontFade
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
     boardCardsM = boardToInPlaceCells zpp model dragTargetType

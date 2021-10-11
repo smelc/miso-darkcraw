@@ -39,7 +39,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
-import qualified Game (Target (..), appliesTo, enemySpots)
+import qualified Game (Animation (..), Target (..), appliesTo, enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
@@ -80,12 +80,12 @@ errView GameModel {interaction} z =
         a_ [href_ itchURL] [Miso.text itchURL]
       ]
 
-messageView :: GameAnimation -> Maybe (Styled (View a))
+messageView :: Game.Animation -> Maybe (Styled (View a))
 messageView =
   \case
-    NoGameAnimation -> Nothing
-    Fadeout -> Nothing
-    Message txt duration ->
+    Game.NoAnimation -> Nothing
+    Game.Fadeout -> Nothing
+    Game.Message txt duration ->
       -- Message shown during 'duration' seconds and fades out during 1 second
       Just $ ViewInternal.fade builder (Just duration) 1 ViewInternal.FadeOut
       where

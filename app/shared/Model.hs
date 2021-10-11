@@ -16,11 +16,10 @@ import Data.Functor ((<&>))
 import Data.Generics.Labels ()
 import qualified Data.Map.Strict as Map
 import Data.Set (Set)
-import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
 import GHC.Generics
-import qualified Game (Target)
+import qualified Game (Animation (..), Target)
 import Nat
 import ServerMessages
 import SharedModel (SharedModel, getInitialDeck, getStdGen)
@@ -56,15 +55,6 @@ data HandFiddle
     HandDragging HandIndex
   deriving (Eq, Show, Generic)
 
-data GameAnimation
-  = NoGameAnimation
-  | -- | Game view should fadeout
-    Fadeout
-  | -- | Message to show centered. The 'Nat' is the duration during
-    -- which to show the message. Then it fades out during one second.
-    Message Text Nat
-  deriving (Eq, Generic)
-
 -- | The model of the gaming page
 data GameModel = GameModel
   { -- | Part of the model shared among all pages
@@ -86,7 +76,7 @@ data GameModel = GameModel
     -- | Animations to perform next
     anims :: Board 'UI,
     -- | Animation unrelated to 'Board'
-    anim :: GameAnimation
+    anim :: Game.Animation
   }
   deriving (Eq, Generic)
 
@@ -135,7 +125,7 @@ unsafeGameModel :: WelcomeModel -> Model
 unsafeGameModel WelcomeModel {shared} =
   GameModel' $ GameModel {..}
   where
-    anim = NoGameAnimation
+    anim = Game.NoAnimation
     anims = mempty
     teams = Teams Undead Human
     teams' = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))

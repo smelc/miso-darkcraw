@@ -19,10 +19,12 @@ module Game
     applyPlague,
     attackOrder, -- exported for tests only
     enemySpots,
+    eventToAnim,
     keepEffectfull,
     nextAttackSpot,
     DrawSource (..),
     Event (..),
+    Animation (..),
     PolyResult (..),
     Result (),
     idToHandIndex,
@@ -131,6 +133,15 @@ data PolyResult a = PolyResult SharedModel (Board 'Core) a (Board 'UI)
 -- | The result of playing an 'Event': an updated board, the next event
 -- (if any), and the animations
 type Result = PolyResult (Maybe Event)
+
+data Animation
+  = NoAnimation
+  | -- | Game view should fadeout
+    Fadeout
+  | -- | Message to show centered. The 'Nat' is the duration during
+    -- which to show the message. Then it fades out during one second.
+    Message Text Nat
+  deriving (Eq, Generic)
 
 reportEffect ::
   MonadWriter (Board 'UI) m =>
@@ -251,6 +262,19 @@ playM board (Place' pSpot target id) =
   case idToHandIndex board pSpot id of
     Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
     Just i -> playM board (Place pSpot target i)
+
+-- | Translates an 'Event' into an animation displayed in the
+-- middle of the 'Board'.
+eventToAnim :: Event -> Animation
+eventToAnim =
+  \case
+    Game.ApplyChurch {} -> NoAnimation
+    Game.ApplyFearNTerror {} -> NoAnimation
+    Game.Attack {} -> NoAnimation
+    Game.FillTheFrontline {} -> Message "Shooters! Fill the frontline! ⚔️" 2
+    Game.NoPlayEvent -> NoAnimation
+    Game.Place {} -> NoAnimation
+    Game.Place' {} -> NoAnimation
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot

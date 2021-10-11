@@ -140,7 +140,7 @@ instance ToExpr Difficulty
 
 instance ToExpr Campaign.Level
 
-instance ToExpr GameAnimation
+instance ToExpr Game.Animation
 
 instance ToExpr GameModel
 
@@ -414,14 +414,7 @@ updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ =
       (m', zip (repeat 1) $ maybeToList event)
       where
         m' = m {board = board', shared = shared', anims = anims', anim}
-        anim = case gameEvent of -- XXX @smelc Move to 'Game'?
-          Game.ApplyChurch {} -> Model.NoGameAnimation
-          Game.ApplyFearNTerror {} -> Model.NoGameAnimation
-          Game.Attack {} -> Model.NoGameAnimation
-          Game.FillTheFrontline {} -> Model.Message "Shooters! Fill the frontline! ⚔️" 2
-          Game.NoPlayEvent -> Model.NoGameAnimation
-          Game.Place {} -> Model.NoGameAnimation
-          Game.Place' {} -> Model.NoGameAnimation
+        anim = Game.eventToAnim gameEvent
         event = case (gameEvent, nexts) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
             -- enqueue resolving next attack if applicable
@@ -783,7 +776,7 @@ updateModel _ m@(GameModel' gm@GameModel {board, level, playingPlayer, turn})
       Just _ ->
         delayActions m' [(toSecs 1, LootGo $ Model.endGame gm outcome)]
         where
-          m' = GameModel' gm {anim = Fadeout}
+          m' = GameModel' gm {anim = Game.Fadeout}
           part = Board.toPart board playingPlayer
           (score, enemy) =
             (Board.score part, Board.toPart board (otherPlayerSpot playingPlayer) & Board.score)
@@ -861,8 +854,8 @@ updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
     then noEff m''
     else delayActions m'' $ prepare $ check actions
   where
-    -- 'Model.NoGameAnimation': clear animation if any
-    (m', actions) = updateGameModel (m {anim = Model.NoGameAnimation}) a interaction
+    -- 'Game.NoAnimation': clear animation if any
+    (m', actions) = updateGameModel (m {anim = Game.NoAnimation}) a interaction
     m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl
@@ -916,7 +909,7 @@ levelNGameModel difficulty shared level teams =
     playingPlayerDeck
     Turn.initial
     mempty
-    NoGameAnimation
+    Game.NoAnimation
   where
     (_, board) = Board.initial shared teams
     playingPlayerDeck =
@@ -944,7 +937,7 @@ unsafeInitialGameModel difficulty shared teamsData board =
     playingPlayerDeck
     Turn.initial
     mempty
-    NoGameAnimation
+    Game.NoAnimation
   where
     playingPlayerDeck =
       toData startingPlayerSpot teamsData
