@@ -14,7 +14,8 @@
 -- and dangerous cyclewise in the long run. Hence I introduced this module.
 -- |
 module SharedModel
-  ( identToCard,
+  ( creatureToFilepath,
+    identToCard,
     idToCreature,
     Lift (..),
     Mlift (..),
@@ -106,6 +107,13 @@ cardToFilepath shared = \case
   ItemCard (CardCommon {tile}) _ -> go tile Tile.Sixteen
   where
     go = tileToFilepath shared
+
+-- | Maps a creature to the filepath of its tile.
+creatureToFilepath :: SharedModel -> Creature 'UI -> Maybe Filepath
+creatureToFilepath shared Creature {creatureId} =
+  cardToFilepath shared <$> ui
+  where
+    ui = identToCard shared (IDC creatureId [])
 
 allCommands :: SharedModel -> [Command]
 allCommands shared = Command.allCommands cids

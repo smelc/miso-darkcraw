@@ -140,6 +140,8 @@ instance ToExpr Difficulty
 
 instance ToExpr Campaign.Level
 
+instance ToExpr Game.MessageText
+
 instance ToExpr Game.Animation
 
 instance ToExpr GameModel
@@ -414,7 +416,7 @@ updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ =
       (m', zip (repeat 1) $ maybeToList event)
       where
         m' = m {board = board', shared = shared', anims = anims', anim}
-        anim = Game.eventToAnim gameEvent
+        anim = Game.eventToAnim shared board gameEvent
         event = case (gameEvent, nexts) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
             -- enqueue resolving next attack if applicable

@@ -14,28 +14,29 @@
 
 module Game
   ( allEnemySpots,
+    Animation (..),
+    Game.appliesTo,
     applyFearNTerror,
     applyFillTheFrontline,
     applyPlague,
     attackOrder, -- exported for tests only
+    cardsToDraw,
+    drawCards,
+    idToHandIndex,
+    DrawSource (..),
     enemySpots,
     eventToAnim,
     keepEffectfull,
-    nextAttackSpot,
-    DrawSource (..),
     Event (..),
-    Animation (..),
+    MessageText (..),
     PolyResult (..),
     Result (),
-    idToHandIndex,
+    nextAttackSpot,
     play,
     playAll,
     playM,
-    cardsToDraw,
-    drawCards,
     transferCards,
     Target (..),
-    Game.appliesTo,
     whichPlayerTarget,
     WhichPlayerTarget (..),
   )
@@ -134,13 +135,21 @@ data PolyResult a = PolyResult SharedModel (Board 'Core) a (Board 'UI)
 -- (if any), and the animations
 type Result = PolyResult (Maybe Event)
 
+data MessageText
+  = -- | Simple text to display
+    Text Text.Text
+  | -- | Constructor to display an image. The image should be fine
+    -- for passing to 'assetsPath'
+    Image Tile.Filepath
+  deriving (Eq, Generic)
+
 data Animation
   = NoAnimation
   | -- | Game view should fadeout
     Fadeout
   | -- | Message to show centered. The 'Nat' is the duration during
     -- which to show the message. Then it fades out during one second.
-    Message Text Nat
+    Message [MessageText] Nat
   deriving (Eq, Generic)
 
 reportEffect ::
@@ -265,13 +274,33 @@ playM board (Place' pSpot target id) =
 
 -- | Translates an 'Event' into an animation displayed in the
 -- middle of the 'Board'.
-eventToAnim :: Event -> Animation
-eventToAnim =
+eventToAnim :: SharedModel -> Board 'Core -> Event -> Animation
+eventToAnim shared board =
   \case
     Game.ApplyChurch {} -> NoAnimation
     Game.ApplyFearNTerror {} -> NoAnimation
     Game.Attack {} -> NoAnimation
-    Game.FillTheFrontline {} -> Message "Shooters! Fill the frontline! ⚔️" 2
+    Game.FillTheFrontline pSpot ->
+      Message
+        ( [Text "Shooters! "]
+            ++ map Image movedTiles
+            ++ [Text " Fill the frontline! ⚔️"]
+        )
+        2
+      where
+        part = Board.toInPlace board pSpot
+        board' = applyFillTheFrontline board pSpot
+        part' = Board.toInPlace board' pSpot
+        movedSpots :: Set.Set CardSpot =
+          Set.difference (Map.keysSet part') (Map.keysSet part)
+        movedCreatures :: [Creature 'UI] =
+          (map (part' Map.!?) $ Set.toList movedSpots)
+            & catMaybes
+            & map (SharedModel.mlift shared)
+            & catMaybes
+        movedTiles :: [Tile.Filepath] =
+          map (SharedModel.creatureToFilepath shared) movedCreatures
+            & catMaybes
     Game.NoPlayEvent -> NoAnimation
     Game.Place {} -> NoAnimation
     Game.Place' {} -> NoAnimation

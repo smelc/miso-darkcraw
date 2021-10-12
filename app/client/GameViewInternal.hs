@@ -39,13 +39,14 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
-import qualified Game (Animation (..), Target (..), appliesTo, enemySpots)
+import qualified Game (Animation (..), MessageText (..), Target (..), appliesTo, enemySpots)
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
 import Nat
 import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
+import qualified Tile
 import qualified Turn
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
@@ -89,7 +90,7 @@ messageView =
       -- Message shown during 'duration' seconds and fades out during 1 second
       Just $ ViewInternal.fade builder (Just duration) 1 ViewInternal.FadeOut
       where
-        builder attrs = div_ (pos : attrs) [div_ [nested] [Miso.text $ ms txt]]
+        builder attrs = div_ (pos : attrs) [div_ [nested] $ map viewMessageText txt]
         -- TODO @smelc share code with LootView
         pos =
           style_ $
@@ -108,6 +109,14 @@ messageView =
               <> "justify-content" =: "center" -- Center horizontally
               <> "font-size" =: "20px"
         top = Constants.cps * 12 + (Constants.cps `div` 2)
+  where
+    viewMessageText :: Game.MessageText -> View a
+    viewMessageText =
+      \case
+        (Game.Text txt) ->
+          Miso.text $ ms txt
+        (Game.Image filepath) ->
+          img_ [src_ $ assetsPath $ ms $ Tile.filepathToString filepath]
 
 scoreViews :: GameModel -> Int -> [View Action]
 scoreViews m@GameModel {board} z =
