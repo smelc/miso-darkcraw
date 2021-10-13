@@ -276,8 +276,29 @@ playM board (Place' pSpot target id) =
 -- middle of the 'Board'.
 eventToAnim :: SharedModel -> Board 'Core -> Event -> Animation
 eventToAnim shared board =
+  -- Note that, in this function, we do not need to check if the
+  -- Event has an effect. This is done by the caller of 'keepEffectfull'
   \case
-    Game.ApplyChurch {} -> NoAnimation
+    Game.ApplyChurch pSpot ->
+      case (Board.mana part /= Board.mana part', hps < hps', attack < attack') of
+        (True, _, _) -> fill [Text "+1 mana"]
+        (_, True, _) -> fill [Text "adds +1", Image heartTile]
+        (_, _, True) -> fill [Text "adds +1", Image attackTile]
+        _ -> fill [Text " has no effect without any believers"]
+      where
+        parts@(part, part') = (Board.toPart board pSpot, Board.toPart board' pSpot)
+        board' = applyChurch shared board pSpot & (\(b, _, _) -> b)
+        attackTile = SharedModel.tileToFilepath shared Tile.Sword1 Tile.Sixteen
+        heartTile = SharedModel.tileToFilepath shared Tile.Heart Tile.Sixteen
+        churchTile = SharedModel.tileToFilepath shared Tile.HumanChurch Tile.TwentyFour
+        creatures :: ([Creature 'Core], [Creature 'Core]) =
+          both (Map.elems . Board.inPlace) parts
+        toHPs cs = sum $ map Card.hp cs
+        toAttack cs = sum $ map Card.attack cs
+        (hps :: Nat, hps' :: Nat) = both toHPs creatures
+        (attack :: Nat, attack' :: Nat) = both toAttack creatures
+        both f = Bifunctor.bimap f f
+        fill suffix = Message ([Text "Church", Image churchTile] ++ suffix) duration
     Game.ApplyFearNTerror {} -> NoAnimation
     Game.Attack {} -> NoAnimation
     Game.FillTheFrontline pSpot ->
@@ -286,7 +307,7 @@ eventToAnim shared board =
             ++ map Image movedTiles
             ++ [Text " Fill the frontline! ⚔️"]
         )
-        2
+        duration
       where
         part = Board.toInPlace board pSpot
         board' = applyFillTheFrontline board pSpot
@@ -304,6 +325,8 @@ eventToAnim shared board =
     Game.NoPlayEvent -> NoAnimation
     Game.Place {} -> NoAnimation
     Game.Place' {} -> NoAnimation
+  where
+    duration = 2
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot
@@ -639,6 +662,15 @@ data ChurchEffect
 -- | All possible effects of the 'Church' card
 allChurchEffects :: NE.NonEmpty ChurchEffect
 allChurchEffects = PlusOneAttack NE.:| [PlusOneHealth ..]
+
+applyChurch :: SharedModel -> Board 'Core -> PlayerSpot -> (Board 'Core, Board 'UI, SharedModel)
+applyChurch shared board pSpot =
+  applyChurchM board pSpot
+    & runWriterT
+    & flip runState shared
+    & reorg
+  where
+    reorg ((x, y), z) = (x, y, z)
 
 applyChurchM ::
   MonadWriter (Board 'UI) m =>
