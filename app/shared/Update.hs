@@ -801,16 +801,20 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
             updateModel
               (GameAction' (GamePlay $ Game.FillTheFrontline $ changeType pSpot))
               (GameModel' gm)
-            where
-              -- XXX @smelc Use a single type?
-              changeType = \case Command.Top -> Board.PlayerTop; Command.Bot -> Board.PlayerBot
           Just (Command.Gimme cid) ->
             withBoard $ Board.addToHand board playingPlayer cid
           Just (Command.GimmeMana) ->
             let mana = Board.toPart board playingPlayer & Board.mana
              in withBoard $ Board.setMana (mana + 1) playingPlayer board
+          Just (Command.Killall pSpot') ->
+            withBoard $ Board.setPart board pSpot (part {inPlace = mempty})
+            where
+              part = Board.toPart board pSpot
+              pSpot = changeType pSpot'
   where
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
+    -- XXX @smelc Use a single type?
+    changeType = \case Command.Top -> Board.PlayerTop; Command.Bot -> Board.PlayerBot
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack

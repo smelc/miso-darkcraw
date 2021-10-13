@@ -45,6 +45,8 @@ data Command
     Gimme Card.ID
   | -- | Command to obtain mana
     GimmeMana
+  | -- | Command to kill all creatures in a part
+    Killall PlayerSpot
 
 -- See 'SharedModel' for the version that uses content from 'SharedModel'
 -- to instantiate the parameter.
@@ -56,6 +58,7 @@ allCommands cids =
     ++ [EndGame r | r <- [minBound ..]]
     ++ [FillTheFrontline pSpot | pSpot <- [minBound ..]]
     ++ [GimmeMana]
+    ++ [Killall pSpot | pSpot <- [minBound ..]]
   where
     compareCID
       CreatureID {creatureKind = ck1, team = t1}
@@ -82,6 +85,8 @@ instance Show Command where
     "gimme " ++ (show neutral & toLowerString)
   show GimmeMana =
     "gimme mana"
+  show (Killall pSpot) =
+    "killall " ++ show pSpot
 
 class Read a where
   read :: String -> Maybe a
