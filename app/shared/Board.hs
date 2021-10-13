@@ -516,10 +516,10 @@ toInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
 
 empty :: Teams Team -> Board 'Core
 empty Teams {topTeam, botTeam} =
-  Board {playerTop = emptyPlayerPart topTeam, playerBottom = emptyPlayerPart botTeam}
+  Board {playerTop = emptyPart topTeam, playerBottom = emptyPart botTeam}
 
-emptyPlayerPart :: Team -> PlayerPart 'Core
-emptyPlayerPart team = PlayerPart {..}
+emptyPart :: Team -> PlayerPart 'Core
+emptyPart team = PlayerPart {..}
   where
     inPlace = Map.empty
     inHand = []
@@ -550,7 +550,7 @@ initial ::
 initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)} =
   (smodel'', Board topPart botPart)
   where
-    part team smodel deck = (smodel', (emptyPlayerPart team) {inHand = hand', stack = stack'})
+    part team smodel deck = (smodel', (emptyPart team) {inHand = hand', stack = stack'})
       where
         (smodel', deck') = SharedModel.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
