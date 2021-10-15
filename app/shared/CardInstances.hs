@@ -8,6 +8,7 @@
 module CardInstances where
 
 import Card
+import Skill
 
 -- | Class for things that can be reset at the start of a turn
 class Startable a where

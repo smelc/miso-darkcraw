@@ -28,6 +28,7 @@ import Generators ()
 import Pretty
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
+import qualified Skill
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
@@ -110,7 +111,7 @@ testDrawCards shared =
             & catMaybes
             & map skills
             & concat
-            & filter (\case DrawCard' b -> b; _ -> False)
+            & filter (\case Skill.DrawCard' b -> b; _ -> False)
             & length
 
 testNoPlayEventNeutral shared =
@@ -161,7 +162,7 @@ testFear shared =
     hasConsumedFear Creature {skills} = go skills
       where
         go [] = False
-        go (Fear' False : _) = True -- Fear unavailable: it has been consumed
+        go (Skill.Fear' False : _) = True -- Fear unavailable: it has been consumed
         go (_ : tail) = go tail
 
 testFearNTerror :: SharedModel -> SpecWith ()

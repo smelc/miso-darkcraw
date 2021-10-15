@@ -44,7 +44,7 @@ where
 
 import Board
 import BoardInstances
-import Card hiding (ID, isStupid)
+import Card hiding (ID)
 import qualified Card
 import qualified Constants
 import Control.Exception (assert)
@@ -70,6 +70,8 @@ import GHC.Generics (Generic)
 import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
+import Skill (Skill)
+import qualified Skill
 import System.Random.Shuffle (shuffleM)
 import qualified Tile
 import qualified Total
@@ -480,7 +482,7 @@ applyFillTheFrontline board pSpot =
                 v
               )
           )
-    applies Creature {skills} = Ranged' `elem` skills
+    applies Creature {skills} = Skill.Ranged' `elem` skills
 
 applyPlague ::
   Board 'Core ->
@@ -576,9 +578,9 @@ drawCardM board pSpot src =
           case Board.toInPlaceCreature b pSpot cSpot of
             Nothing -> Left ("No creature at pSpot cSpot" :: Text)
             Just c@Creature {skills} ->
-              case findIndex (\case DrawCard' b -> b; _ -> False) skills of
+              case findIndex (\case Skill.DrawCard' b -> b; _ -> False) skills of
                 Nothing -> Left "Not a creature with avail DrawCard'"
-                Just i -> Right $ Just (cSpot, c, i, DrawCard' False)
+                Just i -> Right $ Just (cSpot, c, i, Skill.DrawCard' False)
         CardDrawer _ _ -> Left "Wrong PlayerSpot"
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
@@ -777,12 +779,12 @@ applyFearNTerrorM board affectingSpot = do
     consumeFear cSpot c | cSpot `notElem` fearKillers = c
     consumeFear _ c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []
-    consumeFearSkill ((Fear' True) : rest) = Fear' False : rest
+    consumeFearSkill ((Skill.Fear' True) : rest) = Skill.Fear' False : rest
     consumeFearSkill (s : rest) = s : consumeFearSkill rest
     consumeTerror cSpot c | cSpot `notElem` terrorKillers = c
     consumeTerror _ c@Creature {skills} = c {skills = consumeTerrorSkill skills}
     consumeTerrorSkill [] = []
-    consumeTerrorSkill ((Terror' True) : rest) = Terror' False : rest
+    consumeTerrorSkill ((Skill.Terror' True) : rest) = Skill.Terror' False : rest
     consumeTerrorSkill (s : rest) = s : consumeTerrorSkill rest
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
@@ -821,9 +823,9 @@ attack board pSpot cSpot =
       board ^. pOtherSpotLens . #inPlace
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
     attackerCanAttack = (attacker <&> Card.attack & fromMaybe 0) > 0
-    attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Card.liftSkill
+    attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Skill.lift
     allyBlocker :: Maybe (Creature 'Core) =
-      if any (`elem` attackerSkills) [Ranged, LongReach]
+      if any (`elem` attackerSkills) [Skill.Ranged, Skill.LongReach]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
     attackedSpots :: [CardSpot] = enemySpots attackerCanAttack attackerSkills cSpot
@@ -832,7 +834,7 @@ attack board pSpot cSpot =
         & catMaybes
         -- Breath attack makes the attacker attack the two spots, otherwise
         -- take the first one
-        & (if BreathIce `elem` attackerSkills then id else take 1)
+        & (if Skill.BreathIce `elem` attackerSkills then id else take 1)
         & map swap
 
 -- | @attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot)@
@@ -938,7 +940,7 @@ singleAttack part attacker@Creature {skills} defender
     hit = Total.attack (Just part) attacker
     hps' = Card.hp defender `minusNatClamped` hit
     death =
-      if any (\skill -> case skill of BreathIce' -> True; _ -> False) skills
+      if any (\skill -> case skill of Skill.BreathIce' -> True; _ -> False) skills
         then DeathByBreathIce
         else UsualDeath
 
@@ -961,7 +963,7 @@ allyBlockerSpot _ = Nothing
 
 -- | All enemy spots of a spot
 allEnemySpots :: CardSpot -> [CardSpot]
-allEnemySpots = enemySpots True [Ranged]
+allEnemySpots = enemySpots True [Skill.Ranged]
 
 -- | Spots that can be attacked from a spot
 -- Spot as argument is in one player part while spots returned
@@ -983,9 +985,9 @@ enemySpots canAttack skills cSpot =
         BottomRight -> [TopRight, BottomRight]
     base =
       if
-          | Ranged `elem` skills -> spotsInSight
-          | inTheBack cSpot -> if LongReach `elem` skills then take 1 spotsInSight else []
-          | BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
+          | Skill.Ranged `elem` skills -> spotsInSight
+          | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
+          | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
           | otherwise -> take 1 spotsInSight
     base' = if canAttack then base else []
 
@@ -1039,4 +1041,4 @@ cardsToDraw board pSpot considerStack =
     liftOpt ((_, Nothing) : rest) = liftOpt rest
     liftOpt ((x, Just y) : rest) = (x, y) : liftOpt rest
     nbAvailDrawCardSkill Creature {skills} =
-      filter (\case DrawCard' b -> b; _ -> False) skills & length
+      filter (\case Skill.DrawCard' b -> b; _ -> False) skills & length

@@ -36,107 +36,107 @@
 <div id="interface">
 <h1>Documentation</h1>
 <div class="top"><p class="src"><a id="v:loadJson" class="def">loadJson</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="Json.html#t:LoadedJson" title="Json">LoadedJson</a> <a href="#v:loadJson" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><span class="keyword">type</span> <a id="t:LoadedJson" class="def">LoadedJson</a> = ([<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>], [<a href="Card.html#t:SkillPack" title="Card">SkillPack</a>], [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>]) <a href="#t:LoadedJson" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><span class="keyword">type</span> <a id="t:LoadedJson" class="def">LoadedJson</a> = ([<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>], [<a href="Skill.html#t:Pack" title="Skill">Pack</a>], [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>]) <a href="#t:LoadedJson" class="selflink">#</a></p></div>
 <h1>Orphan instances</h1>
 <div id="section.orphans"><table>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:1"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Tile.html#t:TileUI" title="Tile">TileUI</a></span> <a href="#v:-36-fFromJSONTileUI" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:1"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Skill.html#t:Pack" title="Skill">Pack</a></span> <a href="#v:-36-fFromJSONPack" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:1"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Skill.html#t:Pack" title="Skill">Pack</a> <a href="#v:parseJSON" class="selflink">#</a></p>
+<p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Skill.html#t:Pack" title="Skill">Pack</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:2"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Skill.html#t:Skill" title="Skill">Skill</a></span> <a href="#v:-36-fFromJSONSkill" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:2"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Skill.html#t:Skill" title="Skill">Skill</a> <a href="#v:parseJSON" class="selflink">#</a></p>
+<p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Skill.html#t:Skill" title="Skill">Skill</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:3"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Tile.html#t:TileUI" title="Tile">TileUI</a></span> <a href="#v:-36-fFromJSONTileUI" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:3"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Tile.html#t:TileUI" title="Tile">TileUI</a> <a href="#v:parseJSON" class="selflink">#</a></p>
 <p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:2"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Tile.html#t:Tile" title="Tile">Tile</a></span> <a href="#v:-36-fFromJSONTile" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:4"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Tile.html#t:Tile" title="Tile">Tile</a></span> <a href="#v:-36-fFromJSONTile" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:2"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:4"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Tile.html#t:Tile" title="Tile">Tile</a> <a href="#v:parseJSON" class="selflink">#</a></p>
 <p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Tile.html#t:Tile" title="Tile">Tile</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:3"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Tile.html#t:Filepath" title="Tile">Filepath</a></span> <a href="#v:-36-fFromJSONFilepath" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:5"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Tile.html#t:Filepath" title="Tile">Filepath</a></span> <a href="#v:-36-fFromJSONFilepath" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:3"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:5"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Tile.html#t:Filepath" title="Tile">Filepath</a> <a href="#v:parseJSON" class="selflink">#</a></p>
 <p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Tile.html#t:Filepath" title="Tile">Filepath</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:4"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:Item" title="Card">Item</a></span> <a href="#v:-36-fFromJSONItem" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:6"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:Item" title="Card">Item</a></span> <a href="#v:-36-fFromJSONItem" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:4"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:6"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Card.html#t:Item" title="Card">Item</a> <a href="#v:parseJSON" class="selflink">#</a></p>
 <p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Card.html#t:Item" title="Card">Item</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:5"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:Neutral" title="Card">Neutral</a></span> <a href="#v:-36-fFromJSONNeutral" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:7"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:Neutral" title="Card">Neutral</a></span> <a href="#v:-36-fFromJSONNeutral" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:5"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:7"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Card.html#t:Neutral" title="Card">Neutral</a> <a href="#v:parseJSON" class="selflink">#</a></p>
 <p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Card.html#t:Neutral" title="Card">Neutral</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:6"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:CreatureID" title="Card">CreatureID</a></span> <a href="#v:-36-fFromJSONCreatureID" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:8"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:CreatureID" title="Card">CreatureID</a></span> <a href="#v:-36-fFromJSONCreatureID" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:6"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:8"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> <a href="#v:parseJSON" class="selflink">#</a></p>
 <p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Card.html#t:CreatureID" title="Card">CreatureID</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:7"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a></span> <a href="#v:-36-fFromJSONCreatureKind" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:7"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a> <a href="#v:parseJSON" class="selflink">#</a></p>
-<p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:8"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:SkillPack" title="Card">SkillPack</a></span> <a href="#v:-36-fFromJSONSkillPack" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:8"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Card.html#t:SkillPack" title="Card">SkillPack</a> <a href="#v:parseJSON" class="selflink">#</a></p>
-<p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Card.html#t:SkillPack" title="Card">SkillPack</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:9"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:Skill" title="Card">Skill</a></span> <a href="#v:-36-fFromJSONSkill" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:o:ic:FromJSON:FromJSON:9"></span> <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:FromJSON" title="Data.Aeson.Types">FromJSON</a> <a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a></span> <a href="#v:-36-fFromJSONCreatureKind" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><details id="i:o:ic:FromJSON:FromJSON:9"><summary class="hide-when-js-enabled">Instance details</summary><p></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Card.html#t:Skill" title="Card">Skill</a> <a href="#v:parseJSON" class="selflink">#</a></p>
-<p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Card.html#t:Skill" title="Card">Skill</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
+<p class="src"><a href="#v:parseJSON">parseJSON</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> <a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a> <a href="#v:parseJSON" class="selflink">#</a></p>
+<p class="src"><a href="#v:parseJSONList">parseJSONList</a> :: <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Value" title="Data.Aeson.Types">Value</a> -&gt; <a href="file:///nix/store/pcgili9xdd7044a2g2xd16bj9fihix4h-aeson-1.4.2.0-doc/share/doc/aeson-1.4.2.0/html/Data-Aeson-Types.html#t:Parser" title="Data.Aeson.Types">Parser</a> [<a href="Card.html#t:CreatureKind" title="Card">CreatureKind</a>] <a href="#v:parseJSONList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">

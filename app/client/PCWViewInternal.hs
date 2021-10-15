@@ -44,6 +44,7 @@ import Miso.Util ((=:))
 import Nat
 import SharedModel (SharedModel, tileToFilepath)
 import qualified SharedModel
+import qualified Skill
 import Tile
 import qualified Total
 import Update (Action)
@@ -306,25 +307,25 @@ itemNeutralView z card INViewInput {fontStyle, text, title} =
         [Miso.text $ ms $ typeset text]
     ]
 
-skillDiv :: SharedModel -> SkillCore -> View a
+skillDiv :: SharedModel -> Skill.SkillCore -> View a
 skillDiv shared skill =
   div_ [style_ color, hover] [label & ms & Miso.text]
   where
-    ui = Card.liftSkill skill & SharedModel.liftSkill shared
+    Skill.Pack {text, title} = Skill.lift skill & SharedModel.liftSkill shared
     color =
       case skill of
-        DrawCard' False -> "color" =: greyHTML
-        Blow' False -> "color" =: greyHTML
-        Blow' True -> "color" =: greenHTML
-        Fear' False -> "color" =: greyHTML
-        Terror' False -> "color" =: greyHTML
-        _ | isStupid skill -> "color" =: redHTML
+        Skill.DrawCard' False -> "color" =: greyHTML
+        Skill.Blow' False -> "color" =: greyHTML
+        Skill.Blow' True -> "color" =: greenHTML
+        Skill.Fear' False -> "color" =: greyHTML
+        Skill.Terror' False -> "color" =: greyHTML
+        _ | Skill.isStupid skill -> "color" =: redHTML
         _ -> mempty
     label =
       case skill of
-        Stupid4' i -> skillTitle ui ++ " " ++ show (i + 1) ++ "/4"
-        _ -> skillTitle ui
-    hover = title_ $ ms (skillText ui & typeset)
+        Skill.Stupid4' i -> title ++ " " ++ show (i + 1) ++ "/4"
+        _ -> title
+    hover = title_ $ ms $ typeset text
 
 -- | Div to show an item on a creature in place
 itemDiv :: Int -> SharedModel -> Int -> ItemObject 'UI -> View a

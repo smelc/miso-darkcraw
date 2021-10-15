@@ -40,6 +40,7 @@ import qualified Game
 import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
+import qualified Skill
 import System.Random (StdGen)
 import System.Random.Shuffle (shuffle')
 import qualified Total
@@ -268,7 +269,7 @@ scorePlace board inPlace pSpot cSpot =
     enemiesInPlace :: Map.Map CardSpot (Creature 'Core) =
       Board.toInPlace board (otherPlayerSpot pSpot)
     cSkills = skills inPlace
-    prefersBack = Ranged' `elem` cSkills || LongReach' `elem` cSkills
+    prefersBack = Skill.Ranged' `elem` cSkills || Skill.LongReach' `elem` cSkills
     lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
     enemySpots' :: [CardSpot] = allEnemySpots cSpot
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'
@@ -330,20 +331,20 @@ scoreHandCard = \case
       SwordOfMight -> -1
 
 -- | The score of a skill, smaller values are better. Negative values returned.
-scoreSkill :: SkillCore -> Int
+scoreSkill :: Skill.SkillCore -> Int
 scoreSkill s =
   case s of
-    Blow' b -> if b then -1 else 0
-    BreathIce' -> -2
-    Discipline' -> -1
-    DrawCard' b -> if b then -1 else 0
-    Fear' b -> if b then -1 else 0
-    LongReach' -> -1
-    Ranged' -> -1
-    Source' n avail -> if avail then - (natToInt n) else 0
-    Stupid4' _ -> if isStupid s then 2 else 1
-    Terror' b -> if b then -2 else 0
-    Unique' -> 0
+    Skill.Blow' b -> if b then -1 else 0
+    Skill.BreathIce' -> -2
+    Skill.Discipline' -> -1
+    Skill.DrawCard' b -> if b then -1 else 0
+    Skill.Fear' b -> if b then -1 else 0
+    Skill.LongReach' -> -1
+    Skill.Ranged' -> -1
+    Skill.Source' n avail -> if avail then - (natToInt n) else 0
+    Skill.Stupid4' _ -> if Skill.isStupid s then 2 else 1
+    Skill.Terror' b -> if b then -2 else 0
+    Skill.Unique' -> 0
 
 sortByFst :: [(Int, b)] -> [(Int, b)]
 sortByFst l =

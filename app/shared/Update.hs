@@ -51,6 +51,8 @@ import Nat
 import ServerMessages
 import SharedModel (SharedModel)
 import qualified SharedModel
+import Skill (Skill)
+import qualified Skill
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -66,7 +68,7 @@ instance ToExpr CreatureID
 
 instance ToExpr Skill
 
-instance ToExpr SkillCore
+instance ToExpr Skill.SkillCore
 
 instance ToExpr Neutral
 
@@ -132,7 +134,7 @@ instance ToExpr StdGen where toExpr = defaultExprViaShow
 
 instance ToExpr Tile.TileUI
 
-instance ToExpr Card.SkillPack
+instance ToExpr Skill.Pack
 
 instance ToExpr SharedModel
 

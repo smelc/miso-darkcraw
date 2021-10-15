@@ -27,6 +27,7 @@ common client-server-shared
     Nat
     ServerMessages
     SharedModel
+    Skill
     Tile
     Total
     Turn
@@ -140,6 +141,7 @@ Test-Suite test-darkcraw
     SceneEquivalence
     ServerMessages
     SharedModel
+    Skill
     TestLib
     Tile
     Total

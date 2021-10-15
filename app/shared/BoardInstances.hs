@@ -16,6 +16,7 @@ import Constants
 import Data.Foldable
 import qualified Data.Map.Strict as Map
 import Nat
+import qualified Skill
 
 instance Startable (PlayerPart 'Core) where
   start PlayerPart {..} =
@@ -23,7 +24,7 @@ instance Startable (PlayerPart 'Core) where
     where
       extraMana = foldr' (\Creature {skills} acc -> acc + sumSources skills) (0 :: Nat) inPlace
       sumSources [] = 0
-      sumSources (Source' n _ : skills) = n + sumSources skills -- Not inspecting
+      sumSources (Skill.Source' n _ : skills) = n + sumSources skills -- Not inspecting
       -- the flag value, it's anyway simultaneously set to False.
       sumSources (_ : skills) = sumSources skills
 
@@ -34,11 +35,11 @@ boardStart board pSpot =
 class Stupid a where
   isStupid :: a -> PlayerSpot -> CardSpot -> Bool
 
-instance Stupid SkillCore where
-  isStupid s _ _ = Card.isStupid s
+instance Stupid Skill.SkillCore where
+  isStupid s _ _ = Skill.isStupid s
 
 instance Stupid (Creature 'Core) where
-  isStupid Creature {skills} _ _ = any Card.isStupid skills
+  isStupid Creature {skills} _ _ = any Skill.isStupid skills
 
 instance Stupid (Board 'Core) where
   isStupid b pSpot cSpot =

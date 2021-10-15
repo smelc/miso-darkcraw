@@ -62,6 +62,8 @@ import Data.Maybe
 import GHC.Base (assert)
 import GHC.Generics (Generic)
 import Json (loadJson)
+import Skill (Skill)
+import qualified Skill
 import System.Random.Shuffle (shuffleM)
 import Tile (Filepath, Tile, TileUI (..))
 import qualified Tile
@@ -76,20 +78,20 @@ data SharedModel = SharedModel
     sharedCards :: Map Card.ID (Card 'UI),
     -- | The current debug command (in dev mode only)
     sharedCmd :: Maybe String,
-    sharedSkills :: Map Skill SkillPack,
+    sharedSkills :: Map Skill Skill.Pack,
     sharedTiles :: Map Tile TileUI,
     -- | RNG obtained at load time, to be user whenever randomness is needed
     sharedStdGen :: StdGen
   }
   deriving (Eq, Generic, Show)
 
-create :: [Card 'UI] -> [SkillPack] -> [TileUI] -> StdGen -> SharedModel
+create :: [Card 'UI] -> [Skill.Pack] -> [TileUI] -> StdGen -> SharedModel
 create cards skills tiles sharedStdGen =
   SharedModel {..}
   where
     groupBy f l = map (\e -> (f e, e)) l & Map.fromList
     sharedCards = groupBy cardToIdentifier cards
-    sharedSkills = groupBy skill skills
+    sharedSkills = groupBy Skill.skill skills
     sharedTiles = groupBy Tile.tile tiles
     sharedCmd = Nothing
 
@@ -244,21 +246,21 @@ instance Mlift Creature where
           Just $
             Creature
               { items = map (lift s . mkCoreItemObject) items,
-                skills = map Card.liftSkill skills,
+                skills = map Skill.lift skills,
                 transient = (),
                 ..
               }
       Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
-liftSkill :: SharedModel -> Skill -> SkillPack
+liftSkill :: SharedModel -> Skill -> Skill.Pack
 liftSkill SharedModel {sharedSkills} skill =
   fromMaybe
     default_
-    $ find (\SkillPack {skill = sk} -> sk == skill) sharedSkills
+    $ find (\Skill.Pack {skill = sk} -> sk == skill) sharedSkills
   where
-    default_ = SkillPack {skill = LongReach, ..}
-    skillText = show skill ++ " not found!"
-    skillTitle = skillText
+    default_ = Skill.Pack {skill = Skill.LongReach, ..}
+    text = show skill ++ " not found!"
+    title = text
 
 -- | Pick one element at random from the second argument, using the random
 -- generator of 'SharedModel'. Returns the updated 'SharedModel' and the

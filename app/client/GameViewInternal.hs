@@ -46,6 +46,7 @@ import Model
 import Nat
 import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
+import qualified Skill
 import qualified Tile
 import qualified Turn
 import Update
@@ -304,7 +305,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
       let attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
        in let canAttack = fromMaybe 0 (attacker <&> Card.attack) > 0
-           in let skills' = maybe [] skills attacker & map Card.liftSkill
+           in let skills' = maybe [] skills attacker & map Skill.lift
                in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots canAttack skills' cSpotHov
                     then borderSize
                     else 0

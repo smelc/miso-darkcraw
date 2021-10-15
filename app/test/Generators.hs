@@ -17,6 +17,8 @@ import GHC.Generics
 import qualified Game
 import Generic.Random
 import qualified SharedModel
+import Skill (Skill)
+import qualified Skill
 import Test.QuickCheck
 import Tile
 import Turn
@@ -101,7 +103,7 @@ instance Arbitrary Skill where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary SkillCore where
+instance Arbitrary Skill.SkillCore where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

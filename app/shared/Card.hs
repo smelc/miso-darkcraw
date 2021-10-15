@@ -23,6 +23,8 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics (Generic)
 import Nat
+import Skill (Skill, SkillCore)
+import qualified Skill
 import Tile
 
 -- If you add a member, augment the tests in 'Balance.hs'
@@ -34,56 +36,6 @@ ppTeam = show
 
 allTeams :: [Team]
 allTeams = [minBound ..]
-
-data Skill
-  = Blow
-  | BreathIce
-  | Discipline
-  | DrawCard
-  | -- | Creature causes fear
-    Fear
-  | LongReach
-  | Ranged
-  | -- | Creature creates mana at beginning of turn
-    Source Nat
-  | Stupid4
-  | -- | Creature causes terror
-    Terror
-  | Unique
-  deriving (Eq, Generic, Ord, Show)
-
-data SkillCore
-  = -- | Whether the skill is available (True) or used already (False)
-    Blow' Bool
-  | BreathIce'
-  | Discipline'
-  | -- | Whether the skill is available (True) or used already (False)
-    DrawCard' Bool
-  | -- | Creature causes fear, the Boolean indicates whether the skill
-    -- is available (True) or used already (False)
-    Fear' Bool
-  | LongReach'
-  | Ranged'
-  | -- | Creature create mana at beginning of turn. Boolean indicates
-    -- whether the skill is available (True) or used already (False)
-    Source' Nat Bool
-  | -- | The turn, at 0, 1, or 2 not stupide; at 3 stupid; then back to 0
-    Stupid4' Int
-  | -- | Creature causes terror, the Boolean indicates whether the skill
-    -- is available (True) or used already (False)
-    Terror' Bool
-  | Unique'
-  deriving (Eq, Generic, Ord, Show)
-
-isStupid :: SkillCore -> Bool
-isStupid = \case Stupid4' 3 -> True; _ -> False
-
-data SkillPack = SkillPack
-  { skill :: Skill,
-    skillText :: String,
-    skillTitle :: String
-  }
-  deriving (Eq, Generic, Show)
 
 data Phase
   = -- | Phase for data in core algorithms ('AI', 'Game'); not for rendering.
@@ -295,21 +247,6 @@ toCommon (CreatureCard common _) = common
 toCommon (NeutralCard common _) = common
 toCommon (ItemCard common _) = common
 
-liftSkill :: SkillCore -> Skill
-liftSkill skill =
-  case skill of
-    Blow' _ -> Blow
-    BreathIce' -> BreathIce
-    Discipline' -> Discipline
-    DrawCard' _ -> DrawCard
-    Fear' _ -> Fear
-    LongReach' -> LongReach
-    Ranged' -> Ranged
-    Source' n _ -> Source n
-    Stupid4' _ -> Stupid4
-    Terror' _ -> Terror
-    Unique' -> Unique
-
 class Unlift t where
   unlift :: t 'UI -> t 'Core
 
@@ -319,7 +256,7 @@ instance Unlift Creature where
     Creature {items = items', skills = skills', ..}
     where
       items' = map Card.item items
-      skills' = map unliftSkill skills
+      skills' = map Skill.unlift skills
       transient = False
 
 instance Unlift ItemObject where
@@ -337,23 +274,6 @@ instance Unlift Card where
       CreatureCard _ c -> CreatureCard mkCoreCardCommon $ unlift c
       NeutralCard _ n -> NeutralCard mkCoreCardCommon $ unlift n
       ItemCard _ i -> ItemCard mkCoreCardCommon $ unlift i
-
--- | Because this function uses default values, it is NOT harmless! Use only
--- when initializing data.
-unliftSkill :: Skill -> SkillCore
-unliftSkill skill =
-  case skill of
-    Blow -> Blow' True
-    BreathIce -> BreathIce'
-    Discipline -> Discipline'
-    DrawCard -> DrawCard' True
-    Fear -> Fear' True
-    LongReach -> LongReach'
-    Ranged -> Ranged'
-    Source n -> Source' n True
-    Stupid4 -> Stupid4' 0
-    Terror -> Terror' True
-    Unique -> Unique'
 
 cardToCreature :: Card p -> Maybe (Creature p)
 cardToCreature (CreatureCard _ creature) = Just creature

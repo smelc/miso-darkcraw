@@ -32,6 +32,8 @@ import qualified Data.Text.Encoding
 import GHC.Generics
 import JsonData
 import Nat
+import Skill (Skill)
+import qualified Skill
 import Text.Read
 import Tile (Filepath, Tile, TileUI)
 
@@ -75,22 +77,22 @@ instance FromJSON Skill where
     where
       go :: Text -> Parser Skill =
         \case
-          "Blow" -> return Blow
-          "BreathIce" -> return BreathIce
-          "Discipline" -> return Discipline
-          "DrawCard" -> return DrawCard
-          "Fear" -> return Fear
-          "LongReach" -> return LongReach
-          "Ranged" -> return Ranged
-          "Stupid4" -> return Stupid4
-          "Terror" -> return Terror
-          "Unique" -> return Unique
+          "Blow" -> return Skill.Blow
+          "BreathIce" -> return Skill.BreathIce
+          "Discipline" -> return Skill.Discipline
+          "DrawCard" -> return Skill.DrawCard
+          "Fear" -> return Skill.Fear
+          "LongReach" -> return Skill.LongReach
+          "Ranged" -> return Skill.Ranged
+          "Stupid4" -> return Skill.Stupid4
+          "Terror" -> return Skill.Terror
+          "Unique" -> return Skill.Unique
           s ->
             case Data.Text.splitOn " " s of
               ["Source", n] ->
                 case readMaybe $ Text.unpack n of
                   Nothing -> fail $ "Invalid Source suffix (not a Nat): " ++ Text.unpack n
-                  Just n -> return $ Source n
+                  Just n -> return $ Skill.Source n
               _ -> fail $ "Invalid Skill string: " ++ show s ++ " (did you forget to update Json.hs?)"
 
 -- TODO @smelc Rename me into skillPackOptions
@@ -184,14 +186,14 @@ instance FromJSON Tile
 
 instance FromJSON TileUI
 
-instance FromJSON SkillPack where
+instance FromJSON Skill.Pack where
   parseJSON = genericParseJSON skillUIOptions
 
 data AllData = AllData
   { creatures :: [CreatureObjectJSON],
     neutrals :: [NeutralObjectJSON],
     items :: [ItemObjectJSON],
-    skillsPack :: [SkillPack],
+    skillsPack :: [Skill.Pack],
     tiles :: [TileUI]
   }
   deriving (Generic, Show)
@@ -205,7 +207,7 @@ instance FromJSON AllData where
             s -> s
         }
 
-type LoadedJson = ([Card 'UI], [SkillPack], [TileUI])
+type LoadedJson = ([Card 'UI], [Skill.Pack], [TileUI])
 
 parseJson ::
   -- | The content of data.json

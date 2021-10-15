@@ -13,6 +13,7 @@ import Card
 import qualified Constants
 import Data.Function ((&))
 import Nat
+import qualified Skill
 
 -- | Whether a creature is affected by fear. The first Boolean indicates
 -- whether to consider the hitpoints ('True') or not ('False')
@@ -40,7 +41,7 @@ attack part (Creature {Card.attack, creatureId = id, skills, items}) =
   attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus
   where
     nbBlows =
-      filter (\case Blow' True -> True; _ -> False) skills & natLength
+      filter (\case Skill.Blow' True -> True; _ -> False) skills & natLength
     nbSwordsOfMight =
       filter (== SwordOfMight) items & natLength
     skBannerBonus =
@@ -60,20 +61,20 @@ causesFear ::
   Creature 'Core ->
   Bool
 -- We ignore the skill's Boolean, because it's for UI display only
-causesFear Creature {skills} = any (\case Fear' _ -> True; _ -> False) skills
+causesFear Creature {skills} = any (\case Skill.Fear' _ -> True; _ -> False) skills
 
 causesTerror ::
   Creature 'Core ->
   Bool
 -- We ignore the skill's Boolean, because it's for UI display only
-causesTerror Creature {skills} = any (\case Terror' _ -> True; _ -> False) skills
+causesTerror Creature {skills} = any (\case Skill.Terror' _ -> True; _ -> False) skills
 
 -- | Core function for finding out about discipline
-hasDiscipline :: [Skill] -> [Item] -> Bool
+hasDiscipline :: [Skill.Skill] -> [Item] -> Bool
 hasDiscipline skills items =
-  Discipline `elem` skills || Crown `elem` items
+  Skill.Discipline `elem` skills || Crown `elem` items
 
 -- | Whether a creature has discipline
 isDisciplined :: Creature 'Core -> Bool
 isDisciplined Creature {items, skills} =
-  hasDiscipline (map liftSkill skills) items
+  hasDiscipline (map Skill.lift skills) items
