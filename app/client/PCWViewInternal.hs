@@ -307,23 +307,23 @@ itemNeutralView z card INViewInput {fontStyle, text, title} =
         [Miso.text $ ms $ typeset text]
     ]
 
-skillDiv :: SharedModel -> Skill.SkillCore -> View a
+skillDiv :: SharedModel -> Skill.State -> View a
 skillDiv shared skill =
   div_ [style_ color, hover] [label & ms & Miso.text]
   where
     Skill.Pack {text, title} = Skill.lift skill & SharedModel.liftSkill shared
     color =
       case skill of
-        Skill.DrawCard' False -> "color" =: greyHTML
-        Skill.Blow' False -> "color" =: greyHTML
-        Skill.Blow' True -> "color" =: greenHTML
-        Skill.Fear' False -> "color" =: greyHTML
-        Skill.Terror' False -> "color" =: greyHTML
+        Skill.DrawCard False -> "color" =: greyHTML
+        Skill.Blow False -> "color" =: greyHTML
+        Skill.Blow True -> "color" =: greenHTML
+        Skill.Fear False -> "color" =: greyHTML
+        Skill.Terror False -> "color" =: greyHTML
         _ | Skill.isStupid skill -> "color" =: redHTML
         _ -> mempty
     label =
       case skill of
-        Skill.Stupid4' i -> title ++ " " ++ show (i + 1) ++ "/4"
+        Skill.Stupid4 i -> title ++ " " ++ show (i + 1) ++ "/4"
         _ -> title
     hover = title_ $ ms $ typeset text
 

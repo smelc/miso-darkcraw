@@ -111,7 +111,7 @@ testDrawCards shared =
             & catMaybes
             & map skills
             & concat
-            & filter (\case Skill.DrawCard' b -> b; _ -> False)
+            & filter (\case Skill.DrawCard b -> b; _ -> False)
             & length
 
 testNoPlayEventNeutral shared =
@@ -162,7 +162,7 @@ testFear shared =
     hasConsumedFear Creature {skills} = go skills
       where
         go [] = False
-        go (Skill.Fear' False : _) = True -- Fear unavailable: it has been consumed
+        go (Skill.Fear False : _) = True -- Fear unavailable: it has been consumed
         go (_ : tail) = go tail
 
 testFearNTerror :: SharedModel -> SpecWith ()

@@ -24,7 +24,7 @@ instance Startable (PlayerPart 'Core) where
     where
       extraMana = foldr' (\Creature {skills} acc -> acc + sumSources skills) (0 :: Nat) inPlace
       sumSources [] = 0
-      sumSources (Skill.Source' n _ : skills) = n + sumSources skills -- Not inspecting
+      sumSources (Skill.Source (n, _) : skills) = n + sumSources skills -- Not inspecting
       -- the flag value, it's anyway simultaneously set to False.
       sumSources (_ : skills) = sumSources skills
 
@@ -35,7 +35,7 @@ boardStart board pSpot =
 class Stupid a where
   isStupid :: a -> PlayerSpot -> CardSpot -> Bool
 
-instance Stupid Skill.SkillCore where
+instance Stupid Skill.State where
   isStupid s _ _ = Skill.isStupid s
 
 instance Stupid (Creature 'Core) where

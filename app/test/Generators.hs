@@ -103,7 +103,7 @@ instance Arbitrary Skill where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary Skill.SkillCore where
+instance Arbitrary Skill.State where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

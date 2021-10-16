@@ -41,7 +41,7 @@ attack part (Creature {Card.attack, creatureId = id, skills, items}) =
   attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus
   where
     nbBlows =
-      filter (\case Skill.Blow' True -> True; _ -> False) skills & natLength
+      filter (\case Skill.Blow True -> True; _ -> False) skills & natLength
     nbSwordsOfMight =
       filter (== SwordOfMight) items & natLength
     skBannerBonus =
@@ -61,13 +61,13 @@ causesFear ::
   Creature 'Core ->
   Bool
 -- We ignore the skill's Boolean, because it's for UI display only
-causesFear Creature {skills} = any (\case Skill.Fear' _ -> True; _ -> False) skills
+causesFear Creature {skills} = any (\case Skill.Fear _ -> True; _ -> False) skills
 
 causesTerror ::
   Creature 'Core ->
   Bool
 -- We ignore the skill's Boolean, because it's for UI display only
-causesTerror Creature {skills} = any (\case Skill.Terror' _ -> True; _ -> False) skills
+causesTerror Creature {skills} = any (\case Skill.Terror _ -> True; _ -> False) skills
 
 -- | Core function for finding out about discipline
 hasDiscipline :: [Skill.Skill] -> [Item] -> Bool

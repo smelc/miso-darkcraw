@@ -77,15 +77,15 @@ instance FromJSON Skill where
     where
       go :: Text -> Parser Skill =
         \case
-          "Blow" -> return Skill.Blow
+          "Blow" -> return $ Skill.Blow ()
           "BreathIce" -> return Skill.BreathIce
           "Discipline" -> return Skill.Discipline
-          "DrawCard" -> return Skill.DrawCard
-          "Fear" -> return Skill.Fear
+          "DrawCard" -> return $ Skill.DrawCard ()
+          "Fear" -> return $ Skill.Fear ()
           "LongReach" -> return Skill.LongReach
           "Ranged" -> return Skill.Ranged
-          "Stupid4" -> return Skill.Stupid4
-          "Terror" -> return Skill.Terror
+          "Stupid4" -> return $ Skill.Stupid4 ()
+          "Terror" -> return $ Skill.Terror ()
           "Unique" -> return Skill.Unique
           s ->
             case Data.Text.splitOn " " s of

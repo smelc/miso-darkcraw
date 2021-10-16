@@ -23,7 +23,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import GHC.Generics (Generic)
 import Nat
-import Skill (Skill, SkillCore)
+import Skill (Skill)
 import qualified Skill
 import Tile
 
@@ -61,7 +61,7 @@ type family OffsetType (p :: Phase) where
 
 type family SkillType (p :: Phase) where
   SkillType 'UI = Skill
-  SkillType 'Core = SkillCore
+  SkillType 'Core = Skill.State
 
 type family TeamsType (p :: Phase) where
   TeamsType 'UI = [Team]

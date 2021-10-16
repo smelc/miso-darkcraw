@@ -68,7 +68,7 @@ instance ToExpr CreatureID
 
 instance ToExpr Skill
 
-instance ToExpr Skill.SkillCore
+instance ToExpr Skill.State
 
 instance ToExpr Neutral
 

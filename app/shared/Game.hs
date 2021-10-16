@@ -482,7 +482,7 @@ applyFillTheFrontline board pSpot =
                 v
               )
           )
-    applies Creature {skills} = Skill.Ranged' `elem` skills
+    applies Creature {skills} = Skill.Ranged `elem` skills
 
 applyPlague ::
   Board 'Core ->
@@ -578,9 +578,9 @@ drawCardM board pSpot src =
           case Board.toInPlaceCreature b pSpot cSpot of
             Nothing -> Left ("No creature at pSpot cSpot" :: Text)
             Just c@Creature {skills} ->
-              case findIndex (\case Skill.DrawCard' b -> b; _ -> False) skills of
-                Nothing -> Left "Not a creature with avail DrawCard'"
-                Just i -> Right $ Just (cSpot, c, i, Skill.DrawCard' False)
+              case findIndex (\case Skill.DrawCard b -> b; _ -> False) skills of
+                Nothing -> Left "Not a creature with avail DrawCard"
+                Just i -> Right $ Just (cSpot, c, i, Skill.DrawCard False)
         CardDrawer _ _ -> Left "Wrong PlayerSpot"
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
@@ -779,12 +779,12 @@ applyFearNTerrorM board affectingSpot = do
     consumeFear cSpot c | cSpot `notElem` fearKillers = c
     consumeFear _ c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []
-    consumeFearSkill ((Skill.Fear' True) : rest) = Skill.Fear' False : rest
+    consumeFearSkill ((Skill.Fear True) : rest) = Skill.Fear False : rest
     consumeFearSkill (s : rest) = s : consumeFearSkill rest
     consumeTerror cSpot c | cSpot `notElem` terrorKillers = c
     consumeTerror _ c@Creature {skills} = c {skills = consumeTerrorSkill skills}
     consumeTerrorSkill [] = []
-    consumeTerrorSkill ((Skill.Terror' True) : rest) = Skill.Terror' False : rest
+    consumeTerrorSkill ((Skill.Terror True) : rest) = Skill.Terror False : rest
     consumeTerrorSkill (s : rest) = s : consumeTerrorSkill rest
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
@@ -940,7 +940,7 @@ singleAttack part attacker@Creature {skills} defender
     hit = Total.attack (Just part) attacker
     hps' = Card.hp defender `minusNatClamped` hit
     death =
-      if any (\skill -> case skill of Skill.BreathIce' -> True; _ -> False) skills
+      if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
         then DeathByBreathIce
         else UsualDeath
 
@@ -1041,4 +1041,4 @@ cardsToDraw board pSpot considerStack =
     liftOpt ((_, Nothing) : rest) = liftOpt rest
     liftOpt ((x, Just y) : rest) = (x, y) : liftOpt rest
     nbAvailDrawCardSkill Creature {skills} =
-      filter (\case Skill.DrawCard' b -> b; _ -> False) skills & length
+      filter (\case Skill.DrawCard b -> b; _ -> False) skills & length
