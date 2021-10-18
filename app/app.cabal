@@ -13,6 +13,7 @@ description:         Pixel Card Wars is a strategy cards game. Choose your team 
 common client-server-shared
   other-modules:
     AI
+    Art
     Board
     BoardInstances
     Campaign
@@ -118,6 +119,7 @@ Test-Suite test-darkcraw
   main-is:    Main.hs
   other-modules:
     AI
+    Art
     Balance
     Board
     BoardInstances

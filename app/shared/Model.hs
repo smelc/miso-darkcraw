@@ -7,6 +7,7 @@
 module Model where
 
 import AI (Difficulty (Easy))
+import qualified Art
 import Board
 import Campaign
 import Card
@@ -143,7 +144,7 @@ unsafeGameModel WelcomeModel {shared} =
 instance Show GameModel where
   show GameModel {..} =
     "{ gameShared = omitted\n"
-      ++ unlines [Board.toASCII board, f "interaction" interaction, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
+      ++ unlines [Art.toASCII board, f "interaction" interaction, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
       ++ "\n}"
     where
       f s x = "  " ++ s ++ " = " ++ show x

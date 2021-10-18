@@ -57,7 +57,6 @@ module Board
     toInPlace,
     topSpots,
     botSpots,
-    toASCII,
     StackKind (..),
     Board.appliesTo,
     toScore,
@@ -82,9 +81,8 @@ import Control.Lens
 import Control.Monad.Except (MonadError, throwError)
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
-import Data.List (intercalate, intersperse)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe, mapMaybe)
+import Data.Maybe (fromJust, mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import GHC.Generics (Generic)
@@ -92,7 +90,6 @@ import Nat
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
 import Tile (Tile)
-import qualified Total
 
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
@@ -612,120 +609,3 @@ appliesTo id board pSpot cSpot =
     (Card.CardTargetType Hole, Nothing) -> True
     (Card.PlayerTargetType, Nothing) -> True
     _ -> False
-
-------------------------------
--- Now onto fancy rendering --
-------------------------------
-
-toASCII :: Board 'Core -> String
-toASCII board =
-  (intersperse "\n" lines & concat) ++ "\n"
-  where
-    lines =
-      stackLines board PlayerTop ++ []
-        ++ [handLine board PlayerTop]
-        ++ [scoreLine board PlayerTop]
-        ++ cardsLines board PlayerTop topSpots
-        ++ ["\n"] -- vertical space between AI lines
-        ++ cardsLines board PlayerTop botSpots
-        ++ ["\n", "\n"] -- vertical space between players
-        ++ cardsLines board PlayerBot botSpots
-        ++ ["\n"] -- vertical space between player lines
-        ++ cardsLines board PlayerBot topSpots
-        ++ []
-        ++ [scoreLine board PlayerBot]
-        ++ [handLine board PlayerBot]
-        ++ stackLines board PlayerBot
-
-stackLines :: Board 'Core -> PlayerSpot -> [String]
-stackLines board pSpot =
-  map (\s -> replicate 4 ' ' ++ s) $ reverse $ go 0 []
-  where
-    discarded = toDiscarded board pSpot
-    stack = toStack board pSpot
-    hspace = replicate 8 ' '
-    stackWidth = 16
-    justify s | length s < stackWidth = s ++ replicate (stackWidth - length s) ' '
-    justify s | length s > stackWidth = take stackWidth s
-    justify s = s
-    go i acc =
-      case (stackLine Discarded discarded i, stackLine Stacked stack i) of
-        (Nothing, Nothing) -> acc
-        (d, st) ->
-          let line =
-                justify (fromMaybe blanks d)
-                  ++ hspace
-                  ++ justify (fromMaybe blanks st)
-           in go (i + 1) (line : acc)
-          where
-            blanks = replicate stackWidth ' '
-
-handLine :: Board 'Core -> PlayerSpot -> String
-handLine board pSpot =
-  "Hand: " ++ intercalate ", " (map showID hand)
-  where
-    hand = toHand board pSpot
-
-scoreLine :: Board 'Core -> PlayerSpot -> String
-scoreLine board pSpot =
-  replicate cardWidth ' ' ++ " Score: " ++ show (toScore board pSpot)
-
-stackLine :: StackKind -> [Card.ID] -> LineNumber -> Maybe String
-stackLine Discarded _ 0 = Just "Discarded"
-stackLine Stacked _ 0 = Just "Stack"
-stackLine _ cards i | i > length cards = Nothing
-stackLine _ cards i = Just $ showID $ cards !! (i - 1)
-
-showID :: Card.ID -> String
-showID (IDC CreatureID {creatureKind, team} _) =
-  showTeamShort team ++ " " ++ show creatureKind
-showID (IDI i) = show i
-showID (IDN n) = show n
-
-showTeamShort :: Team -> String
-showTeamShort = \case
-  Evil -> "E"
-  Human -> "H"
-  Undead -> "UD"
-  ZKnights -> "Z"
-
-cardsLines :: Board 'Core -> PlayerSpot -> [CardSpot] -> [String]
-cardsLines board pSpot cSpots =
-  map f [0 .. cardHeight - 1]
-  where
-    f lineNb =
-      let pieces = map (\cSpot -> cardLine board pSpot cSpot lineNb) cSpots
-       in intersperse " " pieces & concat -- horizontal space between cards
-
--- The height of a card, in number of lines
-cardHeight :: Int
-cardHeight = 1 + 1 + 5
-
--- The width of a card, in number of characters
-cardWidth :: Int
-cardWidth = 16
-
-type LineNumber = Int
-
--- | The line number must be in [0, cardHeight)
-cardLine :: Board 'Core -> PlayerSpot -> CardSpot -> LineNumber -> String
-cardLine board pSpot cSpot lineNb =
-  case length base of
-    i | i < cardWidth -> base ++ replicate (cardWidth - i) '.'
-    i | i > cardWidth -> take cardWidth base
-    _ -> base
-  where
-    maybeCreature = toInPlace board pSpot Map.!? cSpot
-    emptyLine :: String = replicate cardWidth '.'
-    base = case maybeCreature of
-      Nothing -> if lineNb == 0 then show cSpot else emptyLine
-      Just creature -> fromMaybe emptyLine $ creatureToAscii part creature lineNb
-    part = Board.toInPlace board pSpot & Map.elems & Just
-
--- | The n-th line of a creature card, or None
-creatureToAscii :: Maybe Total.Part -> Creature 'Core -> LineNumber -> Maybe String
-creatureToAscii _ (Creature {creatureId = CreatureID {..}}) 0 =
-  Just $ show team ++ " " ++ show creatureKind
-creatureToAscii part (c@Creature {..}) 1 =
-  Just $ show hp ++ "<3 " ++ show (Total.attack part c) ++ "X"
-creatureToAscii _ _ _ = Nothing
