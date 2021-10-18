@@ -62,7 +62,7 @@ main shared =
       case find (satisfies r) specs of
         Nothing -> traceShow ("Unexpected spec: " ++ show r) False
         Just spec -> traceShow (show spec) True
-    specs :: [Balance.Spec] = map Eq eqSpecs ++ map Leq leqSpecs
+    specs :: [Balance.Spec] = map Eq eqSpecs ++ map Leq (leqSpecs ++ zknights)
     eqSpecs =
       -- Level0
       map
@@ -83,6 +83,17 @@ main shared =
           ),
           ( SpecShared {topTeam = Human, botTeam = Evil, level = Campaign.Level1},
             LeqSpec {topMaxWins = 49, botMinWins = 15}
+          )
+        ]
+    zknights =
+      -- dumb specs for Level0 Level1. FIXME @smelc Provide true specs.
+      map
+        (uncurry FullLeqSpec)
+        [ ( SpecShared {topTeam = Human, botTeam = ZKnights, level = Campaign.Level0},
+            LeqSpec {topMaxWins = nbMatches, botMinWins = 0}
+          ),
+          ( SpecShared {topTeam = Human, botTeam = ZKnights, level = Campaign.Level1},
+            LeqSpec {topMaxWins = nbMatches, botMinWins = 0}
           )
         ]
     _desiredSpec balanceRes@Balance.Result {..} =

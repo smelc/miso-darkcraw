@@ -26,6 +26,7 @@ filepathToString :: Filepath -> String
 filepathToString Filepath {..} =
   root ++ "_" ++ show fpX ++ "_" ++ show fpY ++ ".png"
 
+-- TODO @smelc rename me to T
 data Tile
   = BlackAppears0
   | BlackAppears1
@@ -59,6 +60,7 @@ data Tile
   | Ogre
   | SkBanner
   | SkullRedEyes
+  | Squire
   | Sword1
   | Sword2
   | Sword3
@@ -77,8 +79,14 @@ data Tile
   | WhiteAppears2
   | WhiteAppears3
   | WhiteAppears4
+  | ZCaptain
+  | ZKing
+  | ZKnight
+  | ZPriest
+  | ZVeteran
   deriving (Eq, Generic, Ord, Show)
 
+-- TODO @smelc rename me to UI
 data TileUI = TileUI
   { filepath :: Filepath,
     tile :: Tile

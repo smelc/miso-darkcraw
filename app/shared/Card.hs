@@ -21,6 +21,7 @@ import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
 import Nat
 import Skill (Skill)
@@ -28,11 +29,14 @@ import qualified Skill
 import Tile
 
 -- If you add a member, augment the tests in 'Balance.hs'
-data Team = Evil | Human | Undead
+data Team = Evil | Human | Undead | ZKnights
   deriving (Bounded, Enum, Eq, Generic, Show, Ord)
 
 ppTeam :: Team -> String
-ppTeam = show
+ppTeam t =
+  case t of
+    ZKnights -> "Zealous Knights"
+    _ -> show t
 
 allTeams :: [Team]
 allTeams = [minBound ..]
@@ -97,19 +101,24 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
 
 data CreatureKind
   = Archer
+  | Captain
   | Church
   | General
   | Ghost
+  | King
   | Knight
   | Necromancer
   | Mummy
+  | Priest
   | Skeleton
   | Shade
   | Spearman
   | Specter
+  | Squire
   | Swordsman
   | Ogre
   | Vampire
+  | Veteran
   | Warrior
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
@@ -312,17 +321,17 @@ identToId _ = Nothing
 groupCards :: Itemizable (Creature p) => [Card p] -> Map.Map ID [Card p]
 groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
 
-teamDeck ::
+rawTeamDeck ::
   -- | The cards as loaded from disk
   [Card 'UI] ->
   -- | The team for which to build the deck
   Team ->
   -- | The initial deck
-  [Card 'Core]
-teamDeck cards t =
-  map (CreatureCard mkCoreCardCommon) creatures
-    ++ map (NeutralCard mkCoreCardCommon) neutrals
-    ++ map (ItemCard mkCoreCardCommon) items
+  [Maybe (Card 'Core)]
+rawTeamDeck cards t =
+  map (fmap $ CreatureCard mkCoreCardCommon) creatures
+    ++ map (fmap $ NeutralCard mkCoreCardCommon) neutrals
+    ++ map (fmap $ ItemCard mkCoreCardCommon) items
   where
     -- Initial creatures:
     creatures =
@@ -330,6 +339,7 @@ teamDeck cards t =
         Evil -> 1 * Knight
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
+        ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire
       where
         kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
           map cardToCreature cards
@@ -338,13 +348,14 @@ teamDeck cards t =
             & map unlift
             & map ((creatureKind . creatureId) &&& id)
             & Map.fromList
-        (*) i k = replicate i $ kindToCreature Map.! k
+        (*) i k = replicate i $ kindToCreature !? k
     -- Initial neutrals
     neutrals =
       case t of
         Evil -> []
         Human -> 1 * Health ++ 1 * Life
         Undead -> 2 * InfernalHaste ++ 1 * Plague
+        ZKnights -> 1 * Life
       where
         teams NeutralObject {teams} = teams
         kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
@@ -353,19 +364,34 @@ teamDeck cards t =
             & map unlift
             & map (\nobj -> (neutral nobj, nobj))
             & Map.fromList
-        (*) i k = replicate i $ kindToNeutral Map.! k
+        (*) i k = replicate i $ kindToNeutral !? k
     -- Initial items
     items =
       case t of
         Evil -> []
         Human -> 1 * SwordOfMight
         Undead -> 1 * Card.FlailOfTheDamned
+        ZKnights -> 1 * SwordOfMight
       where
         itemToItemObj :: Map.Map Item (ItemObject 'Core) =
           mapMaybe cardToItemObject cards
             & map (\iobj@ItemObject {item} -> (item, Card.unlift iobj))
             & Map.fromList
-        (*) i k = replicate i $ itemToItemObj Map.! k
+        (*) i k = replicate i $ itemToItemObj !? k
+    (!?) m k =
+      -- To help debug when there's a bug. Will not happen in production.
+      case m Map.!? k of
+        Nothing -> traceShow ("Key not found: " ++ show k) Nothing
+        res@(Just _) -> res
+
+teamDeck ::
+  -- | The cards as loaded from disk
+  [Card 'UI] ->
+  -- | The team for which to build the deck
+  Team ->
+  -- | The initial deck
+  [(Card 'Core)]
+teamDeck cards t = rawTeamDeck cards t & catMaybes
 
 data CardTargetKind
   = -- | Card targets empty 'CardSpot'

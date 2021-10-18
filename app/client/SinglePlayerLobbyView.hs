@@ -144,6 +144,7 @@ teamButton smodel z chosen team = do
           Evil -> Knight
           Human -> General
           Undead -> Vampire
+          ZKnights -> Veteran
     textAndTile =
       [ div_ [noDrag] [stytextz z (ms $ ppTeam team)], -- text
         imgCell $ ms $ tile team

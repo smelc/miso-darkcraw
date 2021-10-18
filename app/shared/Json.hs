@@ -79,14 +79,20 @@ instance FromJSON Skill where
         \case
           "Blow" -> return $ Skill.Blow ()
           "BreathIce" -> return Skill.BreathIce
+          "Charge" -> return Skill.Charge
           "Discipline" -> return Skill.Discipline
           "DrawCard" -> return $ Skill.DrawCard ()
           "Fear" -> return $ Skill.Fear ()
+          "King" -> return Skill.King
+          "Knight" -> return Skill.Knight
           "LongReach" -> return Skill.LongReach
           "Ranged" -> return Skill.Ranged
+          "Squire" -> return Skill.Squire
           "Stupid4" -> return $ Skill.Stupid4 ()
           "Terror" -> return $ Skill.Terror ()
           "Unique" -> return Skill.Unique
+          "Veteran" -> return Skill.Veteran
+          "Zealot" -> return Skill.Zealot
           s ->
             case Data.Text.splitOn " " s of
               ["Source", n] ->

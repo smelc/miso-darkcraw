@@ -9,24 +9,34 @@ module Skill where
 import GHC.Generics (Generic)
 import Nat
 
--- | The type of skills. Highlgy polymorphic, because we use
+-- | The type of skills. Highly polymorphic, because we use
 -- two different instances. Callers should only use
 -- the concrete instances 'Skill' and 'State'.
 data T blow drawCard fear source stupid terror
   = Blow blow
   | BreathIce
+  | Charge
   | Discipline
   | DrawCard drawCard
   | -- | Creature causes fear
     Fear fear
+  | King
+  | -- | Identifier of knight
+    Knight
   | LongReach
   | Ranged
   | -- | Creature creates mana at beginning of turn
     Source source -- Nat
+  | -- | Knight in front (if any) gains +1 hp and +1 attack upon arrival
+    Squire
   | Stupid4 stupid
   | -- | Creature causes terror
     Terror terror
   | Unique
+  | -- | Upon arrival, every knight gains +1 hp and +1 attack
+    Veteran
+  | -- | Immune to fear
+    Zealot
   deriving (Eq, Generic, Ord, Show)
 
 type Skill =
@@ -65,15 +75,21 @@ lift skill =
   case skill of
     Blow {} -> Blow ()
     BreathIce -> BreathIce
+    Charge -> Charge
     Discipline -> Discipline
     DrawCard {} -> DrawCard ()
     Fear {} -> Fear ()
+    King -> King
+    Knight -> Knight
     LongReach -> LongReach
     Ranged -> Ranged
+    Squire -> Squire
     Source (n, _) -> Source n
     Stupid4 {} -> Stupid4 ()
     Terror {} -> Terror ()
     Unique -> Unique
+    Veteran -> Veteran
+    Zealot -> Zealot
 
 -- | Because this function uses default values, it is NOT harmless! Use only
 -- when initializing data.
@@ -83,11 +99,17 @@ unlift skill =
     Blow {} -> Blow True
     BreathIce -> BreathIce
     Discipline -> Discipline
+    Charge -> Charge
     DrawCard {} -> DrawCard True
     Fear {} -> Fear True
+    King -> King
+    Knight -> Knight
     LongReach {} -> LongReach
     Ranged -> Ranged
     Source n -> Source (n, True)
+    Squire -> Squire
     Stupid4 {} -> Stupid4 0
     Terror {} -> Terror True
     Unique -> Unique
+    Veteran -> Veteran
+    Zealot -> Zealot

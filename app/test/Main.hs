@@ -332,16 +332,20 @@ testRewards =
     it "initialisation" $ do
       Campaign.augment [] Campaign.Level0 Human == [[]]
     -- TODO @smelc, test Evil too
-    prop "one card is received at every reward (except Evil)" $ do
+    prop "one card is received at every reward (except Evil, ZKnights)" $ do
       \(level, team) ->
-        team /= Evil
+        acceptable team
           ==> Campaign.augment [] level team
           `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
     -- TODO @smelc, test Evil too
-    prop "There is always at least one reward (except Evil)" $ do
+    prop "There is always at least one reward (except Evil, ZKnights)" $ do
       \(outcome, level, team) ->
-        team /= Evil
+        acceptable team
           ==> Campaign.loot Nothing outcome level team `shouldSatisfy` (not . null)
+  where
+    acceptable Evil = False
+    acceptable ZKnights = False
+    acceptable _ = True
 
 testItemsAI shared =
   describe "AI" $ do

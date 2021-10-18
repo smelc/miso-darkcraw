@@ -322,6 +322,7 @@ startingPlayerSpot = PlayerBot
 endingPlayerSpot :: PlayerSpot
 endingPlayerSpot = PlayerTop
 
+-- TODO @smelc rename me to T
 data Board (p :: Phase) = Board
   { playerTop :: PlayerPart p,
     playerBottom :: PlayerPart p
@@ -686,6 +687,7 @@ showTeamShort = \case
   Evil -> "E"
   Human -> "H"
   Undead -> "UD"
+  ZKnights -> "Z"
 
 cardsLines :: Board 'Core -> PlayerSpot -> [CardSpot] -> [String]
 cardsLines board pSpot cSpots =

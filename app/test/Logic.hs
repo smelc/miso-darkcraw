@@ -318,6 +318,12 @@ testTransient shared =
       Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
         && (map (Board.toDiscarded board'') allPlayersSpots & all null) -- Discarded stack is empty
 
+testTeamDeck shared =
+  describe "Card.rawTeamDeck" $ do
+    prop "doesn't return None" $ do
+      \team ->
+        rawTeamDeck (SharedModel.getCards shared) team `shouldAllSatisfy` isJust
+
 main :: SharedModel -> SpecWith ()
 main shared = do
   -- Unit tests
@@ -326,6 +332,7 @@ main shared = do
   testTransient shared
   testBreathIce shared
   -- PBT tests
+  testTeamDeck shared
   testFearNTerror shared
   testChurch shared
   testPlague shared

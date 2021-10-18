@@ -336,15 +336,21 @@ scoreSkill s =
   case s of
     Skill.Blow b -> if b then -1 else 0
     Skill.BreathIce -> -2
+    Skill.Charge -> -1
     Skill.Discipline -> -1
     Skill.DrawCard b -> if b then -1 else 0
     Skill.Fear b -> if b then -1 else 0
+    Skill.King -> -2
+    Skill.Knight -> -1
     Skill.LongReach -> -1
     Skill.Ranged -> -1
     Skill.Source (n, avail) -> if avail then - (natToInt n) else 0
+    Skill.Squire -> 1
     Skill.Stupid4 _ -> if Skill.isStupid s then 2 else 1
     Skill.Terror b -> if b then -2 else 0
     Skill.Unique -> 0
+    Skill.Veteran -> -1
+    Skill.Zealot -> -1
 
 sortByFst :: [(Int, b)] -> [(Int, b)]
 sortByFst l =
