@@ -26,7 +26,7 @@ import GHC.Generics (Generic)
 import Nat
 import Skill (Skill)
 import qualified Skill
-import Tile
+import Tile (Tile)
 
 -- If you add a member, augment the tests in 'Balance.hs'
 data Team = Evil | Human | Undead | ZKnights

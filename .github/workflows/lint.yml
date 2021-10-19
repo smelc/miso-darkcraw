@@ -20,14 +20,19 @@ jobs:
 
     - name: Install linters
       run: |
-        sudo apt install jsonlint python3-pip
+        sudo apt install jsonlint python3-pip shellcheck
         # pip install -r $GITHUB_WORKSPACE/hooks/requirements.txt
 
     - name: jsonlint-php th/data.json
       run: jsonlint-php $GITHUB_WORKSPACE/th/data.json
 
-    - name: lint hooks/pre-commit.py
+    - name: shellcheck
       run: |
-        # mypy        $GITHUB_WORKSPACE/hooks/pre-commit.py
-        # pycodestyle $GITHUB_WORKSPACE/hooks/pre-commit.py
-        # pylint      $GITHUB_WORKSPACE/hooks/pre-commit.py
+        shellcheck --version
+        shellcheck scripts/change-config.sh
+        shellcheck scripts/check-imports.sh
+        shellcheck scripts/itch-push.sh
+
+    - name: import qualification
+      run: |
+        ./scripts/check-imports.sh

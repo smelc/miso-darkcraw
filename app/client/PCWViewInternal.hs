@@ -45,7 +45,7 @@ import Nat
 import SharedModel (SharedModel, tileToFilepath)
 import qualified SharedModel
 import qualified Skill
-import Tile
+import qualified Tile
 import qualified Total
 import Update (Action)
 import ViewInternal
@@ -154,8 +154,8 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
     filepath =
       uiCard
         <&> SharedModel.cardToFilepath shared
-        & fromMaybe default24Filepath
-    avatarPicCell = imgCell $ ms $ filepathToString filepath
+        & fromMaybe Tile.default24Filepath
+    avatarPicCell = imgCell $ ms $ Tile.filepathToString filepath
     manaDiv =
       case drawMana of
         False -> []
@@ -342,7 +342,7 @@ itemDiv z shared i iobj@ItemObject {item} =
     card = ItemCard (SharedModel.unsafeToCardCommon shared id) iobj
     filepath =
       SharedModel.cardToFilepath shared card
-        & filepathToString
+        & Tile.filepathToString
         & ms
     pictureCell = imgCellwh filepath imgSize imgSize Nothing
 
@@ -423,12 +423,12 @@ createContext z shared =
     -- Leave 24x24_3_0.png untouched if direction is ToLeft
     dirToFilename filepath dir
       | dir == defaultDirection =
-        ms $ filepathToString filepath
+        ms $ Tile.filepathToString filepath
     -- Return 24x24_3_1.png untouched if direction is ToRight. This is
     -- where we rely on the right version of a sprite to be one line below
     -- its left version
-    dirToFilename f@Filepath {..} _ =
-      dirToFilename f {fpY = fpY + 1} defaultDirection
+    dirToFilename f@Tile.Filepath {..} _ =
+      dirToFilename f {Tile.fpY = fpY + 1} defaultDirection
 
 viewFrame :: DisplayMode -> Int -> SharedModel -> Frame -> View a
 viewFrame mode z smodel (Frame mapping) =
@@ -466,7 +466,7 @@ viewEntry mode Context {..} element (Actor mname state@ActorState {direction, te
         case paths Map.!? cid of
           Nothing -> error $ "CreatureID has no corresponding filename: " ++ show cid
           Just dirToPath -> dirToPath direction
-      Right tile -> tileToFilepath shared tile Tile.TwentyFour & filepathToString & ms
+      Right tile -> tileToFilepath shared tile Tile.TwentyFour & Tile.filepathToString & ms
     bubbleStyle ActorState {x, y} =
       style_ $
         "position" =: "absolute"

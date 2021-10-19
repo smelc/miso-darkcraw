@@ -20,7 +20,7 @@ import qualified SharedModel
 import Skill (Skill)
 import qualified Skill
 import Test.QuickCheck
-import Tile
+import Tile (Tile)
 import Turn
 import Unsafe.Coerce (unsafeCoerce)
 

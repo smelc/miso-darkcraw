@@ -10,7 +10,8 @@ import Card (CreatureID (..), CreatureKind (..), Team (..))
 import Cinema
 import Constants
 import Data.Function ((&))
-import Tile
+import Tile (Tile)
+import qualified Tile
 
 allLeft :: [Element] -> Scene ()
 allLeft actors = mapM_ left actors
@@ -26,15 +27,15 @@ animation frames e x y =
 
 blackAppears :: Element -> Int -> Int -> [Scene ()]
 blackAppears =
-  animation [BlackAppears0, BlackAppears1, BlackAppears2, BlackAppears3]
+  animation [Tile.BlackAppears0, Tile.BlackAppears1, Tile.BlackAppears2, Tile.BlackAppears3]
 
 blackDisappears :: Element -> Int -> Int -> [Scene ()]
 blackDisappears =
-  animation $ reverse [BlackAppears0, BlackAppears1, BlackAppears2, BlackAppears3]
+  animation $ reverse [Tile.BlackAppears0, Tile.BlackAppears1, Tile.BlackAppears2, Tile.BlackAppears3]
 
 whiteAppears :: Element -> Int -> Int -> [Scene ()]
 whiteAppears =
-  animation [WhiteAppears0, WhiteAppears1, WhiteAppears2, WhiteAppears3, WhiteAppears4]
+  animation [Tile.WhiteAppears0, Tile.WhiteAppears1, Tile.WhiteAppears2, Tile.WhiteAppears3, Tile.WhiteAppears4]
 
 welcomeGhostMovie1 :: Scene ()
 welcomeGhostMovie1 = do
@@ -166,7 +167,7 @@ welcomeFightMovie = do
     [ do allw0right; allw1left,
       do up w01; left w1; left w11
     ]
-  _ <- newActorAt "bones" (tileSprite Bones2) (fst appearsDown - 1) (snd appearsDown)
+  _ <- newActorAt "bones" (tileSprite Tile.Bones2) (fst appearsDown - 1) (snd appearsDown)
   during 5 $ do hide w12; w1 & tell "iugp8b4"
   during 1 $ shutup w1
   w20 <- newHiddenActor "w20"
@@ -186,13 +187,13 @@ welcomeFightMovie = do
   blood01 <- newHiddenActor "blood01"
   mapM_
     (during 10)
-    [ do hide w02; blood02 & resetAt (tileSprite Blood2) 10 14,
-      do hide w11; bonesw11 & resetAt (tileSprite Bones1) 10 11,
-      do hide w01; blood01 & resetAt (tileSprite Blood2) 10 12
+    [ do hide w02; blood02 & resetAt (tileSprite Tile.Blood2) 10 14,
+      do hide w11; bonesw11 & resetAt (tileSprite Tile.Bones1) 10 11,
+      do hide w01; blood01 & resetAt (tileSprite Tile.Blood2) 10 12
     ]
   blood0 <- newHiddenActor "blood0"
   sword0 <- newHiddenActor "sword0"
-  during 5 $ do hide w0; blood0 & resetAt (tileSprite Blood3) 11 13; sword0 & resetAt (tileSprite Sword2) 11 13
+  during 5 $ do hide w0; blood0 & resetAt (tileSprite Tile.Blood3) 11 13; sword0 & resetAt (tileSprite Tile.Sword2) 11 13
   mapM_
     (during 10)
     [ do left w1; down w1, -- vampire

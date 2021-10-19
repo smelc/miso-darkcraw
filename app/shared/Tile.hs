@@ -1,6 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
 
+-- |
+-- Module regarding graphic tiles. This module is meant to be used
+-- qualified.
+-- |
 module Tile where
 
 import GHC.Generics (Generic)

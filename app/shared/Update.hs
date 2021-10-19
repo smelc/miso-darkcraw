@@ -56,7 +56,8 @@ import qualified Skill
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
-import Tile
+import Tile (Tile)
+import qualified Tile
 import Turn (Turn)
 import qualified Turn
 
@@ -78,7 +79,7 @@ instance ToExpr (ItemObject 'Core)
 
 instance ToExpr (ItemObject 'UI)
 
-instance ToExpr Filepath
+instance ToExpr Tile.Filepath
 
 instance ToExpr (Creature 'Core)
 
