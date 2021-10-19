@@ -22,6 +22,7 @@ module Board
     Teams (..),
     InPlaceEffect (..),
     InPlaceEffects (..),
+    InPlaceType,
     bottomSpotOfTopVisual,
     setPart,
     toHoleyInPlace,

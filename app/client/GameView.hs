@@ -199,7 +199,7 @@ boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetT
   where
     part = Board.toPart board pSpot
     t = Board.team part
-    loc = GameInPlaceLoc $ Map.elems $ Board.inPlace part
+    loc = GameInPlaceLoc $ Board.inPlace part
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = Board.toInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs lift =

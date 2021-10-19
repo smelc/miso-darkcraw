@@ -9,9 +9,11 @@
 -- |
 module Total where
 
+import qualified Board
 import Card
 import qualified Constants
 import Data.Function ((&))
+import qualified Data.Map.Strict as Map
 import Nat
 import qualified Skill
 
@@ -30,12 +32,10 @@ affectedByTerror True Creature {hp} | hp > 2 = False
 affectedByTerror _ c | causesTerror c = False -- Creature causing terror are immune to terror
 affectedByTerror _ _ = True
 
-type Part = [Creature 'Core]
-
 -- | The total attack of a creature, including boosts of skills and items.
 -- The first list is the part where the creature is (if applicable)
-attack :: Maybe Part -> Creature 'Core -> Nat
-attack part (Creature {Card.attack, creatureId = id, skills, items}) =
+attack :: Maybe (Board.InPlaceType 'Core) -> Creature 'Core -> Nat
+attack inPlace (Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
   attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus
@@ -45,13 +45,14 @@ attack part (Creature {Card.attack, creatureId = id, skills, items}) =
     nbSwordsOfMight =
       filter (== SwordOfMight) items & natLength
     skBannerBonus =
-      case (Card.isSkeleton id, part) of
+      case (Card.isSkeleton id, inPlace) of
         (False, _) -> 0
         (_, Nothing) -> 0
         (True, Just part) ->
-          map Card.items part -- Count the number of banners, so
-          -- that you have multiple bonuses
-          -- if you put the banner more than once on a creature!
+          Map.elems part
+            & map Card.items -- Count the number of banners, so
+            -- that you have multiple bonuses
+            -- if you put the banner more than once on a creature!
             & concat
             & filter ((==) SkBanner)
             & natLength

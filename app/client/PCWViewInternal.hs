@@ -29,6 +29,7 @@ module PCWViewInternal
   )
 where
 
+import qualified Board
 import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
 import Constants
@@ -54,13 +55,13 @@ data DisplayMode = NormalMode | DebugMode
 
 -- | Where a card is being drawn
 data DisplayLocation
-  = GameInPlaceLoc Total.Part
+  = GameInPlaceLoc (Board.InPlaceType 'Core)
   | GameHandLoc
   | GameDragLoc
   | DeckLoc
   | LootLoc
 
-toPart :: DisplayLocation -> Maybe Total.Part
+toPart :: DisplayLocation -> Maybe (Board.InPlaceType 'Core)
 toPart =
   \case
     GameInPlaceLoc part -> Just part
@@ -190,8 +191,8 @@ scrollbarStyle =
     <> "scrollbar-color" =: "#9d9fa0 #333333"
     <> "overflow-x" =: "hidden" -- No horizontal scrollbar
 
--- | The 'Total.Part' argument is where the @Card 'Core@ is, if any.
-cardView' :: Int -> SharedModel -> Maybe Total.Part -> Card 'Core -> [View Action]
+-- | The 'Board.InPlaceType' argument is where the @Card 'Core@ is, if any.
+cardView' :: p ~ 'Core => Int -> SharedModel -> Maybe (Board.InPlaceType p) -> Card p -> [View Action]
 cardView' z shared part card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI

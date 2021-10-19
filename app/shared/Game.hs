@@ -807,20 +807,15 @@ attack board pSpot cSpot =
     (_, Just _, _) -> return board -- an ally blocks the way
     (Just hitter, _, []) -> do
       -- nothing to attack, contribute to the score!
-      let hit = Total.attack (Board.toInPlace board pSpot & Map.elems & Just) hitter & natToInt
+      let hit = Total.attack (Board.toInPlace board pSpot & Just) hitter & natToInt
       reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
     (Just hitter, _, attackees) ->
       foldM (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) $ attackee) board attackees
   where
-    pSpotLens = spotToLens pSpot
     attackeePSpot = otherPlayerSpot pSpot
-    pOtherSpotLens :: Lens' (Board 'Core) (PlayerPart 'Core)
-    pOtherSpotLens = spotToLens attackeePSpot
-    attackersInPlace :: Map CardSpot (Creature 'Core) =
-      board ^. pSpotLens . #inPlace
-    attackeesInPlace :: Map CardSpot (Creature 'Core) =
-      board ^. pOtherSpotLens . #inPlace
+    attackersInPlace :: Map CardSpot (Creature 'Core) = Board.toInPlace board pSpot
+    attackeesInPlace :: Map CardSpot (Creature 'Core) = Board.toInPlace board attackeePSpot
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
     attackerCanAttack = (attacker <&> Card.attack & fromMaybe 0) > 0
     attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Skill.lift
@@ -856,7 +851,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
   where
     hitPspot = otherPlayerSpot pSpot
     -- attack can proceed
-    effect = singleAttack (Board.toInPlace board pSpot & Map.elems) hitter hit
+    effect = singleAttack (Board.toInPlace board pSpot) hitter hit
     board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
 
 applyInPlaceEffectOnBoard ::
@@ -932,7 +927,7 @@ applyFlailOfTheDamned board creature pSpot =
     noChange = board
 
 -- The effect of an attack on the defender
-singleAttack :: Total.Part -> Creature 'Core -> Creature 'Core -> InPlaceEffect
+singleAttack :: p ~ 'Core => Board.InPlaceType p -> Creature p -> Creature p -> InPlaceEffect
 singleAttack part attacker@Creature {skills} defender
   | hps' <= 0 = mempty {death}
   | otherwise = mempty {hitPointsChange = - (natToInt hit)}

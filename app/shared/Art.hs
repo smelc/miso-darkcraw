@@ -3,6 +3,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 
 -- |
 -- Module defining a function 'Board' -> ASCII. Not in 'Board' itself,
@@ -121,11 +122,16 @@ cardLine board pSpot cSpot lineNb =
     emptyLine :: String = replicate cardWidth '.'
     base = case maybeCreature of
       Nothing -> if lineNb == 0 then show cSpot else emptyLine
-      Just creature -> fromMaybe emptyLine $ creatureToAscii part creature lineNb
-    part = Board.toInPlace board pSpot & Map.elems & Just
+      Just creature -> fromMaybe emptyLine $ creatureToAscii (Just inPlace) creature lineNb
+    inPlace = Board.toInPlace board pSpot
 
 -- | The n-th line of a creature card, or None
-creatureToAscii :: Maybe Total.Part -> Creature 'Core -> LineNumber -> Maybe String
+creatureToAscii ::
+  p ~ 'Core =>
+  Maybe (Board.InPlaceType p) ->
+  Creature p ->
+  LineNumber ->
+  Maybe String
 creatureToAscii _ (Creature {creatureId = CreatureID {..}}) 0 =
   Just $ show team ++ " " ++ show creatureKind
 creatureToAscii part (c@Creature {..}) 1 =

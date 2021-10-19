@@ -69,6 +69,9 @@
 <a href="#v:unInPlaceEffects">unInPlaceEffects</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a>
 </li></ul>}</li>
 <li class="src short">
+<span class="keyword">type family</span> <a href="#t:InPlaceType">InPlaceType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
+</li>
+<li class="src short">
 <a href="#v:bottomSpotOfTopVisual">bottomSpotOfTopVisual</a> :: <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a>
 </li>
 <li class="src short">
@@ -141,7 +144,7 @@
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:PlayerPart">PlayerPart</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) = <a href="#v:PlayerPart">PlayerPart</a> {<ul class="subs">
 <li>
-<a href="#v:inPlace">inPlace</a> :: InPlaceType p</li>
+<a href="#v:inPlace">inPlace</a> :: <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p</li>
 <li>
 <a href="#v:inHand">inHand</a> :: <a href="Board.html#t:InHandType" title="Board">InHandType</a> p</li>
 <li>
@@ -196,9 +199,9 @@
 <li class="src short">
 <a href="#v:setDiscarded">setDiscarded</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; DiscardedType p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
 <li class="src short">
-<a href="#v:setInPlace">setInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; InPlaceType p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:setInPlace">setInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
 <li class="src short">
-<a href="#v:toInPlace">toInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; InPlaceType p</li>
+<a href="#v:toInPlace">toInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p</li>
 <li class="src short">
 <a href="#v:topSpots">topSpots</a> :: [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>]</li>
 <li class="src short">
@@ -547,6 +550,25 @@
 <tr><td colspan="2"><details id="i:id:InPlaceEffects:Rep:7"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
 <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:InPlaceEffects" title="Board">InPlaceEffects</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "InPlaceEffects" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "InPlaceEffects" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "unInPlaceEffects") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a>))))</div></details></td></tr>
 </table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">type family</span> <a id="t:InPlaceType" class="def">InPlaceType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span> <a href="#t:InPlaceType" class="selflink">#</a></p>
+<div class="subs equations">
+<p class="caption">Equations</p>
+<table>
+<tr>
+<td class="src">
+<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a> = CardsOnTable</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">
+<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:UI" title="Card">UI</a> = <a href="Board.html#t:InPlaceEffects" title="Board">InPlaceEffects</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="top">
 <p class="src"><a id="v:bottomSpotOfTopVisual" class="def">bottomSpotOfTopVisual</a> :: <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> <a href="#v:bottomSpotOfTopVisual" class="selflink">#</a></p>
@@ -1096,7 +1118,7 @@
 <p class="caption">Fields</p>
 <ul>
 <li>
-<dfn class="src"><a id="v:inPlace" class="def">inPlace</a> :: InPlaceType p</dfn><div class="doc"><p>Cards on the board</p></div>
+<dfn class="src"><a id="v:inPlace" class="def">inPlace</a> :: <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p</dfn><div class="doc"><p>Cards on the board</p></div>
 </li>
 <li>
 <dfn class="src"><a id="v:inHand" class="def">inHand</a> :: <a href="Board.html#t:InHandType" title="Board">InHandType</a> p</dfn><div class="doc"><p>Cards in hand</p></div>
@@ -1393,8 +1415,8 @@
 <div class="top"><p class="src"><a id="v:setCreature" class="def">setCreature</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:CardSpot" title="Board">CardSpot</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setCreature" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:toDiscarded" class="def">toDiscarded</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; DiscardedType p <a href="#v:toDiscarded" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:setDiscarded" class="def">setDiscarded</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; DiscardedType p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setDiscarded" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:setInPlace" class="def">setInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; InPlaceType p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setInPlace" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toInPlace" class="def">toInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; InPlaceType p <a href="#v:toInPlace" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setInPlace" class="def">setInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setInPlace" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toInPlace" class="def">toInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:PlayerSpot" title="Board">PlayerSpot</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p <a href="#v:toInPlace" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:topSpots" class="def">topSpots</a> :: [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>] <a href="#v:topSpots" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:botSpots" class="def">botSpots</a> :: [<a href="Board.html#t:CardSpot" title="Board">CardSpot</a>] <a href="#v:botSpots" class="selflink">#</a></p></div>
 <div class="top">

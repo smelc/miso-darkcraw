@@ -44,9 +44,7 @@
 <a href="#v:affectedByTerror">affectedByTerror</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li class="src short">
-<span class="keyword">type</span> <a href="#t:Part">Part</a> = [<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>]</li>
-<li class="src short">
-<a href="#v:attack">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Total.html#t:Part" title="Total">Part</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+<a href="#v:attack">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </li>
 <li class="src short">
 <a href="#v:causesFear">causesFear</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
@@ -73,9 +71,8 @@
 <div class="doc"><p>Whether a creature is affected by terror. The first Boolean indicates
  whether to consider the hitpoints (<code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a></code>) or not (<code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a></code>)</p></div>
 </div>
-<div class="top"><p class="src"><span class="keyword">type</span> <a id="t:Part" class="def">Part</a> = [<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>] <a href="#t:Part" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:attack" class="def">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Total.html#t:Part" title="Total">Part</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:attack" class="selflink">#</a></p>
+<p class="src"><a id="v:attack" class="def">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:attack" class="selflink">#</a></p>
 <div class="doc"><p>The total attack of a creature, including boosts of skills and items.
  The first list is the part where the creature is (if applicable)</p></div>
 </div>
