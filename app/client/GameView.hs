@@ -37,6 +37,7 @@ import Model
 import Nat
 import PCWViewInternal
 import SharedModel
+import qualified Total
 import Update
 import ViewBlocks (dummyOn)
 import ViewInternal
@@ -149,7 +150,9 @@ boardToInPlaceCell ::
   GameModel ->
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
+  -- | The part considered
   PlayerSpot ->
+  -- | The spot of the card to show
   CardSpot ->
   Styled (View Action)
 boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetType pSpot cSpot =
@@ -199,7 +202,7 @@ boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetT
   where
     part = Board.toPart board pSpot
     t = Board.team part
-    loc = GameInPlaceLoc $ Board.inPlace part
+    loc = GameInPlaceLoc $ Total.Place {place = Board.inPlace part, cardSpot = cSpot}
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = Board.toInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs lift =

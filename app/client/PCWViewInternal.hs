@@ -29,7 +29,6 @@ module PCWViewInternal
   )
 where
 
-import qualified Board
 import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
 import Constants
@@ -55,16 +54,16 @@ data DisplayMode = NormalMode | DebugMode
 
 -- | Where a card is being drawn
 data DisplayLocation
-  = GameInPlaceLoc (Board.InPlaceType 'Core)
+  = GameInPlaceLoc Total.Place
   | GameHandLoc
   | GameDragLoc
   | DeckLoc
   | LootLoc
 
-toPart :: DisplayLocation -> Maybe (Board.InPlaceType 'Core)
-toPart =
+toPlace :: DisplayLocation -> Maybe Total.Place
+toPlace =
   \case
-    GameInPlaceLoc part -> Just part
+    GameInPlaceLoc place -> Just place
     GameHandLoc -> Nothing
     GameDragLoc -> Nothing
     DeckLoc -> Nothing
@@ -169,7 +168,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
       div_ (attrs ++ extraAttrs) $
         [div_ [style_ avatarPicStyle] [avatarPicCell]]
           ++ manaDiv
-          ++ cardView' z shared (toPart loc) card
+          ++ cardView' z shared (toPlace loc) card
           ++ [PCWViewInternal.cardBackground z team cdsty]
     extraAttrs =
       case card of
@@ -191,8 +190,8 @@ scrollbarStyle =
     <> "scrollbar-color" =: "#9d9fa0 #333333"
     <> "overflow-x" =: "hidden" -- No horizontal scrollbar
 
--- | The 'Board.InPlaceType' argument is where the @Card 'Core@ is, if any.
-cardView' :: p ~ 'Core => Int -> SharedModel -> Maybe (Board.InPlaceType p) -> Card p -> [View Action]
+-- | The 'Place' argument is where the @Card 'Core@ is, if any.
+cardView' :: Int -> SharedModel -> Maybe Total.Place -> Card 'Core -> [View Action]
 cardView' z shared part card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI

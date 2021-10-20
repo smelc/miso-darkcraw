@@ -44,7 +44,16 @@
 <a href="#v:affectedByTerror">affectedByTerror</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li class="src short">
-<a href="#v:attack">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+<span class="keyword">data</span> <a href="#t:Place">Place</a> = <a href="#v:Place">Place</a> {<ul class="subs">
+<li>
+<a href="#v:place">place</a> :: <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a>
+</li>
+<li>
+<a href="#v:cardSpot">cardSpot</a> :: <a href="Board.html#t:CardSpot" title="Board">CardSpot</a>
+</li>
+</ul>}</li>
+<li class="src short">
+<a href="#v:attack">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Total.html#t:Place" title="Total">Place</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </li>
 <li class="src short">
 <a href="#v:causesFear">causesFear</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
@@ -72,9 +81,33 @@
  whether to consider the hitpoints (<code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a></code>) or not (<code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a></code>)</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:attack" class="def">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:attack" class="selflink">#</a></p>
+<p class="src"><span class="keyword">data</span> <a id="t:Place" class="def">Place</a> <a href="#t:Place" class="selflink">#</a></p>
+<div class="doc"><p>Where a creature is on the board</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Place" class="def">Place</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:place" class="def">place</a> :: <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a></dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:cardSpot" class="def">cardSpot</a> :: <a href="Board.html#t:CardSpot" title="Board">CardSpot</a></dfn><div class="doc empty">&nbsp;</div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+</div>
+<div class="top">
+<p class="src"><a id="v:attack" class="def">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Total.html#t:Place" title="Total">Place</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:attack" class="selflink">#</a></p>
 <div class="doc"><p>The total attack of a creature, including boosts of skills and items.
- The first list is the part where the creature is (if applicable)</p></div>
+ The <code><a href="Total.html#t:Place" title="Total">Place</a></code> indicates where the creature given is.</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:causesFear" class="def">causesFear</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:causesFear" class="selflink">#</a></p>

@@ -807,7 +807,8 @@ attack board pSpot cSpot =
     (_, Just _, _) -> return board -- an ally blocks the way
     (Just hitter, _, []) -> do
       -- nothing to attack, contribute to the score!
-      let hit = Total.attack (Board.toInPlace board pSpot & Just) hitter & natToInt
+      let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
+      let hit = Total.attack (Just place) hitter & natToInt
       reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
     (Just hitter, _, attackees) ->
@@ -851,7 +852,8 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
   where
     hitPspot = otherPlayerSpot pSpot
     -- attack can proceed
-    effect = singleAttack (Board.toInPlace board pSpot) hitter hit
+    place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
+    effect = singleAttack place hitter hit
     board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
 
 applyInPlaceEffectOnBoard ::
@@ -927,12 +929,12 @@ applyFlailOfTheDamned board creature pSpot =
     noChange = board
 
 -- The effect of an attack on the defender
-singleAttack :: p ~ 'Core => Board.InPlaceType p -> Creature p -> Creature p -> InPlaceEffect
-singleAttack part attacker@Creature {skills} defender
+singleAttack :: p ~ 'Core => Total.Place -> Creature p -> Creature p -> InPlaceEffect
+singleAttack place attacker@Creature {skills} defender
   | hps' <= 0 = mempty {death}
   | otherwise = mempty {hitPointsChange = - (natToInt hit)}
   where
-    hit = Total.attack (Just part) attacker
+    hit = Total.attack (Just place) attacker
     hps' = Card.hp defender `minusNatClamped` hit
     death =
       if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills

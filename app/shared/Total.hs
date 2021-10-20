@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TypeFamilies #-}
 
 -- |
 -- This module defines getters for getting the complete stat of
@@ -32,10 +33,13 @@ affectedByTerror True Creature {hp} | hp > 2 = False
 affectedByTerror _ c | causesTerror c = False -- Creature causing terror are immune to terror
 affectedByTerror _ _ = True
 
+-- | Where a creature is on the board
+data Place = Place {place :: Board.InPlaceType 'Core, cardSpot :: Board.CardSpot}
+
 -- | The total attack of a creature, including boosts of skills and items.
--- The first list is the part where the creature is (if applicable)
-attack :: Maybe (Board.InPlaceType 'Core) -> Creature 'Core -> Nat
-attack inPlace (Creature {Card.attack, creatureId = id, skills, items}) =
+-- The 'Place' indicates where the creature given is.
+attack :: Maybe Place -> Creature 'Core -> Nat
+attack place (Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
   attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus
@@ -45,11 +49,11 @@ attack inPlace (Creature {Card.attack, creatureId = id, skills, items}) =
     nbSwordsOfMight =
       filter (== SwordOfMight) items & natLength
     skBannerBonus =
-      case (Card.isSkeleton id, inPlace) of
+      case (Card.isSkeleton id, place) of
         (False, _) -> 0
         (_, Nothing) -> 0
-        (True, Just part) ->
-          Map.elems part
+        (True, Just Place {place}) ->
+          Map.elems place
             & map Card.items -- Count the number of banners, so
             -- that you have multiple bonuses
             -- if you put the banner more than once on a creature!

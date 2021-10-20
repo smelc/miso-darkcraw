@@ -122,13 +122,13 @@ cardLine board pSpot cSpot lineNb =
     emptyLine :: String = replicate cardWidth '.'
     base = case maybeCreature of
       Nothing -> if lineNb == 0 then show cSpot else emptyLine
-      Just creature -> fromMaybe emptyLine $ creatureToAscii (Just inPlace) creature lineNb
-    inPlace = Board.toInPlace board pSpot
+      Just creature -> fromMaybe emptyLine $ creatureToAscii (Just place) creature lineNb
+    place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
 
 -- | The n-th line of a creature card, or None
 creatureToAscii ::
   p ~ 'Core =>
-  Maybe (Board.InPlaceType p) ->
+  Maybe Total.Place ->
   Creature p ->
   LineNumber ->
   Maybe String
