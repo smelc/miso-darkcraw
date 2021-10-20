@@ -57,6 +57,7 @@ module Board
     setInPlace,
     toInPlace,
     topSpots,
+    line,
     botSpots,
     StackKind (..),
     Board.appliesTo,
@@ -585,6 +586,19 @@ switchLine TopRight = BottomRight
 switchLine BottomLeft = TopLeft
 switchLine Bottom = Top
 switchLine BottomRight = TopRight
+
+-- | All spots in the same line
+line :: CardSpot -> [CardSpot]
+line = \case
+  TopLeft -> top
+  Top -> top
+  TopRight -> top
+  BottomLeft -> bot
+  Bottom -> bot
+  BottomRight -> bot
+  where
+    top = [TopLeft, Top, TopRight]
+    bot = [BottomLeft, Bottom, BottomRight]
 
 botSpots :: [CardSpot]
 botSpots = filter (not . inTheBack) allCardsSpots

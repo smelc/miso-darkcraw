@@ -218,6 +218,9 @@ testPlague shared =
         pSpot = PlayerTop
         board = mkBoard teams pSpot cids & mapInPlace f pSpot
 
+-- | 'mkCreature shared kind t transient' creates a creature with the
+-- given kind and team. The 'Bool' is whether the creature should be transient.
+-- or not.
 mkCreature :: SharedModel -> CreatureKind -> Team -> Bool -> Creature 'Core
 mkCreature shared kind team transient =
   SharedModel.idToCreature shared (CreatureID kind team) []
@@ -324,6 +327,25 @@ testTeamDeck shared =
       \team ->
         rawTeamDeck (SharedModel.getCards shared) team `shouldAllSatisfy` isJust
 
+testCharge shared =
+  describe "Skill.Charge" $ do
+    it "does NOT trigger when it should not" $ do
+      Total.attack (Just $ Total.mkPlace board pSpot BottomLeft) knight
+        `shouldBe` (Card.attack $ mkCreature' Card.Knight)
+    it "triggers when it should not" $ do
+      Total.attack (Just $ Total.mkPlace board' pSpot BottomLeft) knight
+        `shouldBe` (Card.attack $ mkCreature' Card.Knight) + Constants.chargeAmount
+  where
+    board =
+      Board.empty (Teams ZKnights Undead)
+        & (\b -> Board.setCreature b pSpot BottomLeft knight)
+        & (\b -> Board.setCreature b pSpot BottomRight knight)
+    board' = Board.setCreature board pSpot Bottom knight
+    pSpot = PlayerTop
+    team = ZKnights
+    mkCreature' k = mkCreature shared k team False
+    knight :: Creature 'Core = mkCreature' Card.Knight
+
 main :: SharedModel -> SpecWith ()
 main shared = do
   -- Unit tests
@@ -331,6 +353,7 @@ main shared = do
   testFillTheFrontline shared
   testTransient shared
   testBreathIce shared
+  testCharge shared
   -- PBT tests
   testTeamDeck shared
   testFearNTerror shared

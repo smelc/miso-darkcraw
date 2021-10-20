@@ -10,7 +10,7 @@
 -- |
 module Total where
 
-import qualified Board
+import Board
 import Card
 import qualified Constants
 import Data.Function ((&))
@@ -36,13 +36,17 @@ affectedByTerror _ _ = True
 -- | Where a creature is on the board
 data Place = Place {place :: Board.InPlaceType 'Core, cardSpot :: Board.CardSpot}
 
+-- | Builds a 'Place' from a 'Board'
+mkPlace :: Board 'Core -> PlayerSpot -> CardSpot -> Place
+mkPlace board pSpot cardSpot = Place {place = Board.toInPlace board pSpot, cardSpot}
+
 -- | The total attack of a creature, including boosts of skills and items.
 -- The 'Place' indicates where the creature given is.
 attack :: Maybe Place -> Creature 'Core -> Nat
-attack place (Creature {Card.attack, creatureId = id, skills, items}) =
+attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
-  attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus
+  attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus + chargeBonus
   where
     nbBlows =
       filter (\case Skill.Blow True -> True; _ -> False) skills & natLength
@@ -60,6 +64,18 @@ attack place (Creature {Card.attack, creatureId = id, skills, items}) =
             & concat
             & filter ((==) SkBanner)
             & natLength
+    chargeBonus =
+      case (hasCharge c, place) of
+        (False, _) -> 0
+        (_, Nothing) -> 0
+        (True, Just Place {place, cardSpot}) ->
+          if (length inhabitedSpots == 3) && all hasCharge inhabitedSpots
+            then Constants.chargeAmount
+            else 0
+          where
+            spots = Board.line cardSpot
+            inhabitedSpots = Map.filterWithKey (\cSpot _ -> cSpot `elem` spots) place
+    hasCharge Creature {skills} = any ((==) Skill.Charge) skills
 
 -- | Whether a creature causes fear
 causesFear ::

@@ -80,6 +80,10 @@ borderSize = 3
 buildPixelHeight :: Int
 buildPixelHeight = cps * 6
 
+-- | The additional attack granted by the Charge skill when available
+chargeAmount :: Nat
+chargeAmount = 2
+
 -- | The number of cards to draw at the beginning of a turn
 nbCardsToDraw :: Int
 nbCardsToDraw = 3
