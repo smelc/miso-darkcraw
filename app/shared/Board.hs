@@ -6,6 +6,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -514,19 +515,23 @@ toInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
   where
     inPlace = toInPlace board pSpot
 
-empty :: Teams Team -> Board 'Core
-empty Teams {topTeam, botTeam} =
-  Board {playerTop = emptyPart topTeam, playerBottom = emptyPart botTeam}
+-- | Class for types that have a default pristine state
+class Empty a b where
+  empty :: a -> b
 
-emptyPart :: Team -> PlayerPart 'Core
-emptyPart team = PlayerPart {..}
-  where
-    inPlace = Map.empty
-    inHand = []
-    mana = initialMana
-    score = 0
-    stack = []
-    discarded = []
+instance Empty (Teams Team) (Board 'Core) where
+  empty Teams {topTeam, botTeam} =
+    Board {playerTop = empty topTeam, playerBottom = empty botTeam}
+
+instance Empty Team (PlayerPart 'Core) where
+  empty team = PlayerPart {..}
+    where
+      inPlace = mempty
+      inHand = mempty
+      mana = initialMana
+      score = 0
+      stack = mempty
+      discarded = mempty
 
 data Teams a = Teams
   { topTeam :: a,
@@ -550,7 +555,7 @@ initial ::
 initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)} =
   (smodel'', Board topPart botPart)
   where
-    part team smodel deck = (smodel', (emptyPart team) {inHand = hand', stack = stack'})
+    part team smodel deck = (smodel', (empty team) {inHand = hand', stack = stack'})
       where
         (smodel', deck') = SharedModel.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
