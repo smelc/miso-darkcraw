@@ -389,7 +389,7 @@ playCreatureM ::
   Creature 'Core ->
   m (Board 'Core)
 playCreatureM board pSpot cSpot creature =
-  case Map.member cSpot inPlace of
+  case Map.member cSpot $ Board.toInPlace board pSpot of
     True ->
       -- This used to be an error, but now this can happen with
       -- Infernal Haste + Flail of the Damned. Haste makes
@@ -400,29 +400,10 @@ playCreatureM board pSpot cSpot creature =
           ("[WARN] Cannot place card on non-empty spot: " <> Text.pack (show cSpot))
           board
     _ -> do
-      let inPlace' =
-            -- Left-biased union
-            Map.union
-              ( if Total.isDisciplined creature
-                  then Map.fromList disciplinedNeighbors'
-                  else mempty
-              )
-              (Map.insert cSpot creature inPlace)
-      let part' = part {inPlace = inPlace'}
-      reportEffect pSpot cSpot $ mempty {fadeIn = True}
-      when (Total.isDisciplined creature) $
-        traverse_ ((\(cSpot, _) -> reportEffect pSpot cSpot disciplineEffect)) disciplinedNeighbors'
-      return $ Board.setPart board pSpot part'
-  where
-    part@PlayerPart {inPlace} = Board.toPart board pSpot
-    disciplinedNeighbors =
-      Board.toNeighbors board pSpot cSpot Board.Cardinal
-        & filter (\(_, c) -> Total.isDisciplined c)
-    boost = 1
-    applyDisciplineBoost Creature {..} = Creature {hp = hp + boost, attack = attack + boost, ..}
-    disciplinedNeighbors' =
-      map (Bifunctor.second applyDisciplineBoost) disciplinedNeighbors
-    disciplineEffect = mempty {attackChange = boost, hitPointsChange = boost}
+      reportEffect pSpot cSpot $ mempty {fadeIn = True} -- report creature addition effect
+      board <- pure $ Board.setCreature board pSpot cSpot creature -- set creature
+      board <- applyDiscipline board creature pSpot cSpot -- Creature has been set already when doing this call
+      return board
 
 -- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
 playItemM ::
@@ -459,6 +440,33 @@ installItem c@Creature {hp, items} item =
       case item of
         SwordOfMight -> 1
         _ -> 0 -- wildcard intentional
+
+applyDiscipline ::
+  MonadWriter (Board 'UI) m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The creature being played
+  Creature 'Core ->
+  -- | The part where the creature is being played
+  PlayerSpot ->
+  -- | The spot where the creature arrives. It has already been filled with 'creature'.
+  CardSpot ->
+  m (Board 'Core)
+applyDiscipline board creature pSpot cSpot =
+  if not $ Total.isDisciplined creature
+    then return board -- No change
+    else do
+      traverse_ ((\dSpot -> reportEffect pSpot dSpot disciplineEffect)) disciplinedNeighbors
+      return $ Board.mapInPlace applyDisciplineBoost pSpot disciplinedNeighbors board
+  where
+    boost = 1
+    disciplineEffect = mempty {attackChange = boost, hitPointsChange = boost}
+    applyDisciplineBoost Creature {..} = Creature {hp = hp + boost, attack = attack + boost, ..}
+    disciplinedNeighbors :: [CardSpot] =
+      Board.toNeighbors board pSpot cSpot Board.Cardinal
+        & filter (\(_, c) -> Total.isDisciplined c)
+        & filter (\(spot, _) -> spot /= cSpot)
+        & map fst
 
 applyFillTheFrontline ::
   Board 'Core ->

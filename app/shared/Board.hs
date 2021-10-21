@@ -396,6 +396,7 @@ mapInPlace f pSpot cSpots board =
     (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) inPlace
     inPlace' = Map.union (Map.map f changed) untouched
 
+-- | Puts a creature, replacing the existing one if any
 setCreature :: Board 'Core -> PlayerSpot -> CardSpot -> Creature 'Core -> Board 'Core
 setCreature board pSpot cSpot creature =
   setPart board pSpot part'
