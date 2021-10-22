@@ -346,8 +346,21 @@ testCharge shared =
     mkCreature' k = mkCreature shared k team False
     knight :: Creature 'Core = mkCreature' Card.Knight
 
+testStatChange =
+  describe "StatChange is a well behaved Monoid" $ do
+    prop "mempty <> change == change" $
+      \(change :: Game.StatChange) ->
+        mempty <> change `shouldBe` change
+    prop "change <> mempty == change" $
+      \(change :: Game.StatChange) ->
+        change <> mempty `shouldBe` change
+    prop "change <> change' == change' <> change" $
+      \(c1 :: Game.StatChange, c2) ->
+        c1 <> c2 `shouldBe` c1 <> c2
+
 main :: SharedModel -> SpecWith ()
 main shared = do
+  -- Tests are ordered from the fastest to the slowest
   -- Unit tests
   testFear shared
   testFillTheFrontline shared
@@ -355,6 +368,7 @@ main shared = do
   testBreathIce shared
   testCharge shared
   -- PBT tests
+  testStatChange
   testTeamDeck shared
   testFearNTerror shared
   testChurch shared

@@ -35,6 +35,7 @@ module Game
     play,
     playAll,
     playM,
+    StatChange (..), -- exported for tests only
     transferCards,
     Target (..),
     whichPlayerTarget,
@@ -153,6 +154,27 @@ data Animation
     -- which to show the message. Then it fades out during one second.
     Message [MessageText] Nat
   deriving (Eq, Generic)
+
+-- | A change in stats of a creature. Using 'Nat' for now because it suffices
+-- for the use cases. But really it could be a 'Int', it just makes 'apply' harder.
+data StatChange = StatChange {attackDiff :: Nat, hpDiff :: Nat}
+  deriving (Eq, Generic, Show)
+
+instance Semigroup StatChange where
+  StatChange {attackDiff = a1, hpDiff = hp1}
+    <> StatChange {attackDiff = a2, hpDiff = hp2} =
+      StatChange {attackDiff = a1 + a2, hpDiff = hp1 + hp2}
+
+instance Monoid StatChange where
+  mempty = StatChange {attackDiff = 0, hpDiff = 0}
+
+changeToEffect :: StatChange -> InPlaceEffect
+changeToEffect StatChange {attackDiff, hpDiff} =
+  mempty {attackChange = natToInt attackDiff, hitPointsChange = natToInt hpDiff}
+
+apply :: StatChange -> Creature p -> Creature p
+apply StatChange {attackDiff, hpDiff} c@Creature {attack, hp} =
+  c {Card.attack = attack + attackDiff, hp = hp + hpDiff}
 
 reportEffect ::
   MonadWriter (Board 'UI) m =>
@@ -402,7 +424,7 @@ playCreatureM board pSpot cSpot creature =
     _ -> do
       reportEffect pSpot cSpot $ mempty {fadeIn = True} -- report creature addition effect
       board <- pure $ Board.setCreature board pSpot cSpot creature -- set creature
-      board <- applyDiscipline board creature pSpot cSpot -- Creature has been set already when doing this call
+      board <- applyDiscipline board creature pSpot cSpot
       return board
 
 -- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
@@ -457,11 +479,10 @@ applyDiscipline board creature pSpot cSpot =
     then return board -- No change
     else do
       traverse_ ((\dSpot -> reportEffect pSpot dSpot disciplineEffect)) disciplinedNeighbors
-      return $ Board.mapInPlace applyDisciplineBoost pSpot disciplinedNeighbors board
+      return $ Board.mapInPlace (apply change) pSpot disciplinedNeighbors board
   where
-    boost = 1
-    disciplineEffect = mempty {attackChange = boost, hitPointsChange = boost}
-    applyDisciplineBoost Creature {..} = Creature {hp = hp + boost, attack = attack + boost, ..}
+    change = StatChange {attackDiff = 1, hpDiff = 1}
+    disciplineEffect = changeToEffect change
     disciplinedNeighbors :: [CardSpot] =
       Board.toNeighbors board pSpot cSpot Board.Cardinal
         & filter (\(_, c) -> Total.isDisciplined c)

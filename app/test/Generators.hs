@@ -161,6 +161,10 @@ instance Arbitrary InPlaceEffects where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary Game.StatChange where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 instance Arbitrary HandIndex where
   arbitrary = genericArbitraryU
   shrink = genericShrink
