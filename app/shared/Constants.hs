@@ -111,6 +111,10 @@ initialMana = 3
 nbTurns :: Nat
 nbTurns = 8
 
+-- | The attack boost given by a squire to the knight in front
+squireAttackBonus :: Nat
+squireAttackBonus = 1
+
 -- The yellowish background of a card
 cardBackground :: MisoString -> MisoString
 cardBackground team = "card-bg-" <> team <> ".png"

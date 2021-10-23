@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- |
@@ -46,13 +47,19 @@ attack :: Maybe Place -> Creature 'Core -> Nat
 attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
-  attack + (nbBlows * Constants.blowAmount) + nbSwordsOfMight + skBannerBonus + chargeBonus
+  attack
+    + (nbBlows * Constants.blowAmount)
+    + nbSwordsOfMight
+    + skBannerBonus
+    + chargeBonus
+    + squireBonus
   where
     nbBlows =
       filter (\case Skill.Blow True -> True; _ -> False) skills & natLength
     nbSwordsOfMight =
       filter (== SwordOfMight) items & natLength
     skBannerBonus =
+      -- TODO @smelc change match order
       case (Card.isSkeleton id, place) of
         (False, _) -> 0
         (_, Nothing) -> 0
@@ -65,6 +72,7 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
             & filter ((==) SkBanner)
             & natLength
     chargeBonus =
+      -- TODO @smelc change match order
       case (hasCharge c, place) of
         (False, _) -> 0
         (_, Nothing) -> 0
@@ -76,6 +84,14 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
             spots = Board.line cardSpot
             inhabitedSpots = Map.filterWithKey (\cSpot _ -> cSpot `elem` spots) place
     hasCharge Creature {skills} = any ((==) Skill.Charge) skills
+    squireBonus =
+      case (Skill.Knight `elem` skills, place) of -- A knight..
+        (True, Just Place {place, cardSpot})
+          | Board.inFront cardSpot -> -- .. in the frontline
+            case place Map.!? (Board.switchLine cardSpot) of -- Inspect creature in frontline
+              Just Creature {skills = skills'} | Skill.Squire `elem` skills' -> Constants.squireAttackBonus
+              _ -> 0
+        _ -> 0
 
 -- | Whether a creature causes fear
 causesFear ::

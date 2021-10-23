@@ -425,6 +425,7 @@ playCreatureM board pSpot cSpot creature =
       reportEffect pSpot cSpot $ mempty {fadeIn = True} -- report creature addition effect
       board <- pure $ Board.setCreature board pSpot cSpot creature -- set creature
       board <- applyDiscipline board creature pSpot cSpot
+      board <- applySquire board creature pSpot cSpot
       return board
 
 -- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
@@ -478,11 +479,11 @@ applyDiscipline board creature pSpot cSpot =
   if not $ Total.isDisciplined creature
     then return board -- No change
     else do
-      traverse_ ((\dSpot -> reportEffect pSpot dSpot disciplineEffect)) disciplinedNeighbors
+      traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) disciplinedNeighbors
       return $ Board.mapInPlace (apply change) pSpot disciplinedNeighbors board
   where
     change = StatChange {attackDiff = 1, hpDiff = 1}
-    disciplineEffect = changeToEffect change
+    effect = changeToEffect change
     disciplinedNeighbors :: [CardSpot] =
       Board.toNeighbors board pSpot cSpot Board.Cardinal
         & filter (\(_, c) -> Total.isDisciplined c)
@@ -541,6 +542,32 @@ applyPlagueM board pSpot = do
     baseEffect = mempty {hitPointsChange = -1}
     plagueEffect Creature {hp} | hp <= 1 = baseEffect {death = UsualDeath}
     plagueEffect _ = baseEffect {fadeOut = [Tile.HeartBroken]}
+
+applySquire ::
+  MonadWriter (Board 'UI) m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The creature being played
+  Creature 'Core ->
+  -- | The part where the creature is being played
+  PlayerSpot ->
+  -- | The spot where the creature arrives. It has already been filled with the creature.
+  CardSpot ->
+  m (Board 'Core)
+applySquire board Creature {skills} pSpot cSpot =
+  if Skill.Squire `notElem` skills || Board.inFront cSpot || not knightInFront
+    then return board -- No change
+    else do
+      reportEffect pSpot frontSpot effect
+      return $ Board.mapInPlace (apply change) pSpot [frontSpot] board
+  where
+    change :: StatChange = mempty {hpDiff = 1}
+    effect = changeToEffect change
+    frontSpot = Board.switchLine cSpot
+    knightInFront =
+      Board.toInPlaceCreature board pSpot frontSpot
+        <&> (\Creature {skills = skills'} -> Skill.Knight `elem` skills')
+        & fromMaybe False
 
 drawCards ::
   SharedModel ->

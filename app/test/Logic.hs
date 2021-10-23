@@ -11,7 +11,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (main, mkCreature, testChurch) where
+module Logic (disturber, main, mkCreature, testSquire) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -36,6 +36,18 @@ import TestLib (shouldAllSatisfy, shouldSatisfyJust)
 import qualified Total
 import Turn
 
+-- 'disturber' identifies cards which, when played, affect other cards on the board
+disturber shared (IDC id items) =
+  SharedModel.idToCreature shared id items
+    & fromJust
+    & Card.unlift
+    & orf [\Creature {skills} -> Skill.Squire `elem` skills, Total.isDisciplined]
+  where
+    orf :: [a -> Bool] -> a -> Bool
+    orf [] = const False
+    orf (f : fs) = \x -> (f x || orf fs x)
+disturber _ _ = False
+
 -- Tests that playing a creature only affects the target spot. Some
 -- creatures are omitted: the ones with Discipline, because it breaks this
 -- property. This test is not plugged yet because it breaks: if you
@@ -59,7 +71,7 @@ testPlayFraming shared =
       case Board.toHand board pSpot of
         [] -> Nothing
         id : hand' ->
-          if breaksFraming id
+          if disturber shared id
             then pickCardSpot (Board.setHand board pSpot hand') (i + 1) pSpot -- try next card
             else case targetType id of
               PlayerTargetType -> Nothing
@@ -67,12 +79,6 @@ testPlayFraming shared =
                 Board.toPlayerCardSpots board pSpot ctk
                   & listToMaybe
                   <&> (i,)
-    breaksFraming (IDC id items) =
-      SharedModel.idToCreature shared id items
-        & fromJust
-        & Card.unlift
-        & Total.isDisciplined
-    breaksFraming _ = False
     relation _ _ _ (Left _) = True
     relation board pSpot cSpot (Right (Game.PolyResult _ board' _ _)) = boardEq board pSpot [cSpot] board'
     boardEq (board :: Board 'Core) pSpot cSpots board' =
@@ -330,10 +336,10 @@ testTeamDeck shared =
 testCharge shared =
   describe "Skill.Charge" $ do
     it "does NOT trigger when it should not" $ do
-      Total.attack (Just $ Total.mkPlace board pSpot BottomLeft) knight
+      attack board pSpot BottomLeft
         `shouldBe` (Card.attack $ mkCreature' Card.Knight)
-    it "triggers when it should not" $ do
-      Total.attack (Just $ Total.mkPlace board' pSpot BottomLeft) knight
+    it "triggers when it should" $ do
+      attack board' pSpot BottomLeft
         `shouldBe` (Card.attack $ mkCreature' Card.Knight) + Constants.chargeAmount
   where
     board =
@@ -345,6 +351,38 @@ testCharge shared =
     team = ZKnights
     mkCreature' k = mkCreature shared k team False
     knight :: Creature 'Core = mkCreature' Card.Knight
+    attack b pSpot cSpot =
+      Total.attack
+        (Just $ Total.mkPlace b pSpot cSpot)
+        (Board.toInPlaceCreature b pSpot cSpot & fromJust)
+
+testSquire shared =
+  describe "Skill.Squire" $ do
+    it "does NOT trigger when it should not" $ do
+      attack board pSpot Bottom `shouldBe` (Card.attack $ mkCreature' Card.Knight)
+      attack board' pSpot Top `shouldBe` (Card.attack $ mkCreature' Card.Knight)
+    it "triggers when it should" $ do
+      attack board'' pSpot Bottom
+        `shouldBe` (Card.attack $ mkCreature' Card.Knight) + Constants.squireAttackBonus
+  where
+    (team, pSpot) = (ZKnights, PlayerTop)
+    board =
+      Board.empty (Teams ZKnights Undead)
+        & (\b -> Board.setCreature b pSpot Bottom knight) -- Knight alone
+    board' =
+      Board.empty (Teams ZKnights Undead)
+        & (\b -> Board.setCreature b pSpot Bottom squire) -- Squire in front line
+        & (\b -> Board.setCreature b pSpot Top knight) -- Knight in back line
+    board'' = Board.setCreature board pSpot Top squire -- Add squire
+    mkCreature' k = mkCreature shared k team False
+    knight :: Creature 'Core = mkCreature' Card.Knight
+    squire :: Creature 'Core = mkCreature' Card.Squire
+    attack b pSpot cSpot =
+      Total.attack
+        (Just $ Total.mkPlace b pSpot cSpot)
+        (Board.toInPlaceCreature b pSpot cSpot & fromJust & checkk)
+    checkk (c@Creature {skills} :: Creature 'Core) | Skill.Knight `elem` skills = c
+    checkk _ = error "Expected a knight"
 
 testStatChange =
   describe "StatChange is a well behaved Monoid" $ do
@@ -367,6 +405,7 @@ main shared = do
   testTransient shared
   testBreathIce shared
   testCharge shared
+  testSquire shared
   -- PBT tests
   testStatChange
   testTeamDeck shared

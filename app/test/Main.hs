@@ -32,19 +32,18 @@ import qualified Game
 import Generators
 import qualified Invariants
 import Json
-import qualified Logic (main, mkCreature)
+import qualified Logic (disturber, main, mkCreature)
 import qualified Match
 import Movie
 import Nat
 import Pretty
 import SceneEquivalence
-import SharedModel (SharedModel, idToCreature)
+import SharedModel (SharedModel)
 import qualified SharedModel
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import TestLib (shouldAllSatisfy)
-import qualified Total
 import Turn
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
@@ -239,14 +238,21 @@ testAIPlace shared =
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` (goodCards board pSpot)
     prop "placeCards returns events playing cards of the player whose turn it is" $
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` playerIs pSpot
-    prop "placeCards return events that commute (modulo Discipline)" $
-      \(Pretty board) (Pretty turn) ->
-        let events = AI.placeCards difficulty shared board turn & filter (not . hasDiscipline)
-         in (length events >= 2)
-              ==> forAll (Test.QuickCheck.elements (permutations events))
-              $ \events' ->
-                Pretty (ignoreErrMsg (Game.playAll shared board events)) `shouldBe` Pretty (ignoreErrMsg (Game.playAll shared board events'))
+    prop "placeCards return events that commute (modulo Discipline, Squire)" $
+      \(Pretty (b0 :: Board 'Core)) card1 card2 (Pretty pSpot) ->
+        -- We generate two cards to make almost sure (modulo filterOut) that
+        -- we pass the condition (length events >= 2)
+        let b1 = extendHand b0 pSpot [card1, card2]
+         in let board = Board.setHand b1 pSpot (Board.toHand b1 pSpot & filterOut (Logic.disturber shared))
+             in let events = AI.placeCards difficulty shared board pSpot
+                 in (length events >= 2)
+                      ==> forAll (Test.QuickCheck.elements (permutations events))
+                      $ \events' ->
+                        Pretty (ignoreErrMsg (Game.playAll shared board events))
+                          `shouldBe` Pretty (ignoreErrMsg (Game.playAll shared board events'))
   where
+    filterOut f = filter (not . f)
+    extendHand b pSpot cards = Board.setHand b pSpot (Board.toHand b pSpot ++ cards)
     difficulty = AI.Easy
     ignoreErrMsg (Left _) = Nothing
     ignoreErrMsg (Right (Game.PolyResult _ board' () _)) = Just board'
@@ -255,13 +261,6 @@ testAIPlace shared =
     spotsDiffer _ _ = error "Only Place' events should have been generated"
     allDiff [] = True
     allDiff (event : events) = all (spotsDiffer event) events && allDiff events
-    hasDiscipline (Game.Place' _ _ (IDC id items)) =
-      SharedModel.idToCreature shared id items
-        & fromJust
-        & Card.unlift
-        & Total.isDisciplined
-    hasDiscipline (Game.Place' _ _ _) = False
-    hasDiscipline _ = error "Only Place' events should have been generated"
     goodCards _ _ [] = True
     goodCards board pSpot (Game.Place _ _ HandIndex {unHandIndex = i} : tl) =
       case (0 <= i, i < handSize) of

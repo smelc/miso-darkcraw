@@ -36,6 +36,7 @@ module Board
     endingPlayerSpot,
     initial,
     HandIndex (..),
+    inFront,
     inTheBack,
     InHandType (),
     lookupHand,
@@ -576,12 +577,16 @@ small shared teams cid items pSpot cSpot =
         & fromJust
         & Card.unlift
 
--- Whether a spot is in the back line
+-- | Whether a spot is in the back line
 inTheBack :: CardSpot -> Bool
 inTheBack TopLeft = True
 inTheBack Top = True
 inTheBack TopRight = True
 inTheBack _ = False
+
+-- | Whether a spot is in the front line
+inFront :: CardSpot -> Bool
+inFront = not . inTheBack
 
 -- | Given a frontline spot, the corresponding backline spot. Given
 -- a backline spot, the corresponding frontline spot.
