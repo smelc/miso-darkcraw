@@ -59,10 +59,7 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
     nbSwordsOfMight =
       filter (== SwordOfMight) items & natLength
     skBannerBonus =
-      -- TODO @smelc change match order
       case (Card.isSkeleton id, place) of
-        (False, _) -> 0
-        (_, Nothing) -> 0
         (True, Just Place {place}) ->
           Map.elems place
             & map Card.items -- Count the number of banners, so
@@ -71,18 +68,18 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
             & concat
             & filter ((==) SkBanner)
             & natLength
+        _ -> 0
     chargeBonus =
       -- TODO @smelc change match order
       case (hasCharge c, place) of
-        (False, _) -> 0
-        (_, Nothing) -> 0
         (True, Just Place {place, cardSpot}) ->
-          if (length inhabitedSpots == 3) && all hasCharge inhabitedSpots
-            then Constants.chargeAmount
-            else 0
+          let inhabitedSpots = Map.filterWithKey (\cSpot _ -> cSpot `elem` spots) place
+           in if (length inhabitedSpots == 3) && all hasCharge inhabitedSpots
+                then Constants.chargeAmount
+                else 0
           where
             spots = Board.line cardSpot
-            inhabitedSpots = Map.filterWithKey (\cSpot _ -> cSpot `elem` spots) place
+        _ -> 0
     hasCharge Creature {skills} = any ((==) Skill.Charge) skills
     squireBonus =
       case (Skill.Knight `elem` skills, place) of -- A knight..
