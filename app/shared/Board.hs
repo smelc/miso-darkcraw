@@ -311,6 +311,8 @@ lookupHand hand i
   where
     handLength = length hand
 
+-- FIXME @smelc Move me to a standalone 'Spots' file (with 'CardSpot'),
+-- so that 'Command' avoids redefining this type.
 data PlayerSpot = PlayerBot | PlayerTop
   deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 

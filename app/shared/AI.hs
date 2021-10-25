@@ -71,6 +71,7 @@ placeCards difficulty shared board turn =
     isPlaceEvent = \case
       ApplyChurch {} -> False
       ApplyFearNTerror {} -> False
+      ApplyKing {} -> False
       Attack {} -> False
       FillTheFrontline {} -> False
       NoPlayEvent -> False

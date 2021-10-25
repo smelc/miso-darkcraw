@@ -535,7 +535,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       putAll triplet
       shared <- get @SharedModel
       board <- get @(Board 'Core)
-      let events1 = Game.keepEffectfull shared board [Game.ApplyFearNTerror otherSpot, Game.FillTheFrontline pSpot]
+      let events1 = Game.keepEffectfull shared board [Game.ApplyFearNTerror otherSpot, Game.FillTheFrontline pSpot, Game.ApplyKing pSpot]
       let events2 =
             -- AI case: after drawing cards and playing its events
             --          press "End Turn". We want a one second delay, it makes
@@ -801,14 +801,14 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
           Just (Command.EndGame outcome) ->
             noEff $ LootModel' $ Model.endGame gm outcome
           Just (Command.FillTheFrontline pSpot) ->
-            updateModel
-              (GameAction' (GamePlay $ Game.FillTheFrontline $ changeType pSpot))
-              (GameModel' gm)
+            playEvent Game.FillTheFrontline pSpot
           Just (Command.Gimme cid) ->
             withBoard $ Board.addToHand board playingPlayer cid
           Just (Command.GimmeMana) ->
             let mana = Board.toPart board playingPlayer & Board.mana
              in withBoard $ Board.setMana (mana + 1) playingPlayer board
+          Just (Command.HailToTheKing pSpot) ->
+            playEvent Game.ApplyKing pSpot
           Just (Command.Killall pSpot') ->
             withBoard $ Board.setPart board pSpot (part {inPlace = mempty})
             where
@@ -818,6 +818,10 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
     -- XXX @smelc Use a single type?
     changeType = \case Command.Top -> Board.PlayerTop; Command.Bot -> Board.PlayerBot
+    playEvent eventMaker pSpot =
+      updateModel
+        (GameAction' (GamePlay $ eventMaker $ changeType pSpot))
+        (GameModel' gm)
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack

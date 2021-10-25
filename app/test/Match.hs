@@ -174,6 +174,7 @@ eventToGameActions board event =
     Game.Attack {} -> lift event
     Game.ApplyChurch {} -> lift event
     Game.ApplyFearNTerror {} -> lift event
+    Game.ApplyKing {} -> lift event
     Game.FillTheFrontline {} -> lift event
     Game.NoPlayEvent -> []
     Game.Place _ target handIndex ->

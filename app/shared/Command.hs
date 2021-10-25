@@ -3,7 +3,7 @@
 
 -- |
 -- This module contains the debug commands that can be entered in dev mode.
--- It isin  the shared/ folder, for testing purpose: we don't want to compile
+-- It is in the shared/ folder, for testing purpose: we don't want to compile
 -- client/ in tests.
 -- |
 module Command
@@ -45,6 +45,8 @@ data Command
     Gimme Card.ID
   | -- | Command to obtain mana
     GimmeMana
+  | -- | Command to trigger the 'king' event
+    HailToTheKing PlayerSpot
   | -- | Command to kill all creatures in a part
     Killall PlayerSpot
 
@@ -56,9 +58,8 @@ allCommands cids =
     ++ [Gimme $ Card.IDI item | item <- sortOn show allItems]
     ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
     ++ [EndGame r | r <- [minBound ..]]
-    ++ [FillTheFrontline pSpot | pSpot <- [minBound ..]]
+    ++ [e pSpot | e <- [FillTheFrontline, HailToTheKing, Killall], pSpot <- [minBound ..]]
     ++ [GimmeMana]
-    ++ [Killall pSpot | pSpot <- [minBound ..]]
   where
     compareCID
       CreatureID {creatureKind = ck1, team = t1}
@@ -85,6 +86,8 @@ instance Show Command where
     "gimme " ++ (show neutral & toLowerString)
   show GimmeMana =
     "gimme mana"
+  show (HailToTheKing pSpot) =
+    "hail to the " ++ show pSpot ++ " king"
   show (Killall pSpot) =
     "killall " ++ show pSpot
 

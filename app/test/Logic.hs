@@ -6,12 +6,13 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testSquire) where
+module Logic (disturber, main, mkCreature, testKing) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -37,6 +38,7 @@ import qualified Total
 import Turn
 
 -- 'disturber' identifies cards which, when played, affect other cards on the board
+disturber :: SharedModel -> Card.ID -> Bool
 disturber shared (IDC id items) =
   SharedModel.idToCreature shared id items
     & fromJust
@@ -311,6 +313,32 @@ testChurch shared =
             (Nothing, Nothing) -> True
             _ -> False
 
+testKing :: SharedModel -> SpecWith ()
+testKing shared =
+  describe "King" $ do
+    prop "King effect is as expected" $
+      \(Pretty board, pSpot) ->
+        Game.play shared board (Game.ApplyKing pSpot) `shouldSatisfy` (pred board pSpot)
+  where
+    pred _ _ (Left errMsg) = traceShow errMsg False
+    pred board pSpot (Right (Game.PolyResult _shared' board' _ _anim)) =
+      Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
+        && all
+          (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
+          allCardsSpots
+      where
+        otherSpot = otherPlayerSpot pSpot
+        toCreature (b :: Board 'Core) cSpot =
+          Board.toInPlace b pSpot & (Map.!? cSpot)
+        (~=) before after =
+          case (before, after) of
+            (Just c1@Creature {attack = a1, hp = hp1, skills = skills1}, Just c2@Creature {attack = a2, hp = hp2, skills = skills2}) ->
+              if (c1 == c2) || ((a1 < a2) && (hp1 < hp2) && skills1 == skills2 && Skill.Knight `elem` skills1)
+                then True
+                else traceShow c1 (traceShow c2 False)
+            (Nothing, Nothing) -> True
+            _ -> False
+
 testTransient shared =
   describe "Transient" $ do
     it "Transient creatures don't go to any stack when killed" $ do
@@ -411,6 +439,7 @@ main shared = do
   testTeamDeck shared
   testFearNTerror shared
   testChurch shared
+  testKing shared
   testPlague shared
   testPlayFraming shared
   testDrawCards shared

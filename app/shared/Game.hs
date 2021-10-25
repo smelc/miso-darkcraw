@@ -109,6 +109,8 @@ data Event
     ApplyChurch PlayerSpot
   | -- | Apply fear of the creatures at the given 'PlayerSpot'
     ApplyFearNTerror PlayerSpot
+  | -- | Apply king of the creatures at the given 'PlayerSpot'
+    ApplyKing PlayerSpot
   | -- | A card attacks at the given spot. The first Boolean indicates
     -- whether the next spot (as defined by 'nextAttackSpot') should
     -- be enqueued after solving this attack. The second Boolean indicates
@@ -255,6 +257,9 @@ playM board (ApplyChurch pSpot) = do
 playM board (ApplyFearNTerror pSpot) = do
   board' <- Game.applyFearNTerrorM board pSpot
   return (board', Nothing)
+playM board (ApplyKing pSpot) = do
+  board' <- Game.applyKingM board pSpot
+  return (board', Nothing)
 playM board (Attack pSpot cSpot _ _) = do
   board' <- Game.attack board pSpot cSpot
   return (board', Nothing)
@@ -312,8 +317,6 @@ eventToAnim shared board =
       where
         parts@(part, part') = (Board.toPart board pSpot, Board.toPart board' pSpot)
         board' = applyChurch shared board pSpot & (\(b, _, _) -> b)
-        attackTile = SharedModel.tileToFilepath shared Tile.Sword1 Tile.Sixteen
-        heartTile = SharedModel.tileToFilepath shared Tile.Heart Tile.Sixteen
         churchTile = SharedModel.tileToFilepath shared Tile.HumanChurch Tile.TwentyFour
         creatures :: ([Creature 'Core], [Creature 'Core]) =
           both (Map.elems . Board.inPlace) parts
@@ -324,6 +327,15 @@ eventToAnim shared board =
         both f = Bifunctor.bimap f f
         fill suffix = Message ([Text "Church", Image churchTile] ++ suffix) duration
     Game.ApplyFearNTerror {} -> NoAnimation
+    Game.ApplyKing {} ->
+      Message
+        [ Text "Hail to the king: +1 ",
+          Image heartTile,
+          Text " +1",
+          Image attackTile,
+          Text " to all knights"
+        ]
+        duration
     Game.Attack {} -> NoAnimation
     Game.FillTheFrontline pSpot ->
       Message
@@ -351,6 +363,8 @@ eventToAnim shared board =
     Game.Place' {} -> NoAnimation
   where
     duration = 2
+    attackTile = SharedModel.tileToFilepath shared Tile.Sword1 Tile.Sixteen
+    heartTile = SharedModel.tileToFilepath shared Tile.Heart Tile.Sixteen
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot
@@ -842,6 +856,28 @@ applyFearNTerrorM board affectingSpot = do
     consumeTerrorSkill [] = []
     consumeTerrorSkill ((Skill.Terror True) : rest) = Skill.Terror False : rest
     consumeTerrorSkill (s : rest) = s : consumeTerrorSkill rest
+
+-- | Applies the effect of kings, i.e. give +1/+1 to all knights, for every
+-- king in place.
+applyKingM ::
+  MonadWriter (Board 'UI) m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part where kings are used
+  PlayerSpot ->
+  m (Board 'Core)
+applyKingM board pSpot = do
+  traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) knightSpots
+  return $ Board.mapInPlace (apply change) pSpot knightSpots board
+  where
+    inPlace = Board.toInPlace board pSpot
+    nbKings = Map.filter (\Creature {skills} -> Skill.King `elem` skills) inPlace & Map.size
+    baseChange :: StatChange = StatChange {attackDiff = 1, hpDiff = 1}
+    change :: StatChange = mconcat $ replicate nbKings baseChange
+    effect = changeToEffect change
+    knightSpots =
+      Map.filter (\Creature {skills} -> Skill.Knight `elem` skills) inPlace
+        & Map.keys
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::

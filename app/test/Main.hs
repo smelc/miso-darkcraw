@@ -386,6 +386,7 @@ testMana shared =
       \case
         Game.ApplyChurch {} -> True
         Game.ApplyFearNTerror {} -> True
+        Game.ApplyKing {} -> True
         Game.Attack {} -> True
         Game.FillTheFrontline {} -> True
         Game.NoPlayEvent -> True
