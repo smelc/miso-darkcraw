@@ -23,6 +23,7 @@ import Generators ()
 import Model
 import Nat
 import SharedModel
+import Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck ((==>))

@@ -18,6 +18,7 @@ import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Nat
 import qualified Skill
+import Spots
 
 -- | Whether a creature is affected by fear. The first Boolean indicates
 -- whether to consider the hitpoints ('True') or not ('False')
@@ -35,7 +36,7 @@ affectedByTerror _ c | causesTerror c = False -- Creature causing terror are imm
 affectedByTerror _ _ = True
 
 -- | Where a creature is on the board
-data Place = Place {place :: Board.InPlaceType 'Core, cardSpot :: Board.CardSpot}
+data Place = Place {place :: Board.InPlaceType 'Core, cardSpot :: Spots.CardSpot}
 
 -- | Builds a 'Place' from a 'Board'
 mkPlace :: Board 'Core -> PlayerSpot -> CardSpot -> Place
@@ -84,7 +85,7 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
     squireBonus =
       case (Skill.Knight `elem` skills, place) of -- A knight..
         (True, Just Place {place, cardSpot})
-          | Board.inFront cardSpot -> -- .. in the frontline
+          | Spots.inFront cardSpot -> -- .. in the frontline
             case place Map.!? (Board.switchLine cardSpot) of -- Inspect creature in frontline
               Just Creature {skills = skills'} | Skill.Squire `elem` skills' -> Constants.squireAttackBonus
               _ -> 0

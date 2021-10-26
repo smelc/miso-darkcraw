@@ -17,6 +17,7 @@ import Data.Function ((&))
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import Spots
 import qualified Total
 
 -- | The spot of a card, as visible from the top of the screen. For the

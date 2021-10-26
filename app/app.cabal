@@ -55,6 +55,7 @@ common common-all
     ServerMessages
     SharedModel
     Skill
+    Spots
     Tile
     Total
     Turn

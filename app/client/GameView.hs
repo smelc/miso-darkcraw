@@ -37,6 +37,7 @@ import Model
 import Nat
 import PCWViewInternal
 import SharedModel
+import Spots
 import qualified Total
 import Update
 import ViewBlocks (dummyOn)

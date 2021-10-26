@@ -19,6 +19,7 @@ import Generic.Random
 import qualified SharedModel
 import Skill (Skill)
 import qualified Skill
+import Spots
 import Test.QuickCheck
 import Tile (Tile)
 import Turn

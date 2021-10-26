@@ -21,17 +21,10 @@ import Data.Function ((&))
 import Data.Functor
 import Data.List (find)
 import Data.List.Extra
+import Spots
 
 toLowerString :: String -> String
 toLowerString = map toLower
-
--- | We don't reuse 'Board' type, because that would create a cyclic
--- dependency
-data PlayerSpot = Bot | Top
-  deriving (Bounded, Enum)
-
-instance Show PlayerSpot where
-  show = \case Bot -> "bot"; Top -> "top"
 
 -- If you extend this datatype, extend 'allCommands' below
 -- and 'getAllCommands' in SharedModel

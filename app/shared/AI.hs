@@ -15,11 +15,8 @@ module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), placeCar
 
 import Board
   ( Board,
-    CardSpot,
     HandIndex (HandIndex),
     PlayerSpot,
-    inTheBack,
-    otherPlayerSpot,
   )
 import qualified Board
 import BoardInstances ()
@@ -41,6 +38,7 @@ import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
 import qualified Skill
+import Spots
 import System.Random (StdGen)
 import System.Random.Shuffle (shuffle')
 import qualified Total
@@ -301,7 +299,7 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
       SkBanner ->
         backBonus + skNeighborsBonus
         where
-          backBonus = if Board.inTheBack cSpot then 2 else 0 -- Prefer banner bearer to be in the back
+          backBonus = if Spots.inTheBack cSpot then 2 else 0 -- Prefer banner bearer to be in the back
           skNeighborsBonus =
             Board.toInPlace board pSpot
               & Map.elems

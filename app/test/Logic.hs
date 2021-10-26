@@ -30,6 +30,7 @@ import Pretty
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
 import qualified Skill
+import Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck

@@ -24,6 +24,7 @@ import qualified Game (Animation (..), Target)
 import Nat
 import ServerMessages
 import SharedModel (SharedModel, getInitialDeck, getStdGen)
+import Spots
 import Turn (Turn)
 import qualified Turn
 

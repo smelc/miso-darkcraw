@@ -9,9 +9,10 @@ module Turn
   )
 where
 
-import Board (PlayerSpot (..), endingPlayerSpot, startingPlayerSpot)
+import Board (PlayerSpot (..))
 import GHC.Generics (Generic)
 import Nat
+import Spots
 
 newtype Turn = Turn (Nat, PlayerSpot)
   deriving (Eq, Generic, Show)

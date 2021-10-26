@@ -53,6 +53,7 @@ import SharedModel (SharedModel)
 import qualified SharedModel
 import Skill (Skill)
 import qualified Skill
+import Spots
 import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -809,18 +810,15 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
              in withBoard $ Board.setMana (mana + 1) playingPlayer board
           Just (Command.HailToTheKing pSpot) ->
             playEvent Game.ApplyKing pSpot
-          Just (Command.Killall pSpot') ->
+          Just (Command.Killall pSpot) ->
             withBoard $ Board.setPart board pSpot (part {inPlace = mempty})
             where
               part = Board.toPart board pSpot
-              pSpot = changeType pSpot'
   where
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
-    -- XXX @smelc Use a single type?
-    changeType = \case Command.Top -> Board.PlayerTop; Command.Bot -> Board.PlayerBot
     playEvent eventMaker pSpot =
       updateModel
-        (GameAction' (GamePlay $ eventMaker $ changeType pSpot))
+        (GameAction' $ GamePlay $ eventMaker pSpot)
         (GameModel' gm)
 -- Actions that leave 'SinglePlayerView'
 updateModel

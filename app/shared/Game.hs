@@ -73,6 +73,7 @@ import SharedModel (SharedModel)
 import qualified SharedModel
 import Skill (Skill)
 import qualified Skill
+import Spots
 import System.Random.Shuffle (shuffleM)
 import qualified Tile
 import qualified Total
@@ -518,7 +519,7 @@ applyFillTheFrontline board pSpot =
       Map.toList inPlace
         & map
           ( \(cSpot, v) ->
-              ( if Board.inTheBack cSpot
+              ( if Spots.inTheBack cSpot
                   && applies v
                   && Board.switchLine cSpot `notElem` spots
                   then Board.switchLine cSpot
@@ -569,7 +570,7 @@ applySquire ::
   CardSpot ->
   m (Board 'Core)
 applySquire board Creature {skills} pSpot cSpot =
-  if Skill.Squire `notElem` skills || Board.inFront cSpot || not knightInFront
+  if Skill.Squire `notElem` skills || Spots.inFront cSpot || not knightInFront
     then return board -- No change
     else do
       reportEffect pSpot frontSpot effect

@@ -17,6 +17,7 @@ import Data.Foldable
 import qualified Data.Map.Strict as Map
 import Nat
 import qualified Skill
+import Spots
 
 instance Startable (PlayerPart 'Core) where
   start PlayerPart {..} =
