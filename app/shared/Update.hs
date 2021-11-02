@@ -910,23 +910,18 @@ levelNGameModel ::
   (Teams (Team, [Card 'Core])) ->
   GameModel
 levelNGameModel difficulty shared level teams =
-  GameModel
-    shared
-    board
-    difficulty
-    NoInteraction
-    level
-    startingPlayerSpot
-    playingPlayerDeck
-    Turn.initial
-    mempty
-    Game.NoAnimation
+  GameModel {..}
   where
     (_, board) = Board.initial shared teams
+    interaction = NoInteraction
+    playingPlayer = startingPlayerSpot
     playingPlayerDeck =
-      toData startingPlayerSpot teams
+      toData playingPlayer teams
         & snd
         & map Card.cardToIdentifier
+    turn = Turn.initial
+    anims = mempty
+    anim = Game.NoAnimation
 
 -- | An initial model, with a custom board
 unsafeInitialGameModel ::
@@ -938,22 +933,18 @@ unsafeInitialGameModel ::
   Board 'Core ->
   GameModel
 unsafeInitialGameModel difficulty shared teamsData board =
-  GameModel
-    shared
-    board
-    difficulty
-    NoInteraction
-    Campaign.Level0
-    startingPlayerSpot
-    playingPlayerDeck
-    Turn.initial
-    mempty
-    Game.NoAnimation
+  GameModel {..}
   where
+    interaction = NoInteraction
+    level = Campaign.Level0
+    playingPlayer = startingPlayerSpot
     playingPlayerDeck =
-      toData startingPlayerSpot teamsData
+      toData playingPlayer teamsData
         & snd
         & map Card.cardToIdentifier
+    turn = Turn.initial
+    anims = mempty
+    anim = Game.NoAnimation
 
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel shared =

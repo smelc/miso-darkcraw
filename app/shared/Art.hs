@@ -8,7 +8,6 @@
 -- |
 -- Module defining a function 'Board' -> ASCII. Not in 'Board' itself,
 -- because it depends on 'Total' and 'Total' needs to depend on 'Board'.
--- |
 module Art (toASCII) where
 
 import Board
@@ -20,7 +19,7 @@ import Data.Maybe
 import Spots
 import qualified Total
 
--- | The spot of a card, as visible from the top of the screen. For the
+-- | Converts a 'Board' to an ASCII String, omitting some data for readibility
 toASCII :: Board 'Core -> String
 toASCII board =
   (intersperse "\n" lines & concat) ++ "\n"
