@@ -236,14 +236,19 @@ data StackWidgetType
 
 -- | The widget showing the number of cards in the stack/discarded stack
 stackView :: GameModel -> Int -> PlayerSpot -> StackPosition -> StackKind -> Styled [View Action]
-stackView GameModel {anims, board, shared} z pSpot stackPos stackType = do
-  button <- textButton gui z Enabled [] $ ms (label ++ ": " ++ show atColonSize)
+stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType = do
+  button <- textButton gui z enabledness [] $ ms (label ++ ": " ++ show atColonSize)
   plus <- keyframed plusBuilder plusFrames animData
   return $
-    [div_ [buttonStyle, onClick $ DeckGo deck] [button]]
+    [div_ (buttonStyle : [onClick $ DeckGo deck | enabled]) [button]]
       ++ [div_ [plusStyle] [plus] | plusValue > 0]
   where
     commonStyle = "z-index" =: ms z <> "position" =: "absolute"
+    enabledness = if uiAvail then Enabled else Disabled
+    enabled = case enabledness of
+      Disabled -> False
+      Enabled -> True
+      Selected -> False
     verticalMargin GameViewInternal.Board _ = "top" =: px (scoreMarginTop PlayerTop)
     verticalMargin Hand Button = "bottom" =: px (cps `div` 2)
     verticalMargin Hand Plus = "bottom" =: px (- (cps `div` 2))

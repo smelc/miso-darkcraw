@@ -363,10 +363,11 @@ act m a i =
     _ -> updateDefault m i
 
 instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
-  considerAction m a =
+  considerAction m@GameModel {uiAvail} a =
     case a of
       DragEnd -> True
-      DragStart _ -> isPlayerTurn m
+      DragStart _ | uiAvail && isPlayerTurn m -> True
+      DragStart _ -> False
       Drop -> True
       DragEnter _ -> isPlayerTurn m
       DragLeave _ -> isPlayerTurn m
@@ -446,7 +447,7 @@ updateGameModel m@GameModel {board, shared, turn} (GameDrawCards (fst : rest)) _
   where
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-updateGameModel m@GameModel {board, difficulty, shared, turn} GameEndTurnPressed _ =
+updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} GameEndTurnPressed _ =
   case em' of
     Left err -> updateDefault m $ ShowErrorInteraction err
     Right m'@GameModel {board = board'} ->
@@ -467,21 +468,23 @@ updateGameModel m@GameModel {board, difficulty, shared, turn} GameEndTurnPressed
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
     em' =
-      if isInitialTurn
-        then do
-          -- End Turn pressed at the end of the player's first turn, make the AI
-          -- place its card in a state where the player did not put its
-          -- card yet, then place them all at once; and then continue
-          -- Do not reveal player placement to AI
-          let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
-          let placements = AI.placeCards difficulty shared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
-          Game.PolyResult shared' board' () boardui' <- Game.playAll shared board placements
-          return $ m {anims = boardui', board = board', shared = shared'}
-        else Right m
+      ( if isInitialTurn
+          then do
+            -- End Turn pressed at the end of the player's first turn, make the AI
+            -- place its card in a state where the player did not put its
+            -- card yet, then place them all at once; and then continue
+            -- Do not reveal player placement to AI
+            let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
+            let placements = AI.placeCards difficulty shared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
+            Game.PolyResult shared board () anims <- Game.playAll shared board placements
+            pure $ m {anims, board, shared}
+          else pure m
+      )
+        <&> (\gm -> if pSpot == playingPlayer then gm {uiAvail = False} else gm) -- Turn interactions off
 updateGameModel m@GameModel {board, shared} GameIncrTurn _ =
   case x of
     Left err -> updateDefault m $ ShowErrorInteraction err
-    Right res -> res
+    Right res -> Bifunctor.first allowUI res
   where
     x =
       updateGameIncrTurn m
@@ -489,6 +492,10 @@ updateGameModel m@GameModel {board, shared} GameIncrTurn _ =
         & Eff.evalState board
         & Eff.evalState (mempty :: Board 'UI)
         & Eff.run
+    allowUI gm@GameModel {playingPlayer, turn}
+      | Turn.toPlayerSpot turn == playingPlayer =
+        gm {uiAvail = True} -- Restore interactions if turn of player
+    allowUI gm = gm
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) NoInteraction =
   updateDefault m $ HoverInteraction $ Hovering i
@@ -922,6 +929,7 @@ levelNGameModel difficulty shared level teams =
     turn = Turn.initial
     anims = mempty
     anim = Game.NoAnimation
+    uiAvail = True
 
 -- | An initial model, with a custom board
 unsafeInitialGameModel ::
@@ -945,6 +953,7 @@ unsafeInitialGameModel difficulty shared teamsData board =
     turn = Turn.initial
     anims = mempty
     anim = Game.NoAnimation
+    uiAvail = True
 
 initialWelcomeModel :: SharedModel -> WelcomeModel
 initialWelcomeModel shared =

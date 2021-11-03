@@ -55,8 +55,15 @@ instance Invariant a => Invariant (Maybe a) where
   violation Nothing = []
   violation (Just a) = violation a
 
+instance Invariant GameModel where
+  violation GameModel {playingPlayer, turn, uiAvail}
+    | uiAvail && (Turn.toPlayerSpot turn /= playingPlayer) =
+      ["It's the AI turn (" ++ show (Turn.toPlayerSpot turn) ++ ") yet the UI is available"]
+  -- All GameModel invariants have been checked, delegate to smaller pieces:
+  violation GameModel {board, turn} = violation board ++ violation turn
+
 main :: SharedModel -> SpecWith ()
-main shared =
+main shared = do
   describe "Board invariant" $ do
     prop "holds initially" $
       \(Pretty teams, seed) ->
@@ -68,11 +75,22 @@ main shared =
         let shared' = SharedModel.withSeed shared seed
          in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) 32
               `shouldSatisfy` isValidResult
+  describe "GameModel invariant" $ do
+    prop "holds initially" $
+      \(difficulty, teams) ->
+        Update.level0GameModel difficulty shared teams `shouldSatisfy` isValid'
+    prop "is preserved by playing matches" $
+      \(Pretty team1, Pretty team2, seed) ->
+        let shared' = SharedModel.withSeed shared seed
+         in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) 32
+              `shouldSatisfy` (\Match.Result {models} -> all isValid' models)
   where
     difficulty = AI.Easy
+    isValid :: [String] -> Bool
     isValid [] = True
     isValid violations = traceShow (unlines violations) False
-    isValid' x = violation x & isValid
+    isValid' :: Invariant a => a -> Bool
+    isValid' x = isValid $ violation x
     isValidResult Match.Result {models} =
       isValid $ violation boards ++ violation turnResult
       where

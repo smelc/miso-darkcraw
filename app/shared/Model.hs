@@ -75,6 +75,8 @@ data GameModel = GameModel
     playingPlayerDeck :: [Card.ID],
     -- | The current turn
     turn :: Turn,
+    -- | Whether interactions are possible right now
+    uiAvail :: Bool,
     -- | Animations to perform next
     anims :: Board 'UI,
     -- | Animation unrelated to 'Board'
@@ -141,6 +143,7 @@ unsafeGameModel WelcomeModel {shared} =
       toData startingPlayerSpot teams'
         & snd
         & map Card.cardToIdentifier
+    uiAvail = True
 
 instance Show GameModel where
   show GameModel {..} =

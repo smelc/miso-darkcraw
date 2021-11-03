@@ -73,8 +73,8 @@ _simpleGUI = GUI {..}
 disabledHTML :: MisoString
 disabledHTML = "#AAAAAA"
 
--- | Dummy [onWithOptions] instance.
--- | See https://github.com/dmjio/miso/issues/478
+-- | Dummy 'onWithOptions' instance.
+-- See https://github.com/dmjio/miso/issues/478
 dummyOn ::
   -- | One of "dragenter" or "dragover"
   MisoString ->

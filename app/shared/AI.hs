@@ -8,9 +8,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- |
--- This module defines how the AI plays
--- |
--- applyDifficulty and boardScore are exported for tests
+-- This module defines how the AI plays.
+-- 'applyDifficulty' and 'boardScore' are exported for tests
 module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), placeCards) where
 
 import Board
