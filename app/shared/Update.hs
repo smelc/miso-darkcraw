@@ -1,7 +1,5 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE LambdaCase #-}
@@ -10,8 +8,6 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Update where
 
@@ -51,142 +47,10 @@ import Nat
 import ServerMessages
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Skill (Skill)
-import qualified Skill
 import Spots
-import System.Random (StdGen)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
-import Tile (Tile)
-import qualified Tile
-import Turn (Turn)
 import qualified Turn
-
-instance ToExpr CreatureKind
-
-instance ToExpr Team
-
-instance ToExpr CreatureID
-
-instance ToExpr Skill
-
-instance ToExpr Skill.State
-
-instance ToExpr Neutral
-
-instance ToExpr Item
-
-instance ToExpr (ItemObject 'Core)
-
-instance ToExpr (ItemObject 'UI)
-
-instance ToExpr Tile.Filepath
-
-instance ToExpr (Creature 'Core)
-
-instance ToExpr (Creature 'UI)
-
-instance ToExpr (NeutralObject 'Core)
-
-instance ToExpr (NeutralObject 'UI)
-
-instance ToExpr (CardCommon 'Core)
-
-instance ToExpr (CardCommon 'UI)
-
-instance ToExpr (Card 'Core)
-
-instance ToExpr (Card 'UI)
-
-instance ToExpr PlayerSpot
-
-instance ToExpr DeathCause
-
-instance ToExpr InPlaceEffect
-
-instance ToExpr InPlaceEffects
-
-instance ToExpr Card.ID
-
-instance ToExpr (PlayerPart 'Core)
-
-instance ToExpr (PlayerPart 'UI)
-
-instance ToExpr CardSpot
-
-instance ToExpr (Board 'Core)
-
-instance ToExpr (Board 'UI)
-
-instance ToExpr HandIndex
-
-instance ToExpr HandFiddle
-
-instance ToExpr Game.Target
-
-instance ToExpr (Dragging Game.Target)
-
-instance ToExpr Hovering
-
-instance ToExpr (Interaction Game.Target)
-
-instance ToExpr Turn
-
-instance ToExpr StdGen where toExpr = defaultExprViaShow
-
-instance ToExpr Tile.TileUI
-
-instance ToExpr Skill.Pack
-
-instance ToExpr SharedModel
-
-instance ToExpr Difficulty
-
-instance ToExpr Campaign.Level
-
-instance ToExpr Game.MessageText
-
-instance ToExpr Game.Animation
-
-instance ToExpr GameModel
-
-instance ToExpr PlayingMode
-
-instance ToExpr SinglePlayerLobbyModel
-
-instance ToExpr Cinema.Direction
-
-instance ToExpr Cinema.ActorState
-
-instance ToExpr Tile.Tile
-
-instance ToExpr Cinema.Element
-
-instance ToExpr TimedFrame
-
-instance ToExpr Cinema.Actor
-
-instance ToExpr Cinema.Frame
-
-instance ToExpr SceneModel
-
-instance ToExpr WelcomeModel
-
-instance ToExpr MultiPlayerLobbyModel
-
-instance ToExpr MultiPlayerLobbyError
-
-instance ToExpr InvitationActorState
-
-instance ToExpr InvitedActorState
-
-instance ToExpr DeckModel
-
-instance ToExpr Model.Picked
-
-instance ToExpr LootModel
-
-instance ToExpr Model
 
 data MultiPlayerLobbyAction
   = LobbyUpdateUsername MisoString

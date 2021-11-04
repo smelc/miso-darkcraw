@@ -46,6 +46,7 @@ common common-all
     Command
     Constants
     Event
+    Exprs
     Game
     Json
     JsonData
