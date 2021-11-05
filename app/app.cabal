@@ -45,6 +45,7 @@ common common-all
     Cinema
     Command
     Constants
+    Damage
     Event
     Game
     Json

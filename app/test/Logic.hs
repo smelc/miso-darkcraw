@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testKing) where
+module Logic (disturber, main, mkCreature, testDamageMonoid) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -20,6 +20,7 @@ import Board
 import Card
 import Constants
 import Control.Lens hiding (at, (+=))
+import Damage (Damage)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
@@ -425,6 +426,18 @@ testStatChange =
       \(c1 :: Game.StatChange, c2) ->
         c1 <> c2 `shouldBe` c1 <> c2
 
+testDamageMonoid =
+  describe "Damage is a well behaved Monoid" $ do
+    prop "mempty <> d == d" $
+      \(d :: Damage) ->
+        mempty <> d `shouldBe` d
+    prop "d <> mempty == d" $
+      \(d :: Damage) ->
+        d <> mempty `shouldBe` d
+    prop "d <> d' == d' <> d" $
+      \(d :: Damage, d') ->
+        d <> d' `shouldBe` d' <> d
+
 main :: SharedModel -> SpecWith ()
 main shared = do
   -- Tests are ordered from the fastest to the slowest
@@ -436,6 +449,7 @@ main shared = do
   testCharge shared
   testSquire shared
   -- PBT tests
+  testDamageMonoid
   testStatChange
   testTeamDeck shared
   testFearNTerror shared

@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Damage</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>Safe</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Damage</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>Module regarding damage, based on dice damage like in DnD</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Damage">Damage</a> = <a href="#v:Damage">Damage</a> {<ul class="subs">
+<li>
+<a href="#v:base">base</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+<li>
+<a href="#v:variance">variance</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+</ul>}</li>
+<li class="src short">
+<a href="#v:-43--94-">(+^)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a>
+</li>
+<li class="src short">
+<span class="keyword">class</span> <a href="#t:Dealer">Dealer</a> a <span class="keyword">where</span><ul class="subs"><li>
+<a href="#v:dealer">dealer</a> :: a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li></ul>
+</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Damage" class="def">Damage</a> <a href="#t:Damage" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Damage" class="def">Damage</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:base" class="def">base</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a></dfn><div class="doc"><p>The base damage amount. Damage dealt is equal or greater than this value.</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:variance" class="def">variance</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a></dfn><div class="doc"><p>The variance added on top of <code><a href="Damage.html#v:base" title="Damage">base</a></code>. If '0', then damage is fixed.
+ If greater than 0, a dice is rolled to add from '0' (included)
+ to <code><a href="Damage.html#v:variance" title="Damage">variance</a></code> (included) damage. So if you want '1-2' damage range,
+ have 'base == 1' and 'variance == 1'.</p></div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Damage" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Damage:Bounded:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Bounded" title="Prelude">Bounded</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Damage" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Damage:Bounded:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:minBound">minBound</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:minBound" class="selflink">#</a></p>
+<p class="src"><a href="#v:maxBound">maxBound</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:maxBound" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Damage:Eq:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Damage" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Damage:Eq:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Damage:Ord:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Damage" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Damage:Ord:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Damage:Show:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Damage" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Damage:Show:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Damage.html#t:Damage" title="Damage">Damage</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Damage:Semigroup:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Damage" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Damage:Semigroup:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:-60--62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:sconcat" class="selflink">#</a></p>
+<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:stimes" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Damage:Monoid:6"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Damage" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Damage:Monoid:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:mempty">mempty</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:mempty" class="selflink">#</a></p>
+<p class="src"><a href="#v:mappend">mappend</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:mappend" class="selflink">#</a></p>
+<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="Damage.html#t:Damage" title="Damage">Damage</a>] -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:mconcat" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Damage:Dealer:7"></span> <a href="Damage.html#t:Dealer" title="Damage">Dealer</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Damage" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Damage:Dealer:7"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:dealer">dealer</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:dealer" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:-43--94-" class="def">(+^)</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a> <a href="#v:-43--94-" class="selflink">#</a></p>
+<div class="doc"><p>'a +^ n' augments the base damage of <code>a</code> by <code>n</code></p></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">class</span> <a id="t:Dealer" class="def">Dealer</a> a <span class="keyword">where</span> <a href="#t:Dealer" class="selflink">#</a></p>
+<div class="doc"><p>Whether something can deal damage. This function is meant to be used
+ qualified.</p></div>
+<div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a id="v:dealer" class="def">dealer</a> :: a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:dealer" class="selflink">#</a></p>
+</div>
+<div class="subs instances"><details id="i:Dealer" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Dealer:Dealer:1"></span> <a href="Damage.html#t:Dealer" title="Damage">Dealer</a> <a href="Damage.html#t:Damage" title="Damage">Damage</a></span> <a href="#t:Dealer" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Dealer:Dealer:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:dealer">dealer</a> :: <a href="Damage.html#t:Damage" title="Damage">Damage</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:dealer" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Dealer:Dealer:2"></span> <a href="Damage.html#t:Dealer" title="Damage">Dealer</a> a =&gt; <a href="Damage.html#t:Dealer" title="Damage">Dealer</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</span> <a href="#t:Dealer" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Dealer:Dealer:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Damage.html">Damage</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:dealer">dealer</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:dealer" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

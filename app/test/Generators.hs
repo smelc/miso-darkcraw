@@ -11,6 +11,7 @@ import Board
 import qualified Campaign
 import Card
 import Cinema
+import Damage (Damage (..))
 import Data.Function ((&))
 import Data.Maybe
 import GHC.Generics
@@ -59,6 +60,9 @@ instance Arbitrary Team where
 instance Arbitrary Campaign.Level where
   arbitrary = genericArbitraryU
   shrink = genericShrink
+
+instance Arbitrary Damage where
+  arbitrary = Damage <$> arbitrary <*> arbitrary
 
 instance Arbitrary CreatureID where
   -- Only generated CreatureID that are known to SharedModel, because
