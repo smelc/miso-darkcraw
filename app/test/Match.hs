@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -132,16 +131,17 @@ play model nbTurns =
         Right m' -> go m' $ m : models
 
 toMatchResult :: GameModel -> MatchResult
-toMatchResult GameModel {board} =
-  if
-      | scoreTop == scoreBot -> Draw
-      | scoreTop > scoreBot -> Win PlayerTop
-      | otherwise -> Win PlayerBot
+toMatchResult GameModel {board}
+  | scoreTop == scoreBot = Draw
+  | scoreTop > scoreBot = Win PlayerTop
+  | otherwise = Win PlayerBot
   where
     score pSpot = Board.toPart board pSpot & Board.score
     (scoreTop, scoreBot) = (score PlayerTop, score PlayerBot)
 
--- | Play one turn
+-- | Play one turn. XXX: return the intermediate 'GameModel's, because they
+-- make sense for being checked with properties from 'Invariants'. It's
+-- cumbersome to do though.
 playOneTurn ::
   MonadError Text m =>
   GameModel ->
