@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -12,6 +13,7 @@ module Match (main, MatchResult (..), play, Result (..)) where
 import qualified AI (Difficulty (..), play)
 import Board
 import Card
+import Control.Monad.Except
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Maybe
@@ -139,11 +141,18 @@ toMatchResult GameModel {board} =
     score pSpot = Board.toPart board pSpot & Board.score
     (scoreTop, scoreBot) = (score PlayerTop, score PlayerBot)
 
-playOneTurn :: GameModel -> Either Text GameModel
+-- | Play one turn
+playOneTurn ::
+  MonadError Text m =>
+  GameModel ->
+  m GameModel
 playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
   -- We need to play for the player
   case (playingPlayer == pSpot, AI.play AI.Easy shared board pSpot) of
-    (False, _) -> Left $ Text.pack $ "It should be the player turn (" ++ show playingPlayer ++ "), but found: " ++ show pSpot
+    (False, _) ->
+      throwError $
+        Text.pack $
+          "It should be the player turn (" ++ show playingPlayer ++ "), but found: " ++ show pSpot
     (_, []) ->
       -- The main loop will take care of playing the opponent when honoring
       -- this event:
@@ -155,16 +164,13 @@ playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
       playOneTurn m'
   where
     pSpot = Turn.toPlayerSpot turn
-    go model [] = getErr model
+    go :: MonadError Text m => GameModel -> [GameAction] -> m GameModel
+    go model [] = pure model
     go model@GameModel {interaction} (action : actions) =
-      let (model', seq) = Update.updateGameModel model action interaction
-       in do
-            _ <- getErr model'
-            go model' (map snd seq ++ actions)
-    getErr m@GameModel {interaction} =
-      case interaction of
-        ShowErrorInteraction err -> Left err
-        _ -> Right m
+      let (model'@GameModel {interaction = interaction'}, seq) = Update.updateGameModel model action interaction
+       in case interaction' of
+            ShowErrorInteraction err -> throwError err
+            _ -> go model' (map snd seq ++ actions)
 
 eventToGameActions ::
   Board 'Core ->
