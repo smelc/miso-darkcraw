@@ -29,6 +29,7 @@ module SharedModel
     SharedModel.getStdGen,
     getCards,
     getCmd,
+    roll,
     withCmd,
     withStdGen,
     getCardIdentifiers,
@@ -295,6 +296,26 @@ oneof elems = do
   return $ elems NE.!! idx
   where
     nbElems :: Int = NE.length elems
+
+-- XXX @smelc make SharedModel an instance of StdGen, use that in this
+-- function and other neighbors functions too.
+
+-- | 'roll min max' returns a value between 'min' (included) and 'max'
+-- (included). 'min <= max' should hold.
+roll ::
+  MonadState SharedModel m =>
+  Random p =>
+  Ord p =>
+  -- | The minimum element
+  p ->
+  -- | The maximum element
+  p ->
+  m p
+roll min max = do
+  shared@SharedModel {sharedStdGen = stdgen} <- get
+  let (res, stdgen') = assert (min <= max) $ randomR (min, max) stdgen
+  put (shared {sharedStdGen = stdgen'})
+  return res
 
 tileToFilepath :: SharedModel -> Tile -> Tile.Size -> Filepath
 tileToFilepath SharedModel {sharedTiles} tile defaultSize =

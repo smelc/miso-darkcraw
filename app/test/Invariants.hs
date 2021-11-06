@@ -10,7 +10,6 @@ import Board
 import Card
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)
 import qualified Match
@@ -26,11 +25,6 @@ class Invariant a where
   -- | Violations of the invariant if any, otherwise []
   violation :: a -> [String]
 
-instance Invariant (Creature 'Core) where
-  violation Creature {..} =
-    ["Creature's attack should be >= 0 but found " ++ show attack | attack < 0]
-      ++ ["Creature's hp should be >= 0 but found " ++ show hp | hp < 0]
-
 -- Could this be made more general?
 instance Invariant a => Invariant [a] where
   violation [] = []
@@ -39,7 +33,6 @@ instance Invariant a => Invariant [a] where
 instance Invariant (PlayerPart 'Core) where
   violation PlayerPart {..} =
     ["Score should be >= 0 but found " ++ show score | score < 0]
-      ++ (map violation (Map.elems inPlace) & concat)
 
 instance Invariant (Board 'Core) where
   violation Board {playerTop, playerBottom} =

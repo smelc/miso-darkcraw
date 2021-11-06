@@ -54,6 +54,8 @@ import Control.Monad.Except
 import Control.Monad.Random
 import Control.Monad.State
 import Control.Monad.Writer
+import Damage (Damage (..), (+^))
+import qualified Damage
 import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable
 import Data.List
@@ -177,7 +179,7 @@ changeToEffect StatChange {attackDiff, hpDiff} =
 
 apply :: StatChange -> Creature p -> Creature p
 apply StatChange {attackDiff, hpDiff} c@Creature {attack, hp} =
-  c {Card.attack = attack + attackDiff, hp = hp + hpDiff}
+  c {Card.attack = attack +^ attackDiff, hp = hp + hpDiff}
 
 reportEffect ::
   MonadWriter (Board 'UI) m =>
@@ -322,9 +324,9 @@ eventToAnim shared board =
         creatures :: ([Creature 'Core], [Creature 'Core]) =
           both (Map.elems . Board.inPlace) parts
         toHPs cs = sum $ map Card.hp cs
-        toAttack cs = sum $ map Card.attack cs
+        toAttack cs = mconcat $ map Card.attack cs
         (hps :: Nat, hps' :: Nat) = both toHPs creatures
-        (attack :: Nat, attack' :: Nat) = both toAttack creatures
+        (attack :: Damage, attack' :: Damage) = both toAttack creatures
         both f = Bifunctor.bimap f f
         fill suffix = Message ([Text "Church", Image churchTile] ++ suffix) duration
     Game.ApplyFearNTerror {} -> NoAnimation
@@ -758,7 +760,7 @@ applyChurchM board pSpot = do
   effect <- SharedModel.oneof allChurchEffects
   case effect of
     PlusOneAttack ->
-      go (\c@Creature {attack} -> c {Card.attack = attack + 1}) (mempty {attackChange = 1})
+      go (\c@Creature {attack} -> c {Card.attack = attack +^ 1}) (mempty {attackChange = 1})
     PlusOneHealth ->
       go (\c@Creature {hp} -> c {hp = hp + 1}) (mempty {attackChange = 1})
     PlusOneMana -> do
@@ -901,7 +903,7 @@ attack board pSpot cSpot =
     (Just hitter, _, []) -> do
       -- nothing to attack, contribute to the score!
       let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
-      let hit = Total.attack (Just place) hitter & natToInt
+      hit <- (deal $ Total.attack (Just place) hitter) <&> natToInt
       reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
       return (board & spotToLens pSpot . #score +~ hit)
     (Just hitter, _, attackees) ->
@@ -911,7 +913,7 @@ attack board pSpot cSpot =
     attackersInPlace :: Map CardSpot (Creature 'Core) = Board.toInPlace board pSpot
     attackeesInPlace :: Map CardSpot (Creature 'Core) = Board.toInPlace board attackeePSpot
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
-    attackerCanAttack = (attacker <&> Card.attack & fromMaybe 0) > 0
+    attackerCanAttack = Damage.dealer attacker
     attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Skill.lift
     allyBlocker :: Maybe (Creature 'Core) =
       if any (`elem` attackerSkills) [Skill.Ranged, Skill.LongReach]
@@ -937,6 +939,8 @@ attackOneSpot ::
   (Creature 'Core, CardSpot) ->
   m (Board 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
+  effect <- singleAttack place hitter hit
+  let board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
   reportEffect pSpot cSpot $ mempty {attackBump = True} -- hitter
   reportEffect hitPspot hitSpot effect -- hittee
   if (isDead . death) effect
@@ -944,10 +948,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
     else pure board'
   where
     hitPspot = otherPlayerSpot pSpot
-    -- attack can proceed
     place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
-    effect = singleAttack place hitter hit
-    board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
 
 applyInPlaceEffectOnBoard ::
   -- | The effect of the attacker on the hittee
@@ -1021,18 +1022,36 @@ applyFlailOfTheDamned board creature pSpot =
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
     noChange = board
 
--- The effect of an attack on the defender
-singleAttack :: p ~ 'Core => Total.Place -> Creature p -> Creature p -> InPlaceEffect
-singleAttack place attacker@Creature {skills} defender
-  | hps' <= 0 = mempty {death}
-  | otherwise = mempty {hitPointsChange = - (natToInt hit)}
+-- | The effect of an attack on the defender
+-- TODO @smelc return an instance of 'StatChange' instead. It's tighter.
+singleAttack ::
+  MonadState SharedModel m =>
+  p ~ 'Core =>
+  Total.Place ->
+  -- | The attacker
+  Creature p ->
+  -- | The defender
+  Creature p ->
+  m InPlaceEffect
+singleAttack place attacker@Creature {skills} defender = do
+  hit <- deal damage
+  let hps' = Card.hp defender `minusNatClamped` hit
+  return $
+    if hps' <= 0
+      then mempty {death}
+      else mempty {hitPointsChange = Nat.negate hit}
   where
-    hit = Total.attack (Just place) attacker
-    hps' = Card.hp defender `minusNatClamped` hit
+    damage = Total.attack (Just place) attacker
     death =
       if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
         then DeathByBreathIce
         else UsualDeath
+
+-- | Apply a 'Damage'
+deal :: MonadState SharedModel m => Damage -> m Nat
+deal Damage {base, variance}
+  | variance == 0 = return base -- No need to roll a dice
+  | otherwise = SharedModel.roll base (base + variance)
 
 -- | The spot that blocks a spot from attacking, which happens
 -- | if the input spot is in the back line

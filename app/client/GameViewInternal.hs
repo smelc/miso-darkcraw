@@ -35,8 +35,9 @@ import Card
 import Constants
 import Control.Lens
 import Control.Monad.Except
+import qualified Damage
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
 import qualified Game (Animation (..), MessageText (..), Target (..), appliesTo, enemySpots)
@@ -308,12 +309,13 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
-      let attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
-       in let canAttack = fromMaybe 0 (attacker <&> Card.attack) > 0
-           in let skills' = maybe [] skills attacker & map Skill.lift
-               in if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots canAttack skills' cSpotHov
-                    then borderSize
-                    else 0
+      if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots canAttack skills' cSpotHov
+        then borderSize
+        else 0
+      where
+        attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
+        canAttack = Damage.dealer attacker
+        skills' = maybe [] skills attacker & map Skill.lift
     _ -> 0
   where
     cond hi =

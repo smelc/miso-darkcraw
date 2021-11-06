@@ -21,8 +21,10 @@ where
 
 import Card
 import Constants (defaultManaCost)
+import Damage (Damage (..))
 import Data.Aeson
 import Data.Aeson.Types (Parser)
+import qualified Data.Bifunctor
 import Data.ByteString.Lazy hiding (map)
 import Data.Function ((&))
 import Data.List.Extra (lower)
@@ -115,7 +117,7 @@ skillUIOptions =
 data CreatureObjectJSON = CreatureObjectJSON
   { creatureId :: CreatureID,
     hp :: Nat,
-    attack :: Nat,
+    attack :: Damage,
     mana :: Nat,
     skills :: [Skill],
     text :: Maybe String,
@@ -123,6 +125,25 @@ data CreatureObjectJSON = CreatureObjectJSON
     tile :: Tile
   }
   deriving (Show)
+
+instance FromJSON Damage where
+  parseJSON = withText "Attack" go
+    where
+      go :: Text -> Parser Damage
+      go s =
+        case readMaybe $ Text.unpack s of
+          -- Parse "1", "2", etc.
+          Just (n :: Nat) -> return $ mempty {base = n}
+          Nothing ->
+            -- Parse "1-3", "0-2", etc.
+            case Data.Text.splitOn "-" s of
+              [base, variance] ->
+                case both (readMaybe . Text.unpack) (base, variance) of
+                  (Just base, Just variance) -> return $ Damage {base, variance}
+                  _ -> err s
+              _ -> err s
+      err s = fail $ "Invalid attack string: " ++ (show $ Text.unpack s)
+      both f = Data.Bifunctor.bimap f f
 
 instance FromJSON CreatureObjectJSON where
   parseJSON = withObject "Creature" $ \v ->

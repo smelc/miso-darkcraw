@@ -434,7 +434,7 @@ main = hspec $ do
     it "all hit points are initially > 0" $
       all (\c -> hp c > 0) allCreatures
     it "all attacks are initially >= 0" $
-      all (\c -> attack c >= 0) allCreatures
+      all (\c -> attack c >= mempty) allCreatures
     it "lobbies and board backgrounds agree in width" $
       boardPixelWidth `shouldBe` lobbiesPixelWidth
     it "lobbies and board backgrounds agree in height" $

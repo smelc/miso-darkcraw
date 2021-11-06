@@ -86,6 +86,8 @@
 <a href="#v:getCmd">getCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a>
 </li>
 <li class="src short">
+<a href="#v:roll">roll</a> :: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> m =&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:Random" title="System.Random">Random</a> p =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> p =&gt; p -&gt; p -&gt; m p</li>
+<li class="src short">
 <a href="#v:withCmd">withCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
 </li>
 <li class="src short">
@@ -255,6 +257,40 @@
 <div class="top"><p class="src"><a id="v:getStdGen" class="def">getStdGen</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> <a href="#v:getStdGen" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:getCards" class="def">getCards</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] <a href="#v:getCards" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:getCmd" class="def">getCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:getCmd" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:roll" class="def">roll</a> <a href="#v:roll" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> m</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:Random" title="System.Random">Random</a> p</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> p</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; p</td>
+<td class="doc"><p>The minimum element</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; p</td>
+<td class="doc"><p>The maximum element</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; m p</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>'roll min max' returns a value between <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#v:min" title="Data.Ord">min</a></code> (included) and <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#v:max" title="Data.Ord">max</a></code>
+ (included). 'min &lt;= max' should hold.</p></div>
+</div>
 <div class="top"><p class="src"><a id="v:withCmd" class="def">withCmd</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:withCmd" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:withStdGen" class="def">withStdGen</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:withStdGen" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:getCardIdentifiers" class="def">getCardIdentifiers</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>] <a href="#v:getCardIdentifiers" class="selflink">#</a></p></div>

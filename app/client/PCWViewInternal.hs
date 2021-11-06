@@ -32,6 +32,7 @@ where
 import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
 import Constants
+import Damage (Damage)
 import Data.Char (toLower)
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -106,6 +107,9 @@ instance Monoid CardDrawStyle where
   mempty = CardDrawStyle False False None
 
 instance Miso.String.ToMisoString Nat where
+  toMisoString = toMisoString . show
+
+instance Miso.String.ToMisoString Damage where
   toMisoString = toMisoString . show
 
 cardBoxShadowStyle ::

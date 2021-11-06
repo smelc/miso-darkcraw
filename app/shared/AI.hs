@@ -22,6 +22,7 @@ import BoardInstances ()
 import Card
 import Control.Exception
 import Control.Lens hiding (snoc)
+import Damage (Damage (..))
 import Data.Either.Extra
 import Data.List
 import qualified Data.Map.Strict as Map
@@ -294,7 +295,7 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
             if (Board.neighbors Board.Cardinal cSpot & length) == 3
               then 1 -- Creature is in a central spot
               else 0
-      FlailOfTheDamned -> attack + hp -- Prefer strong creatures
+      FlailOfTheDamned -> score attack + hp -- Prefer strong creatures
       SkBanner ->
         backBonus + skNeighborsBonus
         where
@@ -305,8 +306,16 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
               & filter (Card.isSkeleton . Card.creatureId)
               & length
               & intToNat
-      SwordOfMight -> attack + hp -- Prefer strong creatures
+      SwordOfMight -> score attack + hp -- Prefer strong creatures
     result = sum $ map scoreCreatureItem items
+
+-- | The score of something. The higher the better.
+-- XXX @smelc Use this class more often in this file
+class Score a where
+  score :: a -> Nat
+
+instance Score Damage where
+  score (Damage {base, variance}) = base + variance
 
 -- | The score of a card. Most powerful cards return a smaller value.
 -- Negative values returned. FIXME @smelc Return positive values
@@ -314,7 +323,7 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
 scoreHandCard :: Card 'Core -> Int
 scoreHandCard = \case
   CreatureCard _ Creature {..} ->
-    sum $ [- (natToInt hp), - (natToInt attack)] ++ map scoreSkill skills
+    sum $ [- (natToInt hp), - (natToInt $ score attack)] ++ map scoreSkill skills
   NeutralCard _ NeutralObject {neutral} ->
     case neutral of
       Health -> -1

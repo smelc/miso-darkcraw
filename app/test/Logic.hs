@@ -20,7 +20,7 @@ import Board
 import Card
 import Constants
 import Control.Lens hiding (at, (+=))
-import Damage (Damage)
+import Damage (Damage, (+^), (-^))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
@@ -309,7 +309,7 @@ testChurch shared =
         (~=) before after =
           case (before, after) of
             (Just c1@Creature {attack = a1, hp = hp1}, Just c2@Creature {attack = a2, hp = hp2}) ->
-              if (c1 == c2) || (a1 == a2 - 1) || (hp1 == hp2 - 1)
+              if (c1 == c2) || (a1 == a2 -^ 1) || (hp1 == hp2 - 1)
                 then True
                 else traceShow c1 (traceShow c2 False)
             (Nothing, Nothing) -> True
@@ -370,7 +370,7 @@ testCharge shared =
         `shouldBe` (Card.attack $ mkCreature' Card.Knight)
     it "triggers when it should" $ do
       attack board' pSpot BottomLeft
-        `shouldBe` (Card.attack $ mkCreature' Card.Knight) + Constants.chargeAmount
+        `shouldBe` (Card.attack $ mkCreature' Card.Knight) +^ Constants.chargeAmount
   where
     board =
       Board.empty (Teams ZKnights Undead)
@@ -393,7 +393,7 @@ testSquire shared =
       attack board' pSpot Top `shouldBe` (Card.attack $ mkCreature' Card.Knight)
     it "triggers when it should" $ do
       attack board'' pSpot Bottom
-        `shouldBe` (Card.attack $ mkCreature' Card.Knight) + Constants.squireAttackBonus
+        `shouldBe` (Card.attack $ mkCreature' Card.Knight) +^ Constants.squireAttackBonus
   where
     (team, pSpot) = (ZKnights, PlayerTop)
     board =

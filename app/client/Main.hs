@@ -58,7 +58,7 @@ logTeam cards t = do
   let deck = mapMaybe cardToCreature $ teamDeck cards t
   print t
   print $ "nb cards: " ++ show (Prelude.length deck)
-  print $ "attack: " ++ show (sum (Prelude.map attack deck))
+  print $ "attack: " ++ show (mconcat (Prelude.map attack deck))
   print $ "hp: " ++ show (sum (Prelude.map hp deck))
 
 -- | Entry point for a miso application

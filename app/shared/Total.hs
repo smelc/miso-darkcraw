@@ -14,6 +14,7 @@ module Total where
 import Board
 import Card
 import qualified Constants
+import Damage (Damage, (+^))
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Nat
@@ -44,16 +45,16 @@ mkPlace board pSpot cardSpot = Place {place = Board.toInPlace board pSpot, cardS
 
 -- | The total attack of a creature, including boosts of skills and items.
 -- The 'Place' indicates where the creature given is.
-attack :: Maybe Place -> Creature 'Core -> Nat
+attack :: Maybe Place -> Creature 'Core -> Damage
 attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
   attack
-    + (nbBlows * Constants.blowAmount)
-    + nbSwordsOfMight
-    + skBannerBonus
-    + chargeBonus
-    + squireBonus
+    +^ (nbBlows * Constants.blowAmount)
+    +^ nbSwordsOfMight
+    +^ skBannerBonus
+    +^ chargeBonus
+    +^ squireBonus
   where
     nbBlows =
       filter (\case Skill.Blow True -> True; _ -> False) skills & natLength

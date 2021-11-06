@@ -13,6 +13,7 @@ import qualified AI (Difficulty (..), play)
 import Board
 import Card
 import Control.Monad.Except
+import Damage (Damage (..))
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Maybe
@@ -90,7 +91,7 @@ testStupidity shared =
     initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot
     ogreID = CreatureID Card.Ogre Human
     ogreSpot = PlayerBot
-    ogreAttack = SharedModel.idToCreature shared ogreID [] & fromJust & attack
+    Damage {base = ogreAttack} = SharedModel.idToCreature shared ogreID [] & fromJust & attack
     mkShared seed = SharedModel.withSeed shared seed
     mkTeamData teams = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
     isValid Result {models} = all isValidModel models

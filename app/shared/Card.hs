@@ -16,6 +16,7 @@
 module Card where
 
 import Control.Arrow ((&&&))
+import Damage (Damage, Dealer (..))
 import Data.Function ((&))
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
@@ -99,6 +100,7 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
     c (TransientType p)
   )
 
+-- | All kinds of creature
 data CreatureKind
   = Archer
   | Captain
@@ -125,6 +127,8 @@ data CreatureKind
 allCreatureKinds :: [CreatureKind]
 allCreatureKinds = [minBound ..]
 
+-- | The identifier of a creature. Not all identifiers are actually mapped
+-- by 'SharedModel'.
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
 
@@ -140,7 +144,7 @@ data Creature (p :: Phase) = Creature
   { creatureId :: CreatureID,
     hp :: Nat,
     -- | Beware when using this accessor, you may want 'totalAttack' instead
-    attack :: Nat,
+    attack :: Damage,
     items :: [ItemType p],
     moral :: Int,
     skills :: [SkillType p],
@@ -154,6 +158,9 @@ deriving instance Forall Eq p => Eq (Creature p)
 deriving instance Forall Ord p => Ord (Creature p)
 
 deriving instance Forall Show p => Show (Creature p)
+
+instance Dealer (Creature p) where
+  dealer Creature {attack} = dealer attack
 
 class Itemizable a where
   getItems :: a -> [Item]

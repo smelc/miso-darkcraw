@@ -19,7 +19,16 @@ data Damage = Damage
 -- | 'a +^ n' augments the base damage of 'a' by 'n'
 (+^) :: Damage -> Nat -> Damage
 (+^) d 0 = d
-(+^) d@(Damage {base}) n = d {base = base Prelude.+ n}
+(+^) d@(Damage {base}) n = d {base = base + n}
+
+infixl 6 +^
+
+-- | 'a -^ n' reduces the base damage of 'a' by 'n' (if possible)
+(-^) :: Damage -> Nat -> Damage
+(-^) d 0 = d
+(-^) d@(Damage {base}) n = d {base = base `minusNatClamped` n}
+
+infixl 6 -^
 
 instance Show Damage where
   show Damage {base, variance}
