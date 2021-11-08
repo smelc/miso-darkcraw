@@ -5,7 +5,17 @@
 -- |
 -- This module deals with the succession of matches
 -- |
-module Campaign (Level (..), Outcome (..), augment, loot, nbRewards, succ) where
+module Campaign
+  ( Level (..),
+    Outcome (..),
+    anywhere,
+    augment,
+    fixed,
+    loot,
+    nbRewards,
+    succ,
+  )
+where
 
 import Card (Team (..))
 import qualified Card
@@ -124,3 +134,12 @@ augment deck team level =
   case rewardsUpTo team level of
     [] -> [deck]
     _ -> [rewards ++ deck | rewards <- rewardsUpTo team level]
+
+-- | Teams that can be fought against at any 'Level'. See 'fixed' for
+-- other possible fights.
+anywhere :: [Team]
+anywhere = [Human, Undead]
+
+-- | Fights that can be done only at specific levels
+fixed :: [(Team, Level)]
+fixed = [(ZKnights, Level1)]

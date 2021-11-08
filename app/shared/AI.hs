@@ -284,7 +284,7 @@ scorePlace board inPlace pSpot cSpot =
 -- the creature is.
 scoreCreatureItems :: Board 'Core -> Creature 'Core -> PlayerSpot -> CardSpot -> Nat
 scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
-  result
+  sum $ map scoreCreatureItem items
   where
     scoreCreatureItem :: Item -> Nat = \case
       Crown ->
@@ -295,7 +295,8 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
             if (Board.neighbors Board.Cardinal cSpot & length) == 3
               then 1 -- Creature is in a central spot
               else 0
-      FlailOfTheDamned -> score attack + hp -- Prefer strong creatures
+      CrushingMace -> preferStrongCreature -- TODO @smelc Favor front line or not ranged at least
+      FlailOfTheDamned -> preferStrongCreature
       SkBanner ->
         backBonus + skNeighborsBonus
         where
@@ -304,10 +305,9 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
             Board.toInPlace board pSpot
               & Map.elems
               & filter (Card.isSkeleton . Card.creatureId)
-              & length
-              & intToNat
-      SwordOfMight -> score attack + hp -- Prefer strong creatures
-    result = sum $ map scoreCreatureItem items
+              & natLength
+      SwordOfMight -> preferStrongCreature -- TODO @smelc Favor front line or not ranged at least
+    preferStrongCreature = score attack + hp
 
 -- | The score of something. The higher the better.
 -- XXX @smelc Use this class more often in this file
@@ -333,6 +333,7 @@ scoreHandCard = \case
   ItemCard _ ItemObject {item} ->
     case item of
       Crown -> -1
+      CrushingMace -> -1
       FlailOfTheDamned -> -1
       SkBanner -> -1
       SwordOfMight -> -1

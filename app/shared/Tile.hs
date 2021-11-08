@@ -30,7 +30,6 @@ filepathToString :: Filepath -> String
 filepathToString Filepath {..} =
   root ++ "_" ++ show fpX ++ "_" ++ show fpY ++ ".png"
 
--- TODO @smelc rename me to T
 data Tile
   = BlackAppears0
   | BlackAppears1
@@ -48,6 +47,7 @@ data Tile
   | Bones5
   | Bones6
   | Crown
+  | CrushingMace
   | DropBlue
   | EvilKnight
   | FlailOfTheDamned

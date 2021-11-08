@@ -200,6 +200,7 @@ deriving instance Forall Show p => Show (NeutralObject p)
 
 data Item
   = Crown
+  | CrushingMace
   | FlailOfTheDamned
   | SkBanner
   | SwordOfMight
@@ -378,7 +379,7 @@ rawTeamDeck cards t =
         Evil -> []
         Human -> 1 * SwordOfMight
         Undead -> 1 * Card.FlailOfTheDamned
-        ZKnights -> 1 * SwordOfMight
+        ZKnights -> 1 * CrushingMace ++ 1 * SwordOfMight
       where
         itemToItemObj :: Map.Map Item (ItemObject 'Core) =
           mapMaybe cardToItemObject cards

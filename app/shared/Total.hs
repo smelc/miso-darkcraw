@@ -14,7 +14,7 @@ module Total where
 import Board
 import Card
 import qualified Constants
-import Damage (Damage, (+^))
+import Damage (Damage (..), (+^))
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Nat
@@ -49,13 +49,19 @@ attack :: Maybe Place -> Creature 'Core -> Damage
 attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
-  attack
+  ( attack
+      <> crushingMace
+  )
     +^ (nbBlows * Constants.blowAmount)
     +^ nbSwordsOfMight
     +^ skBannerBonus
     +^ chargeBonus
     +^ squireBonus
   where
+    crushingMace = mconcat $ replicate nbMaces maceDamage
+      where
+        nbMaces = filter (== CrushingMace) items & length
+        maceDamage = Damage {base = 0, variance = 2}
     nbBlows =
       filter (\case Skill.Blow True -> True; _ -> False) skills & natLength
     nbSwordsOfMight =

@@ -43,6 +43,7 @@ jsonData = "{\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
+         \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"tile\":\"CrushingMace\",    \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"tile\":\"SkBanner\",         \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\", \"zknights\"] }\n\
@@ -64,6 +65,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones5\",        \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":8 } },\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
+         \    { \"tile\":\"CrushingMace\",  \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":2 } },\n\
          \    { \"tile\":\"DropBlue\",      \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":0 } },\n\
          \    { \"tile\":\"EvilKnight\",    \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":10 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
