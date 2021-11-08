@@ -26,7 +26,11 @@ data CardSpot
 -- | The position of a player
 -- TODO @smelc rename me to Player and use me qualified
 data PlayerSpot = PlayerBot | PlayerTop
-  deriving (Bounded, Enum, Eq, Ord, Show, Generic)
+  deriving (Bounded, Enum, Eq, Ord, Generic)
+
+instance Show PlayerSpot where
+  show PlayerBot = "bot"
+  show PlayerTop = "top"
 
 -- | The various kinds of neighbors
 data Neighborhood
