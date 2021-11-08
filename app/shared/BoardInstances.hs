@@ -29,12 +29,12 @@ instance Startable (PlayerPart 'Core) where
       -- the flag value, it's anyway simultaneously set to False.
       sumSources (_ : skills) = sumSources skills
 
-boardStart :: Board 'Core -> PlayerSpot -> Board 'Core
+boardStart :: Board 'Core -> Spots.Player -> Board 'Core
 boardStart board pSpot =
   Board.setPart board pSpot $ start $ Board.toPart board pSpot
 
 class Stupid a where
-  isStupid :: a -> PlayerSpot -> CardSpot -> Bool
+  isStupid :: a -> Spots.Player -> CardSpot -> Bool
 
 instance Stupid Skill.State where
   isStupid s _ _ = Skill.isStupid s

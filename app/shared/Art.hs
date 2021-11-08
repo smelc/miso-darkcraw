@@ -40,7 +40,7 @@ toASCII board =
         ++ [handLine board PlayerBot]
         ++ stackLines board PlayerBot
 
-stackLines :: Board 'Core -> PlayerSpot -> [String]
+stackLines :: Board 'Core -> Spots.Player -> [String]
 stackLines board pSpot =
   map (\s -> replicate 4 ' ' ++ s) $ reverse $ go 0 []
   where
@@ -63,13 +63,13 @@ stackLines board pSpot =
           where
             blanks = replicate stackWidth ' '
 
-handLine :: Board 'Core -> PlayerSpot -> String
+handLine :: Board 'Core -> Spots.Player -> String
 handLine board pSpot =
   "Hand: " ++ intercalate ", " (map showID hand)
   where
     hand = toHand board pSpot
 
-scoreLine :: Board 'Core -> PlayerSpot -> String
+scoreLine :: Board 'Core -> Spots.Player -> String
 scoreLine board pSpot =
   replicate cardWidth ' ' ++ " Score: " ++ show (toScore board pSpot)
 
@@ -92,7 +92,7 @@ showTeamShort = \case
   Undead -> "UD"
   ZKnights -> "Z"
 
-cardsLines :: Board 'Core -> PlayerSpot -> [CardSpot] -> [String]
+cardsLines :: Board 'Core -> Spots.Player -> [CardSpot] -> [String]
 cardsLines board pSpot cSpots =
   map f [0 .. cardHeight - 1]
   where
@@ -111,7 +111,7 @@ cardWidth = 16
 type LineNumber = Int
 
 -- | The line number must be in [0, cardHeight)
-cardLine :: Board 'Core -> PlayerSpot -> CardSpot -> LineNumber -> String
+cardLine :: Board 'Core -> Spots.Player -> CardSpot -> LineNumber -> String
 cardLine board pSpot cSpot lineNb =
   case length base of
     i | i < cardWidth -> base ++ replicate (cardWidth - i) '.'

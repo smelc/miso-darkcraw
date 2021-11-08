@@ -106,7 +106,7 @@ testStupidity shared =
         nbAttacks played = (turni - (if played then 0 else 1)) - ((turni - 1) `div` stupidFreq)
         expectedScore = nbAttacks (pSpot /= ogreSpot) * ogreAttack
 
-data MatchResult = Draw | Error Text | Win PlayerSpot
+data MatchResult = Draw | Error Text | Win Spots.Player
   deriving (Show)
 
 data Result = Result

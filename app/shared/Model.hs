@@ -70,7 +70,7 @@ data GameModel = GameModel
     -- | The current level
     level :: Campaign.Level,
     -- | Where the player plays
-    playingPlayer :: PlayerSpot,
+    playingPlayer :: Spots.Player,
     -- | The deck of 'playingPlayer'
     playingPlayerDeck :: [Card.ID],
     -- | The current turn
@@ -227,7 +227,7 @@ data DeckModel = DeckModel
     -- | The model to use when closing the deck view
     deckBack :: Model,
     -- | To which player 'deckBack' belongs
-    player :: PlayerSpot,
+    player :: Spots.Player,
     -- | To which team the deck being shown belongs
     team :: Team,
     -- | Part of the model shared among all pages

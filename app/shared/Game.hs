@@ -83,13 +83,13 @@ import qualified Total
 -- | On what a card can be applied
 data Target
   = -- | Neutral card applies to all in place cards of a player
-    PlayerTarget PlayerSpot
+    PlayerTarget Spots.Player
   | -- | Creature card placed at given spot
     -- or Neutral card applies to a given in place card of a player
-    CardTarget PlayerSpot CardSpot
+    CardTarget Spots.Player CardSpot
   deriving (Eq, Generic, Show)
 
-targetToPlayerSpot :: Target -> PlayerSpot
+targetToPlayerSpot :: Target -> Spots.Player
 targetToPlayerSpot (PlayerTarget pSpot) = pSpot
 targetToPlayerSpot (CardTarget pSpot _) = pSpot
 
@@ -108,30 +108,30 @@ whichPlayerTarget = \case
   IDN Plague -> Opponent
 
 data Event
-  = -- | Apply church of the creatures at the given 'PlayerSpot'
-    ApplyChurch PlayerSpot
-  | -- | Apply fear of the creatures at the given 'PlayerSpot'
-    ApplyFearNTerror PlayerSpot
-  | -- | Apply king of the creatures at the given 'PlayerSpot'
-    ApplyKing PlayerSpot
+  = -- | Apply church of the creatures at the given 'Spots.Player'
+    ApplyChurch Spots.Player
+  | -- | Apply fear of the creatures at the given 'Spots.Player'
+    ApplyFearNTerror Spots.Player
+  | -- | Apply king of the creatures at the given 'Spots.Player'
+    ApplyKing Spots.Player
   | -- | A card attacks at the given spot. The first Boolean indicates
     -- whether the next spot (as defined by 'nextAttackSpot') should
     -- be enqueued after solving this attack. The second Boolean indicates
     -- whether 'GameIncrTurn' (change player turn) should be performed
     -- after solving this attack.
-    Attack PlayerSpot CardSpot Bool Bool
+    Attack Spots.Player CardSpot Bool Bool
   | -- | Ranged creatures with the 'Ranged' skill, that: 1/ are in the
     -- back line and 2/ have no creature in from of them; move frontward
-    FillTheFrontline PlayerSpot
+    FillTheFrontline Spots.Player
   | -- | A Nothing case, for convenience
     NoPlayEvent
   | -- | Player puts a card from his hand on its part of the board. First
     -- argument is the player, second argument is the target, third argument
     -- is the card being played.
-    Place PlayerSpot Target HandIndex
+    Place Spots.Player Target HandIndex
   | -- | AI puts a card from his hand. This constructor has better
     -- testing behavior than 'Place': it makes the generated events commute.
-    Place' PlayerSpot Target Card.ID
+    Place' Spots.Player Target Card.ID
   deriving (Eq, Generic, Show)
 
 -- | The polymorphic version of 'Result'. Used for implementors that
@@ -183,7 +183,7 @@ apply StatChange {attackDiff, hpDiff} c@Creature {attack, hp} =
 
 reportEffect ::
   MonadWriter (Board 'UI) m =>
-  PlayerSpot ->
+  Spots.Player ->
   CardSpot ->
   InPlaceEffect ->
   m ()
@@ -371,7 +371,7 @@ eventToAnim shared board =
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot
-idToHandIndex :: Board 'Core -> PlayerSpot -> Card.ID -> Maybe HandIndex
+idToHandIndex :: Board 'Core -> Spots.Player -> Card.ID -> Maybe HandIndex
 idToHandIndex board pSpot id =
   find
     (\(_, m) -> m == id)
@@ -383,7 +383,7 @@ playNeutralM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   Target ->
   Neutral ->
   m (Board 'Core, Maybe Event)
@@ -423,7 +423,7 @@ playNeutralM board _playingPlayer target n =
 playCreatureM ::
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   CardSpot ->
   Creature 'Core ->
   m (Board 'Core)
@@ -450,7 +450,7 @@ playItemM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   CardSpot ->
   Item ->
   m (Board 'Core)
@@ -488,7 +488,7 @@ applyDiscipline ::
   -- | The creature being played
   Creature 'Core ->
   -- | The part where the creature is being played
-  PlayerSpot ->
+  Spots.Player ->
   -- | The spot where the creature arrives. It has already been filled with 'creature'.
   CardSpot ->
   m (Board 'Core)
@@ -509,7 +509,7 @@ applyDiscipline board creature pSpot cSpot =
 
 applyFillTheFrontline ::
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   Board 'Core
 applyFillTheFrontline board pSpot =
   Board.setPart board pSpot part {inPlace = Map.fromList bindings'}
@@ -534,7 +534,7 @@ applyFillTheFrontline board pSpot =
 applyPlague ::
   Board 'Core ->
   -- | The part on which to apply plague
-  PlayerSpot ->
+  Spots.Player ->
   Board 'Core
 applyPlague board actingPlayer = applyPlagueM board actingPlayer & runWriter & fst
 
@@ -543,7 +543,7 @@ applyPlagueM ::
   -- | The input board
   Board 'Core ->
   -- | The part on which to apply plague
-  PlayerSpot ->
+  Spots.Player ->
   m (Board 'Core)
 applyPlagueM board pSpot = do
   -- Record animation
@@ -567,7 +567,7 @@ applySquire ::
   -- | The creature being played
   Creature 'Core ->
   -- | The part where the creature is being played
-  PlayerSpot ->
+  Spots.Player ->
   -- | The spot where the creature arrives. It has already been filled with the creature.
   CardSpot ->
   m (Board 'Core)
@@ -590,7 +590,7 @@ drawCards ::
   SharedModel ->
   Board 'Core ->
   -- | The player drawing cards
-  PlayerSpot ->
+  Spots.Player ->
   -- | The sources from which to draw the cards
   [DrawSource] ->
   Either Text (SharedModel, Board 'Core, Board 'UI)
@@ -604,7 +604,7 @@ drawCard ::
   SharedModel ->
   Board 'Core ->
   -- | The player drawing cards
-  PlayerSpot ->
+  Spots.Player ->
   -- | The reason for drawing a card
   DrawSource ->
   Either Text (Board 'Core, Board 'UI, SharedModel)
@@ -622,7 +622,7 @@ drawCardM ::
   MonadWriter (Board 'UI) m =>
   MonadState SharedModel m =>
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   DrawSource ->
   m (Board 'Core)
 drawCardM board pSpot src =
@@ -654,7 +654,7 @@ drawCardM board pSpot src =
               case findIndex (\case Skill.DrawCard b -> b; _ -> False) skills of
                 Nothing -> Left "Not a creature with avail DrawCard"
                 Just i -> Right $ Just (cSpot, c, i, Skill.DrawCard False)
-        CardDrawer _ _ -> Left "Wrong PlayerSpot"
+        CardDrawer _ _ -> Left "Wrong Spots.Player"
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
       -- Set new skill
@@ -663,7 +663,7 @@ drawCardM board pSpot src =
 transferCards ::
   SharedModel ->
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   (SharedModel, Board 'Core, Board 'UI)
 transferCards shared board pSpot =
   (SharedModel.withStdGen shared stdgen', board', boardui')
@@ -674,7 +674,7 @@ transferCards shared board pSpot =
 transferCards' ::
   StdGen ->
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   (Board 'Core, Board 'UI, StdGen)
 transferCards' stdgen board pSpot =
   transferCardsM board pSpot & flip runRandT stdgen & runWriter & reorg
@@ -686,7 +686,7 @@ transferCardsM ::
   MonadRandom m =>
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   m (Board 'Core)
 transferCardsM board pSpot =
   if not needTransfer
@@ -706,7 +706,7 @@ transferCardsM board pSpot =
 
 -- | board id pSpot target holds iff player at 'pSpot' can play card 'id'
 -- on 'target'
-appliesTo :: Board 'Core -> Card.ID -> PlayerSpot -> Target -> Bool
+appliesTo :: Board 'Core -> Card.ID -> Spots.Player -> Target -> Bool
 appliesTo board id playingPlayer target =
   correctPlayer && correctHoleyness
   where
@@ -738,7 +738,7 @@ data ChurchEffect
 allChurchEffects :: NE.NonEmpty ChurchEffect
 allChurchEffects = PlusOneAttack NE.:| [PlusOneHealth ..]
 
-applyChurch :: SharedModel -> Board 'Core -> PlayerSpot -> (Board 'Core, Board 'UI, SharedModel)
+applyChurch :: SharedModel -> Board 'Core -> Spots.Player -> (Board 'Core, Board 'UI, SharedModel)
 applyChurch shared board pSpot =
   applyChurchM board pSpot
     & runWriterT
@@ -753,7 +753,7 @@ applyChurchM ::
   -- | The input board
   Board 'Core ->
   -- | The part where churchs take effect
-  PlayerSpot ->
+  Spots.Player ->
   m (Board 'Core)
 applyChurchM board pSpot = do
   -- TODO @smelc generate one effect per church
@@ -781,7 +781,7 @@ applyFearNTerror ::
   -- | The input board
   Board 'Core ->
   -- | The part causing fear
-  PlayerSpot ->
+  Spots.Player ->
   (Board 'Core, Board 'UI)
 applyFearNTerror board pSpot =
   applyFearNTerrorM board pSpot & runWriter
@@ -791,7 +791,7 @@ applyFearNTerrorM ::
   -- | The input board
   Board 'Core ->
   -- | The part causing fear
-  PlayerSpot ->
+  Spots.Player ->
   m (Board 'Core)
 applyFearNTerrorM board affectingSpot = do
   traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByTerror) terrorAffected
@@ -867,7 +867,7 @@ applyKingM ::
   -- | The input board
   Board 'Core ->
   -- | The part where kings are used
-  PlayerSpot ->
+  Spots.Player ->
   m (Board 'Core)
 applyKingM board pSpot = do
   traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) knightSpots
@@ -888,7 +888,7 @@ attack ::
   MonadState SharedModel m =>
   Board 'Core ->
   -- The attacker's player spot
-  PlayerSpot ->
+  Spots.Player ->
   -- The attacker's card spot
   CardSpot ->
   m (Board 'Core)
@@ -935,7 +935,7 @@ attackOneSpot ::
   MonadWriter (Board 'UI) m =>
   MonadState SharedModel m =>
   Board 'Core ->
-  (Creature 'Core, PlayerSpot, CardSpot) ->
+  (Creature 'Core, Spots.Player, CardSpot) ->
   (Creature 'Core, CardSpot) ->
   m (Board 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
@@ -956,7 +956,7 @@ applyInPlaceEffectOnBoard ::
   -- | The input board
   Board 'Core ->
   -- | The creature being hit
-  (PlayerSpot, CardSpot, Creature 'Core) ->
+  (Spots.Player, CardSpot, Creature 'Core) ->
   -- | The updated board
   Board 'Core
 applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) =
@@ -992,7 +992,7 @@ applyFlailOfTheDamned ::
   -- The hitter
   Creature 'Core ->
   -- The hitter's position
-  PlayerSpot ->
+  Spots.Player ->
   m (Board 'Core)
 applyFlailOfTheDamned board creature pSpot =
   if not hasFlailOfTheDamned
@@ -1101,13 +1101,13 @@ enemySpots canAttack skills cSpot =
     base' = if canAttack then base else []
 
 -- | The order in which cards attack
-attackOrder :: PlayerSpot -> [CardSpot]
+attackOrder :: Spots.Player -> [CardSpot]
 attackOrder PlayerTop =
   [BottomRight, Bottom, BottomLeft, TopRight, Top, TopLeft]
 attackOrder PlayerBot =
   map bottomSpotOfTopVisual $ reverse $ attackOrder PlayerTop
 
-nextAttackSpot :: Board 'Core -> PlayerSpot -> Maybe CardSpot -> Maybe CardSpot
+nextAttackSpot :: Board 'Core -> Spots.Player -> Maybe CardSpot -> Maybe CardSpot
 nextAttackSpot board pSpot cSpot =
   case cSpot of
     Nothing -> find hasCreature spots
@@ -1128,12 +1128,12 @@ data DrawSource
     Native
   | -- | Drawing a card because of a creature with the [DrawCard] skill at the
     -- given position
-    CardDrawer PlayerSpot CardSpot
+    CardDrawer Spots.Player CardSpot
   deriving (Eq, Ord, Show)
 
 -- | The cards to draw, the Boolean indicates whether to bound by the
 -- stack's length or not
-cardsToDraw :: Board 'Core -> PlayerSpot -> Bool -> [DrawSource]
+cardsToDraw :: Board 'Core -> Spots.Player -> Bool -> [DrawSource]
 cardsToDraw board pSpot considerStack =
   map (const Native) [0 .. natives - 1] ++ map (CardDrawer pSpot) cardsDrawer
   where

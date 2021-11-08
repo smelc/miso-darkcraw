@@ -26,6 +26,7 @@ import Model (GameModel (..))
 import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
+import Spots
 import Test.Hspec
 import TestLib (shouldAllSatisfy)
 import qualified Update

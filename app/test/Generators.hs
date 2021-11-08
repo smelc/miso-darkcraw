@@ -146,7 +146,8 @@ instance Arbitrary Tile where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary PlayerSpot where
+-- FIXME @smelc Do not use generic generator here
+instance Arbitrary Spots.Player where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

@@ -35,7 +35,6 @@ module Board
     InHandType (),
     lookupHand,
     PlayerPart (..),
-    PlayerSpot (..),
     StackType (),
     small,
     spotToLens,
@@ -289,13 +288,13 @@ instance Semigroup (Board 'UI) where
 instance Monoid (Board 'UI) where
   mempty = Board mempty mempty
 
-addToDiscarded :: Board 'Core -> PlayerSpot -> DiscardedType 'Core -> Board 'Core
+addToDiscarded :: Board 'Core -> Spots.Player -> DiscardedType 'Core -> Board 'Core
 addToDiscarded board pSpot addition =
   setDiscarded board pSpot $ discarded ++ addition
   where
     discarded = toDiscarded board pSpot
 
-addToHand :: Board p -> PlayerSpot -> HandElemType p -> Board p
+addToHand :: Board p -> Spots.Player -> HandElemType p -> Board p
 addToHand board pSpot handElem =
   setPart board pSpot $ part {inHand = hand'}
   where
@@ -303,8 +302,8 @@ addToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
--- | Map 'f' over creatures in the given 'CardSpot' in the tiven 'PlayerSpot'
-mapInPlace :: (Creature 'Core -> Creature 'Core) -> PlayerSpot -> [CardSpot] -> Board 'Core -> Board 'Core
+-- | Map 'f' over creatures in the given 'CardSpot' in the given 'Spots.Player'
+mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [CardSpot] -> Board 'Core -> Board 'Core
 mapInPlace f pSpot cSpots board =
   setPart board pSpot (part {inPlace = inPlace'})
   where
@@ -313,48 +312,48 @@ mapInPlace f pSpot cSpots board =
     inPlace' = Map.union (Map.map f changed) untouched
 
 -- | Puts a creature, replacing the existing one if any
-setCreature :: Board 'Core -> PlayerSpot -> CardSpot -> Creature 'Core -> Board 'Core
+setCreature :: Board 'Core -> Spots.Player -> CardSpot -> Creature 'Core -> Board 'Core
 setCreature board pSpot cSpot creature =
   setPart board pSpot part'
   where
     part = toPart board pSpot
     part' = part & #inPlace . at cSpot ?~ creature
 
-setDiscarded :: Board p -> PlayerSpot -> DiscardedType p -> Board p
+setDiscarded :: Board p -> Spots.Player -> DiscardedType p -> Board p
 setDiscarded board pSpot discarded =
   setPart board pSpot $ part {discarded = discarded}
   where
     part = toPart board pSpot
 
-setInPlace :: Board p -> PlayerSpot -> InPlaceType p -> Board p
+setInPlace :: Board p -> Spots.Player -> InPlaceType p -> Board p
 setInPlace board pSpot inPlace =
   setPart board pSpot $ part {inPlace = inPlace}
   where
     part = toPart board pSpot
 
-setHand :: Board p -> PlayerSpot -> InHandType p -> Board p
+setHand :: Board p -> Spots.Player -> InHandType p -> Board p
 setHand board pSpot hand =
   setPart board pSpot $ part {inHand = hand}
   where
     part = toPart board pSpot
 
-setMana :: Board.ManaType p -> PlayerSpot -> Board p -> Board p
+setMana :: Board.ManaType p -> Spots.Player -> Board p -> Board p
 setMana mana pSpot board =
   setPart board pSpot $ part {Board.mana = mana}
   where
     part = toPart board pSpot
 
-setPart :: Board p -> PlayerSpot -> PlayerPart p -> Board p
+setPart :: Board p -> Spots.Player -> PlayerPart p -> Board p
 setPart board PlayerTop part = board {playerTop = part}
 setPart board PlayerBot part = board {playerBottom = part}
 
-setStack :: Board p -> PlayerSpot -> StackType p -> Board p
+setStack :: Board p -> Spots.Player -> StackType p -> Board p
 setStack board pSpot stack =
   setPart board pSpot $ part {stack = stack}
   where
     part = toPart board pSpot
 
-toHoleyInPlace :: Board 'Core -> [(PlayerSpot, CardSpot, Maybe (Creature 'Core))]
+toHoleyInPlace :: Board 'Core -> [(Spots.Player, CardSpot, Maybe (Creature 'Core))]
 toHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- allPlayersSpots,
@@ -362,7 +361,7 @@ toHoleyInPlace board =
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
 
-toPlayerCardSpots :: Board 'Core -> PlayerSpot -> CardTargetKind -> [CardSpot]
+toPlayerCardSpots :: Board 'Core -> Spots.Player -> CardTargetKind -> [CardSpot]
 toPlayerCardSpots board pSpot ctk =
   toPlayerHoleyInPlace board pSpot
     & filter
@@ -375,22 +374,22 @@ toPlayerCardSpots board pSpot ctk =
     & map fst
 
 toPlayerHoleyInPlace ::
-  Board 'Core -> PlayerSpot -> [(CardSpot, Maybe (Creature 'Core))]
+  Board 'Core -> Spots.Player -> [(CardSpot, Maybe (Creature 'Core))]
 toPlayerHoleyInPlace board pSpot =
   [ (cSpot, maybeCreature)
     | cSpot <- allCardsSpots,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
 
-toDiscarded :: Board p -> PlayerSpot -> DiscardedType p
+toDiscarded :: Board p -> Spots.Player -> DiscardedType p
 toDiscarded Board {playerTop} PlayerTop = discarded playerTop
 toDiscarded Board {playerBottom} PlayerBot = discarded playerBottom
 
-toHand :: Board p -> PlayerSpot -> InHandType p
+toHand :: Board p -> Spots.Player -> InHandType p
 toHand Board {playerTop} PlayerTop = inHand playerTop
 toHand Board {playerBottom} PlayerBot = inHand playerBottom
 
-toInPlace :: Board p -> PlayerSpot -> InPlaceType p
+toInPlace :: Board p -> Spots.Player -> InPlaceType p
 toInPlace Board {playerTop} PlayerTop = inPlace playerTop
 toInPlace Board {playerBottom} PlayerBot = inPlace playerBottom
 
@@ -398,7 +397,7 @@ toInPlace Board {playerBottom} PlayerBot = inPlace playerBottom
 -- and for the given kind of neighbors.
 toNeighbors ::
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   CardSpot ->
   Neighborhood ->
   [(CardSpot, Creature 'Core)]
@@ -412,20 +411,20 @@ toNeighbors board pSpot cSpot neighborhood =
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing
 
-toPart :: Board p -> PlayerSpot -> PlayerPart p
+toPart :: Board p -> Spots.Player -> PlayerPart p
 toPart Board {playerTop} PlayerTop = playerTop
 toPart Board {playerBottom} PlayerBot = playerBottom
 
-toScore :: Board p -> PlayerSpot -> ScoreType p
+toScore :: Board p -> Spots.Player -> ScoreType p
 toScore board pSpot = toPart board pSpot & score
 
-toStack :: Board p -> PlayerSpot -> StackType p
+toStack :: Board p -> Spots.Player -> StackType p
 toStack Board {playerTop} PlayerTop = stack playerTop
 toStack Board {playerBottom} PlayerBot = stack playerBottom
 
 toInPlaceCreature ::
   Board 'Core ->
-  PlayerSpot ->
+  Spots.Player ->
   CardSpot ->
   Maybe (Creature 'Core)
 toInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
@@ -456,7 +455,7 @@ data Teams a = Teams
   }
   deriving (Generic, Show, Functor)
 
-toData :: PlayerSpot -> Teams a -> a
+toData :: Spots.Player -> Teams a -> a
 toData PlayerTop Teams {topTeam} = topTeam
 toData PlayerBot Teams {botTeam} = botTeam
 
@@ -483,7 +482,7 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.
-small :: SharedModel -> Teams Team -> CreatureID -> [Item] -> PlayerSpot -> CardSpot -> Board 'Core
+small :: SharedModel -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> CardSpot -> Board 'Core
 small shared teams cid items pSpot cSpot =
   setCreature (empty teams) pSpot cSpot c
   where
@@ -493,13 +492,13 @@ small shared teams cid items pSpot cSpot =
         & Card.unlift
 
 -- FIXME @smelc remove me
-spotToLens :: PlayerSpot -> Lens' (Board p) (PlayerPart p)
+spotToLens :: Spots.Player -> Lens' (Board p) (PlayerPart p)
 spotToLens =
   \case
     PlayerBot -> #playerBottom
     PlayerTop -> #playerTop
 
-appliesTo :: Card.ID -> Board 'Core -> PlayerSpot -> CardSpot -> Bool
+appliesTo :: Card.ID -> Board 'Core -> Spots.Player -> CardSpot -> Bool
 appliesTo id board pSpot cSpot =
   case (Card.targetType id, toInPlaceCreature board pSpot cSpot) of
     (Card.CardTargetType Occupied, Just _) -> True

@@ -15,7 +15,6 @@ module DeckView
   )
 where
 
-import Board (PlayerSpot (..))
 import Card (Card, Phase (Core), Team, groupCards)
 import Constants
 import Data.Function ((&))
@@ -27,6 +26,7 @@ import Miso.Util ((=:))
 import Model
 import PCWViewInternal
 import SharedModel
+import Spots
 import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
@@ -37,7 +37,7 @@ data GenericModel = GenericModel
     -- | The deck to show
     deck :: [Card 'Core],
     -- | To which player 'gDeck' belongs
-    player :: PlayerSpot,
+    player :: Spots.Player,
     -- | To which team the deck being shown belongs
     team :: Team,
     -- | Part of the model shared among all pages

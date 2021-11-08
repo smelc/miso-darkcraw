@@ -36,38 +36,6 @@
  client/ in tests.
  |</p></div>
 </div>
-<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:Command">Command</a><ul class="subs">
-<li>= <a href="#v:EndGame">EndGame</a> <a href="Campaign.html#t:Outcome" title="Campaign">Outcome</a>
-</li>
-<li>| <a href="#v:FillTheFrontline">FillTheFrontline</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>
-</li>
-<li>| <a href="#v:Gimme">Gimme</a> <a href="Card.html#t:ID" title="Card">ID</a>
-</li>
-<li>| <a href="#v:GimmeMana">GimmeMana</a>
-</li>
-<li>| <a href="#v:HailToTheKing">HailToTheKing</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>
-</li>
-<li>| <a href="#v:Killall">Killall</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>
-</li>
-</ul>
-</li>
-<li class="src short">
-<span class="keyword">class</span> <a href="#t:Read">Read</a> a <span class="keyword">where</span><ul class="subs"><li>
-<a href="#v:read">read</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a</li></ul>
-</li>
-<li class="src short">
-<a href="#v:allCommands">allCommands</a> :: [<a href="Card.html#t:CreatureID" title="Card">CreatureID</a>] -&gt; [<a href="Command.html#t:Command" title="Command">Command</a>]</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:PlayerSpot">PlayerSpot</a><ul class="subs">
-<li>= <a href="#v:PlayerBot">PlayerBot</a>
-</li>
-<li>| <a href="#v:PlayerTop">PlayerTop</a>
-</li>
-</ul>
-</li>
-</ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
 <div class="top">
@@ -84,7 +52,7 @@
 </tr>
 <tr>
 <td class="src">
-<a id="v:FillTheFrontline" class="def">FillTheFrontline</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>
+<a id="v:FillTheFrontline" class="def">FillTheFrontline</a> <a href="Spots.html#t:Player" title="Spots">Player</a>
 </td>
 <td class="doc"><p>Command to trgger the 'fill the frontline' event</p></td>
 </tr>
@@ -100,13 +68,13 @@
 </tr>
 <tr>
 <td class="src">
-<a id="v:HailToTheKing" class="def">HailToTheKing</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>
+<a id="v:HailToTheKing" class="def">HailToTheKing</a> <a href="Spots.html#t:Player" title="Spots">Player</a>
 </td>
 <td class="doc"><p>Command to trigger the <code>king</code> event</p></td>
 </tr>
 <tr>
 <td class="src">
-<a id="v:Killall" class="def">Killall</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>
+<a id="v:Killall" class="def">Killall</a> <a href="Spots.html#t:Player" title="Spots">Player</a>
 </td>
 <td class="doc"><p>Command to kill all creatures in a part</p></td>
 </tr>
@@ -157,115 +125,6 @@
 </table></details></div>
 </div>
 <div class="top"><p class="src"><a id="v:allCommands" class="def">allCommands</a> :: [<a href="Card.html#t:CreatureID" title="Card">CreatureID</a>] -&gt; [<a href="Command.html#t:Command" title="Command">Command</a>] <a href="#v:allCommands" class="selflink">#</a></p></div>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:PlayerSpot" class="def">PlayerSpot</a> <a href="#t:PlayerSpot" class="selflink">#</a></p>
-<div class="doc"><p>The position of a player
- TODO @smelc rename me to Player and use me qualified</p></div>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src"><a id="v:PlayerBot" class="def">PlayerBot</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src"><a id="v:PlayerTop" class="def">PlayerTop</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:PlayerSpot" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:PlayerSpot:Bounded:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Bounded" title="Prelude">Bounded</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a></span> <a href="#t:PlayerSpot" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:PlayerSpot:Bounded:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:minBound">minBound</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:minBound" class="selflink">#</a></p>
-<p class="src"><a href="#v:maxBound">maxBound</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:maxBound" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:PlayerSpot:Enum:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Enum" title="Prelude">Enum</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a></span> <a href="#t:PlayerSpot" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:PlayerSpot:Enum:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:succ">succ</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:succ" class="selflink">#</a></p>
-<p class="src"><a href="#v:pred">pred</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:pred" class="selflink">#</a></p>
-<p class="src"><a href="#v:toEnum">toEnum</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:toEnum" class="selflink">#</a></p>
-<p class="src"><a href="#v:fromEnum">fromEnum</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:fromEnum" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFrom">enumFrom</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; [<a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>] <a href="#v:enumFrom" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFromThen">enumFromThen</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; [<a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>] <a href="#v:enumFromThen" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFromTo">enumFromTo</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; [<a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>] <a href="#v:enumFromTo" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFromThenTo">enumFromThenTo</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; [<a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>] <a href="#v:enumFromThenTo" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:PlayerSpot:Eq:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a></span> <a href="#t:PlayerSpot" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:PlayerSpot:Eq:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:PlayerSpot:Ord:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a></span> <a href="#t:PlayerSpot" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:PlayerSpot:Ord:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:compare">compare</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
-<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:max">max</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:max" class="selflink">#</a></p>
-<p class="src"><a href="#v:min">min</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:min" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:PlayerSpot:Show:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a></span> <a href="#t:PlayerSpot" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:PlayerSpot:Show:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:PlayerSpot:Generic:6"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a></span> <a href="#t:PlayerSpot" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:PlayerSpot:Generic:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs associated-types">
-<p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
-</div> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> x -&gt; <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> <a href="#v:to" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:PlayerSpot:Rep:7"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a></span> <a href="#t:PlayerSpot" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:PlayerSpot:Rep:7"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Command.html#t:PlayerSpot" title="Command">PlayerSpot</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "PlayerSpot" "Spots" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "PlayerBot" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "PlayerTop" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>))</div></details></td></tr>
-</table></details></div>
-</div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>

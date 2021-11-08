@@ -9,12 +9,11 @@ module Turn
   )
 where
 
-import Board (PlayerSpot (..))
 import GHC.Generics (Generic)
 import Nat
 import Spots
 
-newtype Turn = Turn (Nat, PlayerSpot)
+newtype Turn = Turn (Nat, Spots.Player)
   deriving (Eq, Generic, Show)
 
 initial :: Turn
@@ -28,5 +27,5 @@ next (Turn (i, _)) = Turn (i + 1, startingPlayerSpot)
 toNat :: Turn -> Nat
 toNat (Turn (n, _)) = n
 
-toPlayerSpot :: Turn -> PlayerSpot
+toPlayerSpot :: Turn -> Spots.Player
 toPlayerSpot (Turn (_, pSpot)) = pSpot

@@ -15,7 +15,6 @@ module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), placeCar
 import Board
   ( Board,
     HandIndex (HandIndex),
-    PlayerSpot,
   )
 import qualified Board
 import BoardInstances ()
@@ -58,7 +57,7 @@ placeCards ::
   SharedModel ->
   Board 'Core ->
   -- | The player whose cards must be played
-  PlayerSpot ->
+  Spots.Player ->
   [Game.Event]
 placeCards difficulty shared board turn =
   -- Will fail once when we do more stuff in aiPlay. It's OK, I'll
@@ -116,7 +115,7 @@ play ::
   SharedModel ->
   Board 'Core ->
   -- | The playing player
-  PlayerSpot ->
+  Spots.Player ->
   -- | Events generated for player 'pSpot'
   [Game.Event]
 play difficulty shared board pSpot =
@@ -150,7 +149,7 @@ play difficulty shared board pSpot =
 
 -- | The score of given player's in-place cards. Smaller is the best.
 -- Both negative and positive values are returned.
-boardPlayerScore :: Board 'Core -> PlayerSpot -> Int
+boardPlayerScore :: Board 'Core -> Spots.Player -> Int
 boardPlayerScore board pSpot =
   sum scores
   where
@@ -166,7 +165,7 @@ playHand ::
   SharedModel ->
   Board 'Core ->
   -- | The playing player
-  PlayerSpot ->
+  Spots.Player ->
   [Game.Event]
 playHand shared board pSpot =
   case aiPlayFirst shared board pSpot of
@@ -192,8 +191,8 @@ aiPlayFirst ::
   Board 'Core ->
   -- | The playing player, i.e. the player whose hand should the
   -- the card be picked from.
-  PlayerSpot ->
-  Maybe (PlayerSpot, Target, Card.ID)
+  Spots.Player ->
+  Maybe (Spots.Player, Target, Card.ID)
 aiPlayFirst shared board pSpot =
   case Board.toHand board pSpot of
     [] -> Nothing
@@ -228,7 +227,7 @@ aiPlayFirst shared board pSpot =
 targets ::
   Board 'Core ->
   -- | The player placing a card
-  PlayerSpot ->
+  Spots.Player ->
   -- | The card being played
   Card.ID ->
   -- | All spots where the card can be put
@@ -253,7 +252,7 @@ scorePlace ::
   -- | The creature at 'pSpot' 'cSpot'
   Creature 'Core ->
   -- | Where to place the creature
-  PlayerSpot ->
+  Spots.Player ->
   -- | Where to place the creature
   CardSpot ->
   -- | The score of the card at pSpot cSpot. Smaller is the best.
@@ -282,7 +281,7 @@ scorePlace board inPlace pSpot cSpot =
 -- | The score of the items of this creature (which is on the passed spot).
 -- 0 is the worst. Higher values are better. The spots are where
 -- the creature is.
-scoreCreatureItems :: Board 'Core -> Creature 'Core -> PlayerSpot -> CardSpot -> Nat
+scoreCreatureItems :: Board 'Core -> Creature 'Core -> Spots.Player -> CardSpot -> Nat
 scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
   sum $ map scoreCreatureItem items
   where

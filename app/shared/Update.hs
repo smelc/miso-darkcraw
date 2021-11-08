@@ -183,9 +183,9 @@ class Interactable m t mseq | m -> t, m -> mseq where
 
   -- | What to do when dropping card at given index, on the given 't' target
   -- The spot indicates the player whose card is being played
-  drop :: m -> PlayerSpot -> HandIndex -> t -> mseq
+  drop :: m -> Spots.Player -> HandIndex -> t -> mseq
 
-  getPlayingPlayer :: m -> PlayerSpot
+  getPlayingPlayer :: m -> Spots.Player
 
   -- | When to stop a dropping action
   stopWrongDrop :: m -> Bool

@@ -10,7 +10,6 @@ module Command
   ( Command (..),
     Command.Read (..),
     allCommands,
-    PlayerSpot (..),
   )
 where
 
@@ -33,15 +32,15 @@ data Command
     -- the playing player performed.
     EndGame Campaign.Outcome
   | -- | Command to trgger the 'fill the frontline' event
-    FillTheFrontline PlayerSpot
+    FillTheFrontline Spots.Player
   | -- | Command to obtain an extra card in the hand in GameView
     Gimme Card.ID
   | -- | Command to obtain mana
     GimmeMana
   | -- | Command to trigger the 'king' event
-    HailToTheKing PlayerSpot
+    HailToTheKing Spots.Player
   | -- | Command to kill all creatures in a part
-    Killall PlayerSpot
+    Killall Spots.Player
 
 -- See 'SharedModel' for the version that uses content from 'SharedModel'
 -- to instantiate the parameter.

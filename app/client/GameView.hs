@@ -152,7 +152,7 @@ boardToInPlaceCell ::
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
   -- | The part considered
-  PlayerSpot ->
+  Spots.Player ->
   -- | The spot of the card to show
   CardSpot ->
   Styled (View Action)
@@ -237,7 +237,7 @@ boardToPlayerTarget ::
   Int ->
   GameModel ->
   Maybe TargetType ->
-  PlayerSpot ->
+  Spots.Player ->
   Maybe (View Action)
 boardToPlayerTarget z m@GameModel {interaction} dragTargetType pSpot =
   if bwidth <= 0
@@ -351,7 +351,7 @@ data HandDrawingInput = HandDrawingInput
     -- | The team of the hand being drawn
     team :: Team,
     -- | The player of the hand being drawn
-    playingPlayer :: PlayerSpot,
+    playingPlayer :: Spots.Player,
     shared :: SharedModel
   }
 
@@ -419,7 +419,7 @@ boardToInHandCell
           Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True
           Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
 
-cardCellsBoardOffset :: PlayerSpot -> CardSpot -> (Int, Int)
+cardCellsBoardOffset :: Spots.Player -> CardSpot -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
   (offsetx + x, offsety + y)
   where

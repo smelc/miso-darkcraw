@@ -24,11 +24,10 @@ data CardSpot
   deriving (Bounded, Enum, Eq, Ord, Show, Generic)
 
 -- | The position of a player
--- TODO @smelc rename me to Player and use me qualified
-data PlayerSpot = PlayerBot | PlayerTop
+data Player = PlayerBot | PlayerTop
   deriving (Bounded, Enum, Eq, Ord, Generic)
 
-instance Show PlayerSpot where
+instance Show Spots.Player where
   show PlayerBot = "bot"
   show PlayerTop = "top"
 
@@ -121,18 +120,18 @@ line = \case
 
 -- * Functions about 'PlayerSpot'
 
-allPlayersSpots :: [PlayerSpot]
+allPlayersSpots :: [Spots.Player]
 allPlayersSpots = [minBound ..]
 
 -- | The spot of the player that starts a game
-startingPlayerSpot :: PlayerSpot
+startingPlayerSpot :: Spots.Player
 startingPlayerSpot = PlayerBot
 
 -- | The spot of the player that ends a game
-endingPlayerSpot :: PlayerSpot
+endingPlayerSpot :: Spots.Player
 endingPlayerSpot = PlayerTop
 
 -- | The other spot
-otherPlayerSpot :: PlayerSpot -> PlayerSpot
+otherPlayerSpot :: Spots.Player -> Spots.Player
 otherPlayerSpot PlayerBot = PlayerTop
 otherPlayerSpot PlayerTop = PlayerBot

@@ -48,6 +48,7 @@ import Nat
 import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
 import qualified Skill
+import Spots
 import qualified Tile
 import qualified Turn
 import Update
@@ -133,11 +134,11 @@ scoreViews m@GameModel {board} z =
     topScore = board ^. #playerTop . #score
     botScore = board ^. #playerBottom . #score
 
-scoreMarginTop :: PlayerSpot -> Int
+scoreMarginTop :: Spots.Player -> Int
 scoreMarginTop PlayerTop = cps
 scoreMarginTop PlayerBot = cps * 24
 
-scoreView :: GameModel -> Int -> PlayerSpot -> View Action
+scoreView :: GameModel -> Int -> Spots.Player -> View Action
 scoreView GameModel {board} z pSpot =
   div_
     [ style_ $
@@ -184,7 +185,7 @@ manaView GameModel {board, playingPlayer} z =
 
 -- Not in scoreView itself, otherwise it mixes up the central alignment
 -- (that uses scoreView's div own width (50%))
-scoreLeaderView :: PlayerSpot -> View Action
+scoreLeaderView :: Spots.Player -> View Action
 scoreLeaderView pSpot =
   img_
     [ src_ (assetsPath assetFilenameCrown),
@@ -236,7 +237,7 @@ data StackWidgetType
   | Plus
 
 -- | The widget showing the number of cards in the stack/discarded stack
-stackView :: GameModel -> Int -> PlayerSpot -> StackPosition -> StackKind -> Styled [View Action]
+stackView :: GameModel -> Int -> Spots.Player -> StackPosition -> StackKind -> Styled [View Action]
 stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType = do
   button <- textButton gui z enabledness [] $ ms (label ++ ": " ++ show atColonSize)
   plus <- keyframed plusBuilder plusFrames animData
