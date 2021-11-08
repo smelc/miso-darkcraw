@@ -37,10 +37,10 @@ affectedByTerror _ c | causesTerror c = False -- Creature causing terror are imm
 affectedByTerror _ _ = True
 
 -- | Where a creature is on the board
-data Place = Place {place :: Board.InPlaceType 'Core, cardSpot :: Spots.CardSpot}
+data Place = Place {place :: Board.InPlaceType 'Core, cardSpot :: Spots.Card}
 
 -- | Builds a 'Place' from a 'Board'
-mkPlace :: Board 'Core -> Spots.Player -> CardSpot -> Place
+mkPlace :: Board 'Core -> Spots.Player -> Spots.Card -> Place
 mkPlace board pSpot cardSpot = Place {place = Board.toInPlace board pSpot, cardSpot}
 
 -- | The total attack of a creature, including boosts of skills and items.

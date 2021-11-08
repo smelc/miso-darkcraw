@@ -37,7 +37,8 @@ import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
 import qualified Skill
-import Spots
+import Spots hiding (Card)
+import qualified Spots
 import System.Random (StdGen)
 import System.Random.Shuffle (shuffle')
 import qualified Total
@@ -254,7 +255,7 @@ scorePlace ::
   -- | Where to place the creature
   Spots.Player ->
   -- | Where to place the creature
-  CardSpot ->
+  Spots.Card ->
   -- | The score of the card at pSpot cSpot. Smaller is the best.
   -- Both negative and positive values are returned.
   Int
@@ -264,12 +265,12 @@ scorePlace board inPlace pSpot cSpot =
     (~=~) Nothing _ = False
     (~=~) (Just a) b = a == b
     creature :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpot cSpot
-    enemiesInPlace :: Map.Map CardSpot (Creature 'Core) =
+    enemiesInPlace :: Map.Map Spots.Card (Creature 'Core) =
       Board.toInPlace board (otherPlayerSpot pSpot)
     cSkills = skills inPlace
     prefersBack = Skill.Ranged `elem` cSkills || Skill.LongReach `elem` cSkills
     lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
-    enemySpots' :: [CardSpot] = allEnemySpots cSpot
+    enemySpots' :: [Spots.Card] = allEnemySpots cSpot
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'
     -- TODO @smelc instead, play EndTurn pSpot cSpot and look at the score
     -- increase. This will avoid doing an incorrect simulation.
@@ -281,7 +282,7 @@ scorePlace board inPlace pSpot cSpot =
 -- | The score of the items of this creature (which is on the passed spot).
 -- 0 is the worst. Higher values are better. The spots are where
 -- the creature is.
-scoreCreatureItems :: Board 'Core -> Creature 'Core -> Spots.Player -> CardSpot -> Nat
+scoreCreatureItems :: Board 'Core -> Creature 'Core -> Spots.Player -> Spots.Card -> Nat
 scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
   sum $ map scoreCreatureItem items
   where

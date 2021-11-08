@@ -13,8 +13,7 @@ import GHC.Generics
 -- | The spot of a card, as visible from the top of the screen. For the
 -- | bottom part, think as if it was in the top, turning the board
 -- | 180 degrees clockwise; or use these values and map [bottomSpotOfTopVisual].
--- TODO @smelc rename me to Card and use me qualified
-data CardSpot
+data Card
   = TopLeft
   | Top
   | TopRight
@@ -43,14 +42,14 @@ data Neighborhood
 
 -- * Functions about 'CardSpot'
 
-allCardsSpots :: [CardSpot]
+allCardsSpots :: [Spots.Card]
 allCardsSpots = [minBound ..]
 
 -- | Returns a bottom position, by taking a position that makes sense visually
 -- | I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]
 -- | bottom position that you SEE; even if positions make sense for the top
 -- | part. This method takes care of translating correctly.
-bottomSpotOfTopVisual :: CardSpot -> CardSpot
+bottomSpotOfTopVisual :: Spots.Card -> Spots.Card
 bottomSpotOfTopVisual = \case
   TopLeft -> BottomRight
   Top -> Bottom
@@ -59,24 +58,24 @@ bottomSpotOfTopVisual = \case
   Bottom -> Top
   BottomRight -> TopLeft
 
-botSpots :: [CardSpot]
+botSpots :: [Spots.Card]
 botSpots = filter (not . inTheBack) allCardsSpots
 
-topSpots :: [CardSpot]
+topSpots :: [Spots.Card]
 topSpots = filter inTheBack allCardsSpots
 
 -- | Whether a spot is in the back line
-inTheBack :: CardSpot -> Bool
+inTheBack :: Spots.Card -> Bool
 inTheBack TopLeft = True
 inTheBack Top = True
 inTheBack TopRight = True
 inTheBack _ = False
 
 -- | Whether a spot is in the front line
-inFront :: CardSpot -> Bool
+inFront :: Spots.Card -> Bool
 inFront = not . inTheBack
 
-neighbors :: Neighborhood -> CardSpot -> [CardSpot]
+neighbors :: Neighborhood -> Spots.Card -> [Spots.Card]
 neighbors All pSpot = neighbors Diagonal pSpot ++ neighbors Cardinal pSpot
 neighbors Cardinal pSpot =
   case pSpot of
@@ -97,7 +96,7 @@ neighbors Diagonal pSpot =
 
 -- | Given a frontline spot, the corresponding backline spot. Given
 -- a backline spot, the corresponding frontline spot.
-switchLine :: CardSpot -> CardSpot
+switchLine :: Spots.Card -> Spots.Card
 switchLine TopLeft = BottomLeft
 switchLine Top = Bottom
 switchLine TopRight = BottomRight
@@ -106,7 +105,7 @@ switchLine Bottom = Top
 switchLine BottomRight = TopRight
 
 -- | All spots in the same line
-line :: CardSpot -> [CardSpot]
+line :: Spots.Card -> [Spots.Card]
 line = \case
   TopLeft -> top
   Top -> top

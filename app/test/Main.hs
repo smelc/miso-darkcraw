@@ -40,7 +40,7 @@ import Pretty
 import SceneEquivalence
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Spots
+import Spots hiding (Card)
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck

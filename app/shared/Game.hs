@@ -86,7 +86,7 @@ data Target
     PlayerTarget Spots.Player
   | -- | Creature card placed at given spot
     -- or Neutral card applies to a given in place card of a player
-    CardTarget Spots.Player CardSpot
+    CardTarget Spots.Player Spots.Card
   deriving (Eq, Generic, Show)
 
 targetToPlayerSpot :: Target -> Spots.Player
@@ -119,7 +119,7 @@ data Event
     -- be enqueued after solving this attack. The second Boolean indicates
     -- whether 'GameIncrTurn' (change player turn) should be performed
     -- after solving this attack.
-    Attack Spots.Player CardSpot Bool Bool
+    Attack Spots.Player Spots.Card Bool Bool
   | -- | Ranged creatures with the 'Ranged' skill, that: 1/ are in the
     -- back line and 2/ have no creature in from of them; move frontward
     FillTheFrontline Spots.Player
@@ -184,7 +184,7 @@ apply StatChange {attackDiff, hpDiff} c@Creature {attack, hp} =
 reportEffect ::
   MonadWriter (Board 'UI) m =>
   Spots.Player ->
-  CardSpot ->
+  Spots.Card ->
   InPlaceEffect ->
   m ()
 reportEffect pSpot cSpot effect =
@@ -351,7 +351,7 @@ eventToAnim shared board =
         part = Board.toInPlace board pSpot
         board' = applyFillTheFrontline board pSpot
         part' = Board.toInPlace board' pSpot
-        movedSpots :: Set.Set CardSpot =
+        movedSpots :: Set.Set Spots.Card =
           Set.difference (Map.keysSet part') (Map.keysSet part)
         movedCreatures :: [Creature 'UI] =
           (map (part' Map.!?) $ Set.toList movedSpots)
@@ -424,7 +424,7 @@ playCreatureM ::
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
   Spots.Player ->
-  CardSpot ->
+  Spots.Card ->
   Creature 'Core ->
   m (Board 'Core)
 playCreatureM board pSpot cSpot creature =
@@ -451,7 +451,7 @@ playItemM ::
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
   Spots.Player ->
-  CardSpot ->
+  Spots.Card ->
   Item ->
   m (Board 'Core)
 playItemM board pSpot cSpot item =
@@ -490,7 +490,7 @@ applyDiscipline ::
   -- | The part where the creature is being played
   Spots.Player ->
   -- | The spot where the creature arrives. It has already been filled with 'creature'.
-  CardSpot ->
+  Spots.Card ->
   m (Board 'Core)
 applyDiscipline board creature pSpot cSpot =
   if not $ Total.isDisciplined creature
@@ -501,7 +501,7 @@ applyDiscipline board creature pSpot cSpot =
   where
     change = StatChange {attackDiff = 1, hpDiff = 1}
     effect = changeToEffect change
-    disciplinedNeighbors :: [CardSpot] =
+    disciplinedNeighbors :: [Spots.Card] =
       Board.toNeighbors board pSpot cSpot Board.Cardinal
         & filter (\(_, c) -> Total.isDisciplined c)
         & filter (\(spot, _) -> spot /= cSpot)
@@ -569,7 +569,7 @@ applySquire ::
   -- | The part where the creature is being played
   Spots.Player ->
   -- | The spot where the creature arrives. It has already been filled with the creature.
-  CardSpot ->
+  Spots.Card ->
   m (Board 'Core)
 applySquire board Creature {skills} pSpot cSpot =
   if Skill.Squire `notElem` skills || Spots.inFront cSpot || not knightInFront
@@ -771,9 +771,9 @@ applyChurchM board pSpot = do
       traverse_ (\cSpot -> reportEffect pSpot cSpot effect) (map fst others)
       return $ Board.mapInPlace creatureFun pSpot (Set.toList affectedSpots) board
     creatures = Board.toInPlace board pSpot
-    (churchs :: [(CardSpot, Creature 'Core)], others :: [(CardSpot, Creature 'Core)]) =
+    (churchs :: [(Spots.Card, Creature 'Core)], others :: [(Spots.Card, Creature 'Core)]) =
       creatures & Map.filter isChurch & Map.toList & partition (isChurch . snd)
-    affectedSpots :: Set.Set CardSpot =
+    affectedSpots :: Set.Set Spots.Card =
       (Set.fromList (map fst others)) Set.\\ (Set.fromList (map fst churchs))
     isChurch Creature {creatureId = CreatureID {creatureKind = kind}} = kind == Card.Church
 
@@ -805,20 +805,20 @@ applyFearNTerrorM board affectingSpot = do
     affectingInPlace = Board.toInPlace board affectingSpot
     causingFear = Map.filter Total.causesFear affectingInPlace
     causingTerror = Map.filter Total.causesTerror affectingInPlace
-    switch :: CardSpot -> Maybe CardSpot -- From affecting spot to affected spot, and back
+    switch :: Spots.Card -> Maybe Spots.Card -- From affecting spot to affected spot, and back
     switch cSpot = enemySpots True [] cSpot & listToMaybe
-    terrorAffectedSpots :: [CardSpot] = Map.keys causingTerror & mapMaybe switch
-    fearAffectedSpots :: [CardSpot] =
+    terrorAffectedSpots :: [Spots.Card] = Map.keys causingTerror & mapMaybe switch
+    fearAffectedSpots :: [Spots.Card] =
       Map.keys causingFear
         & mapMaybe switch
     removeAll l1 l2 = [x | x <- l1, x `notElem` l2]
     affectedInPlace = Board.toInPlace board affectedSpot
-    fearAffected :: [CardSpot] =
+    fearAffected :: [Spots.Card] =
       affectedInPlace
         & Map.filterWithKey
           (\spot c -> spot `elem` fearAffectedSpots && Total.affectedByFear True c)
         & Map.keys
-    terrorAffected :: [CardSpot] =
+    terrorAffected :: [Spots.Card] =
       affectedInPlace
         & Map.filterWithKey
           (\spot c -> spot `elem` terrorAffectedSpots && Total.affectedByTerror True c)
@@ -828,17 +828,17 @@ applyFearNTerrorM board affectingSpot = do
         & catMaybes
         & filter (\Creature {transient} -> not transient) -- Transient creatures do not got to discarded stack
         & map (\Creature {creatureId, items} -> IDC creatureId items)
-    affectedInPlace' :: Map CardSpot (Creature 'Core) =
+    affectedInPlace' :: Map Spots.Card (Creature 'Core) =
       -- remove creatures killed by terror
       removeKeys affectedInPlace terrorAffected
-    terrorKillers :: [CardSpot] =
+    terrorKillers :: [Spots.Card] =
       -- Affecting spots that cause a death by terror
       removeAll (Map.keys affectedInPlace) (Map.keys affectedInPlace')
         & mapMaybe switch
-    affectedInPlace'' :: Map CardSpot (Creature 'Core) =
+    affectedInPlace'' :: Map Spots.Card (Creature 'Core) =
       -- remove creatures killed by fear
       removeKeys affectedInPlace' fearAffected
-    fearKillers :: [CardSpot] =
+    fearKillers :: [Spots.Card] =
       -- Affecting spots that cause a death by fear
       removeAll (Map.keys affectedInPlace') (Map.keys affectedInPlace'')
         & mapMaybe switch
@@ -890,7 +890,7 @@ attack ::
   -- The attacker's player spot
   Spots.Player ->
   -- The attacker's card spot
-  CardSpot ->
+  Spots.Card ->
   m (Board 'Core)
 attack board pSpot cSpot =
   case (attacker, allyBlocker, attackee) of
@@ -910,8 +910,8 @@ attack board pSpot cSpot =
       foldM (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) $ attackee) board attackees
   where
     attackeePSpot = otherPlayerSpot pSpot
-    attackersInPlace :: Map CardSpot (Creature 'Core) = Board.toInPlace board pSpot
-    attackeesInPlace :: Map CardSpot (Creature 'Core) = Board.toInPlace board attackeePSpot
+    attackersInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
+    attackeesInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board attackeePSpot
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
     attackerCanAttack = Damage.dealer attacker
     attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Skill.lift
@@ -919,8 +919,8 @@ attack board pSpot cSpot =
       if any (`elem` attackerSkills) [Skill.Ranged, Skill.LongReach]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
-    attackedSpots :: [CardSpot] = enemySpots attackerCanAttack attackerSkills cSpot
-    attackee :: [(Creature 'Core, CardSpot)] =
+    attackedSpots :: [Spots.Card] = enemySpots attackerCanAttack attackerSkills cSpot
+    attackee :: [(Creature 'Core, Spots.Card)] =
       [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots]
         & catMaybes
         -- Breath attack makes the attacker attack the two spots, otherwise
@@ -935,8 +935,8 @@ attackOneSpot ::
   MonadWriter (Board 'UI) m =>
   MonadState SharedModel m =>
   Board 'Core ->
-  (Creature 'Core, Spots.Player, CardSpot) ->
-  (Creature 'Core, CardSpot) ->
+  (Creature 'Core, Spots.Player, Spots.Card) ->
+  (Creature 'Core, Spots.Card) ->
   m (Board 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
   effect <- singleAttack place hitter hit
@@ -956,7 +956,7 @@ applyInPlaceEffectOnBoard ::
   -- | The input board
   Board 'Core ->
   -- | The creature being hit
-  (Spots.Player, CardSpot, Creature 'Core) ->
+  (Spots.Player, Spots.Card, Creature 'Core) ->
   -- | The updated board
   Board 'Core
 applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) =
@@ -1055,14 +1055,14 @@ deal Damage {base, variance}
 
 -- | The spot that blocks a spot from attacking, which happens
 -- | if the input spot is in the back line
-allyBlockerSpot :: CardSpot -> Maybe CardSpot
+allyBlockerSpot :: Spots.Card -> Maybe Spots.Card
 allyBlockerSpot TopLeft = Just BottomLeft
 allyBlockerSpot Top = Just Bottom
 allyBlockerSpot TopRight = Just BottomRight
 allyBlockerSpot _ = Nothing
 
 -- | The other spot in the column in the spot's part
--- otherYSpot :: CardSpot -> CardSpot
+-- otherYSpot :: Spots.Card -> Spots.Card
 -- otherYSpot TopLeft = BottomLeft
 -- otherYSpot Top = Bottom
 -- otherYSpot TopRight = BottomRight
@@ -1071,7 +1071,7 @@ allyBlockerSpot _ = Nothing
 -- otherYSpot BottomRight = TopRight
 
 -- | All enemy spots of a spot
-allEnemySpots :: CardSpot -> [CardSpot]
+allEnemySpots :: Spots.Card -> [Spots.Card]
 allEnemySpots = enemySpots True [Skill.Ranged]
 
 -- | Spots that can be attacked from a spot
@@ -1080,7 +1080,7 @@ allEnemySpots = enemySpots True [Skill.Ranged]
 -- The order in the result matters, the first element is the first spot
 -- attacked, then the second element is attacked if the first spot is empty
 -- or if the creature can attack multiple spots for some reasons.
-enemySpots :: Bool -> [Skill] -> CardSpot -> [CardSpot]
+enemySpots :: Bool -> [Skill] -> Spots.Card -> [Spots.Card]
 enemySpots canAttack skills cSpot =
   map bottomSpotOfTopVisual base'
   where
@@ -1101,13 +1101,13 @@ enemySpots canAttack skills cSpot =
     base' = if canAttack then base else []
 
 -- | The order in which cards attack
-attackOrder :: Spots.Player -> [CardSpot]
+attackOrder :: Spots.Player -> [Spots.Card]
 attackOrder PlayerTop =
   [BottomRight, Bottom, BottomLeft, TopRight, Top, TopLeft]
 attackOrder PlayerBot =
   map bottomSpotOfTopVisual $ reverse $ attackOrder PlayerTop
 
-nextAttackSpot :: Board 'Core -> Spots.Player -> Maybe CardSpot -> Maybe CardSpot
+nextAttackSpot :: Board 'Core -> Spots.Player -> Maybe Spots.Card -> Maybe Spots.Card
 nextAttackSpot board pSpot cSpot =
   case cSpot of
     Nothing -> find hasCreature spots
@@ -1119,7 +1119,7 @@ nextAttackSpot board pSpot cSpot =
               let spots' = splitAt idx spots & snd & drop 1
                in find hasCreature spots'
   where
-    spots :: [CardSpot] = attackOrder pSpot
+    spots :: [Spots.Card] = attackOrder pSpot
     hasCreature c = isJust $ Board.toInPlaceCreature board pSpot c
 
 -- | The reason for drawing a card
@@ -1128,7 +1128,7 @@ data DrawSource
     Native
   | -- | Drawing a card because of a creature with the [DrawCard] skill at the
     -- given position
-    CardDrawer Spots.Player CardSpot
+    CardDrawer Spots.Player Spots.Card
   deriving (Eq, Ord, Show)
 
 -- | The cards to draw, the Boolean indicates whether to bound by the

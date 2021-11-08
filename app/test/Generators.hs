@@ -20,7 +20,8 @@ import Generic.Random
 import qualified SharedModel
 import Skill (Skill)
 import qualified Skill
-import Spots
+import Spots hiding (Card)
+import qualified Spots
 import Test.QuickCheck
 import Tile (Tile)
 import Turn
@@ -90,7 +91,7 @@ instance Arbitrary Card.ID where
 
   shrink = genericShrink
 
-instance Arbitrary CardSpot where
+instance Arbitrary Spots.Card where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

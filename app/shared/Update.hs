@@ -47,7 +47,7 @@ import Nat
 import ServerMessages
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Spots
+import Spots hiding (Card)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import qualified Turn

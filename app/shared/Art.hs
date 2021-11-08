@@ -92,7 +92,7 @@ showTeamShort = \case
   Undead -> "UD"
   ZKnights -> "Z"
 
-cardsLines :: Board 'Core -> Spots.Player -> [CardSpot] -> [String]
+cardsLines :: Board 'Core -> Spots.Player -> [Spots.Card] -> [String]
 cardsLines board pSpot cSpots =
   map f [0 .. cardHeight - 1]
   where
@@ -111,7 +111,7 @@ cardWidth = 16
 type LineNumber = Int
 
 -- | The line number must be in [0, cardHeight)
-cardLine :: Board 'Core -> Spots.Player -> CardSpot -> LineNumber -> String
+cardLine :: Board 'Core -> Spots.Player -> Spots.Card -> LineNumber -> String
 cardLine board pSpot cSpot lineNb =
   case length base of
     i | i < cardWidth -> base ++ replicate (cardWidth - i) '.'

@@ -83,10 +83,11 @@ import GHC.Generics (Generic)
 import Nat
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
-import Spots
+import Spots hiding (Card)
+import qualified Spots
 import Tile (Tile)
 
-type CardsOnTable = Map.Map CardSpot (Creature 'Core)
+type CardsOnTable = Map.Map Spots.Card (Creature 'Core)
 
 data DeathCause
   = -- | Creature was killed by fear
@@ -168,7 +169,7 @@ instance Monoid InPlaceEffect where
         scoreChange = 0
       }
 
-newtype InPlaceEffects = InPlaceEffects {unInPlaceEffects :: Map.Map CardSpot InPlaceEffect}
+newtype InPlaceEffects = InPlaceEffects {unInPlaceEffects :: Map.Map Spots.Card InPlaceEffect}
   deriving (Eq, Generic, Show)
 
 instance Semigroup InPlaceEffects where
@@ -302,8 +303,8 @@ addToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
--- | Map 'f' over creatures in the given 'CardSpot' in the given 'Spots.Player'
-mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [CardSpot] -> Board 'Core -> Board 'Core
+-- | Map 'f' over creatures in the given 'Spots.Card' in the given 'Spots.Player'
+mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [Spots.Card] -> Board 'Core -> Board 'Core
 mapInPlace f pSpot cSpots board =
   setPart board pSpot (part {inPlace = inPlace'})
   where
@@ -312,7 +313,7 @@ mapInPlace f pSpot cSpots board =
     inPlace' = Map.union (Map.map f changed) untouched
 
 -- | Puts a creature, replacing the existing one if any
-setCreature :: Board 'Core -> Spots.Player -> CardSpot -> Creature 'Core -> Board 'Core
+setCreature :: Board 'Core -> Spots.Player -> Spots.Card -> Creature 'Core -> Board 'Core
 setCreature board pSpot cSpot creature =
   setPart board pSpot part'
   where
@@ -353,7 +354,7 @@ setStack board pSpot stack =
   where
     part = toPart board pSpot
 
-toHoleyInPlace :: Board 'Core -> [(Spots.Player, CardSpot, Maybe (Creature 'Core))]
+toHoleyInPlace :: Board 'Core -> [(Spots.Player, Spots.Card, Maybe (Creature 'Core))]
 toHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- allPlayersSpots,
@@ -361,7 +362,7 @@ toHoleyInPlace board =
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
 
-toPlayerCardSpots :: Board 'Core -> Spots.Player -> CardTargetKind -> [CardSpot]
+toPlayerCardSpots :: Board 'Core -> Spots.Player -> CardTargetKind -> [Spots.Card]
 toPlayerCardSpots board pSpot ctk =
   toPlayerHoleyInPlace board pSpot
     & filter
@@ -374,7 +375,7 @@ toPlayerCardSpots board pSpot ctk =
     & map fst
 
 toPlayerHoleyInPlace ::
-  Board 'Core -> Spots.Player -> [(CardSpot, Maybe (Creature 'Core))]
+  Board 'Core -> Spots.Player -> [(Spots.Card, Maybe (Creature 'Core))]
 toPlayerHoleyInPlace board pSpot =
   [ (cSpot, maybeCreature)
     | cSpot <- allCardsSpots,
@@ -398,9 +399,9 @@ toInPlace Board {playerBottom} PlayerBot = inPlace playerBottom
 toNeighbors ::
   Board 'Core ->
   Spots.Player ->
-  CardSpot ->
+  Spots.Card ->
   Neighborhood ->
-  [(CardSpot, Creature 'Core)]
+  [(Spots.Card, Creature 'Core)]
 toNeighbors board pSpot cSpot neighborhood =
   [ (cSpot, maybeCreature)
     | cSpot <- neighbors neighborhood cSpot,
@@ -425,7 +426,7 @@ toStack Board {playerBottom} PlayerBot = stack playerBottom
 toInPlaceCreature ::
   Board 'Core ->
   Spots.Player ->
-  CardSpot ->
+  Spots.Card ->
   Maybe (Creature 'Core)
 toInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
   where
@@ -482,7 +483,7 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.
-small :: SharedModel -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> CardSpot -> Board 'Core
+small :: SharedModel -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> Spots.Card -> Board 'Core
 small shared teams cid items pSpot cSpot =
   setCreature (empty teams) pSpot cSpot c
   where
@@ -498,7 +499,7 @@ spotToLens =
     PlayerBot -> #playerBottom
     PlayerTop -> #playerTop
 
-appliesTo :: Card.ID -> Board 'Core -> Spots.Player -> CardSpot -> Bool
+appliesTo :: Card.ID -> Board 'Core -> Spots.Player -> Spots.Card -> Bool
 appliesTo id board pSpot cSpot =
   case (Card.targetType id, toInPlaceCreature board pSpot cSpot) of
     (Card.CardTargetType Occupied, Just _) -> True

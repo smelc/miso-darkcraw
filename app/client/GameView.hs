@@ -37,7 +37,8 @@ import Model
 import Nat
 import PCWViewInternal
 import SharedModel
-import Spots
+import Spots hiding (Card)
+import qualified Spots
 import qualified Total
 import Update
 import ViewBlocks (dummyOn)
@@ -154,7 +155,7 @@ boardToInPlaceCell ::
   -- | The part considered
   Spots.Player ->
   -- | The spot of the card to show
-  CardSpot ->
+  Spots.Card ->
   Styled (View Action)
 boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetType pSpot cSpot =
   nodeHtmlKeyed
@@ -419,7 +420,7 @@ boardToInHandCell
           Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True
           Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
 
-cardCellsBoardOffset :: Spots.Player -> CardSpot -> (Int, Int)
+cardCellsBoardOffset :: Spots.Player -> Spots.Card -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
   (offsetx + x, offsety + y)
   where

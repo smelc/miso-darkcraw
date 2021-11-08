@@ -26,7 +26,7 @@ import Miso.Util ((=:))
 import Model
 import PCWViewInternal
 import SharedModel
-import Spots
+import Spots hiding (Card)
 import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)

@@ -34,7 +34,7 @@ boardStart board pSpot =
   Board.setPart board pSpot $ start $ Board.toPart board pSpot
 
 class Stupid a where
-  isStupid :: a -> Spots.Player -> CardSpot -> Bool
+  isStupid :: a -> Spots.Player -> Spots.Card -> Bool
 
 instance Stupid Skill.State where
   isStupid s _ _ = Skill.isStupid s

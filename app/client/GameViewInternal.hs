@@ -48,7 +48,7 @@ import Nat
 import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
 import qualified Skill
-import Spots
+import Spots hiding (Card)
 import qualified Tile
 import qualified Turn
 import Update
