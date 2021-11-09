@@ -42,6 +42,7 @@ data Neighborhood
 
 -- * Functions about 'CardSpot'
 
+-- | All 'Spots.Card' values. TODO @smelc rename me into allCards
 allCardsSpots :: [Spots.Card]
 allCardsSpots = [minBound ..]
 
@@ -119,6 +120,7 @@ line = \case
 
 -- * Functions about 'PlayerSpot'
 
+-- | All 'Spots.Player' values. TODO @smelc rename me into allPlayers
 allPlayersSpots :: [Spots.Player]
 allPlayersSpots = [minBound ..]
 

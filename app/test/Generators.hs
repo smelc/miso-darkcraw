@@ -2,6 +2,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Generators where
@@ -66,7 +68,7 @@ instance Arbitrary Damage where
   arbitrary = Damage <$> arbitrary <*> arbitrary
 
 instance Arbitrary CreatureID where
-  -- Only generated CreatureID that are known to SharedModel, because
+  -- Only generate CreatureID that are known to SharedModel, because
   -- we map them back a lot.
   arbitrary =
     elements $
@@ -80,29 +82,25 @@ instance Arbitrary Neutral where
   shrink = genericShrink
 
 instance Arbitrary (NeutralObject 'Core) where
-  arbitrary = genericArbitraryU
+  arbitrary = mkNeutralObject <$> arbitrary
+    where
+      mkNeutralObject x = NeutralObject x () ()
   shrink = genericShrink
 
 instance Arbitrary Card.ID where
-  -- Do not generate NeutralCard and ItemCard for now, since they
-  -- arent' supported yet. TODO @smelc do that now
-  arbitrary = IDC <$> arbitrary <*> elements [[]] -- empty items, to match that creatures
-  -- initially don't have items
-
+  arbitrary = elements $ SharedModel.getCardIdentifiers SharedModel.unsafeGet
   shrink = genericShrink
 
 instance Arbitrary Spots.Card where
-  arbitrary = genericArbitraryU
+  arbitrary = elements $ Spots.allCardsSpots
   shrink = genericShrink
 
 instance Arbitrary Item where
-  arbitrary = genericArbitraryU
+  arbitrary = elements Card.allItems
   shrink = genericShrink
 
 instance Arbitrary (ItemObject 'Core) where
-  arbitrary = genericArbitraryU -- FIXME @smelc Use SharedModel once
-  -- it is augmented with items
-
+  arbitrary = mkCoreItemObject <$> arbitrary
   shrink = genericShrink
 
 instance Arbitrary Skill where
@@ -132,7 +130,6 @@ instance Arbitrary (Card 'Core) where
      in elements $
           SharedModel.getCards shared
             & map Card.unlift
-
   shrink = genericShrink
 
 instance Arbitrary (PlayerPart 'Core) where
@@ -147,9 +144,8 @@ instance Arbitrary Tile where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
--- FIXME @smelc Do not use generic generator here
 instance Arbitrary Spots.Player where
-  arbitrary = genericArbitraryU
+  arbitrary = elements $ Spots.allPlayersSpots
   shrink = genericShrink
 
 instance Arbitrary Turn where

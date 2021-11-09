@@ -233,30 +233,40 @@ testGetActorState =
 
 testAIPlace shared =
   describe "AI.placeCards" $ do
-    prop "placeCards returns events whose spots differ" $
-      \board turn -> allDiff $ AI.placeCards difficulty shared board turn
+    prop "placeCards returns events whose spots differ on Creature-only hand" $
+      \board (pSpot :: Spots.Player) (cidNItems :: [(CreatureID, [Item])]) ->
+        -- Only use Creature cards. Items and neutrals obviously break this property
+        let board' = Board.setHand board pSpot (map (uncurry Card.IDC) cidNItems)
+         in allDiff $ AI.placeCards difficulty shared board' pSpot
     prop "placeCards returns events whose card is valid" $
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` (goodCards board pSpot)
     prop "placeCards returns events playing cards of the player whose turn it is" $
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` playerIs pSpot
-    prop "placeCards return events that commute (modulo Discipline, Squire)" $
+    prop "placeCards return events that commute for creatures (modulo disturbers)" $
       \(Pretty (b0 :: Board 'Core)) card1 card2 (Pretty pSpot) ->
         -- We generate two cards to make almost sure (modulo filterOut) that
         -- we pass the condition (length events >= 2)
         let b1 = extendHand b0 pSpot [card1, card2]
-         in let board = Board.setHand b1 pSpot (Board.toHand b1 pSpot & filterOut (Logic.disturber shared))
+         in let board = Board.setHand b1 pSpot (Board.toHand b1 pSpot & filterOut disturber)
              in let events = AI.placeCards difficulty shared board pSpot
                  in (length events >= 2)
                       ==> forAll (Test.QuickCheck.elements (permutations events))
                       $ \events' ->
-                        Pretty (ignoreErrMsg (Game.playAll shared board events))
-                          `shouldBe` Pretty (ignoreErrMsg (Game.playAll shared board events'))
+                        (Game.playAll shared board events <&> prettify)
+                          `shouldBe` (Game.playAll shared board events' <&> prettify)
   where
     filterOut f = filter (not . f)
+    disturber =
+      \case
+        x@(IDC _ _) -> Logic.disturber shared x
+        -- Most items don't commute (can play "Put Creature; Add Item on Creature" but
+        -- not "Add Item On Creature; Put Creature"). Neutrals don't commute also, because
+        -- they usually have a large effect.
+        IDI _ -> True
+        IDN _ -> True
     extendHand b pSpot cards = Board.setHand b pSpot (Board.toHand b pSpot ++ cards)
     difficulty = AI.Easy
-    ignoreErrMsg (Left _) = Nothing
-    ignoreErrMsg (Right (Game.PolyResult _ board' () _)) = Just board'
+    prettify (Game.PolyResult _ b () _) = Pretty b
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"

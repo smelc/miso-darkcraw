@@ -39,29 +39,46 @@ import TestLib (shouldAllSatisfy, shouldSatisfyJust)
 import qualified Total
 import Turn
 
--- 'disturber' identifies cards which, when played, affect other cards on the board
+-- 'disturbingItem i' returns 'False' if playing 'i' only changes
+-- the 'Spots.Card' it is applied on.
+disturbingItem = \case
+  Crown -> False
+  CrushingMace -> False
+  FlailOfTheDamned -> False
+  SkBanner -> True
+  SwordOfMight -> False
+
+-- 'disturber' identifies cards which, when played, affect other spots on the board
 disturber :: SharedModel -> Card.ID -> Bool
 disturber shared (IDC id items) =
   SharedModel.idToCreature shared id items
     & fromJust
     & Card.unlift
-    & orf [\Creature {skills} -> Skill.Squire `elem` skills, Total.isDisciplined]
+    & ( orf
+          [ \Creature {skills} -> Skill.Squire `elem` skills,
+            \Creature {items} -> any disturbingItem items,
+            Total.isDisciplined
+          ]
+      )
   where
     orf :: [a -> Bool] -> a -> Bool
     orf [] = const False
     orf (f : fs) = \x -> (f x || orf fs x)
-disturber _ _ = False
+disturber _ (IDI item) = disturbingItem item
+disturber _ (IDN neutral) =
+  case neutral of
+    Health -> False
+    InfernalHaste -> True
+    Life -> False
+    Plague -> True
 
 -- Tests that playing a creature only affects the target spot. Some
--- creatures are omitted: the ones with Discipline, because it breaks this
--- property. This test is not plugged yet because it breaks: if you
--- play a creature close to a creature with Discipline, the creature
--- with Discipline is affected (whereas it shouldn't be!).
+-- cards are omitted, see 'disturber.
 testPlayFraming :: SharedModel -> SpecWith ()
 testPlayFraming shared =
   describe
     "Playing some cards doesn't change"
-    $ prop "other spots of the board when placing non-Discipline creature" $
+    $ prop "other spots of the board when placing non-disturbing creature" $
       \(Pretty board, Pretty turn) ->
         let pSpot = Turn.toPlayerSpot turn
          in let pair = pickCardSpot board 0 pSpot
