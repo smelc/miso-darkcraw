@@ -35,9 +35,13 @@ main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $ do
     it "The teams' balance is as expected" $ do
-      -- Tested first, because most likely to fail
+      -- We only need to test one team with 'checkBalance' (here 'Human'),
+      -- because 'checkBalance' iterates over enemy teams.
       checkBalance Human Campaign.Level0
       checkBalance Human Campaign.Level1
+      -- 'checkSpecOfFight', however, is for a specific match up.
+      checkSpecOfFight Human (ZKnights, zknightDeck) Campaign.Level1 zspecs
+      checkSpecOfFight Undead (ZKnights, zknightDeck) Campaign.Level1 zspecs
     xit "Starting team doesn't have an advantage" $ do
       checkBalanceStart Undead Undead
       checkBalanceStart Human Human
@@ -45,25 +49,30 @@ main shared =
     -- The team to test, at which level. This means rewards before
     -- this level have been obtained.
     checkBalance t level =
-      let shareds = take nbMatches seeds & map (SharedModel.withSeed shared)
-       in let allResults = Balance.playAll shareds t level nbTurns
-           in (map snd allResults) `shouldAllSatisfy` actualSpec
+      let allResults = Balance.playAll (mkShareds nbMatches) t level nbTurns
+       in (map snd allResults) `shouldAllSatisfy` (checkSpec specs)
+    -- Tests the balance of t1 against t2, at the given level
+    checkSpecOfFight t1 p2@(_t2, _t2Deck) level specs =
+      (playOne (mkShareds nbMatches) t1 level p2 nbTurns)
+        `shouldAllSatisfy` (checkSpec specs)
     checkBalanceStart t1 t2 =
       let shareds = take nbEndoMatches seeds & map (SharedModel.withSeed shared)
        in let results = Balance.play shareds Campaign.Level0 teams nbTurns
-           in results `shouldSatisfy` actualSpec
+           in results `shouldSatisfy` (checkSpec specs)
       where
         teams = Teams t1 t2 <&> (\t -> (t, Card.teamDeck uiCards t))
         uiCards = SharedModel.getCards shared
     seeds = [0, 31 ..]
+    mkShareds n = take n seeds & map (SharedModel.withSeed shared)
     (nbMatches, nbEndoMatches) = (64, nbMatches)
     nbTurns :: Nat = 8
-    -- actualSpec is a cheap way to track changes to the balance
-    actualSpec r@Balance.Result {..} =
+    zknightDeck = SharedModel.getInitialDeck shared ZKnights
+    checkSpec specs r@Balance.Result {..} =
       case find (satisfies r) specs of
         Nothing -> traceShow ("Unexpected spec: " ++ show r) False
         Just spec -> traceShow (show spec) True
-    specs :: [Balance.Spec] = map Eq eqSpecs ++ map Leq (leqSpecs ++ zknights)
+    specs :: [Balance.Spec] = map Eq eqSpecs ++ map Leq leqSpecs
+    zspecs :: [Balance.Spec] = map Leq zknights
     eqSpecs =
       -- Level0
       map
@@ -87,14 +96,13 @@ main shared =
           )
         ]
     zknights =
-      -- dumb specs for Level0 Level1. FIXME @smelc Provide true specs.
       map
         (uncurry FullLeqSpec)
-        [ ( SpecShared {topTeam = Human, botTeam = ZKnights, level = Campaign.Level0},
-            LeqSpec {topMaxWins = nbMatches, botMinWins = 0}
+        [ ( SpecShared {topTeam = Human, botTeam = ZKnights, level = Campaign.Level1},
+            LeqSpec {topMaxWins = 58, botMinWins = 6}
           ),
-          ( SpecShared {topTeam = Human, botTeam = ZKnights, level = Campaign.Level1},
-            LeqSpec {topMaxWins = nbMatches, botMinWins = 0}
+          ( SpecShared {topTeam = Undead, botTeam = ZKnights, level = Campaign.Level1},
+            LeqSpec {topMaxWins = 61, botMinWins = 3}
           )
         ]
     _desiredSpec balanceRes@Balance.Result {..} =
@@ -226,7 +234,7 @@ playAll shareds team level nbTurns =
       let teams = Teams (team, teamDeck) (opponent, opponentDeck)
   ]
   where
-    otherTeams = [t | t <- Card.allTeams, t /= team]
+    otherTeams = [t | t <- Campaign.anywhere, t /= team]
     ids t =
       Campaign.augment
         (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
@@ -235,6 +243,38 @@ playAll shareds team level nbTurns =
     decks t =
       [ mapMaybe (SharedModel.identToCard shared) cards
           & map Card.unlift
+        | cards <- ids t
+      ]
+    shared = head shareds
+
+playOne ::
+  -- | The models to use for a start (length of this list implies the
+  -- the number of games to play)
+  [SharedModel] ->
+  -- | The team to test
+  Team ->
+  -- | The level of the team
+  Campaign.Level ->
+  -- | The team to test against: the team itself and its deck
+  (Team, [Card 'Core]) ->
+  -- | The number of turns to play
+  Nat ->
+  -- | Results
+  [Balance.Result]
+playOne shareds team level (opponent, opponentDeck) nbTurns =
+  [ play shareds level teams nbTurns
+    | -- Try permutations of opponentDeck, for variety
+      (teamDeck, otherDeck) <- zip (decks team) (permutations opponentDeck),
+      let teams = Teams (team, teamDeck) (opponent, otherDeck)
+  ]
+  where
+    ids t =
+      Campaign.augment
+        (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
+        level
+        t
+    decks t =
+      [ mapMaybe (SharedModel.identToCard shared) cards & map Card.unlift
         | cards <- ids t
       ]
     shared = head shareds
