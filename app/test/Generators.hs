@@ -92,7 +92,7 @@ instance Arbitrary Card.ID where
   shrink = genericShrink
 
 instance Arbitrary Spots.Card where
-  arbitrary = elements $ Spots.allCardsSpots
+  arbitrary = elements $ Spots.allCards
   shrink = genericShrink
 
 instance Arbitrary Item where

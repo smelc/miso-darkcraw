@@ -315,7 +315,7 @@ testInPlaceEffectsMonoid =
             nonEmptyFadeout ((unInPlaceEffects effects1) Map.!? cSpot)
               && nonEmptyFadeout ((unInPlaceEffects effects2) Map.!? cSpot)
         )
-        allCardsSpots
+        Spots.allCards
     nonEmptyFadeout Nothing = False
     nonEmptyFadeout (Just effect) = not $ null $ fadeOut effect
     rmCommonFadeout e1 e2 | hasCommonFadeout e1 e2 = (rmFadeout e1, e2)
@@ -452,7 +452,7 @@ main = hspec $ do
   describe "exactly all spots are used" $
     it "attackOrder" $
       all
-        (\pSpot -> length allCardsSpots == length (Game.attackOrder pSpot))
+        (\pSpot -> length Spots.allCards == length (Game.attackOrder pSpot))
         allPlayersSpots
   let shared = SharedModel.unsafeGet
   describe "AI.hs" $

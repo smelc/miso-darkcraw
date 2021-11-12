@@ -318,7 +318,7 @@ testChurch shared =
       Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
         && all
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
-          allCardsSpots
+          Spots.allCards
       where
         otherSpot = otherPlayerSpot pSpot
         toCreature (b :: Board 'Core) cSpot =
@@ -344,7 +344,7 @@ testKing shared =
       Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
         && all
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
-          allCardsSpots
+          Spots.allCards
       where
         otherSpot = otherPlayerSpot pSpot
         toCreature (b :: Board 'Core) cSpot =

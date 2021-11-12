@@ -42,9 +42,9 @@ data Neighborhood
 
 -- * Functions about 'CardSpot'
 
--- | All 'Spots.Card' values. TODO @smelc rename me into allCards
-allCardsSpots :: [Spots.Card]
-allCardsSpots = [minBound ..]
+-- | All 'Spots.Card' values.
+allCards :: [Spots.Card]
+allCards = [minBound ..]
 
 -- | Returns a bottom position, by taking a position that makes sense visually
 -- | I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]
@@ -60,10 +60,10 @@ bottomSpotOfTopVisual = \case
   BottomRight -> TopLeft
 
 botSpots :: [Spots.Card]
-botSpots = filter (not . inTheBack) allCardsSpots
+botSpots = filter (not . inTheBack) allCards
 
 topSpots :: [Spots.Card]
-topSpots = filter inTheBack allCardsSpots
+topSpots = filter inTheBack allCards
 
 -- | Whether a spot is in the back line
 inTheBack :: Spots.Card -> Bool

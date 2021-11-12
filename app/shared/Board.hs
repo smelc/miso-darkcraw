@@ -358,7 +358,7 @@ toHoleyInPlace :: Board 'Core -> [(Spots.Player, Spots.Card, Maybe (Creature 'Co
 toHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- allPlayersSpots,
-      cSpot <- allCardsSpots,
+      cSpot <- Spots.allCards,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
 
@@ -378,7 +378,7 @@ toPlayerHoleyInPlace ::
   Board 'Core -> Spots.Player -> [(Spots.Card, Maybe (Creature 'Core))]
 toPlayerHoleyInPlace board pSpot =
   [ (cSpot, maybeCreature)
-    | cSpot <- allCardsSpots,
+    | cSpot <- Spots.allCards,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
 
