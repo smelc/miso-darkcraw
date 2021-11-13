@@ -35,19 +35,18 @@ import Card
 import Constants
 import Control.Lens
 import Control.Monad.Except
-import qualified Damage
+import qualified Damage ()
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
-import qualified Game (Animation (..), MessageText (..), Target (..), appliesTo, enemySpots)
+import qualified Game
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
 import Nat
 import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
-import qualified Skill
 import Spots hiding (Card)
 import qualified Tile
 import qualified Turn
@@ -310,13 +309,15 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
-      if pSpot /= pSpotHov && cSpot `elem` Game.enemySpots canAttack skills' cSpotHov
+      if pSpot /= pSpotHov && cSpot `elem` attackedSpots
         then borderSize
         else 0
       where
         attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
-        canAttack = Damage.dealer attacker
-        skills' = maybe [] skills attacker & map Skill.lift
+        attackedSpots =
+          case attacker of
+            Nothing -> []
+            Just attacker -> Game.attackedSpots attacker cSpotHov
     _ -> 0
   where
     cond hi =
