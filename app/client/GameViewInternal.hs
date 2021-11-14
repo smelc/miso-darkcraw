@@ -317,7 +317,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
         attackedSpots =
           case attacker of
             Nothing -> []
-            Just attacker -> Game.attackedSpots attacker cSpotHov
+            Just attacker -> Game.enemySpots attacker cSpotHov
     _ -> 0
   where
     cond hi =

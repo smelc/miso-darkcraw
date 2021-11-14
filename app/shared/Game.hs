@@ -15,7 +15,6 @@
 module Game
   ( allEnemySpots,
     Animation (..),
-    attackedSpots,
     Game.appliesTo,
     applyFearNTerror,
     applyFillTheFrontline,
@@ -23,6 +22,7 @@ module Game
     attackOrder, -- exported for tests only
     cardsToDraw,
     drawCards,
+    enemySpots,
     idToHandIndex,
     DrawSource (..),
     eventToAnim,
@@ -806,7 +806,7 @@ applyFearNTerrorM board affectingSpot = do
     causingFear = Map.filter Total.causesFear affectingInPlace
     causingTerror = Map.filter Total.causesTerror affectingInPlace
     switch :: Spots.Card -> Maybe Spots.Card -- From affecting spot to affected spot, and back
-    switch cSpot = enemySpots [] cSpot & listToMaybe
+    switch cSpot = allEnemySpots cSpot & listToMaybe
     terrorAffectedSpots :: [Spots.Card] = Map.keys causingTerror & mapMaybe switch
     fearAffectedSpots :: [Spots.Card] =
       Map.keys causingFear
@@ -918,7 +918,7 @@ attack board pSpot cSpot =
       if any (`elem` attackerSkills) [Skill.Ranged, Skill.LongReach]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
-    attackedSpots' :: [Spots.Card] = fromMaybe [] (attacker <&> (\a -> attackedSpots a cSpot))
+    attackedSpots' :: [Spots.Card] = fromMaybe [] (attacker <&> (\a -> enemySpots a cSpot))
     attackee :: [(Creature 'Core, Spots.Card)] =
       [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots']
         & catMaybes
@@ -1069,26 +1069,18 @@ allyBlockerSpot _ = Nothing
 -- otherYSpot Bottom = Top
 -- otherYSpot BottomRight = TopRight
 
--- | All enemy spots of a spot
-allEnemySpots :: Spots.Card -> [Spots.Card]
-allEnemySpots = enemySpots [Skill.Ranged]
-
 -- | Spots that can be attacked from a spot. Spot as argument is
 -- in one player part while spots returned are in the other player part.
 -- The order in the result matters, the first element is the first spot
 -- attacked, then the second element is attacked if the first spot is empty
 -- or if the creature can attack multiple spots for some reasons.
---
--- This function is not exported because it's better to use 'attackedSpots'
-enemySpots ::
-  -- | The attacker's skills
-  [Skill] ->
+allEnemySpots ::
   -- | The attacker's position
   Spots.Card ->
   -- | Spots that can be attacked
   [Spots.Card]
-enemySpots skills cSpot =
-  map bottomSpotOfTopVisual base
+allEnemySpots cSpot =
+  map bottomSpotOfTopVisual spotsInSight
   where
     spotsInSight =
       case cSpot of
@@ -1098,12 +1090,6 @@ enemySpots skills cSpot =
         BottomLeft -> [TopLeft, BottomLeft]
         Bottom -> [Top, Bottom]
         BottomRight -> [TopRight, BottomRight]
-    base =
-      if
-          | Skill.Ranged `elem` skills -> spotsInSight
-          | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
-          | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
-          | otherwise -> take 1 spotsInSight
 
 -- | Spots that can be attacked by a creature.
 -- Spot as argument is in one player part while spots returned
@@ -1111,16 +1097,23 @@ enemySpots skills cSpot =
 -- The order in the result matters, the first element is the first spot
 -- attacked, then the second element is attacked if the first spot is empty
 -- or if the creature can attack multiple spots for some reasons.
-attackedSpots ::
+enemySpots ::
   -- | The attacker
   Creature 'Core ->
   -- | Where the attack is
   Spots.Card ->
   [Spots.Card]
-attackedSpots c@Creature {skills} cSpot =
-  if Damage.dealer c
-    then enemySpots (map Skill.lift skills) cSpot
-    else [] -- Creature cannot attack
+enemySpots c@Creature {skills} cSpot =
+  if not $ Damage.dealer c
+    then [] -- Creature cannot attack
+    else
+      if
+          | Skill.Ranged `elem` skills -> spotsInSight
+          | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
+          | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
+          | otherwise -> take 1 spotsInSight
+  where
+    spotsInSight = allEnemySpots cSpot
 
 -- | The order in which cards attack
 attackOrder :: Spots.Player -> [Spots.Card]

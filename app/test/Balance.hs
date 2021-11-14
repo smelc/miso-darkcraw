@@ -78,7 +78,7 @@ main shared =
       map
         (uncurry FullEqSpec)
         [ ( SpecShared {topTeam = Human, botTeam = Undead, level = Campaign.Level0},
-            EqSpec {topWins = 40, botWins = 24}
+            EqSpec {topWins = 38, botWins = 26}
           ),
           ( SpecShared {topTeam = Human, botTeam = Evil, level = Campaign.Level0},
             EqSpec {topWins = 55, botWins = 9}
@@ -102,7 +102,7 @@ main shared =
             LeqSpec {topMaxWins = 58, botMinWins = 6}
           ),
           ( SpecShared {topTeam = Undead, botTeam = ZKnights, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 61, botMinWins = 3}
+            LeqSpec {topMaxWins = 62, botMinWins = 2}
           )
         ]
     _desiredSpec balanceRes@Balance.Result {..} =
