@@ -47,9 +47,9 @@ allCards :: [Spots.Card]
 allCards = [minBound ..]
 
 -- | Returns a bottom position, by taking a position that makes sense visually
--- | I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]
--- | bottom position that you SEE; even if positions make sense for the top
--- | part. This method takes care of translating correctly.
+-- I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]
+-- bottom position that you SEE; even if positions make sense for the top
+-- part. This method takes care of translating correctly.
 bottomSpotOfTopVisual :: Spots.Card -> Spots.Card
 bottomSpotOfTopVisual = \case
   TopLeft -> BottomRight
@@ -133,6 +133,7 @@ endingPlayerSpot :: Spots.Player
 endingPlayerSpot = PlayerTop
 
 -- | The other spot
+-- XXX @smelc rename me to other and use me qualified
 otherPlayerSpot :: Spots.Player -> Spots.Player
 otherPlayerSpot PlayerBot = PlayerTop
 otherPlayerSpot PlayerTop = PlayerBot

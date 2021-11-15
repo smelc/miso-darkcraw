@@ -24,6 +24,7 @@ import Spots
 -- | Whether a creature is affected by fear. The first Boolean indicates
 -- whether to consider the hitpoints ('True') or not ('False')
 affectedByFear :: Bool -> Creature 'Core -> Bool
+affectedByFear _ Creature {skills} | Skill.Zealot `elem` skills = False
 affectedByFear True Creature {hp} | hp > 1 = False
 affectedByFear _ c | causesFear c = False -- Creature causing fear are immune to fear
 affectedByFear _ c | causesTerror c = False -- Creature causing terror are immune to fear

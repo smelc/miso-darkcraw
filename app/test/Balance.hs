@@ -70,7 +70,7 @@ main shared =
     checkSpec specs r@Balance.Result {..} =
       case find (satisfies r) specs of
         Nothing -> traceShow ("Unexpected spec: " ++ show r) False
-        Just spec -> traceShow (show spec) True
+        Just spec -> traceShow (show spec ++ " (" ++ show r ++ ")") True
     specs :: [Balance.Spec] = map Eq eqSpecs ++ map Leq leqSpecs
     zspecs :: [Balance.Spec] = map Leq zknights
     eqSpecs =
@@ -89,7 +89,7 @@ main shared =
       map
         (uncurry FullLeqSpec)
         [ ( SpecShared {topTeam = Human, botTeam = Undead, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 37, botMinWins = 26}
+            LeqSpec {topMaxWins = 36, botMinWins = 27}
           ),
           ( SpecShared {topTeam = Human, botTeam = Evil, level = Campaign.Level1},
             LeqSpec {topMaxWins = 49, botMinWins = 15}
@@ -102,7 +102,7 @@ main shared =
             LeqSpec {topMaxWins = 58, botMinWins = 6}
           ),
           ( SpecShared {topTeam = Undead, botTeam = ZKnights, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 62, botMinWins = 2}
+            LeqSpec {topMaxWins = 60, botMinWins = 4}
           )
         ]
     _desiredSpec balanceRes@Balance.Result {..} =
@@ -297,7 +297,7 @@ play shareds level teams nbTurns =
   where
     go (shared : rest) =
       let result = Match.play (Update.levelNGameModel AI.Easy shared level teams) nbTurns
-       in traceShow (logString result) result : go rest
+       in result : go rest
     go [] = []
     count :: Result -> [Match.MatchResult] -> Balance.Result
     count acc [] = acc
@@ -306,7 +306,7 @@ play shareds level teams nbTurns =
     count b@Balance.Result {topWins} (Match.Win PlayerTop : tail) = count b {topWins = topWins + 1} tail
     count b@Balance.Result {botWins} (Match.Win PlayerBot : tail) =
       count b {botWins = botWins + 1} tail
-    logString Match.Result {Match.models, Match.matchResult} =
+    _logString Match.Result {Match.models, Match.matchResult} =
       case matchResult of
         Match.Draw -> "Draw " ++ show (team PlayerTop) ++ " VS " ++ show (team PlayerBot)
         Match.Error err -> "[ERR] " ++ Text.unpack err

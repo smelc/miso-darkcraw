@@ -110,7 +110,7 @@ whichPlayerTarget = \case
 data Event
   = -- | Apply church of the creatures at the given 'Spots.Player'
     ApplyChurch Spots.Player
-  | -- | Apply fear of the creatures at the given 'Spots.Player'
+  | -- | Apply fear caused by the creatures at the given 'Spots.Player'
     ApplyFearNTerror Spots.Player
   | -- | Apply king of the creatures at the given 'Spots.Player'
     ApplyKing Spots.Player
