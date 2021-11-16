@@ -17,6 +17,8 @@ import Card
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List
+import Data.Map.Strict (Map)
+import Data.Map.Strict as Map (singleton, toList, unionWith)
 import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace
@@ -49,8 +51,21 @@ main shared =
     -- The team to test, at which level. This means rewards before
     -- this level have been obtained.
     checkBalance t level =
-      let allResults = Balance.playAll (mkShareds nbMatches) t level nbTurns
-       in (map snd allResults) `shouldAllSatisfy` (checkSpec specs)
+      Map.toList toCheck `shouldAllSatisfy` pred
+      where
+        results :: [Balance.Result] =
+          Balance.playAll (mkShareds nbMatches) t level nbTurns
+            & map snd
+        toCheck :: Map Balance.Spec [Balance.Result] =
+          classify2 $ classify1 results specs
+        pred (spec, results) =
+          go results
+          where
+            go [] = traceShow (show spec ++ " satisfied by " ++ show (length results) ++ " result" ++ (if length results == 1 then "" else "s")) True
+            go (r : res) =
+              if satisfies r spec
+                then go res
+                else traceShow (show r ++ " violates spec " ++ show spec) False
     -- Tests the balance of t1 against t2, at the given level
     checkSpecOfFight t1 p2@(_t2, _t2Deck) level specs =
       (playOne (mkShareds nbMatches) t1 level p2 nbTurns)
@@ -119,6 +134,12 @@ main shared =
 data Spec
   = Leq FullLeqSpec
   | Eq FullEqSpec
+  deriving (Eq, Ord)
+
+toSharedSpec :: Balance.Spec -> SpecShared
+toSharedSpec = \case
+  Leq (FullLeqSpec s _) -> s
+  Eq (FullEqSpec s _) -> s
 
 instance Show Balance.Spec where
   show (Leq spec) = show spec
@@ -126,6 +147,7 @@ instance Show Balance.Spec where
 
 -- | A pair of a 'SpecShared' and a 'EqSpec'
 data FullEqSpec = FullEqSpec SpecShared EqSpec
+  deriving (Eq, Ord)
 
 instance Show FullEqSpec where
   show (FullEqSpec (SpecShared {topTeam, botTeam}) (EqSpec {topWins, botWins})) =
@@ -136,6 +158,7 @@ instance Show FullEqSpec where
 
 -- | A pair of a 'SpecShared' and a 'LeqSpec'
 data FullLeqSpec = FullLeqSpec SpecShared LeqSpec
+  deriving (Eq, Ord)
 
 instance Show FullLeqSpec where
   show (FullLeqSpec (SpecShared {topTeam, botTeam}) (LeqSpec {topMaxWins, botMinWins})) =
@@ -146,6 +169,7 @@ instance Show FullLeqSpec where
       ++ show topMaxWins
 
 class Satisfies a where
+  -- | Whether the given 'Balance.Result' satisfies 'a'
   satisfies :: Balance.Result -> a -> Bool
 
 instance Satisfies Balance.Spec where
@@ -182,6 +206,7 @@ data SpecShared = SpecShared
     -- | The 'Level' being consider
     level :: Campaign.Level
   }
+  deriving (Eq, Ord)
 
 data EqSpec = EqSpec
   { -- | The exact expected number of the top team
@@ -189,6 +214,7 @@ data EqSpec = EqSpec
     -- | The exact expected number of the bottom team
     botWins :: Int
   }
+  deriving (Eq, Ord)
 
 -- | A spec with bounds
 data LeqSpec = LeqSpec
@@ -197,6 +223,7 @@ data LeqSpec = LeqSpec
     -- | The lower bound (included) of the number of wins of the bottom team
     botMinWins :: Int
   }
+  deriving (Eq, Ord)
 
 -- | The result of executing 'play': the number of wins of each team and
 -- the number of draws
@@ -209,6 +236,35 @@ data Result = Result
     draws :: Int
   }
   deriving (Show)
+
+-- | Given a list of results and a list of specs, returns a list of pairs
+-- of a result and specs, such that only the specs in the pair can satisfy
+-- this result. This partial satisfaction is obtained by only
+-- checking for compatibility of the 'SpecShared' part of every 'Balance.Spec'.
+classify1 :: [Balance.Result] -> [Balance.Spec] -> [(Balance.Result, [Balance.Spec])]
+classify1 results specs =
+  case results of
+    [] -> []
+    r : rs ->
+      (r, rSpecs) : classify1 rs specs
+      where
+        rSpecs = Prelude.filter (\spec -> satisfies r (toSharedSpec spec)) specs
+
+-- | Given the result of 'classify1', put it in shape for calling
+-- 'satisfies' easily afterwards.
+classify2 :: [(Balance.Result, [Balance.Spec])] -> Map Balance.Spec [Balance.Result]
+classify2 pairs =
+  case pairs of
+    [] -> mempty
+    (r, []) : _ -> error $ "No matching SpecShared found for " ++ show r ++ ". Did you forget a spec?"
+    (r, [spec]) : rest -> Map.unionWith (++) (Map.singleton spec [r]) (classify2 rest)
+    (r, specs) : _ ->
+      error $
+        "Too many matching SpecShared ("
+          ++ show (length specs)
+          ++ ") found for "
+          ++ show r
+          ++ ". Expected exactly one."
 
 mkEmpty :: Campaign.Level -> Teams Team -> Balance.Result
 mkEmpty level Teams {topTeam, botTeam} =

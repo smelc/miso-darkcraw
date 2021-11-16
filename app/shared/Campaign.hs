@@ -32,7 +32,7 @@ import Prelude hiding (pred, succ)
 data Level
   = Level0
   | Level1
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 -- | The outcome of playing a single game
 data Outcome

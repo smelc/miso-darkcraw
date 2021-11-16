@@ -172,3 +172,9 @@ then delete `app/.ghc.environment.*`. See:
 
 * https://romanofskiat.wordpress.com/2019/02/07/ghc-cant-find-a-package-database/
 * https://discourse.nixos.org/t/ghc-cant-find-a-package-database-at/3860/5
+
+Remove derivations when disk is full:
+
+* `rm -Rf /nix`
+* `curl -L https://nixos.org/nix/install | sh`
+* `nix-build`
