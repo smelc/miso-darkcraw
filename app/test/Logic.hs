@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testZealot) where
+module Logic (disturber, main, mkCreature, testVeteran) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -432,6 +432,30 @@ testSquire shared =
     checkk (c@Creature {skills} :: Creature 'Core) | Skill.Knight `elem` skills = c
     checkk _ = error "Expected a knight"
 
+testVeteran shared =
+  describe "Skill.Veteran" $ do
+    it "is a skill of the ZKnights veteran" $ do
+      Skill.Veteran `elem` (Card.skills veteran)
+    it "protects against fear" $ do
+      Game.play shared board' (Game.ApplyFearNTerror otherSpot)
+        `shouldSatisfy` (match board')
+    it "protects against terror" $ do
+      Game.play shared board'' (Game.ApplyFearNTerror otherSpot)
+        `shouldSatisfy` (match board'')
+  where
+    (team, pSpot, otherSpot) = (ZKnights, PlayerTop, otherPlayerSpot pSpot)
+    board =
+      Board.empty (Teams team Undead)
+        & (\b -> Board.setCreature b pSpot Bottom (veteran {hp = 1})) -- Captain alone
+    board' = Board.setCreature board otherSpot (bottomSpotOfTopVisual Top) skeleton
+    board'' = Board.setCreature board otherSpot (bottomSpotOfTopVisual Top) vampire
+    veteran :: Creature 'Core = mkCreature shared Card.Veteran team False
+    skeleton :: Creature 'Core = mkCreature shared Card.Skeleton Undead False
+    vampire :: Creature 'Core = mkCreature shared Card.Vampire Undead False
+    match :: (Board 'Core) -> (Either Text Game.Result) -> Bool
+    match _ (Left errMsg) = traceShow errMsg False
+    match expected (Right (Game.PolyResult _ b _ _)) = b == expected
+
 testZealot shared =
   describe "Skill.Zealot" $ do
     it "is a skill of the ZKnights captain" $ do
@@ -493,6 +517,7 @@ main shared = do
   testBreathIce shared
   testCharge shared
   testSquire shared
+  testVeteran shared
   testZealot shared
   -- PBT tests
   testDamageMonoid
