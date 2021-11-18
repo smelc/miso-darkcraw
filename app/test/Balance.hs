@@ -58,14 +58,20 @@ main shared =
             & map snd
         toCheck :: Map Balance.Spec [Balance.Result] =
           classify2 $ classify1 results specs
+        pred :: Show a => Satisfies a => (a, [Balance.Result]) -> Bool
         pred (spec, results) =
-          go results
+          go results && isTight
           where
             go [] = traceShow (show spec ++ " satisfied by " ++ show (length results) ++ " result" ++ (if length results == 1 then "" else "s")) True
             go (r : res) =
               if satisfies r spec
                 then go res
                 else traceShow (show r ++ " violates spec " ++ show spec) False
+            isTight =
+              case tight results spec of
+                Wrong -> traceShow ("Unexpected case, satifies should have failed already") False
+                Tight -> True
+                Loose -> traceShow (show spec ++ " is not tight for the following results:\n  " ++ (concat $ intersperse "\n  " (map show results))) False
     -- Tests the balance of t1 against t2, at the given level
     checkSpecOfFight t1 p2@(_t2, _t2Deck) level specs =
       (playOne (mkShareds nbMatches) t1 level p2 nbTurns)
@@ -168,13 +174,40 @@ instance Show FullLeqSpec where
       ++ " <= "
       ++ show topMaxWins
 
+data Tightness
+  = -- | 'satisfies r a' would return 'False'
+    Wrong
+  | -- | 'satisfies r a' would return 'True', but 'satisfies b' would
+    -- also hold, for some 'b' stricter than 'a'.
+    Loose
+  | -- | 'satisfies r a' would return 'True' and there is no 'stricter' value
+    -- 'b' for which 'satisfies r b' would hold too.
+    Tight
+  deriving (Show)
+
+instance Monoid Tightness where
+  mempty = Tight
+
+instance Semigroup Tightness where
+  (<>) Wrong _ = Wrong
+  (<>) _ Wrong = Wrong
+  (<>) Loose _ = Loose
+  (<>) _ Loose = Loose
+  (<>) Tight Tight = Tight
+
 class Satisfies a where
   -- | Whether the given 'Balance.Result' satisfies 'a'
   satisfies :: Balance.Result -> a -> Bool
 
+  -- | See doc of values of 'Tightness'
+  tight :: [Balance.Result] -> a -> Tightness
+
 instance Satisfies Balance.Spec where
   satisfies r (Leq (FullLeqSpec shared sub)) = satisfies r shared && satisfies r sub
   satisfies r (Eq (FullEqSpec shared sub)) = satisfies r shared && satisfies r sub
+
+  tight rs (Leq (FullLeqSpec shared sub)) = tight rs shared <> tight rs sub
+  tight rs (Eq (FullEqSpec shared sub)) = tight rs shared <> tight rs sub
 
 instance Satisfies SpecShared where
   satisfies
@@ -183,18 +216,66 @@ instance Satisfies SpecShared where
       actualTopTeam == expectedTopTeam
         && actualBotTeam == expectedBotTeam
         && actualLevel == expectedLevel
+  tight rs a =
+    if all (flip satisfies a) rs then Tight else Wrong
 
 instance Satisfies EqSpec where
   satisfies
     (Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
     (EqSpec {..}) =
       actualTopWins == topWins && actualBotWins == botWins
+  tight rs a =
+    if all (flip satisfies a) rs then Tight else Wrong
+
+data LeqTightness
+  = -- | Both min bound and max bound reached
+    LeqTight
+  | -- | Min bound was reached
+    MinReached
+  | -- | Max bound was reached
+    MaxReached
+  | -- | Neither min bound nor max bound was reached
+    LeqLoose
+  deriving (Eq)
+
+instance Monoid LeqTightness where
+  mempty = LeqLoose
+
+instance Semigroup LeqTightness where
+  (<>) LeqLoose b = b
+  (<>) b LeqLoose = b
+  (<>) LeqTight _ = LeqTight
+  (<>) _ LeqTight = LeqTight
+  (<>) MinReached MaxReached = LeqTight
+  (<>) MaxReached MinReached = LeqTight
+  (<>) MinReached MinReached = MinReached
+  (<>) MaxReached MaxReached = MinReached
 
 instance Satisfies LeqSpec where
   satisfies
     (Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
     (LeqSpec {..}) =
       actualTopWins <= topMaxWins && botMinWins <= actualBotWins
+
+  tight rs spec@(LeqSpec {topMaxWins, botMinWins}) =
+    case rs of
+      [] -> mempty -- Degenerated case
+      _ ->
+        let pairs :: [(Bool, LeqTightness)] = map one rs
+         in if any not (map fst pairs)
+              then Wrong
+              else case mconcat $ map snd pairs of
+                LeqLoose -> Loose
+                MinReached -> Loose
+                MaxReached -> Loose
+                LeqTight -> Tight
+    where
+      one r@(Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
+        | actualTopWins == topMaxWins && actualBotWins == botMinWins = (True, LeqTight)
+        | actualTopWins == topMaxWins = (True, MaxReached)
+        | actualBotWins == botMinWins = (True, MinReached)
+        | satisfies r spec = (True, LeqLoose)
+        | otherwise = (False, LeqLoose)
 
 -- | A spec specifies an expectation on the balance. 'SpecShared'
 -- contains the data shared by all specs kinds.
