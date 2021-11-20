@@ -265,7 +265,8 @@ liftSkill SharedModel {sharedSkills} skill =
 
 -- | Pick one element at random from the second argument, using the random
 -- generator of 'SharedModel'. Returns the updated 'SharedModel' and the
--- picked element (being 'Just' if the list non-empty)
+-- picked element (being 'Just' if the list non-empty). See 'oneof' for
+-- a variant of this function.
 pick :: SharedModel -> [a] -> (SharedModel, Maybe a)
 pick shared@SharedModel {sharedStdGen = stdgen} l =
   case length l of

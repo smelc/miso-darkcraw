@@ -20,6 +20,8 @@ data T blow drawCard fear source stupid terror
   | DrawCard drawCard
   | -- | Creature causes fear
     Fear fear
+  | -- | Creature attacks a random spot
+    Imprecise
   | King
   | -- | Identifier of knight
     Knight
@@ -79,6 +81,7 @@ lift skill =
     Discipline -> Discipline
     DrawCard {} -> DrawCard ()
     Fear {} -> Fear ()
+    Imprecise -> Imprecise
     King -> King
     Knight -> Knight
     LongReach -> LongReach
@@ -102,6 +105,7 @@ unlift skill =
     Charge -> Charge
     DrawCard {} -> DrawCard True
     Fear {} -> Fear True
+    Imprecise -> Imprecise
     King -> King
     Knight -> Knight
     LongReach {} -> LongReach

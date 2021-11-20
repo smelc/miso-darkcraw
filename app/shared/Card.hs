@@ -111,6 +111,7 @@ data CreatureKind
   | Knight
   | Necromancer
   | Mummy
+  | Ogre
   | Priest
   | Skeleton
   | Shade
@@ -118,7 +119,7 @@ data CreatureKind
   | Specter
   | Squire
   | Swordsman
-  | Ogre
+  | Trebuchet
   | Vampire
   | Veteran
   | Warrior
@@ -347,7 +348,7 @@ rawTeamDeck cards t =
         Evil -> 1 * Knight
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
-        ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire
+        ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet
       where
         kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
           map cardToCreature cards

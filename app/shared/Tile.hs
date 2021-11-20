@@ -62,13 +62,14 @@ data Tile
   | HumanSwordsman
   | Loupe
   | Ogre
+  | RedPotion
   | SkBanner
   | SkullRedEyes
   | Squire
   | Sword1
   | Sword2
   | Sword3
-  | RedPotion
+  | Trebuchet
   | UndeadArcher
   | UndeadGhost
   | UndeadMummy

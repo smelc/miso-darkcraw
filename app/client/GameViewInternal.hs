@@ -35,6 +35,7 @@ import Card
 import Constants
 import Control.Lens
 import Control.Monad.Except
+import Control.Monad.State
 import qualified Damage ()
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust)
@@ -47,7 +48,8 @@ import Model
 import Nat
 import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
-import Spots hiding (Card)
+import Spots (Player (..))
+import qualified Spots
 import qualified Tile
 import qualified Turn
 import Update
@@ -304,7 +306,7 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
 -- or 2/ card in place is being hovered -> draw borders around cards
 --       be attacked from this card== playingPlayerSpot,
 borderWidth :: GameModel -> Game.Target -> Int
-borderWidth GameModel {board, interaction, playingPlayer} pTarget =
+borderWidth GameModel {board, interaction, playingPlayer, shared} pTarget =
   case (interaction, pTarget) of
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
@@ -314,10 +316,12 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
         else 0
       where
         attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
+        attackedSpots :: [Spots.Card]
         attackedSpots =
           case attacker of
             Nothing -> []
-            Just attacker -> Game.enemySpots attacker cSpotHov
+            Just attacker ->
+              flip runState shared (Game.enemySpots attacker cSpotHov) & fst
     _ -> 0
   where
     cond hi =

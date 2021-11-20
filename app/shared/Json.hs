@@ -85,6 +85,7 @@ instance FromJSON Skill where
           "Discipline" -> return Skill.Discipline
           "DrawCard" -> return $ Skill.DrawCard ()
           "Fear" -> return $ Skill.Fear ()
+          "Imprecise" -> return Skill.Imprecise
           "King" -> return Skill.King
           "Knight" -> return Skill.Knight
           "LongReach" -> return Skill.LongReach
@@ -101,7 +102,7 @@ instance FromJSON Skill where
                 case readMaybe $ Text.unpack n of
                   Nothing -> fail $ "Invalid Source suffix (not a Nat): " ++ Text.unpack n
                   Just n -> return $ Skill.Source n
-              _ -> fail $ "Invalid Skill string: " ++ show s ++ " (did you forget to update Json.hs?)"
+              _ -> fail $ "Invalid Skill string: " ++ show s ++ " (did you forget to handle a new Skill in FromJSON Skill in Json.hs?)"
 
 -- TODO @smelc Rename me into skillPackOptions
 skillUIOptions :: Options

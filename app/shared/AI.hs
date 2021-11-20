@@ -348,6 +348,7 @@ scoreSkill s =
     Skill.Discipline -> -1
     Skill.DrawCard b -> if b then -1 else 0
     Skill.Fear b -> if b then -1 else 0
+    Skill.Imprecise -> 0
     Skill.King -> -2
     Skill.Knight -> -1
     Skill.LongReach -> -1

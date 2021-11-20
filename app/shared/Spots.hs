@@ -8,6 +8,7 @@
 -- |
 module Spots where
 
+import qualified Data.List.NonEmpty as NE
 import GHC.Generics
 
 -- | The spot of a card, as visible from the top of the screen. For the
@@ -45,6 +46,10 @@ data Neighborhood
 -- | All 'Spots.Card' values.
 allCards :: [Spots.Card]
 allCards = [minBound ..]
+
+-- | All 'Spots.Card' values, as a non-empty list.
+allCardsNE :: NE.NonEmpty Spots.Card
+allCardsNE = minBound NE.:| [succ minBound ..]
 
 -- | Returns a bottom position, by taking a position that makes sense visually
 -- I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]

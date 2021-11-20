@@ -89,6 +89,9 @@ import Tile (Tile)
 
 type CardsOnTable = Map.Map Spots.Card (Creature 'Core)
 
+-- | Animations recorded upon death. If you are looking for the same
+-- thing in the more general case of the creature not dying, loot at
+-- 'fadeOut'.
 data DeathCause
   = -- | Creature was killed by fear
     DeathByFear

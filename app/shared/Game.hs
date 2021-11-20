@@ -893,21 +893,28 @@ attack ::
   Spots.Card ->
   m (Board 'Core)
 attack board pSpot cSpot =
-  case (attacker, allyBlocker, attackee) of
-    (Nothing, _, _) -> return board -- no attacker
-    (Just _, _, _)
+  case (attacker, allyBlocker) of
+    (Nothing, _) -> return board -- no attacker
+    (Just _, _)
       | isStupid board pSpot cSpot ->
         -- TODO @smelc record an animation
         return board
-    (_, Just _, _) -> return board -- an ally blocks the way
-    (Just hitter, _, []) -> do
-      -- nothing to attack, contribute to the score!
-      let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
-      hit <- (deal $ Total.attack (Just place) hitter) <&> natToInt
-      reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
-      return (board & spotToLens pSpot . #score +~ hit)
-    (Just hitter, _, attackees) ->
-      foldM (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) $ attackee) board attackees
+    (_, Just _) -> return board -- an ally blocks the way
+    (Just hitter, _) -> do
+      attackedSpots :: [Spots.Card] <- enemySpots hitter cSpot
+      let spotsWithEnemies = spotsToEnemies attackedSpots
+      if null spotsWithEnemies
+        then do
+          -- nothing to attack, contribute to the score!
+          -- XXX @smelc record an animation of the score for Skill.Imprecise
+          let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
+          hit <- (deal $ Total.attack (Just place) hitter) <&> natToInt
+          reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
+          return (board & spotToLens pSpot . #score +~ hit)
+        else do
+          -- or something to attack; attack it. FIXME @smelc: if Imprecise
+          -- is in the mix, attack even if there is no creature at the attacked spot.
+          foldM (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) attackee) board spotsWithEnemies
   where
     attackeePSpot = otherPlayerSpot pSpot
     attackersInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
@@ -915,12 +922,13 @@ attack board pSpot cSpot =
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
     attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Skill.lift
     allyBlocker :: Maybe (Creature 'Core) =
-      if any (`elem` attackerSkills) [Skill.Ranged, Skill.LongReach]
+      if any (`elem` attackerSkills) [Skill.Imprecise, Skill.LongReach, Skill.Ranged]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
-    attackedSpots' :: [Spots.Card] = fromMaybe [] (attacker <&> (\a -> enemySpots a cSpot))
-    attackee :: [(Creature 'Core, Spots.Card)] =
-      [(spot,) <$> (attackeesInPlace !? spot) | spot <- attackedSpots']
+    -- Given attacked spots, restrict to the one with enemies, and return them
+    spotsToEnemies :: [Spots.Card] -> [(Creature 'Core, Spots.Card)]
+    spotsToEnemies spots =
+      [(spot,) <$> (attackeesInPlace !? spot) | spot <- spots]
         & catMaybes
         -- Breath attack makes the attacker attack the two spots, otherwise
         -- take the first one
@@ -1035,16 +1043,21 @@ singleAttack ::
 singleAttack place attacker@Creature {skills} defender = do
   hit <- deal damage
   let hps' = Card.hp defender `minusNatClamped` hit
-  return $
-    if hps' <= 0
-      then mempty {death}
-      else mempty {hitPointsChange = Nat.negate hit}
+  let hpChangeEffect =
+        if hps' <= 0
+          then mempty {death}
+          else mempty {hitPointsChange = Nat.negate hit}
+  return $ hpChangeEffect <> imprecise
   where
     damage = Total.attack (Just place) attacker
     death =
       if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
         then DeathByBreathIce
         else UsualDeath
+    imprecise =
+      if Skill.Imprecise `elem` skills
+        then mempty {fadeOut = []} -- FIXME @smelc record explosion tile
+        else mempty
 
 -- | Apply a 'Damage'
 deal :: MonadState SharedModel m => Damage -> m Nat
@@ -1098,20 +1111,28 @@ allEnemySpots cSpot =
 -- attacked, then the second element is attacked if the first spot is empty
 -- or if the creature can attack multiple spots for some reasons.
 enemySpots ::
+  MonadState SharedModel m =>
   -- | The attacker
   Creature 'Core ->
   -- | Where the attack is
   Spots.Card ->
-  [Spots.Card]
+  m [Spots.Card]
 enemySpots c@Creature {skills} cSpot =
+  -- TODO @smelc, rewrite me for less indentation
   if not $ Damage.dealer c
-    then [] -- Creature cannot attack
+    then pure [] -- Creature cannot attack
     else
-      if
-          | Skill.Ranged `elem` skills -> spotsInSight
-          | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
-          | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
-          | otherwise -> take 1 spotsInSight
+      if Skill.Imprecise `elem` skills
+        then do
+          spot <- SharedModel.oneof Spots.allCardsNE
+          pure [spot]
+        else
+          pure $
+            if
+                | Skill.Ranged `elem` skills -> spotsInSight
+                | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
+                | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
+                | otherwise -> take 1 spotsInSight
   where
     spotsInSight = allEnemySpots cSpot
 

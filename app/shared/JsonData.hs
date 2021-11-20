@@ -33,7 +33,8 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"king\",      \"team\":\"zknights\" }, \"title\":\"King\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKing\",          \"skills\":[\"King\"], \"mana\":3 },\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"zknights\" }, \"title\":\"Knight\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKnight\",        \"skills\":[\"Knight\", \"Charge\"], \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"zknights\" }, \"title\":\"Priest\",  \"hp\":1, \"attack\":\"0\", \"tile\":\"ZPriest\",        \"skills\":[\"Source 2\"], \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"squire\",    \"team\":\"zknights\" }, \"title\":\"Squire\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"Squire\",         \"skills\":[\"Squire\"] }\n\
+         \    { \"id\": { \"name\":\"squire\",    \"team\":\"zknights\" }, \"title\":\"Squire\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"Squire\",         \"skills\":[\"Squire\"] },\n\
+         \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":2 }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
@@ -87,6 +88,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Loupe\",         \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":1 } },\n\
          \    { \"tile\":\"Ogre\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":0 } },\n\
          \    { \"tile\":\"SkBanner\",      \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":2 } },\n\
+         \    { \"tile\":\"Trebuchet\",     \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":11 } },\n\
          \    { \"tile\":\"UndeadSkeleton\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadVampire\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":3 } },\n\
@@ -115,6 +117,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
+         \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\
          \    { \"skill\":\"King\",        \"title\":\"King\",       \"text\":\"At every turn, every knight gains +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Knight\",      \"title\":\"Knight\",     \"text\":\"A knight anointed by the king\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"Hits 2 cells away when in the back line\"},\n\
