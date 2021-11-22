@@ -908,9 +908,9 @@ attack board pSpot cSpot =
           -- nothing to attack, contribute to the score!
           -- XXX @smelc record an animation of the score for Skill.Imprecise
           let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
-          hit <- (deal $ Total.attack (Just place) hitter) <&> natToInt
-          reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = hit}
-          return (board & spotToLens pSpot . #score +~ hit)
+          hit :: Nat <- (deal $ Total.attack (Just place) hitter)
+          reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = natToInt hit}
+          return $ Board.increaseScore board pSpot hit
         else do
           -- or something to attack; attack it. FIXME @smelc: if Imprecise
           -- is in the mix, attack even if there is no creature at the attacked spot.

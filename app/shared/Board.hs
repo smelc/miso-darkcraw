@@ -44,6 +44,7 @@ module Board
     addToHand,
     addToDiscarded,
     empty,
+    increaseScore,
     setCreature,
     toDiscarded,
     setDiscarded,
@@ -197,7 +198,7 @@ type family ManaType (p :: Phase) where
   Board.ManaType 'UI = Int -- Difference with previous state
 
 type family ScoreType (p :: Phase) where
-  ScoreType 'Core = Int
+  ScoreType 'Core = Int -- FIXME @smelc change to Nat
   ScoreType 'UI = ()
 
 type family StackType (p :: Phase) where
@@ -306,6 +307,12 @@ addToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
+increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
+increaseScore board pSpot change =
+  Board.setScore board pSpot (score + (natToInt change))
+  where
+    score = Board.toScore board pSpot
+
 -- | Map 'f' over creatures in the given 'Spots.Card' in the given 'Spots.Player'
 mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [Spots.Card] -> Board 'Core -> Board 'Core
 mapInPlace f pSpot cSpots board =
@@ -354,6 +361,12 @@ setPart board PlayerBot part = board {playerBottom = part}
 setStack :: Board p -> Spots.Player -> StackType p -> Board p
 setStack board pSpot stack =
   setPart board pSpot $ part {stack = stack}
+  where
+    part = toPart board pSpot
+
+setScore :: Board p -> Spots.Player -> ScoreType p -> Board p
+setScore board pSpot score =
+  setPart board pSpot $ part {score}
   where
     part = toPart board pSpot
 
