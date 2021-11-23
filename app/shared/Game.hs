@@ -920,7 +920,7 @@ attack board pSpot cSpot =
     attackersInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
     attackeesInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board attackeePSpot
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
-    attackerSkills :: [Skill] = attacker <&> skills & fromMaybe [] & map Skill.lift
+    attackerSkills :: [Skill] = (Card.to attacker) & map Skill.lift
     allyBlocker :: Maybe (Creature 'Core) =
       if any (`elem` attackerSkills) [Skill.Imprecise, Skill.LongReach, Skill.Ranged]
         then Nothing -- attacker bypasses ally blocker (if any)

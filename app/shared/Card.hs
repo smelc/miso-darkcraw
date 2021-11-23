@@ -6,6 +6,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -426,3 +427,35 @@ targetType id =
     IDN Life -> CardTargetType Occupied
     IDN InfernalHaste -> PlayerTargetType
     IDN Plague -> PlayerTargetType
+
+-- * Classes and instances
+
+-- Classes and instances that are meant to be used qualified
+-- (and hence are not in 'CardInstances'). These classes are mostly
+-- about making code shorter and avoid repeating default values or patterns.
+-- They do not do anything smart.
+
+-- | Class for runtime values having some quality. This is akin to
+-- a strongly typed entity system.
+class Has a b where
+  has :: a -> b -> Bool
+
+instance Has (Creature 'Core) Skill.State where
+  has Creature {skills} skill = skill `elem` skills
+
+instance Has a b => Has (Maybe a) b where
+  has a b =
+    case a of
+      Nothing -> False
+      Just a -> a `has` b
+
+-- | Class from which some value can be obtained
+class To a b where
+  to :: a -> b
+
+instance To (Creature 'Core) [Skill.State] where
+  to Creature {skills} = skills
+
+instance (Monoid b, To a b) => To (Maybe a) b where
+  to Nothing = mempty
+  to (Just a) = to a
