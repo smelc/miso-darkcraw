@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -19,10 +20,9 @@ import Board
 import Card
 import qualified Configuration
 import Constants
-import Control.Lens
 import Control.Monad.Except
-import Data.Generics.Labels ()
-import Data.Generics.Product
+import Data.Function ((&))
+import Data.Functor
 import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -221,7 +221,8 @@ boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetT
     (x, y) = cardCellsBoardOffset pSpot cSpot
     beingHovered = interaction == HoverInPlaceInteraction target
     attackEffect =
-      anims ^. spotToLens pSpot . field' @"inPlace" . #unInPlaceEffects . ix cSpot
+      (Board.toInPlace anims pSpot & unInPlaceEffects) Map.!? cSpot
+        & (\case Nothing -> mempty; Just x -> x)
     bounceStyle =
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
         | attackBump attackEffect
