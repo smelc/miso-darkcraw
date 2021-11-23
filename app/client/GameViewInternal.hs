@@ -33,10 +33,10 @@ where
 import Board hiding (StackType)
 import Card
 import Constants
-import Control.Lens
 import Control.Monad.Except
 import Control.Monad.State
 import qualified Damage ()
+import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust)
 import qualified Data.Text as Text
@@ -132,8 +132,8 @@ scoreViews m@GameModel {board} z =
          | topScore /= botScore
        ]
   where
-    topScore = board ^. #playerTop . #score
-    botScore = board ^. #playerBottom . #score
+    topScore = Board.toScore board PlayerTop
+    botScore = Board.toScore board PlayerBot
 
 scoreMarginTop :: Spots.Player -> Int
 scoreMarginTop PlayerTop = cps
@@ -159,7 +159,7 @@ scoreView GameModel {board} z pSpot =
       div_ [] [Miso.text $ ms $ show score]
     ]
   where
-    score = board ^. (spotToLens pSpot . #score)
+    score = Board.toScore board pSpot
 
 manaView :: GameModel -> Int -> View a
 manaView GameModel {board, playingPlayer} z =
@@ -276,15 +276,16 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
           <> "height" =: px plusFontSize
           -- Tell the element to stay in place
           <> "transform" =: "translate(-50%, -50%)"
-    (getter, label, marginSide) = case stackType of
-      Stacked -> (#stack, "Stack", "right")
-      Discarded -> (#discarded, "Discarded", "left")
+    (getter :: Board.PlayerPart 'Core -> [Card.ID], label, marginSide) = case stackType of
+      Stacked -> (Board.stack, "Stack", "right")
+      Discarded -> (Board.discarded, "Discarded", "left")
     plusValue = case stackType of
       Stacked -> Board.toStack anims pSpot
       Discarded -> Board.toDiscarded anims pSpot + nbDeaths
-    deck :: [Card 'Core] = board ^. spotToLens pSpot . getter & map (unsafeIdentToCard shared) & map Card.unlift
+    deck :: [Card 'Core] =
+      Board.toPart board pSpot & getter & map (Card.unlift . unsafeIdentToCard shared)
     atColonSize = length deck
-    attackEffects = anims ^. spotToLens pSpot . #inPlace & unInPlaceEffects
+    attackEffects = Board.toInPlace anims pSpot & unInPlaceEffects
     nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 attackEffects
     animName = "stackPlus"
     animData =
