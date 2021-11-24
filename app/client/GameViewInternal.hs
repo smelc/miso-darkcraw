@@ -34,7 +34,6 @@ import Board hiding (StackType)
 import Card
 import Constants
 import Control.Monad.Except
-import Control.Monad.State
 import qualified Damage ()
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -48,6 +47,7 @@ import Model
 import Nat
 import PCWViewInternal ()
 import SharedModel (unsafeIdentToCard)
+import qualified Skill
 import Spots (Player (..))
 import qualified Spots
 import qualified Tile
@@ -305,24 +305,30 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
 -- 1/ card in hand is being hovered or dragged -> draw borders around
 --    valid drag targets
 -- or 2/ card in place is being hovered -> draw borders around cards
---       be attacked from this card== playingPlayerSpot,
+--       that can be attacked from this card
 borderWidth :: GameModel -> Game.Target -> Int
-borderWidth GameModel {board, interaction, playingPlayer, shared} pTarget =
+borderWidth GameModel {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
-    (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot) ->
-      if pSpot /= pSpotHov && cSpot `elem` attackedSpots
-        then borderSize
-        else 0
+    (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot)
+      | pSpot /= pSpotHov && cSpot `elem` attackedSpots ->
+        borderSize
       where
         attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
-        attackedSpots :: [Spots.Card]
-        attackedSpots =
+        attackedSpots :: [Spots.Card] =
           case attacker of
             Nothing -> []
             Just attacker ->
-              flip runState shared (Game.enemySpots attacker cSpotHov) & fst
+              case Game.enemySpots attacker cSpotHov of
+                Game.Imprecise -> []
+                Game.Spots spots -> spots
+    (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.PlayerTarget pSpot)
+      | pSpot /= pSpotHov && imprecise ->
+        borderSize
+      where
+        attacker :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpotHov cSpotHov
+        imprecise :: Bool = attacker `has` (Skill.Imprecise :: Skill.State)
     _ -> 0
   where
     cond hi =

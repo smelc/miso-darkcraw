@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
@@ -27,6 +28,7 @@ module Game
     DrawSource (..),
     eventToAnim,
     keepEffectfull,
+    EnemySpots (..),
     Event (..),
     MessageText (..),
     PolyResult (..),
@@ -49,7 +51,7 @@ import Card hiding (ID)
 import qualified Card
 import qualified Constants
 import Control.Exception (assert)
-import Control.Lens
+import Control.Lens hiding (has)
 import Control.Monad.Except
 import Control.Monad.Random
 import Control.Monad.State
@@ -900,21 +902,34 @@ attack board pSpot cSpot =
         -- TODO @smelc record an animation
         return board
     (_, Just _) -> return board -- an ally blocks the way
-    (Just hitter, _) -> do
-      attackedSpots :: [Spots.Card] <- enemySpots hitter cSpot
-      let spotsWithEnemies = spotsToEnemies attackedSpots
-      if null spotsWithEnemies
-        then do
+    (Just hitter, _) ->
+      case enemySpots hitter cSpot <&> spotsToEnemies of
+        Imprecise -> do
+          -- Attacker has the Imprecise skill. Attack a spot at random.
+          -- Never contribute to score.
+          attackedSpot :: Spots.Card <- SharedModel.oneof Spots.allCardsNE
+          case Board.toInPlaceCreature board attackeePSpot attackedSpot of
+            Nothing -> do
+              -- Imprecise creature targets an empty spot, report attack
+              -- and exposion.
+              reportEffect pSpot cSpot $ mempty {attackBump = True}
+              reportEffect attackeePSpot cSpot $ mempty {fadeOut = [Tile.Explosion]}
+              pure board -- No change
+            Just attacked ->
+              -- Imprecise creature attacks an occupied spot
+              attackOneSpot board (hitter, pSpot, cSpot) (attacked, attackedSpot)
+        Spots [] -> do
           -- nothing to attack, contribute to the score!
-          -- XXX @smelc record an animation of the score for Skill.Imprecise
           let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
-          hit :: Nat <- (deal $ Total.attack (Just place) hitter)
+          hit :: Nat <- deal $ Total.attack (Just place) hitter
           reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = natToInt hit}
           return $ Board.increaseScore board pSpot hit
-        else do
-          -- or something to attack; attack it. FIXME @smelc: if Imprecise
-          -- is in the mix, attack even if there is no creature at the attacked spot.
-          foldM (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) attackee) board spotsWithEnemies
+        Spots attackedSpots -> do
+          -- or something to attack; attack it
+          foldM
+            (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) attackee)
+            board
+            attackedSpots
   where
     attackeePSpot = otherPlayerSpot pSpot
     attackersInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
@@ -925,7 +940,8 @@ attack board pSpot cSpot =
       if any (`elem` attackerSkills) [Skill.Imprecise, Skill.LongReach, Skill.Ranged]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
-    -- Given attacked spots, restrict to the one with enemies, and return them
+    -- Given attacked spots, restrict to the ones with enemies, and return the
+    -- enemies along the spots.
     spotsToEnemies :: [Spots.Card] -> [(Creature 'Core, Spots.Card)]
     spotsToEnemies spots =
       [(spot,) <$> (attackeesInPlace !? spot) | spot <- spots]
@@ -1104,6 +1120,14 @@ allEnemySpots cSpot =
         Bottom -> [Top, Bottom]
         BottomRight -> [TopRight, BottomRight]
 
+-- | Type to handle 'Skill.Imprecise' when resolving attacks
+data EnemySpots a
+  = -- | Creature has 'Skill.Imprecise', enemy spots doesn't make sense
+    Imprecise
+  | -- | A creature without 'Skill.Imprecise'
+    Spots a
+  deriving (Functor)
+
 -- | Spots that can be attacked by a creature.
 -- Spot as argument is in one player part while spots returned
 -- are in the other player part.
@@ -1111,30 +1135,24 @@ allEnemySpots cSpot =
 -- attacked, then the second element is attacked if the first spot is empty
 -- or if the creature can attack multiple spots for some reasons.
 enemySpots ::
-  MonadState SharedModel m =>
   -- | The attacker
   Creature 'Core ->
   -- | Where the attack is
   Spots.Card ->
-  m [Spots.Card]
+  EnemySpots [Spots.Card]
 enemySpots c@Creature {skills} cSpot =
-  -- TODO @smelc, rewrite me for less indentation
-  if not $ Damage.dealer c
-    then pure [] -- Creature cannot attack
-    else
-      if Skill.Imprecise `elem` skills
-        then do
-          spot <- SharedModel.oneof Spots.allCardsNE
-          pure [spot]
-        else
-          pure $
-            if
-                | Skill.Ranged `elem` skills -> spotsInSight
-                | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
-                | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
-                | otherwise -> take 1 spotsInSight
-  where
-    spotsInSight = allEnemySpots cSpot
+  case (Damage.dealer c, Skill.Imprecise `elem` skills) of
+    (False, _) -> Spots [] -- Creature cannot attack
+    (True, True) -> Imprecise
+    (True, False) ->
+      Spots $
+        if
+            | Skill.Ranged `elem` skills -> spotsInSight
+            | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
+            | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
+            | otherwise -> take 1 spotsInSight
+      where
+        spotsInSight = allEnemySpots cSpot
 
 -- | The order in which cards attack
 attackOrder :: Spots.Player -> [Spots.Card]

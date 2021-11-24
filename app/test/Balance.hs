@@ -120,7 +120,7 @@ main shared =
       map
         (uncurry FullLeqSpec)
         [ ( SpecShared {topTeam = Human, botTeam = ZKnights, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 58, botMinWins = 6}
+            LeqSpec {topMaxWins = 57, botMinWins = 5}
           ),
           ( SpecShared {topTeam = Undead, botTeam = ZKnights, level = Campaign.Level1},
             LeqSpec {topMaxWins = 60, botMinWins = 4}
