@@ -18,9 +18,9 @@ import Card
 import Cinema
 import qualified Command
 import Constants
-import Control.Lens hiding (at, (+=))
-import Control.Lens.Extras
 import Control.Monad.Except
+import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -432,12 +432,12 @@ testApplyDifficulty stdgen =
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
-  let (cards, _, _) = eitherCardsNTiles ^?! _Right
+  let cards :: [Card 'UI] = case eitherCardsNTiles of Left errMsg -> error errMsg; Right (x, _, _) -> x
   let allDecks = getAllDecks cards
   let allCreatures = mapMaybe cardToCreature $ concat allDecks
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
-      is _Right eitherCardsNTiles -- should be the first test, others depend on it
+      case eitherCardsNTiles of Right _ -> True; _ -> False -- should be the first test, others depend on it
     xit "all decks are initially of the same size (modulo items)" $
       let itemLessDecks = map (filter (\case ItemCard {} -> False; _ -> True)) allDecks
        in all (\l -> length l == length (head itemLessDecks)) itemLessDecks
