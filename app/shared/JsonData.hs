@@ -69,6 +69,7 @@ jsonData = "{\n\
          \    { \"tile\":\"CrushingMace\",  \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":2 } },\n\
          \    { \"tile\":\"DropBlue\",      \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":0 } },\n\
          \    { \"tile\":\"EvilKnight\",    \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":10 } },\n\
+         \    { \"tile\":\"Explosion\",     \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":7 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
          \    { \"tile\":\"HeartBroken\",   \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":0 } },\n\
          \    { \"tile\":\"HumanChurch\",   \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":0 } },\n\

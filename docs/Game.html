@@ -60,8 +60,7 @@
 <li class="src short">
 <a href="#v:drawCards">drawCards</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Game.html#t:DrawSource" title="Game">DrawSource</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
 <li class="src short">
-<a href="#v:enemySpots">enemySpots</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a>
-</li>
+<a href="#v:enemySpots">enemySpots</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
 <a href="#v:idToHandIndex">idToHandIndex</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
 </li>
@@ -79,10 +78,10 @@
 <li class="src short">
 <a href="#v:keepEffectfull">keepEffectfull</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:EnemySpots">EnemySpots</a><ul class="subs">
+<span class="keyword">data</span> <a href="#t:EnemySpots">EnemySpots</a> a<ul class="subs">
 <li>= <a href="#v:Imprecise">Imprecise</a>
 </li>
-<li>| <a href="#v:Spots">Spots</a> [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
+<li>| <a href="#v:Spots">Spots</a> a</li>
 </ul>
 </li>
 <li class="src short">
@@ -357,8 +356,7 @@
 <td class="doc"><p>Where the attack is</p></td>
 </tr>
 <tr>
-<td class="src">-&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a>
-</td>
+<td class="src">-&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> [<a href="Spots.html#t:Card" title="Spots">Card</a>]</td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 </table>
@@ -447,7 +445,8 @@
  that have an effect. Elements of <code>es</code> are played in sequence.</p></div>
 </div>
 <div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:EnemySpots" class="def">EnemySpots</a> <a href="#t:EnemySpots" class="selflink">#</a></p>
+<p class="src"><span class="keyword">data</span> <a id="t:EnemySpots" class="def">EnemySpots</a> a <a href="#t:EnemySpots" class="selflink">#</a></p>
+<div class="doc"><p>Type to handle <code><a href="Skill.html#v:Imprecise" title="Skill">Imprecise</a></code> when resolving attacks</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
@@ -457,11 +456,24 @@
 </tr>
 <tr>
 <td class="src">
-<a id="v:Spots" class="def">Spots</a> [<a href="Spots.html#t:Card" title="Spots">Card</a>]</td>
+<a id="v:Spots" class="def">Spots</a> a</td>
 <td class="doc"><p>A creature without <code><a href="Skill.html#v:Imprecise" title="Skill">Imprecise</a></code></p></td>
 </tr>
 </table>
 </div>
+<div class="subs instances"><details id="i:EnemySpots" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:EnemySpots:Functor:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Functor.html#t:Functor" title="Data.Functor">Functor</a> <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a></span> <a href="#t:EnemySpots" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:EnemySpots:Functor:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:fmap">fmap</a> :: (a -&gt; b) -&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> a -&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> b <a href="#v:fmap" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--36-">(&lt;$)</a> :: a -&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> b -&gt; <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> a <a href="#v:-60--36-" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Event" class="def">Event</a> <a href="#t:Event" class="selflink">#</a></p>

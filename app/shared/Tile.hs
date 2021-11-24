@@ -50,6 +50,7 @@ data Tile
   | CrushingMace
   | DropBlue
   | EvilKnight
+  | Explosion
   | FlailOfTheDamned
   | GreenPotion
   | Heart

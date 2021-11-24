@@ -58,6 +58,7 @@
     { "tile":"CrushingMace",  "filepath": { "root": "16x16", "x":2, "y":2 } },
     { "tile":"DropBlue",      "filepath": { "root": "16x16", "x":5, "y":0 } },
     { "tile":"EvilKnight",    "filepath": { "root": "24x24", "x":0, "y":10 } },
+    { "tile":"Explosion",     "filepath": { "root": "24x24", "x":4, "y":7 } },
     { "tile":"Heart",         "filepath": { "root": "16x16", "x":0, "y":0 } },
     { "tile":"HeartBroken",   "filepath": { "root": "16x16", "x":4, "y":0 } },
     { "tile":"HumanChurch",   "filepath": { "root": "24x24", "x":6, "y":0 } },

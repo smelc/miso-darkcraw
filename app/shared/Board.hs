@@ -173,6 +173,7 @@ instance Monoid InPlaceEffect where
         scoreChange = 0
       }
 
+-- TODO @smelc remove the newtype
 newtype InPlaceEffects = InPlaceEffects {unInPlaceEffects :: Map.Map Spots.Card InPlaceEffect}
   deriving (Eq, Generic, Show)
 
@@ -182,6 +183,8 @@ instance Semigroup InPlaceEffects where
 instance Monoid InPlaceEffects where
   mempty = InPlaceEffects mempty
 
+-- TODO @smelc Move the type parameter inside the map, to share code
+-- between the two cases.
 type family InPlaceType (p :: Phase) where
   InPlaceType 'Core = CardsOnTable
   InPlaceType 'UI = InPlaceEffects
