@@ -19,6 +19,7 @@ import Cinema
 import qualified Command
 import Constants
 import Control.Monad.Except
+import Data.Either
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List as List
@@ -437,7 +438,7 @@ main = hspec $ do
   let allCreatures = mapMaybe cardToCreature $ concat allDecks
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
-      case eitherCardsNTiles of Right _ -> True; _ -> False -- should be the first test, others depend on it
+      isRight eitherCardsNTiles -- Should be the first test, others depend on it
     xit "all decks are initially of the same size (modulo items)" $
       let itemLessDecks = map (filter (\case ItemCard {} -> False; _ -> True)) allDecks
        in all (\l -> length l == length (head itemLessDecks)) itemLessDecks

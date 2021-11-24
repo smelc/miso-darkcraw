@@ -13,7 +13,8 @@ import Card
 import Configuration (Configuration (..))
 import qualified Configuration
 import Constants
-import Control.Lens
+import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.Maybe (fromMaybe, isJust)
 import Miso
 import Miso.String hiding (concat, length, map)

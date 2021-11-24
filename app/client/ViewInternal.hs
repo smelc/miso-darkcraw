@@ -18,7 +18,6 @@
 module ViewInternal where
 
 import Constants (assetsPath, cellPixelSize)
-import Control.Lens
 import Control.Monad.Writer
 import Data.Function ((&))
 import Data.List
@@ -74,16 +73,21 @@ animationData animDataName animDataDuration animDataTimingFunction =
     animDataIterationCount = Nothing -- "1"
 
 animDataToStyle :: AnimationData -> Attribute a
-animDataToStyle animData =
+animDataToStyle AnimationData {..} =
   style_ $
     Map.empty
-      & at "animation-direction" .~ animDataDirection animData
-      & at "animation-delay" .~ animDataDelay animData
-      & at "animation-duration" ?~ animDataDuration animData
-      & at "animation-iteration-count" .~ animDataIterationCount animData
-      & at "animation-fill-mode" .~ animDataFillMode animData
-      & at "animation-name" ?~ animDataName animData
-      & at "animation-timing-function" ?~ animDataTimingFunction animData
+      & upd "animation-delay" animDataDelay
+      & upd "animation-direction" animDataDirection
+      & Map.insert "animation-duration" animDataDuration
+      & upd "animation-iteration-count" animDataIterationCount
+      & upd "animation-fill-mode" animDataFillMode
+      & Map.insert "animation-name" animDataName
+      & Map.insert "animation-timing-function" animDataTimingFunction
+  where
+    upd key value map =
+      case value of
+        Nothing -> map
+        Just value -> Map.insert key value map
 
 textMainColor :: MisoString
 textMainColor = "#FFFFFF" -- white

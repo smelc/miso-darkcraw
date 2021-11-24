@@ -310,6 +310,7 @@ addToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
+-- TODO @smelc replace by mapScore
 increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
 increaseScore board pSpot change =
   Board.setScore board pSpot (score + (natToInt change))
@@ -367,6 +368,7 @@ setStack board pSpot stack =
   where
     part = toPart board pSpot
 
+-- TODO @smelc replace by mapScore
 setScore :: Board p -> Spots.Player -> ScoreType p -> Board p
 setScore board pSpot score =
   setPart board pSpot $ part {score}
