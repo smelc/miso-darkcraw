@@ -1072,7 +1072,7 @@ singleAttack place attacker@Creature {skills} defender = do
         else UsualDeath
     imprecise =
       if Skill.Imprecise `elem` skills
-        then mempty {fadeOut = []} -- FIXME @smelc record explosion tile
+        then mempty {fadeOut = [Tile.Explosion]}
         else mempty
 
 -- | Apply a 'Damage'

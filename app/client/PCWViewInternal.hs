@@ -20,7 +20,9 @@ module PCWViewInternal
     cardView,
     cardPositionStyle,
     cardPositionStyle',
+    noCardView,
     scrollbarStyle,
+    tileCell,
     viewFrame,
     BorderOverlay (..),
     CardDrawStyle (..),
@@ -29,6 +31,7 @@ module PCWViewInternal
   )
 where
 
+import qualified Board
 import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
 import Constants
@@ -46,6 +49,7 @@ import Nat
 import SharedModel (SharedModel, tileToFilepath)
 import qualified SharedModel
 import qualified Skill
+import Tile (Tile)
 import qualified Tile
 import qualified Total
 import Update (Action)
@@ -184,6 +188,26 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
           ]
         (NeutralCard {}) -> [] -- Done in itemNeutralView
         (ItemCard {}) -> [] -- Done in itemNeutralView
+
+-- | The view to display on a spot without a creature
+noCardView ::
+  -- | The z index
+  Int ->
+  SharedModel ->
+  Board.InPlaceEffect ->
+  Styled (View Action)
+noCardView z shared Board.InPlaceEffect {fadeOut} = do
+  views <- traverse (\tile -> ViewInternal.fade (builder tile) Nothing 100 FadeOut) fadeOut
+  return $ div_ [] views
+  where
+    builder tile attrs =
+      div_
+        ( [ style_ $ flexColumnStyle,
+            style_ $ zpwh z Absolute cardPixelWidth cardPixelHeight
+          ]
+            ++ attrs
+        )
+        [tileCell shared Tile.TwentyFour tile]
 
 picTopMargin :: Int
 picTopMargin = cps `div` 4
@@ -450,6 +474,14 @@ stateToAttribute z ActorState {x, y} =
   style_ $
     pltwh Absolute (x * cps) (y * cps) cps cps
       <> "z-index" =: ms z
+
+tileCell :: SharedModel -> Tile.Size -> Tile -> View a
+tileCell shared sz tile = imgCell path
+  where
+    path =
+      tileToFilepath shared tile sz
+        & Tile.filepathToString
+        & ms
 
 viewEntry :: DisplayMode -> Context -> Element -> Actor -> [View a]
 viewEntry _ _ _ (Actor _ ActorState {sprite = Nothing}) = []

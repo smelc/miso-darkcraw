@@ -141,7 +141,8 @@ data InPlaceEffect = InPlaceEffect
     hitPointsChange :: Int,
     -- | Card fades-in
     fadeIn :: Bool,
-    -- | Tiles to fade out atop the card
+    -- | Tiles to fade out atop the card spot, both when there's a creature
+    -- and when there's not.
     fadeOut :: [Tile.Tile],
     -- | Score changed
     scoreChange :: Int

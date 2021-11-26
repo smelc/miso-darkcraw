@@ -14,8 +14,8 @@
 -- |
 module GameViewInternal
   ( borderWidth,
-    deathFadeout,
     errView,
+    fadeouts,
     heartWobble,
     keyframes,
     manaView,
@@ -37,7 +37,7 @@ import Control.Monad.Except
 import qualified Damage ()
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromJust)
+import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
 import qualified Game
@@ -45,8 +45,9 @@ import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
 import Nat
-import PCWViewInternal ()
-import SharedModel (unsafeIdentToCard)
+import PCWViewInternal (tileCell)
+import SharedModel (SharedModel)
+import qualified SharedModel (unsafeIdentToCard)
 import qualified Skill
 import Spots (Player (..))
 import qualified Spots
@@ -283,7 +284,7 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
       Stacked -> Board.toStack anims pSpot
       Discarded -> Board.toDiscarded anims pSpot + nbDeaths
     deck :: [Card 'Core] =
-      Board.toPart board pSpot & getter & map (Card.unlift . unsafeIdentToCard shared)
+      Board.toPart board pSpot & getter & map (Card.unlift . SharedModel.unsafeIdentToCard shared)
     atColonSize = length deck
     attackEffects = Board.toInPlace anims pSpot & unInPlaceEffects
     nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 attackEffects
@@ -337,29 +338,40 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
         Right id -> Game.appliesTo board id playingPlayer pTarget
     handCard i = lookupHand (Board.toHand board playingPlayer) i & runExcept
 
-deathFadeout :: InPlaceEffect -> Int -> Int -> Styled [View Action]
-deathFadeout ae _ _ =
-  sequence
-    [ keyframed
+fadeouts :: SharedModel -> Int -> InPlaceEffect -> Styled (View Action)
+fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
+  death :: Maybe (View Action) <- case deadAsset of
+    Nothing -> pure Nothing
+    Just asset -> sequence $ Just $ f (builder asset)
+  views <- traverse (\tile -> ViewInternal.fade (tbuilder tile) Nothing 100 FadeOut) fadeOut
+  return $ div_ gloSty ((maybeToList death) ++ views)
+  where
+    f :: ([Attribute a] -> View a) -> Styled (View a)
+    f builder =
+      keyframed
         builder
         (keyframes (animDataName animData) "opacity: 1;" [] "opacity: 0;")
         animData
-      | isDead
-    ]
-  where
-    (isDead, asset) =
-      case death ae of
-        DeathByBreathIce -> (True, Just assetFilenameSnowflake)
-        DeathByTerror -> (True, Just assetFilenameShade)
-        DeathByFear -> (True, Just assetFilenameGhost)
-        NoDeath -> (False, Nothing)
-        UsualDeath -> (True, Just assetFilenameSkull)
+    gloSty =
+      [ style_ $ flexColumnStyle,
+        style_ $ zpwh z Absolute cardPixelWidth cardPixelHeight
+      ]
+    deadAsset :: Maybe MisoString =
+      case death of
+        DeathByBreathIce -> Just assetFilenameSnowflake
+        DeathByTerror -> Just assetFilenameShade
+        DeathByFear -> Just assetFilenameGhost
+        NoDeath -> Nothing
+        UsualDeath -> Just assetFilenameSkull
     sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
     left = (cardPixelWidth - imgw) `div` 2
     top = (cardPixelHeight - imgh) `div` 2
-    builder x =
-      img_ $ [src_ (assetsPath $ fromJust asset), style_ sty] ++ x
+    builder (asset :: MisoString) attrs =
+      img_ $ [src_ (assetsPath asset), style_ sty] ++ attrs
+    tbuilder :: Tile.Tile -> [Attribute a] -> View a
+    tbuilder tile attrs =
+      div_ attrs [PCWViewInternal.tileCell shared Tile.TwentyFour tile]
     animData =
       (animationData "deathFadeout" "1s" "ease")
         { animDataFillMode = Just "forwards"

@@ -172,14 +172,14 @@ boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetT
         ++ (dragDropEvents <$> dragTarget & concat)
     )
     <$> do
-      death <- deathFadeout attackEffect x y
+      fades <- fadeouts shared (z + 1) attackEffect
       heartw <- heartWobble (z + 1) attackEffect
       heartg <- statChange (z + 1) HitPoint attackEffect
       attackg <- statChange (z + 1) Attack attackEffect
-      cards <- sequence $
+      cards <-
         case maybeCreature of
-          Nothing -> Nothing
-          Just creature -> Just $ do
+          Nothing -> pure []
+          Just creature -> do
             let cdsty =
                   mempty
                     { hover = beingHovered,
@@ -199,8 +199,8 @@ boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetT
                     Nothing -> noDrag
                     -- Dragging: disable nested events (see above)
                     Just _ -> style_ $ "pointer-events" =: "none"
-            return $ div_ [attr] [v]
-      return $ maybeToList cards ++ death ++ heartw ++ heartg ++ attackg
+            return $ [div_ [attr] [v]]
+      return $ cards ++ [fades] ++ heartw ++ heartg ++ attackg
   where
     part = Board.toPart board pSpot
     t = Board.team part
@@ -222,7 +222,7 @@ boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetT
     beingHovered = interaction == HoverInPlaceInteraction target
     attackEffect =
       (Board.toInPlace anims pSpot & unInPlaceEffects) Map.!? cSpot
-        & (\case Nothing -> mempty; Just x -> x)
+        & fromMaybe mempty
     bounceStyle =
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
         | attackBump attackEffect

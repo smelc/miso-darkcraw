@@ -167,10 +167,13 @@ keyframed e keyframes animData = do
   emitTopLevelStyle keyframes
   return $ e [animDataToStyle animData]
 
+-- | @fade builder delay duration fade@ builds a view that fades
+-- for @duration@ seconds after @delay@.
 fade ::
   -- | How to build the element
   ([Attribute a] -> View a) ->
-  -- | The delay at which the animation starts, in seconds
+  -- | The delay at which the animation starts, in seconds.
+  -- FIXME @smelc remove Maybe
   Maybe Nat ->
   -- | The duration, in seconds
   Nat ->
