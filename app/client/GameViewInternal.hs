@@ -13,7 +13,8 @@
 -- 'GameView' should nod depend on this module.
 -- |
 module GameViewInternal
-  ( borderWidth,
+  ( animToFade,
+    borderWidth,
     errView,
     fadeouts,
     heartWobble,
@@ -122,6 +123,13 @@ messageView =
           Miso.text $ ms txt
         (Game.Image filepath) ->
           img_ [src_ $ assetsPath $ ms $ Tile.filepathToString filepath]
+
+-- | What fading a 'Game.Animation' triggers
+animToFade :: Game.Animation -> ViewInternal.Fade
+animToFade = \case
+  Game.NoAnimation -> ViewInternal.DontFade
+  Game.Fadeout -> ViewInternal.FadeOut
+  Game.Message {} -> ViewInternal.DontFade
 
 scoreViews :: GameModel -> Int -> [View Action]
 scoreViews m@GameModel {board} z =

@@ -51,12 +51,8 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
   handDiv <- handDivM
   let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
   let builder attrs = div_ attrs divs
-  ViewInternal.fade builder Nothing 2 fade
+  ViewInternal.fade builder Nothing 2 $ animToFade anim
   where
-    fade = case anim of
-      Game.NoAnimation -> ViewInternal.DontFade
-      Game.Fadeout -> ViewInternal.FadeOut
-      Game.Message {} -> ViewInternal.DontFade
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
     boardCardsM = boardToInPlaceCells (InPlaceCellContext {z = zpp, mkOffset}) model dragTargetType
