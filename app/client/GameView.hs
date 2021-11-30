@@ -59,7 +59,8 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
       Game.Message {} -> ViewInternal.DontFade
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
-    boardCardsM = boardToInPlaceCells zpp model dragTargetType
+    boardCardsM = boardToInPlaceCells (InPlaceCellContext {z = zpp, mkOffset}) model dragTargetType
+    mkOffset pSpot cSpot = cardCellsBoardOffset pSpot cSpot & uncurry cardPositionStyle
     boardDivM = do
       let errs = errView model zpp & maybeToList
       stacks <-
@@ -121,14 +122,22 @@ cmdDiv shared =
             [li_ [] [Miso.text $ show cmd & ms] | cmd <- SharedModel.allCommands shared]
         ]
 
+-- | Dumb container to reduce the number of arguments to some functions of
+-- this file.
+data InPlaceCellContext = InPlaceCellContext
+  { -- | The z-index
+    z :: Int,
+    -- | How to build the style for offsetting a card from the board's origin
+    mkOffset :: Spots.Player -> Spots.Card -> Map.Map MisoString MisoString
+  }
+
 boardToInPlaceCells ::
-  -- | The z index
-  Int ->
+  InPlaceCellContext ->
   GameModel ->
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
   Styled [View Action]
-boardToInPlaceCells z m@GameModel {board} dragTargetType = do
+boardToInPlaceCells ctxt@InPlaceCellContext {z} m@GameModel {board} dragTargetType = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
@@ -137,7 +146,7 @@ boardToInPlaceCells z m@GameModel {board} dragTargetType = do
   where
     mainM =
       sequence
-        [ boardToInPlaceCell z m dragTargetType pSpot cSpot
+        [ boardToInPlaceCell ctxt m dragTargetType pSpot cSpot
           | (pSpot, cSpot, _) <- Board.toHoleyInPlace board
         ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
@@ -148,7 +157,7 @@ boardToInPlaceCells z m@GameModel {board} dragTargetType = do
       keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
 
 boardToInPlaceCell ::
-  Int ->
+  InPlaceCellContext ->
   GameModel ->
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
@@ -157,13 +166,13 @@ boardToInPlaceCell ::
   -- | The spot of the card to show
   Spots.Card ->
   Styled (View Action)
-boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetType pSpot cSpot =
+boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@GameModel {anims, board, interaction, shared} dragTargetType pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
     ( [ style_ $
           Map.fromList bounceStyle
-            <> cardPositionStyle x y -- Absolute positioning
+            <> mkOffset pSpot cSpot -- Absolute positioning
             <> "z-index" =: ms z,
         class_ "card",
         cardBoxShadowStyle rgb (borderWidth m target) "ease-in-out"
@@ -218,7 +227,6 @@ boardToInPlaceCell z m@GameModel {anims, board, shared, interaction} dragTargetT
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
-    (x, y) = cardCellsBoardOffset pSpot cSpot
     beingHovered = interaction == HoverInPlaceInteraction target
     attackEffect =
       (Board.toInPlace anims pSpot & unInPlaceEffects) Map.!? cSpot
@@ -421,6 +429,7 @@ boardToInHandCell
           Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True
           Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
 
+-- | Offsets, in number of cells, from the board's origin
 cardCellsBoardOffset :: Spots.Player -> Spots.Card -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
   (offsetx + x, offsety + y)
