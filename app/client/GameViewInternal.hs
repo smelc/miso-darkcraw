@@ -90,6 +90,7 @@ errView GameModel {interaction} z =
 messageView :: Game.Animation -> Maybe (Styled (View a))
 messageView =
   \case
+    Game.Application {} -> Nothing
     Game.NoAnimation -> Nothing
     Game.Fadeout -> Nothing
     Game.Message txt duration ->
@@ -127,6 +128,7 @@ messageView =
 -- | What fading a 'Game.Animation' triggers
 animToFade :: Game.Animation -> ViewInternal.Fade
 animToFade = \case
+  Game.Application {} -> ViewInternal.DontFade
   Game.NoAnimation -> ViewInternal.DontFade
   Game.Fadeout -> ViewInternal.FadeOut
   Game.Message {} -> ViewInternal.DontFade

@@ -82,7 +82,7 @@ viewGeneric GenericModel {background = bg, ..} = do
     yoffset y = 3 + (y * (cardCellHeight + 1))
     -- Create div of a single card
     cardDiver x y card = do
-      card <- cardView DeckLoc z shared team card mempty
+      card <- cardView DeckLoc z shared (Just team) card mempty
       return $ div_ [style_ $ cardPositionStyle (xoffset x) (yoffset y)] [card]
     -- Create background of slot
     slotDiver x y =

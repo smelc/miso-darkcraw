@@ -317,7 +317,7 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Gam
     Right m'@GameModel {board = board'} ->
       if isInitialTurn
         then -- We want a one second delay, to see clearly that the opponent
-        -- put its cards, and then proceed with resolving attacks
+        -- puts its cards, and then proceed with resolving attacks
           (m', [(1, event)])
         else -- We don't want any delay so that the game feels responsive
         -- when the player presses "End Turn", hence the recursive call.
@@ -326,7 +326,7 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Gam
         event =
           -- schedule resolving first attack
           case Game.nextAttackSpot board' pSpot Nothing of
-            Nothing -> GameIncrTurn -- no more attack, change turn
+            Nothing -> GameIncrTurn -- no attack, change turn right away
             Just cSpot -> GamePlay $ Game.Attack pSpot cSpot True True
   where
     pSpot = Turn.toPlayerSpot turn

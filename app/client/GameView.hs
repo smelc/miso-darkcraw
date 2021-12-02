@@ -55,6 +55,16 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
   where
     (z, zpp) = (0, z + 1)
     enemySpot = otherPlayerSpot playingPlayer
+    application :: Styled (Maybe (View Action)) =
+      case anim of
+        Game.Application target card -> do
+          c :: View Action <- cardView GameApplicationLoc (zpp + 4) shared Nothing card cdsty
+          return $ pure $ div_ [style_ $ mkTargetOffset target] [c]
+          where
+            cdsty :: CardDrawStyle = mempty {PCWViewInternal.fadeIn = True}
+        Game.NoAnimation -> pure Nothing
+        Game.Fadeout -> pure Nothing
+        Game.Message {} -> pure Nothing
     boardCardsM = boardToInPlaceCells (InPlaceCellContext {z = zpp, mkOffset}) model dragTargetType
     mkOffset pSpot cSpot = cardCellsBoardOffset pSpot cSpot & uncurry cardPositionStyle
     boardDivM = do
@@ -67,10 +77,11 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
       turn <- turnView model zpp
       let scores = scoreViews model zpp
       boardCards <- boardCardsM
+      apps <- application <&> maybeToList
       let manaView_ = manaView model zpp
       return $
         div_ [style_ boardStyle] $
-          concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ [manaView_]
+          concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ apps ++ [manaView_]
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl "forest.png"
@@ -88,6 +99,21 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
             Left err -> traceShow (Text.unpack err) Nothing
             Right id -> Just $ targetType id
         _ -> Nothing
+
+-- | mkTargetOffset returns the offset to display the application of
+-- a Neutral card to a creature in place.
+mkTargetOffset :: Game.Target -> Map.Map MisoString MisoString
+mkTargetOffset target =
+  case target of
+    Game.PlayerTarget _pSpot -> undefined
+    Game.CardTarget pSpot cSpot ->
+      ( xPixels + cardPixelWidth `div` 2, -- Shift to the right
+        yPixels - cardPixelHeight `div` 2 -- Shift toward the top
+      )
+        & uncurry cardPositionStyle'
+      where
+        (xCells, yCells) = cardCellsBoardOffset pSpot cSpot
+        (xPixels, yPixels) = (xCells * cps, yCells * cps)
 
 cmdDiv :: SharedModel -> [View Action]
 cmdDiv shared =
@@ -185,12 +211,12 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@GameModel {anims, board, i
         case maybeCreature of
           Nothing -> pure []
           Just creature -> do
-            let cdsty =
+            let cdsty :: CardDrawStyle =
                   mempty
                     { hover = beingHovered,
                       PCWViewInternal.fadeIn = Board.fadeIn attackEffect
                     }
-            v <- cardView loc z shared t (CreatureCard mkCoreCardCommon creature) cdsty
+            v <- cardView loc z shared (Just t) (CreatureCard mkCoreCardCommon creature) cdsty
             -- "pointer-events: none" turns off handling of drag/drog
             -- events. Without that, on full-fledged cards, children
             -- would trigger GameDragLeave/GameDragEnter events (because the
@@ -377,7 +403,7 @@ boardToInHandCell
   HandActionizer {..}
   bigZ
   (z, card, i) = do
-    card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared team card cdsty
+    card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared (Just team) card cdsty
     return $ div_ attrs [card | not beingDragged]
     where
       (beingHovered, beingDragged) =

@@ -255,6 +255,7 @@ instance Semigroup (PlayerPart 'UI) where
 instance Monoid (PlayerPart 'UI) where
   mempty = PlayerPart {inPlace = mempty, inHand = mempty, mana = 0, score = (), stack = 0, discarded = 0, team = ()}
 
+-- FIXME @smelc make me a Nat
 newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
 

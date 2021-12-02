@@ -59,7 +59,8 @@ data DisplayMode = NormalMode | DebugMode
 
 -- | Where a card is being drawn
 data DisplayLocation
-  = GameInPlaceLoc Total.Place
+  = GameApplicationLoc
+  | GameInPlaceLoc Total.Place
   | GameHandLoc
   | GameDragLoc
   | DeckLoc
@@ -68,6 +69,7 @@ data DisplayLocation
 toPlace :: DisplayLocation -> Maybe Total.Place
 toPlace =
   \case
+    GameApplicationLoc -> Nothing
     GameInPlaceLoc place -> Just place
     GameHandLoc -> Nothing
     GameDragLoc -> Nothing
@@ -140,8 +142,9 @@ cardView ::
   -- | The z index
   Int ->
   SharedModel ->
-  -- | The team of the card, for selecting the background
-  Team ->
+  -- | The team of the card, for selecting the background, if it should
+  -- be drawn.
+  Maybe Team ->
   Card 'Core ->
   CardDrawStyle ->
   Styled (View Action)
@@ -177,7 +180,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
         [div_ [style_ avatarPicStyle] [avatarPicCell]]
           ++ manaDiv
           ++ cardView' z shared (toPlace loc) card
-          ++ [PCWViewInternal.cardBackground z team cdsty]
+          ++ (maybeToList $ fmap (\t -> PCWViewInternal.cardBackground z t cdsty) team)
     extraAttrs =
       case card of
         CreatureCard {} ->

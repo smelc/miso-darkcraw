@@ -120,7 +120,7 @@ data Event
     -- whether the next spot (as defined by 'nextAttackSpot') should
     -- be enqueued after solving this attack. The second Boolean indicates
     -- whether 'GameIncrTurn' (change player turn) should be performed
-    -- after solving this attack.
+    -- after solving this stream of attacks.
     Attack Spots.Player Spots.Card Bool Bool
   | -- | Ranged creatures with the 'Ranged' skill, that: 1/ are in the
     -- back line and 2/ have no creature in from of them; move frontward
@@ -153,8 +153,15 @@ data MessageText
     Image Tile.Filepath
   deriving (Eq, Generic)
 
+-- | An animation that makes sense at the 'Game' level. If you
+-- consider extending this variant, consider whether it would be
+-- be better in @Board 'UI@
 data Animation
-  = NoAnimation
+  = -- | Given card played on this target. This is used for example
+    -- to display 'Plague' when played or when adding an item to a creature.
+    Application Target (Card.Card 'Core)
+  | -- No animation
+    NoAnimation
   | -- | Game view should fadeout
     Fadeout
   | -- | Message to show centered. The 'Nat' is the duration during
@@ -364,12 +371,22 @@ eventToAnim shared board =
           map (SharedModel.creatureToFilepath shared) movedCreatures
             & catMaybes
     Game.NoPlayEvent -> NoAnimation
-    Game.Place {} -> NoAnimation
-    Game.Place' {} -> NoAnimation
+    Game.Place pSpot target (HandIndex {unHandIndex = idx}) ->
+      case runExcept (lookupHand (Board.toHand board pSpot) idx) of
+        Left msg -> error (Text.unpack msg)
+        Right id -> go target id
+    Game.Place' _ target id ->
+      go target id
   where
     duration = 2
     attackTile = SharedModel.tileToFilepath shared Tile.Sword1 Tile.Sixteen
     heartTile = SharedModel.tileToFilepath shared Tile.Heart Tile.Sixteen
+    go target =
+      \case
+        IDC {} -> NoAnimation
+        IDI {} -> NoAnimation -- We should rather highlight the new item in Board 'UI
+        id@(IDN _) ->
+          Game.Application target (SharedModel.unsafeIdentToCard shared id & Card.unlift)
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot
@@ -850,7 +867,7 @@ applyFearNTerrorM board affectingSpot = do
       -- consume skills
       Map.mapWithKey consumeTerror affectingInPlace
         & Map.mapWithKey consumeFear
-    deathBy cause = InPlaceEffect 0 cause False 0 False [] 0
+    deathBy cause = mempty {death = cause}
     consumeFear cSpot c | cSpot `notElem` fearKillers = c
     consumeFear _ c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []
@@ -1161,6 +1178,9 @@ attackOrder PlayerTop =
 attackOrder PlayerBot =
   map bottomSpotOfTopVisual $ reverse $ attackOrder PlayerTop
 
+-- | @nextAttackSpot b pSpot cSpot@ returns the spots to attack after @cSpot@.
+-- If @cSpot@ is @Nothing@, the first spot in the order is considered; if
+-- @cSpot@ is @Just _@, then spots after @cSpot@ are considered.
 nextAttackSpot :: Board 'Core -> Spots.Player -> Maybe Spots.Card -> Maybe Spots.Card
 nextAttackSpot board pSpot cSpot =
   case cSpot of

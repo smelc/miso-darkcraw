@@ -184,7 +184,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
           <> "font-size" =: px 10
     divCard :: (Nat, (Card 'Core, Model.Picked)) -> Styled (View Action)
     divCard (i, (card, picked)) = do
-      inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
+      inner <- PCWViewInternal.cardView LootLoc z shared (Just team) card mempty
       return $
         div_
           ( [ style_ $
@@ -293,7 +293,7 @@ deckView Context {shared, LootView.team} _z cards = do
       return $ div_ [] cards
     divCard :: (Nat, DeckCard (Card 'Core)) -> Int -> Styled (View Action)
     divCard (i, DeckCard {card, picked}) stackIdx = do
-      inner <- PCWViewInternal.cardView LootLoc z shared team card cds
+      inner <- PCWViewInternal.cardView LootLoc z shared (Just team) card cds
       return $
         div_
           ( [ style_ $
