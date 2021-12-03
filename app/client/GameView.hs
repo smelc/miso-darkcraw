@@ -104,13 +104,19 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
 -- a Neutral card to a creature in place.
 mkTargetOffset :: Game.Target -> Map.Map MisoString MisoString
 mkTargetOffset target =
-  case target of
-    Game.PlayerTarget _pSpot -> undefined
+  uncurry cardPositionStyle' $ case target of
+    Game.PlayerTarget pSpot ->
+      (xCells * cps, (yCells * cps) + down)
+      where
+        -- The card spot from which we go down
+        cSpot :: Spots.Card =
+          Spots.Top & (case pSpot of Spots.PlayerTop -> id; Spots.PlayerBot -> bottomSpotOfTopVisual)
+        (xCells, yCells) :: (Int, Int) = cardCellsBoardOffset pSpot cSpot
+        down = (cardCellHeight * cps) `div` 2
     Game.CardTarget pSpot cSpot ->
       ( xPixels + cardPixelWidth `div` 2, -- Shift to the right
         yPixels - cardPixelHeight `div` 2 -- Shift toward the top
       )
-        & uncurry cardPositionStyle'
       where
         (xCells, yCells) = cardCellsBoardOffset pSpot cSpot
         (xPixels, yPixels) = (xCells * cps, yCells * cps)
@@ -452,6 +458,7 @@ boardToInHandCell
           Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
 
 -- | Offsets, in number of cells, from the board's origin
+-- TODO @smelc change return types to Nat
 cardCellsBoardOffset :: Spots.Player -> Spots.Card -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
   (offsetx + x, offsety + y)
