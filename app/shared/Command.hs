@@ -41,6 +41,9 @@ data Command
     HailToTheKing Spots.Player
   | -- | Command to kill all creatures in a part
     Killall Spots.Player
+  | -- | Command to reset the state of a part, as if it had started the
+    -- game with the given team.
+    Reboot Spots.Player Team
 
 -- See 'SharedModel' for the version that uses content from 'SharedModel'
 -- to instantiate the parameter.
@@ -52,6 +55,7 @@ allCommands cids =
     ++ [EndGame r | r <- [minBound ..]]
     ++ [e pSpot | e <- [FillTheFrontline, HailToTheKing, Killall], pSpot <- [minBound ..]]
     ++ [GimmeMana]
+    ++ [Reboot pSpot t | pSpot <- [minBound ..], t <- allTeams]
   where
     compareCID
       CreatureID {creatureKind = ck1, team = t1}
@@ -61,27 +65,27 @@ allCommands cids =
           x -> x
 
 instance Show Command where
-  show (EndGame r) =
-    ( case r of
-        Campaign.Win -> "win"
-        Campaign.Draw -> "draw"
-        Campaign.Loss -> "lose"
-    )
-      ++ " game"
-  show (FillTheFrontline pSpot) =
-    "fill the " ++ show pSpot ++ " frontline"
-  show (Gimme (Card.IDC CreatureID {..} _)) =
-    "gimme " ++ (show team & toLowerString) ++ " " ++ (show creatureKind & toLowerString)
-  show (Gimme (Card.IDI item)) =
-    "gimme " ++ (show item & toLowerString)
-  show (Gimme (Card.IDN neutral)) =
-    "gimme " ++ (show neutral & toLowerString)
-  show GimmeMana =
-    "gimme mana"
-  show (HailToTheKing pSpot) =
-    "hail to the " ++ show pSpot ++ " king"
-  show (Killall pSpot) =
-    "killall " ++ show pSpot
+  show =
+    \case
+      (EndGame r) ->
+        ( case r of
+            Campaign.Win -> "win"
+            Campaign.Draw -> "draw"
+            Campaign.Loss -> "lose"
+        )
+          ++ " game"
+      (FillTheFrontline pSpot) -> "fill the " ++ show pSpot ++ " frontline"
+      (Gimme (Card.IDC CreatureID {..} _)) ->
+        "gimme " ++ (show' team) ++ " " ++ (show' creatureKind)
+      (Gimme (Card.IDI item)) -> "gimme " ++ (show' item)
+      (Gimme (Card.IDN neutral)) -> "gimme " ++ (show' neutral)
+      GimmeMana -> "gimme mana"
+      (HailToTheKing pSpot) -> "hail to the " ++ show pSpot ++ " king"
+      (Killall pSpot) -> "killall " ++ show pSpot
+      (Reboot pSpot team) -> "reboot " ++ show pSpot ++ " " ++ show' team
+    where
+      show' :: Show a => a -> String
+      show' = toLowerString . show
 
 class Read a where
   read :: String -> Maybe a
