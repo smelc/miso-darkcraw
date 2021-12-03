@@ -1062,8 +1062,8 @@ applyFlailOfTheDamned board creature pSpot =
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
     noChange = board
 
--- | The effect of an attack on the defender
--- TODO @smelc return an instance of 'StatChange' instead. It's tighter.
+-- | The effect of an attack on the defender. Note that this function
+-- cannot return a 'StatChange'. It needs the full expressivity of 'InPlaceEffect'.
 singleAttack ::
   MonadState SharedModel m =>
   p ~ 'Core =>

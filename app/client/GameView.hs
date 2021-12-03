@@ -459,7 +459,6 @@ boardToInHandCell
           Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
 
 -- | Offsets, in number of cells, from the board's origin
--- TODO @smelc change return types to Nat
 cardCellsBoardOffset :: Spots.Player -> Spots.Card -> (Int, Int)
 cardCellsBoardOffset PlayerTop cardSpot =
   (offsetx + x, offsety + y)
