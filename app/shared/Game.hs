@@ -157,9 +157,9 @@ data MessageText
 -- consider extending this variant, consider whether it would be
 -- be better in @Board 'UI@
 data Animation
-  = -- | Given card played on this target. This is used for example
+  = -- | Player plays the given card played on a target. This is used for example
     -- to display 'Plague' when played or when adding an item to a creature.
-    Application Target (Card.Card 'Core)
+    Application Spots.Player Target (Card.Card 'Core)
   | -- No animation
     NoAnimation
   | -- | Game view should fadeout
@@ -374,19 +374,19 @@ eventToAnim shared board =
     Game.Place pSpot target (HandIndex {unHandIndex = idx}) ->
       case runExcept (lookupHand (Board.toHand board pSpot) idx) of
         Left msg -> error (Text.unpack msg)
-        Right id -> go target id
-    Game.Place' _ target id ->
-      go target id
+        Right id -> go pSpot target id
+    Game.Place' pSpot target id ->
+      go pSpot target id
   where
     duration = 2
     attackTile = SharedModel.tileToFilepath shared Tile.Sword1 Tile.Sixteen
     heartTile = SharedModel.tileToFilepath shared Tile.Heart Tile.Sixteen
-    go target =
+    go pSpot target =
       \case
         IDC {} -> NoAnimation
         IDI {} -> NoAnimation -- We should rather highlight the new item in Board 'UI
         id@(IDN _) ->
-          Game.Application target (SharedModel.unsafeIdentToCard shared id & Card.unlift)
+          Game.Application pSpot target (SharedModel.unsafeIdentToCard shared id & Card.unlift)
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot

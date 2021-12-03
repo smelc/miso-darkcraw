@@ -142,9 +142,8 @@ cardView ::
   -- | The z index
   Int ->
   SharedModel ->
-  -- | The team of the card, for selecting the background, if it should
-  -- be drawn.
-  Maybe Team ->
+  -- | The team of the card, for selecting the background.
+  Team ->
   Card 'Core ->
   CardDrawStyle ->
   Styled (View Action)
@@ -180,7 +179,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
         [div_ [style_ avatarPicStyle] [avatarPicCell]]
           ++ manaDiv
           ++ cardView' z shared (toPlace loc) card
-          ++ (maybeToList $ fmap (\t -> PCWViewInternal.cardBackground z t cdsty) team)
+          ++ [PCWViewInternal.cardBackground z team cdsty]
     extraAttrs =
       case card of
         CreatureCard {} ->

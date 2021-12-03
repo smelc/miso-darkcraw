@@ -57,11 +57,12 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
     enemySpot = otherPlayerSpot playingPlayer
     application :: Styled (Maybe (View Action)) =
       case anim of
-        Game.Application target card -> do
-          c :: View Action <- cardView GameApplicationLoc (zpp + 4) shared Nothing card cdsty
+        Game.Application pSpot target card -> do
+          c :: View Action <- cardView GameApplicationLoc (zpp + 4) shared team card cdsty
           return $ pure $ div_ [style_ $ mkTargetOffset target] [c]
           where
-            cdsty :: CardDrawStyle = mempty {PCWViewInternal.fadeIn = True}
+            cdsty :: CardDrawStyle = mempty {PCWViewInternal.fadeIn = True} -- FIXME @smelc it's fadeOut we want
+            team = Board.toPart board pSpot & Board.team
         Game.NoAnimation -> pure Nothing
         Game.Fadeout -> pure Nothing
         Game.Message {} -> pure Nothing
@@ -222,7 +223,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@GameModel {anims, board, i
                     { hover = beingHovered,
                       PCWViewInternal.fadeIn = Board.fadeIn attackEffect
                     }
-            v <- cardView loc z shared (Just t) (CreatureCard mkCoreCardCommon creature) cdsty
+            v <- cardView loc z shared t (CreatureCard mkCoreCardCommon creature) cdsty
             -- "pointer-events: none" turns off handling of drag/drog
             -- events. Without that, on full-fledged cards, children
             -- would trigger GameDragLeave/GameDragEnter events (because the
@@ -409,7 +410,7 @@ boardToInHandCell
   HandActionizer {..}
   bigZ
   (z, card, i) = do
-    card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared (Just team) card cdsty
+    card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared team card cdsty
     return $ div_ attrs [card | not beingDragged]
     where
       (beingHovered, beingDragged) =
