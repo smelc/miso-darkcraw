@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -380,9 +381,7 @@ testItemsAI shared =
     play board =
       Game.playAll shared board $ AI.play AI.Easy shared board pSpot
     hasItem board pSpot cSpot item =
-      case Board.toInPlaceCreature board pSpot cSpot of
-        Nothing -> False
-        Just Creature {items} -> item `elem` items
+      (Board.toInPlaceCreature board pSpot cSpot) `has` item
 
 testMana shared =
   describe "AI" $ do

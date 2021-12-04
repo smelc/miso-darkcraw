@@ -443,6 +443,9 @@ class Has a b where
 instance Has (Creature 'Core) Skill.State where
   has Creature {skills} skill = skill `elem` skills
 
+instance Has (Creature 'Core) Item where
+  has Creature {items} item = item `elem` items
+
 instance Has a b => Has (Maybe a) b where
   has a b =
     case a of
