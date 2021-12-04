@@ -20,7 +20,7 @@ shouldSatisfyJust (Just x) _ = expectationFailure (show x ++ " doesn't satisfy t
 
 -- | @shouldSatisfyRight (Left _) _@ fails. @shouldSatisfyRight (Right x) f@
 -- succeeds if @f x@ holds.
-shouldSatisfyRight :: Show b => Either a b -> (b -> Bool) -> Expectation
-shouldSatisfyRight (Left _) _ = expectationFailure "Expected Right, got Left"
+shouldSatisfyRight :: Show a => Show b => Either a b -> (b -> Bool) -> Expectation
+shouldSatisfyRight (Left a) _ = expectationFailure $ "Expected Right, got (Left " ++ show a ++ ")"
 shouldSatisfyRight (Right x) f | f x = pure ()
 shouldSatisfyRight (Right x) _ = expectationFailure (show x ++ " doesn't satisfy the predicate")

@@ -269,7 +269,8 @@ scorePlace board inPlace pSpot cSpot =
     enemiesInPlace :: Map.Map Spots.Card (Creature 'Core) =
       Board.toInPlace board (otherPlayerSpot pSpot)
     cSkills = skills inPlace
-    prefersBack = Skill.Ranged `elem` cSkills || Skill.LongReach `elem` cSkills
+    prefersBack =
+      any (`elem` [Skill.Imprecise, Skill.LongReach, Skill.Ranged]) cSkills
     lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
     enemySpots' :: [Spots.Card] = allEnemySpots cSpot
     enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'

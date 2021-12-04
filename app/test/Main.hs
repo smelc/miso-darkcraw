@@ -46,7 +46,7 @@ import Spots hiding (Card)
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
-import TestLib (shouldAllSatisfy)
+import TestLib (shouldAllSatisfy, shouldSatisfyRight)
 import Turn
 
 creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
@@ -363,10 +363,7 @@ testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
       play (board1 (mkCreature' Archer Undead) (mkCreature' Vampire Undead) SwordOfMight)
-        `shouldSatisfy` ( \case
-                            Left errMsg -> traceShow errMsg False
-                            Right (Game.PolyResult _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight
-                        )
+        `shouldSatisfyRight` (\(Game.PolyResult _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight)
   where
     pSpot = PlayerTop
     board1 id1 id2 item =
@@ -376,12 +373,25 @@ testItemsAI shared =
         & (\b -> Board.addToHand b pSpot (IDI item))
     teams = Teams Undead Undead
     mkCreature' kind team = Logic.mkCreature shared kind team False
-    setCreature pSpot cSpot c board =
-      Board.setCreature board pSpot cSpot c
+    setCreature pSpot cSpot c board = Board.setCreature board pSpot cSpot c
     play board =
       Game.playAll shared board $ AI.play AI.Easy shared board pSpot
     hasItem board pSpot cSpot item =
       (Board.toInPlaceCreature board pSpot cSpot) `has` item
+
+testAIImprecise shared =
+  describe "AI" $ do
+    it "Imprecise card is put in back line" $
+      (Game.playAll shared board $ AI.play AI.Easy shared board pSpot)
+        `shouldSatisfyRight` ( \(Game.PolyResult _ board' _ _) ->
+                                 Board.toPlayerCardSpots board' pSpot Occupied
+                                   & (\spots -> length spots == 1 && all inTheBack spots)
+                             )
+  where
+    pSpot = PlayerTop
+    (team, teams) = (ZKnights, Teams team team)
+    board = Board.empty teams & (\b -> Board.addToHand b pSpot trebuchet)
+    trebuchet = Card.IDC (CreatureID Trebuchet team) []
 
 testMana shared =
   describe "AI" $ do
