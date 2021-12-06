@@ -133,18 +133,19 @@ animToFade = \case
   Game.Fadeout -> ViewInternal.FadeOut
   Game.Message {} -> ViewInternal.DontFade
 
-scoreViews :: GameModel -> Int -> [View Action]
-scoreViews m@GameModel {board} z =
-  [ scoreView m z PlayerTop,
-    scoreView m z PlayerBot
-  ]
-    ++ [ scoreLeaderView
-           (if topScore > botScore then PlayerTop else PlayerBot)
+scoreViews :: GameModel -> Int -> [Styled (View Action)]
+scoreViews m@GameModel {anims, board} z =
+  both PlayerTop
+    ++ both PlayerBot
+    ++ [ pure $
+           scoreLeaderView
+             (if topScore > botScore then PlayerTop else PlayerBot)
          | topScore /= botScore
        ]
   where
     topScore = Board.toScore board PlayerTop
     botScore = Board.toScore board PlayerBot
+    both pSpot = [pure $ scoreView m z pSpot, scorePluses anims z pSpot]
 
 scoreMarginTop :: Spots.Player -> Int
 scoreMarginTop PlayerTop = cps
@@ -171,6 +172,33 @@ scoreView GameModel {board} z pSpot =
     ]
   where
     score = Board.toScore board pSpot
+
+scorePluses :: Board 'UI -> Int -> Spots.Player -> Styled (View Action)
+scorePluses board z pSpot = do
+  pluses <- traverse (\_ -> f) [0 .. scoreIncrease - 1]
+  return $
+    div_
+      [ style_ $
+          "color" =: greenHTML
+            <> "font-weight" =: "bold"
+            <> "z-index" =: ms z
+            <> "position" =: "absolute"
+            <> "margin-left" =: px leftMargin
+            <> flexColumnStyle
+            -- Finally shift element down
+            <> "margin-top" =: px (scoreMarginTop pSpot)
+      ]
+      pluses
+  where
+    f = fade builder Nothing 1 FadeOut
+    builder attrs = div_ attrs [Miso.text "+1"]
+    scoreIncrease =
+      Board.toInPlace board pSpot
+        & Board.unInPlaceEffects
+        & Map.elems
+        & map (\InPlaceEffect {scoreChange} -> scoreChange)
+        & sum
+    leftMargin = ((Constants.boardToLeftCardCellsOffset + cardCellWidth) * cps) + cps `div` 2
 
 manaView :: GameModel -> Int -> View a
 manaView GameModel {board, playingPlayer} z =

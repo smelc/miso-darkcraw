@@ -76,7 +76,7 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
           else return []
       msg <- messageView anim & maybeToList & sequence
       turn <- turnView model zpp
-      let scores = scoreViews model zpp
+      scores <- scoreViews model zpp & sequence
       boardCards <- boardCardsM
       apps <- application <&> maybeToList
       let manaView_ = manaView model zpp

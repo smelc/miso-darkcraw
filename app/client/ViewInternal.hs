@@ -173,7 +173,6 @@ fade ::
   -- | How to build the element
   ([Attribute a] -> View a) ->
   -- | The delay at which the animation starts, in seconds.
-  -- FIXME @smelc remove Maybe
   Maybe Nat ->
   -- | The duration, in seconds
   Nat ->
