@@ -39,8 +39,8 @@ main shared =
     it "The teams' balance is as expected" $ do
       -- We only need to test one team with 'checkBalance' (here 'Human'),
       -- because 'checkBalance' iterates over enemy teams.
-      checkBalance Human Campaign.Level0
-      checkBalance Human Campaign.Level1
+      checkBalance specs $ (Balance.playAll (mkShareds nbMatches) Human Campaign.Level0 nbTurns) & map snd
+      checkBalance specs $ (Balance.playAll (mkShareds nbMatches) Human Campaign.Level1 nbTurns) & map snd
       -- 'checkSpecOfFight', however, is for a specific match up.
       checkSpecOfFight Human (ZKnights, zknightDeck) Campaign.Level1 zspecs
       checkSpecOfFight Undead (ZKnights, zknightDeck) Campaign.Level1 zspecs
@@ -48,38 +48,27 @@ main shared =
       checkBalanceStart Undead Undead
       checkBalanceStart Human Human
   where
-    -- The team to test, at which level. This means rewards before
-    -- this level have been obtained.
-    checkBalance t level =
-      Map.toList toCheck `shouldAllSatisfy` pred
+    checkBalance specs (results :: [Balance.Result]) =
+      Map.toList (classify2 $ classify1 results specs) `shouldAllSatisfy` pred
+    pred :: Show a => Satisfies a => (a, [Balance.Result]) -> Bool
+    pred (spec, results) =
+      go results && isTight
       where
-        results :: [Balance.Result] =
-          Balance.playAll (mkShareds nbMatches) t level nbTurns
-            & map snd
-        toCheck :: Map Balance.Spec [Balance.Result] =
-          classify2 $ classify1 results specs
-        pred :: Show a => Satisfies a => (a, [Balance.Result]) -> Bool
-        pred (spec, results) =
-          go results && isTight
-          where
-            go [] = traceShow (show spec ++ " satisfied by " ++ show (length results) ++ " result" ++ (if length results == 1 then "" else "s")) True
-            go (r : res) =
-              if satisfies r spec
-                then go res
-                else traceShow (show r ++ " violates spec " ++ show spec) False
-            isTight =
-              case tight results spec of
-                Wrong -> traceShow ("Unexpected case, satifies should have failed already") False
-                Tight -> True
-                Loose -> traceShow (show spec ++ " is not tight for the following results:\n  " ++ (concat $ intersperse "\n  " (map show results))) False
+        go [] = traceShow (show spec ++ " satisfied by " ++ show (length results) ++ " result" ++ plural results) True
+        go (r : res)
+          | satisfies r spec = go res
+          | otherwise = traceShow (show r ++ " violates spec " ++ show spec) False
+        isTight =
+          case tight results spec of
+            Wrong -> traceShow ("Unexpected case, satifies should have failed already") False
+            Tight -> True
+            Loose -> traceShow (show spec ++ " is not tight for the following results:\n  " ++ (concat $ intersperse "\n  " (map show results))) False
     -- Tests the balance of t1 against t2, at the given level
     checkSpecOfFight t1 p2@(_t2, _t2Deck) level specs =
-      (playOne (mkShareds nbMatches) t1 level p2 nbTurns)
-        `shouldAllSatisfy` (checkSpec specs)
+      checkBalance specs (playOne (mkShareds nbMatches) t1 level p2 nbTurns)
     checkBalanceStart t1 t2 =
       let shareds = take nbEndoMatches seeds & map (SharedModel.withSeed shared)
-       in let results = Balance.play shareds Campaign.Level0 teams nbTurns
-           in results `shouldSatisfy` (checkSpec specs)
+       in Balance.play shareds Campaign.Level0 teams nbTurns `shouldSatisfy` checkSpec specs
       where
         teams = Teams t1 t2 <&> (\t -> (t, Card.teamDeck uiCards t))
         uiCards = SharedModel.getCards shared
@@ -135,6 +124,7 @@ main shared =
         nbGames = int2Float $ topWins + botWins + draws
         winTop = int2Float topWins
         (min, max) = (nbGames * 0.4, nbGames * 0.6)
+    plural l = (if length l == 1 then "" else "s")
 
 -- | An expectation of the Balance
 data Spec
