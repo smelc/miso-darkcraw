@@ -381,7 +381,7 @@ fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
   death :: Maybe (View Action) <- case deadAsset of
     Nothing -> pure Nothing
     Just asset -> sequence $ Just $ f (builder asset)
-  views <- traverse (\tile -> ViewInternal.fade (tbuilder tile) Nothing 100 FadeOut) fadeOut
+  views <- traverse (\tile -> ViewInternal.fade (tbuilder tile) Nothing 1 FadeOut) fadeOut
   return $ div_ gloSty ((maybeToList death) ++ views)
   where
     f :: ([Attribute a] -> View a) -> Styled (View a)

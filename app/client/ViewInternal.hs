@@ -181,21 +181,25 @@ fade ::
   Styled (View a)
 fade builder delay duration =
   \case
-    FadeIn -> go "opacity: 0;" "opacity: 1;"
-    FadeOut -> go "opacity: 1;" "opacity: 0;"
+    FadeIn -> go "opacity: 0;" "opacity: 1;" True
+    FadeOut -> go "opacity: 1;" "opacity: 0;" False
     DontFade -> return $ builder []
   where
-    go start end =
+    go start end inOrOut =
       keyframed
         builder
-        (keyframes (animDataName animData) start [] end)
-        animData
+        (keyframes animDataName start [] end)
+        d
+      where
+        d@AnimationData {animDataName} = animData inOrOut
     duration' = ms (show duration ++ "s")
-    animData =
-      (animationData ("fadein_" <> duration') duration' "ease")
+    animData inOrOut =
+      (animationData ("fade_" <> suffix <> "_" <> duration') duration' "ease")
         { animDataDelay = fmap (addSecSuffix . ms . natToInt) delay,
           animDataFillMode = Just "forwards"
         }
+      where
+        suffix = if inOrOut then "in" else "out"
     addSecSuffix s = s <> "s"
 
 textFrames :: MisoString -> (Int, MisoString, Bool) -> (Int, MisoString, Bool) -> MisoString

@@ -199,7 +199,7 @@ noCardView ::
   Board.InPlaceEffect ->
   Styled (View Action)
 noCardView z shared Board.InPlaceEffect {fadeOut} = do
-  views <- traverse (\tile -> ViewInternal.fade (builder tile) Nothing 100 FadeOut) fadeOut
+  views <- traverse (\tile -> ViewInternal.fade (builder tile) Nothing 1 FadeOut) fadeOut
   return $ div_ [] views
   where
     builder tile attrs =
