@@ -138,7 +138,7 @@ play difficulty shared board pSpot =
       map
         (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
         hands
-    scores :: [(Int, [Game.Event])] =
+    scores :: [(Nat, [Game.Event])] =
       map
         ( \events ->
             case Game.playAll shared board events of
@@ -151,7 +151,7 @@ play difficulty shared board pSpot =
 
 -- | The score of given player's in-place cards. Smaller is the best.
 -- Both negative and positive values are returned.
-boardPlayerScore :: Board 'Core -> Spots.Player -> Int
+boardPlayerScore :: Board 'Core -> Spots.Player -> Nat
 boardPlayerScore board pSpot =
   sum scores
   where
@@ -206,7 +206,7 @@ aiPlayFirst shared board pSpot =
       return (pSpot, target, id)
   where
     handIndex = HandIndex 0
-    scores :: ID -> [(Int, Target)] = \id ->
+    scores :: ID -> [(Nat, Target)] = \id ->
       [ (board' & eitherToMaybe <&> (\(Game.PolyResult _ b _ _) -> boardPlayerScore b pSpot), target)
         | target <- targets board pSpot id,
           let board' = Game.play shared board $ Place pSpot target handIndex
@@ -258,28 +258,24 @@ scorePlace ::
   -- | Where to place the creature
   Spots.Card ->
   -- | The score of the card at pSpot cSpot. Smaller is the best.
-  -- Both negative and positive values are returned.
-  Int
-scorePlace board inPlace pSpot cSpot =
-  assert (creature ~=~ inPlace) result
+  Nat
+scorePlace board inPlace@Creature {attack} pSpot cSpot =
+  assert (creature ~=~ inPlace) $ lineMalus `minusNatClamped` items
   where
     (~=~) Nothing _ = False
     (~=~) (Just a) b = a == b
     creature :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpot cSpot
-    enemiesInPlace :: Map.Map Spots.Card (Creature 'Core) =
-      Board.toInPlace board (otherPlayerSpot pSpot)
     cSkills = skills inPlace
     prefersBack =
       any (`elem` [Skill.Imprecise, Skill.LongReach, Skill.Ranged]) cSkills
-    lineMalus = if inTheBack cSpot == prefersBack then 0 else 1
-    enemySpots' :: [Spots.Card] = allEnemySpots cSpot
-    enemiesInColumn = map (enemiesInPlace Map.!?) enemySpots'
-    -- TODO @smelc instead, play EndTurn pSpot cSpot and look at the score
-    -- increase. This will avoid doing an incorrect simulation.
-    yieldsVictoryPoints = all isNothing enemiesInColumn
-    victoryPointsMalus = if yieldsVictoryPoints then 0 else 1
-    maluses :: Nat = sum [lineMalus, victoryPointsMalus]
-    result = (natToInt maluses) - (natToInt $ scoreCreatureItems board inPlace pSpot cSpot)
+        || attack == mempty
+    prefersFront = any (`elem` [Skill.Charge]) cSkills
+    lineMalus =
+      case (inTheBack cSpot, prefersBack, prefersFront) of
+        (True, True, _) -> 0
+        (False, _, True) -> 0
+        _ -> 2
+    items = scoreCreatureItems board inPlace pSpot cSpot
 
 -- | The score of the items of this creature (which is on the passed spot).
 -- 0 is the worst. Higher values are better. The spots are where
@@ -363,7 +359,7 @@ scoreSkill s =
     Skill.Veteran -> -1
     Skill.Zealot -> -1
 
-sortByFst :: [(Int, b)] -> [(Int, b)]
+sortByFst :: Ord a => [(a, b)] -> [(a, b)]
 sortByFst l =
   sortBy sortFst l
   where
