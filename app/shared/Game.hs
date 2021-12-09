@@ -930,7 +930,7 @@ attack board pSpot cSpot =
               -- Imprecise creature targets an empty spot, report attack
               -- and exposion.
               reportEffect pSpot cSpot $ mempty {attackBump = True}
-              reportEffect attackeePSpot cSpot $ mempty {fadeOut = [Tile.Explosion]}
+              reportEffect attackeePSpot attackedSpot $ mempty {fadeOut = [Tile.Explosion]}
               pure board -- No change
             Just attacked ->
               -- Imprecise creature attacks an occupied spot
