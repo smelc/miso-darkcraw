@@ -260,8 +260,13 @@ newtype HandIndex = HandIndex {unHandIndex :: Int}
   deriving (Eq, Show, Generic, Enum)
 
 data StackKind
-  = Stacked
-  | Discarded
+  = -- | Button to display the hand (only used for the enemy, in Debug mode)
+    Handed
+  | -- | Button to display the stack
+    Stacked
+  | -- | Button to display discarded cards
+    Discarded
+  deriving (Bounded, Enum)
 
 lookupHand ::
   MonadError Text m =>

@@ -169,7 +169,9 @@
 <a href="#v:botSpots">botSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:StackKind">StackKind</a><ul class="subs">
-<li>= <a href="#v:Stacked">Stacked</a>
+<li>= <a href="#v:Handed">Handed</a>
+</li>
+<li>| <a href="#v:Stacked">Stacked</a>
 </li>
 <li>| <a href="#v:Discarded">Discarded</a>
 </li>
@@ -1045,15 +1047,49 @@
 <p class="caption">Constructors</p>
 <table>
 <tr>
+<td class="src"><a id="v:Handed" class="def">Handed</a></td>
+<td class="doc"><p>Button to display the hand (only used for the enemy, in Debug mode)</p></td>
+</tr>
+<tr>
 <td class="src"><a id="v:Stacked" class="def">Stacked</a></td>
-<td class="doc empty">&nbsp;</td>
+<td class="doc"><p>Button to display the stack</p></td>
 </tr>
 <tr>
 <td class="src"><a id="v:Discarded" class="def">Discarded</a></td>
-<td class="doc empty">&nbsp;</td>
+<td class="doc"><p>Button to display discarded cards</p></td>
 </tr>
 </table>
 </div>
+<div class="subs instances"><details id="i:StackKind" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:StackKind:Bounded:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Bounded" title="Prelude">Bounded</a> <a href="Board.html#t:StackKind" title="Board">StackKind</a></span> <a href="#t:StackKind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:StackKind:Bounded:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:minBound">minBound</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> <a href="#v:minBound" class="selflink">#</a></p>
+<p class="src"><a href="#v:maxBound">maxBound</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> <a href="#v:maxBound" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:StackKind:Enum:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Enum" title="Prelude">Enum</a> <a href="Board.html#t:StackKind" title="Board">StackKind</a></span> <a href="#t:StackKind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:StackKind:Enum:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:succ">succ</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; <a href="Board.html#t:StackKind" title="Board">StackKind</a> <a href="#v:succ" class="selflink">#</a></p>
+<p class="src"><a href="#v:pred">pred</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; <a href="Board.html#t:StackKind" title="Board">StackKind</a> <a href="#v:pred" class="selflink">#</a></p>
+<p class="src"><a href="#v:toEnum">toEnum</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:StackKind" title="Board">StackKind</a> <a href="#v:toEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:fromEnum">fromEnum</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:fromEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFrom">enumFrom</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; [<a href="Board.html#t:StackKind" title="Board">StackKind</a>] <a href="#v:enumFrom" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThen">enumFromThen</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; [<a href="Board.html#t:StackKind" title="Board">StackKind</a>] <a href="#v:enumFromThen" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromTo">enumFromTo</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; [<a href="Board.html#t:StackKind" title="Board">StackKind</a>] <a href="#v:enumFromTo" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThenTo">enumFromThenTo</a> :: <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; <a href="Board.html#t:StackKind" title="Board">StackKind</a> -&gt; [<a href="Board.html#t:StackKind" title="Board">StackKind</a>] <a href="#v:enumFromThenTo" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
 </div>
 <div class="top"><p class="src"><a id="v:appliesTo" class="def">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:appliesTo" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:toScore" class="def">toScore</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; ScoreType p <a href="#v:toScore" class="selflink">#</a></p></div>

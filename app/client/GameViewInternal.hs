@@ -294,12 +294,16 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
     verticalMargin GameViewInternal.Board _ = "top" =: px (scoreMarginTop PlayerTop)
     verticalMargin Hand Button = "bottom" =: px (cps `div` 2)
     verticalMargin Hand Plus = "bottom" =: px (- (cps `div` 2))
+    horizontalMargin :: StackPosition -> StackKind -> StackWidgetType -> MisoString
+    horizontalMargin GameViewInternal.Board Handed Button = px (cps `div` 2)
     horizontalMargin GameViewInternal.Board _ Button = px (cps * 4)
     horizontalMargin GameViewInternal.Board Discarded Plus = px (cps * 8)
     horizontalMargin GameViewInternal.Board Stacked Plus = px (cps * 2)
-    horizontalMargin Hand _ Button = px (cps * 4)
+    horizontalMargin GameViewInternal.Board Handed Plus = "0" -- unused value: Hand button never receives +
+    horizontalMargin Hand _ Button = px (cps * 4) -- unused case for Handed
     horizontalMargin Hand Discarded Plus = px (cps * 8)
     horizontalMargin Hand Stacked Plus = px (cps * 2)
+    horizontalMargin Hand Handed Plus = "0" -- unused value: Hand button never receives +
     buttonStyle =
       style_ $
         commonStyle
@@ -316,9 +320,11 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
           -- Tell the element to stay in place
           <> "transform" =: "translate(-50%, -50%)"
     (getter :: Board.PlayerPart 'Core -> [Card.ID], label, marginSide) = case stackType of
+      Handed -> (Board.inHand, "Hand", "right")
       Stacked -> (Board.stack, "Stack", "right")
       Discarded -> (Board.discarded, "Discarded", "left")
     plusValue = case stackType of
+      Handed -> 0
       Stacked -> Board.toStack anims pSpot
       Discarded -> Board.toDiscarded anims pSpot + nbDeaths
     deck :: [Card 'Core] =

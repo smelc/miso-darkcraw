@@ -72,7 +72,7 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
       let errs = errView model zpp & maybeToList
       stacks <-
         if Configuration.isDev
-          then traverse (stackView model z enemySpot GameViewInternal.Board) [Discarded, Stacked]
+          then traverse (stackView model z enemySpot GameViewInternal.Board) [minBound ..]
           else return []
       msg <- messageView anim & maybeToList & sequence
       turn <- turnView model zpp
