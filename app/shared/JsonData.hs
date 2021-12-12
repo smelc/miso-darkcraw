@@ -24,11 +24,18 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":\"2\", \"tile\":\"UndeadMummy\",    \"skills\":[\"Fear\"],    \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":\"0\", \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\", \"Source 1\"] },\n\
          \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":\"2\", \"tile\":\"UndeadWarrior\",  \"skills\":[\"Fear\"]  },\n\
-         \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":\"0\", \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]    },\n\
-         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":\"2\", \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]    },\n\
+         \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":\"0\", \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]  },\n\
+         \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":\"2\", \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]  },\n\
          \    { \"id\": { \"name\":\"specter\",   \"team\":\"undead\" }, \"title\":\"specter\",   \"hp\":2, \"attack\":\"2\", \"tile\":\"UndeadSpecter\",  \"skills\":[\"Terror\", \"BreathIce\"]    },\n\
-         \    { \"id\": { \"name\":\"knight\",    \"team\":\"evil\" },   \"title\":\"Knight\",    \"hp\":2, \"attack\":\"3\", \"tile\":\"EvilKnight\",     \"skills\":[\"Blow\"],            \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"captain\",   \"team\":\"zknights\" }, \"title\":\"Captain\", \"hp\":2, \"attack\":\"2\", \"tile\":\"ZCaptain\",       \"skills\":[\"Knight\", \"Charge\", \"Zealot\"], \"mana\":1 },\n\
+         \    { \"id\": { \"name\":\"abomination\", \"team\":\"evil\" }, \"title\":\"Abomination\", \"hp\":4, \"attack\":\"3\", \"tile\":\"Abomination\",  \"skills\":[\"Brainless\"],          \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"assassin\",  \"team\":\"evil\" },   \"title\":\"Assassin\",  \"hp\":1, \"attack\":\"5\", \"tile\":\"Assassin\",       \"skills\":[\"Assassin\"],           \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"beholder\",  \"team\":\"evil\" },   \"title\":\"Beholder\",  \"hp\":2, \"attack\":\"2\", \"tile\":\"Beholder\",       \"skills\":[\"Ace\"],                \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"daemon\",    \"team\":\"evil\" },   \"title\":\"Daemon\",    \"hp\":6, \"attack\":\"6\", \"tile\":\"Daemon\",         \"skills\":[\"Terror\", \"Powerful\"], \"mana\":5 },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"evil\" },   \"title\":\"Knight\",    \"hp\":2, \"attack\":\"3\", \"tile\":\"EvilKnight\",     \"skills\":[\"Blow\"],               \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"priest\",    \"team\":\"evil\" },   \"title\":\"priest\",    \"hp\":1, \"attack\":\"0\", \"tile\":\"EvilPriest\",     \"skills\":[\"DrawCard\", \"Source 1\"] },\n\
+         \    { \"id\": { \"name\":\"troll\",     \"team\":\"evil\" },   \"title\":\"Troll\",     \"hp\":4, \"attack\":\"3\", \"tile\":\"EvilTroll\",      \"skills\":[\"Regeneration 1\", \"Stupid4\"], \"mana\":3 },\n\
+         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"evil\" },   \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"EvilSpearman\",   \"skills\":[\"LongReach\"]                    },\n\
+         \    { \"id\": { \"name\":\"captain\",   \"team\":\"zknights\" }, \"title\":\"Captain\", \"hp\":2, \"attack\":\"2\", \"tile\":\"ZCaptain\",       \"skills\":[\"Knight\", \"Charge\", \"Zealot\"],  \"mana\":1 },\n\
          \    { \"id\": { \"name\":\"veteran\",   \"team\":\"zknights\" }, \"title\":\"Veteran\", \"hp\":3, \"attack\":\"3\", \"tile\":\"ZVeteran\",       \"skills\":[\"Knight\", \"Charge\", \"Veteran\"], \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"king\",      \"team\":\"zknights\" }, \"title\":\"King\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKing\",          \"skills\":[\"King\"], \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"zknights\" }, \"title\":\"Knight\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKnight\",        \"skills\":[\"Knight\", \"Charge\"], \"mana\":1 },\n\
@@ -40,16 +47,22 @@ jsonData = "{\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain 1 HP\"                , \"teams\": [\"human\"]  },\n\
          \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain 3 HP\"                , \"teams\": [\"human\", \"zknights\"]  },\n\
-         \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"  , \"teams\": [\"undead\"] }\n\
+         \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"tile\":\"HeartBroken\",  \"text\":\"Enemy board is randomly shuffled\", \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"  ,   \"teams\": [\"undead\"] }\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
-         \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"tile\":\"CrushingMace\",    \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
+         \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"tile\":\"CrushingMace\",     \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"tile\":\"SkBanner\",         \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
+         \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"tile\":\"SpikyMace\",        \"text\":\"Gives the sadism skill\", \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"strengthpot\",      \"title\":\"Strength Potion\",     \"tile\":\"StrengthPot\",      \"text\":\"+3 :crossed_swords: until end of turn\", \"teams\": [\"evil\"] },\n\
          \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\", \"zknights\"] }\n\
          \  ],\n\
          \  \"tiles\": [\n\
+         \    { \"tile\":\"Abomination\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":10 } },\n\
+         \    { \"tile\":\"Assassin\",      \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":10 } },\n\
+         \    { \"tile\":\"Beholder\",      \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":10 } },\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\
          \    { \"tile\":\"BlackAppears1\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":6 } },\n\
          \    { \"tile\":\"BlackAppears2\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":6 } },\n\
@@ -67,8 +80,11 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"CrushingMace\",  \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":2 } },\n\
+         \    { \"tile\":\"Daemon\",        \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":10 } },\n\
          \    { \"tile\":\"DropBlue\",      \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":0 } },\n\
          \    { \"tile\":\"EvilKnight\",    \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":10 } },\n\
+         \    { \"tile\":\"EvilPriest\",    \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":10 } },\n\
+         \    { \"tile\":\"EvilSpearman\",  \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":10 } },\n\
          \    { \"tile\":\"Explosion\",     \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":7 } },\n\
          \    { \"tile\":\"Heart\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":0 } },\n\
          \    { \"tile\":\"HeartBroken\",   \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":0 } },\n\
@@ -79,16 +95,20 @@ jsonData = "{\n\
          \    { \"tile\":\"HumanGeneral\",  \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":0 } },\n\
          \    { \"tile\":\"HumanKnight\",   \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":0 } },\n\
          \    { \"tile\":\"FlailOfTheDamned\", \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":2 } },\n\
-         \    { \"tile\":\"SkullRedEyes\",  \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":2 } },\n\
-         \    { \"tile\":\"Sword1\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
-         \    { \"tile\":\"Sword2\",        \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":1 } },\n\
-         \    { \"tile\":\"Sword3\",        \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":1 } },\n\
          \    { \"tile\":\"RedPotion\",     \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":0 } },\n\
          \    { \"tile\":\"GreenPotion\",   \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":0 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":1 } },\n\
          \    { \"tile\":\"Loupe\",         \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":1 } },\n\
          \    { \"tile\":\"Ogre\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":0 } },\n\
+         \    { \"tile\":\"Pandemonium\",   \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":2 } },\n\
          \    { \"tile\":\"SkBanner\",      \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":2 } },\n\
+         \    { \"tile\":\"SkullRedEyes\",  \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":2 } },\n\
+         \    { \"tile\":\"SpikyMace\",     \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":2 } },\n\
+         \    { \"tile\":\"StrengthPot\",   \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":3 } },\n\
+         \    { \"tile\":\"Sword1\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
+         \    { \"tile\":\"Sword2\",        \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":1 } },\n\
+         \    { \"tile\":\"Sword3\",        \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":1 } },\n\
+         \    { \"tile\":\"Troll\",         \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":10 } },\n\
          \    { \"tile\":\"Trebuchet\",     \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":11 } },\n\
          \    { \"tile\":\"UndeadSkeleton\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":3 } },\n\
          \    { \"tile\":\"UndeadVampire\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":3 } },\n\
@@ -112,17 +132,25 @@ jsonData = "{\n\
          \    { \"tile\":\"ZPriest\",       \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":11 } }\n\
          \  ],\n\
          \  \"skills\": [\n\
+         \    { \"skill\":\"Ace\",         \"title\":\"Ace\",        \"text\":\"Hits any enemy\"},\n\
+         \    { \"skill\":\"Assassin\",    \"title\":\"Assassin\",   \"text\":\"At beginning of turn, move in contact with most ponent ennemy (if possible)\"},\n\
          \    { \"skill\":\"Blow\",        \"title\":\"Blow\",       \"text\":\"+2 :crossed_swords: during first turn\"},\n\
+         \    { \"skill\":\"Brainless\",   \"title\":\"Brainless\",  \"text\":\"Moves to a random empty spot at beginning of turn. Immune to fear and terror.\"},\n\
          \    { \"skill\":\"BreathIce\",   \"title\":\"Ice Breath\", \"text\":\"Attacks enemy in front as well as enemy behind\"},\n\
          \    { \"skill\":\"Charge\",      \"title\":\"Charge\",     \"text\":\"If all creatures of front row have charge, gain +2 :crossed_swords:\"},\n\
          \    { \"skill\":\"Discipline\",  \"title\":\"Discipline\", \"text\":\"Upon arrival, neighbors with discipline get +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"DrawCard\",    \"title\":\"Librarian\",  \"text\":\"Draw an additional card at beginning of turn\"},\n\
+         \    { \"skill\":\"Fame 1\",      \"title\":\"Fame 1\",     \"text\":\"Contribute 1 to the score at beginning of turn\"},\n\
+         \    { \"skill\":\"Fame 2\",      \"title\":\"Fame 2\",     \"text\":\"Contribute 2 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
          \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\
          \    { \"skill\":\"King\",        \"title\":\"King\",       \"text\":\"At every turn, every knight gains +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Knight\",      \"title\":\"Knight\",     \"text\":\"A knight anointed by the king\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long reach\", \"text\":\"Hits 2 cells away when in the back line\"},\n\
+         \    { \"skill\":\"Powerful\",    \"title\":\"Powerful\",   \"text\":\"When killing an enemy, extraenous damage is contributed to the score\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
+         \    { \"skill\":\"Regeneration 1\", \"title\":\"Regeneration 1\", \"text\":\"Gain 1 :heart: at beginning of turn\"},\n\
+         \    { \"skill\":\"Sadism\",      \"title\":\"Sadism\",     \"text\":\"When killing an enemy, the enemy's neighbors get -1 :crosswed_swords:\"},\n\
          \    { \"skill\":\"Squire\",      \"title\":\"Squire\",     \"text\":\"Knight in front line (if any) gains: +1 :heart: upon arrival and +1 :crossed_swords: while the squire lives\"},\n\
          \    { \"skill\":\"Source 1\",    \"title\":\"Source 1\",   \"text\":\"Gain 1 extra mana at beginning of turn\"},\n\
          \    { \"skill\":\"Source 2\",    \"title\":\"Source 2\",   \"text\":\"Gain 2 extra mana at beginning of turn\"},\n\

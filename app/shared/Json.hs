@@ -79,7 +79,10 @@ instance FromJSON Skill where
     where
       go :: Text -> Parser Skill =
         \case
+          "Ace" -> return Skill.Ace
+          "Assassin" -> return Skill.Assassin
           "Blow" -> return $ Skill.Blow ()
+          "Brainless" -> return Skill.Brainless
           "BreathIce" -> return Skill.BreathIce
           "Charge" -> return Skill.Charge
           "Discipline" -> return Skill.Discipline
@@ -89,7 +92,9 @@ instance FromJSON Skill where
           "King" -> return Skill.King
           "Knight" -> return Skill.Knight
           "LongReach" -> return Skill.LongReach
+          "Powerful" -> return Skill.Powerful
           "Ranged" -> return Skill.Ranged
+          "Sadism" -> return Skill.Sadism
           "Squire" -> return Skill.Squire
           "Stupid4" -> return $ Skill.Stupid4 ()
           "Terror" -> return $ Skill.Terror ()
@@ -98,11 +103,13 @@ instance FromJSON Skill where
           "Zealot" -> return Skill.Zealot
           s ->
             case Data.Text.splitOn " " s of
-              ["Source", n] ->
-                case readMaybe $ Text.unpack n of
-                  Nothing -> fail $ "Invalid Source suffix (not a Nat): " ++ Text.unpack n
-                  Just n -> return $ Skill.Source n
+              ["Source", n] -> ofNat Skill.Source n
+              ["Fame", n] -> ofNat Skill.Fame n
+              ["Regeneration", n] -> ofNat Skill.Regeneration n
               _ -> fail $ "Invalid Skill string: " ++ show s ++ " (did you forget to handle a new Skill in FromJSON Skill in Json.hs?)"
+      ofNat mkS n = case readMaybe $ Text.unpack n of
+        Nothing -> fail $ "Invalid Source suffix (not a Nat): " ++ Text.unpack n
+        Just n -> return $ mkS n
 
 -- TODO @smelc Rename me into skillPackOptions
 skillUIOptions :: Options

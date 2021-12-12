@@ -47,6 +47,8 @@ disturbingItem = \case
   CrushingMace -> False
   FlailOfTheDamned -> False
   SkBanner -> True
+  SpikyMace -> False
+  StrengthPot -> False
   SwordOfMight -> False
 
 -- 'disturber' identifies cards which, when played, affect other spots on the board
@@ -71,6 +73,7 @@ disturber _ (IDN neutral) =
     Health -> False
     InfernalHaste -> True
     Life -> False
+    Pandemonium -> True
     Plague -> True
 
 -- Tests that playing a creature only affects the target spot. Some

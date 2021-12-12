@@ -107,6 +107,7 @@ whichPlayerTarget = \case
   IDN Health -> Playing
   IDN InfernalHaste -> Playing
   IDN Life -> Playing
+  IDN Pandemonium -> Opponent
   IDN Plague -> Opponent
 
 data Event

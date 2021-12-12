@@ -103,9 +103,13 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
 
 -- | All kinds of creature
 data CreatureKind
-  = Archer
+  = Abomination
+  | Archer
+  | Assassin
+  | Beholder
   | Captain
   | Church
+  | Daemon
   | General
   | Ghost
   | King
@@ -121,6 +125,7 @@ data CreatureKind
   | Squire
   | Swordsman
   | Trebuchet
+  | Troll
   | Vampire
   | Veteran
   | Warrior
@@ -177,6 +182,7 @@ data Neutral
   = Health
   | InfernalHaste
   | Life
+  | Pandemonium
   | Plague
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
@@ -205,6 +211,8 @@ data Item
   | CrushingMace
   | FlailOfTheDamned
   | SkBanner
+  | SpikyMace
+  | StrengthPot
   | SwordOfMight
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
@@ -346,7 +354,7 @@ rawTeamDeck cards t =
     -- Initial creatures:
     creatures =
       case t of
-        Evil -> 1 * Knight
+        Evil -> 2 * Knight ++ 2 * Spearman ++ 1 * Daemon ++ 1 * Beholder ++ 1 * Abomination ++ 1 * Priest ++ 1 * Assassin
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
         ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet
@@ -362,7 +370,7 @@ rawTeamDeck cards t =
     -- Initial neutrals
     neutrals =
       case t of
-        Evil -> []
+        Evil -> 1 * Pandemonium
         Human -> 1 * Health ++ 1 * Life
         Undead -> 2 * InfernalHaste ++ 1 * Plague
         ZKnights -> 1 * Life
@@ -378,7 +386,7 @@ rawTeamDeck cards t =
     -- Initial items
     items =
       case t of
-        Evil -> []
+        Evil -> 1 * SpikyMace
         Human -> 1 * SwordOfMight
         Undead -> 1 * Card.FlailOfTheDamned
         ZKnights -> 1 * CrushingMace ++ 1 * SwordOfMight
@@ -417,7 +425,7 @@ data TargetType
     PlayerTargetType
   deriving (Eq, Show)
 
--- | The kind of Game target a neutral likes
+-- | The kind of 'TargetType' that a 'Card.ID' aims
 targetType :: Card.ID -> TargetType
 targetType id =
   case id of
@@ -426,6 +434,7 @@ targetType id =
     IDN Health -> CardTargetType Occupied
     IDN Life -> CardTargetType Occupied
     IDN InfernalHaste -> PlayerTargetType
+    IDN Pandemonium -> PlayerTargetType
     IDN Plague -> PlayerTargetType
 
 -- * Classes and instances

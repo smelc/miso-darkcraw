@@ -304,6 +304,8 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
               & Map.elems
               & filter (Card.isSkeleton . Card.creatureId)
               & natLength
+      StrengthPot -> 0 -- We could check in front, or preferInFront
+      SpikyMace -> preferStrongCreature -- TODO @smelc check opponent has many neighbors
       SwordOfMight -> preferStrongCreature -- TODO @smelc Favor front line or not ranged at least
     preferStrongCreature = score attack + hp
 
@@ -327,6 +329,7 @@ scoreHandCard = \case
       Health -> -1
       InfernalHaste -> -10
       Life -> -3
+      Pandemonium -> -3 -- TODO @smelc pass the board and check number of in place creatures in opponent board
       Plague -> -5 -- TODO @smelc pass the board and check number of creates, for a dynamic value to be returned
   ItemCard _ ItemObject {item} ->
     case item of
@@ -334,24 +337,33 @@ scoreHandCard = \case
       CrushingMace -> -1
       FlailOfTheDamned -> -1
       SkBanner -> -1
+      SpikyMace -> -1
+      StrengthPot -> -1
       SwordOfMight -> -1
 
 -- | The score of a skill, smaller values are better. Negative values returned.
 scoreSkill :: Skill.State -> Int
 scoreSkill s =
   case s of
+    Skill.Ace -> -2
+    Skill.Assassin -> -2
     Skill.Blow b -> if b then -1 else 0
+    Skill.Brainless -> 2
     Skill.BreathIce -> -2
     Skill.Charge -> -1
     Skill.Discipline -> -1
     Skill.DrawCard b -> if b then -1 else 0
     Skill.Fear b -> if b then -1 else 0
     Skill.Imprecise -> 0
+    Skill.Fame (n, _) -> Nat.negate n
     Skill.King -> -2
     Skill.Knight -> -1
     Skill.LongReach -> -1
     Skill.Ranged -> -1
-    Skill.Source (n, avail) -> if avail then - (natToInt n) else 0
+    Skill.Regeneration n -> Nat.negate n
+    Skill.Powerful -> -2
+    Skill.Sadism -> -1
+    Skill.Source (n, avail) -> if avail then - (natToInt n) else 0 -- TODO @smelc donc inspec avail
     Skill.Squire -> 1
     Skill.Stupid4 _ -> if Skill.isStupid s then 2 else 1
     Skill.Terror b -> if b then -2 else 0

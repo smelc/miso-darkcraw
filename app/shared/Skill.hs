@@ -12,12 +12,19 @@ import Nat
 -- | The type of skills. Highly polymorphic, because we use
 -- two different instances. Callers should only use
 -- the concrete instances 'Skill' and 'State'.
-data T blow drawCard fear source stupid terror
-  = Blow blow
+data T blow drawCard fame fear regen source stupid terror
+  = Ace
+  | -- | At turn start, moves against ponent ennemy
+    Assassin
+  | Blow blow
+  | -- | Moves to random empty spot at turn start
+    Brainless
   | BreathIce
   | Charge
   | Discipline
   | DrawCard drawCard
+  | -- | Contributes to score at turn beginning
+    Fame fame
   | -- | Creature causes fear
     Fear fear
   | -- | Creature attacks a random spot
@@ -26,7 +33,13 @@ data T blow drawCard fear source stupid terror
   | -- | Identifier of knight
     Knight
   | LongReach
+  | -- | Undealt damage contributes to score
+    Powerful
   | Ranged
+  | -- | Regenerates the number of hitpoints at beginning of turn
+    Regeneration regen
+  | -- | Upon a kill, killed neighbors get -1 attack
+    Sadism
   | -- | Creature creates mana at beginning of turn
     Source source -- Nat
   | -- | Knight in front (if any) gains +1 hp and +1 attack upon arrival
@@ -35,7 +48,7 @@ data T blow drawCard fear source stupid terror
   | -- | Creature causes terror
     Terror terror
   | Unique
-  | -- | Upon arrival, every knight gains +1 hp and +1 attack
+  | -- | Immune to fear and terror
     Veteran
   | -- | Immune to fear
     Zealot
@@ -45,7 +58,9 @@ type Skill =
   T
     () -- blow
     () -- drawCard
+    Nat -- fame
     () -- fear
+    Nat -- regen
     Nat -- source
     () -- stupid
     () -- terror
@@ -54,8 +69,11 @@ type State =
   T
     Bool -- blow, whether the skill is available (True) or used already (False)
     Bool -- drawCard
+    (Nat, Bool) -- fame, creature contribute to score at beginning of turn. Boolean
+    -- indicates whether skill is available (True) or consumed already (False)
     Bool -- fear, creature causes fear, the Boolean indicates whether the skill
     -- is available (True) or used already (False)
+    Nat -- regeneration, number of hitpoints gained at beginning of turn
     (Nat, Bool) -- source, creature create mana at beginning of turn. Boolean indicates
     -- whether the skill is available (True) or used already (False)
     Nat -- stupid, the turn, at 0, 1, or 2 not stupid; at 3 stupid; then back to 0
@@ -75,17 +93,24 @@ data Pack = Pack
 lift :: State -> Skill
 lift skill =
   case skill of
+    Ace -> Ace
+    Assassin -> Assassin
     Blow {} -> Blow ()
+    Brainless -> Brainless
     BreathIce -> BreathIce
     Charge -> Charge
     Discipline -> Discipline
     DrawCard {} -> DrawCard ()
+    Fame (n, _) -> Fame n
     Fear {} -> Fear ()
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
     LongReach -> LongReach
+    Powerful -> Powerful
     Ranged -> Ranged
+    Regeneration n -> Regeneration n
+    Sadism -> Sadism
     Squire -> Squire
     Source (n, _) -> Source n
     Stupid4 {} -> Stupid4 ()
@@ -99,17 +124,24 @@ lift skill =
 unlift :: Skill -> State
 unlift skill =
   case skill of
+    Ace -> Ace
+    Assassin -> Assassin
     Blow {} -> Blow True
+    Brainless -> Brainless
     BreathIce -> BreathIce
     Discipline -> Discipline
     Charge -> Charge
     DrawCard {} -> DrawCard True
+    Fame n -> Fame (n, True)
     Fear {} -> Fear True
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
     LongReach {} -> LongReach
+    Powerful -> Powerful
     Ranged -> Ranged
+    Regeneration n -> Regeneration n
+    Sadism -> Sadism
     Source n -> Source (n, True)
     Squire -> Squire
     Stupid4 {} -> Stupid4 0

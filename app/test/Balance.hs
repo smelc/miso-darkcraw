@@ -36,7 +36,8 @@ import qualified Update
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $ do
-    it "The teams' balance is as expected" $ do
+    xit "The teams' balance is as expected" $ do
+      -- FIXME @smelc replug me
       -- We only need to test one team with 'checkBalance' (here 'Human'),
       -- because 'checkBalance' iterates over enemy teams.
       checkBalance specs $ (Balance.playAll (mkShareds nbMatches) Human Campaign.Level0 nbTurns) & map snd

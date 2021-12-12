@@ -31,7 +31,10 @@ filepathToString Filepath {..} =
   root ++ "_" ++ show fpX ++ "_" ++ show fpY ++ ".png"
 
 data Tile
-  = BlackAppears0
+  = Abomination
+  | Assassin
+  | Beholder
+  | BlackAppears0
   | BlackAppears1
   | BlackAppears2
   | BlackAppears3
@@ -48,8 +51,12 @@ data Tile
   | Bones6
   | Crown
   | CrushingMace
+  | Daemon
   | DropBlue
   | EvilKnight
+  | EvilTroll
+  | EvilPriest
+  | EvilSpearman
   | Explosion
   | FlailOfTheDamned
   | GreenPotion
@@ -63,14 +70,18 @@ data Tile
   | HumanSwordsman
   | Loupe
   | Ogre
+  | Pandemonium
   | RedPotion
   | SkBanner
   | SkullRedEyes
+  | SpikyMace
   | Squire
+  | StrengthPot
   | Sword1
   | Sword2
   | Sword3
   | Trebuchet
+  | Troll
   | UndeadArcher
   | UndeadGhost
   | UndeadMummy
