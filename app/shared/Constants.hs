@@ -115,6 +115,10 @@ nbTurns = 8
 squireAttackBonus :: Nat
 squireAttackBonus = 1
 
+-- | The bonus given by a strength potion
+strengthPotAttackBonus :: Nat
+strengthPotAttackBonus = 3
+
 -- The yellowish background of a card
 cardBackground :: MisoString -> MisoString
 cardBackground team = "card-bg-" <> team <> ".png"

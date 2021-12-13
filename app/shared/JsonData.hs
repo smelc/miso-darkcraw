@@ -45,10 +45,11 @@ jsonData = "{\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain 1 HP\"                , \"teams\": [\"human\"]  },\n\
-         \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain 3 HP\"                , \"teams\": [\"human\", \"zknights\"]  },\n\
+         \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          , \"teams\": [\"human\"]  },\n\
+         \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          , \"teams\": [\"human\", \"zknights\"]  },\n\
          \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"tile\":\"HeartBroken\",  \"text\":\"Enemy board is randomly shuffled\", \"teams\": [\"evil\"] },\n\
-         \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"  ,   \"teams\": [\"undead\"] }\n\
+         \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"    , \"teams\": [\"undead\"] },\n\
+         \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"tile\":\"StrengthPot\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"teams\": [\"evil\"] }\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
@@ -56,7 +57,6 @@ jsonData = "{\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"tile\":\"SkBanner\",         \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"tile\":\"SpikyMace\",        \"text\":\"Gives the sadism skill\", \"teams\": [\"evil\"] },\n\
-         \    { \"name\":\"strengthpot\",      \"title\":\"Strength Potion\",     \"tile\":\"StrengthPot\",      \"text\":\"+3 :crossed_swords: until end of turn\", \"teams\": [\"evil\"] },\n\
          \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\", \"zknights\"] }\n\
          \  ],\n\
          \  \"tiles\": [\n\

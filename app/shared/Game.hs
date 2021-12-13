@@ -100,6 +100,8 @@ targetToPlayerSpot (CardTarget pSpot _) = pSpot
 -- for now
 data WhichPlayerTarget = Playing | Opponent
 
+-- | To which part to apply a card. Beneficial card apply to 'Playing'
+-- while cards giving maluses, curses, etc. apply to 'Opponent'.
 whichPlayerTarget :: Card.ID -> WhichPlayerTarget
 whichPlayerTarget = \case
   IDC {} -> Playing
@@ -109,6 +111,7 @@ whichPlayerTarget = \case
   IDN Life -> Playing
   IDN Pandemonium -> Opponent
   IDN Plague -> Opponent
+  IDN StrengthPot -> Playing
 
 data Event
   = -- | Apply church of the creatures at the given 'Spots.Player'
@@ -428,6 +431,13 @@ playNeutralM board _playingPlayer target n =
     (Plague, PlayerTarget pSpot) -> do
       board' <- applyPlagueM board pSpot
       return (board', Nothing)
+    (StrengthPot, CardTarget pSpot cSpot) ->
+      case Board.toInPlaceCreature board pSpot cSpot of
+        Nothing -> return (board, Nothing)
+        Just c@Creature {skills} -> do
+          reportEffect pSpot cSpot (mempty {attackChange = Nat.natToInt Constants.strengthPotAttackBonus})
+          let board' = Board.setCreature board pSpot cSpot (c {skills = skills ++ [Skill.StrengthPot]})
+          return (board', Nothing)
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
   where
     addHitpoints pSpot cSpot hps =

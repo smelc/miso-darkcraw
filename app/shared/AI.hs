@@ -304,7 +304,6 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
               & Map.elems
               & filter (Card.isSkeleton . Card.creatureId)
               & natLength
-      StrengthPot -> 0 -- We could check in front, or preferInFront
       SpikyMace -> preferStrongCreature -- TODO @smelc check opponent has many neighbors
       SwordOfMight -> preferStrongCreature -- TODO @smelc Favor front line or not ranged at least
     preferStrongCreature = score attack + hp
@@ -331,6 +330,7 @@ scoreHandCard = \case
       Life -> -3
       Pandemonium -> -3 -- TODO @smelc pass the board and check number of in place creatures in opponent board
       Plague -> -5 -- TODO @smelc pass the board and check number of creates, for a dynamic value to be returned
+      StrengthPot -> -3
   ItemCard _ ItemObject {item} ->
     case item of
       Crown -> -1
@@ -338,7 +338,6 @@ scoreHandCard = \case
       FlailOfTheDamned -> -1
       SkBanner -> -1
       SpikyMace -> -1
-      StrengthPot -> -1
       SwordOfMight -> -1
 
 -- | The score of a skill, smaller values are better. Negative values returned.
@@ -365,6 +364,7 @@ scoreSkill s =
     Skill.Sadism -> -1
     Skill.Source (n, avail) -> if avail then - (natToInt n) else 0 -- TODO @smelc donc inspec avail
     Skill.Squire -> 1
+    Skill.StrengthPot -> -1
     Skill.Stupid4 _ -> if Skill.isStupid s then 2 else 1
     Skill.Terror b -> if b then -2 else 0
     Skill.Unique -> 0

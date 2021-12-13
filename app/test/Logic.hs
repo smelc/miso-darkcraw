@@ -12,11 +12,12 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testVeteran) where
+module Logic (disturber, main, mkCreature, testStrengthPot) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
 import Board
+import qualified BoardInstances
 import Card
 import Constants
 import Control.Lens hiding (at, (+=))
@@ -25,6 +26,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
 import Data.Text (Text)
+import qualified Data.Text as Text
 import Debug.Trace (traceShow)
 import qualified Game
 import Generators ()
@@ -48,7 +50,6 @@ disturbingItem = \case
   FlailOfTheDamned -> False
   SkBanner -> True
   SpikyMace -> False
-  StrengthPot -> False
   SwordOfMight -> False
 
 -- 'disturber' identifies cards which, when played, affect other spots on the board
@@ -75,6 +76,7 @@ disturber _ (IDN neutral) =
     Life -> False
     Pandemonium -> True
     Plague -> True
+    StrengthPot -> False
 
 -- Tests that playing a creature only affects the target spot. Some
 -- cards are omitted, see 'disturber.
@@ -486,6 +488,33 @@ testZealot shared =
     zPartIsEmpty (Right (Game.PolyResult _ b _ _)) =
       Board.toInPlace b pSpot == mempty
 
+testStrengthPot shared =
+  describe "Potion of Strength" $ do
+    it "sanity check" $ do
+      Card.attack beholder == Card.attack beholderUI
+    it "increases attack" $ do
+      Board.toInPlaceCreature board' pSpot cSpot
+        `shouldSatisfyJust` (\c -> Total.attack Nothing c > Card.attack beholder)
+    it "is reset by new turn" $ do
+      Board.toInPlaceCreature board'' pSpot cSpot
+        `shouldSatisfyJust` (\c -> Total.attack Nothing c == Card.attack beholder)
+  where
+    (team, pSpot, cSpot) = (Evil, PlayerTop, Bottom)
+    board :: Board 'Core =
+      Board.empty (Teams team team)
+        & (\b -> Board.setCreature b pSpot cSpot beholder)
+        & (\b -> Board.addToHand b pSpot (IDN StrengthPot))
+    board' :: Board 'Core =
+      Game.play shared board (Game.Place' pSpot (Game.CardTarget pSpot cSpot) (IDN StrengthPot))
+        & (\case Left errMsg -> error $ Text.unpack errMsg; Right b' -> b')
+        & (\(Game.PolyResult _ b _ _) -> b)
+    board'' :: Board 'Core = BoardInstances.boardStart board' pSpot
+    ckind = Card.Beholder
+    beholder :: Creature 'Core = mkCreature shared ckind team False
+    beholderUI :: Creature 'UI =
+      SharedModel.idToCreature shared (CreatureID ckind team) []
+        & fromJust
+
 testStatChange =
   describe "StatChange is a well behaved Monoid" $ do
     prop "mempty <> change == change" $
@@ -520,6 +549,7 @@ main shared = do
   testBreathIce shared
   testCharge shared
   testSquire shared
+  testStrengthPot shared
   testVeteran shared
   testZealot shared
   -- PBT tests

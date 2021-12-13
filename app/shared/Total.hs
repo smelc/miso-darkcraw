@@ -62,6 +62,7 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
     +^ skBannerBonus
     +^ chargeBonus
     +^ squireBonus
+    +^ strengthPotBonus
   where
     crushingMace = mconcat $ replicate nbMaces maceDamage
       where
@@ -102,6 +103,10 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
               Just Creature {skills = skills'} | Skill.Squire `elem` skills' -> Constants.squireAttackBonus
               _ -> 0
         _ -> 0
+    strengthPotBonus =
+      filter ((==) Skill.StrengthPot) skills
+        & natLength
+        & ((*) Constants.strengthPotAttackBonus)
 
 -- | Whether a creature causes fear
 causesFear ::

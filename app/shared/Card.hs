@@ -184,6 +184,7 @@ data Neutral
   | Life
   | Pandemonium
   | Plague
+  | StrengthPot
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
 allNeutrals :: [Neutral]
@@ -212,7 +213,6 @@ data Item
   | FlailOfTheDamned
   | SkBanner
   | SpikyMace
-  | StrengthPot
   | SwordOfMight
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
@@ -370,7 +370,7 @@ rawTeamDeck cards t =
     -- Initial neutrals
     neutrals =
       case t of
-        Evil -> 1 * Pandemonium
+        Evil -> 1 * Pandemonium ++ 1 * StrengthPot
         Human -> 1 * Health ++ 1 * Life
         Undead -> 2 * InfernalHaste ++ 1 * Plague
         ZKnights -> 1 * Life
@@ -436,6 +436,7 @@ targetType id =
     IDN InfernalHaste -> PlayerTargetType
     IDN Pandemonium -> PlayerTargetType
     IDN Plague -> PlayerTargetType
+    IDN StrengthPot -> CardTargetType Occupied
 
 -- * Classes and instances
 

@@ -40,6 +40,8 @@ data T blow drawCard fame fear regen source stupid terror
     Regeneration regen
   | -- | Upon a kill, killed neighbors get -1 attack
     Sadism
+  | -- | Strength potion in action
+    StrengthPot
   | -- | Creature creates mana at beginning of turn
     Source source -- Nat
   | -- | Knight in front (if any) gains +1 hp and +1 attack upon arrival
@@ -113,6 +115,7 @@ lift skill =
     Sadism -> Sadism
     Squire -> Squire
     Source (n, _) -> Source n
+    StrengthPot -> StrengthPot
     Stupid4 {} -> Stupid4 ()
     Terror {} -> Terror ()
     Unique -> Unique
@@ -144,6 +147,7 @@ unlift skill =
     Sadism -> Sadism
     Source n -> Source (n, True)
     Squire -> Squire
+    StrengthPot -> StrengthPot
     Stupid4 {} -> Stupid4 0
     Terror {} -> Terror True
     Unique -> Unique

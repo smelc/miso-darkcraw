@@ -8,6 +8,7 @@
 module CardInstances where
 
 import Card
+import Data.Function ((&))
 import Skill
 
 -- | Class for things that can be reset at the start of a turn
@@ -29,5 +30,10 @@ instance Startable Skill.State where
   start (Stupid4 i) = Stupid4 $ i + 1
   start a = a
 
+instance Startable [Skill.State] where
+  start skills =
+    filter ((/=) Skill.StrengthPot) skills -- Remove potion of strength effect
+      & map start
+
 instance Startable (Creature 'Core) where
-  start Creature {..} = Creature {skills = map start skills, ..}
+  start Creature {..} = Creature {skills = start skills, ..}
