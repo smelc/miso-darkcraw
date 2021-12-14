@@ -377,7 +377,7 @@ setScore board pSpot score =
 toHoleyInPlace :: Board 'Core -> [(Spots.Player, Spots.Card, Maybe (Creature 'Core))]
 toHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
-    | pSpot <- allPlayersSpots,
+    | pSpot <- Spots.allPlayers,
       cSpot <- Spots.allCards,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]

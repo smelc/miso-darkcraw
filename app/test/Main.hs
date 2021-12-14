@@ -463,7 +463,7 @@ main = hspec $ do
     it "attackOrder" $
       all
         (\pSpot -> length Spots.allCards == length (Game.attackOrder pSpot))
-        allPlayersSpots
+        Spots.allPlayers
   let shared = SharedModel.unsafeGet
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $

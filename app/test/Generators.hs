@@ -146,7 +146,7 @@ instance Arbitrary Tile where
   shrink = genericShrink
 
 instance Arbitrary Spots.Player where
-  arbitrary = elements $ Spots.allPlayersSpots
+  arbitrary = elements $ Spots.allPlayers
   shrink = genericShrink
 
 instance Arbitrary Turn where

@@ -170,7 +170,7 @@ boardToInPlaceCells ctxt@InPlaceCellContext {z} m@GameModel {board} dragTargetTy
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
-  let playerTargets = [boardToPlayerTarget (z + 1) m dragTargetType pSpot | pSpot <- allPlayersSpots]
+  let playerTargets = [boardToPlayerTarget (z + 1) m dragTargetType pSpot | pSpot <- Spots.allPlayers]
   return [div_ [] $ main ++ catMaybes playerTargets]
   where
     mainM =

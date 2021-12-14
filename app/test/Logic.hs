@@ -378,7 +378,7 @@ testTransient shared =
     pred (Left errMsg) = traceShow errMsg False
     pred (Right (Game.PolyResult _ board'' _ _)) =
       Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
-        && (map (Board.toDiscarded board'') allPlayersSpots & all null) -- Discarded stack is empty
+        && (map (Board.toDiscarded board'') Spots.allPlayers & all null) -- Discarded stack is empty
 
 testTeamDeck shared =
   describe "Card.rawTeamDeck" $ do

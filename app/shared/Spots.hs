@@ -125,9 +125,9 @@ line = \case
 
 -- * Functions about 'PlayerSpot'
 
--- | All 'Spots.Player' values. TODO @smelc rename me into allPlayers
-allPlayersSpots :: [Spots.Player]
-allPlayersSpots = [minBound ..]
+-- | All 'Spots.Player' values.
+allPlayers :: [Spots.Player]
+allPlayers = [minBound ..]
 
 -- | The spot of the player that starts a game
 startingPlayerSpot :: Spots.Player
