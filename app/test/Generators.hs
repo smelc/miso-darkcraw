@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -157,10 +158,6 @@ instance Arbitrary DeathCause where
   shrink = genericShrink
 
 instance Arbitrary InPlaceEffect where
-  arbitrary = genericArbitraryU
-  shrink = genericShrink
-
-instance Arbitrary InPlaceEffects where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

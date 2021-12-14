@@ -20,7 +20,7 @@
 module Board
   ( Teams (..),
     InPlaceEffect (..),
-    InPlaceEffects (..),
+    InPlaceEffects,
     InPlaceType,
     bottomSpotOfTopVisual,
     setPart,
@@ -174,15 +174,7 @@ instance Monoid InPlaceEffect where
         scoreChange = 0
       }
 
--- TODO @smelc remove the newtype
-newtype InPlaceEffects = InPlaceEffects {unInPlaceEffects :: Map.Map Spots.Card InPlaceEffect}
-  deriving (Eq, Generic, Show)
-
-instance Semigroup InPlaceEffects where
-  InPlaceEffects m1 <> InPlaceEffects m2 = InPlaceEffects (Map.unionWith (<>) m1 m2)
-
-instance Monoid InPlaceEffects where
-  mempty = InPlaceEffects mempty
+type InPlaceEffects = Map.Map Spots.Card InPlaceEffect
 
 -- TODO @smelc Move the type parameter inside the map, to share code
 -- between the two cases.

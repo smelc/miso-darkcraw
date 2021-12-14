@@ -203,8 +203,8 @@ reportEffect ::
 reportEffect pSpot cSpot effect =
   tell $ Board {playerTop = pTop, playerBottom = pBot}
   where
-    effectfull = InPlaceEffects $ Map.singleton cSpot effect
-    effectless = InPlaceEffects Map.empty
+    effectfull = Map.singleton cSpot effect
+    effectless = mempty
     (botInPlace, topInPlace) =
       case pSpot of
         PlayerBot -> (effectfull, effectless)

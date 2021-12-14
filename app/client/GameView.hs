@@ -258,7 +258,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@GameModel {anims, board, i
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
     beingHovered = interaction == HoverInPlaceInteraction target
     attackEffect =
-      (Board.toInPlace anims pSpot & unInPlaceEffects) Map.!? cSpot
+      (Board.toInPlace anims pSpot) Map.!? cSpot
         & fromMaybe mempty
     bounceStyle =
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")

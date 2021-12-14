@@ -194,7 +194,6 @@ scorePluses board z pSpot = do
     builder attrs = div_ attrs [Miso.text "+1"]
     scoreIncrease =
       Board.toInPlace board pSpot
-        & Board.unInPlaceEffects
         & Map.elems
         & map (\InPlaceEffect {scoreChange} -> scoreChange)
         & sum
@@ -330,8 +329,8 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
     deck :: [Card 'Core] =
       Board.toPart board pSpot & getter & map (Card.unlift . SharedModel.unsafeIdentToCard shared)
     atColonSize = length deck
-    attackEffects = Board.toInPlace anims pSpot & unInPlaceEffects
-    nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 attackEffects
+    pAnims = Board.toInPlace anims pSpot
+    nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 pAnims
     animName = "stackPlus"
     animData =
       (animationData animName "1s" "linear")

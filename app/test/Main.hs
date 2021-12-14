@@ -314,16 +314,16 @@ testInPlaceEffectsMonoid =
     hasCommonFadeout effects1 effects2 =
       any
         ( \cSpot ->
-            nonEmptyFadeout ((unInPlaceEffects effects1) Map.!? cSpot)
-              && nonEmptyFadeout ((unInPlaceEffects effects2) Map.!? cSpot)
+            nonEmptyFadeout (effects1 Map.!? cSpot)
+              && nonEmptyFadeout (effects2 Map.!? cSpot)
         )
         Spots.allCards
     nonEmptyFadeout Nothing = False
     nonEmptyFadeout (Just effect) = not $ null $ fadeOut effect
     rmCommonFadeout e1 e2 | hasCommonFadeout e1 e2 = (rmFadeout e1, e2)
     rmCommonFadeout e1 e2 = (e1, e2)
-    rmFadeout InPlaceEffects {unInPlaceEffects = effects} =
-      Map.map (\effect -> effect {fadeOut = []}) effects & InPlaceEffects
+    rmFadeout effects =
+      Map.map (\effect -> effect {fadeOut = []}) effects
 
 testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
