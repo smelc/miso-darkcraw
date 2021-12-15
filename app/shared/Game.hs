@@ -405,6 +405,7 @@ idToHandIndex board pSpot id =
 playNeutralM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
+  MonadState SharedModel m =>
   Board 'Core ->
   Spots.Player ->
   Target ->
@@ -427,6 +428,16 @@ playNeutralM board _playingPlayer target n =
       let increase = 3
       reportEffect pSpot cSpot (mempty {hitPointsChange = increase})
       board' <- addHitpoints pSpot cSpot increase
+      return (board', Nothing)
+    (Pandemonium, PlayerTarget pSpot) -> do
+      -- Take existing creatures
+      let creatures = Board.toInPlace board pSpot & Map.elems
+      -- Generate random spots
+      spots <- SharedModel.shuffleM Spots.allCards
+      -- Put existing creatures on new spots
+      let board' = Board.setInPlace board pSpot (Map.fromList $ zip spots creatures)
+      -- Report fadeIn effects on each new spot
+      traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {fadeIn = True})) spots
       return (board', Nothing)
     (Plague, PlayerTarget pSpot) -> do
       board' <- applyPlagueM board pSpot

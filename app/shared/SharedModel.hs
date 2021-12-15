@@ -25,6 +25,7 @@ module SharedModel
     unsafeIdentToCard,
     SharedModel.liftSkill,
     shuffle,
+    SharedModel.shuffleM,
     create,
     SharedModel.getStdGen,
     getCards,
@@ -281,7 +282,21 @@ shuffle :: SharedModel -> [a] -> (SharedModel, [a])
 shuffle shared@SharedModel {sharedStdGen} l =
   (shared {sharedStdGen = stdgen'}, l')
   where
-    (l', stdgen') = shuffleM l & flip runRandT sharedStdGen & runIdentity
+    (l', stdgen') =
+      System.Random.Shuffle.shuffleM l
+        & flip runRandT sharedStdGen
+        & runIdentity
+
+-- | Shuffles the given list with the random generator of 'SharedModel'
+shuffleM :: MonadState SharedModel m => [a] -> m [a]
+shuffleM =
+  \case
+    [] -> pure []
+    l -> do
+      shared <- get
+      let (shared', l') = shuffle shared l
+      put shared'
+      return l'
 
 -- | Returns a random element from the list, using 'sharedStdGen' as
 -- the random generator.

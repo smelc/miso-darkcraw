@@ -75,6 +75,8 @@
 <li class="src short">
 <a href="#v:shuffle">shuffle</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [a] -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, [a])</li>
 <li class="src short">
+<a href="#v:shuffleM">shuffleM</a> :: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> m =&gt; [a] -&gt; m [a]</li>
+<li class="src short">
 <a href="#v:create">create</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; [<a href="Skill.html#t:Pack" title="Skill">Pack</a>] -&gt; [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>] -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
 </li>
 <li class="src short">
@@ -252,6 +254,10 @@
 <p class="src"><a id="v:shuffle" class="def">shuffle</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; [a] -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, [a]) <a href="#v:shuffle" class="selflink">#</a></p>
 <div class="doc"><p>Shuffles the second argument with the random generator
  of <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code>. Returns the shuffle and the updated <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code></p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:shuffleM" class="def">shuffleM</a> :: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> m =&gt; [a] -&gt; m [a] <a href="#v:shuffleM" class="selflink">#</a></p>
+<div class="doc"><p>Shuffles the given list with the random generator of <code><a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a></code></p></div>
 </div>
 <div class="top"><p class="src"><a id="v:create" class="def">create</a> :: [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; [<a href="Skill.html#t:Pack" title="Skill">Pack</a>] -&gt; [<a href="Tile.html#t:TileUI" title="Tile">TileUI</a>] -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> <a href="#v:create" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:getStdGen" class="def">getStdGen</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> <a href="#v:getStdGen" class="selflink">#</a></p></div>

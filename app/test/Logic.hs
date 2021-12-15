@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testStrengthPot) where
+module Logic (disturber, main, mkCreature, testPandemonium) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -499,13 +499,12 @@ testStrengthPot shared =
       Board.toInPlaceCreature board'' pSpot cSpot
         `shouldSatisfyJust` (\c -> Total.attack Nothing c == Card.attack beholder)
   where
-    (team, pSpot, cSpot) = (Evil, PlayerTop, Bottom)
+    (team, pSpot, cSpot, strength) = (Evil, PlayerTop, Bottom, IDN StrengthPot)
     board :: Board 'Core =
-      Board.empty (Teams team team)
-        & (\b -> Board.setCreature b pSpot cSpot beholder)
-        & (\b -> Board.addToHand b pSpot (IDN StrengthPot))
+      Board.small shared (Teams team team) (CreatureID ckind team) [] pSpot cSpot
+        & (\b -> Board.addToHand b pSpot strength)
     board' :: Board 'Core =
-      Game.play shared board (Game.Place' pSpot (Game.CardTarget pSpot cSpot) (IDN StrengthPot))
+      Game.play shared board (Game.Place' pSpot (Game.CardTarget pSpot cSpot) strength)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right b' -> b')
         & (\(Game.PolyResult _ b _ _) -> b)
     board'' :: Board 'Core = BoardInstances.boardStart board' pSpot
@@ -514,6 +513,25 @@ testStrengthPot shared =
     beholderUI :: Creature 'UI =
       SharedModel.idToCreature shared (CreatureID ckind team) []
         & fromJust
+
+testPandemonium shared =
+  describe "Pandemonium" $ do
+    it "shuffles the concerned part" $ do
+      apply 0 shared board
+  where
+    (team, pSpot, cSpot, pandemonium) = (Evil, PlayerTop, Bottom, IDN Pandemonium)
+    board :: Board 'Core =
+      Board.small shared (Teams team team) (CreatureID Card.Beholder team) [] pSpot cSpot
+    apply (count :: Int) sh b
+      | count >= 64 = False -- Giving up
+      | (Board.toInPlace b' pSpot & Map.keys) /= [Bottom] = True
+      | otherwise = apply (count + 1) shared' b'
+      where
+        (shared', b') =
+          Game.play sh (addPandemoniumToHand b) (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium)
+            & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
+            & (\(Game.PolyResult s c _ _) -> (s, c))
+        addPandemoniumToHand b = Board.addToHand b pSpot pandemonium
 
 testStatChange =
   describe "StatChange is a well behaved Monoid" $ do
@@ -548,6 +566,7 @@ main shared = do
   testTransient shared
   testBreathIce shared
   testCharge shared
+  testPandemonium shared
   testSquire shared
   testStrengthPot shared
   testVeteran shared
