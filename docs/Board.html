@@ -182,6 +182,8 @@
 <li class="src short">
 <a href="#v:toScore">toScore</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; ScoreType p</li>
 <li class="src short">
+<a href="#v:mapMana">mapMana</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:ManaType" title="Board">ManaType</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<li class="src short">
 <a href="#v:neighbors">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Neighborhood">Neighborhood</a><ul class="subs">
@@ -1004,6 +1006,11 @@
 </div>
 <div class="top"><p class="src"><a id="v:appliesTo" class="def">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:appliesTo" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:toScore" class="def">toScore</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; ScoreType p <a href="#v:toScore" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:mapMana" class="def">mapMana</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:ManaType" title="Board">ManaType</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:mapMana" class="selflink">#</a></p>
+<div class="doc"><p>Changes the mana at the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code>, applying a function
+ on the existing mana.</p></div>
+</div>
 <div class="top"><p class="src"><a id="v:neighbors" class="def">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:neighbors" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Neighborhood" class="def">Neighborhood</a> <a href="#t:Neighborhood" class="selflink">#</a></p>

@@ -528,10 +528,12 @@ testPandemonium shared =
       | otherwise = apply (count + 1) shared' b'
       where
         (shared', b') =
-          Game.play sh (addPandemoniumToHand b) (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium)
+          Game.play sh (prepare b) (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium)
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
             & (\(Game.PolyResult s c _ _) -> (s, c))
-        addPandemoniumToHand b = Board.addToHand b pSpot pandemonium
+        prepare b =
+          Board.addToHand b pSpot pandemonium -- So that card is here
+            & Board.mapMana pSpot ((+) 5) -- And mana is available to play it
 
 testStatChange =
   describe "StatChange is a well behaved Monoid" $ do

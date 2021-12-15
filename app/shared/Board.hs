@@ -55,6 +55,7 @@ module Board
     StackKind (..),
     Board.appliesTo,
     toScore,
+    mapMana,
     neighbors,
     Neighborhood (..),
     toPlayerHoleyInPlace,
@@ -315,6 +316,14 @@ increaseScore board pSpot change =
   Board.setScore board pSpot (score + (natToInt change))
   where
     score = Board.toScore board pSpot
+
+-- | Changes the mana at the given 'Spots.Player', applying a function
+-- on the existing mana.
+mapMana :: Spots.Player -> (Board.ManaType p -> Board.ManaType p) -> Board p -> Board p
+mapMana pSpot f board =
+  setPart board pSpot $ part {Board.mana = f mana}
+  where
+    part@PlayerPart {mana} = toPart board pSpot
 
 -- | Map 'f' over creatures in the given 'Spots.Card' in the given 'Spots.Player'
 mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [Spots.Card] -> Board 'Core -> Board 'Core
