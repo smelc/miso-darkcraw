@@ -15,10 +15,7 @@ import Board
 import qualified Campaign
 import Card
 import Data.Function ((&))
-import Data.Functor ((<&>))
 import Data.List
-import Data.Map.Strict (Map)
-import Data.Map.Strict as Map (singleton, toList, unionWith)
 import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace
@@ -30,275 +27,42 @@ import SharedModel (SharedModel)
 import qualified SharedModel
 import Spots hiding (Card)
 import Test.Hspec
-import TestLib (shouldAllSatisfy)
 import qualified Update
 
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $ do
-    xit "The teams' balance is as expected" $ do
-      -- FIXME @smelc replug me
-      -- We only need to test one team with 'checkBalance' (here 'Human'),
-      -- because 'checkBalance' iterates over enemy teams.
-      checkBalance specs $ (Balance.playAll (mkShareds nbMatches) Human Campaign.Level0 nbTurns) & map snd
-      checkBalance specs $ (Balance.playAll (mkShareds nbMatches) Human Campaign.Level1 nbTurns) & map snd
-      -- 'checkSpecOfFight', however, is for a specific match up.
-      checkSpecOfFight Human (ZKnights, zknightDeck) Campaign.Level1 zspecs
-      checkSpecOfFight Undead (ZKnights, zknightDeck) Campaign.Level1 zspecs
+    it "The teams' balance is as expected" $ do
+      -- Level0
+      check Human Campaign.Level0 Evil $ Stat 41 22 1
+      check Human Campaign.Level0 Undead $ Stat 43 20 1
+      check Human Campaign.Level0 ZKnights $ Stat 32 31 1
+      check Evil Campaign.Level0 Undead $ Stat 33 30 1
+      -- Level1
+      check Human Campaign.Level1 Evil $ Stat 113 75 4
+      check Human Campaign.Level1 Undead $ Stat 201 176 7
+      check Evil Campaign.Level1 Undead $ Stat 41 87 0
     xit "Starting team doesn't have an advantage" $ do
-      checkBalanceStart Undead Undead
-      checkBalanceStart Human Human
+      check Human Campaign.Level0 Human $ Stat 2 1 0
+      check Evil Campaign.Level0 Evil $ Stat 2 1 0
+      check Undead Campaign.Level0 Undead $ Stat 2 1 0
   where
-    checkBalance specs (results :: [Balance.Result]) =
-      Map.toList (classify2 $ classify1 results specs) `shouldAllSatisfy` pred
-    pred :: Show a => Satisfies a => (a, [Balance.Result]) -> Bool
-    pred (spec, results) =
-      go results && isTight
+    check team level opponent expected =
+      shouldBe True $
+        if actual == expected
+          then traceShow (prefix ++ details team actual opponent) True
+          else traceShow (prefix ++ show expected ++ " is WRONG. Witnessed: " ++ show actual) False
       where
-        go [] = traceShow (show spec ++ " satisfied by " ++ show (length results) ++ " result" ++ plural results) True
-        go (r : res)
-          | satisfies r spec = go res
-          | otherwise = traceShow (show r ++ " violates spec " ++ show spec) False
-        isTight =
-          case tight results spec of
-            Wrong -> traceShow ("Unexpected case, satifies should have failed already") False
-            Tight -> True
-            Loose -> traceShow (show spec ++ " is not tight for the following results:\n  " ++ (concat $ intersperse "\n  " (map show results))) False
-    -- Tests the balance of t1 against t2, at the given level
-    checkSpecOfFight t1 p2@(_t2, _t2Deck) level specs =
-      checkBalance specs (playOne (mkShareds nbMatches) t1 level p2 nbTurns)
-    checkBalanceStart t1 t2 =
-      let shareds = take nbEndoMatches seeds & map (SharedModel.withSeed shared)
-       in Balance.play shareds Campaign.Level0 teams nbTurns `shouldSatisfy` checkSpec specs
-      where
-        teams = Teams t1 t2 <&> (\t -> (t, Card.teamDeck uiCards t))
-        uiCards = SharedModel.getCards shared
+        results = Balance.playAll (mkShareds nbMatches) team level nbTurns opponent
+        actual :: Stat = map resultToStat results & mconcat
+        prefix = show team ++ "/" ++ show opponent ++ " matchup at " ++ show level ++ ": "
     seeds = [0, 31 ..]
     mkShareds n = take n seeds & map (SharedModel.withSeed shared)
-    (nbMatches, nbEndoMatches) = (64, nbMatches)
+    nbMatches = 64
     nbTurns :: Nat = 8
-    zknightDeck = SharedModel.getInitialDeck shared ZKnights
-    checkSpec specs r@Balance.Result {..} =
-      case find (satisfies r) specs of
-        Nothing -> traceShow ("Unexpected spec: " ++ show r) False
-        Just spec -> traceShow (show spec ++ " (" ++ show r ++ ")") True
-    specs :: [Balance.Spec] = map Eq eqSpecs ++ map Leq leqSpecs
-    zspecs :: [Balance.Spec] = map Leq zknights
-    eqSpecs =
-      -- Level0
-      map
-        (uncurry FullEqSpec)
-        [ ( SpecShared {topTeam = Human, botTeam = Undead, level = Campaign.Level0},
-            EqSpec {topWins = 43, botWins = 20}
-          ),
-          ( SpecShared {topTeam = Human, botTeam = Evil, level = Campaign.Level0},
-            EqSpec {topWins = 55, botWins = 9}
-          )
-        ]
-    leqSpecs =
-      -- Level1
-      map
-        (uncurry FullLeqSpec)
-        [ ( SpecShared {topTeam = Human, botTeam = Undead, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 45, botMinWins = 18}
-          ),
-          ( SpecShared {topTeam = Human, botTeam = Evil, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 49, botMinWins = 15}
-          )
-        ]
-    zknights =
-      map
-        (uncurry FullLeqSpec)
-        [ ( SpecShared {topTeam = Human, botTeam = ZKnights, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 31, botMinWins = 32}
-          ),
-          ( SpecShared {topTeam = Undead, botTeam = ZKnights, level = Campaign.Level1},
-            LeqSpec {topMaxWins = 33, botMinWins = 31}
-          )
-        ]
-    _desiredSpec balanceRes@Balance.Result {..} =
-      case (min <= winTop, winTop <= max) of
-        (False, _) -> traceShow (showNotEnoughTopWins balanceRes) False
-        (_, False) -> traceShow (showTooManyTopWins balanceRes) False
-        _ -> traceShow (showBalanced balanceRes) True
-      where
-        nbGames = int2Float $ topWins + botWins + draws
-        winTop = int2Float topWins
-        (min, max) = (nbGames * 0.4, nbGames * 0.6)
-    plural l = (if length l == 1 then "" else "s")
-
--- | An expectation of the Balance
-data Spec
-  = Leq FullLeqSpec
-  | Eq FullEqSpec
-  deriving (Eq, Ord)
-
-toSharedSpec :: Balance.Spec -> SpecShared
-toSharedSpec = \case
-  Leq (FullLeqSpec s _) -> s
-  Eq (FullEqSpec s _) -> s
-
-instance Show Balance.Spec where
-  show (Leq spec) = show spec
-  show (Eq spec) = show spec
-
--- | A pair of a 'SpecShared' and a 'EqSpec'
-data FullEqSpec = FullEqSpec SpecShared EqSpec
-  deriving (Eq, Ord)
-
-instance Show FullEqSpec where
-  show (FullEqSpec (SpecShared {topTeam, botTeam}) (EqSpec {topWins, botWins})) =
-    show topTeam ++ " (top): " ++ show topWins ++ " wins, " ++ show botTeam
-      ++ " (bot):"
-      ++ show botWins
-      ++ " wins"
-
--- | A pair of a 'SpecShared' and a 'LeqSpec'
-data FullLeqSpec = FullLeqSpec SpecShared LeqSpec
-  deriving (Eq, Ord)
-
-instance Show FullLeqSpec where
-  show (FullLeqSpec (SpecShared {topTeam, botTeam}) (LeqSpec {topMaxWins, botMinWins})) =
-    show botMinWins ++ " <= " ++ show botTeam ++ " <= _, "
-      ++ "_ <= "
-      ++ show topTeam
-      ++ " <= "
-      ++ show topMaxWins
-
-data Tightness
-  = -- | 'satisfies r a' would return 'False'
-    Wrong
-  | -- | 'satisfies r a' would return 'True', but 'satisfies b' would
-    -- also hold, for some 'b' stricter than 'a'.
-    Loose
-  | -- | 'satisfies r a' would return 'True' and there is no 'stricter' value
-    -- 'b' for which 'satisfies r b' would hold too.
-    Tight
-  deriving (Show)
-
-instance Monoid Tightness where
-  mempty = Tight
-
-instance Semigroup Tightness where
-  (<>) Wrong _ = Wrong
-  (<>) _ Wrong = Wrong
-  (<>) Loose _ = Loose
-  (<>) _ Loose = Loose
-  (<>) Tight Tight = Tight
-
-class Satisfies a where
-  -- | Whether the given 'Balance.Result' satisfies 'a'
-  satisfies :: Balance.Result -> a -> Bool
-
-  -- | See doc of values of 'Tightness'
-  tight :: [Balance.Result] -> a -> Tightness
-
-instance Satisfies Balance.Spec where
-  satisfies r (Leq (FullLeqSpec shared sub)) = satisfies r shared && satisfies r sub
-  satisfies r (Eq (FullEqSpec shared sub)) = satisfies r shared && satisfies r sub
-
-  tight rs (Leq (FullLeqSpec shared sub)) = tight rs shared <> tight rs sub
-  tight rs (Eq (FullEqSpec shared sub)) = tight rs shared <> tight rs sub
-
-instance Satisfies SpecShared where
-  satisfies
-    Balance.Result {topTeam = actualTopTeam, botTeam = actualBotTeam, level = actualLevel}
-    (SpecShared {topTeam = expectedTopTeam, botTeam = expectedBotTeam, level = expectedLevel}) =
-      actualTopTeam == expectedTopTeam
-        && actualBotTeam == expectedBotTeam
-        && actualLevel == expectedLevel
-  tight rs a =
-    if all (flip satisfies a) rs then Tight else Wrong
-
-instance Satisfies EqSpec where
-  satisfies
-    (Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
-    (EqSpec {..}) =
-      actualTopWins == topWins && actualBotWins == botWins
-  tight rs a =
-    if all (flip satisfies a) rs then Tight else Wrong
-
-data LeqTightness
-  = -- | Both min bound and max bound reached
-    LeqTight
-  | -- | Min bound was reached
-    MinReached
-  | -- | Max bound was reached
-    MaxReached
-  | -- | Neither min bound nor max bound was reached
-    LeqLoose
-  deriving (Eq)
-
-instance Monoid LeqTightness where
-  mempty = LeqLoose
-
-instance Semigroup LeqTightness where
-  (<>) LeqLoose b = b
-  (<>) b LeqLoose = b
-  (<>) LeqTight _ = LeqTight
-  (<>) _ LeqTight = LeqTight
-  (<>) MinReached MaxReached = LeqTight
-  (<>) MaxReached MinReached = LeqTight
-  (<>) MinReached MinReached = MinReached
-  (<>) MaxReached MaxReached = MinReached
-
-instance Satisfies LeqSpec where
-  satisfies
-    (Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
-    (LeqSpec {..}) =
-      actualTopWins <= topMaxWins && botMinWins <= actualBotWins
-
-  tight rs spec@(LeqSpec {topMaxWins, botMinWins}) =
-    case rs of
-      [] -> mempty -- Degenerated case
-      _ ->
-        let pairs :: [(Bool, LeqTightness)] = map one rs
-         in if any not (map fst pairs)
-              then Wrong
-              else case mconcat $ map snd pairs of
-                LeqLoose -> Loose
-                MinReached -> Loose
-                MaxReached -> Loose
-                LeqTight -> Tight
-    where
-      one r@(Balance.Result {topWins = actualTopWins, botWins = actualBotWins})
-        | actualTopWins == topMaxWins && actualBotWins == botMinWins = (True, LeqTight)
-        | actualTopWins == topMaxWins = (True, MaxReached)
-        | actualBotWins == botMinWins = (True, MinReached)
-        | satisfies r spec = (True, LeqLoose)
-        | otherwise = (False, LeqLoose)
-
--- | A spec specifies an expectation on the balance. 'SpecShared'
--- contains the data shared by all specs kinds.
-data SpecShared = SpecShared
-  { -- | The 'Team' in the top part
-    topTeam :: Team,
-    -- | The 'Team' in the bottom part
-    botTeam :: Team,
-    -- | The 'Level' being consider
-    level :: Campaign.Level
-  }
-  deriving (Eq, Ord)
-
-data EqSpec = EqSpec
-  { -- | The exact expected number of the top team
-    topWins :: Int,
-    -- | The exact expected number of the bottom team
-    botWins :: Int
-  }
-  deriving (Eq, Ord)
-
--- | A spec with bounds
-data LeqSpec = LeqSpec
-  { -- | The upper bound (included) of the number of wins of the top team
-    topMaxWins :: Int,
-    -- | The lower bound (included) of the number of wins of the bottom team
-    botMinWins :: Int
-  }
-  deriving (Eq, Ord)
 
 -- | The result of executing 'play': the number of wins of each team and
--- the number of draws
+-- the number of draws. TODO @smelc Investigate replacing by 'Stat'
 data Result = Result
   { level :: Campaign.Level,
     topTeam :: Team,
@@ -309,34 +73,31 @@ data Result = Result
   }
   deriving (Show)
 
--- | Given a list of results and a list of specs, returns a list of pairs
--- of a result and specs, such that only the specs in the pair can satisfy
--- this result. This partial satisfaction is obtained by only
--- checking for compatibility of the 'SpecShared' part of every 'Balance.Spec'.
-classify1 :: [Balance.Result] -> [Balance.Spec] -> [(Balance.Result, [Balance.Spec])]
-classify1 results specs =
-  case results of
-    [] -> []
-    r : rs ->
-      (r, rSpecs) : classify1 rs specs
-      where
-        rSpecs = Prelude.filter (\spec -> satisfies r (toSharedSpec spec)) specs
+data Stat = Stat {topWins :: Nat, botWins :: Nat, draws :: Nat}
+  deriving (Eq, Show)
 
--- | Given the result of 'classify1', put it in shape for calling
--- 'satisfies' easily afterwards.
-classify2 :: [(Balance.Result, [Balance.Spec])] -> Map Balance.Spec [Balance.Result]
-classify2 pairs =
-  case pairs of
-    [] -> mempty
-    (r, []) : _ -> error $ "No matching SpecShared found for " ++ show r ++ ". Did you forget a spec?"
-    (r, [spec]) : rest -> Map.unionWith (++) (Map.singleton spec [r]) (classify2 rest)
-    (r, specs) : _ ->
-      error $
-        "Too many matching SpecShared ("
-          ++ show (length specs)
-          ++ ") found for "
-          ++ show r
-          ++ ". Expected exactly one."
+instance Semigroup Stat where
+  Stat {topWins = t1, botWins = b1, draws = d1} <> Stat {topWins = t2, botWins = b2, draws = d2} =
+    Stat {topWins = t1 + t2, botWins = b1 + b2, draws = d1 + d2}
+
+instance Monoid Stat where
+  mempty = Stat {topWins = 0, botWins = 0, draws = 0}
+
+details :: Team -> Stat -> Team -> String
+details top Stat {topWins, botWins, draws} bot =
+  (showLine top topWins ++ " VS ")
+    ++ (showLine bot botWins)
+    ++ (" [" ++ show draws ++ " draws (" ++ showP (mkPercent draws) ++ ")]")
+  where
+    total :: Float = fromIntegral $ topWins + botWins + draws
+    mkPercent x = (100.0 / total) * (fromIntegral x)
+    showP (x :: float) = (takeWhile ((/=) '.') $ show x) ++ "%"
+    showLine team wins =
+      show team ++ " " ++ show wins ++ " wins (" ++ showP (mkPercent wins) ++ ")"
+
+resultToStat :: Result -> Stat
+resultToStat Balance.Result {..} =
+  Stat {topWins = Nat.intToNat topWins, botWins = Nat.intToNat botWins, draws = Nat.intToNat draws}
 
 mkEmpty :: Campaign.Level -> Teams Team -> Balance.Result
 mkEmpty level Teams {topTeam, botTeam} =
@@ -352,17 +113,17 @@ playAll ::
   Campaign.Level ->
   -- | The number of turns to play
   Nat ->
+  -- | The opponent team
+  Team ->
   -- | Results against the given team
-  [(Team, Balance.Result)]
-playAll shareds team level nbTurns =
-  [ (opponent, play shareds level teams nbTurns)
-    | opponent <- otherTeams,
-      teamDeck <- decks team,
+  [Balance.Result]
+playAll shareds team level nbTurns opponent =
+  [ play shareds level teams nbTurns
+    | teamDeck <- decks team,
       opponentDeck <- decks opponent,
       let teams = Teams (team, teamDeck) (opponent, opponentDeck)
   ]
   where
-    otherTeams = [t | t <- Campaign.anywhere, t /= team]
     ids t =
       Campaign.augment
         (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
