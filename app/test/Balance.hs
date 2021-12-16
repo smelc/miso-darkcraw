@@ -19,7 +19,6 @@ import Data.List
 import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace
-import GHC.Float
 import qualified Match
 import Model (GameModel (..))
 import Nat
@@ -53,25 +52,12 @@ main shared =
           then traceShow (prefix ++ details team actual opponent) True
           else traceShow (prefix ++ show expected ++ " is WRONG. Witnessed: " ++ show actual) False
       where
-        results = Balance.playAll (mkShareds nbMatches) team level nbTurns opponent
-        actual :: Stat = map resultToStat results & mconcat
+        actual = Balance.playAll (mkShareds nbMatches) team level nbTurns opponent & mconcat
         prefix = show team ++ "/" ++ show opponent ++ " matchup at " ++ show level ++ ": "
     seeds = [0, 31 ..]
     mkShareds n = take n seeds & map (SharedModel.withSeed shared)
     nbMatches = 64
     nbTurns :: Nat = 8
-
--- | The result of executing 'play': the number of wins of each team and
--- the number of draws. TODO @smelc Investigate replacing by 'Stat'
-data Result = Result
-  { level :: Campaign.Level,
-    topTeam :: Team,
-    topWins :: Int,
-    botTeam :: Team,
-    botWins :: Int,
-    draws :: Int
-  }
-  deriving (Show)
 
 data Stat = Stat {topWins :: Nat, botWins :: Nat, draws :: Nat}
   deriving (Eq, Show)
@@ -95,14 +81,6 @@ details top Stat {topWins, botWins, draws} bot =
     showLine team wins =
       show team ++ " " ++ show wins ++ " wins (" ++ showP (mkPercent wins) ++ ")"
 
-resultToStat :: Result -> Stat
-resultToStat Balance.Result {..} =
-  Stat {topWins = Nat.intToNat topWins, botWins = Nat.intToNat botWins, draws = Nat.intToNat draws}
-
-mkEmpty :: Campaign.Level -> Teams Team -> Balance.Result
-mkEmpty level Teams {topTeam, botTeam} =
-  Balance.Result {topWins = 0, botWins = 0, draws = 0, ..}
-
 playAll ::
   -- | The models to use for a start (length of this list implies the
   -- the number of games to play)
@@ -116,7 +94,7 @@ playAll ::
   -- | The opponent team
   Team ->
   -- | Results against the given team
-  [Balance.Result]
+  [Stat]
 playAll shareds team level nbTurns opponent =
   [ play shareds level teams nbTurns
     | teamDeck <- decks team,
@@ -149,7 +127,7 @@ playOne ::
   -- | The number of turns to play
   Nat ->
   -- | Results
-  [Balance.Result]
+  [Stat]
 playOne shareds team level (opponent, opponentDeck) nbTurns =
   [ play shareds level teams nbTurns
     | -- Try permutations of opponentDeck, for variety
@@ -178,23 +156,22 @@ play ::
   Teams (Team, [Card 'Core]) ->
   -- | The number of turns to play
   Nat ->
-  Balance.Result
+  Stat
 play shareds level teams nbTurns =
   go shareds
     & map Match.matchResult
-    & count (mkEmpty level $ fmap fst teams)
+    & count mempty
   where
     go (shared : rest) =
       let result = Match.play (Update.levelNGameModel AI.Easy shared level teams) nbTurns
        in result : go rest
     go [] = []
-    count :: Result -> [Match.MatchResult] -> Balance.Result
+    count :: Stat -> [Match.MatchResult] -> Stat
     count acc [] = acc
-    count b@Balance.Result {draws} (Match.Draw : tail) = count b {draws = draws + 1} tail
-    count tuple (Match.Error {} : tail) = count tuple tail -- not this test's business to fail on Error
-    count b@Balance.Result {topWins} (Match.Win PlayerTop : tail) = count b {topWins = topWins + 1} tail
-    count b@Balance.Result {botWins} (Match.Win PlayerBot : tail) =
-      count b {botWins = botWins + 1} tail
+    count s (Match.Error {} : tail) = count s tail -- not this test's business to fail on Error
+    count s@Stat {draws} (Match.Draw : tail) = count s {draws = draws + 1} tail
+    count s@Stat {topWins} (Match.Win PlayerTop : tail) = count s {topWins = topWins + 1} tail
+    count s@Stat {botWins} (Match.Win PlayerBot : tail) = count s {botWins = botWins + 1} tail
     _logString Match.Result {Match.models, Match.matchResult} =
       case matchResult of
         Match.Draw -> "Draw " ++ show (team PlayerTop) ++ " VS " ++ show (team PlayerBot)
@@ -226,61 +203,3 @@ play shareds level teams nbTurns =
             idToStr (IDN n) = show n
             freqIdToStr (id, 1) = idToStr id
             freqIdToStr (id, i) = show i ++ idToStr id
-
-showNotEnoughTopWins :: Result -> String
-showNotEnoughTopWins Balance.Result {..} =
-  show topTeam
-    ++ " VS "
-    ++ show botTeam
-    ++ ": not enough wins ("
-    ++ show topTeam
-    ++ "/"
-    ++ show nbGames
-    ++ "): "
-    ++ show winTop
-    ++ ", expected at least "
-    ++ show min
-    ++ " (draws: "
-    ++ show draws
-    ++ ", "
-    ++ show botTeam
-    ++ " wins "
-    ++ show botWins
-    ++ ", level "
-    ++ show level
-    ++ ")"
-  where
-    (_, winTop) = (int2Float $ topWins + botWins, int2Float topWins)
-    nbGames = int2Float $ botWins + draws + topWins
-    (min, _max) = minMax nbGames
-
-showTooManyTopWins :: Result -> String
-showTooManyTopWins Balance.Result {..} =
-  show topTeam
-    ++ " VS "
-    ++ show botTeam
-    ++ ": too many wins ("
-    ++ show topWins
-    ++ "/"
-    ++ show nbGames
-    ++ "): "
-    ++ show topTeam
-    ++ ", expected at most "
-    ++ show max
-    ++ " (level: "
-    ++ show level
-    ++ ")"
-  where
-    nbGames = int2Float $ botWins + draws + topWins
-    (_min, max) = minMax nbGames
-
-showBalanced :: Result -> String
-showBalanced Balance.Result {..} =
-  (show min ++ " <= " ++ show winTop ++ " (" ++ show topTeam ++ ") <= " ++ show max ++ ", " ++ show level)
-  where
-    nbGames = int2Float $ topWins + botWins + draws
-    winTop = int2Float topWins
-    (min, max) = minMax nbGames
-
-minMax :: Float -> (Float, Float)
-minMax nbGames = (nbGames * 0.4, nbGames * 0.6)
