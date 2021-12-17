@@ -33,14 +33,14 @@ main shared =
   describe "Balance" $ do
     it "The teams' balance is as expected" $ do
       -- Level0
-      check Human Campaign.Level0 Evil $ Stat 41 22 1
+      check Human Campaign.Level0 Evil $ Stat 40 23 1
       check Human Campaign.Level0 Undead $ Stat 43 20 1
       check Human Campaign.Level0 ZKnights $ Stat 32 31 1
-      check Evil Campaign.Level0 Undead $ Stat 33 30 1
+      check Evil Campaign.Level0 Undead $ Stat 29 33 2
       -- Level1
-      check Human Campaign.Level1 Evil $ Stat 113 75 4
+      check Human Campaign.Level1 Evil $ Stat 122 67 3
       check Human Campaign.Level1 Undead $ Stat 201 176 7
-      check Evil Campaign.Level1 Undead $ Stat 41 87 0
+      check Evil Campaign.Level1 Undead $ Stat 54 70 4
     xit "Starting team doesn't have an advantage" $ do
       check Human Campaign.Level0 Human $ Stat 2 1 0
       check Evil Campaign.Level0 Evil $ Stat 2 1 0

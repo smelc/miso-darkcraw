@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testPandemonium) where
+module Logic (disturber, main, mkCreature, testAce) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -250,6 +250,30 @@ testPlague shared =
       where
         pSpot = PlayerTop
         board = mkBoard teams pSpot cids & mapInPlace f pSpot
+
+testStatChange =
+  describe "StatChange is a well behaved Monoid" $ do
+    prop "mempty <> change == change" $
+      \(change :: Game.StatChange) ->
+        mempty <> change `shouldBe` change
+    prop "change <> mempty == change" $
+      \(change :: Game.StatChange) ->
+        change <> mempty `shouldBe` change
+    prop "change <> change' == change' <> change" $
+      \(c1 :: Game.StatChange, c2) ->
+        c1 <> c2 `shouldBe` c1 <> c2
+
+testDamageMonoid =
+  describe "Damage is a well behaved Monoid" $ do
+    prop "mempty <> d == d" $
+      \(d :: Damage) ->
+        mempty <> d `shouldBe` d
+    prop "d <> mempty == d" $
+      \(d :: Damage) ->
+        d <> mempty `shouldBe` d
+    prop "d <> d' == d' <> d" $
+      \(d :: Damage, d') ->
+        d <> d' `shouldBe` d' <> d
 
 -- | 'mkCreature shared kind t transient' creates a creature with the
 -- given kind and team. The 'Bool' is whether the creature should be transient.
@@ -535,29 +559,32 @@ testPandemonium shared =
           Board.addToHand b pSpot pandemonium -- So that card is here
             & Board.mapMana pSpot ((+) 5) -- And mana is available to play it
 
-testStatChange =
-  describe "StatChange is a well behaved Monoid" $ do
-    prop "mempty <> change == change" $
-      \(change :: Game.StatChange) ->
-        mempty <> change `shouldBe` change
-    prop "change <> mempty == change" $
-      \(change :: Game.StatChange) ->
-        change <> mempty `shouldBe` change
-    prop "change <> change' == change' <> change" $
-      \(c1 :: Game.StatChange, c2) ->
-        c1 <> c2 `shouldBe` c1 <> c2
-
-testDamageMonoid =
-  describe "Damage is a well behaved Monoid" $ do
-    prop "mempty <> d == d" $
-      \(d :: Damage) ->
-        mempty <> d `shouldBe` d
-    prop "d <> mempty == d" $
-      \(d :: Damage) ->
-        d <> mempty `shouldBe` d
-    prop "d <> d' == d' <> d" $
-      \(d :: Damage, d') ->
-        d <> d' `shouldBe` d' <> d
+testAce shared =
+  describe "Ace" $ do
+    it "is a skill of the Beholder" $ do
+      Card.has beholder (Skill.Ace :: Skill.State)
+    it "can kill creatures anywhere in the enemy part" $ do
+      Board.toInPlace (snd (attack 4 shared board)) enemyPSpot `shouldSatisfy` null
+  where
+    (team, pSpot, enemyPSpot, cSpot, ckind) = (Evil, PlayerTop, otherPlayerSpot pSpot, Top, Card.Beholder)
+    beholder = mkCreature shared ckind team False
+    enemy = mkCreature shared Card.Skeleton Undead False
+    board :: Board 'Core =
+      Board.small shared (Teams team team) (CreatureID Card.Beholder team) [] pSpot cSpot
+        & addEnemy Spots.Top
+        & addEnemy Spots.Bottom
+        & addEnemy Spots.TopLeft
+        & addEnemy Spots.TopRight
+    addEnemy cSpot b = Board.setCreature b enemyPSpot cSpot enemy
+    attack (count :: Int) sh b =
+      if count <= 0
+        then (sh, b)
+        else attack (count - 1) sh' b'
+      where
+        (sh', b') =
+          Game.play sh b (Game.Attack pSpot cSpot False False)
+            & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
+            & (\(Game.PolyResult s c _ _) -> (s, c))
 
 main :: SharedModel -> SpecWith ()
 main shared = do

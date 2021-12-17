@@ -32,6 +32,7 @@ filepathToString Filepath {..} =
 
 data Tile
   = Abomination
+  | Arrow
   | Assassin
   | Beholder
   | BlackAppears0

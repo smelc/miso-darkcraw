@@ -37,6 +37,7 @@ import Constants
 import Control.Monad.Except
 import qualified Damage ()
 import Data.Function ((&))
+import Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
 import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
@@ -361,12 +362,11 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
       where
         attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
         attackedSpots :: [Spots.Card] =
-          case attacker of
+          case attacker <&> flip Game.enemySpots cSpotHov of
             Nothing -> []
-            Just attacker ->
-              case Game.enemySpots attacker cSpotHov of
-                Game.Imprecise -> []
-                Game.Spots spots -> spots
+            Just Game.Ace -> []
+            Just Game.Imprecise -> []
+            Just (Game.Spots spots) -> spots
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.PlayerTarget pSpot)
       | pSpot /= pSpotHov && imprecise ->
         borderSize

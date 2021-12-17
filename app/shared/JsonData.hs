@@ -61,6 +61,7 @@ jsonData = "{\n\
          \  ],\n\
          \  \"tiles\": [\n\
          \    { \"tile\":\"Abomination\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":10 } },\n\
+         \    { \"tile\":\"Arrow\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":3  } },\n\
          \    { \"tile\":\"Assassin\",      \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":10 } },\n\
          \    { \"tile\":\"Beholder\",      \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":10 } },\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\

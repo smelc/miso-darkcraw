@@ -943,6 +943,15 @@ attack board pSpot cSpot =
     (_, Just _) -> return board -- an ally blocks the way
     (Just hitter, _) ->
       case enemySpots hitter cSpot <&> spotsToEnemies of
+        Ace -> do
+          -- Attacker has the Ace skill. Attack an occupied spot.
+          -- Never contributes to score.
+          let occupiedSlots = Board.toInPlace board attackeePSpot & Map.toList
+          occupiedSlots <- SharedModel.shuffleM occupiedSlots <&> safeHead
+          case occupiedSlots of
+            Nothing -> return board -- Nothing to attack. XXX @smelc record question mark animation
+            Just (attackedSpot, attacked) -> do
+              attackOneSpot board (hitter, pSpot, cSpot) (attacked, attackedSpot)
         Imprecise -> do
           -- Attacker has the Imprecise skill. Attack a spot at random.
           -- Never contribute to score.
@@ -970,6 +979,7 @@ attack board pSpot cSpot =
             board
             attackedSpots
   where
+    safeHead = \case [] -> Nothing; x : _ -> Just x
     attackeePSpot = otherPlayerSpot pSpot
     attackersInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
     attackeesInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board attackeePSpot
@@ -1102,16 +1112,18 @@ singleAttack place attacker@Creature {skills} defender = do
         if hps' <= 0
           then mempty {death}
           else mempty {hitPointsChange = Nat.negate hit}
-  return $ hpChangeEffect <> imprecise
+  return $ hpChangeEffect <> ace <> imprecise
   where
     damage = Total.attack (Just place) attacker
     death =
       if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
         then DeathByBreathIce
         else UsualDeath
-    imprecise =
-      if Skill.Imprecise `elem` skills
-        then mempty {fadeOut = [Tile.Explosion]}
+    ace = mkFadeOut Skill.Ace Tile.Arrow
+    imprecise = mkFadeOut Skill.Imprecise Tile.Explosion
+    mkFadeOut skill tile =
+      if skill `elem` skills
+        then mempty {fadeOut = [tile]}
         else mempty
 
 -- | Apply a 'Damage'
@@ -1159,9 +1171,11 @@ allEnemySpots cSpot =
         Bottom -> [Top, Bottom]
         BottomRight -> [TopRight, BottomRight]
 
--- | Type to handle 'Skill.Imprecise' when resolving attacks
+-- | Type to handle various custom skills when resolving attacks
 data EnemySpots a
-  = -- | Creature has 'Skill.Imprecise', enemy spots doesn't make sense
+  = -- | Creature has 'Skill.Ace'
+    Ace
+  | -- | Creature has 'Skill.Imprecise', enemy spots don't make sense
     Imprecise
   | -- | A creature without 'Skill.Imprecise'
     Spots a
@@ -1180,10 +1194,11 @@ enemySpots ::
   Spots.Card ->
   EnemySpots [Spots.Card]
 enemySpots c@Creature {skills} cSpot =
-  case (Damage.dealer c, Skill.Imprecise `elem` skills) of
-    (False, _) -> Spots [] -- Creature cannot attack
-    (True, True) -> Imprecise
-    (True, False) ->
+  case (Damage.dealer c, Skill.Imprecise `elem` skills, Skill.Ace `elem` skills) of
+    (False, _, _) -> Spots [] -- Creature cannot attack
+    (True, _, True) -> Ace -- Ace has precedence over Imprecise
+    (True, True, _) -> Imprecise
+    (True, False, False) ->
       Spots $
         if
             | Skill.Ranged `elem` skills -> spotsInSight

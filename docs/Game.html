@@ -80,7 +80,9 @@
 <a href="#v:keepEffectfull">keepEffectfull</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:EnemySpots">EnemySpots</a> a<ul class="subs">
-<li>= <a href="#v:Imprecise">Imprecise</a>
+<li>= <a href="#v:Ace">Ace</a>
+</li>
+<li>| <a href="#v:Imprecise">Imprecise</a>
 </li>
 <li>| <a href="#v:Spots">Spots</a> a</li>
 </ul>
@@ -456,13 +458,17 @@
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:EnemySpots" class="def">EnemySpots</a> a <a href="#t:EnemySpots" class="selflink">#</a></p>
-<div class="doc"><p>Type to handle <code><a href="Skill.html#v:Imprecise" title="Skill">Imprecise</a></code> when resolving attacks</p></div>
+<div class="doc"><p>Type to handle various custom skills when resolving attacks</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
 <tr>
+<td class="src"><a id="v:Ace" class="def">Ace</a></td>
+<td class="doc"><p>Creature has <code><a href="Skill.html#v:Ace" title="Skill">Ace</a></code></p></td>
+</tr>
+<tr>
 <td class="src"><a id="v:Imprecise" class="def">Imprecise</a></td>
-<td class="doc"><p>Creature has <code><a href="Skill.html#v:Imprecise" title="Skill">Imprecise</a></code>, enemy spots doesn't make sense</p></td>
+<td class="doc"><p>Creature has <code><a href="Skill.html#v:Imprecise" title="Skill">Imprecise</a></code>, enemy spots don't make sense</p></td>
 </tr>
 <tr>
 <td class="src">
