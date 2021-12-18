@@ -195,7 +195,7 @@ type family ManaType (p :: Phase) where
   Board.ManaType 'UI = Int -- Difference with previous state
 
 type family ScoreType (p :: Phase) where
-  ScoreType 'Core = Int -- FIXME @smelc change to Nat
+  ScoreType 'Core = Nat
   ScoreType 'UI = ()
 
 type family StackType (p :: Phase) where
@@ -313,7 +313,7 @@ addToHand board pSpot handElem =
 -- TODO @smelc replace by mapScore
 increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
 increaseScore board pSpot change =
-  Board.setScore board pSpot (score + (natToInt change))
+  Board.setScore board pSpot (score + change)
   where
     score = Board.toScore board pSpot
 

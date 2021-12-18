@@ -96,7 +96,7 @@ testStupidity shared =
     mkTeamData teams = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
     isValid Result {models} = all isValidModel models
     isValidModel GameModel {board, turn} =
-      (natToInt expectedScore) == score
+      expectedScore == score
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
         score = Board.toScore board ogreSpot
