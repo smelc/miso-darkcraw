@@ -56,6 +56,7 @@ module Board
     Board.appliesTo,
     toScore,
     mapMana,
+    mapScore,
     neighbors,
     Neighborhood (..),
     toPlayerHoleyInPlace,
@@ -140,6 +141,9 @@ data InPlaceEffect = InPlaceEffect
     attackBump :: Bool,
     -- | Hits points changed
     hitPointsChange :: Int,
+    -- | Hit points that were not dealt because the defender died. Contributes
+    -- to the score with 'Skill.Powerful'.
+    extra :: Nat,
     -- | Card fades-in
     fadeIn :: Bool,
     -- | Tiles to fade out atop the card spot, both when there's a creature
@@ -151,12 +155,13 @@ data InPlaceEffect = InPlaceEffect
   deriving (Eq, Generic, Show)
 
 instance Semigroup InPlaceEffect where
-  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, hitPointsChange = hp1, fadeIn = fi1, fadeOut = fo1, scoreChange = c1}
-    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, hitPointsChange = hp2, fadeIn = fi2, fadeOut = fo2, scoreChange = c2} =
+  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fadeIn = fi1, fadeOut = fo1, scoreChange = c1}
+    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fadeIn = fi2, fadeOut = fo2, scoreChange = c2} =
       InPlaceEffect
         { attackChange = ac1 + ac2,
           death = d1 <> d2,
           attackBump = ab1 || ab2,
+          extra = e1 + e2,
           hitPointsChange = hp1 + hp2,
           fadeIn = fi1 || fi2,
           fadeOut = fo1 ++ fo2,
@@ -169,6 +174,7 @@ instance Monoid InPlaceEffect where
       { attackChange = 0,
         death = mempty,
         attackBump = False,
+        extra = 0,
         hitPointsChange = 0,
         fadeIn = False,
         fadeOut = [],
@@ -310,7 +316,7 @@ addToHand board pSpot handElem =
     hand = inHand part
     hand' = snoc hand handElem
 
--- TODO @smelc replace by mapScore
+-- TODO @smelc replace by calls to 'mapScore'
 increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
 increaseScore board pSpot change =
   Board.setScore board pSpot (score + change)
@@ -333,6 +339,10 @@ mapInPlace f pSpot cSpots board =
     part@PlayerPart {inPlace} = Board.toPart board pSpot
     (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) inPlace
     inPlace' = Map.union (Map.map f changed) untouched
+
+mapScore :: Board p -> Spots.Player -> (ScoreType p -> ScoreType p) -> Board p
+mapScore board pSpot f =
+  Board.setScore board pSpot (f (Board.toScore board pSpot))
 
 -- | Puts a creature, replacing the existing one if any
 setCreature :: Board 'Core -> Spots.Player -> Spots.Card -> Creature 'Core -> Board 'Core

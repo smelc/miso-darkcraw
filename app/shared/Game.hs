@@ -1011,16 +1011,21 @@ attackOneSpot ::
   (Creature 'Core, Spots.Card) ->
   m (Board 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
-  effect <- singleAttack place hitter hit
+  effect@InPlaceEffect {extra} <- singleAttack place hitter hit
   let board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
   reportEffect pSpot cSpot $ mempty {attackBump = True} -- hitter
   reportEffect hitPspot hitSpot effect -- hittee
-  if (isDead . death) effect
-    then applyFlailOfTheDamned board' hitter pSpot
-    else pure board'
+  board' <-
+    if (isDead . death) effect
+      then applyFlailOfTheDamned board' hitter pSpot
+      else pure board'
+  return $ fPowerful board' extra
   where
     hitPspot = otherPlayerSpot pSpot
     place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
+    fPowerful b extra
+      | has hitter (Skill.Powerful :: Skill.State) = Board.mapScore b pSpot ((+) extra)
+      | otherwise = b
 
 applyInPlaceEffectOnBoard ::
   -- | The effect of the attacker on the hittee
@@ -1106,13 +1111,15 @@ singleAttack ::
   Creature p ->
   m InPlaceEffect
 singleAttack place attacker@Creature {skills} defender = do
-  hit <- deal damage
-  let hps' = Card.hp defender `minusNatClamped` hit
+  hit :: Nat <- deal damage
+  let afterHit :: Int = (natToInt (Card.hp defender)) - (natToInt hit)
+  let extra :: Nat = if afterHit < 0 then Nat.intToNat (abs afterHit) else 0
+  let hps' :: Nat = Nat.intToClampedNat afterHit
   let hpChangeEffect =
         if hps' <= 0
           then mempty {death}
           else mempty {hitPointsChange = Nat.negate hit}
-  return $ hpChangeEffect <> ace <> imprecise
+  return $ (hpChangeEffect {extra}) <> ace <> imprecise
   where
     damage = Total.attack (Just place) attacker
     death =

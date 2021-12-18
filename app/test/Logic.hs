@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testAce) where
+module Logic (disturber, main, mkCreature, testPowerful) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -566,11 +566,12 @@ testAce shared =
     it "can kill creatures anywhere in the enemy part" $ do
       Board.toInPlace (snd (attack 4 shared board)) enemyPSpot `shouldSatisfy` null
   where
-    (team, pSpot, enemyPSpot, cSpot, ckind) = (Evil, PlayerTop, otherPlayerSpot pSpot, Top, Card.Beholder)
+    (team, pSpot, enemyPSpot, cSpot, ckind) =
+      (Evil, PlayerTop, otherPlayerSpot pSpot, Top, Card.Beholder)
     beholder = mkCreature shared ckind team False
     enemy = mkCreature shared Card.Skeleton Undead False
     board :: Board 'Core =
-      Board.small shared (Teams team team) (CreatureID Card.Beholder team) [] pSpot cSpot
+      Board.small shared (Teams team team) (creatureId beholder) [] pSpot cSpot
         & addEnemy Spots.Top
         & addEnemy Spots.Bottom
         & addEnemy Spots.TopLeft
@@ -586,16 +587,36 @@ testAce shared =
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
             & (\(Game.PolyResult s c _ _) -> (s, c))
 
+testPowerful shared =
+  describe "Powerful" $ do
+    it "is a skill of the Daemon" $ do
+      Card.has daemon (Skill.Powerful :: Skill.State)
+    it "works as expected" $ do
+      Board.toScore (attack board) pSpot `shouldSatisfy` ((<) 0)
+  where
+    (team, pSpot, enemyPSpot, cSpot, ckind) =
+      (Evil, PlayerTop, otherPlayerSpot pSpot, Spots.Bottom, Card.Daemon)
+    daemon = mkCreature shared ckind team False
+    enemy = mkCreature shared Card.Skeleton Undead False
+    board :: Board 'Core =
+      Board.small shared (Teams team team) (creatureId daemon) [] pSpot cSpot
+        & (\b -> Board.setCreature b enemyPSpot cSpot enemy)
+    attack b =
+      Game.play shared b (Game.Attack pSpot cSpot False False)
+        & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
+        & (\(Game.PolyResult _ c _ _) -> c)
+
 main :: SharedModel -> SpecWith ()
 main shared = do
-  -- Tests are ordered from the fastest to the slowest
   -- Unit tests
+  testAce shared
+  testBreathIce shared
+  testCharge shared
   testFear shared
   testFillTheFrontline shared
   testTransient shared
-  testBreathIce shared
-  testCharge shared
   testPandemonium shared
+  testPowerful shared
   testSquire shared
   testStrengthPot shared
   testVeteran shared
