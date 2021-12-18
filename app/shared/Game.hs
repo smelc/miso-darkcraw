@@ -1024,7 +1024,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
     hitPspot = otherPlayerSpot pSpot
     place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
     fPowerful b extra
-      | has hitter (Skill.Powerful :: Skill.State) = Board.mapScore b pSpot ((+) extra)
+      | Total.isPowerful hitter = Board.mapScore b pSpot ((+) extra)
       | otherwise = b
 
 applyInPlaceEffectOnBoard ::

@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testPowerful) where
+module Logic (disturber, main, mkCreature, testAxeOfRage) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -45,6 +45,7 @@ import Turn
 -- 'disturbingItem i' returns 'False' if playing 'i' only changes
 -- the 'Spots.Card' it is applied on.
 disturbingItem = \case
+  AxeOfRage -> False
   Crown -> False
   CrushingMace -> False
   FlailOfTheDamned -> False
@@ -606,10 +607,21 @@ testPowerful shared =
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
         & (\(Game.PolyResult _ c _ _) -> c)
 
+testAxeOfRage shared =
+  describe "Axe of Rage" $ do
+    it "gives the powerful skill (1/2)" $ do
+      not (Total.isPowerful sk)
+    it "gives the powerful skill (2/2)" $ do
+      Total.isPowerful (addItem Card.AxeOfRage sk)
+  where
+    sk = mkCreature shared Card.Skeleton Undead False
+    addItem i (c@Creature {items} :: Creature 'Core) = c {items = items ++ [i]}
+
 main :: SharedModel -> SpecWith ()
 main shared = do
   -- Unit tests
   testAce shared
+  testAxeOfRage shared
   testBreathIce shared
   testCharge shared
   testFear shared

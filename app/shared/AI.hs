@@ -285,6 +285,7 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
   sum $ map scoreCreatureItem items
   where
     scoreCreatureItem :: Item -> Nat = \case
+      AxeOfRage -> score attack
       Crown ->
         levelUpBonus + positionBonus
         where
@@ -314,7 +315,7 @@ class Score a where
   score :: a -> Nat
 
 instance Score Damage where
-  score (Damage {base, variance}) = base + variance
+  score (Damage {base, variance}) = base + variance -- TODO @smelc, change to base + (variance `div` 2)
 
 -- | The score of a card. Most powerful cards return a smaller value.
 -- Negative values returned. FIXME @smelc Return positive values
@@ -333,6 +334,7 @@ scoreHandCard = \case
       StrengthPot -> -3
   ItemCard _ ItemObject {item} ->
     case item of
+      AxeOfRage -> -1
       Crown -> -1
       CrushingMace -> -1
       FlailOfTheDamned -> -1

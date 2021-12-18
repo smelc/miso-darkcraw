@@ -124,9 +124,16 @@ causesTerror Creature {skills} = any (\case Skill.Terror _ -> True; _ -> False) 
 -- | Core function for finding out about discipline
 hasDiscipline :: [Skill.Skill] -> [Item] -> Bool
 hasDiscipline skills items =
-  Skill.Discipline `elem` skills || Crown `elem` items
+  Skill.Discipline `elem` skills || Card.Crown `elem` items
+
+hasPowerful :: [Skill.State] -> [Item] -> Bool
+hasPowerful skills items =
+  Skill.Powerful `elem` skills || Card.AxeOfRage `elem` items
 
 -- | Whether a creature has discipline
 isDisciplined :: Creature 'Core -> Bool
 isDisciplined Creature {items, skills} =
   hasDiscipline (map Skill.lift skills) items
+
+isPowerful :: Creature 'Core -> Bool
+isPowerful Creature {items, skills} = hasPowerful skills items

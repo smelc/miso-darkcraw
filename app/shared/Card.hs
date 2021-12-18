@@ -208,7 +208,8 @@ deriving instance Forall Ord p => Ord (NeutralObject p)
 deriving instance Forall Show p => Show (NeutralObject p)
 
 data Item
-  = Crown
+  = AxeOfRage
+  | Crown
   | CrushingMace
   | FlailOfTheDamned
   | SkBanner

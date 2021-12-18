@@ -34,6 +34,7 @@ data Tile
   = Abomination
   | Arrow
   | Assassin
+  | AxeOfRage
   | Beholder
   | BlackAppears0
   | BlackAppears1
