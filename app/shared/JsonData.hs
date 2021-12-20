@@ -47,9 +47,9 @@ jsonData = "{\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          , \"teams\": [\"human\"]  },\n\
          \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          , \"teams\": [\"human\", \"zknights\"]  },\n\
-         \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"tile\":\"Pandemonium\",  \"text\":\"Enemy board is randomly shuffled\", \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"tile\":\"Pandemonium\",  \"text\":\"Randomly shuffle enemy board\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] },\n\
          \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"    , \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"tile\":\"StrengthPot\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"teams\": [\"evil\"] }\n\
+         \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"tile\":\"StrengthPot\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] }\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"tile\":\"AxeOfRage\",        \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
@@ -154,6 +154,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
          \    { \"skill\":\"Regeneration 1\", \"title\":\"Regeneration 1\", \"text\":\"Gain 1 :heart: at beginning of turn\"},\n\
          \    { \"skill\":\"Sadism\",      \"title\":\"Sadism\",     \"text\":\"When killing an enemy, the enemy's neighbors get -1 :crosswed_swords:\"},\n\
+         \    { \"skill\":\"StrengthPot\", \"title\":\"Strength Potion\", \"text\":\"+3 :crossed_swords: until end of turn\"},\n\
          \    { \"skill\":\"Squire\",      \"title\":\"Squire\",     \"text\":\"Knight in front line (if any) gains: +1 :heart: upon arrival and +1 :crossed_swords: while the squire lives\"},\n\
          \    { \"skill\":\"Source 1\",    \"title\":\"Source 1\",   \"text\":\"Gain 1 extra mana at beginning of turn\"},\n\
          \    { \"skill\":\"Source 2\",    \"title\":\"Source 2\",   \"text\":\"Gain 2 extra mana at beginning of turn\"},\n\

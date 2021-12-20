@@ -96,6 +96,7 @@ instance FromJSON Skill where
           "Ranged" -> return Skill.Ranged
           "Sadism" -> return Skill.Sadism
           "Squire" -> return Skill.Squire
+          "StrengthPot" -> return $ Skill.StrengthPot
           "Stupid4" -> return $ Skill.Stupid4 ()
           "Terror" -> return $ Skill.Terror ()
           "Unique" -> return Skill.Unique
@@ -175,7 +176,8 @@ data NeutralObjectJSON = NeutralObjectJSON
     text :: String,
     textSzOffset :: Int,
     tile :: Tile,
-    title :: String
+    title :: String,
+    titleSzOffset :: Int
   }
   deriving (Show)
 
@@ -189,6 +191,7 @@ instance FromJSON NeutralObjectJSON where
       <*> v .:? "text_sz_offset" .!= 0
       <*> v .: "tile"
       <*> v .: "title"
+      <*> v .:? "title_sz_offset" .!= 0
 
 instance FromJSON Item where
   parseJSON = genericParseJSON toLowerConstructorOptions

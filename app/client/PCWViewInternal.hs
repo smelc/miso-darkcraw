@@ -275,15 +275,11 @@ cardView' z shared part card =
         itemDivs =
           map (\(i, item) -> itemDiv zpp shared i item) $ zip [0 ..] items
     -- drawing of Item cards
-    (_, ItemCard CardCommon {text, textSzOffset} ItemObject {title, titleSzOffset}) ->
-      itemNeutralGo text title $ mkFontStyle offFontSize
-      where
-        -- We don't distinguish textSzOffset and titleSzOffset, we just
-        -- take the largest offset.
-        offFontSize = skillFontSize + (min textSzOffset titleSzOffset)
+    (_, ItemCard (cc@CardCommon {text}) ItemObject {title, titleSzOffset}) ->
+      itemNeutralGo text title $ mkFontStyle $ mkFontSize cc titleSzOffset
     -- drawing of Neutral cards
-    (_, NeutralCard CardCommon {text} NeutralObject {title}) ->
-      itemNeutralGo text title $ mkFontStyle skillFontSize
+    (_, NeutralCard (cc@CardCommon {text}) NeutralObject {title, titleSzOffset}) ->
+      itemNeutralGo text title $ mkFontStyle $ mkFontSize cc titleSzOffset
     (core, ui) ->
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
@@ -300,6 +296,10 @@ cardView' z shared part card =
       maybeToList $ case text of
         Nothing -> Nothing
         Just text -> Just $ itemNeutralView zpp card INViewInput {..}
+    mkFontSize CardCommon {textSzOffset} titleSzOffset =
+      -- We don't distinguish textSzOffset and titleSzOffset, we just
+      -- take the largest offset.
+      skillFontSize + (min textSzOffset titleSzOffset)
 
 -- The size of the text in the skill stats, and in other places too
 skillFontSize :: Int

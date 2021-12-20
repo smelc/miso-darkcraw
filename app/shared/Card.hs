@@ -197,7 +197,8 @@ data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
     teams :: TeamsType p,
-    title :: TextType p
+    title :: TextType p,
+    titleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
@@ -293,7 +294,7 @@ instance Unlift ItemObject where
 
 instance Unlift NeutralObject where
   unlift NeutralObject {..} =
-    NeutralObject {neutral, teams = (), title = ()}
+    NeutralObject {neutral, teams = (), title = (), titleSzOffset = ()}
 
 instance Unlift Card where
   unlift :: Card 'UI -> Card 'Core
