@@ -185,7 +185,7 @@ play shareds level teams nbTurns =
             ++ " "
             ++ show (team pSpot)
             ++ "(score: "
-            ++ show (Board.toScore lastBoard pSpot)
+            ++ show (Board.toScore pSpot lastBoard)
             ++ ", "
             ++ show (length cards)
             ++ " cards: "

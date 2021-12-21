@@ -64,18 +64,16 @@ main shared = do
         ++ showScore board PlayerBot
       where
         sign (Just (board :: Board 'Core)) =
-          case compare (scoreTop board) (scoreBot board) of
+          case compare (Board.toScore PlayerTop board) (Board.toScore PlayerBot board) of
             LT -> "<"
             EQ -> "="
             GT -> ">"
         sign Nothing = "?"
-        scoreTop board = Board.toScore board PlayerTop
-        scoreBot board = Board.toScore board PlayerBot
         showScore Nothing _ = "?"
         showScore (Just (board :: Board 'Core)) pSpot =
           show (Board.toPart board pSpot & Board.team)
             ++ " "
-            ++ show (Board.toScore board pSpot)
+            ++ show (Board.toScore pSpot board)
 
 testStupidity :: SharedModel -> SpecWith ()
 testStupidity shared =
@@ -99,7 +97,7 @@ testStupidity shared =
       expectedScore == score
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
-        score = Board.toScore board ogreSpot
+        score = Board.toScore ogreSpot board
         turni = Turn.toNat turn
         pSpot = Turn.toPlayerSpot turn
         stupidFreq = 4

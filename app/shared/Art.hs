@@ -71,7 +71,7 @@ handLine board pSpot =
 
 scoreLine :: Board 'Core -> Spots.Player -> String
 scoreLine board pSpot =
-  replicate cardWidth ' ' ++ " Score: " ++ show (toScore board pSpot)
+  replicate cardWidth ' ' ++ " Score: " ++ show (toScore pSpot board)
 
 stackLine :: StackKind -> [Card.ID] -> LineNumber -> Maybe String
 stackLine Discarded _ 0 = Just "Discarded"

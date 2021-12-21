@@ -321,7 +321,7 @@ increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
 increaseScore board pSpot change =
   Board.setScore board pSpot (score + change)
   where
-    score = Board.toScore board pSpot
+    score = Board.toScore pSpot board
 
 -- | Changes the mana at the given 'Spots.Player', applying a function
 -- on the existing mana.
@@ -342,7 +342,7 @@ mapInPlace f pSpot cSpots board =
 
 mapScore :: Board p -> Spots.Player -> (ScoreType p -> ScoreType p) -> Board p
 mapScore board pSpot f =
-  Board.setScore board pSpot (f (Board.toScore board pSpot))
+  Board.setScore board pSpot (f (Board.toScore pSpot board))
 
 -- | Puts a creature, replacing the existing one if any
 setCreature :: Spots.Player -> Spots.Card -> Creature 'Core -> Board 'Core -> Board 'Core
@@ -455,8 +455,8 @@ toPart :: Board p -> Spots.Player -> PlayerPart p
 toPart Board {playerTop} PlayerTop = playerTop
 toPart Board {playerBottom} PlayerBot = playerBottom
 
-toScore :: Board p -> Spots.Player -> ScoreType p
-toScore board pSpot = toPart board pSpot & score
+toScore :: Spots.Player -> Board p -> ScoreType p
+toScore pSpot board = toPart board pSpot & score
 
 toStack :: Board p -> Spots.Player -> StackType p
 toStack Board {playerTop} PlayerTop = stack playerTop
