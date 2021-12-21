@@ -688,10 +688,11 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
           Just (Command.Reboot pSpot team) ->
             withBoard $ Board.setPart board pSpot part
             where
-              part =
-                (Board.empty team)
-                  { inHand = SharedModel.getInitialDeck shared team & map Card.cardToIdentifier
-                  }
+              (inHand, stack) =
+                SharedModel.getInitialDeck shared team
+                  & map Card.cardToIdentifier
+                  & splitAt Constants.initialHandSize
+              part = (Board.empty team) {inHand, stack}
   where
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
     playEvent eventMaker pSpot =

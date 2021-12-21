@@ -21,7 +21,7 @@ import Spots
 
 instance Startable (PlayerPart 'Core) where
   start PlayerPart {..} =
-    PlayerPart {inPlace = Map.map start inPlace, mana = initialMana + extraMana, ..}
+    PlayerPart {inPlace = Map.map start inPlace, mana = mana + initialMana + extraMana, ..}
     where
       extraMana = foldr' (\Creature {skills} acc -> acc + sumSources skills) (0 :: Nat) inPlace
       sumSources [] = 0
