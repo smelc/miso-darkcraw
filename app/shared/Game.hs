@@ -942,7 +942,7 @@ attack board pSpot cSpot =
         return board
     (_, Just _) -> return board -- an ally blocks the way
     (Just hitter, _) ->
-      case enemySpots hitter cSpot <&> spotsToEnemies of
+      case enemySpots hitter cSpot of
         Ace -> do
           -- Attacker has the Ace skill. Attack an occupied spot.
           -- Never contributes to score.
@@ -967,17 +967,24 @@ attack board pSpot cSpot =
               -- Imprecise creature attacks an occupied spot
               attackOneSpot board (hitter, pSpot, cSpot) (attacked, attackedSpot)
         Spots [] -> do
-          -- nothing to attack, contribute to the score!
-          let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
-          hit :: Nat <- deal $ Total.attack (Just place) hitter
-          reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = natToInt hit}
-          return $ Board.increaseScore board pSpot hit
+          -- Cannot attack: attack is 0 or fighter is in the back. XXX @smelc record an animation?
+          return board
         Spots attackedSpots -> do
-          -- or something to attack; attack it
-          foldM
-            (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) attackee)
-            board
-            attackedSpots
+          -- nothing to attack, contribute to the score!
+          let attackedCreatures :: [(Creature 'Core, Spots.Card)] = spotsToEnemies attackedSpots
+          if null attackedCreatures
+            then do
+              -- Creature can attack an enemy spot, but it is empty: contributed to the score
+              let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
+              hit :: Nat <- deal $ Total.attack (Just place) hitter
+              reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = natToInt hit}
+              return $ Board.increaseScore board pSpot hit
+            else do
+              -- or something to attack; attack it
+              foldM
+                (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) attackee)
+                board
+                attackedCreatures
   where
     safeHead = \case [] -> Nothing; x : _ -> Just x
     attackeePSpot = otherPlayerSpot pSpot

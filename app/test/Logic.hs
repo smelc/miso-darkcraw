@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testAxeOfRage) where
+module Logic (disturber, main, mkCreature, testScore) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -38,7 +38,7 @@ import Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
-import TestLib (shouldAllSatisfy, shouldSatisfyJust)
+import TestLib (shouldAllSatisfy, shouldSatisfyJust, shouldSatisfyRight)
 import qualified Total
 import Turn
 
@@ -160,44 +160,33 @@ testFear :: SharedModel -> SpecWith ()
 testFear shared =
   describe "Fear works as expected" $ do
     it "fear triggers when expected" $
-      (Board.toPart board'' PlayerBot & Board.inPlace) `shouldSatisfy` Map.null
+      (applyFear board' & toEither <&> (Board.inPlace . (flip Board.toPart otherPSpot)))
+        `shouldSatisfyRight` Map.null
     it "fear kills go to discarded stack" $
-      (Board.toDiscarded board'' PlayerBot `shouldBe` [IDC fearTarget []])
+      (applyFear board' & toEither <&> (flip Board.toDiscarded otherPSpot))
+        `shouldBe` (Right [IDC fearTarget []])
     it "fear does not trigger when expected" $
-      (Board.toPart boardBis'' PlayerBot & Board.inPlace) `shouldNotSatisfy` Map.null
+      (applyFear board'' & toEither <&> (Board.inPlace . (flip Board.toPart otherPSpot)))
+        `shouldSatisfyRight` (not . Map.null)
     it "fear skill is consumed when it triggers" $
-      Board.toInPlaceCreature board'' PlayerTop Bottom `shouldSatisfyJust` hasConsumedFear
+      (applyFear board' & toEither <&> (\b -> Board.toInPlaceCreature b causingFearPSpot Bottom & fromJust))
+        `shouldSatisfyRight` hasConsumedFear
   where
     teams = Teams Undead Human
-    causingFear = CreatureID Skeleton Undead
-    fearTarget = CreatureID Archer Human
-    board = Board.small shared teams causingFear [] PlayerTop Bottom
-    affectedByFear =
+    (causingFear, fearTarget) = (CreatureID Skeleton Undead, CreatureID Archer Human)
+    (causingFearPSpot, otherPSpot) = (PlayerTop, Spots.otherPlayerSpot causingFearPSpot)
+    board = Board.small shared teams causingFear [] causingFearPSpot Bottom
+    affectedByFear :: Creature 'Core =
       SharedModel.idToCreature shared fearTarget []
         & fromJust
         & Card.unlift
-    board' =
-      Board.setCreature
-        board
-        PlayerBot
-        (bottomSpotOfTopVisual Top)
-        (affectedByFear & (\Creature {..} -> Creature {hp = 1, ..}))
-    board'' = Game.play shared board' (Game.ApplyFearNTerror PlayerTop) & extract
-    extract (Left _) = error "Test failure"
-    extract (Right (Game.PolyResult _ b _ _)) = b
-    boardBis' =
-      Board.setCreature
-        board
-        PlayerBot
-        (bottomSpotOfTopVisual Top)
-        affectedByFear
-    boardBis'' = Game.play shared boardBis' (Game.ApplyFearNTerror PlayerTop) & extract
-    hasConsumedFear :: Creature 'Core -> Bool
-    hasConsumedFear Creature {skills} = go skills
-      where
-        go [] = False
-        go (Skill.Fear False : _) = True -- Fear unavailable: it has been consumed
-        go (_ : tail) = go tail
+        & (\Creature {..} -> Creature {hp = 1, ..})
+    board' = Board.setCreature board otherPSpot (bottomSpotOfTopVisual Top) affectedByFear
+    applyFear b = Game.play shared b (Game.ApplyFearNTerror causingFearPSpot)
+    board'' = Board.setCreature board otherPSpot (bottomSpotOfTopVisual Bottom) affectedByFear
+    toEither (Left errMsg) = Left errMsg
+    toEither (Right (Game.PolyResult _ b _ _)) = Right b
+    hasConsumedFear Creature {skills} = any ((==) (Skill.Fear False)) skills
 
 testFearNTerror :: SharedModel -> SpecWith ()
 testFearNTerror shared =
@@ -617,6 +606,24 @@ testAxeOfRage shared =
     sk = mkCreature shared Card.Skeleton Undead False
     addItem i (c@Creature {items} :: Creature 'Core) = c {items = items ++ [i]}
 
+testScore shared =
+  describe "Score" $ do
+    it "is increased by fighter in front" $ do
+      (attack (addFighter Bottom board) Bottom & (\b -> Board.toScore b pSpot))
+        `shouldSatisfy` (\x -> x > 0)
+    it "is not increased by fighter in the back" $ do
+      (attack (addFighter Top board) Top & (\b -> Board.toScore b pSpot))
+        `shouldSatisfy` ((==) 0)
+  where
+    (team, pSpot, ckind) = (Evil, PlayerTop, Card.Knight)
+    fighter = mkCreature shared ckind team False
+    board :: Board 'Core = Board.empty (Teams team team)
+    addFighter cSpot b = Board.setCreature b pSpot cSpot fighter
+    attack b cSpot =
+      Game.play shared b (Game.Attack pSpot cSpot False False)
+        & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
+        & (\(Game.PolyResult _ c _ _) -> c)
+
 main :: SharedModel -> SpecWith ()
 main shared = do
   -- Unit tests
@@ -629,6 +636,7 @@ main shared = do
   testTransient shared
   testPandemonium shared
   testPowerful shared
+  testScore shared
   testSquire shared
   testStrengthPot shared
   testVeteran shared
