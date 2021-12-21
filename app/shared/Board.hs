@@ -345,12 +345,12 @@ mapScore board pSpot f =
   Board.setScore board pSpot (f (Board.toScore board pSpot))
 
 -- | Puts a creature, replacing the existing one if any
-setCreature :: Board 'Core -> Spots.Player -> Spots.Card -> Creature 'Core -> Board 'Core
-setCreature board pSpot cSpot creature =
+setCreature :: Spots.Player -> Spots.Card -> Creature 'Core -> Board 'Core -> Board 'Core
+setCreature pSpot cSpot creature board =
   setPart board pSpot part'
   where
-    part = toPart board pSpot
-    part' = part & #inPlace . at cSpot ?~ creature
+    part@PlayerPart {inPlace = existing} = toPart board pSpot
+    part' = part {inPlace = Map.insert cSpot creature existing}
 
 setDiscarded :: Board p -> Spots.Player -> DiscardedType p -> Board p
 setDiscarded board pSpot discarded =
@@ -524,7 +524,7 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
 -- debugging for example.
 small :: SharedModel -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> Spots.Card -> Board 'Core
 small shared teams cid items pSpot cSpot =
-  setCreature (empty teams) pSpot cSpot c
+  setCreature pSpot cSpot c (empty teams)
   where
     c =
       SharedModel.idToCreature shared cid items

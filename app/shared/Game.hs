@@ -447,7 +447,7 @@ playNeutralM board _playingPlayer target n =
         Nothing -> return (board, Nothing)
         Just c@Creature {skills} -> do
           reportEffect pSpot cSpot (mempty {attackChange = Nat.natToInt Constants.strengthPotAttackBonus})
-          let board' = Board.setCreature board pSpot cSpot (c {skills = skills ++ [Skill.StrengthPot]})
+          let board' = Board.setCreature pSpot cSpot (c {skills = skills ++ [Skill.StrengthPot]}) board
           return (board', Nothing)
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
   where
@@ -455,10 +455,7 @@ playNeutralM board _playingPlayer target n =
       case Board.toInPlaceCreature board pSpot cSpot of
         Nothing -> return board
         Just c@Creature {hp} ->
-          return board'
-          where
-            c' = c {hp = hp + hps}
-            board' = Board.setCreature board pSpot cSpot c'
+          return $ Board.setCreature pSpot cSpot (c {hp = hp + hps}) board
 
 -- | Play a 'Creature'. Doesn't deal with consuming mana (done by caller)
 playCreatureM ::
@@ -481,7 +478,7 @@ playCreatureM board pSpot cSpot creature =
           board
     _ -> do
       reportEffect pSpot cSpot $ mempty {fadeIn = True} -- report creature addition effect
-      board <- pure $ Board.setCreature board pSpot cSpot creature -- set creature
+      board <- pure $ Board.setCreature pSpot cSpot creature board -- set creature
       board <- applyDiscipline board creature pSpot cSpot
       board <- applySquire board creature pSpot cSpot
       return board
@@ -699,7 +696,7 @@ drawCardM board pSpot src =
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
       -- Set new skill
-      Board.setCreature b pSpot cSpot $ c {skills = setAt skilli skill' skills}
+      Board.setCreature pSpot cSpot (c {skills = setAt skilli skill' skills}) b
 
 transferCards ::
   SharedModel ->
@@ -1098,7 +1095,7 @@ applyFlailOfTheDamned board creature pSpot =
                   & fromJust
                   & Card.unlift
           let spawned' = spawned {transient = True}
-          let board' = Board.setCreature board pSpot spawningSpot spawned'
+          let board' = Board.setCreature pSpot spawningSpot spawned' board
           -- TODO @smelc record an animation highlighting the flail
           reportEffect pSpot spawningSpot $ mempty {fadeIn = True}
           return board'
