@@ -114,7 +114,9 @@ whichPlayerTarget = \case
   IDN StrengthPot -> Playing
 
 data Event
-  = -- | Apply church of the creatures at the given 'Spots.Player'
+  = -- | Apply brainless of the creatures at the given 'Spots.Player'
+    ApplyBrainless Spots.Player
+  | -- | Apply church of the creatures at the given 'Spots.Player'
     ApplyChurch Spots.Player
   | -- | Apply fear caused by the creatures at the given 'Spots.Player'
     ApplyFearNTerror Spots.Player
@@ -267,6 +269,9 @@ playM ::
   Board 'Core ->
   Event ->
   m (Board 'Core, Maybe Event)
+playM board (ApplyBrainless pSpot) = do
+  board' <- Game.applyBrainlessM board pSpot
+  return (board', Nothing)
 playM board (ApplyChurch pSpot) = do
   board' <- Game.applyChurchM board pSpot
   return (board', Nothing)
@@ -324,6 +329,16 @@ eventToAnim shared board =
   -- Note that, in this function, we do not need to check if the
   -- Event has an effect. This is done by the caller of 'keepEffectfull'
   \case
+    Game.ApplyBrainless pSpot ->
+      Message [Text msg] duration
+      where
+        brainless =
+          Board.toInPlace board pSpot
+            & Map.filter (`has` (Skill.Brainless :: Skill.State))
+        msg =
+          if Map.size brainless == 1
+            then "Brainless creature moves randomly"
+            else "Brainless creatures move randomly"
     Game.ApplyChurch pSpot ->
       case (Board.mana part /= Board.mana part', hps < hps', attack < attack') of
         (True, _, _) -> fill [Text "+1 mana"]
@@ -760,6 +775,27 @@ appliesTo board id playingPlayer target =
           Board.toInPlaceCreature board pSpot cSpot & isJust
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
+
+applyBrainlessM ::
+  MonadWriter (Board 'UI) m =>
+  MonadState SharedModel m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part where brainless takes effect
+  Spots.Player ->
+  m (Board 'Core)
+applyBrainlessM board pSpot = do
+  if null brainless
+    then return board -- Nothing to do, avoid useless things
+    else do
+      shuffledFreeSpots :: [Spots.Card] <- SharedModel.shuffleM freeSpots
+      let shuffled = Map.fromList (zip shuffledFreeSpots (Map.elems brainless))
+      let inPlace' = Map.union shuffled rest
+      return (Board.setInPlace board pSpot inPlace')
+  where
+    inPlace :: Map.Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
+    freeSpots :: [Spots.Card] = Spots.allCards \\ Map.keys inPlace
+    (brainless, rest) = Map.partition (`has` (Skill.Brainless :: Skill.State)) inPlace
 
 -- | The effect of the 'Church' card. If this enum is changed, beware
 -- to adapt 'allChurchEffects'.

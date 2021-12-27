@@ -404,6 +404,7 @@ testMana shared =
     manaCostGeq :: Board 'Core -> Nat -> Game.Event -> Bool
     manaCostGeq board avail =
       \case
+        Game.ApplyBrainless {} -> True
         Game.ApplyChurch {} -> True
         Game.ApplyFearNTerror {} -> True
         Game.ApplyKing {} -> True

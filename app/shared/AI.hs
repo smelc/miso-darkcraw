@@ -68,6 +68,7 @@ placeCards difficulty shared board turn =
   where
     events = AI.play difficulty shared board turn
     isPlaceEvent = \case
+      ApplyBrainless {} -> False
       ApplyChurch {} -> False
       ApplyFearNTerror {} -> False
       ApplyKing {} -> False

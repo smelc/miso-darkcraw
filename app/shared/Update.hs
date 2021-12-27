@@ -407,7 +407,15 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       putAll triplet
       shared <- get @SharedModel
       board <- get @(Board 'Core)
-      let events1 = Game.keepEffectfull shared board [Game.ApplyFearNTerror otherSpot, Game.FillTheFrontline pSpot, Game.ApplyKing pSpot]
+      let events1 =
+            Game.keepEffectfull
+              shared
+              board
+              [ Game.ApplyFearNTerror otherSpot,
+                Game.ApplyBrainless pSpot,
+                Game.FillTheFrontline pSpot,
+                Game.ApplyKing pSpot
+              ]
       let events2 =
             -- AI case: after drawing cards and playing its events
             --          press "End Turn". We want a one second delay, it makes
