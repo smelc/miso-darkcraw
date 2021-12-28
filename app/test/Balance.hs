@@ -17,6 +17,7 @@ import Card
 import Data.Function ((&))
 import Data.List
 import Data.Maybe
+import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Debug.Trace
 import qualified Match
@@ -27,26 +28,29 @@ import qualified SharedModel
 import Spots hiding (Card)
 import Test.Hspec
 import qualified Update
+import qualified Weight
 
 main :: SharedModel -> SpecWith ()
 main shared =
   describe "Balance" $ do
+    it "Balance data is well formed" $ do
+      length balances `shouldBe` Set.size (Set.fromList balances)
     it "The teams' balance is as expected" $ do
       -- Level0
-      check Human Campaign.Level0 Evil $ Stat 60 4 0
-      check Human Campaign.Level0 Undead $ Stat 61 3 0
-      check Human Campaign.Level0 ZKnights $ Stat 49 15 0
-      check Evil Campaign.Level0 Undead $ Stat 44 20 0
+      check Human Campaign.Level0 Evil
+      check Human Campaign.Level0 Undead
+      check Human Campaign.Level0 ZKnights
+      check Evil Campaign.Level0 Undead
       -- Level1
-      check Human Campaign.Level1 Evil $ Stat 167 22 3
-      check Human Campaign.Level1 Undead $ Stat 323 58 3
-      check Evil Campaign.Level1 Undead $ Stat 71 54 3
+      check Human Campaign.Level1 Evil
+      check Human Campaign.Level1 Undead
+      check Evil Campaign.Level1 Undead
     xit "Starting team doesn't have an advantage" $ do
-      check Human Campaign.Level0 Human $ Stat 2 1 0
-      check Evil Campaign.Level0 Evil $ Stat 2 1 0
-      check Undead Campaign.Level0 Undead $ Stat 2 1 0
+      check Human Campaign.Level0 Human
+      check Evil Campaign.Level0 Evil
+      check Undead Campaign.Level0 Undead
   where
-    check team level opponent expected =
+    check team level opponent =
       shouldBe True $
         if actual == expected
           then traceShow (prefix ++ details team actual opponent) True
@@ -54,10 +58,12 @@ main shared =
       where
         actual = Balance.playAll (mkShareds nbMatches) team level nbTurns opponent & mconcat
         prefix = show team ++ "/" ++ show opponent ++ " matchup at " ++ show level ++ ": "
+        expected = Weight.find team level opponent & fromJust & (\(i, j, k) -> Stat i j k)
     seeds = [0, 31 ..]
     mkShareds n = take n seeds & map (SharedModel.withSeed shared)
     nbMatches = 64
     nbTurns :: Nat = 8
+    balances = Weight.balances & map (\(x, y, z, _, _, _) -> (x, y, z))
 
 data Stat = Stat {topWins :: Nat, botWins :: Nat, draws :: Nat}
   deriving (Eq, Show)

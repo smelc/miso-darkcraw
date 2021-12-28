@@ -129,6 +129,7 @@ Test-Suite test-darkcraw
     Pretty
     SceneEquivalence
     TestLib
+    Weight
   build-depends:
     generic-random,
     hspec,
