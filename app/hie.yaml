@@ -3,6 +3,9 @@ cradle:
     - path: "client"
       component: "app:exe:app"
 
+    - path: "updb"
+      component: "app:exe:updb"
+
     - path: "shared"
       component: "app:exe:app"
 

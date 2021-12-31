@@ -138,3 +138,26 @@ Test-Suite test-darkcraw
     -fprof-auto
     -prof
     -rtsopts
+
+executable updb
+  import: common-all
+  if impl(ghcjs)
+    buildable: False
+  hs-source-dirs:
+    updb,
+    shared,
+    test
+  main-is:
+    Main.hs
+  other-modules:
+    Balance
+    Generators
+    Match
+    TestLib
+    Weight
+  build-depends:
+    generic-random,
+    hspec,
+    QuickCheck,
+    shelly
+
