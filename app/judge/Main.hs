@@ -12,10 +12,10 @@
 -- where it has write access to the remote repo.
 --
 -- This daemon is in the main repo to KISS. It needs to be compiled from
--- within a @nix-shell@ with @cabal build judge@ and then should be
--- executed from outside the @nix-shell@. This is mandatory, because
--- this daemon issues commands of the form @nix-shell --run '...'@ and nix-shell
--- nesting is erroneous.
+-- within a @nix-shell@ with @cabal build judge@ (or with @nix-shell --run
+-- 'cabal build judge') and then should be executed from outside the @nix-shell@.
+-- This is mandatory, because this daemon issues commands of the form
+-- @nix-shell --run '...'@ and nix-shell nesting is erroneous.
 --
 -- This daemon supposes that it executes from the @app/@ directory.
 module Main where
@@ -38,7 +38,7 @@ main = do
 
 loop :: (Maybe GitRev) -> IO ()
 loop (mrev :: Maybe GitRev) = do
-  either <- try (ioStep mrev) :: IO (Either SomeException GitRev)
+  either <- try (ioStep mrev) :: IO (Either SomeException (Maybe GitRev))
   nextRev <- case either of
     Left err
       | isJust (asyncExceptionFromException err :: Maybe SomeAsyncException) ->
@@ -46,18 +46,27 @@ loop (mrev :: Maybe GitRev) = do
     Left err -> do
       putStrLn $ show err -- Print error
       return mrev -- Keep previous rev
-    Right newRev -> pure $ Just newRev -- Use new rev obtained
-  threadDelay (1000000 * 15 * 1000) -- Wait 15 seconds
+    Right newRev -> pure $ newRev -- Use new rev obtained
+  threadDelay (1000000 * 60 * 15) -- Wait 15 minutes
   loop nextRev
 
 -- | Like 'step' but in the IO monad instead of the 'Sh' monad.
-ioStep :: Maybe GitRev -> IO GitRev
-ioStep mrev = shelly $ verbosely $ step mrev
+ioStep :: Maybe GitRev -> IO (Maybe GitRev)
+ioStep mrev = shelly $ verbosely $ carefulStep mrev
+
+carefulStep :: Maybe GitRev -> Sh (Maybe GitRev)
+carefulStep mrev = do
+  diffs <- gitDiff
+  if null diffs
+    then -- Can proceed
+      Just <$> (step mrev)
+    else -- XXX log something
+      return mrev
 
 -- | Given the last head tested, update from remote, and if there is a change,
 -- try to fix the balance. Returns the current head.
 step :: Maybe GitRev -> Sh GitRev
-step (mrev :: Maybe GitRev) = do
+step mrev = do
   knownRev <- case mrev of Nothing -> gitHead; Just rev -> pure rev
   run_ "git" ["fetch"]
   run_ "git" ["reset", "--hard", "@{u}"] -- Update to remote HEAD
@@ -74,7 +83,7 @@ update :: Sh Bool
 update = do
   run_ "nix-shell" ["--run", "nix-build"] -- Build, if this fails shelly throws an exception;
   -- which is fine we don't want to proceed in this case.
-  run_ "cabal" ["run", "updb"]
+  run_ "nix-shell" ["--run", "cabal run updb"]
   diffs <- gitDiff <&> (filter ((==) weightFile)) <&> listToMaybe
   case diffs of
     Nothing -> pure False
