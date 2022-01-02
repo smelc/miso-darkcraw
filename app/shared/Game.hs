@@ -1026,7 +1026,7 @@ attack board pSpot cSpot =
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
     attackerSkills :: [Skill] = (Card.to attacker) & map Skill.lift
     allyBlocker :: Maybe (Creature 'Core) =
-      if any (`elem` attackerSkills) [Skill.Imprecise, Skill.LongReach, Skill.Ranged]
+      if any (`elem` attackerSkills) [Skill.Imprecise, Skill.Support, Skill.Ranged]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
     -- Given attacked spots, restrict to the ones with enemies, and return the
@@ -1249,7 +1249,7 @@ enemySpots c@Creature {skills} cSpot =
       Spots $
         if
             | Skill.Ranged `elem` skills -> spotsInSight
-            | inTheBack cSpot -> if Skill.LongReach `elem` skills then take 1 spotsInSight else []
+            | inTheBack cSpot -> if Skill.Support `elem` skills then take 1 spotsInSight else []
             | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
             | otherwise -> take 1 spotsInSight
       where

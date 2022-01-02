@@ -260,7 +260,8 @@ liftSkill SharedModel {sharedSkills} skill =
     default_
     $ find (\Skill.Pack {skill = sk} -> sk == skill) sharedSkills
   where
-    default_ = Skill.Pack {skill = Skill.LongReach, ..}
+    default_ = Skill.Pack {skill = Skill.Support, ..}
+    -- Dummy value
     text = show skill ++ " not found!"
     title = text
 

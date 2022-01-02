@@ -268,7 +268,7 @@ scorePlace board inPlace@Creature {attack} pSpot cSpot =
     creature :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpot cSpot
     cSkills = skills inPlace
     prefersBack =
-      any (`elem` [Skill.Imprecise, Skill.LongReach, Skill.Ranged]) cSkills
+      any (`elem` [Skill.Imprecise, Skill.Support, Skill.Ranged]) cSkills
         || attack == mempty
     prefersFront = any (`elem` [Skill.Charge]) cSkills
     lineMalus =
@@ -360,7 +360,6 @@ scoreSkill s =
     Skill.Fame (n, _) -> Nat.negate n
     Skill.King -> -2
     Skill.Knight -> -1
-    Skill.LongReach -> -1
     Skill.Ranged -> -1
     Skill.Regeneration n -> Nat.negate n
     Skill.Powerful -> -2
@@ -369,6 +368,7 @@ scoreSkill s =
     Skill.Squire -> 1
     Skill.StrengthPot -> -1
     Skill.Stupid4 _ -> if Skill.isStupid s then 2 else 1
+    Skill.Support -> -1
     Skill.Terror b -> if b then -2 else 0
     Skill.Unique -> 0
     Skill.Veteran -> -1

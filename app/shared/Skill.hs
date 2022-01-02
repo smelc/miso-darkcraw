@@ -32,7 +32,6 @@ data T blow drawCard fame fear regen source stupid terror
   | King
   | -- | Identifier of knight
     Knight
-  | LongReach
   | -- | Undealt damage contributes to score
     Powerful
   | Ranged
@@ -47,6 +46,7 @@ data T blow drawCard fame fear regen source stupid terror
   | -- | Knight in front (if any) gains +1 hp and +1 attack upon arrival
     Squire
   | Stupid4 stupid
+  | Support
   | -- | Creature causes terror
     Terror terror
   | Unique
@@ -108,7 +108,7 @@ lift skill =
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
-    LongReach -> LongReach
+    -- LongReach -> LongReach
     Powerful -> Powerful
     Ranged -> Ranged
     Regeneration n -> Regeneration n
@@ -117,6 +117,7 @@ lift skill =
     Source (n, _) -> Source n
     StrengthPot -> StrengthPot
     Stupid4 {} -> Stupid4 ()
+    Support -> Support
     Terror {} -> Terror ()
     Unique -> Unique
     Veteran -> Veteran
@@ -140,7 +141,7 @@ unlift skill =
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
-    LongReach {} -> LongReach
+    -- LongReach {} -> LongReach
     Powerful -> Powerful
     Ranged -> Ranged
     Regeneration n -> Regeneration n
@@ -149,6 +150,7 @@ unlift skill =
     Squire -> Squire
     StrengthPot -> StrengthPot
     Stupid4 {} -> Stupid4 0
+    Support -> Support
     Terror {} -> Terror True
     Unique -> Unique
     Veteran -> Veteran
