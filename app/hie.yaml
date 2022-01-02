@@ -3,14 +3,17 @@ cradle:
     - path: "client"
       component: "app:exe:app"
 
-    - path: "updb"
-      component: "app:exe:updb"
-
-    - path: "shared"
-      component: "app:exe:app"
+    - path: "judge"
+      component: "app:exe:judge"
 
     - path: "server"
       component: "app:exe:server"
 
+    - path: "shared"
+      component: "app:exe:app"
+
     - path: "test"
       component: "app:test:test-darkcraw"
+
+    - path: "updb"
+      component: "app:exe:updb"

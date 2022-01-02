@@ -161,3 +161,25 @@ executable updb
     QuickCheck,
     shelly
 
+executable judge
+  if impl(ghcjs)
+    buildable: False
+  default-language:
+     Haskell2010
+  main-is:
+    Main.hs
+  hs-source-dirs:
+    judge
+  build-depends:
+    base >= 4 && < 5,
+    bytestring,
+    containers,
+    extra,
+    shelly,
+    text
+  ghc-options:
+    -haddock
+    -Wall
+    -Wno-name-shadowing
+    -Werror
+    -Wwarn=missing-home-modules
