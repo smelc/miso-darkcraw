@@ -91,7 +91,7 @@ instance FromJSON Skill where
           "Imprecise" -> return Skill.Imprecise
           "King" -> return Skill.King
           "Knight" -> return Skill.Knight
-          -- "LongReach" -> return Skill.LongReach
+          "LongReach" -> return Skill.LongReach
           "Powerful" -> return Skill.Powerful
           "Ranged" -> return Skill.Ranged
           "Sadism" -> return Skill.Sadism

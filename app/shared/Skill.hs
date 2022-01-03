@@ -32,6 +32,8 @@ data T blow drawCard fame fear regen source stupid terror
   | King
   | -- | Identifier of knight
     Knight
+  | -- | Can attack 2 cells away
+    LongReach
   | -- | Undealt damage contributes to score
     Powerful
   | Ranged
@@ -108,7 +110,7 @@ lift skill =
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
-    -- LongReach -> LongReach
+    LongReach -> LongReach
     Powerful -> Powerful
     Ranged -> Ranged
     Regeneration n -> Regeneration n
@@ -141,7 +143,7 @@ unlift skill =
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
-    -- LongReach {} -> LongReach
+    LongReach {} -> LongReach
     Powerful -> Powerful
     Ranged -> Ranged
     Regeneration n -> Regeneration n

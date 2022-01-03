@@ -360,6 +360,7 @@ scoreSkill s =
     Skill.Fame (n, _) -> Nat.negate n
     Skill.King -> -2
     Skill.Knight -> -1
+    Skill.LongReach -> -2
     Skill.Ranged -> -1
     Skill.Regeneration n -> Nat.negate n
     Skill.Powerful -> -2

@@ -34,7 +34,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"evil\" },   \"title\":\"Knight\",    \"hp\":2, \"attack\":\"3\", \"tile\":\"EvilKnight\",     \"skills\":[\"Blow\"],               \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"evil\" },   \"title\":\"priest\",    \"hp\":1, \"attack\":\"0\", \"tile\":\"EvilPriest\",     \"skills\":[\"DrawCard\", \"Source 1\"] },\n\
          \    { \"id\": { \"name\":\"troll\",     \"team\":\"evil\" },   \"title\":\"Troll\",     \"hp\":4, \"attack\":\"3\", \"tile\":\"EvilTroll\",      \"skills\":[\"Regeneration 1\", \"Stupid4\"], \"mana\":3 },\n\
-         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"evil\" },   \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"EvilSpearman\",   \"skills\":[\"Support\"]                    },\n\
+         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"evil\" },   \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"EvilSpearman\",   \"skills\":[\"LongReach\"]                    },\n\
          \    { \"id\": { \"name\":\"captain\",   \"team\":\"zknights\" }, \"title\":\"Captain\", \"hp\":2, \"attack\":\"2\", \"tile\":\"ZCaptain\",       \"skills\":[\"Knight\", \"Charge\", \"Zealot\"],  \"mana\":1 },\n\
          \    { \"id\": { \"name\":\"veteran\",   \"team\":\"zknights\" }, \"title\":\"Veteran\", \"hp\":3, \"attack\":\"3\", \"tile\":\"ZVeteran\",       \"skills\":[\"Knight\", \"Charge\", \"Veteran\"], \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"king\",      \"team\":\"zknights\" }, \"title\":\"King\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKing\",          \"skills\":[\"King\"], \"mana\":2 },\n\
@@ -149,6 +149,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\
          \    { \"skill\":\"King\",        \"title\":\"King\",       \"text\":\"At every turn, every knight gains +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Knight\",      \"title\":\"Knight\",     \"text\":\"A knight anointed by the king\"},\n\
+         \    { \"skill\":\"LongReach\",   \"title\":\"Long Reach\", \"text\":\"Hits 2 cells away\"},\n\
          \    { \"skill\":\"Powerful\",    \"title\":\"Powerful\",   \"text\":\"When killing an enemy, extraenous damage is contributed to the score\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
          \    { \"skill\":\"Regeneration 1\", \"title\":\"Regeneration 1\", \"text\":\"Gain 1 :heart: at beginning of turn\"},\n\

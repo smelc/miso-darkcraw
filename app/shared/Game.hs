@@ -1026,7 +1026,7 @@ attack board pSpot cSpot =
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
     attackerSkills :: [Skill] = (Card.to attacker) & map Skill.lift
     allyBlocker :: Maybe (Creature 'Core) =
-      if any (`elem` attackerSkills) [Skill.Imprecise, Skill.Support, Skill.Ranged]
+      if any (`elem` attackerSkills) [Skill.Imprecise, Skill.LongReach, Skill.Support, Skill.Ranged]
         then Nothing -- attacker bypasses ally blocker (if any)
         else allyBlockerSpot cSpot >>= (attackersInPlace !?)
     -- Given attacked spots, restrict to the ones with enemies, and return the
@@ -1246,14 +1246,20 @@ enemySpots c@Creature {skills} cSpot =
     (True, _, True) -> Ace -- Ace has precedence over Imprecise
     (True, True, _) -> Imprecise
     (True, False, False) ->
-      Spots $
-        if
-            | Skill.Ranged `elem` skills -> spotsInSight
-            | inTheBack cSpot -> if Skill.Support `elem` skills then take 1 spotsInSight else []
-            | Skill.BreathIce `elem` skills -> assert (not $ inTheBack cSpot) spotsInSight
-            | otherwise -> take 1 spotsInSight
+      ( case (ranged, inFront cSpot) of
+          (True, _) -> spotsInSight -- ranged
+          (False, True) | breathIce || support -> spotsInSight -- in front, breathIce || support
+          (False, True) -> take 1 spotsInSight -- in front, no relevant skill
+          (False, False) | longReach || support -> take 1 spotsInSight -- in the back, longReach || support
+          (False, False) -> [] -- in the back, no relevant skill
+      )
+        & Spots
       where
         spotsInSight = allEnemySpots cSpot
+        breathIce = Skill.BreathIce `elem` skills
+        longReach = Skill.LongReach `elem` skills
+        support = Skill.Support `elem` skills
+        ranged = Skill.Ranged `elem` skills
 
 -- | The order in which cards attack
 attackOrder :: Spots.Player -> [Spots.Card]
