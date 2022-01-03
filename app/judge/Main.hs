@@ -60,7 +60,9 @@ carefulStep mrev = do
   if null diffs
     then -- Can proceed
       Just <$> (step mrev)
-    else -- XXX log something
+    else do
+      inspect "Not proceeding, because local repo has unexpected changes:"
+      mapM_ (\l -> inspect ("  " <> l)) diffs
       return mrev
 
 -- | Given the last head tested, update from remote, and if there is a change,
