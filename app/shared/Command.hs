@@ -18,7 +18,6 @@ import Card
 import Data.Char
 import Data.Function ((&))
 import Data.Functor
-import Data.List (find)
 import Data.List.Extra
 import Spots
 

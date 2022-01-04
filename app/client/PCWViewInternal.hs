@@ -44,7 +44,6 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Miso
 import Miso.String (MisoString, ToMisoString (..), ms)
-import Miso.Util ((=:))
 import Nat
 import SharedModel (SharedModel, tileToFilepath)
 import qualified SharedModel

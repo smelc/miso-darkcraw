@@ -12,7 +12,6 @@ import Constants (borderSize, greenHTML, yellowHTML)
 import qualified Data.Map.Strict as Map
 import Miso
 import Miso.String
-import Miso.Util ((=:))
 import Update (Action (NoOp))
 import ViewInternal
 

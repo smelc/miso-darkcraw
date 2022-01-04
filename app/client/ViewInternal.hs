@@ -25,7 +25,6 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
 import Miso hiding (at)
 import Miso.String hiding (length, map, take, zip)
-import Miso.Util ((=:))
 import Nat
 
 newtype Styled a = Styled (Writer (Set.Set MisoString) a)

@@ -18,7 +18,6 @@ import Data.Functor ((<&>))
 import Data.Maybe (fromMaybe, isJust)
 import Miso
 import Miso.String hiding (concat, length, map)
-import Miso.Util ((=:))
 import Model (SinglePlayerLobbyModel (..))
 import SharedModel (SharedModel (), cardToFilepath, idToCreature, unsafeToCardCommon)
 import qualified Tile

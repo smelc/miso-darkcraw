@@ -454,7 +454,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
 
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel
-updateLootModel action lm@LootModel {rewards = pairs, ..} =
+updateLootModel action lm@LootModel {rewards = pairs} =
   lm {rewards}
   where
     rewards =

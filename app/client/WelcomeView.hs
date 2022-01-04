@@ -19,7 +19,6 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V
 import Miso
 import Miso.String (fromMisoString, ms)
-import Miso.Util ((=:))
 import Model (SceneModel (..), TimedFrames, WelcomeModel (..))
 import PCWViewInternal (DisplayMode (..), viewFrame)
 import SharedModel (SharedModel)
