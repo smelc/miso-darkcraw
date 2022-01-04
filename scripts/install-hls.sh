@@ -3,7 +3,7 @@
 # Install https://github.com/haskell/haskell-language-server to hls/
 
 declare -r HLS_DIR="hls"
-declare -r GHC_VERSION="8.6.5"
+declare -r GHC_VERSION="$(cd app && nix-shell --run 'ghc --numeric-version')"
 declare -r HLS_BIN="$HLS_DIR/haskell-language-server-$GHC_VERSION"
 declare -r HLS_WRAPPER="$HLS_DIR/haskell-language-server-wrapper"
 
@@ -34,7 +34,7 @@ if [[ -e "$HLS_BIN" ]]; then
   fi
 fi
 
-HLS_BIN_DL="haskell-language-server-Linux-8.6.5"
+HLS_BIN_DL="haskell-language-server-Linux-$GHC_VERSION"
 HLS_WRAPPER_DL="haskell-language-server-wrapper-Linux"
 
 wget "https://github.com/haskell/haskell-language-server/releases/download/$1/$HLS_BIN_DL.gz" || exit 1
