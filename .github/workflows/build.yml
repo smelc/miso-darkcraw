@@ -13,5 +13,5 @@ jobs:
     - uses: cachix/install-nix-action@v13
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - run: nix-shell --run 'cabal build app.cabal:app'
+    - run: nix-shell --run 'cabal build'
     - run: nix-shell --run 'cabal test'
