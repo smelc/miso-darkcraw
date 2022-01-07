@@ -143,7 +143,8 @@ data Event
   deriving (Eq, Generic, Show)
 
 -- | The polymorphic version of 'Result'. Used for implementors that
--- do not return events and hence instantiate 'a' by ()
+-- do not return events and hence instantiate 'a' by () TODO @smelc use
+-- a record instead.
 data PolyResult a = PolyResult SharedModel (Board 'Core) a (Board 'UI)
   deriving (Eq, Show)
 
@@ -214,7 +215,7 @@ reportEffect pSpot cSpot effect =
     pTop :: PlayerPart 'UI = mempty {inPlace = topInPlace}
     pBot :: PlayerPart 'UI = mempty {inPlace = botInPlace}
 
--- | Play a single 'Event' on the given 'Board'
+-- | Play a single 'Event' on the given 'Board'. Monad version is 'playM' below.
 play :: SharedModel -> Board 'Core -> Event -> Either Text Result
 play shared board action =
   playM board action
@@ -225,27 +226,41 @@ play shared board action =
   where
     mkResult (((b, e), bui), s) = PolyResult s b e bui
 
--- | Please avoid calling this function if you can. Its effect is
--- difficult to predict because of cards that create events, as these
--- events are played right away (instead of being enqueued in the main loop
--- like when playing Infernal Haste interactively). FIXME @smelc
--- take an additional parameter telling whether to mimic the main loop
--- (for Game.Attack events).
+-- | Play a list of events, playing newly produced events as they are being
+-- produced. That is why, contrary to 'play', this function doesn't return
+-- events: it consumes them all eagerly. See 'playAllM' for the monad version
 playAll :: SharedModel -> Board 'Core -> [Event] -> Either Text (PolyResult ())
-playAll shared board es = go board mempty es
+playAll shared board events =
+  playAllM board events
+    & runWriterT
+    & flip runStateT shared
+    & runExcept
+    & fmap f
   where
-    go b anims [] = Right $ PolyResult shared b () anims
-    go b anims (e : tl) = do
-      PolyResult _ board' new anims' <- play shared b e
-      -- /!\ We're enqueueing the event created by playing 'e' i.e. 'new',
-      -- before the rest of the events ('tl'). This means 'tl' will be played in a state
-      -- that is NOT the one planned when building 'e : tl' (except if the
-      -- caller is very smart). We have no way around that: this is caused
-      -- by Infernal Haste that creates events when playing it. But this means
-      -- we shouldn't be too hard with events that yield failures. Maybe
-      -- they are being played in an unexpected context (imagine if
-      -- Infernal Haste clears the opponent's board, next spells may be useless).
-      go board' (anims <> anims') $ maybeToList new ++ tl
+    f :: ((Board 'Core, Board 'UI), SharedModel) -> PolyResult ()
+    f ((b, anims), sh) = PolyResult sh b () anims
+
+-- | Like 'playAll', but in the monad
+playAllM ::
+  MonadError Text m =>
+  MonadWriter (Board 'UI) m =>
+  MonadState SharedModel m =>
+  Board 'Core ->
+  [Event] ->
+  m (Board 'Core)
+playAllM board = \case
+  [] -> return board
+  event : rest -> do
+    (board', generated) <- playM board event
+    -- /!\ We're enqueueing the event created by playing 'event' i.e. 'generated',
+    -- before the rest of the events ('rest'). This means 'rest' will be played in a state
+    -- that is NOT the one planned when building 'event : rest' (except if the
+    -- caller is very smart). We have no way around that: this is caused
+    -- by Infernal Haste that creates events when playing it. But this means
+    -- we shouldn't be too hard with events that yield failures. Maybe
+    -- they are being played in an unexpected context (imagine if
+    -- Infernal Haste clears the opponent's board, next spells may be useless).
+    playAllM board' (maybeToList generated <> rest)
 
 -- | 'keepEffectfull board es' returns the elements of 'es'
 -- that have an effect. Elements of 'es' are played in sequence.
