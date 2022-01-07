@@ -22,7 +22,7 @@ initial = Turn (1, startingPlayerSpot)
 next :: Turn -> Turn
 next (Turn (i, pSpot))
   | pSpot == startingPlayerSpot = Turn (i, endingPlayerSpot)
-next (Turn (i, _)) = Turn (i + 1, startingPlayerSpot)
+  | otherwise = Turn (i + 1, startingPlayerSpot)
 
 toNat :: Turn -> Nat
 toNat (Turn (n, _)) = n
