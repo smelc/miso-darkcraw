@@ -83,7 +83,7 @@ step mrev = do
 
 update :: Sh Bool
 update = do
-  run_ "nix-shell" ["--run", "nix-build"] -- Build, if this fails shelly throws an exception;
+  run_ "nix-shell" ["--run", "cabal build"] -- Build, if this fails shelly throws an exception;
   -- which is fine we don't want to proceed in this case.
   run_ "nix-shell" ["--run", "cabal run updb"]
   diffs <- gitDiff <&> (filter ((==) weightFile)) <&> listToMaybe
