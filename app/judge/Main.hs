@@ -30,7 +30,7 @@ import Shelly
 import Prelude hiding (FilePath)
 
 newtype GitRev = GitRev Text
-  deriving (Eq)
+  deriving (Eq, Show)
 
 main :: IO ()
 main = do
@@ -86,12 +86,12 @@ update = do
   run_ "nix-shell" ["--run", "cabal build"] -- Build, if this fails shelly throws an exception;
   -- which is fine we don't want to proceed in this case.
   run_ "nix-shell" ["--run", "cabal run updb"]
-  diffs <- gitDiff <&> (filter ((==) weightFile)) <&> listToMaybe
+  diffs <- gitDiff <&> (filter (weightFile `Text.isSuffixOf`)) <&> listToMaybe
   case diffs of
     Nothing -> pure False
     Just _ -> do
       run_ "git" ["add", weightFile]
-      run_ "git" ["commit", "-m", "[judge] Update balance", "--no-verify"]
+      run_ "git" ["commit", "-m", "[judgebot] Automatic balance update", "--no-verify"]
       run_ "git" ["push"]
       pure True
 
