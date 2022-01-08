@@ -73,10 +73,10 @@ step mrev = do
   run_ "git" ["fetch"]
   run_ "git" ["reset", "--hard", "@{u}"] -- Update to remote HEAD
   currentRev <- gitHead
-  if currentRev == knownRev
+  if currentRev == knownRev && isJust mrev
     then pure currentRev -- No change
     else do
-      -- A change, try to update the balance
+      -- A change: either the rev changed, or it's the first run. Try to update the balance.
       change <- update
       lastRev <- if change then gitHead else pure currentRev -- Retrieve new head
       return lastRev
