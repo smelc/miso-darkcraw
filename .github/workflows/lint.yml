@@ -17,9 +17,7 @@ jobs:
     - name: shellcheck
       run: |
         shellcheck --version
-        shellcheck scripts/change-config.sh
-        shellcheck scripts/check-imports.sh
-        shellcheck scripts/itch-push.sh
+        shellcheck $(git ls-files "*.sh" | grep -v 'load-n-reload\|dl-large-assets\|install-hls')
     - name: import qualification
       run: |
         ./scripts/check-imports.sh
