@@ -6,4 +6,4 @@ nix-shell --run 'cabal build judge' || { echo "nix-shell --run 'cabal build judg
 
 [[ -e "$EXEC" ]] | { echo "$EXEC should exist by now. Exiting."; exit 1; }
 
-./$EXEC
+./"$EXEC"
