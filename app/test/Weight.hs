@@ -23,11 +23,11 @@ balances =
     (Human, Campaign.Level0, Evil, 61, 3, 0),
     (Human, Campaign.Level0, Undead, 61, 3, 0),
     (Human, Campaign.Level0, ZKnights, 48, 15, 1),
-    (Evil, Campaign.Level0, Undead, 31, 32, 1),
+    (Evil, Campaign.Level0, Undead, 32, 30, 2),
     -- Level1
     (Human, Campaign.Level1, Evil, 182, 8, 2),
     (Human, Campaign.Level1, Undead, 354, 27, 3),
-    (Evil, Campaign.Level1, Undead, 53, 74, 1)
+    (Evil, Campaign.Level1, Undead, 50, 75, 3)
   ]
 
 -- | Returns the balance of the given matchup
