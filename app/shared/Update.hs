@@ -24,9 +24,6 @@ import qualified Constants
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
-import Control.Monad.Freer as Eff
-import Control.Monad.Freer.Error as Eff.Error
-import Control.Monad.Freer.State as Eff
 import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
@@ -358,19 +355,9 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Gam
       case Game.nextAttackSpot b pSpot Nothing of
         Nothing -> GameIncrTurn -- no attack, change turn right away
         Just cSpot -> GamePlay $ Game.Attack pSpot cSpot True True
-updateGameModel m@GameModel {board, shared} GameIncrTurn _ = do
-  let x =
-        -- XXX @smelc Defined a generic _ -> Either a b -> (MonadError a e -> b) funtction
-        -- and use it here
-        updateGameIncrTurn m
-          & Eff.evalState shared
-          & Eff.evalState board
-          & Eff.evalState (mempty :: Board 'UI)
-          & Eff.Error.runError
-          & Eff.run
-  case x of
-    Left errMsg -> Control.Monad.Except.throwError errMsg
-    Right (m, seq) -> pure (enableUI m, seq)
+updateGameModel m GameIncrTurn _ = do
+  (m, seq) <- updateGameIncrTurn m
+  pure (enableUI m, seq)
   where
     enableUI gm@GameModel {playingPlayer, turn}
       | Turn.toPlayerSpot turn == playingPlayer =
@@ -400,76 +387,53 @@ updateGameModel m@GameModel {shared} (GameUpdateCmd misoStr) i =
 updateGameModel m _ i =
   pure $ updateDefault m i
 
--- | This function uses 'Eff' to have multiple 'State' for different types
--- This allows to use put/get to track updates to the state, instead
--- of having variables with increasing version numbers (ticks). XXX simplify that.
 updateGameIncrTurn ::
-  Members '[Error Text.Text, State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
+  MonadError Text.Text m =>
   GameModel ->
-  Eff eff (GameModel, GameActionSeq)
-updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
-  board <- get @(Board 'Core)
-  put @(Board 'Core) $ boardStart board pSpot
-  shared <- get @SharedModel
-  board <- get @(Board 'Core)
-  putAll $ Game.transferCards shared board pSpot
-  board <- get @(Board 'Core)
+  m (GameModel, GameActionSeq)
+updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = do
+  board <- pure $ boardStart board pSpot
+  (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs = Game.cardsToDraw board pSpot True
-  -- If it's the player turn, we wanna draw the first card right away,
-  -- so that the game feels responsive.
-  let drawNow = if isAI then drawSrcs else take 1 drawSrcs
-  board <- get @(Board 'Core)
-  shared <- get @SharedModel
-  case Game.drawCards shared board pSpot drawNow of
-    Left errMsg -> Eff.Error.throwError errMsg
-    Right triplet -> do
-      putAll triplet
-      shared <- get @SharedModel
-      board <- get @(Board 'Core)
-      let events1 =
-            Game.keepEffectfull
-              shared
-              board
-              [ Game.ApplyFearNTerror otherSpot,
-                Game.ApplyBrainless pSpot,
-                Game.FillTheFrontline pSpot,
-                Game.ApplyKing pSpot
-              ]
-      let events2 =
-            -- AI case: after drawing cards and playing its events
-            --          press "End Turn". We want a one second delay, it makes
-            --          it easier to understand what's going on
-            -- player case: we drew the first card already (see drawNow),
-            --              enqueue next event (if any)
-            if isAI
-              then -- We need to apply 'events1' before computing the AI's events, hence:
-              case Game.playAll shared board events1 of
-                Left errMsg -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
-                Right (Game.PolyResult _ board' _ _) ->
-                  let plays = AI.play difficulty shared board' pSpot
-                   in zip (repeat 1) $ snoc (map GamePlay plays) GameEndTurnPressed
-              else
-                let drawSoon = Prelude.drop 1 drawSrcs
-                 in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
-      shared <- get @SharedModel
-      board <- get @(Board 'Core)
-      boardui <- get @(Board 'UI)
-      let m' = m {anims = boardui, board = board, shared, turn = turn'}
-      pure $ (m', [(1, GamePlay event) | event <- events1] ++ events2)
+      -- If it's the player turn, we wanna draw the first card right away,
+      -- so that the game feels responsive.
+      drawNow = if isAI then drawSrcs else take 1 drawSrcs
+  (shared, board, anims) <-
+    Game.drawCardsE shared board pSpot drawNow
+      <&> (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
+  let preTurnEvents =
+        Game.keepEffectfull
+          shared
+          board
+          [ Game.ApplyFearNTerror otherSpot,
+            Game.ApplyBrainless pSpot,
+            Game.FillTheFrontline pSpot,
+            Game.ApplyKing pSpot
+          ]
+  let events =
+        -- AI case: after drawing cards and playing its events
+        --          press "End Turn". We want a one second delay, it makes
+        --          it easier to understand what's going on
+        --
+        --          Also, we need to apply 'preTurnEvents' before computing the
+        --          AI's events.
+        -- player case: we drew the first card already (see drawNow),
+        --              enqueue next event (if any)
+        case (isAI, Game.playAll shared board preTurnEvents) of
+          (True, Left errMsg) -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
+          (True, Right (Game.PolyResult _ board' _ _)) ->
+            let plays = AI.play difficulty shared board' pSpot
+             in zip (repeat 1) (map GamePlay plays ++ [GameEndTurnPressed])
+          (False, _) ->
+            let drawSoon = Prelude.drop 1 drawSrcs
+             in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
+  m <- pure $ m {anims, board, shared, turn = turn'}
+  pure $ (m, [(1, GamePlay event) | event <- preTurnEvents] ++ events)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
     otherSpot = otherPlayerSpot pSpot
     isAI = pSpot /= playingPlayer
-    putAll ::
-      Members '[State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
-      (SharedModel, Board 'Core, Board 'UI) ->
-      Eff eff ()
-    putAll (s, b, ui') = do
-      put @SharedModel s
-      put @(Board 'Core) b
-      ui <- get @(Board 'UI)
-      put @(Board 'UI) (ui <> ui') -- animations accumulate
 
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel
