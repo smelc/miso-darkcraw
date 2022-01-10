@@ -2,8 +2,8 @@
 #
 # Execute --help for help
 
-CABAL_SERVER_EXEC="/home/churlin/PERSONNEL/miso-darkcraw/app/dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/x/server/build/server/server"
-CABAL_ROOT="dist-newstyle/build/x86_64-linux/ghcjs-8.6.0.1/app-0.1.0.0/x/app/build/app/app.jsexe"
+CABAL_SERVER_EXEC="/home/churlin/PERSONNEL/miso-darkcraw/app/dist-newstyle/build/x86_64-linux/ghc-8.10.7/app-0.1.0.0/x/server/build/server/server"
+CABAL_ROOT="dist-newstyle/build/js-ghcjs/ghcjs-8.10.7/app-0.1.0.0/x/app/build/app/app.jsexe"
 CABAL_ASSETS="$CABAL_ROOT/assets"
 CABAL_INDEX="$CABAL_ROOT/index.html"
 SERVER_PID_FILE="/tmp/darkcraw_server_pid"
