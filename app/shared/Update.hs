@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE LambdaCase #-}
@@ -22,10 +23,10 @@ import qualified Command
 import qualified Constants
 import Control.Concurrent (threadDelay)
 import Control.Lens
-import Control.Monad (join)
+import Control.Monad.Except
 import Control.Monad.Freer as Eff
+import Control.Monad.Freer.Error as Eff.Error
 import Control.Monad.Freer.State as Eff
-import Control.Monad.IO.Class (liftIO)
 import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
@@ -183,7 +184,13 @@ class Interactable m t mseq | m -> t, m -> mseq where
 
   -- | What to do when dropping card at given index, on the given 't' target
   -- The spot indicates the player whose card is being played
-  drop :: m -> Spots.Player -> HandIndex -> t -> mseq
+  drop ::
+    MonadError Text.Text n =>
+    m ->
+    Spots.Player ->
+    HandIndex ->
+    t ->
+    n mseq
 
   getPlayingPlayer :: m -> Spots.Player
 
@@ -197,18 +204,19 @@ class Interactable m t mseq | m -> t, m -> mseq where
   withInteraction :: m -> Interaction t -> m
 
 act ::
+  MonadError Text.Text n =>
   forall m t mseq.
   Interactable m t mseq =>
   m ->
   DnDAction t ->
   Interaction t ->
-  mseq
+  n mseq
 act m a i =
   case (considerAction m a, a, i) of
-    (False, _, _) -> updateDefault m NoInteraction
-    (_, DragEnd, _) -> updateDefault m NoInteraction
+    (False, _, _) -> pure $ updateDefault m NoInteraction
+    (_, DragEnd, _) -> pure $ updateDefault m NoInteraction
     (_, DragStart j, _) ->
-      updateDefault m $ DragInteraction $ Dragging j Nothing
+      pure $ updateDefault m $ DragInteraction $ Dragging j Nothing
     (_, Drop, DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) ->
       Update.drop
         m
@@ -217,14 +225,14 @@ act m a i =
         dragTarget
       where
         pSpot = getPlayingPlayer m
-    (_, Drop, _) | stopWrongDrop m -> updateDefault m NoInteraction
+    (_, Drop, _) | stopWrongDrop m -> pure $ updateDefault m NoInteraction
     -- DragEnter cannot create a DragInteraction if there's none yet, we don't
     -- want to keep track of drag targets if a drag action did not start yet
     (_, DragEnter t, DragInteraction dragging) ->
-      updateDefault m $ DragInteraction $ dragging {dragTarget = Just t}
+      pure $ updateDefault m $ DragInteraction $ dragging {dragTarget = Just t}
     (_, DragLeave _, DragInteraction dragging) ->
-      updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
-    _ -> updateDefault m i
+      pure $ updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
+    _ -> pure $ updateDefault m i
 
 instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
   considerAction m@GameModel {uiAvail} a =
@@ -249,7 +257,11 @@ instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
 
-playOne :: GameModel -> Game.Event -> (GameModel, GameActionSeq)
+playOne ::
+  MonadError Text.Text m =>
+  GameModel ->
+  Game.Event ->
+  m (GameModel, GameActionSeq)
 playOne m gamePlayEvent =
   updateGameModel m (GamePlay gamePlayEvent) NoInteraction
 
@@ -262,10 +274,11 @@ playOne m gamePlayEvent =
 -- If you feel like adding a 0 event, you instead need to play this event
 -- right away by doing a recursive call (or use 'playOne')
 updateGameModel ::
+  MonadError Text.Text m =>
   GameModel ->
   GameAction ->
   Interaction Game.Target ->
-  (GameModel, GameActionSeq)
+  m (GameModel, GameActionSeq)
 -- This is the only definition that should care about GameShowErrorInteraction:
 updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
@@ -276,17 +289,12 @@ updateGameModel m (GameDnD a@Drop) i = act m a i
 updateGameModel m (GameDnD a@(DragEnter _)) i = act m a i
 updateGameModel m (GameDnD a@(DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute
-updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ =
-  case Game.play shared board gameEvent of
-    Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
-    Right (Game.PolyResult shared' board' nexts anims') ->
-      -- There MUST be a delay here, otherwise it means we would need
-      -- to execute this event now. We don't want that. 'playAll' checks that.
-      (m', zip (repeat 1) $ maybeToList event)
-      where
-        m' = m {board = board', shared = shared', anims = anims', anim}
-        anim = Game.eventToAnim shared board gameEvent
-        event = case (gameEvent, nexts) of
+updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ = do
+  (shared', board', anims', generated) <- Game.playE shared board gameEvent
+  let anim = Game.eventToAnim shared board gameEvent
+      m' = m {board = board', shared = shared', anims = anims', anim}
+      nextEvent =
+        case (gameEvent, generated) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
             -- enqueue resolving next attack if applicable
             case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
@@ -297,97 +305,108 @@ updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ =
               terminator = if changeTurn then Just GameIncrTurn else Nothing
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
-          (_, _) -> nexts <&> GamePlay
+          (_, _) -> GamePlay <$> generated
+  -- There MUST be a delay here, otherwise it means we would need
+  -- to execute this event now. We don't want that. 'playAll' checks that.
+  pure $ (m', zip (repeat 1) $ maybeToList $ nextEvent)
 updateGameModel m (GameDrawCards []) _ =
-  traceShow ("GameDrawCards [] should not happen (but is harmless)" :: String) (m, [])
-updateGameModel m@GameModel {board, shared, turn} (GameDrawCards (fst : rest)) _ =
-  case Game.drawCards shared board pSpot [fst] of
-    Left errMsg -> updateDefault m $ ShowErrorInteraction errMsg
-    Right (shared', board', boardui') ->
-      ( m {anims = boardui', board = board', shared = shared'},
-        -- enqueue next event (if any)
-        [(1, GameDrawCards rest) | not $ null rest]
-      )
+  pure $ traceShow ("GameDrawCards [] should not happen (but is harmless)" :: String) (m, [])
+updateGameModel m@GameModel {board, shared, turn} (GameDrawCards (fst : rest)) _ = do
+  (shared', board', boardui') <- Game.drawCardE shared board pSpot fst
+  pure $
+    ( m {anims = boardui', board = board', shared = shared'},
+      -- enqueue next event (if any)
+      [(1, GameDrawCards rest) | not $ null rest]
+    )
   where
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} GameEndTurnPressed _ =
-  case em' of
-    Left err -> updateDefault m $ ShowErrorInteraction err
-    Right m'@GameModel {board = board'} ->
-      if isInitialTurn
-        then -- We want a one second delay, to see clearly that the opponent
-        -- puts its cards, and then proceed with resolving attacks
-          (m', [(1, event)])
-        else -- We don't want any delay so that the game feels responsive
-        -- when the player presses "End Turn", hence the recursive call.
-          updateGameModel m' event NoInteraction
-      where
-        event =
-          -- schedule resolving first attack
-          case Game.nextAttackSpot board' pSpot Nothing of
-            Nothing -> GameIncrTurn -- no attack, change turn right away
-            Just cSpot -> GamePlay $ Game.Attack pSpot cSpot True True
+updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} GameEndTurnPressed _ = do
+  m@GameModel {board} <-
+    ( if isInitialTurn
+        then do
+          -- End Turn pressed at the end of the player's first turn, make the AI
+          -- place its card in a state where the player did not put its
+          -- card yet, then place them all at once; and then continue
+          -- Do not reveal player placement to AI
+          let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
+              placements =
+                AI.placeCards
+                  difficulty
+                  shared
+                  emptyPlayerInPlaceBoard
+                  (turn & Turn.next & Turn.toPlayerSpot)
+          (shared, board, anims) <- Game.playAllE shared board placements
+          pure $ m {anims, board, shared}
+        else pure m
+      )
+      <&> disableUI
+  let event = mkEvent board
+  if isInitialTurn
+    then -- We want a one second delay, to see clearly that the opponent
+    -- puts its cards, and then proceed with resolving attacks
+      pure $ (m, [(1, event)])
+    else -- We don't want any delay so that the game feels responsive
+    -- when the player presses "End Turn", hence the recursive call.
+      updateGameModel m (event) NoInteraction
   where
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
-    em' =
-      ( if isInitialTurn
-          then do
-            -- End Turn pressed at the end of the player's first turn, make the AI
-            -- place its card in a state where the player did not put its
-            -- card yet, then place them all at once; and then continue
-            -- Do not reveal player placement to AI
-            let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
-            let placements = AI.placeCards difficulty shared emptyPlayerInPlaceBoard $ (Turn.toPlayerSpot . Turn.next) turn
-            Game.PolyResult shared board () anims <- Game.playAll shared board placements
-            pure $ m {anims, board, shared}
-          else pure m
-      )
-        <&> (\gm -> if pSpot == playingPlayer then gm {uiAvail = False} else gm) -- Turn interactions off
-updateGameModel m@GameModel {board, shared} GameIncrTurn _ =
+    disableUI gm = if pSpot == playingPlayer then gm {uiAvail = False} else gm
+    mkEvent b =
+      -- schedule resolving first attack
+      case Game.nextAttackSpot b pSpot Nothing of
+        Nothing -> GameIncrTurn -- no attack, change turn right away
+        Just cSpot -> GamePlay $ Game.Attack pSpot cSpot True True
+updateGameModel m@GameModel {board, shared} GameIncrTurn _ = do
+  let x =
+        -- XXX @smelc Defined a generic _ -> Either a b -> (MonadError a e -> b) funtction
+        -- and use it here
+        updateGameIncrTurn m
+          & Eff.evalState shared
+          & Eff.evalState board
+          & Eff.evalState (mempty :: Board 'UI)
+          & Eff.Error.runError
+          & Eff.run
   case x of
-    Left err -> updateDefault m $ ShowErrorInteraction err
-    Right res -> Bifunctor.first allowUI res
+    Left errMsg -> Control.Monad.Except.throwError errMsg
+    Right (m, seq) -> pure (enableUI m, seq)
   where
-    x =
-      updateGameIncrTurn m
-        & Eff.evalState shared
-        & Eff.evalState board
-        & Eff.evalState (mempty :: Board 'UI)
-        & Eff.run
-    allowUI gm@GameModel {playingPlayer, turn}
+    enableUI gm@GameModel {playingPlayer, turn}
       | Turn.toPlayerSpot turn == playingPlayer =
         gm {uiAvail = True} -- Restore interactions if turn of player
-    allowUI gm = gm
+      | otherwise = gm
 -- Hovering in hand cards
 updateGameModel m (GameInHandMouseEnter i) NoInteraction =
-  updateDefault m $ HoverInteraction $ Hovering i
+  pure $ updateDefault m $ HoverInteraction $ Hovering i
 updateGameModel m (GameInHandMouseLeave _) _ =
-  updateDefault m NoInteraction
+  pure $ updateDefault m NoInteraction
 -- Hovering in place cards
 updateGameModel m (GameInPlaceMouseEnter target) NoInteraction =
-  updateDefault m $ HoverInPlaceInteraction target
+  pure $ updateDefault m $ HoverInPlaceInteraction target
 updateGameModel m (GameInPlaceMouseLeave _) _ =
-  updateDefault m NoInteraction
+  pure $ updateDefault m NoInteraction
 -- Debug cmd
 updateGameModel m GameExecuteCmd _ =
-  updateDefault m $ ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
+  pure $
+    updateDefault m $
+      ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
 updateGameModel m@GameModel {shared} (GameUpdateCmd misoStr) i =
-  updateDefault
-    ((m {shared = SharedModel.withCmd shared (Just $ fromMisoString misoStr)}) :: GameModel)
-    i
+  pure $
+    updateDefault
+      ((m {shared = SharedModel.withCmd shared (Just $ fromMisoString misoStr)}) :: GameModel)
+      i
 -- default
 updateGameModel m _ i =
-  updateDefault m i
+  pure $ updateDefault m i
 
 -- | This function uses 'Eff' to have multiple 'State' for different types
 -- This allows to use put/get to track updates to the state, instead
--- of having variables with increasing version numbers (ticks)
+-- of having variables with increasing version numbers (ticks). XXX simplify that.
 updateGameIncrTurn ::
-  Members '[State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
+  Members '[Error Text.Text, State SharedModel, State (Board 'Core), State (Board 'UI)] eff =>
   GameModel ->
-  Eff eff (Either Text.Text (GameModel, GameActionSeq))
+  Eff eff (GameModel, GameActionSeq)
 updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
   board <- get @(Board 'Core)
   put @(Board 'Core) $ boardStart board pSpot
@@ -402,7 +421,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
   board <- get @(Board 'Core)
   shared <- get @SharedModel
   case Game.drawCards shared board pSpot drawNow of
-    Left errMsg -> return $ Left errMsg
+    Left errMsg -> Eff.Error.throwError errMsg
     Right triplet -> do
       putAll triplet
       shared <- get @SharedModel
@@ -436,7 +455,7 @@ updateGameIncrTurn m@GameModel {difficulty, playingPlayer, turn} = do
       board <- get @(Board 'Core)
       boardui <- get @(Board 'UI)
       let m' = m {anims = boardui, board = board, shared, turn = turn'}
-      return $ Right (m', [(1, GamePlay event) | event <- events1] ++ events2)
+      pure $ (m', [(1, GamePlay event) | event <- events1] ++ events2)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
@@ -753,7 +772,11 @@ updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
     else delayActions m'' $ prepare $ check actions
   where
     -- 'Game.NoAnimation': clear animation if any
-    (m', actions) = updateGameModel (m {anim = Game.NoAnimation}) a interaction
+    (m', actions) =
+      either
+        (\errMsg -> (withInteraction m (ShowErrorInteraction errMsg), [])) -- Show message if error occurred
+        id -- return obtained model if no error
+        (runExcept $ updateGameModel (m {anim = Game.NoAnimation}) a interaction)
     m'' = GameModel' m'
     sumDelays _ [] = []
     sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl

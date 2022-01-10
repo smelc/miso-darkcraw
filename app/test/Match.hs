@@ -165,11 +165,9 @@ playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
     pSpot = Turn.toPlayerSpot turn
     go :: MonadError Text m => GameModel -> [GameAction] -> m GameModel
     go model [] = pure model
-    go model@GameModel {interaction} (action : actions) =
-      let (model'@GameModel {interaction = interaction'}, seq) = Update.updateGameModel model action interaction
-       in case interaction' of
-            ShowErrorInteraction err -> throwError err
-            _ -> go model' (map snd seq ++ actions)
+    go model@GameModel {interaction} (action : actions) = do
+      (model', seq) <- Update.updateGameModel model action interaction
+      go model' (map snd seq ++ actions)
 
 eventToGameActions ::
   Board 'Core ->

@@ -22,7 +22,9 @@ module Game
     applyPlague,
     attackOrder, -- exported for tests only
     cardsToDraw,
+    drawCardE,
     drawCards,
+    drawCardsE,
     enemySpots,
     idToHandIndex,
     DrawSource (..),
@@ -35,7 +37,10 @@ module Game
     Result (),
     nextAttackSpot,
     play,
+    playE,
     playAll,
+    playAllE,
+    playAllM,
     playM,
     StatChange (..), -- exported for tests only
     transferCards,
@@ -226,6 +231,19 @@ play shared board action =
   where
     mkResult (((b, e), bui), s) = PolyResult s b e bui
 
+-- | A variant of 'play' and 'playE' that is only in the error monad.
+playE ::
+  MonadError Text m =>
+  SharedModel ->
+  Board 'Core ->
+  Event ->
+  m (SharedModel, Board 'Core, Board 'UI, Maybe Event)
+playE shared board action =
+  playM board action
+    & runWriterT
+    & flip runStateT shared
+    & fmap (\(((b, e), anims), sh) -> (sh, b, anims, e))
+
 -- | Play a list of events, playing newly produced events as they are being
 -- produced. That is why, contrary to 'play', this function doesn't return
 -- events: it consumes them all eagerly. See 'playAllM' for the monad version
@@ -239,6 +257,19 @@ playAll shared board events =
   where
     f :: ((Board 'Core, Board 'UI), SharedModel) -> PolyResult ()
     f ((b, anims), sh) = PolyResult sh b () anims
+
+-- | Like 'playAll', but in the error monad
+playAllE ::
+  MonadError Text m =>
+  SharedModel ->
+  Board 'Core ->
+  [Event] ->
+  m (SharedModel, Board 'Core, Board 'UI)
+playAllE shared board events =
+  playAllM board events
+    & runWriterT
+    & flip runStateT shared
+    & fmap (\((b, anims), sh) -> (sh, b, anims))
 
 -- | Like 'playAll', but in the monad
 playAllM ::
@@ -662,28 +693,40 @@ drawCards ::
   -- | The sources from which to draw the cards
   [DrawSource] ->
   Either Text (SharedModel, Board 'Core, Board 'UI)
-drawCards shared board _ [] = return (shared, board, mempty)
-drawCards shared board pSpot (hd : rest) = do
-  (board', boardui, shared') <- drawCard shared board pSpot hd
-  (shared'', board'', boardui') <- drawCards shared' board' pSpot rest
-  return (shared'', board'', boardui <> boardui')
+drawCards shared board pSpot srcs =
+  drawCardsE shared board pSpot srcs & runExcept
 
-drawCard ::
+drawCardsE ::
+  MonadError Text m =>
+  SharedModel ->
+  Board 'Core ->
+  -- | The player drawing cards
+  Spots.Player ->
+  -- | The sources from which to draw the cards
+  [DrawSource] ->
+  m (SharedModel, Board 'Core, Board 'UI)
+drawCardsE shared board pSpot =
+  \case
+    [] -> return (shared, board, mempty)
+    (hd : rest) -> do
+      (shared', board', boardui) <- drawCardE shared board pSpot hd
+      (shared'', board'', boardui') <- drawCardsE shared' board' pSpot rest
+      return (shared'', board'', boardui <> boardui')
+
+drawCardE ::
+  MonadError Text m =>
   SharedModel ->
   Board 'Core ->
   -- | The player drawing cards
   Spots.Player ->
   -- | The reason for drawing a card
   DrawSource ->
-  Either Text (Board 'Core, Board 'UI, SharedModel)
-drawCard shared board pSpot src =
+  m (SharedModel, Board 'Core, Board 'UI)
+drawCardE shared board pSpot src =
   drawCardM board pSpot src
     & runWriterT
     & flip runStateT shared
-    & runExcept
-    & fmap flatten
-  where
-    flatten ((x, y), z) = (x, y, z)
+    & fmap (\((b, anims), sh) -> (sh, b, anims))
 
 drawCardM ::
   MonadError Text m =>
