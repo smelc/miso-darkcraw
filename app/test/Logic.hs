@@ -25,7 +25,6 @@ import Damage (Damage, (+^), (-^))
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
-import Data.Text (Text)
 import qualified Data.Text as Text
 import Debug.Trace (traceShow)
 import qualified Game
@@ -108,7 +107,7 @@ testPlayFraming shared =
                   & listToMaybe
                   <&> (i,)
     relation _ _ _ (Left _) = True
-    relation board pSpot cSpot (Right (Game.PolyResult _ board' _ _)) = boardEq board pSpot [cSpot] board'
+    relation board pSpot cSpot (Right (Game.Result {board = board'})) = boardEq board pSpot [cSpot] board'
     boardEq (board :: Board 'Core) pSpot cSpots board' =
       let otherSpot = otherPlayerSpot pSpot
        in -- Board must be completely equivalent on part of player that doesn't play
@@ -185,7 +184,7 @@ testFear shared =
     applyFear b = Game.play shared b (Game.ApplyFearNTerror causingFearPSpot)
     board'' = Board.setCreature otherPSpot (bottomSpotOfTopVisual Bottom) affectedByFear board
     toEither (Left errMsg) = Left errMsg
-    toEither (Right (Game.PolyResult _ b _ _)) = Right b
+    toEither (Right (Game.Result {board = b})) = Right b
     hasConsumedFear Creature {skills} = any ((==) (Skill.Fear False)) skills
 
 testFearNTerror :: SharedModel -> SpecWith ()
@@ -291,7 +290,7 @@ testFillTheFrontline shared =
         & Board.setCreature pSpot TopLeft (mkCreature' Spearman team)
     board' = Game.play shared board $ Game.FillTheFrontline pSpot
     pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.PolyResult _ board'' _ _)) =
+    pred (Right (Game.Result {board = board''})) =
       Board.toInPlaceCreature board'' pSpot Top == Nothing -- Archer moved
         && (Board.toInPlaceCreature board'' pSpot Bottom ~= Archer) -- to frontline spot
         && (Board.toInPlaceCreature board'' pSpot TopLeft ~= Spearman) -- Spearman stayed in position
@@ -317,10 +316,10 @@ testBreathIce shared =
     board' specterSpot =
       Game.play shared (mkBoard specterSpot) $ Game.Attack pSpot specterSpot False False
     pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.PolyResult _ board'' _ _)) =
+    pred (Right (Game.Result {board = board''})) =
       Board.toInPlace board'' otherpSpot == mempty -- Both dummies killed
     pred' (Left errMsg) = traceShow errMsg False
-    pred' (Right (Game.PolyResult _ board'' _ _)) =
+    pred' (Right (Game.Result {board = board''})) =
       Board.toInPlaceCreature board'' otherpSpot Top ~= dummy1 -- dummy1 stayed alive
         && (Board.toInPlaceCreature board'' otherpSpot Bottom ~= dummy2) -- dummy2 stayed alive
     (~=) Nothing _ = False
@@ -334,7 +333,7 @@ testChurch shared =
         Game.play shared board (Game.ApplyChurch pSpot) `shouldSatisfy` (pred board pSpot)
   where
     pred _ _ (Left errMsg) = traceShow errMsg False
-    pred board pSpot (Right (Game.PolyResult _shared' board' _ _anim)) =
+    pred board pSpot (Right (Game.Result {board = board'})) =
       Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
         && all
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
@@ -360,7 +359,7 @@ testKing shared =
         Game.play shared board (Game.ApplyKing pSpot) `shouldSatisfy` (pred board pSpot)
   where
     pred _ _ (Left errMsg) = traceShow errMsg False
-    pred board pSpot (Right (Game.PolyResult _shared' board' _ _anim)) =
+    pred board pSpot (Right (Game.Result {board = board'})) =
       Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
         && all
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
@@ -390,7 +389,7 @@ testTransient shared =
         & Board.setCreature PlayerBot botCardSpot (mkCreature shared Vampire Undead True)
     board' = Game.play shared board $ Game.Attack PlayerBot botCardSpot False False
     pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.PolyResult _ board'' _ _)) =
+    pred (Right (Game.Result {board = board''})) =
       Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
         && (map (Board.toDiscarded board'') Spots.allPlayers & all null) -- Discarded stack is empty
 
@@ -470,9 +469,8 @@ testVeteran shared =
     veteran :: Creature 'Core = mkCreature shared Card.Veteran team False
     skeleton :: Creature 'Core = mkCreature shared Card.Skeleton Undead False
     vampire :: Creature 'Core = mkCreature shared Card.Vampire Undead False
-    match :: (Board 'Core) -> (Either Text Game.Result) -> Bool
     match _ (Left errMsg) = traceShow errMsg False
-    match expected (Right (Game.PolyResult _ b _ _)) = b == expected
+    match expected (Right (Game.Result {board = b})) = b == expected
 
 testZealot shared =
   describe "Skill.Zealot" $ do
@@ -494,11 +492,10 @@ testZealot shared =
     captain :: Creature 'Core = mkCreature shared Card.Captain team False
     skeleton :: Creature 'Core = mkCreature shared Card.Skeleton Undead False
     vampire :: Creature 'Core = mkCreature shared Card.Vampire Undead False
-    match :: (Board 'Core) -> (Either Text Game.Result) -> Bool
     match _ (Left errMsg) = traceShow errMsg False
-    match expected (Right (Game.PolyResult _ b _ _)) = b == expected
+    match expected (Right (Game.Result {board = b})) = b == expected
     zPartIsEmpty (Left errMsg) = traceShow errMsg False
-    zPartIsEmpty (Right (Game.PolyResult _ b _ _)) =
+    zPartIsEmpty (Right (Game.Result {board = b})) =
       Board.toInPlace b pSpot == mempty
 
 testStrengthPot shared =
@@ -519,7 +516,7 @@ testStrengthPot shared =
     board' :: Board 'Core =
       Game.play shared board (Game.Place' pSpot (Game.CardTarget pSpot cSpot) strength)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right b' -> b')
-        & (\(Game.PolyResult _ b _ _) -> b)
+        & (\(Game.Result {board = b}) -> b)
     board'' :: Board 'Core = BoardInstances.boardStart board' pSpot
     ckind = Card.Beholder
     beholder :: Creature 'Core = mkCreature shared ckind team False
@@ -543,7 +540,7 @@ testPandemonium shared =
         (shared', b') =
           Game.play sh (prepare b) (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium)
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-            & (\(Game.PolyResult s c _ _) -> (s, c))
+            & (\(Game.Result {shared = s, board = c}) -> (s, c))
         prepare b =
           Board.addToHand b pSpot pandemonium -- So that card is here
             & Board.mapMana pSpot ((+) 5) -- And mana is available to play it
@@ -574,7 +571,7 @@ testAce shared =
         (sh', b') =
           Game.play sh b (Game.Attack pSpot cSpot False False)
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-            & (\(Game.PolyResult s c _ _) -> (s, c))
+            & (\(Game.Result {board = c, shared = s}) -> (s, c))
 
 testPowerful shared =
   describe "Powerful" $ do
@@ -593,7 +590,7 @@ testPowerful shared =
     attack b =
       Game.play shared b (Game.Attack pSpot cSpot False False)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & (\(Game.PolyResult _ c _ _) -> c)
+        & (\(Game.Result {board = c}) -> c)
 
 testAxeOfRage shared =
   describe "Axe of Rage" $ do
@@ -621,7 +618,7 @@ testScore shared =
     attack b cSpot =
       Game.play shared b (Game.Attack pSpot cSpot False False)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & (\(Game.PolyResult _ c _ _) -> c)
+        & (\(Game.Result {board = c}) -> c)
 
 main :: SharedModel -> SpecWith ()
 main shared = do

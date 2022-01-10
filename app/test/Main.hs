@@ -60,7 +60,7 @@ testAIRanged :: SharedModel -> Turn -> Board 'Core
 testAIRanged shared turn =
   case Game.playAll shared board events of
     Left _ -> error "AI failed"
-    Right (Game.PolyResult _ board' () _) -> board'
+    Right (Game.Result {board = board'}) -> board'
   where
     (t, teams) = (Undead, Teams Undead Undead)
     archer = IDC (CreatureID Archer t) []
@@ -268,7 +268,7 @@ testAIPlace shared =
         IDN _ -> True
     extendHand b pSpot cards = Board.setHand b pSpot (Board.toHand b pSpot ++ cards)
     difficulty = AI.Easy
-    prettify (Game.PolyResult _ b () _) = Pretty b
+    prettify (Game.Result {board = b}) = Pretty b
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"
@@ -335,7 +335,7 @@ testPlayScoreMonotonic shared =
                  in monotonic initialScore nextScore
   where
     takeBoard (Left _) = Nothing
-    takeBoard (Right (Game.PolyResult _ b _ _)) = Just b
+    takeBoard (Right (Game.Result {board = b})) = Just b
     monotonic _ Nothing = True -- Nothing to test
     monotonic i (Just j) = j <= i -- Better score is smaller score
 
@@ -363,7 +363,7 @@ testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
       play (board1 (mkCreature' Archer Undead) (mkCreature' Vampire Undead) SwordOfMight)
-        `shouldSatisfyRight` (\(Game.PolyResult _ board' _ _) -> hasItem board' pSpot Bottom SwordOfMight)
+        `shouldSatisfyRight` (\(Game.Result {board = board'}) -> hasItem board' pSpot Bottom SwordOfMight)
   where
     pSpot = PlayerTop
     board1 id1 id2 item =
@@ -382,7 +382,7 @@ testAIImprecise shared =
   describe "AI" $ do
     it "Imprecise card is put in back line" $
       (Game.playAll shared board $ AI.play AI.Easy shared board pSpot)
-        `shouldSatisfyRight` ( \(Game.PolyResult _ board' _ _) ->
+        `shouldSatisfyRight` ( \(Game.Result {board = board'}) ->
                                  Board.toPlayerCardSpots board' pSpot Occupied
                                    & (\spots -> length spots == 1 && all inTheBack spots)
                              )

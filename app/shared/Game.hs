@@ -33,8 +33,7 @@ module Game
     EnemySpots (..),
     Event (..),
     MessageText (..),
-    PolyResult (..),
-    Result (),
+    Result (..),
     nextAttackSpot,
     play,
     playE,
@@ -147,15 +146,14 @@ data Event
     Place' Spots.Player Target Card.ID
   deriving (Eq, Generic, Show)
 
--- | The polymorphic version of 'Result'. Used for implementors that
--- do not return events and hence instantiate 'a' by () TODO @smelc use
--- a record instead.
-data PolyResult a = PolyResult SharedModel (Board 'Core) a (Board 'UI)
+-- | The result of playing game events
+data Result e = Result
+  { board :: Board 'Core,
+    anims :: Board 'UI,
+    event :: e,
+    shared :: SharedModel
+  }
   deriving (Eq, Show)
-
--- | The result of playing an 'Event': an updated board, the next event
--- (if any), and the animations
-type Result = PolyResult (Maybe Event)
 
 data MessageText
   = -- | Simple text to display
@@ -221,7 +219,7 @@ reportEffect pSpot cSpot effect =
     pBot :: PlayerPart 'UI = mempty {inPlace = botInPlace}
 
 -- | Play a single 'Event' on the given 'Board'. Monad version is 'playM' below.
-play :: SharedModel -> Board 'Core -> Event -> Either Text Result
+play :: SharedModel -> Board 'Core -> Event -> Either Text (Result (Maybe Event))
 play shared board action =
   playM board action
     & runWriterT
@@ -229,7 +227,7 @@ play shared board action =
     & runExcept
     & fmap mkResult
   where
-    mkResult (((b, e), bui), s) = PolyResult s b e bui
+    mkResult (((b, e), bui), s) = Result {anims = bui, board = b, event = e, shared = s}
 
 -- | A variant of 'play' and 'playE' that is only in the error monad.
 playE ::
@@ -247,7 +245,7 @@ playE shared board action =
 -- | Play a list of events, playing newly produced events as they are being
 -- produced. That is why, contrary to 'play', this function doesn't return
 -- events: it consumes them all eagerly. See 'playAllM' for the monad version
-playAll :: SharedModel -> Board 'Core -> [Event] -> Either Text (PolyResult ())
+playAll :: SharedModel -> Board 'Core -> [Event] -> Either Text (Result ())
 playAll shared board events =
   playAllM board events
     & runWriterT
@@ -255,8 +253,8 @@ playAll shared board events =
     & runExcept
     & fmap f
   where
-    f :: ((Board 'Core, Board 'UI), SharedModel) -> PolyResult ()
-    f ((b, anims), sh) = PolyResult sh b () anims
+    f :: ((Board 'Core, Board 'UI), SharedModel) -> Result ()
+    f ((b, anims), sh) = Result {anims, board = b, event = (), shared = sh}
 
 -- | Like 'playAll', but in the error monad
 playAllE ::
@@ -300,10 +298,10 @@ keepEffectfull _ _ [] = []
 keepEffectfull shared board (e : es) =
   case play shared board e of
     Left err -> traceShow err (keepEffectfull shared board es)
-    Right (PolyResult shared' board' new _) ->
+    Right (Result {shared = shared', board = board', event = new}) ->
       case playAll shared' board' (maybeToList new) of
         Left err -> traceShow err (keepEffectfull shared' board' es)
-        Right (PolyResult shared'' board'' () _) ->
+        Right (Result {shared = shared'', board = board''}) ->
           if board'' == board
             then {- 'e' had no effect -} keepEffectfull shared board es
             else {- 'e' had an effect -} e : keepEffectfull shared'' board'' es

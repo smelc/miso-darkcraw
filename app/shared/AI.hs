@@ -144,7 +144,7 @@ play difficulty shared board pSpot =
         ( \events ->
             case Game.playAll shared board events of
               Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
-              Right (Game.PolyResult _ board' () _) -> Just (boardPlayerScore board' pSpot, events)
+              Right (Game.Result {board = board'}) -> Just (boardPlayerScore board' pSpot, events)
         )
         possibles
         & catMaybes
@@ -175,7 +175,7 @@ playHand shared board pSpot =
     Nothing -> []
     Just (f, s, t) ->
       case Game.playAll shared board [event] of
-        Right (Game.PolyResult shared' b' () _) -> event : playHand shared' b' pSpot
+        Right (Game.Result {board = b', shared = shared'}) -> event : playHand shared' b' pSpot
         Left msg ->
           traceShow ("Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it.") $
             playHand shared board' pSpot
@@ -208,7 +208,7 @@ aiPlayFirst shared board pSpot =
   where
     handIndex = HandIndex 0
     scores :: ID -> [(Nat, Target)] = \id ->
-      [ (board' & eitherToMaybe <&> (\(Game.PolyResult _ b _ _) -> boardPlayerScore b pSpot), target)
+      [ (board' & eitherToMaybe <&> (\(Game.Result {board = b}) -> boardPlayerScore b pSpot), target)
         | target <- targets board pSpot id,
           let board' = Game.play shared board $ Place pSpot target handIndex
       ]

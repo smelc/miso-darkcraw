@@ -421,7 +421,7 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
         --              enqueue next event (if any)
         case (isAI, Game.playAll shared board preTurnEvents) of
           (True, Left errMsg) -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
-          (True, Right (Game.PolyResult _ board' _ _)) ->
+          (True, Right (Game.Result {board = board'})) ->
             let plays = AI.play difficulty shared board' pSpot
              in zip (repeat 1) (map GamePlay plays ++ [GameEndTurnPressed])
           (False, _) ->
