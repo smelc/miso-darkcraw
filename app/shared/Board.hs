@@ -37,7 +37,6 @@ module Board
     PlayerPart (..),
     StackType (),
     small,
-    spotToLens,
     toStack,
     setStack,
     setHand,
@@ -46,6 +45,7 @@ module Board
     empty,
     increaseScore,
     setCreature,
+    setMaybeCreature,
     toDiscarded,
     setDiscarded,
     setInPlace,
@@ -74,8 +74,8 @@ where
 import Card hiding (ID)
 import qualified Card
 import Constants
-import Control.Lens
 import Control.Monad.Except (MonadError, throwError)
+import Data.Function ((&))
 import Data.Generics.Labels ()
 import Data.Kind (Constraint, Type)
 import qualified Data.Map.Strict as Map
@@ -310,11 +310,9 @@ addToDiscarded board pSpot addition =
 
 addToHand :: Board p -> Spots.Player -> HandElemType p -> Board p
 addToHand board pSpot handElem =
-  setPart board pSpot $ part {inHand = hand'}
+  setPart board pSpot $ part {inHand = hand ++ [handElem]}
   where
-    part = toPart board pSpot
-    hand = inHand part
-    hand' = snoc hand handElem
+    part@PlayerPart {inHand = hand} = toPart board pSpot
 
 -- TODO @smelc replace by calls to 'mapScore'
 increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
@@ -351,6 +349,18 @@ setCreature pSpot cSpot creature board =
   where
     part@PlayerPart {inPlace = existing} = toPart board pSpot
     part' = part {inPlace = Map.insert cSpot creature existing}
+
+-- | Replace or remove a creature.
+setMaybeCreature :: Spots.Player -> Spots.Card -> Maybe (Creature 'Core) -> Board 'Core -> Board 'Core
+setMaybeCreature pSpot cSpot creature board =
+  setPart board pSpot part'
+  where
+    part@PlayerPart {inPlace = existing} = toPart board pSpot
+    update :: Map.Map (Spots.Card) (Creature 'Core) -> Map.Map (Spots.Card) (Creature 'Core) =
+      case creature of
+        Nothing -> Map.delete cSpot
+        Just c -> Map.insert cSpot c
+    part' = part {inPlace = update existing}
 
 setDiscarded :: Board p -> Spots.Player -> DiscardedType p -> Board p
 setDiscarded board pSpot discarded =
@@ -530,13 +540,6 @@ small shared teams cid items pSpot cSpot =
       SharedModel.idToCreature shared cid items
         & fromJust
         & Card.unlift
-
--- FIXME @smelc remove me
-spotToLens :: Spots.Player -> Lens' (Board p) (PlayerPart p)
-spotToLens =
-  \case
-    PlayerBot -> #playerBottom
-    PlayerTop -> #playerTop
 
 appliesTo :: Card.ID -> Board 'Core -> Spots.Player -> Spots.Card -> Bool
 appliesTo id board pSpot cSpot =

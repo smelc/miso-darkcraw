@@ -55,7 +55,6 @@ import Card hiding (ID)
 import qualified Card
 import qualified Constants
 import Control.Exception (assert)
-import Control.Lens hiding (has)
 import Control.Monad.Except
 import Control.Monad.Random
 import Control.Monad.State
@@ -64,6 +63,8 @@ import Damage (Damage (..), (+^))
 import qualified Damage
 import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable
+import Data.Function ((&))
+import Data.Functor ((<&>))
 import Data.List
 import Data.List.Index (deleteAt, setAt)
 import qualified Data.List.NonEmpty as NE
@@ -740,9 +741,10 @@ drawCardM board pSpot src =
     (_, []) -> return board -- cannot draw: stack is empty
     (Right witness, _) -> do
       let hand = Board.toHand board pSpot
-      stdgen <- use #sharedStdGen
+      shared <- get
+      let stdgen = SharedModel.getStdGen shared
       let (idrawn, stdgen') = randomR (0, assert (stackLen >= 1) $ stackLen - 1) stdgen
-      #sharedStdGen .= stdgen'
+      put $ SharedModel.withStdGen shared stdgen'
       let ident :: Card.ID = stack !! idrawn
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [ident]
@@ -1143,7 +1145,7 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:
-    board' = board & spotToLens pSpot . #inPlace . at cSpot .~ hittee'
+    board' = Board.setMaybeCreature pSpot cSpot hittee' board
 
 applyInPlaceEffect ::
   -- | The effect of the attacker on the hittee
