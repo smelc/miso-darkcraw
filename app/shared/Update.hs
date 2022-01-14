@@ -25,10 +25,11 @@ import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
 import qualified Data.Bifunctor as Bifunctor
+import Data.Either.Extra
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (isJust, maybeToList)
+import Data.Maybe (fromMaybe, isJust, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -288,7 +289,11 @@ updateGameModel m (GameDnD a@(DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute
 updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ = do
   (shared', board', anims', generated) <- Game.playE shared board gameEvent
-  let anim = Game.eventToAnim shared board gameEvent
+  let anim =
+        Game.eventToAnim shared board gameEvent
+          & runExcept
+          & eitherToMaybe
+          & fromMaybe Game.NoAnimation -- Rather no animation that erroring out
       m' = m {board = board', shared = shared', anims = anims', anim}
       nextEvent =
         case (gameEvent, generated) of

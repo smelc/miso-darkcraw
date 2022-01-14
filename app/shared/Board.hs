@@ -34,6 +34,7 @@ module Board
     HandIndex (..),
     InHandType (),
     lookupHand,
+    lookupHandM,
     PlayerPart (..),
     StackType (),
     small,
@@ -267,18 +268,27 @@ data StackKind
     Discarded
   deriving (Bounded, Enum)
 
-lookupHand ::
+lookupHandM ::
   MonadError Text m =>
   [a] ->
   Int ->
   m a
+lookupHandM hand i =
+  case lookupHand hand i of
+    Left msg -> throwError msg
+    Right elem -> return elem
+
+lookupHand ::
+  [a] ->
+  Int ->
+  Either Text a
 lookupHand hand i
-  | i < 0 = throwError $ Text.pack $ "Invalid hand index: " ++ show i
+  | i < 0 = Left $ Text.pack $ "Invalid hand index: " ++ show i
   | i >= handLength =
-    throwError $
+    Left $
       Text.pack $
         "Invalid hand index: " ++ show i ++ ". Hand has " ++ show handLength ++ " card(s)."
-  | otherwise = return $ hand !! i
+  | otherwise = Right (hand !! i)
   where
     handLength = length hand
 

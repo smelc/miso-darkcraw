@@ -20,7 +20,6 @@ import Board
 import Card
 import qualified Configuration
 import Constants
-import Control.Monad.Except
 import Data.Function ((&))
 import Data.Functor
 import Data.List
@@ -96,7 +95,7 @@ viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} 
     dragTargetType =
       case interaction of
         DragInteraction (Dragging (HandIndex i) _) ->
-          case Board.toHand board playingPlayer & flip lookupHand i & runExcept of
+          case Board.toHand board playingPlayer & flip Board.lookupHand i of
             Left err -> traceShow (Text.unpack err) Nothing
             Right id -> Just $ targetType id
         _ -> Nothing

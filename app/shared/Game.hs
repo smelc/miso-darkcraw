@@ -334,7 +334,7 @@ playM board (FillTheFrontline pSpot) = do
 playM board NoPlayEvent = return (board, Nothing)
 playM board (Place pSpot target (handhi :: HandIndex)) = do
   shared <- get
-  ident <- lookupHand hand handi
+  ident <- Board.lookupHandM hand handi
   let uiCard = SharedModel.identToCard shared ident
   let card = unlift <$> uiCard
   case (target, card, uiCard <&> Card.toCommon) of
@@ -369,13 +369,18 @@ playM board (Place' pSpot target id) =
 
 -- | Translates an 'Event' into an animation displayed in the
 -- middle of the 'Board'.
-eventToAnim :: SharedModel -> Board 'Core -> Event -> Animation
+eventToAnim ::
+  MonadError Text m =>
+  SharedModel ->
+  Board 'Core ->
+  Event ->
+  m Animation
 eventToAnim shared board =
   -- Note that, in this function, we do not need to check if the
   -- Event has an effect. This is done by the caller of 'keepEffectfull'
   \case
     Game.ApplyBrainless pSpot ->
-      Message [Text msg] duration
+      pure $ Message [Text msg] duration
       where
         brainless =
           Board.toInPlace board pSpot
@@ -386,10 +391,10 @@ eventToAnim shared board =
             else "Brainless creatures move randomly"
     Game.ApplyChurch pSpot ->
       case (Board.mana part /= Board.mana part', hps < hps', attack < attack') of
-        (True, _, _) -> fill [Text "+1 mana"]
-        (_, True, _) -> fill [Text "adds +1", Image heartTile]
-        (_, _, True) -> fill [Text "adds +1", Image attackTile]
-        _ -> fill [Text " has no effect without any believers"]
+        (True, _, _) -> pure $ fill [Text "+1 mana"]
+        (_, True, _) -> pure $ fill [Text "adds +1", Image heartTile]
+        (_, _, True) -> pure $ fill [Text "adds +1", Image attackTile]
+        _ -> pure $ fill [Text " has no effect without any believers"]
       where
         parts@(part, part') = (Board.toPart board pSpot, Board.toPart board' pSpot)
         board' = applyChurch shared board pSpot & (\(b, _, _) -> b)
@@ -402,24 +407,26 @@ eventToAnim shared board =
         (attack :: Damage, attack' :: Damage) = both toAttack creatures
         both f = Bifunctor.bimap f f
         fill suffix = Message ([Text "Church", Image churchTile] ++ suffix) duration
-    Game.ApplyFearNTerror {} -> NoAnimation
+    Game.ApplyFearNTerror {} -> pure NoAnimation
     Game.ApplyKing {} ->
-      Message
-        [ Text "Hail to the king: +1 ",
-          Image heartTile,
-          Text " +1",
-          Image attackTile,
-          Text " to all knights"
-        ]
-        duration
-    Game.Attack {} -> NoAnimation
+      pure $
+        Message
+          [ Text "Hail to the king: +1 ",
+            Image heartTile,
+            Text " +1",
+            Image attackTile,
+            Text " to all knights"
+          ]
+          duration
+    Game.Attack {} -> pure NoAnimation
     Game.FillTheFrontline pSpot ->
-      Message
-        ( [Text "Shooters! "]
-            ++ map Image movedTiles
-            ++ [Text " Fill the frontline! ⚔️"]
-        )
-        duration
+      pure $
+        Message
+          ( [Text "Shooters! "]
+              ++ map Image movedTiles
+              ++ [Text " Fill the frontline! ⚔️"]
+          )
+          duration
       where
         part = Board.toInPlace board pSpot
         board' = applyFillTheFrontline board pSpot
@@ -434,13 +441,12 @@ eventToAnim shared board =
         movedTiles :: [Tile.Filepath] =
           map (SharedModel.creatureToFilepath shared) movedCreatures
             & catMaybes
-    Game.NoPlayEvent -> NoAnimation
-    Game.Place pSpot target (HandIndex {unHandIndex = idx}) ->
-      case runExcept (lookupHand (Board.toHand board pSpot) idx) of
-        Left msg -> error (Text.unpack msg)
-        Right id -> go pSpot target id
+    Game.NoPlayEvent -> pure NoAnimation
+    Game.Place pSpot target (HandIndex {unHandIndex = idx}) -> do
+      id <- Board.lookupHandM (Board.toHand board pSpot) idx
+      return $ go pSpot target id
     Game.Place' pSpot target id ->
-      go pSpot target id
+      pure $ go pSpot target id
   where
     duration = 2
     attackTile = SharedModel.tileToFilepath shared Tile.Sword1 Tile.Sixteen

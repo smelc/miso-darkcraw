@@ -429,7 +429,7 @@ testMana shared =
           return $ (Card.toCommon card & Card.mana) <= avail
           where
             card :: Either Text Card.ID =
-              Board.lookupHand (Board.toHand board pSpot) i & runExcept
+              Board.lookupHand (Board.toHand board pSpot) i
 
 testApplyDifficulty stdgen =
   describe "applyDifficulty" $ do

@@ -34,7 +34,6 @@ where
 import Board hiding (StackType)
 import Card
 import Constants
-import Control.Monad.Except
 import qualified Damage ()
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -377,7 +376,7 @@ borderWidth GameModel {board, interaction, playingPlayer} pTarget =
       case handCard $ unHandIndex hi of
         Left errMsg -> trace (Text.unpack errMsg) False
         Right id -> Game.appliesTo board id playingPlayer pTarget
-    handCard i = lookupHand (Board.toHand board playingPlayer) i & runExcept
+    handCard i = Board.lookupHand (Board.toHand board playingPlayer) i
 
 fadeouts :: SharedModel -> Int -> InPlaceEffect -> Styled (View Action)
 fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
