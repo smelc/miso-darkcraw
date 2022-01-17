@@ -21,7 +21,6 @@ import BoardInstances ()
 import Card
 import Control.Exception
 import Damage (Damage (..))
-import Data.Either.Extra
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List
@@ -30,10 +29,9 @@ import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
-import Debug.Trace (trace, traceShow)
+import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
-import Game hiding (Event, Result)
-import qualified Game
+import qualified Game (Event (..), Result (..), Target (..), WhichPlayerTarget (..), maybePlay, playAll, whichPlayerTarget)
 import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -68,15 +66,15 @@ placeCards difficulty shared board turn =
   where
     events = AI.play difficulty shared board turn
     isPlaceEvent = \case
-      ApplyBrainless {} -> False
-      ApplyChurch {} -> False
-      ApplyFearNTerror {} -> False
-      ApplyKing {} -> False
-      Attack {} -> False
-      FillTheFrontline {} -> False
-      NoPlayEvent -> False
-      Place {} -> True
-      Place' {} -> True
+      Game.ApplyBrainless {} -> False
+      Game.ApplyChurch {} -> False
+      Game.ApplyFearNTerror {} -> False
+      Game.ApplyKing {} -> False
+      Game.Attack {} -> False
+      Game.FillTheFrontline {} -> False
+      Game.NoPlayEvent -> False
+      Game.Place {} -> True
+      Game.Place' {} -> True
 
 -- | Given the hand, the permutations to consider for playing this hand
 applyDifficulty :: forall a. Ord a => Difficulty -> StdGen -> [a] -> [[a]]
@@ -143,7 +141,7 @@ play difficulty shared board pSpot =
       map
         ( \events ->
             case Game.playAll shared board events of
-              Left msg -> trace ("Maybe unexpected? " ++ Text.unpack msg) Nothing
+              Left msg -> traceShow ("Maybe unexpected? " ++ Text.unpack msg) Nothing
               Right (Game.Result {board = board'}) -> Just (boardPlayerScore board' pSpot, events)
         )
         possibles
@@ -185,7 +183,7 @@ playHand shared board pSpot =
             hand' = Board.toHand board pSpot & tail
             board' = Board.setHand board pSpot hand' -- Skip first card
       where
-        event = Place' f s t
+        event = Game.Place' f s t
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
@@ -195,7 +193,7 @@ aiPlayFirst ::
   -- | The playing player, i.e. the player whose hand should the
   -- the card be picked from.
   Spots.Player ->
-  Maybe (Spots.Player, Target, Card.ID)
+  Maybe (Spots.Player, Game.Target, Card.ID)
 aiPlayFirst shared board pSpot =
   case Board.toHand board pSpot of
     [] -> Nothing
@@ -207,15 +205,12 @@ aiPlayFirst shared board pSpot =
       return (pSpot, target, id)
   where
     handIndex = HandIndex 0
-    scores :: ID -> [(Nat, Target)] = \id ->
-      [ (board' & eitherToMaybe <&> (\(Game.Result {board = b}) -> boardPlayerScore b pSpot), target)
-        | target <- targets board pSpot id,
-          let board' = Game.play shared board $ Place pSpot target handIndex
+    scores :: ID -> [(Nat, Game.Target)] = \id ->
+      [ Game.maybePlay shared board (Game.Place pSpot target handIndex) -- Compute next board
+          <&> (\(_, b, _me) -> (boardPlayerScore b pSpot, target)) -- FIXME Use '_me'
+        | target <- targets board pSpot id
       ]
-        & map liftMaybe
         & catMaybes
-    liftMaybe (Nothing, _) = Nothing
-    liftMaybe (Just x, y) = Just (x, y)
     takeBestOnes :: Eq a => [(a, b)] -> [b]
     takeBestOnes = \case
       [] -> [] -- No input, no output
@@ -234,20 +229,20 @@ targets ::
   -- | The card being played
   Card.ID ->
   -- | All spots where the card can be put
-  [Target]
+  [Game.Target]
 targets board playingPlayer id =
-  case (Card.targetType id, whichPlayerTarget id) of
+  case (Card.targetType id, Game.whichPlayerTarget id) of
     (CardTargetType ctk, Game.Playing) ->
       cardTargets playingPlayer ctk
-    (CardTargetType ctk, Opponent) ->
+    (CardTargetType ctk, Game.Opponent) ->
       cardTargets (otherPlayerSpot playingPlayer) ctk
-    (PlayerTargetType, Playing) ->
-      [PlayerTarget playingPlayer]
-    (PlayerTargetType, Opponent) ->
-      [PlayerTarget $ otherPlayerSpot playingPlayer]
+    (PlayerTargetType, Game.Playing) ->
+      [Game.PlayerTarget playingPlayer]
+    (PlayerTargetType, Game.Opponent) ->
+      [Game.PlayerTarget $ otherPlayerSpot playingPlayer]
   where
     cardTargets pSpot ctk =
-      Board.toPlayerCardSpots board pSpot ctk & map (CardTarget pSpot)
+      Board.toPlayerCardSpots board pSpot ctk & map (Game.CardTarget pSpot)
 
 -- | The score of the card at the given position
 scorePlace ::

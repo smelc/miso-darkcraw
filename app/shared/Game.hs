@@ -34,13 +34,13 @@ module Game
     Event (..),
     MessageText (..),
     Result (..),
+    maybePlay,
     nextAttackSpot,
     play,
     playE,
     playAll,
     playAllE,
-    playAllM,
-    playM,
+    tryPlayM,
     StatChange (..), -- exported for tests only
     transferCards,
     Target (..),
@@ -62,6 +62,7 @@ import Control.Monad.Writer
 import Damage (Damage (..), (+^))
 import qualified Damage
 import qualified Data.Bifunctor as Bifunctor
+import Data.Either.Extra
 import Data.Foldable
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -156,6 +157,9 @@ data Result e = Result
   }
   deriving (Eq, Show)
 
+toResult :: SharedModel -> Board 'Core -> Result (Maybe a)
+toResult s b = Result {board = b, anims = mempty, event = Nothing, shared = s}
+
 data MessageText
   = -- | Simple text to display
     Text Text.Text
@@ -179,6 +183,37 @@ data Animation
     -- which to show the message. Then it fades out during one second.
     Message [MessageText] Nat
   deriving (Eq, Generic)
+
+-- | When this type is returned, the function name must start with 'try'
+type Possible a = Either Impossible a
+
+-- | An alias for building 'Possible' values
+impossible :: Impossible -> Possible b
+impossible x = Left x
+
+-- | Values denoting that some request (such as a 'Game.Request')
+-- cannot be performed.
+data Impossible
+  = CannotDraw
+  | CannotPlaceCreature
+  | CannotPlaceItem
+  | CardNotFound
+  | NotEnoughMana
+  deriving (Show)
+
+-- | An error which covers both the case where it must be sent to the
+-- caller unaltered ('Critical') and other cases.
+-- It is best to avoid this type altogether if possible, that is why
+-- it is named 'Internal*' and not exposed.
+data InternalError
+  = -- | @Critical t@ denotes a hard bug. Something that should never happen.
+    -- It gets displayed in a div.
+    Critical Text
+  | -- | @CannotDo@ denotes an event that cannot be applied. This
+    -- can happen because events are computed in a context and applied in another,
+    -- and randomness happens in between (flail of the damned, pandemonium, etc.)
+    CannotDo Impossible
+  deriving (Show)
 
 -- | A change in stats of a creature. Using 'Nat' for now because it suffices
 -- for the use cases. But really it could be a 'Int', it just makes 'apply' harder.
@@ -220,17 +255,25 @@ reportEffect pSpot cSpot effect =
     pBot :: PlayerPart 'UI = mempty {inPlace = botInPlace}
 
 -- | Play a single 'Event' on the given 'Board'. Monad version is 'playM' below.
+-- If the event cannot be played, the input board is returned as is. Use
+-- 'tryPlayM' for the version distinguishing the error and success cases.
 play :: SharedModel -> Board 'Core -> Event -> Either Text (Result (Maybe Event))
 play shared board action =
-  playM board action
+  tryPlayM board action
     & runWriterT
     & flip runStateT shared
     & runExcept
-    & fmap mkResult
+    & fmap f
   where
-    mkResult (((b, e), bui), s) = Result {anims = bui, board = b, event = e, shared = s}
+    f ::
+      ((Possible (Board 'Core, Maybe Event), Board 'UI), SharedModel) ->
+      Result (Maybe Event)
+    f ((Left _, _), _) = toResult shared board -- Impossible case
+    f (((Right (b, e), bui), s)) = Result {anims = bui, board = b, event = e, shared = s}
 
--- | A variant of 'play' and 'playE' that is only in the error monad.
+-- | A variant of 'play' and 'playE' that is only in the error monad. This
+-- function returns the input board if the event is unapplicable. That is
+-- why this function doesn't have 'Impossible' in its return type.
 playE ::
   MonadError Text m =>
   SharedModel ->
@@ -238,10 +281,39 @@ playE ::
   Event ->
   m (SharedModel, Board 'Core, Board 'UI, Maybe Event)
 playE shared board action =
-  playM board action
+  tryPlayM board action
     & runWriterT
     & flip runStateT shared
-    & fmap (\(((b, e), anims), sh) -> (sh, b, anims, e))
+    & fmap f
+  where
+    f ::
+      ((Possible (Board 'Core, Maybe Event), Board 'UI), SharedModel) ->
+      (SharedModel, Board 'Core, Board 'UI, Maybe Event)
+    f (((Left _), _), _) = (shared, board, mempty, Nothing)
+    f (((Right (b, e), bui), s)) = (s, b, bui, e)
+
+-- | Try to play an event. If the event cannot be played or a hard error
+-- occurs (@MonadError Text _@ in other functions of this API), simply return 'Nothing'.
+maybePlay ::
+  SharedModel ->
+  Board 'Core ->
+  Event ->
+  Maybe (SharedModel, Board 'Core, Maybe Event)
+maybePlay shared board event =
+  tryPlayM board event
+    & runWriterT
+    & flip runStateT shared
+    & runExcept
+    & f
+  where
+    f ::
+      Either Text ((Possible (Board 'Core, Maybe Event), Board 'UI), SharedModel) ->
+      Maybe (SharedModel, Board 'Core, Maybe Event)
+    f =
+      \case
+        Left _ -> Nothing
+        Right ((Left _, _bui), _s) -> Nothing
+        Right ((Right (b, e), _bui), s) -> Just (s, b, e)
 
 -- | Play a list of events, playing newly produced events as they are being
 -- produced. That is why, contrary to 'play', this function doesn't return
@@ -257,7 +329,8 @@ playAll shared board events =
     f :: ((Board 'Core, Board 'UI), SharedModel) -> Result ()
     f ((b, anims), sh) = Result {anims, board = b, event = (), shared = sh}
 
--- | Like 'playAll', but in the error monad
+-- | Like 'playAll', but in the error monad. This function skips unapplicable
+-- events. That is why its return type doesn't have 'Impossible'.
 playAllE ::
   MonadError Text m =>
   SharedModel ->
@@ -270,7 +343,8 @@ playAllE shared board events =
     & flip runStateT shared
     & fmap (\((b, anims), sh) -> (sh, b, anims))
 
--- | Like 'playAll', but in the monad
+-- | Like 'playAll', but in the monad. This function skips unapplicable
+-- events. That is why its return type doesn't have 'Impossible'.
 playAllM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
@@ -281,7 +355,8 @@ playAllM ::
 playAllM board = \case
   [] -> return board
   event : rest -> do
-    (board', generated) <- playM board event
+    e <- tryPlayM board event
+    let (board', generated) = eitherToMaybe e & fromMaybe (board, Nothing)
     -- /!\ We're enqueueing the event created by playing 'event' i.e. 'generated',
     -- before the rest of the events ('rest'). This means 'rest' will be played in a state
     -- that is NOT the one planned when building 'event : rest' (except if the
@@ -307,32 +382,32 @@ keepEffectfull shared board (e : es) =
             then {- 'e' had no effect -} keepEffectfull shared board es
             else {- 'e' had an effect -} e : keepEffectfull shared'' board'' es
 
-playM ::
+tryPlayM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
   MonadState SharedModel m =>
   Board 'Core ->
   Event ->
-  m (Board 'Core, Maybe Event)
-playM board (ApplyBrainless pSpot) = do
+  m (Possible (Board 'Core, Maybe Event))
+tryPlayM board (ApplyBrainless pSpot) = do
   board' <- Game.applyBrainlessM board pSpot
-  return (board', Nothing)
-playM board (ApplyChurch pSpot) = do
+  return $ pure $ (board', Nothing)
+tryPlayM board (ApplyChurch pSpot) = do
   board' <- Game.applyChurchM board pSpot
-  return (board', Nothing)
-playM board (ApplyFearNTerror pSpot) = do
+  return $ pure $ (board', Nothing)
+tryPlayM board (ApplyFearNTerror pSpot) = do
   board' <- Game.applyFearNTerrorM board pSpot
-  return (board', Nothing)
-playM board (ApplyKing pSpot) = do
+  return $ pure $ (board', Nothing)
+tryPlayM board (ApplyKing pSpot) = do
   board' <- Game.applyKingM board pSpot
-  return (board', Nothing)
-playM board (Attack pSpot cSpot _ _) = do
+  return $ pure $ (board', Nothing)
+tryPlayM board (Attack pSpot cSpot _ _) = do
   board' <- Game.attack board pSpot cSpot
-  return (board', Nothing)
-playM board (FillTheFrontline pSpot) = do
-  return (applyFillTheFrontline board pSpot, Nothing)
-playM board NoPlayEvent = return (board, Nothing)
-playM board (Place pSpot target (handhi :: HandIndex)) = do
+  return $ pure $ (board', Nothing)
+tryPlayM board (FillTheFrontline pSpot) = do
+  return $ pure $ (applyFillTheFrontline board pSpot, Nothing)
+tryPlayM board NoPlayEvent = return $ pure $ (board, Nothing)
+tryPlayM board (Place pSpot target (handhi :: HandIndex)) = do
   shared <- get
   ident <- Board.lookupHandM hand handi
   let uiCard = SharedModel.identToCard shared ident
@@ -344,16 +419,18 @@ playM board (Place pSpot target (handhi :: HandIndex)) = do
       throwError $ Text.pack $ "Unexpected state, CardCommon should be there if Card is there"
     (_, _, Just (CardCommon {mana = manaCost}))
       | manaCost > manaAvail ->
-        throwError $ Text.pack $ "Cannot play " ++ show card ++ ": mana available is " ++ show manaAvail ++ ", whereas card costs " ++ show manaCost ++ " mana"
+        -- Not enough mana
+        return $ impossible NotEnoughMana
     (CardTarget pSpot cSpot, Just (CreatureCard _ creature), Just CardCommon {mana}) -> do
-      board'' <- playCreatureM board' pSpot cSpot creature
-      return (board'' & decreaseMana mana, Nothing)
+      e <- playCreatureM board' pSpot cSpot creature & runExceptT
+      e >=> (\board'' -> (decreaseMana mana board'', Nothing))
+      where
     (CardTarget pSpot cSpot, Just (ItemCard _ itemObj), Just CardCommon {mana}) -> do
-      board'' <- playItemM board' pSpot cSpot $ Card.item itemObj
-      return (board'' & decreaseMana mana, Nothing)
+      e <- playItemM board' pSpot cSpot (Card.item itemObj) & runExceptT
+      e >=> (\board'' -> (decreaseMana mana board'', Nothing))
     (_, Just (NeutralCard _ NeutralObject {neutral}), Just CardCommon {mana}) -> do
       (board'', event) <- playNeutralM board' pSpot target neutral
-      return (board'' & decreaseMana mana, event)
+      return $ pure $ (decreaseMana mana board'', event)
     _ ->
       throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ show target ++ ", " ++ show card ++ ")"
   where
@@ -362,10 +439,15 @@ playM board (Place pSpot target (handhi :: HandIndex)) = do
     board' = Board.setHand board pSpot hand'
     manaAvail :: Nat = Board.toPart board pSpot & Board.mana
     decreaseMana manaCost (b :: Board 'Core) = Board.setMana (manaAvail - manaCost) pSpot b
-playM board (Place' pSpot target id) =
+    -- Apply continuation 'f' on 'i' if a success, otherwise return
+    (>=>) i f =
+      case i of
+        Left imp -> return $ impossible imp
+        Right b -> return $ pure $ f b
+tryPlayM board (Place' pSpot target id) =
   case idToHandIndex board pSpot id of
-    Nothing -> throwError $ Text.pack $ "Card not found in " ++ show pSpot ++ ": " ++ show id
-    Just i -> playM board (Place pSpot target i)
+    Nothing -> return $ impossible CardNotFound
+    Just i -> tryPlayM board (Place pSpot target i)
 
 -- | Translates an 'Event' into an animation displayed in the
 -- middle of the 'Board'.
@@ -525,6 +607,7 @@ playNeutralM board _playingPlayer target n =
 
 -- | Play a 'Creature'. Doesn't deal with consuming mana (done by caller)
 playCreatureM ::
+  MonadError Impossible m =>
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
   Spots.Player ->
@@ -538,10 +621,7 @@ playCreatureM board pSpot cSpot creature =
       -- Infernal Haste + Flail of the Damned. Haste makes
       -- the flail spawn an unexpected creature, which may make
       -- an event computed by the AI fail.
-      return $
-        traceShow
-          ("[WARN] Cannot place card on non-empty spot: " <> Text.pack (show cSpot))
-          board
+      throwError CannotPlaceCreature
     _ -> do
       reportEffect pSpot cSpot $ mempty {fadeIn = True} -- report creature addition effect
       board <- pure $ Board.setCreature pSpot cSpot creature board -- set creature
@@ -551,7 +631,7 @@ playCreatureM board pSpot cSpot creature =
 
 -- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
 playItemM ::
-  MonadError Text m =>
+  MonadError Impossible m =>
   MonadWriter (Board 'UI) m =>
   Board 'Core ->
   Spots.Player ->
@@ -559,17 +639,14 @@ playItemM ::
   Item ->
   m (Board 'Core)
 playItemM board pSpot cSpot item =
-  case inPlace Map.!? cSpot of
+  case Board.toInPlaceCreature board pSpot cSpot of
     Nothing ->
-      throwError $ "Cannot place item on empty spot: " <> Text.pack (show item) <> " at " <> Text.pack (show cSpot ++ " " ++ show pSpot)
+      throwError CannotPlaceItem
     Just creature -> do
       reportEffect pSpot cSpot $ mempty {fadeIn = True}
       -- TODO @smelc record animation for item arrival
       let creature' = installItem creature item
-      return $ Board.setPart board pSpot $ part' creature'
-  where
-    part@PlayerPart {inPlace} = Board.toPart board pSpot
-    part' c' = part {inPlace = Map.insert cSpot c' inPlace}
+      return $ Board.setCreature pSpot cSpot creature' board
 
 installItem ::
   Creature 'Core ->
@@ -582,8 +659,13 @@ installItem c@Creature {hp, items} item =
     -- adding attack, which are dealt with in 'Total'
     hpChange =
       case item of
+        AxeOfRage -> 0
+        Crown -> 0
+        CrushingMace -> 0
+        FlailOfTheDamned -> 0
+        SkBanner -> 0
+        SpikyMace -> 0
         SwordOfMight -> 1
-        _ -> 0 -- wildcard intentional
 
 applyDiscipline ::
   MonadWriter (Board 'UI) m =>
@@ -742,8 +824,9 @@ drawCardM ::
   DrawSource ->
   m (Board 'Core)
 drawCardM board pSpot src =
-  case (srcKind board, stack) of
-    (Left _msg, _) -> return board -- cannot draw: 'src' is invalid
+  case (srcKind board & runExcept, stack) of
+    (Left (Critical msg), _) -> throwError msg
+    (Left (CannotDo {}), _) -> return board -- cannot draw: 'src' is invalid
     (_, []) -> return board -- cannot draw: stack is empty
     (Right witness, _) -> do
       let hand = Board.toHand board pSpot
@@ -761,17 +844,21 @@ drawCardM board pSpot src =
       return board'''
   where
     (stack, stackLen) = (Board.toStack board pSpot, length stack)
+    srcKind ::
+      MonadError InternalError m =>
+      Board 'Core ->
+      m (Maybe (Spots.Card, Creature 'Core, Int, Skill.State))
     srcKind b =
       case src of
-        Native -> Right Nothing
+        Native -> pure Nothing
         CardDrawer pSpot' cSpot | pSpot' == pSpot ->
           case Board.toInPlaceCreature b pSpot cSpot of
-            Nothing -> Left ("No creature at pSpot cSpot" :: Text)
+            Nothing -> throwError $ CannotDo $ CannotDraw
             Just c@Creature {skills} ->
               case findIndex (\case Skill.DrawCard b -> b; _ -> False) skills of
-                Nothing -> Left "Not a creature with avail DrawCard"
-                Just i -> Right $ Just (cSpot, c, i, Skill.DrawCard False)
-        CardDrawer _ _ -> Left "Wrong Spots.Player"
+                Nothing -> throwError $ CannotDo $ CannotDraw
+                Just i -> pure $ Just (cSpot, c, i, Skill.DrawCard False)
+        CardDrawer _ _ -> throwError $ Critical "Wrong Spots.Player"
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
       -- Set new skill
