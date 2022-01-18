@@ -28,6 +28,8 @@ import qualified Data.Bifunctor as Bifunctor
 import Data.Either.Extra
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
+import Data.List.NonEmpty (NonEmpty)
+import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe, isJust, maybeToList)
 import Data.Set (Set)
@@ -90,7 +92,7 @@ data GameAction
     -- time to draw cards from the stack. Then the handler of this event
     -- will take care of giving the player control back. This event
     -- is translated to a list of events, iteratively consuming the list.
-    GameDrawCards [Game.DrawSource]
+    GameDrawCards (NonEmpty Game.DrawSource)
   | -- | All actions have been resolved, time to update the turn widget
     -- and to schedule 'GameDrawCard'. This does NOT translate
     -- to a 'GamePlayEvent'.
@@ -252,6 +254,13 @@ instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
 
   withInteraction g i = g {interaction = i}
 
+-- | Given a list of cards to draw, the corresponding event; if any
+drawsToSeq :: [Game.DrawSource] -> GameActionSeq
+drawsToSeq rest =
+  case NE.nonEmpty rest of
+    Nothing -> []
+    Just (rest :: NonEmpty Game.DrawSource) -> [(1, GameDrawCards rest)]
+
 -- | Event to fire after the given delays (in seconds). Delays add up.
 type GameActionSeq = [(Int, GameAction)]
 
@@ -311,14 +320,12 @@ updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ = do
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', zip (repeat 1) $ maybeToList $ nextEvent)
-updateGameModel m (GameDrawCards []) _ =
-  pure $ traceShow ("GameDrawCards [] should not happen (but is harmless)" :: String) (m, [])
-updateGameModel m@GameModel {board, shared, turn} (GameDrawCards (fst : rest)) _ = do
+updateGameModel m@GameModel {board, shared, turn} (GameDrawCards (fst NE.:| rest)) _ = do
   (shared', board', boardui') <- Game.drawCardE shared board pSpot fst
   pure $
     ( m {anims = boardui', board = board', shared = shared'},
       -- enqueue next event (if any)
-      [(1, GameDrawCards rest) | not $ null rest]
+      drawsToSeq rest
     )
   where
     pSpot = Turn.toPlayerSpot turn
@@ -429,9 +436,7 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
           (True, Right (Game.Result {board = board'})) ->
             let plays = AI.play difficulty shared board' pSpot
              in zip (repeat 1) (map GamePlay plays ++ [GameEndTurnPressed])
-          (False, _) ->
-            let drawSoon = Prelude.drop 1 drawSrcs
-             in [(1, GameDrawCards drawSoon) | not $ null drawSoon]
+          (False, _) -> drawsToSeq $ Prelude.drop 1 drawSrcs
   m <- pure $ m {anims, board, shared, turn = turn'}
   pure $ (m, [(1, GamePlay event) | event <- preTurnEvents] ++ events)
   where
