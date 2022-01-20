@@ -8,6 +8,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Update where
@@ -24,7 +25,6 @@ import qualified Constants
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
-import qualified Data.Bifunctor as Bifunctor
 import Data.Either.Extra
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
@@ -85,9 +85,8 @@ data GameAction
   = -- | A drag an drop event
     GameDnD (DnDAction Game.Target)
   | -- | Play some game event. It can be an event scheduled by the AI
-    -- Or a 'EndTurn' 'GamePlayEvent' scheduled because the player
-    -- pressed "End Turn".
-    GamePlay Game.Event
+    -- or an event from the player.
+    GamePlay (NonEmpty Game.Event)
   | -- | Turn was updated previously by 'GameIncrTurn',
     -- time to draw cards from the stack. Then the handler of this event
     -- will take care of giving the player control back. This event
@@ -111,6 +110,9 @@ data GameAction
     GameInPlaceMouseLeave Game.Target
   | -- | Execute a command (dev mode only)
     GameExecuteCmd
+  | -- A number of events to apply in sequence. TODO simplify
+    -- 'GamePlay' and 'GameDrawCards' by using this instead?
+    GameSequence (NonEmpty GameAction)
   | -- | Update the command to execute soon (dev mode only)
     GameUpdateCmd MisoString
   deriving (Show, Eq)
@@ -234,7 +236,7 @@ act m a i =
       pure $ updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
     _ -> pure $ updateDefault m i
 
-instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
+instance Interactable GameModel Game.Target (GameModel, NextGameAction) where
   considerAction m@GameModel {uiAvail} a =
     case a of
       DragEnd -> True
@@ -250,27 +252,65 @@ instance Interactable GameModel Game.Target (GameModel, GameActionSeq) where
 
   stopWrongDrop m = isPlayerTurn m
 
-  updateDefault m i = (withInteraction m i, [])
+  updateDefault m i = (withInteraction m i, Nothing)
 
   withInteraction g i = g {interaction = i}
 
--- | Given a list of cards to draw, the corresponding event; if any
-drawsToSeq :: [Game.DrawSource] -> GameActionSeq
-drawsToSeq rest =
-  case NE.nonEmpty rest of
-    Nothing -> []
-    Just (rest :: NonEmpty Game.DrawSource) -> [(1, GameDrawCards rest)]
+singleton :: a -> NonEmpty a
+singleton x = x NE.:| []
 
--- | Event to fire after the given delays (in seconds). Delays add up.
-type GameActionSeq = [(Int, GameAction)]
+-- | Given a constructor of 'GameAction' that expects a non empty list and
+-- a list; the corresponding event; if any. If the input list is empty,
+-- 'Nothing' is returned.
+eventsToSeq :: (NonEmpty a -> GameAction) -> [a] -> NextGameAction
+eventsToSeq f as = fmap (1,) $ eventsToAction f as
+
+-- | Given a constructor of 'GameAction' that expects a non empty list and
+-- a list; the corresponding action; if any. If the input list is empty,
+-- 'Nothing' is returned.
+eventsToAction :: (NonEmpty a -> GameAction) -> [a] -> Maybe GameAction
+eventsToAction f as = fmap f $ NE.nonEmpty as
+
+actionsToSequence :: [GameAction] -> Maybe GameAction
+actionsToSequence l =
+  case NE.nonEmpty l of
+    Nothing -> Nothing
+    Just l -> Just (GameSequence l)
+
+-- | Event to fire after the given delay (in second). Delay should not be
+-- '0'.
+type NextGameAction = Maybe (Nat, GameAction)
+
+-- | Transforms a 'NextGameAction' into a value suitable for being
+-- passed to 'delayActions'.
+ngaToMiso :: NextGameAction -> [(Int, Action)]
+ngaToMiso nga = maybeToList $ fmap (\(n, ga) -> (Nat.natToInt n & toSecs, GameAction' ga)) nga
+
+-- | Given (maybe) an action and other actions, build the sequence
+consNgaActions :: NextGameAction -> [GameAction] -> NextGameAction
+consNgaActions nga actions =
+  case (nga, NE.nonEmpty actions) of
+    (Nothing, Nothing) -> Nothing
+    (Nothing, Just neActions) -> Just (1, GameSequence neActions)
+    (Just pair, Nothing) -> Just pair
+    (Just (n, ga), Just neActions) -> Just (n, GameSequence (ga NE.<| neActions))
+
+mkNextGameAction ::
+  MonadError Text.Text m =>
+  Nat ->
+  GameAction ->
+  m NextGameAction
+mkNextGameAction delay a
+  | delay == 0 = throwError "Delay should not be 0"
+  | otherwise = pure $ Just (delay, a)
 
 playOne ::
   MonadError Text.Text m =>
   GameModel ->
   Game.Event ->
-  m (GameModel, GameActionSeq)
+  m (GameModel, NextGameAction)
 playOne m gamePlayEvent =
-  updateGameModel m (GamePlay gamePlayEvent) NoInteraction
+  updateGameModel m (GamePlay $ singleton gamePlayEvent) NoInteraction
 
 -- | We MUST return GameAction as the second element (as opposed to
 -- 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
@@ -285,18 +325,22 @@ updateGameModel ::
   GameModel ->
   GameAction ->
   Interaction Game.Target ->
-  m (GameModel, GameActionSeq)
+  m (GameModel, NextGameAction)
 -- This is the only definition that should care about GameShowErrorInteraction:
 updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
-  -- Now onto "normal" stuff:
+  -- This is the only definition that should care about GameSequence:
+updateGameModel m (GameSequence (fst NE.:| rest)) i = do
+  (m', nga) <- updateGameModel m fst i
+  return (m', consNgaActions nga rest)
+-- Now onto "normal" stuff:
 updateGameModel m (GameDnD a@DragEnd) i = act m a i
 updateGameModel m (GameDnD a@(DragStart _)) i = act m a i
 updateGameModel m (GameDnD a@Drop) i = act m a i
 updateGameModel m (GameDnD a@(DragEnter _)) i = act m a i
 updateGameModel m (GameDnD a@(DragLeave _)) i = act m a i
--- A GamePlayEvent to execute
-updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ = do
+-- A GamePlayEvent to execute. FIXME @CH use _rest
+updateGameModel m@GameModel {board, shared} (GamePlay (gameEvent NE.:| _rest)) _ = do
   (shared', board', anims', generated) <- Game.playE shared board gameEvent
   let anim =
         Game.eventToAnim shared board gameEvent
@@ -311,21 +355,21 @@ updateGameModel m@GameModel {board, shared} (GamePlay gameEvent) _ = do
             case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
               (False, _) -> terminator
               (True, Nothing) -> terminator
-              (True, Just cSpot') -> Just $ GamePlay $ Game.Attack pSpot cSpot' True changeTurn
+              (True, Just cSpot') -> Just $ GamePlay $ singleton $ Game.Attack pSpot cSpot' True changeTurn
             where
               terminator = if changeTurn then Just GameIncrTurn else Nothing
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
-          (_, _) -> GamePlay <$> generated
+          (_, _) -> GamePlay <$> singleton <$> generated
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
-  pure $ (m', zip (repeat 1) $ maybeToList $ nextEvent)
+  pure $ (m', (1,) <$> nextEvent)
 updateGameModel m@GameModel {board, shared, turn} (GameDrawCards (fst NE.:| rest)) _ = do
   (shared', board', boardui') <- Game.drawCardE shared board pSpot fst
   pure $
     ( m {anims = boardui', board = board', shared = shared'},
       -- enqueue next event (if any)
-      drawsToSeq rest
+      eventsToSeq GameDrawCards rest
     )
   where
     pSpot = Turn.toPlayerSpot turn
@@ -354,7 +398,7 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Gam
   if isInitialTurn
     then -- We want a one second delay, to see clearly that the opponent
     -- puts its cards, and then proceed with resolving attacks
-      pure $ (m, [(1, event)])
+      pure $ (m, Just (1, event))
     else -- We don't want any delay so that the game feels responsive
     -- when the player presses "End Turn", hence the recursive call.
       updateGameModel m (event) NoInteraction
@@ -366,7 +410,7 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Gam
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
         Nothing -> GameIncrTurn -- no attack, change turn right away
-        Just cSpot -> GamePlay $ Game.Attack pSpot cSpot True True
+        Just cSpot -> GamePlay $ singleton $ Game.Attack pSpot cSpot True True
 updateGameModel m GameIncrTurn _ = do
   (m, seq) <- updateGameIncrTurn m
   pure (enableUI m, seq)
@@ -402,7 +446,7 @@ updateGameModel m _ i =
 updateGameIncrTurn ::
   MonadError Text.Text m =>
   GameModel ->
-  m (GameModel, GameActionSeq)
+  m (GameModel, NextGameAction)
 updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = do
   board <- pure $ boardStart board pSpot
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
@@ -422,7 +466,7 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
             Game.FillTheFrontline pSpot,
             Game.ApplyKing pSpot
           ]
-  let events =
+  let actions :: [GameAction] =
         -- AI case: after drawing cards and playing its events
         --          press "End Turn". We want a one second delay, it makes
         --          it easier to understand what's going on
@@ -434,11 +478,13 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
         case (isAI, Game.playAll shared board preTurnEvents) of
           (True, Left errMsg) -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
           (True, Right (Game.Result {board = board'})) ->
-            let plays = AI.play difficulty shared board' pSpot
-             in zip (repeat 1) (map GamePlay plays ++ [GameEndTurnPressed])
-          (False, _) -> drawsToSeq $ Prelude.drop 1 drawSrcs
+            let plays :: [Game.Event] = AI.play difficulty shared board' pSpot
+             in case NE.nonEmpty plays of
+                  Nothing -> []
+                  Just plays -> GamePlay plays : [GameEndTurnPressed]
+          (False, _) -> Prelude.drop 1 drawSrcs & eventsToAction GameDrawCards & maybeToList
   m <- pure $ m {anims, board, shared, turn = turn'}
-  pure $ (m, [(1, GamePlay event) | event <- preTurnEvents] ++ events)
+  pure $ (m, fmap (1,) $ actionsToSequence actions)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
@@ -557,7 +603,8 @@ updateMultiPlayerLobbyModel
 updateMultiPlayerLobbyModel _ m =
   noEff m
 
--- Function courtesy of @dmjio!
+-- | Function courtesy of @dmjio! Input type should be 'Int'. 'Nat' might
+-- be too small (see 'tenthToSecs').
 delayActions :: m -> [(Int, Action)] -> Effect Action m
 delayActions m actions =
   Effect
@@ -698,7 +745,7 @@ updateModel (GameAction' GameExecuteCmd) (GameModel' gm@GameModel {board, shared
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
     playEvent eventMaker pSpot =
       updateModel
-        (GameAction' $ GamePlay $ eventMaker pSpot)
+        (GameAction' $ GamePlay $ singleton $ eventMaker pSpot)
         (GameModel' gm)
 -- Actions that leave 'SinglePlayerView'
 updateModel
@@ -743,20 +790,15 @@ updateModel (Keyboard _) model = noEff model
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
-    else delayActions m'' $ prepare $ check actions
+    else delayActions m'' (ngaToMiso actions)
   where
     -- 'Game.NoAnimation': clear animation if any
     (m', actions) =
       either
-        (\errMsg -> (withInteraction m (ShowErrorInteraction errMsg), [])) -- Show message if error occurred
+        (\errMsg -> (withInteraction m (ShowErrorInteraction errMsg), Nothing)) -- Show message if error occurred
         id -- return obtained model if no error
         (runExcept $ updateGameModel (m {anim = Game.NoAnimation}) a interaction)
     m'' = GameModel' m'
-    sumDelays _ [] = []
-    sumDelays d ((i, a) : tl) = (d + i, a) : sumDelays (d + i) tl
-    prepare as = map (Bifunctor.bimap toSecs GameAction') $ sumDelays 0 as
-    check ((0, event) : _) = error $ "updateGameModel should not return event with 0 delay, but " ++ show event ++ " did"
-    check as = as
 updateModel (LootAction' a) (LootModel' m) =
   noEff $ LootModel' $ updateLootModel a m
 updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
