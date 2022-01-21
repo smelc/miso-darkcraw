@@ -221,8 +221,8 @@ playOne ::
   GameModel ->
   Game.Event ->
   m (GameModel, NextMove)
-playOne m gamePlayEvent =
-  updateGameModel m (Move.Play $ singleton gamePlayEvent) NoInteraction
+playOne m event =
+  updateGameModel m (Move.Play event) NoInteraction
 
 -- | We MUST return Move as the second element (as opposed to
 -- 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
@@ -252,7 +252,7 @@ updateGameModel m (Move.DnD a@Move.Drop) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragEnter _)) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute.
-updateGameModel m@GameModel {board, shared} (Move.Play (gameEvent NE.:| rest)) _ = do
+updateGameModel m@GameModel {board, shared} (Move.Play gameEvent) _ = do
   (shared', board', anims', generated) <- Game.playE shared board gameEvent
   let anim =
         Game.eventToAnim shared board gameEvent
@@ -267,21 +267,20 @@ updateGameModel m@GameModel {board, shared} (Move.Play (gameEvent NE.:| rest)) _
             case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
               (False, _) -> terminator
               (True, Nothing) -> terminator
-              (True, Just cSpot') -> Just $ Move.Play $ singleton $ Game.Attack pSpot cSpot' True changeTurn
+              (True, Just cSpot') -> Just $ Move.Play $ Game.Attack pSpot cSpot' True changeTurn
             where
               terminator = if changeTurn then Just Move.IncrTurn else Nothing
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
-          (_, _) -> Move.Play <$> singleton <$> generated
+          (_, _) -> Move.Play <$> generated
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
-  pure $ (m', (1,) <$> Move.consEvents nextEvent rest)
-updateGameModel m@GameModel {board, shared, turn} (Move.DrawCards (fst NE.:| rest)) _ = do
-  (shared', board', boardui') <- Game.drawCardE shared board pSpot fst
+  pure $ (m', (1,) <$> nextEvent)
+updateGameModel m@GameModel {board, shared, turn} (Move.DrawCards draw) _ = do
+  (shared', board', boardui') <- Game.drawCardE shared board pSpot draw
   pure $
     ( m {anims = boardui', board = board', shared = shared'},
-      -- enqueue next event (if any)
-      Move.eventsToSeq Move.DrawCards rest
+      Nothing
     )
   where
     pSpot = Turn.toPlayerSpot turn
@@ -322,7 +321,7 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Mov
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
         Nothing -> Move.IncrTurn -- no attack, change turn right away
-        Just cSpot -> Move.Play $ singleton $ Game.Attack pSpot cSpot True True
+        Just cSpot -> Move.Play $ Game.Attack pSpot cSpot True True
 updateGameModel m Move.IncrTurn _ = do
   (m, seq) <- updateGameIncrTurn m
   pure (enableUI m, seq)
@@ -393,8 +392,8 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
             let plays :: [Game.Event] = AI.play difficulty shared board' pSpot
              in case NE.nonEmpty plays of
                   Nothing -> []
-                  Just plays -> Move.Play plays : [Move.EndTurnPressed]
-          (False, _) -> Prelude.drop 1 drawSrcs & Move.eventsToAction Move.DrawCards & maybeToList
+                  Just plays -> Move.Sequence (NE.map Move.Play plays) : [Move.EndTurnPressed]
+          (False, _) -> Prelude.drop 1 drawSrcs & map Move.DrawCards
   m <- pure $ m {anims, board, shared, turn = turn'}
   pure $ (m, fmap (1,) $ Move.actionsToSequence actions)
   where
@@ -657,7 +656,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@GameModel {board, share
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
     playEvent eventMaker pSpot =
       updateModel
-        (GameAction' $ Move.Play $ singleton $ eventMaker pSpot)
+        (GameAction' $ Move.Play $ eventMaker pSpot)
         (GameModel' gm)
 -- Actions that leave 'SinglePlayerView'
 updateModel

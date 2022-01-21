@@ -16,7 +16,6 @@ import Control.Monad.Except
 import Damage (Damage (..))
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import qualified Data.List.NonEmpty as NE
 import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -200,4 +199,4 @@ eventToGameActions board event =
       ]
         & map Move.DnD
   where
-    lift e = [Move.Play (e NE.:| [])]
+    lift e = [Move.Play e]

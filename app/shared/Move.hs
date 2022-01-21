@@ -35,12 +35,12 @@ data Move
     DnD (DnDAction Game.Target)
   | -- | Play some game event. It can be an event scheduled by the AI
     -- or an event from the player.
-    Play (NonEmpty Game.Event)
+    Play Game.Event
   | -- | Turn was updated previously by 'IncrTurn',
     -- time to draw cards from the stack. Then the handler of this event
     -- will take care of giving the player control back. This event
     -- is translated to a list of events, iteratively consuming the list.
-    DrawCards (NonEmpty Game.DrawSource)
+    DrawCards Game.DrawSource
   | -- | All actions have been resolved, time to update the turn widget
     -- and to schedule 'DrawCard'. This does NOT translate
     -- to a 'PlayEvent'.
@@ -59,8 +59,7 @@ data Move
     InPlaceMouseLeave Game.Target
   | -- | Execute a command (dev mode only)
     ExecuteCmd
-  | -- A number of events to apply in sequence. TODO simplify
-    -- 'Play' and 'DrawCards' by using this instead?
+  | -- A number of events to apply in sequence.
     Sequence (NonEmpty Move)
   | -- | Update the command to execute soon (dev mode only)
     UpdateCmd MisoString
@@ -83,14 +82,6 @@ actionsToSequence l =
   case NE.nonEmpty l of
     Nothing -> Nothing
     Just l -> Just (Sequence l)
-
-consEvents :: Maybe Move -> [Game.Event] -> Maybe Move
-consEvents move events =
-  case (move, NE.nonEmpty events) of
-    (Nothing, Nothing) -> Nothing
-    (Just move, Nothing) -> Just move
-    (Nothing, Just events) -> Just (Play events)
-    (Just move, Just events) -> Just (Sequence (move NE.:| [Play events]))
 
 -- | Event to fire after the given delay (in seconds). Delay should not be '0'.
 type NextMove = Maybe (Nat, Move)
