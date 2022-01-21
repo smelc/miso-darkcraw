@@ -45,6 +45,7 @@ import qualified Game
 import Miso hiding (at)
 import Miso.String hiding (length, map)
 import Model
+import qualified Move
 import Nat
 import PCWViewInternal (tileCell)
 import SharedModel (SharedModel)
@@ -258,7 +259,7 @@ turnView model@GameModel {turn} z = do
         z
         (if isPlayerTurn model then Enabled else Disabled)
         [ topMarginAttr,
-          onClick $ GameAction' GameEndTurnPressed
+          onClick $ GameAction' Move.EndTurnPressed
         ]
         "End Turn"
 

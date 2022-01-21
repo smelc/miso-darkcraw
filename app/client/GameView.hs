@@ -33,6 +33,7 @@ import GameViewInternal
 import Miso hiding (at)
 import Miso.String hiding (concat, intersperse, last, length, map, null, zip)
 import Model
+import qualified Move
 import Nat
 import PCWViewInternal
 import SharedModel
@@ -132,11 +133,11 @@ cmdDiv shared =
           [ input_
               [ style_ $ "width" =: px (boardPixelWidth - 128),
                 type_ "text",
-                onInput (lift . GameUpdateCmd)
+                onInput (lift . Move.UpdateCmd)
               ],
             button_
               [ style_ $ "width" =: px 120,
-                onClick $ lift GameExecuteCmd
+                onClick $ lift Move.ExecuteCmd
               ]
               [Miso.text "Execute"]
           ]
@@ -248,8 +249,8 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@GameModel {anims, board, i
       -- If dragging we don't need to handle in place hovering
       case (maybeCreature, dragTarget) of
         (Just _, Nothing) ->
-          [ onMouseEnter' "card" $ lift $ GameInPlaceMouseEnter target,
-            onMouseLeave' "card" $ lift $ GameInPlaceMouseLeave target
+          [ onMouseEnter' "card" $ lift $ Move.InPlaceMouseEnter target,
+            onMouseLeave' "card" $ lift $ Move.InPlaceMouseLeave target
           ]
         _ -> []
     target = Game.CardTarget pSpot cSpot
@@ -307,13 +308,13 @@ boardToPlayerTarget z m@GameModel {interaction} dragTargetType pSpot =
 -- | The events for placeholders showing drag targets
 dragDropEvents :: Game.Target -> [Attribute Action]
 dragDropEvents target =
-  [ onDragEnter $ lift $ DragEnter target,
-    onDragLeave $ lift $ DragLeave target,
-    onDrop (AllowDrop True) $ lift Drop,
+  [ onDragEnter $ lift $ Move.DragEnter target,
+    onDragLeave $ lift $ Move.DragLeave target,
+    onDrop (AllowDrop True) $ lift Move.Drop,
     dummyOn "dragover"
   ]
   where
-    lift = GameAction' . GameDnD
+    lift = GameAction' . Move.DnD
 
 borderRGB :: Eq a => Interaction a -> a -> (Int, Int, Int)
 borderRGB interaction target =
@@ -337,10 +338,10 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
     zicreatures' = map (\(a, (b, c)) -> (a, b, c)) zicreatures
     actionizer =
       HandActionizer
-        { onDragStart = GameDnD . DragStart,
-          onDragEnd = GameDnD DragEnd,
-          onMouseEnter = GameInHandMouseEnter,
-          onMouseLeave = GameInHandMouseLeave
+        { onDragStart = Move.DnD . Move.DragStart,
+          onDragEnd = Move.DnD Move.DragEnd,
+          onMouseEnter = Move.InHandMouseEnter,
+          onMouseLeave = Move.InHandMouseLeave
         }
         <&> GameAction'
 

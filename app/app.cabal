@@ -51,6 +51,7 @@ common common-all
     Json
     JsonData
     Model
+    Move
     Movie
     Nat
     ServerMessages
