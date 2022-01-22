@@ -22,9 +22,8 @@ module Game
     applyPlague,
     attackOrder, -- exported for tests only
     cardsToDraw,
-    drawCardE,
+    drawCard,
     drawCards,
-    drawCardsE,
     enemySpots,
     idToHandIndex,
     DrawSource (..),
@@ -779,55 +778,42 @@ drawCards ::
   Spots.Player ->
   -- | The sources from which to draw the cards
   [DrawSource] ->
-  Either Text (SharedModel, Board 'Core, Board 'UI)
-drawCards shared board pSpot srcs =
-  drawCardsE shared board pSpot srcs & runExcept
-
-drawCardsE ::
-  MonadError Text m =>
-  SharedModel ->
-  Board 'Core ->
-  -- | The player drawing cards
-  Spots.Player ->
-  -- | The sources from which to draw the cards
-  [DrawSource] ->
-  m (SharedModel, Board 'Core, Board 'UI)
-drawCardsE shared board pSpot =
+  (SharedModel, Board 'Core, Board 'UI)
+drawCards shared board pSpot =
   \case
-    [] -> return (shared, board, mempty)
+    [] -> (shared, board, mempty)
     (hd : rest) -> do
-      (shared', board', boardui) <- drawCardE shared board pSpot hd
-      (shared'', board'', boardui') <- drawCardsE shared' board' pSpot rest
-      return (shared'', board'', boardui <> boardui')
+      let (shared', board', boardui) = drawCard shared board pSpot hd
+          (shared'', board'', boardui') = drawCards shared' board' pSpot rest
+       in (shared'', board'', boardui <> boardui')
 
-drawCardE ::
-  MonadError Text m =>
+drawCard ::
   SharedModel ->
   Board 'Core ->
   -- | The player drawing cards
   Spots.Player ->
   -- | The reason for drawing a card
   DrawSource ->
-  m (SharedModel, Board 'Core, Board 'UI)
-drawCardE shared board pSpot src =
+  (SharedModel, Board 'Core, Board 'UI)
+drawCard shared board pSpot src =
   drawCardM board pSpot src
     & runWriterT
-    & flip runStateT shared
-    & fmap (\((b, anims), sh) -> (sh, b, anims))
+    & flip runState shared
+    & (\((b, bui), s) -> (s, b, bui))
 
 drawCardM ::
-  MonadError Text m =>
   MonadWriter (Board 'UI) m =>
   MonadState SharedModel m =>
   Board 'Core ->
+  -- | The playing player, used to find the hand to draw from if the
+  -- 'DrawSource' is 'Native'.
   Spots.Player ->
   DrawSource ->
   m (Board 'Core)
-drawCardM board pSpot src =
+drawCardM board p src =
   case (srcKind board & runExcept, stack) of
-    (Left (Critical msg), _) -> throwError msg
-    (Left (CannotDo {}), _) -> return board -- cannot draw: 'src' is invalid
     (_, []) -> return board -- cannot draw: stack is empty
+    (Left (_ :: Impossible), _) -> return board -- cannot draw: 'src' is invalid
     (Right witness, _) -> do
       let hand = Board.toHand board pSpot
       shared <- get
@@ -844,21 +830,23 @@ drawCardM board pSpot src =
       return board'''
   where
     (stack, stackLen) = (Board.toStack board pSpot, length stack)
+    -- The spots to draw cards from
+    pSpot = case src of Native -> p; CardDrawer custom _ -> custom
     srcKind ::
-      MonadError InternalError m =>
+      MonadError Impossible m =>
       Board 'Core ->
       m (Maybe (Spots.Card, Creature 'Core, Int, Skill.State))
     srcKind b =
       case src of
-        Native -> pure Nothing
-        CardDrawer pSpot' cSpot | pSpot' == pSpot ->
-          case Board.toInPlaceCreature b pSpot cSpot of
-            Nothing -> throwError $ CannotDo $ CannotDraw
+        Native -> pure Nothing -- Nothing to consume when drawing
+        CardDrawer pSpot' cSpot' ->
+          -- Need to consume 'DrawCard' skill when drawing
+          case Board.toInPlaceCreature (assert (pSpot == pSpot') b) pSpot' cSpot' of
+            Nothing -> throwError CannotDraw
             Just c@Creature {skills} ->
               case findIndex (\case Skill.DrawCard b -> b; _ -> False) skills of
-                Nothing -> throwError $ CannotDo $ CannotDraw
-                Just i -> pure $ Just (cSpot, c, i, Skill.DrawCard False)
-        CardDrawer _ _ -> throwError $ Critical "Wrong Spots.Player"
+                Nothing -> throwError CannotDraw
+                Just i -> pure $ Just (cSpot', c, i, Skill.DrawCard False)
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
       -- Set new skill

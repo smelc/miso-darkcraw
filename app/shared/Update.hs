@@ -277,12 +277,12 @@ updateGameModel m@GameModel {board, shared} (Move.Play gameEvent) _ = do
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', (1,) <$> nextEvent)
 updateGameModel m@GameModel {board, shared, turn} (Move.DrawCards draw) _ = do
-  (shared', board', boardui') <- Game.drawCardE shared board pSpot draw
   pure $
     ( m {anims = boardui', board = board', shared = shared'},
       Nothing
     )
   where
+    (shared', board', boardui') = Game.drawCard shared board pSpot draw
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
 updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Move.EndTurnPressed _ = do
@@ -366,8 +366,9 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
       -- so that the game feels responsive.
       drawNow = if isAI then drawSrcs else take 1 drawSrcs
   (shared, board, anims) <-
-    Game.drawCardsE shared board pSpot drawNow
-      <&> (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
+    pure $
+      Game.drawCards shared board pSpot drawNow
+        & (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
   let preTurnEvents =
         Game.keepEffectfull
           shared
