@@ -354,8 +354,10 @@ updateGameModel m@GameModel {shared} (Move.UpdateCmd misoStr) i =
 updateGameModel m _ i =
   pure $ updateDefault m i
 
+-- TODO @smelc write a test that this function always returns GameEndTurnPressed
+-- when it's the AI turn.
 updateGameIncrTurn ::
-  MonadError Text.Text m =>
+  Monad m => -- Identity monad, because it's convenient to write this code monadically
   GameModel ->
   m (GameModel, NextMove)
 updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = do
@@ -393,8 +395,14 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
             let plays :: [Game.Event] = AI.play difficulty shared board' pSpot
              in case NE.nonEmpty plays of
                   Nothing -> []
-                  Just plays -> Move.Sequence (NE.map Move.Play plays) : [Move.EndTurnPressed]
+                  Just plays -> pure $ Move.Sequence (NE.map Move.Play plays)
           (False, _) -> Prelude.drop 1 drawSrcs & map Move.DrawCards
+  actions <-
+    pure $
+      if isAI
+        then actions ++ [Move.EndTurnPressed] -- THe AI MUST press end turn, no matter what
+        -- So better do it here than in the different cases above.
+        else actions
   m <- pure $ m {anims, board, shared, turn = turn'}
   pure $ (m, fmap (1,) $ Move.actionsToSequence actions)
   where

@@ -20,14 +20,14 @@ import Nat
 balances :: [(Team, Campaign.Level, Team, Nat, Nat, Nat)]
 balances =
   [ -- Level0
-    (Human, Campaign.Level0, Evil, 61, 3, 0),
-    (Human, Campaign.Level0, Undead, 61, 3, 0),
-    (Human, Campaign.Level0, ZKnights, 48, 15, 1),
-    (Evil, Campaign.Level0, Undead, 32, 30, 2),
+    (Human, Campaign.Level0, Evil, 44, 18, 2),
+    (Human, Campaign.Level0, Undead, 47, 17, 0),
+    (Human, Campaign.Level0, ZKnights, 27, 33, 4),
+    (Evil, Campaign.Level0, Undead, 23, 39, 2),
     -- Level1
-    (Human, Campaign.Level1, Evil, 182, 8, 2),
-    (Human, Campaign.Level1, Undead, 354, 27, 3),
-    (Evil, Campaign.Level1, Undead, 50, 75, 3)
+    (Human, Campaign.Level1, Evil, 147, 39, 6),
+    (Human, Campaign.Level1, Undead, 290, 88, 6),
+    (Evil, Campaign.Level1, Undead, 35, 90, 3)
   ]
 
 -- | Returns the balance of the given matchup

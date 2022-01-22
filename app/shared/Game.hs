@@ -55,6 +55,7 @@ import qualified Card
 import qualified Constants
 import Control.Exception (assert)
 import Control.Monad.Except
+import Control.Monad.Identity (runIdentity)
 import Control.Monad.Random
 import Control.Monad.State
 import Control.Monad.Writer
@@ -782,10 +783,11 @@ drawCards ::
 drawCards shared board pSpot =
   \case
     [] -> (shared, board, mempty)
-    (hd : rest) -> do
-      let (shared', board', boardui) = drawCard shared board pSpot hd
-          (shared'', board'', boardui') = drawCards shared' board' pSpot rest
-       in (shared'', board'', boardui <> boardui')
+    (hd : rest) -> runIdentity $ do
+      -- Dummy monad, to avoid variable numbering TODO @smelc remove numbering
+      (shared', board', boardui) <- pure $ drawCard shared board pSpot hd
+      (shared'', board'', boardui') <- pure $ drawCards shared' board' pSpot rest
+      return (shared'', board'', boardui <> boardui')
 
 drawCard ::
   SharedModel ->
