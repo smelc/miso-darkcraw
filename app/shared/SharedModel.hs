@@ -70,6 +70,9 @@ import System.Random.Shuffle (shuffleM)
 import Tile (Filepath, Tile, TileUI (..))
 import qualified Tile
 
+instance Eq StdGen where
+  std1 == std2 = show std1 == show std2
+
 -- | The part of the model that is likely to be used by all pages
 -- | i.e. all possible models
 data SharedModel = SharedModel
