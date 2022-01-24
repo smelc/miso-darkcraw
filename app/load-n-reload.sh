@@ -4,12 +4,12 @@
 
 SERVER_PID_FILE="/tmp/darkcraw_server_pid"
 
-if [[ $(command -v ghc) ]];
-then
-  COMPILER="ghc"
-elif [[ $(command -v ghcjs) ]];
+if [[ $(command -v ghcjs) ]];  # Give precedence to ghcjs, intended for release case
 then
   COMPILER="ghcjs"
+elif [[ $(command -v ghc) ]];
+then
+  COMPILER="ghc"
 else
   echo "Neither ghc nor ghcjs available. Are you in a nix-shell?"
   exit 1
@@ -20,9 +20,8 @@ case $GHC_VERSION in
   "8.10.7")
           CABAL_ROOT="dist-newstyle/build/js-ghcjs/ghcjs-$GHC_VERSION/app-0.1.0.0/x/app/build/app/app.jsexe"
           ;;
-  "8.6.5")
-          CABAL_ROOT="dist-newstyle/build/x86_64-linux/ghc-$GHC_VERSION/app-0.1.0.0/x/app/build/app/app.jsexe"
-          exit 1
+  "8.6.4"|"8.6.0.1")
+          CABAL_ROOT="dist-newstyle/build/x86_64-linux/ghcjs-$GHC_VERSION/app-0.1.0.0/x/app/build/app/app.jsexe"
           ;;
   *)
           echo "Unsupported GHC version: $GHC_VERSION. Please adapt load-n-reload.sh"
