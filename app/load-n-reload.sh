@@ -2,11 +2,36 @@
 #
 # Execute --help for help
 
-CABAL_SERVER_EXEC="/home/churlin/PERSONNEL/miso-darkcraw/app/dist-newstyle/build/x86_64-linux/ghc-8.10.7/app-0.1.0.0/x/server/build/server/server"
-CABAL_ROOT="dist-newstyle/build/js-ghcjs/ghcjs-8.10.7/app-0.1.0.0/x/app/build/app/app.jsexe"
+SERVER_PID_FILE="/tmp/darkcraw_server_pid"
+
+if [[ $(command -v ghc) ]];
+then
+  COMPILER="ghc"
+elif [[ $(command -v ghcjs) ]];
+then
+  COMPILER="ghcjs"
+else
+  echo "Neither ghc nor ghcjs available. Are you in a nix-shell?"
+  exit 1
+fi
+
+GHC_VERSION="$($COMPILER --numeric-version)" || { echo "$COMPILER version cannot be found"; exit 1; }
+case $GHC_VERSION in
+  "8.10.7")
+          CABAL_ROOT="dist-newstyle/build/js-ghcjs/ghcjs-$GHC_VERSION/app-0.1.0.0/x/app/build/app/app.jsexe"
+          ;;
+  "8.6.5")
+          CABAL_ROOT="dist-newstyle/build/x86_64-linux/ghc-$GHC_VERSION/app-0.1.0.0/x/app/build/app/app.jsexe"
+          exit 1
+          ;;
+  *)
+          echo "Unsupported GHC version: $GHC_VERSION. Please adapt load-n-reload.sh"
+          exit 1
+          ;;
+esac
 CABAL_ASSETS="$CABAL_ROOT/assets"
 CABAL_INDEX="$CABAL_ROOT/index.html"
-SERVER_PID_FILE="/tmp/darkcraw_server_pid"
+CABAL_SERVER_EXEC="dist-newstyle/build/x86_64-linux/ghc-$GHC_VERSION/app-0.1.0.0/x/server/build/server/server"
 
 # $1 is the command to check for
 # $2 is the command to install it if missing
@@ -125,7 +150,7 @@ then
 
   check_in_nix_shell
 
-  command -v ghcjs &> /dev/null || { echo "ghcjs unavailable, I bet the nix-shell's flavor is wrong. Please enter it as follows: nix-shell -A release.env default.nix"; exit 1; }
+  command -v ghcjs &> /dev/null || { echo "ghcjs unavailable, is the nix-shell's flavor correct? Please enter it as follows: nix-shell -A release.env default.nix"; exit 1; }
 
   declare -r CMD="sensible-browser \"$CABAL_INDEX\""
   if [[ -e "$CABAL_INDEX" ]]
