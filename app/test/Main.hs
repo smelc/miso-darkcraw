@@ -34,7 +34,7 @@ import qualified Game
 import Generators
 import qualified Invariants
 import Json
-import qualified Logic (disturber, main, mkCreature)
+import qualified Logic (main, mkCreature)
 import qualified Match
 import Movie
 import Nat
@@ -244,32 +244,14 @@ testAIPlace shared =
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` (goodCards board pSpot)
     prop "placeCards returns events playing cards of the player whose turn it is" $
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` playerIs pSpot
-    -- TODO @smelc delete this test, this property isn't important
-    prop "placeCards return events that commute for creatures (modulo disturbers)" $
-      \(Pretty (b0 :: Board 'Core)) card1 card2 (Pretty pSpot) ->
-        -- We generate two cards to make almost sure (modulo filterOut) that
-        -- we pass the condition (length events >= 2)
-        let b1 = extendHand b0 pSpot [card1, card2]
-         in let board = Board.setHand b1 pSpot (Board.toHand b1 pSpot & filterOut disturber)
-             in let events = AI.placeCards difficulty shared board pSpot
-                 in (length events >= 2)
-                      ==> forAll (Test.QuickCheck.elements (permutations events))
-                      $ \events' ->
-                        (Game.playAll shared board (map Game.PEvent events) <&> prettify)
-                          `shouldBe` (Game.playAll shared board (map Game.PEvent events') <&> prettify)
+    prop "playHand's first card can always be played successfully" $
+      \(Pretty (board :: Board 'Core)) (Pretty pSpot) ->
+        let place = AI.placeCards difficulty shared board pSpot & listToMaybe
+         in isJust place
+              ==> (Game.maybePlay shared board (Game.PEvent $ fromJust place))
+                `shouldSatisfy` isJust
   where
-    filterOut f = filter (not . f)
-    disturber =
-      \case
-        x@(IDC _ _) -> Logic.disturber shared x
-        -- Most items don't commute (can play "Put Creature; Add Item on Creature" but
-        -- not "Add Item On Creature; Put Creature"). Neutrals don't commute also, because
-        -- they usually have a large effect.
-        IDI _ -> True
-        IDN _ -> True
-    extendHand b pSpot cards = Board.setHand b pSpot (Board.toHand b pSpot ++ cards)
     difficulty = AI.Easy
-    prettify (Game.Result {board = b}) = Pretty b
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"

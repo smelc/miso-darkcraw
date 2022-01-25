@@ -32,7 +32,7 @@
 <div id="description">
 <p class="caption">Description</p>
 <div class="doc"><p>This module defines how the AI plays.
- <code><a href="AI.html#v:applyDifficulty" title="AI">applyDifficulty</a></code> and <code>boardScore</code> are exported for tests</p></div>
+ <code><a href="AI.html#v:applyDifficulty" title="AI">applyDifficulty</a></code>, <code>boardScore</code>, and <code><a href="AI.html#v:playHand" title="AI">playHand</a></code> are exported for tests</p></div>
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
 <li class="src short">
@@ -54,6 +54,8 @@
 </li>
 <li class="src short">
 <a href="#v:placeCards">placeCards</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</li>
+<li class="src short">
+<a href="#v:playHand">playHand</a> :: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
@@ -202,6 +204,35 @@
  that the returned events are solely placements (no neutral cards), so
  that playing them with <code><a href="Game.html#v:playAll" title="Game">playAll</a></code> returns an empty list of <code><a href="Game.html#t:Event" title="Game">Event</a></code>
  FIXME @smelc remove moe, use <code><a href="AI.html#v:play" title="AI">play</a></code> directly</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:playHand" class="def">playHand</a> <a href="#v:playHand" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Spots.html#t:Player" title="Spots">Player</a>
+</td>
+<td class="doc"><p>The playing player</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>Events for playing all cards of the hand, in order. Each card
+ is played optimally.</p></div>
 </div>
 </div>
 </div>

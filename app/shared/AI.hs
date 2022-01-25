@@ -9,8 +9,8 @@
 
 -- |
 -- This module defines how the AI plays.
--- 'applyDifficulty' and 'boardScore' are exported for tests
-module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), placeCards) where
+-- 'applyDifficulty', 'boardScore', and 'playHand' are exported for tests
+module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), placeCards, playHand) where
 
 import Board
   ( Board,
@@ -114,6 +114,7 @@ play difficulty shared board pSpot =
     hands :: [[Card.ID]] =
       Board.toHand board pSpot
         & map (SharedModel.unsafeIdentToCard shared)
+        -- TODO @smelc don't do this filtering once there are cards to gain mana
         & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
         & map Card.unlift
         & sortOn scoreHandCard
@@ -124,15 +125,15 @@ play difficulty shared board pSpot =
         (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
         hands
     scores :: [(Nat, [Game.Place])] =
-      map
-        ( \events ->
-            case Game.playAll shared board (map Game.PEvent events) of
-              Left msg -> traceShow ("Cannot playAll AI-generated event: " ++ Text.unpack msg) Nothing
-              Right (Game.Result {board = board'}) -> Just (boardPlayerScore board' pSpot, events)
-        )
-        possibles
+      possibles
+        & map playAll
         & catMaybes
         & sortByFst
+    playAll events =
+      -- TODO @smelc write a test the 'Left' case doesn't occur often
+      case Game.playAll shared board (map Game.PEvent events) of
+        Left msg -> traceShow ("Cannot playAll AI-generated event: " ++ Text.unpack msg) Nothing
+        Right (Game.Result {board = board'}) -> Just (boardPlayerScore board' pSpot, events)
 
 -- | The score of given player's in-place cards. Smaller is the best.
 -- Both negative and positive values are returned.
@@ -158,19 +159,12 @@ playHand shared board pSpot =
   case aiPlayFirst shared board pSpot of
     Nothing -> []
     Just (f, s, t) ->
-      case Game.playAll shared board [Game.PEvent place] of
-        Right (Game.Result {board = b', shared = shared'}) -> place : playHand shared' b' pSpot
-        Left msg ->
-          -- FIXME @smelc this is a hard bug, make this an error and write a PBT for it
-          traceShow ("Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it.") $
-            playHand shared board' pSpot
-          where
-            -- The call to tail is safe because the hand must be non-empty,
-            -- by aiPlayFirst returning Just _
-            hand' = Board.toHand board pSpot & tail
-            board' = Board.setHand board pSpot hand' -- Skip first card
-      where
-        place = Game.Place' f s t
+      let place = Game.Place' f s t
+       in case Game.playAll shared board [Game.PEvent place] of
+            Right (Game.Result {board = b', shared = shared'}) ->
+              place : playHand shared' b' pSpot
+            Left msg ->
+              error $ "Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it."
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
