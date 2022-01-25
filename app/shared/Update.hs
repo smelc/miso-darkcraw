@@ -22,6 +22,7 @@ import Card
 import Cinema
 import qualified Command
 import qualified Constants
+import Control.Arrow ((>>>))
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
@@ -198,7 +199,7 @@ instance Interactable GameModel Game.Target (GameModel, NextMove) where
       Move.DragEnter _ -> isPlayerTurn m
       Move.DragLeave _ -> isPlayerTurn m
 
-  drop m pSpot idx target = playOne m $ Game.Place pSpot target idx
+  drop m pSpot idx target = playOne m $ Game.PEvent $ Game.Place pSpot target idx
 
   getPlayingPlayer GameModel {turn} = Turn.toPlayerSpot turn
 
@@ -300,7 +301,7 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Mov
                   shared
                   emptyPlayerInPlaceBoard
                   (turn & Turn.next & Turn.toPlayerSpot)
-          (shared, board, anims) <- Game.playAllE shared board placements
+          (shared, board, anims) <- Game.playAllE shared board $ map Game.PEvent placements
           pure $ m {anims, board, shared}
         else pure m
       )
@@ -392,10 +393,10 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
         case (isAI, Game.playAll shared board preTurnEvents) of
           (True, Left errMsg) -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
           (True, Right (Game.Result {board = board'})) ->
-            let plays :: [Game.Event] = AI.play difficulty shared board' pSpot
+            let plays :: [Game.Place] = AI.play difficulty shared board' pSpot
              in case NE.nonEmpty plays of
                   Nothing -> []
-                  Just plays -> pure $ Move.Sequence (NE.map Move.Play plays)
+                  Just plays -> [plays & NE.map (Game.PEvent >>> Move.Play) & Move.Sequence]
           (False, _) -> Prelude.drop 1 drawSrcs & map Move.DrawCards
   actions <-
     pure $

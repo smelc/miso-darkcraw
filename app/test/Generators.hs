@@ -173,6 +173,10 @@ instance Arbitrary Game.Target where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary Game.Place where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 instance Arbitrary Game.Event where
   -- FIXME @smelc Generate Event that satisfy the Neutral<->Target invariant
   arbitrary = genericArbitraryU

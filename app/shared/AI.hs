@@ -31,7 +31,7 @@ import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
-import qualified Game (Event (..), Result (..), Target (..), WhichPlayerTarget (..), maybePlay, playAll, whichPlayerTarget)
+import qualified Game (Event (..), Place (..), Result (..), Target (..), WhichPlayerTarget (..), maybePlay, playAll, whichPlayerTarget)
 import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -52,29 +52,15 @@ data Difficulty
 -- | Events that place creatures on the board. This function guarantees
 -- that the returned events are solely placements (no neutral cards), so
 -- that playing them with 'Game.playAll' returns an empty list of 'Game.Event'
+-- FIXME @smelc remove moe, use 'play' directly
 placeCards ::
   Difficulty ->
   SharedModel ->
   Board 'Core ->
   -- | The player whose cards must be played
   Spots.Player ->
-  [Game.Event]
-placeCards difficulty shared board turn =
-  -- Will fail once when we do more stuff in aiPlay. It's OK, I'll
-  -- adapt when this happens.
-  assert (all isPlaceEvent events) events
-  where
-    events = AI.play difficulty shared board turn
-    isPlaceEvent = \case
-      Game.ApplyBrainless {} -> False
-      Game.ApplyChurch {} -> False
-      Game.ApplyFearNTerror {} -> False
-      Game.ApplyKing {} -> False
-      Game.Attack {} -> False
-      Game.FillTheFrontline {} -> False
-      Game.NoPlayEvent -> False
-      Game.Place {} -> True
-      Game.Place' {} -> True
+  [Game.Place]
+placeCards difficulty shared board turn = AI.play difficulty shared board turn
 
 -- | Given the hand, the permutations to consider for playing this hand
 applyDifficulty :: forall a. Ord a => Difficulty -> StdGen -> [a] -> [[a]]
@@ -118,7 +104,7 @@ play ::
   -- | The playing player
   Spots.Player ->
   -- | Events generated for player 'pSpot'
-  [Game.Event]
+  [Game.Place]
 play difficulty shared board pSpot =
   case scores of
     [] -> []
@@ -133,15 +119,15 @@ play difficulty shared board pSpot =
         & sortOn scoreHandCard
         & map cardToIdentifier
         & applyDifficulty difficulty (SharedModel.getStdGen shared)
-    possibles =
+    possibles :: [[Game.Place]] =
       map
         (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
         hands
-    scores :: [(Nat, [Game.Event])] =
+    scores :: [(Nat, [Game.Place])] =
       map
         ( \events ->
-            case Game.playAll shared board events of
-              Left msg -> traceShow ("Maybe unexpected? " ++ Text.unpack msg) Nothing
+            case Game.playAll shared board (map Game.PEvent events) of
+              Left msg -> traceShow ("Cannot playAll AI-generated event: " ++ Text.unpack msg) Nothing
               Right (Game.Result {board = board'}) -> Just (boardPlayerScore board' pSpot, events)
         )
         possibles
@@ -167,14 +153,15 @@ playHand ::
   Board 'Core ->
   -- | The playing player
   Spots.Player ->
-  [Game.Event]
+  [Game.Place]
 playHand shared board pSpot =
   case aiPlayFirst shared board pSpot of
     Nothing -> []
     Just (f, s, t) ->
-      case Game.playAll shared board [event] of
-        Right (Game.Result {board = b', shared = shared'}) -> event : playHand shared' b' pSpot
+      case Game.playAll shared board [Game.PEvent place] of
+        Right (Game.Result {board = b', shared = shared'}) -> place : playHand shared' b' pSpot
         Left msg ->
+          -- FIXME @smelc this is a hard bug, make this an error and write a PBT for it
           traceShow ("Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it.") $
             playHand shared board' pSpot
           where
@@ -183,7 +170,7 @@ playHand shared board pSpot =
             hand' = Board.toHand board pSpot & tail
             board' = Board.setHand board pSpot hand' -- Skip first card
       where
-        event = Game.Place' f s t
+        place = Game.Place' f s t
 
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
@@ -206,7 +193,7 @@ aiPlayFirst shared board pSpot =
   where
     handIndex = HandIndex 0
     scores :: ID -> [(Nat, Game.Target)] = \id ->
-      [ Game.maybePlay shared board (Game.Place pSpot target handIndex) -- Compute next board
+      [ Game.maybePlay shared board (Game.PEvent (Game.Place pSpot target handIndex)) -- Compute next board
           <&> (\(_, b, _me) -> (boardPlayerScore b pSpot, target)) -- FIXME Use '_me'
         | target <- targets board pSpot id
       ]

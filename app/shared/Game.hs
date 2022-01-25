@@ -32,6 +32,7 @@ module Game
     EnemySpots (..),
     Event (..),
     MessageText (..),
+    Place (..),
     Result (..),
     maybePlay,
     nextAttackSpot,
@@ -119,6 +120,18 @@ whichPlayerTarget = \case
   IDN Plague -> Opponent
   IDN StrengthPot -> Playing
 
+-- | Placing events. These events are the ones that the 'AI' generates (as
+-- opposed to the more general 'Event' type).
+data Place
+  = -- | Player puts a card from his hand on its part of the board. First
+    -- argument is the player, second argument is the target, third argument
+    -- is the card being played.
+    Place Spots.Player Target HandIndex
+  | -- | AI puts a card from his hand. This constructor has better
+    -- testing behavior than 'Place': it makes the generated events commute.
+    Place' Spots.Player Target Card.ID
+  deriving (Eq, Generic, Show)
+
 data Event
   = -- | Apply brainless of the creatures at the given 'Spots.Player'
     ApplyBrainless Spots.Player
@@ -139,13 +152,8 @@ data Event
     FillTheFrontline Spots.Player
   | -- | A Nothing case, for convenience
     NoPlayEvent
-  | -- | Player puts a card from his hand on its part of the board. First
-    -- argument is the player, second argument is the target, third argument
-    -- is the card being played.
-    Place Spots.Player Target HandIndex
-  | -- | AI puts a card from his hand. This constructor has better
-    -- testing behavior than 'Place': it makes the generated events commute.
-    Place' Spots.Player Target Card.ID
+  | -- | A 'Place' event
+    PEvent Place
   deriving (Eq, Generic, Show)
 
 -- | The result of playing game events
@@ -407,7 +415,7 @@ tryPlayM board (Attack pSpot cSpot _ _) = do
 tryPlayM board (FillTheFrontline pSpot) = do
   return $ pure $ (applyFillTheFrontline board pSpot, Nothing)
 tryPlayM board NoPlayEvent = return $ pure $ (board, Nothing)
-tryPlayM board (Place pSpot target (handhi :: HandIndex)) = do
+tryPlayM board (PEvent (Place pSpot target (handhi :: HandIndex))) = do
   shared <- get
   ident <- Board.lookupHandM hand handi
   let uiCard = SharedModel.identToCard shared ident
@@ -444,10 +452,10 @@ tryPlayM board (Place pSpot target (handhi :: HandIndex)) = do
       case i of
         Left imp -> return $ impossible imp
         Right b -> return $ pure $ f b
-tryPlayM board (Place' pSpot target id) =
+tryPlayM board (PEvent (Place' pSpot target id)) =
   case idToHandIndex board pSpot id of
     Nothing -> return $ impossible CardNotFound
-    Just i -> tryPlayM board (Place pSpot target i)
+    Just i -> tryPlayM board (PEvent (Place pSpot target i))
 
 -- | Translates an 'Event' into an animation displayed in the
 -- middle of the 'Board'.
@@ -524,10 +532,10 @@ eventToAnim shared board =
           map (SharedModel.creatureToFilepath shared) movedCreatures
             & catMaybes
     Game.NoPlayEvent -> pure NoAnimation
-    Game.Place pSpot target (HandIndex {unHandIndex = idx}) -> do
+    Game.PEvent (Game.Place pSpot target (HandIndex {unHandIndex = idx})) -> do
       id <- Board.lookupHandM (Board.toHand board pSpot) idx
       return $ go pSpot target id
-    Game.Place' pSpot target id ->
+    Game.PEvent (Game.Place' pSpot target id) ->
       pure $ go pSpot target id
   where
     duration = 2

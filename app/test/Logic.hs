@@ -90,7 +90,7 @@ testPlayFraming shared =
          in let pair = pickCardSpot board 0 pSpot
              in isJust pair
                   ==> let (i, cSpot) = fromJust pair
-                       in Game.play shared board (Game.Place pSpot (Game.CardTarget pSpot cSpot) (HandIndex i))
+                       in Game.play shared board (Game.PEvent (Game.Place pSpot (Game.CardTarget pSpot cSpot) (HandIndex i)))
                             `shouldSatisfy` relation board pSpot cSpot
   where
     -- Very simple AI-like function
@@ -513,7 +513,7 @@ testStrengthPot shared =
       Board.small shared (Teams team team) (CreatureID ckind team) [] pSpot cSpot
         & (\b -> Board.addToHand b pSpot strength)
     board' :: Board 'Core =
-      Game.play shared board (Game.Place' pSpot (Game.CardTarget pSpot cSpot) strength)
+      Game.play shared board (Game.PEvent (Game.Place' pSpot (Game.CardTarget pSpot cSpot) strength))
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right b' -> b')
         & (\(Game.Result {board = b}) -> b)
     board'' :: Board 'Core = BoardInstances.boardStart board' pSpot
@@ -537,7 +537,7 @@ testPandemonium shared =
       | otherwise = apply (count + 1) shared' b'
       where
         (shared', b') =
-          Game.play sh (prepare b) (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium)
+          Game.play sh (prepare b) (Game.PEvent (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium))
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
             & (\(Game.Result {shared = s, board = c}) -> (s, c))
         prepare b =

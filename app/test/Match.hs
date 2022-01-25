@@ -161,7 +161,7 @@ playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
     (_, event : _) -> do
       -- Taking only the first event avoids the need for correcting
       -- hand indices at the "cost" of doing recursion here:
-      m' <- go m $ eventToGameActions board event
+      m' <- go m $ placeToGameActions board event
       playOneTurn m'
   where
     pSpot = Turn.toPlayerSpot turn
@@ -171,32 +171,21 @@ playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
       (model', nextMove) <- Update.updateGameModel model move interaction
       go model' ((fmap snd nextMove & maybeToList) ++ moves)
 
-eventToGameActions ::
+placeToGameActions ::
   Board 'Core ->
-  Game.Event ->
+  Game.Place ->
   [Move]
-eventToGameActions board event =
-  case event of
-    Game.Attack {} -> lift event
-    Game.ApplyBrainless {} -> lift event
-    Game.ApplyChurch {} -> lift event
-    Game.ApplyFearNTerror {} -> lift event
-    Game.ApplyKing {} -> lift event
-    Game.FillTheFrontline {} -> lift event
-    Game.NoPlayEvent -> []
+placeToGameActions board event =
+  map Move.DnD $ case event of
     Game.Place _ target handIndex ->
       [ Move.DragStart handIndex,
         Move.DragEnter target,
         Move.Drop,
         Move.DragEnd
       ]
-        & map Move.DnD
     Game.Place' pSpot target id ->
       [ Move.DragStart $ Game.idToHandIndex board pSpot id & fromJust,
         Move.DragEnter target,
         Move.Drop,
         Move.DragEnd
       ]
-        & map Move.DnD
-  where
-    lift e = [Move.Play e]

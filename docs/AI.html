@@ -38,7 +38,7 @@
 <li class="src short">
 <a href="#v:applyDifficulty">applyDifficulty</a> :: <span class="keyword">forall</span> a. <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> a =&gt; <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; [a] -&gt; [[a]]</li>
 <li class="src short">
-<a href="#v:play">play</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
+<a href="#v:play">play</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</li>
 <li class="src short">
 <a href="#v:boardPlayerScore">boardPlayerScore</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </li>
@@ -53,7 +53,7 @@
 </ul>
 </li>
 <li class="src short">
-<a href="#v:placeCards">placeCards</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
+<a href="#v:placeCards">placeCards</a> :: <a href="AI.html#t:Difficulty" title="AI">Difficulty</a> -&gt; <a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
@@ -87,7 +87,7 @@
 <td class="doc"><p>The playing player</p></td>
 </tr>
 <tr>
-<td class="src">-&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</td>
+<td class="src">-&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</td>
 <td class="doc"><p>Events generated for player <code>pSpot</code></p></td>
 </tr>
 </table>
@@ -193,14 +193,15 @@
 <td class="doc"><p>The player whose cards must be played</p></td>
 </tr>
 <tr>
-<td class="src">-&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</td>
+<td class="src">-&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 </table>
 </div>
 <div class="doc"><p>Events that place creatures on the board. This function guarantees
  that the returned events are solely placements (no neutral cards), so
- that playing them with <code><a href="Game.html#v:playAll" title="Game">playAll</a></code> returns an empty list of <code><a href="Game.html#t:Event" title="Game">Event</a></code></p></div>
+ that playing them with <code><a href="Game.html#v:playAll" title="Game">playAll</a></code> returns an empty list of <code><a href="Game.html#t:Event" title="Game">Event</a></code>
+ FIXME @smelc remove moe, use <code><a href="AI.html#v:play" title="AI">play</a></code> directly</p></div>
 </div>
 </div>
 </div>

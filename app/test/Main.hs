@@ -58,7 +58,7 @@ getAllDecks cards = [teamDeck cards t | t <- allTeams]
 -- | Tests that the AI treats 'Ranged' correctly.
 testAIRanged :: SharedModel -> Turn -> Board 'Core
 testAIRanged shared turn =
-  case Game.playAll shared board events of
+  case Game.playAll shared board $ map Game.PEvent events of
     Left _ -> error "AI failed"
     Right (Game.Result {board = board'}) -> board'
   where
@@ -244,6 +244,7 @@ testAIPlace shared =
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` (goodCards board pSpot)
     prop "placeCards returns events playing cards of the player whose turn it is" $
       \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` playerIs pSpot
+    -- TODO @smelc delete this test, this property isn't important
     prop "placeCards return events that commute for creatures (modulo disturbers)" $
       \(Pretty (b0 :: Board 'Core)) card1 card2 (Pretty pSpot) ->
         -- We generate two cards to make almost sure (modulo filterOut) that
@@ -254,8 +255,8 @@ testAIPlace shared =
                  in (length events >= 2)
                       ==> forAll (Test.QuickCheck.elements (permutations events))
                       $ \events' ->
-                        (Game.playAll shared board events <&> prettify)
-                          `shouldBe` (Game.playAll shared board events' <&> prettify)
+                        (Game.playAll shared board (map Game.PEvent events) <&> prettify)
+                          `shouldBe` (Game.playAll shared board (map Game.PEvent events') <&> prettify)
   where
     filterOut f = filter (not . f)
     disturber =
@@ -288,7 +289,6 @@ testAIPlace shared =
         else traceShow ("Wrong ID: " ++ show id ++ "It does not belong to the hand: " ++ show hand) False
       where
         hand = Board.toHand board pSpot
-    goodCards boards pSpot (_ : tl) = goodCards boards pSpot tl
     playerIs _ [] = True
     playerIs expected (event : tl) = playerIs' expected event && playerIs expected tl
     playerIs' expected =
@@ -331,7 +331,9 @@ testPlayScoreMonotonic shared =
       \(board, pSpot) ->
         let score = flip boardPlayerScore pSpot
          in let (initialScore, events) = (score board, AI.play AI.Easy shared board pSpot)
-             in let nextScore = Game.playAll shared board events & takeBoard <&> score
+             in let nextScore =
+                      Game.playAll shared board (map Game.PEvent events)
+                        & takeBoard <&> score
                  in monotonic initialScore nextScore
   where
     takeBoard (Left _) = Nothing
@@ -374,14 +376,14 @@ testItemsAI shared =
     teams = Teams Undead Undead
     mkCreature' kind team = Logic.mkCreature shared kind team False
     play board =
-      Game.playAll shared board $ AI.play AI.Easy shared board pSpot
+      Game.playAll shared board $ map Game.PEvent $ AI.play AI.Easy shared board pSpot
     hasItem board pSpot cSpot item =
       (Board.toInPlaceCreature board pSpot cSpot) `has` item
 
 testAIImprecise shared =
   describe "AI" $ do
     it "Imprecise card is put in back line" $
-      (Game.playAll shared board $ AI.play AI.Easy shared board pSpot)
+      (Game.playAll shared board $ map Game.PEvent $ AI.play AI.Easy shared board pSpot)
         `shouldSatisfyRight` ( \(Game.Result {board = board'}) ->
                                  Board.toPlayerCardSpots board' pSpot Occupied
                                    & (\spots -> length spots == 1 && all inTheBack spots)
@@ -401,16 +403,9 @@ testMana shared =
   where
     -- manaCostGeq returns True if 'avail' is greater or equal to the
     -- mana cost of 'card'.
-    manaCostGeq :: Board 'Core -> Nat -> Game.Event -> Bool
+    manaCostGeq :: Board 'Core -> Nat -> Game.Place -> Bool
     manaCostGeq board avail =
       \case
-        Game.ApplyBrainless {} -> True
-        Game.ApplyChurch {} -> True
-        Game.ApplyFearNTerror {} -> True
-        Game.ApplyKing {} -> True
-        Game.Attack {} -> True
-        Game.FillTheFrontline {} -> True
-        Game.NoPlayEvent -> True
         Game.Place pSpot _ hi -> go' pSpot hi
         Game.Place' pSpot _ id ->
           case Game.idToHandIndex board pSpot id of
