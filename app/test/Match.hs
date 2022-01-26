@@ -157,7 +157,7 @@ playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
     (_, []) ->
       -- The main loop will take care of playing the opponent when honoring
       -- this event:
-      go m [Move.EndTurnPressed]
+      go m [Move.Sched Move.EndTurnPressed]
     (_, event : _) -> do
       -- Taking only the first event avoids the need for correcting
       -- hand indices at the "cost" of doing recursion here:
@@ -168,8 +168,8 @@ playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
     go :: MonadError Text m => GameModel -> [Move] -> m GameModel
     go model [] = pure model
     go model@GameModel {interaction} (move : moves) = do
-      (model', nextMove) <- Update.updateGameModel model move interaction
-      go model' ((fmap snd nextMove & maybeToList) ++ moves)
+      (model', nextSched) <- Update.updateGameModel model move interaction
+      go model' ((nextSched <&> snd <&> Move.Sched & maybeToList) ++ moves)
 
 placeToGameActions ::
   Board 'Core ->

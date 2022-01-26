@@ -44,7 +44,7 @@ import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
-import Move (Move, NextMove)
+import Move (Move, NextSched)
 import qualified Move
 import Movie (welcomeMovie)
 import Nat
@@ -189,7 +189,7 @@ act m a i =
       pure $ updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
     _ -> pure $ updateDefault m i
 
-instance Interactable GameModel Game.Target (GameModel, NextMove) where
+instance Interactable GameModel Game.Target (GameModel, NextSched) where
   considerAction m@GameModel {uiAvail} a =
     case a of
       Move.DragEnd -> True
@@ -212,21 +212,23 @@ instance Interactable GameModel Game.Target (GameModel, NextMove) where
 singleton :: a -> NonEmpty a
 singleton x = x NE.:| []
 
--- | Transforms a 'NextMove' into a value suitable for being
+-- | Transforms a 'NextSched' into a value suitable for being
 -- passed to 'delayActions'.
-ngaToMiso :: NextMove -> [(Int, Action)]
-ngaToMiso nga = maybeToList $ fmap (\(n, ga) -> (Nat.natToInt n & toSecs, GameAction' ga)) nga
+nextSchedToMiso :: NextSched -> [(Int, Action)]
+nextSchedToMiso ns =
+  maybeToList $
+    fmap (\(n, ga) -> (Nat.natToInt n & toSecs, GameAction' $ Move.Sched ga)) ns
 
 playOne ::
   MonadError Text.Text m =>
   GameModel ->
   Game.Event ->
-  m (GameModel, NextMove)
+  m (GameModel, NextSched)
 playOne m event =
-  updateGameModel m (Move.Play event) NoInteraction
+  updateGameModel m (Move.Sched $ Move.Play event) NoInteraction
 
--- | We MUST return Move as the second element (as opposed to
--- 'GamePlayEvent'). This is used for 'GameIncrTurn' for example.
+-- | We MUST return 'Sched' as the second element (as opposed to
+-- 'Game.Event'). This is used for 'GameIncrTurn' for example.
 -- The second element must only contain delayed stuff, it's invalid
 -- to return a list whose first element has 0. If we did that, we would
 -- need to play this event right away, and then we would have new delayed
@@ -238,13 +240,13 @@ updateGameModel ::
   GameModel ->
   Move ->
   Interaction Game.Target ->
-  m (GameModel, NextMove)
+  m (GameModel, NextSched)
 -- This is the only definition that should care about GameShowErrorInteraction:
 updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
   -- This is the only definition that should care about GameSequence:
-updateGameModel m (Move.Sequence (fst NE.:| rest)) i = do
-  (m', nga) <- updateGameModel m fst i
+updateGameModel m (Move.Sched (Move.Sequence (fst NE.:| rest))) i = do
+  (m', nga) <- updateGameModel m (Move.Sched fst) i
   return (m', Move.consNgaActions nga rest)
 -- Now onto "normal" stuff:
 updateGameModel m (Move.DnD a@Move.DragEnd) i = act m a i
@@ -253,7 +255,7 @@ updateGameModel m (Move.DnD a@Move.Drop) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragEnter _)) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute.
-updateGameModel m@GameModel {board, shared} (Move.Play gameEvent) _ = do
+updateGameModel m@GameModel {board, shared} (Move.Sched (Move.Play gameEvent)) _ = do
   (shared', board', anims', generated) <- Game.playE shared board gameEvent
   let anim =
         Game.eventToAnim shared board gameEvent
@@ -277,7 +279,7 @@ updateGameModel m@GameModel {board, shared} (Move.Play gameEvent) _ = do
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', (1,) <$> nextEvent)
-updateGameModel m@GameModel {board, shared, turn} (Move.DrawCards draw) _ = do
+updateGameModel m@GameModel {board, shared, turn} (Move.Sched (Move.DrawCards draw)) _ = do
   pure $
     ( m {anims = boardui', board = board', shared = shared'},
       Nothing
@@ -286,7 +288,7 @@ updateGameModel m@GameModel {board, shared, turn} (Move.DrawCards draw) _ = do
     (shared', board', boardui') = Game.drawCard shared board pSpot draw
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Move.EndTurnPressed _ = do
+updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} (Move.Sched Move.EndTurnPressed) _ = do
   m@GameModel {board} <-
     ( if isInitialTurn
         then do
@@ -306,24 +308,24 @@ updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} Mov
         else pure m
       )
       <&> disableUI
-  let event = mkEvent board
+  let sched = mkSched board
   if isInitialTurn
     then -- We want a one second delay, to see clearly that the opponent
     -- puts its cards, and then proceed with resolving attacks
-      pure $ (m, Just (1, event))
+      pure $ (m, Just (1, sched))
     else -- We don't want any delay so that the game feels responsive
     -- when the player presses "End Turn", hence the recursive call.
-      updateGameModel m (event) NoInteraction
+      updateGameModel m (Move.Sched sched) NoInteraction
   where
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
     disableUI gm = if pSpot == playingPlayer then gm {uiAvail = False} else gm
-    mkEvent b =
+    mkSched b =
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
         Nothing -> Move.IncrTurn -- no attack, change turn right away
         Just cSpot -> Move.Play $ Game.Attack pSpot cSpot True True
-updateGameModel m Move.IncrTurn _ = do
+updateGameModel m (Move.Sched Move.IncrTurn) _ = do
   (m, seq) <- updateGameIncrTurn m
   pure (enableUI m, seq)
   where
@@ -360,7 +362,7 @@ updateGameModel m _ i =
 updateGameIncrTurn ::
   Monad m => -- Identity monad, because it's convenient to write this code monadically
   GameModel ->
-  m (GameModel, NextMove)
+  m (GameModel, NextSched)
 updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = do
   board <- pure $ boardStart board pSpot
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
@@ -381,7 +383,7 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
             Game.FillTheFrontline pSpot,
             Game.ApplyKing pSpot
           ]
-  let actions :: [Move] =
+  let actions :: [Move.Sched] =
         -- AI case: after drawing cards and playing its events
         --          press "End Turn". We want a one second delay, it makes
         --          it easier to understand what's going on
@@ -405,7 +407,7 @@ updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} 
         -- So better do it here than in the different cases above.
         else actions
   m <- pure $ m {anims, board, shared, turn = turn'}
-  pure $ (m, fmap (1,) $ Move.actionsToSequence actions)
+  pure $ (m, (1,) <$> Move.mkScheds actions)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
@@ -666,7 +668,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@GameModel {board, share
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
     playEvent eventMaker pSpot =
       updateModel
-        (GameAction' $ Move.Play $ eventMaker pSpot)
+        (GameAction' $ Move.Sched $ Move.Play $ eventMaker pSpot)
         (GameModel' gm)
 -- Actions that leave 'SinglePlayerView'
 updateModel
@@ -711,7 +713,7 @@ updateModel (Keyboard _) model = noEff model
 updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
   if null actions
     then noEff m''
-    else delayActions m'' (ngaToMiso actions)
+    else delayActions m'' (nextSchedToMiso actions)
   where
     -- 'Game.NoAnimation': clear animation if any
     (m', actions) =
