@@ -36,19 +36,6 @@
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:Sched">Sched</a><ul class="subs">
-<li>= <a href="#v:Play">Play</a> <a href="Game.html#t:Event" title="Game">Event</a>
-</li>
-<li>| <a href="#v:DrawCards">DrawCards</a> <a href="Game.html#t:DrawSource" title="Game">DrawSource</a>
-</li>
-<li>| <a href="#v:IncrTurn">IncrTurn</a>
-</li>
-<li>| <a href="#v:EndTurnPressed">EndTurnPressed</a>
-</li>
-<li>| <a href="#v:Sequence">Sequence</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Move.html#t:Sched" title="Move">Sched</a>)</li>
-</ul>
-</li>
-<li class="src short">
 <span class="keyword">data</span> <a href="#t:DnDAction">DnDAction</a> a<ul class="subs">
 <li>= <a href="#v:DragEnd">DragEnd</a>
 </li>
@@ -80,103 +67,25 @@
 </ul>
 </li>
 <li class="src short">
-<a href="#v:eventsToAction">eventsToAction</a> :: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> a -&gt; <a href="Move.html#t:Move" title="Move">Move</a>) -&gt; [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Move.html#t:Move" title="Move">Move</a>
-</li>
-<li class="src short">
-<a href="#v:mkScheds">mkScheds</a> :: [<a href="Move.html#t:Sched" title="Move">Sched</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Move.html#t:Sched" title="Move">Sched</a>
-</li>
-<li class="src short">
 <span class="keyword">type</span> <a href="#t:NextSched">NextSched</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Move.html#t:Sched" title="Move">Sched</a>)</li>
 <li class="src short">
-<a href="#v:consNgaActions">consNgaActions</a> :: <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; [<a href="Move.html#t:Sched" title="Move">Sched</a>] -&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a>
-</li>
+<a href="#v:runOne">runOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; m (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 <li class="src short">
-<a href="#v:mkNextSched">mkNextSched</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; m <a href="Move.html#t:NextSched" title="Move">NextSched</a>
+<span class="keyword">data</span> <a href="#t:Sched">Sched</a><ul class="subs">
+<li>= <a href="#v:Play">Play</a> <a href="Game.html#t:Event" title="Game">Event</a>
+</li>
+<li>| <a href="#v:DrawCards">DrawCards</a> <a href="Game.html#t:DrawSource" title="Game">DrawSource</a>
+</li>
+<li>| <a href="#v:IncrTurn">IncrTurn</a>
+</li>
+<li>| <a href="#v:EndTurnPressed">EndTurnPressed</a>
+</li>
+<li>| <a href="#v:Sequence">Sequence</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Move.html#t:Sched" title="Move">Sched</a>)</li>
+</ul>
 </li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:Sched" class="def">Sched</a> <a href="#t:Sched" class="selflink">#</a></p>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src">
-<a id="v:Play" class="def">Play</a> <a href="Game.html#t:Event" title="Game">Event</a>
-</td>
-<td class="doc"><p>Play some game event. It can be an event scheduled by the AI
- or an event from the player.</p></td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:DrawCards" class="def">DrawCards</a> <a href="Game.html#t:DrawSource" title="Game">DrawSource</a>
-</td>
-<td class="doc"><p>Turn was updated previously by <code><a href="Move.html#v:IncrTurn" title="Move">IncrTurn</a></code>,
- time to draw cards from the stack. Then the handler of this event
- will take care of giving the player control back. This event
- is translated to a list of events, iteratively consuming the list.</p></td>
-</tr>
-<tr>
-<td class="src"><a id="v:IncrTurn" class="def">IncrTurn</a></td>
-<td class="doc"><p>All actions have been resolved, time to update the turn widget
- and to schedule <code>DrawCard</code>. This does NOT translate
- to a <code>PlayEvent</code>.</p></td>
-</tr>
-<tr>
-<td class="src"><a id="v:EndTurnPressed" class="def">EndTurnPressed</a></td>
-<td class="doc"><p>End Turn button pressed in turn widget. For player, schedule
- attacks then <code><a href="Move.html#v:IncrTurn" title="Move">IncrTurn</a></code>; for AI, compute its actions,
- schedule them, and then schedule attack and <code><a href="Move.html#v:IncrTurn" title="Move">IncrTurn</a></code>.</p></td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:Sequence" class="def">Sequence</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Move.html#t:Sched" title="Move">Sched</a>)</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:Sched" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Sched:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Move.html#t:Sched" title="Move">Sched</a></span> <a href="#t:Sched" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Sched:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Sched:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Move.html#t:Sched" title="Move">Sched</a></span> <a href="#t:Sched" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Sched:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Move.html#t:Sched" title="Move">Sched</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Sched:Interactable:3"></span> <a href="Update.html#t:Interactable" title="Update">Interactable</a> <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="Game.html#t:Target" title="Game">Target</a> (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</span> <a href="#t:Interactable" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Sched:Interactable:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:considerAction">considerAction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
-<p class="src"><a href="#v:drop">drop</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; n (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:drop" class="selflink">#</a></p>
-<p class="src"><a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
-<p class="src"><a href="#v:stopWrongDrop">stopWrongDrop</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
-<p class="src"><a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:updateDefault" class="selflink">#</a></p>
-<p class="src"><a href="#v:withInteraction">withInteraction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="#v:withInteraction" class="selflink">#</a></p>
-</div></details></td></tr>
-</table></details></div>
-</div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:DnDAction" class="def">DnDAction</a> a <a href="#t:DnDAction" class="selflink">#</a></p>
 <div class="subs constructors">
@@ -316,21 +225,92 @@
 </table></details></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:eventsToAction" class="def">eventsToAction</a> :: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> a -&gt; <a href="Move.html#t:Move" title="Move">Move</a>) -&gt; [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Move.html#t:Move" title="Move">Move</a> <a href="#v:eventsToAction" class="selflink">#</a></p>
-<div class="doc"><p>Given a constructor of <code><a href="Move.html#t:Move" title="Move">Move</a></code> that expects a non empty list and
- a list; the corresponding action; if any. If the input list is empty,
- <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a></code> is returned.</p></div>
-</div>
-<div class="top"><p class="src"><a id="v:mkScheds" class="def">mkScheds</a> :: [<a href="Move.html#t:Sched" title="Move">Sched</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Move.html#t:Sched" title="Move">Sched</a> <a href="#v:mkScheds" class="selflink">#</a></p></div>
-<div class="top">
 <p class="src"><span class="keyword">type</span> <a id="t:NextSched" class="def">NextSched</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Move.html#t:Sched" title="Move">Sched</a>) <a href="#t:NextSched" class="selflink">#</a></p>
 <div class="doc"><p>Event to fire after the given delay (in seconds). Delay should not be '0'.</p></div>
 </div>
+<div class="top"><p class="src"><a id="v:runOne" class="def">runOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; m (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:runOne" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:consNgaActions" class="def">consNgaActions</a> :: <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; [<a href="Move.html#t:Sched" title="Move">Sched</a>] -&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a> <a href="#v:consNgaActions" class="selflink">#</a></p>
-<div class="doc"><p>Given (maybe) an action and other actions, build the sequence</p></div>
+<p class="src"><span class="keyword">data</span> <a id="t:Sched" class="def">Sched</a> <a href="#t:Sched" class="selflink">#</a></p>
+<div class="doc"><p>Actions that can be scheduled by the main loop.</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src">
+<a id="v:Play" class="def">Play</a> <a href="Game.html#t:Event" title="Game">Event</a>
+</td>
+<td class="doc"><p>Play some game event. It can be an event scheduled by the AI
+ or an event from the player.</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:DrawCards" class="def">DrawCards</a> <a href="Game.html#t:DrawSource" title="Game">DrawSource</a>
+</td>
+<td class="doc"><p>Turn was updated previously by <code><a href="Move.html#v:IncrTurn" title="Move">IncrTurn</a></code>,
+ time to draw cards from the stack. Then the handler of this event
+ will take care of giving the player control back. This event
+ is translated to a list of events, iteratively consuming the list.</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:IncrTurn" class="def">IncrTurn</a></td>
+<td class="doc"><p>All actions have been resolved, time to update the turn widget
+ and to schedule <code>DrawCard</code>. This does NOT translate
+ to a <code>PlayEvent</code>.</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:EndTurnPressed" class="def">EndTurnPressed</a></td>
+<td class="doc"><p>End Turn button pressed in turn widget. For player, schedule
+ attacks then <code><a href="Move.html#v:IncrTurn" title="Move">IncrTurn</a></code>; for AI, compute its actions,
+ schedule them, and then schedule attack and <code><a href="Move.html#v:IncrTurn" title="Move">IncrTurn</a></code>.</p></td>
+</tr>
+<tr>
+<td class="src">
+<a id="v:Sequence" class="def">Sequence</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Move.html#t:Sched" title="Move">Sched</a>)</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
 </div>
-<div class="top"><p class="src"><a id="v:mkNextSched" class="def">mkNextSched</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; m <a href="Move.html#t:NextSched" title="Move">NextSched</a> <a href="#v:mkNextSched" class="selflink">#</a></p></div>
+<div class="subs instances"><details id="i:Sched" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Sched:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Move.html#t:Sched" title="Move">Sched</a></span> <a href="#t:Sched" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Sched:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Sched:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Move.html#t:Sched" title="Move">Sched</a></span> <a href="#t:Sched" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Sched:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Move.html#t:Sched" title="Move">Sched</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Sched:Interactable:3"></span> <a href="Update.html#t:Interactable" title="Update">Interactable</a> <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="Game.html#t:Target" title="Game">Target</a> (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</span> <a href="#t:Interactable" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Sched:Interactable:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:considerAction">considerAction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
+<p class="src"><a href="#v:drop">drop</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; n (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:drop" class="selflink">#</a></p>
+<p class="src"><a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
+<p class="src"><a href="#v:stopWrongDrop">stopWrongDrop</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
+<p class="src"><a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:GameModel" title="Model">GameModel</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:updateDefault" class="selflink">#</a></p>
+<p class="src"><a href="#v:withInteraction">withInteraction</a> :: <a href="Model.html#t:GameModel" title="Model">GameModel</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="Model.html#t:GameModel" title="Model">GameModel</a> <a href="#v:withInteraction" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>

@@ -16,23 +16,19 @@ module Update where
 import AI (Difficulty)
 import qualified AI
 import Board
-import BoardInstances (boardStart)
 import qualified Campaign
 import Card
 import Cinema
 import qualified Command
 import qualified Constants
-import Control.Arrow ((>>>))
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
-import Data.Either.Extra
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
-import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe, isJust, maybeToList)
+import Data.Maybe (isJust, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -244,10 +240,9 @@ updateGameModel ::
 -- This is the only definition that should care about GameShowErrorInteraction:
 updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
-  -- This is the only definition that should care about GameSequence:
-updateGameModel m (Move.Sched (Move.Sequence (fst NE.:| rest))) i = do
-  (m', nga) <- updateGameModel m (Move.Sched fst) i
-  return (m', Move.consNgaActions nga rest)
+updateGameModel m (Move.Sched s) _ =
+  -- This is the only definition that should care about Move.Sched
+  Move.runOne m s
 -- Now onto "normal" stuff:
 updateGameModel m (Move.DnD a@Move.DragEnd) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragStart _)) i = act m a i
@@ -255,84 +250,6 @@ updateGameModel m (Move.DnD a@Move.Drop) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragEnter _)) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute.
-updateGameModel m@GameModel {board, shared} (Move.Sched (Move.Play gameEvent)) _ = do
-  (shared', board', anims', generated) <- Game.playE shared board gameEvent
-  let anim =
-        Game.eventToAnim shared board gameEvent
-          & runExcept
-          & eitherToMaybe
-          & fromMaybe Game.NoAnimation -- Rather no animation that erroring out
-      m' = m {board = board', shared = shared', anims = anims', anim}
-      nextEvent =
-        case (gameEvent, generated) of
-          (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
-            -- enqueue resolving next attack if applicable
-            case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
-              (False, _) -> terminator
-              (True, Nothing) -> terminator
-              (True, Just cSpot') -> Just $ Move.Play $ Game.Attack pSpot cSpot' True changeTurn
-            where
-              terminator = if changeTurn then Just Move.IncrTurn else Nothing
-          (Game.Attack {}, Just e) ->
-            error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
-          (_, _) -> Move.Play <$> generated
-  -- There MUST be a delay here, otherwise it means we would need
-  -- to execute this event now. We don't want that. 'playAll' checks that.
-  pure $ (m', (1,) <$> nextEvent)
-updateGameModel m@GameModel {board, shared, turn} (Move.Sched (Move.DrawCards draw)) _ = do
-  pure $
-    ( m {anims = boardui', board = board', shared = shared'},
-      Nothing
-    )
-  where
-    (shared', board', boardui') = Game.drawCard shared board pSpot draw
-    pSpot = Turn.toPlayerSpot turn
--- "End Turn" button pressed by the player or the AI
-updateGameModel m@GameModel {board, difficulty, playingPlayer, shared, turn} (Move.Sched Move.EndTurnPressed) _ = do
-  m@GameModel {board} <-
-    ( if isInitialTurn
-        then do
-          -- End Turn pressed at the end of the player's first turn, make the AI
-          -- place its card in a state where the player did not put its
-          -- card yet, then place them all at once; and then continue
-          -- Do not reveal player placement to AI
-          let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
-              placements =
-                AI.placeCards
-                  difficulty
-                  shared
-                  emptyPlayerInPlaceBoard
-                  (turn & Turn.next & Turn.toPlayerSpot)
-          (shared, board, anims) <- Game.playAllE shared board $ map Game.PEvent placements
-          pure $ m {anims, board, shared}
-        else pure m
-      )
-      <&> disableUI
-  let sched = mkSched board
-  if isInitialTurn
-    then -- We want a one second delay, to see clearly that the opponent
-    -- puts its cards, and then proceed with resolving attacks
-      pure $ (m, Just (1, sched))
-    else -- We don't want any delay so that the game feels responsive
-    -- when the player presses "End Turn", hence the recursive call.
-      updateGameModel m (Move.Sched sched) NoInteraction
-  where
-    pSpot = Turn.toPlayerSpot turn
-    isInitialTurn = turn == Turn.initial
-    disableUI gm = if pSpot == playingPlayer then gm {uiAvail = False} else gm
-    mkSched b =
-      -- schedule resolving first attack
-      case Game.nextAttackSpot b pSpot Nothing of
-        Nothing -> Move.IncrTurn -- no attack, change turn right away
-        Just cSpot -> Move.Play $ Game.Attack pSpot cSpot True True
-updateGameModel m (Move.Sched Move.IncrTurn) _ = do
-  (m, seq) <- updateGameIncrTurn m
-  pure (enableUI m, seq)
-  where
-    enableUI gm@GameModel {playingPlayer, turn}
-      | Turn.toPlayerSpot turn == playingPlayer =
-        gm {uiAvail = True} -- Restore interactions if turn of player
-      | otherwise = gm
 -- Hovering in hand cards
 updateGameModel m (Move.InHandMouseEnter i) NoInteraction =
   pure $ updateDefault m $ HoverInteraction $ Hovering i
@@ -356,63 +273,6 @@ updateGameModel m@GameModel {shared} (Move.UpdateCmd misoStr) i =
 -- default
 updateGameModel m _ i =
   pure $ updateDefault m i
-
--- TODO @smelc write a test that this function always returns GameEndTurnPressed
--- when it's the AI turn.
-updateGameIncrTurn ::
-  Monad m => -- Identity monad, because it's convenient to write this code monadically
-  GameModel ->
-  m (GameModel, NextSched)
-updateGameIncrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = do
-  board <- pure $ boardStart board pSpot
-  (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
-  let drawSrcs = Game.cardsToDraw board pSpot True
-      -- If it's the player turn, we wanna draw the first card right away,
-      -- so that the game feels responsive.
-      drawNow = if isAI then drawSrcs else take 1 drawSrcs
-  (shared, board, anims) <-
-    pure $
-      Game.drawCards shared board pSpot drawNow
-        & (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
-  let preTurnEvents =
-        Game.keepEffectfull
-          shared
-          board
-          [ Game.ApplyFearNTerror otherSpot,
-            Game.ApplyBrainless pSpot,
-            Game.FillTheFrontline pSpot,
-            Game.ApplyKing pSpot
-          ]
-  let actions :: [Move.Sched] =
-        -- AI case: after drawing cards and playing its events
-        --          press "End Turn". We want a one second delay, it makes
-        --          it easier to understand what's going on
-        --
-        --          Also, we need to apply 'preTurnEvents' before computing the
-        --          AI's events.
-        -- player case: we drew the first card already (see drawNow),
-        --              enqueue next event (if any)
-        case (isAI, Game.playAll shared board preTurnEvents) of
-          (True, Left errMsg) -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
-          (True, Right (Game.Result {board = board'})) ->
-            let plays :: [Game.Place] = AI.play difficulty shared board' pSpot
-             in case NE.nonEmpty plays of
-                  Nothing -> []
-                  Just plays -> [plays & NE.map (Game.PEvent >>> Move.Play) & Move.Sequence]
-          (False, _) -> Prelude.drop 1 drawSrcs & map Move.DrawCards
-  actions <-
-    pure $
-      if isAI
-        then actions ++ [Move.EndTurnPressed] -- THe AI MUST press end turn, no matter what
-        -- So better do it here than in the different cases above.
-        else actions
-  m <- pure $ m {anims, board, shared, turn = turn'}
-  pure $ (m, (1,) <$> Move.mkScheds actions)
-  where
-    turn' = Turn.next turn
-    pSpot = Turn.toPlayerSpot turn'
-    otherSpot = otherPlayerSpot pSpot
-    isAI = pSpot /= playingPlayer
 
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel
