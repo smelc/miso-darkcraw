@@ -150,9 +150,10 @@ testNoPlayEventNeutral shared =
   describe "Game.NoPlayEvent is neutral w.r.t Game.playAll" $
     prop "Game.playAll $ [NoPlayEvent] ++ es == Game.playAll $ es ++ [NoPlayEvent]" $
       \(board, events) ->
-        let left = [Game.NoPlayEvent] ++ events
-         in let right = events ++ [Game.NoPlayEvent]
-             in Game.playAll shared board left `shouldBe` Game.playAll shared board right
+        play board ([Game.NoPlayEvent] ++ events)
+          `shouldBe` play board (events ++ [Game.NoPlayEvent])
+  where
+    play board = Game.playAll shared board
 
 testFear :: SharedModel -> SpecWith ()
 testFear shared =
