@@ -22,6 +22,8 @@ import qualified Board
 import BoardInstances (boardStart)
 import Control.Arrow ((>>>))
 import Control.Monad.Except (MonadError, runExcept)
+import Control.Monad.Identity (runIdentity)
+import qualified Data.Bifunctor as Bifunctor
 import Data.Either.Extra
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -189,9 +191,8 @@ runOne m@GameModel {board, difficulty, playingPlayer, shared, turn} Move.EndTurn
       case Game.nextAttackSpot b pSpot Nothing of
         Nothing -> Move.IncrTurn -- no attack, change turn right away
         Just cSpot -> Move.Play $ Game.Attack pSpot cSpot True True
-runOne m Move.IncrTurn = do
-  (m, seq) <- incrTurn m
-  pure (enableUI m, seq)
+runOne m Move.IncrTurn =
+  m & incrTurn & Bifunctor.first enableUI & pure
   where
     enableUI gm@GameModel {playingPlayer, turn}
       | Turn.toPlayerSpot turn == playingPlayer =
@@ -201,10 +202,9 @@ runOne m Move.IncrTurn = do
 -- TODO @smelc write a test that this function always returns GameEndTurnPressed
 -- when it's the AI turn.
 incrTurn ::
-  Monad m => -- Identity monad, because it's convenient to write this code monadically
   GameModel ->
-  m (GameModel, NextSched)
-incrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = do
+  (GameModel, NextSched)
+incrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = runIdentity $ do
   board <- pure $ boardStart board pSpot
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs = Game.cardsToDraw board pSpot True
