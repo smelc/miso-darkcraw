@@ -10,7 +10,7 @@
 -- |
 -- This module defines how the AI plays.
 -- 'applyDifficulty', 'boardScore', and 'playHand' are exported for tests
-module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), placeCards, playHand) where
+module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), playHand) where
 
 import Board
   ( Board,
@@ -48,19 +48,6 @@ data Difficulty
   | Medium
   | Hard
   deriving (Eq, Generic, Show)
-
--- | Events that place creatures on the board. This function guarantees
--- that the returned events are solely placements (no neutral cards), so
--- that playing them with 'Game.playAll' returns an empty list of 'Game.Event'
--- FIXME @smelc remove moe, use 'play' directly
-placeCards ::
-  Difficulty ->
-  SharedModel ->
-  Board 'Core ->
-  -- | The player whose cards must be played
-  Spots.Player ->
-  [Game.Place]
-placeCards difficulty shared board turn = AI.play difficulty shared board turn
 
 -- | Given the hand, the permutations to consider for playing this hand
 applyDifficulty :: forall a. Ord a => Difficulty -> StdGen -> [a] -> [[a]]

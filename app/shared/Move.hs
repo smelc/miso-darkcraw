@@ -164,7 +164,7 @@ runOne m@GameModel {board, difficulty, playingPlayer, shared, turn} Move.EndTurn
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
               placements =
-                AI.placeCards
+                AI.play
                   difficulty
                   shared
                   emptyPlayerInPlaceBoard

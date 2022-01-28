@@ -239,18 +239,19 @@ testAIPlace shared =
       \board (pSpot :: Spots.Player) (cidNItems :: [(CreatureID, [Item])]) ->
         -- Only use Creature cards. Items and neutrals obviously break this property
         let board' = Board.setHand board pSpot (map (uncurry Card.IDC) cidNItems)
-         in allDiff $ AI.placeCards difficulty shared board' pSpot
+         in allDiff $ play board' pSpot
     prop "placeCards returns events whose card is valid" $
-      \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` (goodCards board pSpot)
+      \board pSpot -> play board pSpot `shouldSatisfy` (goodCards board pSpot)
     prop "placeCards returns events playing cards of the player whose turn it is" $
-      \board pSpot -> AI.placeCards difficulty shared board pSpot `shouldSatisfy` playerIs pSpot
+      \board pSpot -> play board pSpot `shouldSatisfy` playerIs pSpot
     prop "playHand's first card can always be played successfully" $
       \(Pretty (board :: Board 'Core)) (Pretty pSpot) ->
-        let place = AI.placeCards difficulty shared board pSpot & listToMaybe
+        let place = play board pSpot & listToMaybe
          in isJust place
               ==> (Game.maybePlay shared board (Game.PEvent $ fromJust place))
                 `shouldSatisfy` isJust
   where
+    play = AI.play difficulty shared
     difficulty = AI.Easy
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
