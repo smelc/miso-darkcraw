@@ -151,6 +151,8 @@ playHand shared board pSpot =
             Right (Game.Result {board = b', shared = shared'}) ->
               place : playHand shared' b' pSpot
             Left msg ->
+              -- This is an error, because if 'aiPlayFirst' returned 'Just card'
+              -- then 'card' must be playable successfully.
               error $ "Cannot play first card of hand: " ++ Text.unpack msg ++ ". Skipping it."
 
 -- | Take the hand's first card (if any) and return a [Place] event

@@ -12,6 +12,7 @@ module Move
   ( DnDAction (..),
     Move (..),
     NextSched,
+    runAll,
     runOne,
     Sched (..),
   )
@@ -132,16 +133,17 @@ runOne m@GameModel {board, shared} (Play gameEvent) = do
       nextEvent =
         case (gameEvent, generated) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
-            -- enqueue resolving next attack if applicable
+            -- enqueue resolving next attack if applicable; if not terminate
+            -- the turn by sending 'IncrTurn'
             case (continue, Game.nextAttackSpot board pSpot (Just cSpot)) of
               (False, _) -> terminator
               (True, Nothing) -> terminator
-              (True, Just cSpot') -> Just $ Move.Play $ Game.Attack pSpot cSpot' True changeTurn
+              (True, Just cSpot') -> Just $ Play $ Game.Attack pSpot cSpot' True changeTurn
             where
-              terminator = if changeTurn then Just Move.IncrTurn else Nothing
+              terminator = if changeTurn then Just IncrTurn else Nothing
           (Game.Attack {}, Just e) ->
             error $ "Cannot mix Game.Attack and events when enqueueing but got event: " ++ show e
-          (_, _) -> Move.Play <$> generated
+          (_, _) -> Play <$> generated
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', (1,) <$> nextEvent)
@@ -154,7 +156,7 @@ runOne m@GameModel {board, shared, turn} (DrawCards draw) = do
     (shared', board', boardui') = Game.drawCard shared board pSpot draw
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-runOne m@GameModel {board, difficulty, playingPlayer, shared, turn} Move.EndTurnPressed = do
+runOne m@GameModel {board, difficulty, playingPlayer, shared, turn} EndTurnPressed = do
   m@GameModel {board} <-
     ( if isInitialTurn
         then do
@@ -189,15 +191,34 @@ runOne m@GameModel {board, difficulty, playingPlayer, shared, turn} Move.EndTurn
     mkSched b =
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
-        Nothing -> Move.IncrTurn -- no attack, change turn right away
-        Just cSpot -> Move.Play $ Game.Attack pSpot cSpot True True
-runOne m Move.IncrTurn =
+        Nothing -> IncrTurn -- no attack, change turn right away
+        Just cSpot -> Play $ Game.Attack pSpot cSpot True True -- There's an attack to resolve
+        -- enqeue it. When we handle the attack ('Play gameEvent' above), we will
+        -- schedule the terminator 'IncrTurn'
+runOne m IncrTurn =
   m & incrTurn & Bifunctor.first enableUI & pure
   where
     enableUI gm@GameModel {playingPlayer, turn}
       | Turn.toPlayerSpot turn == playingPlayer =
         gm {uiAvail = True} -- Restore interactions if turn of player
       | otherwise = gm
+
+-- | @runAll m s@ executes @s@ and then continues executing the generated
+-- 'NextSched', if any. Returns when executing a 'Sched' doesn't yield a new one.
+runAll ::
+  MonadError Text.Text m =>
+  GameModel ->
+  Sched ->
+  m GameModel
+runAll m s = do
+  (m', next) <- runOne m s
+  case next of
+    Nothing -> pure m'
+    Just (_, s') -> runAll m' s'
+
+-- @resolve m events@ plays all events and then plays the game loop
+_resolve :: GameModel -> [Game.Event] -> GameModel
+_resolve _m _events = undefined
 
 -- TODO @smelc write a test that this function always returns GameEndTurnPressed
 -- when it's the AI turn.
@@ -239,16 +260,16 @@ incrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = runIdent
             let plays :: [Game.Place] = AI.play difficulty shared board' pSpot
              in case NE.nonEmpty plays of
                   Nothing -> []
-                  Just plays -> [plays & NE.map (Game.PEvent >>> Move.Play) & Move.Sequence]
-          (False, _) -> Prelude.drop 1 drawSrcs & map Move.DrawCards
+                  Just plays -> [plays & NE.map (Game.PEvent >>> Play) & Sequence]
+          (False, _) -> Prelude.drop 1 drawSrcs & map DrawCards
   actions <-
     pure $
       if isAI
-        then actions ++ [Move.EndTurnPressed] -- THe AI MUST press end turn, no matter what
+        then actions ++ [EndTurnPressed] -- The AI MUST press end turn, no matter what
         -- So better do it here than in the different cases above.
         else actions
   m <- pure $ m {anims, board, shared, turn = turn'}
-  pure $ (m, (1,) <$> Move.mkScheds actions)
+  pure $ (m, (1,) <$> mkScheds actions)
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
