@@ -20,14 +20,20 @@ import Nat
 balances :: [(Team, Campaign.Level, Team, Nat, Nat, Nat)]
 balances =
   [ -- Level0
-    (Human, Campaign.Level0, Evil, 45, 18, 1),
-    (Human, Campaign.Level0, Undead, 51, 12, 1),
-    (Human, Campaign.Level0, ZKnights, 34, 30, 0),
-    (Evil, Campaign.Level0, Undead, 25, 37, 2),
+    -- Endomatches: if starting team doesn't have an advantage this data should
+    -- show roughly 50% win on each side. It doesn't seem to be the case now.
+    (Human, Campaign.Level0, Human, 45, 17, 2),
+    (Evil, Campaign.Level0, Evil, 34, 28, 2),
+    (Undead, Campaign.Level0, Undead, 42, 19, 3),
+    -- Matchups
+    (Human, Campaign.Level0, Evil, 62, 2, 0),
+    (Human, Campaign.Level0, Undead, 61, 2, 1),
+    (Human, Campaign.Level0, ZKnights, 48, 15, 1),
+    (Evil, Campaign.Level0, Undead, 35, 27, 2),
     -- Level1
-    (Human, Campaign.Level1, Evil, 149, 39, 4),
-    (Human, Campaign.Level1, Undead, 240, 138, 6),
-    (Evil, Campaign.Level1, Undead, 51, 71, 6)
+    (Human, Campaign.Level1, Evil, 174, 17, 1),
+    (Human, Campaign.Level1, Undead, 321, 60, 3),
+    (Evil, Campaign.Level1, Undead, 66, 61, 1)
   ]
 
 -- | Returns the balance of the given matchup

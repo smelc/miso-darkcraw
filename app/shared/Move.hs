@@ -31,7 +31,7 @@ import Data.Functor ((<&>))
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, maybeToList)
 import qualified Data.Text as Text
 import Debug.Trace (traceShow)
 import qualified Game
@@ -101,6 +101,13 @@ mkScheds l =
   case NE.nonEmpty l of
     Nothing -> Nothing
     Just l -> Just (Sequence l)
+
+eventsToSched :: [Game.Event] -> Maybe Sched
+eventsToSched events =
+  case NE.nonEmpty events of
+    Nothing -> Nothing
+    Just (event NE.:| []) -> Just $ Play $ event
+    Just events -> Just $ Sequence $ NE.map Play events
 
 -- | Event to fire after the given delay (in seconds). Delay should not be '0'.
 type NextSched = Maybe (Nat, Sched)
@@ -230,13 +237,13 @@ incrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = runIdent
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs = Game.cardsToDraw board pSpot True
       -- If it's the player turn, we wanna draw the first card right away,
-      -- so that the game feels responsive.
+      -- so that the game feels responsive. If it's the AI we draw everything.
       drawNow = if isAI then drawSrcs else take 1 drawSrcs
   (shared, board, anims) <-
     pure $
       Game.drawCards shared board pSpot drawNow
         & (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
-  let preTurnEvents =
+  let preTurnEvents :: [Game.Event] =
         Game.keepEffectfull
           shared
           board
@@ -262,12 +269,12 @@ incrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = runIdent
                   Nothing -> []
                   Just plays -> [plays & NE.map (Game.PEvent >>> Play) & Sequence]
           (False, _) -> Prelude.drop 1 drawSrcs & map DrawCards
-  actions <-
+  actions :: [Sched] <-
     pure $
-      if isAI
-        then actions ++ [EndTurnPressed] -- The AI MUST press end turn, no matter what
+      (preTurnEvents & eventsToSched & maybeToList)
+        ++ actions -- AI: its events, player: draw cards
+        ++ if isAI then [EndTurnPressed] else [] -- The AI MUST press end turn, no matter what
         -- So better do it here than in the different cases above.
-        else actions
   m <- pure $ m {anims, board, shared, turn = turn'}
   pure $ (m, (1,) <$> mkScheds actions)
   where

@@ -52,7 +52,7 @@ main shared update =
       check Human Campaign.Level1 Evil
       check Human Campaign.Level1 Undead
       check Evil Campaign.Level1 Undead
-    xit "Starting team doesn't have an advantage" $ do
+    it "Endomatches balance is as expected" $ do
       check Human Campaign.Level0 Human
       check Evil Campaign.Level0 Evil
       check Undead Campaign.Level0 Undead
