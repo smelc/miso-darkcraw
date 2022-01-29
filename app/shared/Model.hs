@@ -221,7 +221,7 @@ data InvitedActorState
   | WaitingForAcceptanceAck
   deriving (Eq, Generic, Show)
 
-data DeckModel = DeckModel
+data Deck = Deck
   { -- | The deck to show
     deck :: [Card 'Core],
     -- | The model to use when closing the deck view
@@ -262,7 +262,7 @@ data LootModel = LootModel
 
 -- | The top level model
 data Model
-  = DeckModel' DeckModel
+  = DeckModel' Deck
   | GameModel' Game
   | LootModel' LootModel
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel

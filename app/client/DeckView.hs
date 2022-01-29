@@ -8,8 +8,7 @@
 -- Module to display a list of cards.
 -- |
 module DeckView
-  ( DeckModel (..),
-    GenericModel (..),
+  ( GenericModel (..),
     viewDeck,
     viewGeneric,
   )
@@ -44,8 +43,8 @@ data GenericModel = GenericModel
     shared :: SharedModel
   }
 
-viewDeck :: DeckModel -> Styled (View Action)
-viewDeck DeckModel {..} =
+viewDeck :: Model.Deck -> Styled (View Action)
+viewDeck Model.Deck {..} =
   viewGeneric GenericModel {background = "deck.png", ..}
 
 viewGeneric :: GenericModel -> Styled (View Action)

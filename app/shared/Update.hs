@@ -466,11 +466,11 @@ updateModel SayHelloWorld m =
   m <# do consoleLog "miso-darkcraw says hello" >> pure (SceneAction' StepScene)
 -- Actions that change the page
 -- Leave 'DeckView'
-updateModel DeckBack (DeckModel' DeckModel {..}) =
+updateModel DeckBack (DeckModel' Model.Deck {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
 updateModel (DeckGo deck) m@(GameModel' Model.Game {..}) =
-  noEff $ DeckModel' $ DeckModel deck m playingPlayer t shared
+  noEff $ DeckModel' $ Model.Deck deck m playingPlayer t shared
   where
     t = Board.toPart board playingPlayer & Board.team
 -- Go to 'LootView'
