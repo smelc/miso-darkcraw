@@ -123,13 +123,13 @@ cons nga scheds =
 
 runOne ::
   MonadError Text.Text m =>
-  GameModel ->
+  Model.Game ->
   Sched ->
-  m (GameModel, NextSched)
+  m (Model.Game, NextSched)
 runOne m (Sequence (fst NE.:| rest)) = do
   (m', nga) <- runOne m fst
   return (m', cons nga rest)
-runOne m@GameModel {board, shared} (Play gameEvent) = do
+runOne m@Model.Game {board, shared} (Play gameEvent) = do
   (shared', board', anims', generated) <- Game.playE shared board gameEvent
   let anim =
         Game.eventToAnim shared board gameEvent
@@ -154,7 +154,7 @@ runOne m@GameModel {board, shared} (Play gameEvent) = do
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', (1,) <$> nextEvent)
-runOne m@GameModel {board, shared, turn} (DrawCards draw) = do
+runOne m@Model.Game {board, shared, turn} (DrawCards draw) = do
   pure $
     ( m {anims = boardui', board = board', shared = shared'},
       Nothing
@@ -163,8 +163,8 @@ runOne m@GameModel {board, shared, turn} (DrawCards draw) = do
     (shared', board', boardui') = Game.drawCard shared board pSpot draw
     pSpot = Turn.toPlayerSpot turn
 -- "End Turn" button pressed by the player or the AI
-runOne m@GameModel {board, difficulty, playingPlayer, shared, turn} EndTurnPressed = do
-  m@GameModel {board} <-
+runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPressed = do
+  m@Model.Game {board} <-
     ( if isInitialTurn
         then do
           -- End Turn pressed at the end of the player's first turn, make the AI
@@ -205,7 +205,7 @@ runOne m@GameModel {board, difficulty, playingPlayer, shared, turn} EndTurnPress
 runOne m IncrTurn =
   m & incrTurn & Bifunctor.first enableUI & pure
   where
-    enableUI gm@GameModel {playingPlayer, turn}
+    enableUI gm@Model.Game {playingPlayer, turn}
       | Turn.toPlayerSpot turn == playingPlayer =
         gm {uiAvail = True} -- Restore interactions if turn of player
       | otherwise = gm
@@ -214,9 +214,9 @@ runOne m IncrTurn =
 -- 'NextSched', if any. Returns when executing a 'Sched' doesn't yield a new one.
 runAll ::
   MonadError Text.Text m =>
-  GameModel ->
+  Model.Game ->
   Sched ->
-  m GameModel
+  m Model.Game
 runAll m s = do
   (m', next) <- runOne m s
   case next of
@@ -224,15 +224,15 @@ runAll m s = do
     Just (_, s') -> runAll m' s'
 
 -- @resolve m events@ plays all events and then plays the game loop
-_resolve :: GameModel -> [Game.Event] -> GameModel
+_resolve :: Model.Game -> [Game.Event] -> Model.Game
 _resolve _m _events = undefined
 
 -- TODO @smelc write a test that this function always returns GameEndTurnPressed
 -- when it's the AI turn.
 incrTurn ::
-  GameModel ->
-  (GameModel, NextSched)
-incrTurn m@GameModel {board, difficulty, playingPlayer, shared, turn} = runIdentity $ do
+  Model.Game ->
+  (Model.Game, NextSched)
+incrTurn m@Model.Game {board, difficulty, playingPlayer, shared, turn} = runIdentity $ do
   board <- pure $ boardStart board pSpot
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs = Game.cardsToDraw board pSpot True

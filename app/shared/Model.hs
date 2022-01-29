@@ -58,7 +58,7 @@ data HandFiddle
   deriving (Eq, Show, Generic)
 
 -- | The model of the gaming page
-data GameModel = GameModel
+data Game = Game
   { -- | Part of the model shared among all pages
     shared :: SharedModel,
     -- | The core part of the model
@@ -87,15 +87,15 @@ data GameModel = GameModel
 -- This implementation will be wrong once volatile cards are generated
 -- during a match. When this happen, the player's deck will have to be
 -- carried on in GameModel. No big deal.
-gameToDeck :: GameModel -> [Card.ID]
-gameToDeck GameModel {..} =
+gameToDeck :: Game -> [Card.ID]
+gameToDeck Game {..} =
   inPlace' ++ inHand ++ stack ++ discarded
   where
     PlayerPart {..} = Board.toPart board playingPlayer
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
-endGame :: GameModel -> Campaign.Outcome -> LootModel
-endGame GameModel {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, shared} outcome =
+endGame :: Game -> Campaign.Outcome -> LootModel
+endGame Game {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, shared} outcome =
   case Campaign.succ level of
     Nothing -> error "You've finished the game!" -- Not really a nice end for now
     Just next -> LootModel {..}
@@ -127,7 +127,7 @@ unsafeLootModel WelcomeModel {shared} =
 -- in 'Update' (but we don't want to grow 'Update' if we can avoid).
 unsafeGameModel :: WelcomeModel -> Model
 unsafeGameModel WelcomeModel {shared} =
-  GameModel' $ GameModel {..}
+  GameModel' $ Game {..}
   where
     anim = Game.NoAnimation
     anims = mempty
@@ -145,8 +145,8 @@ unsafeGameModel WelcomeModel {shared} =
         & map Card.cardToIdentifier
     uiAvail = True
 
-instance Show GameModel where
-  show GameModel {..} =
+instance Show Game where
+  show Game {..} =
     "{ gameShared = omitted\n"
       ++ unlines [Art.toASCII board, f "interaction" interaction, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
       ++ "\n}"
@@ -155,8 +155,8 @@ instance Show GameModel where
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.
-isPlayerTurn :: GameModel -> Bool
-isPlayerTurn GameModel {playingPlayer, turn} =
+isPlayerTurn :: Game -> Bool
+isPlayerTurn Game {playingPlayer, turn} =
   Turn.toPlayerSpot turn == playingPlayer
 
 data PlayingMode
@@ -263,7 +263,7 @@ data LootModel = LootModel
 -- | The top level model
 data Model
   = DeckModel' DeckModel
-  | GameModel' GameModel
+  | GameModel' Game
   | LootModel' LootModel
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel
   | WelcomeModel' WelcomeModel

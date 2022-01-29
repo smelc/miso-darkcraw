@@ -59,8 +59,8 @@ import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
-errView :: GameModel -> Int -> Maybe (View Action)
-errView GameModel {interaction} z =
+errView :: Model.Game -> Int -> Maybe (View Action)
+errView Model.Game {interaction} z =
   case interaction of
     ShowErrorInteraction msg ->
       Just $
@@ -134,8 +134,8 @@ animToFade = \case
   Game.Fadeout -> ViewInternal.FadeOut
   Game.Message {} -> ViewInternal.DontFade
 
-scoreViews :: GameModel -> Int -> [Styled (View Action)]
-scoreViews m@GameModel {anims, board} z =
+scoreViews :: Model.Game -> Int -> [Styled (View Action)]
+scoreViews m@Model.Game {anims, board} z =
   both PlayerTop
     ++ both PlayerBot
     ++ [ pure $
@@ -152,8 +152,8 @@ scoreMarginTop :: Spots.Player -> Int
 scoreMarginTop PlayerTop = cps
 scoreMarginTop PlayerBot = cps * 24
 
-scoreView :: GameModel -> Int -> Spots.Player -> View Action
-scoreView GameModel {board} z pSpot =
+scoreView :: Model.Game -> Int -> Spots.Player -> View Action
+scoreView Model.Game {board} z pSpot =
   div_
     [ style_ $
         Map.fromList textRawStyle
@@ -198,8 +198,8 @@ scorePluses board z pSpot = do
         & sum
     leftMargin = ((Constants.boardToLeftCardCellsOffset + cardCellWidth) * cps) + cps `div` 2
 
-manaView :: GameModel -> Int -> View a
-manaView GameModel {board, playingPlayer} z =
+manaView :: Model.Game -> Int -> View a
+manaView Model.Game {board, playingPlayer} z =
   div_ [style_ flexColumnStyle, style_ positioning] (manaText : imgs)
   where
     manaText = div_ [style_ textStyle] [Miso.text "Mana"]
@@ -232,8 +232,8 @@ scoreLeaderView pSpot =
           <> "margin-left" =: px ((cps * 11) + cps `div` 2)
     ]
 
-turnView :: GameModel -> Int -> Styled (View Action)
-turnView model@GameModel {turn} z = do
+turnView :: Model.Game -> Int -> Styled (View Action)
+turnView model@Model.Game {turn} z = do
   line3 <- line3M
   return $ div_ [style_ $ turnViewStyle <> textStyle] [line1, line2, line3]
   where
@@ -275,8 +275,8 @@ data StackWidgetType
   | Plus
 
 -- | The widget showing the number of cards in the stack/discarded stack
-stackView :: GameModel -> Int -> Spots.Player -> StackPosition -> StackKind -> Styled [View Action]
-stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType = do
+stackView :: Model.Game -> Int -> Spots.Player -> StackPosition -> StackKind -> Styled [View Action]
+stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType = do
   button <- textButton gui z enabledness [] $ ms (label ++ ": " ++ show atColonSize)
   plus <- keyframed plusBuilder plusFrames animData
   return $
@@ -349,8 +349,8 @@ stackView GameModel {anims, board, shared, uiAvail} z pSpot stackPos stackType =
 --    valid drag targets
 -- or 2/ card in place is being hovered -> draw borders around cards
 --       that can be attacked from this card
-borderWidth :: GameModel -> Game.Target -> Int
-borderWidth GameModel {board, interaction, playingPlayer} pTarget =
+borderWidth :: Model.Game -> Game.Target -> Int
+borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3

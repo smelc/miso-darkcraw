@@ -13,7 +13,7 @@ import Data.Functor ((<&>))
 import Data.Maybe
 import Debug.Trace (traceShow)
 import qualified Match
-import Model (GameModel (..))
+import qualified Model
 import Pretty
 import SharedModel
 import Test.Hspec
@@ -48,12 +48,12 @@ instance Invariant a => Invariant (Maybe a) where
   violation Nothing = []
   violation (Just a) = violation a
 
-instance Invariant GameModel where
-  violation GameModel {playingPlayer, turn, uiAvail}
+instance Invariant Model.Game where
+  violation Model.Game {playingPlayer, turn, uiAvail}
     | uiAvail && (Turn.toPlayerSpot turn /= playingPlayer) =
       ["It's the AI turn (" ++ show (Turn.toPlayerSpot turn) ++ ") yet the UI is available"]
   -- All GameModel invariants have been checked, delegate to smaller pieces:
-  violation GameModel {board, turn} = violation board ++ violation turn
+  violation Model.Game {board, turn} = violation board ++ violation turn
 
 main :: SharedModel -> SpecWith ()
 main shared = do
@@ -61,7 +61,7 @@ main shared = do
     prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in let GameModel {board} = Update.level0GameModel difficulty shared' teams
+         in let Model.Game {board} = Update.level0GameModel difficulty shared' teams
              in board `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty team1, Pretty team2, seed) ->

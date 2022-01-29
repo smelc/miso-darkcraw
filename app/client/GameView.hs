@@ -45,8 +45,8 @@ import ViewBlocks (dummyOn)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
-viewGameModel :: GameModel -> Styled (View Action)
-viewGameModel model@GameModel {anim, board, shared, interaction, playingPlayer} = do
+viewGameModel :: Model.Game -> Styled (View Action)
+viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
   let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
@@ -162,11 +162,11 @@ data InPlaceCellContext = InPlaceCellContext
 
 boardToInPlaceCells ::
   InPlaceCellContext ->
-  GameModel ->
+  Model.Game ->
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
   Styled [View Action]
-boardToInPlaceCells ctxt@InPlaceCellContext {z} m@GameModel {board} dragTargetType = do
+boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} dragTargetType = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
@@ -187,7 +187,7 @@ boardToInPlaceCells ctxt@InPlaceCellContext {z} m@GameModel {board} dragTargetTy
 
 boardToInPlaceCell ::
   InPlaceCellContext ->
-  GameModel ->
+  Model.Game ->
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
   -- | The part considered
@@ -195,7 +195,7 @@ boardToInPlaceCell ::
   -- | The spot of the card to show
   Spots.Card ->
   Styled (View Action)
-boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@GameModel {anims, board, interaction, shared} dragTargetType pSpot cSpot =
+boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, interaction, shared} dragTargetType pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
@@ -274,11 +274,11 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@GameModel {anims, board, i
 -- | Whether to show the player target at @pSpot@
 boardToPlayerTarget ::
   Int ->
-  GameModel ->
+  Model.Game ->
   Maybe TargetType ->
   Spots.Player ->
   Maybe (View Action)
-boardToPlayerTarget z m@GameModel {interaction} dragTargetType pSpot =
+boardToPlayerTarget z m@Model.Game {interaction} dragTargetType pSpot =
   if bwidth <= 0
     then Nothing
     else
@@ -345,8 +345,8 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
         }
         <&> GameAction'
 
-toHandDrawingInput :: GameModel -> HandDrawingInput
-toHandDrawingInput GameModel {interaction = gInteraction, ..} =
+toHandDrawingInput :: Model.Game -> HandDrawingInput
+toHandDrawingInput Model.Game {interaction = gInteraction, ..} =
   HandDrawingInput {..}
   where
     hand =

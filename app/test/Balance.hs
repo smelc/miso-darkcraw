@@ -28,7 +28,7 @@ import qualified Data.Text.Encoding
 import Debug.Trace
 import GHC.IO (unsafePerformIO)
 import qualified Match
-import Model (GameModel (..))
+import qualified Model (Game (..))
 import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
@@ -232,7 +232,7 @@ play shareds level teams nbTurns =
         Match.Error err -> "[ERR] " ++ Text.unpack err
         Match.Win pSpot -> winLabel pSpot PlayerTop ++ " VS " ++ winLabel pSpot PlayerBot
       where
-        lastBoard = last models & board
+        lastBoard = last models & Model.board
         team pSpot = Board.toPart lastBoard pSpot & Board.team
         winLabel winner pSpot =
           (if winner == pSpot then "Win " else "Lost")

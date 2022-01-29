@@ -95,7 +95,7 @@ testStupidity shared =
     mkShared seed = SharedModel.withSeed shared seed
     mkTeamData teams = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
     isValid Result {models} = all isValidModel models
-    isValidModel GameModel {board, turn} =
+    isValidModel Model.Game {board, turn} =
       expectedScore == score
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
@@ -110,20 +110,20 @@ data MatchResult = Draw | Error Text | Win Spots.Player
   deriving (Show)
 
 data Result = Result
-  { models :: [GameModel],
+  { models :: [Model.Game],
     matchResult :: MatchResult
   }
   deriving (Show)
 
 play ::
-  GameModel ->
+  Model.Game ->
   -- The number of turns
   Nat ->
   Result
 play model nbTurns =
   go model []
   where
-    go m@GameModel {turn} models
+    go m@Model.Game {turn} models
       | Turn.toNat turn > nbTurns =
         Result (reverse models) (toMatchResult m)
     go m models =
@@ -131,8 +131,8 @@ play model nbTurns =
         Left msg -> Result (reverse models) (Error msg)
         Right m' -> go m' $ m : models
 
-toMatchResult :: GameModel -> MatchResult
-toMatchResult GameModel {board}
+toMatchResult :: Model.Game -> MatchResult
+toMatchResult Model.Game {board}
   | scoreTop == scoreBot = Draw
   | scoreTop > scoreBot = Win PlayerTop
   | otherwise = Win PlayerBot
@@ -145,9 +145,9 @@ toMatchResult GameModel {board}
 -- cumbersome to do though.
 playOneTurn ::
   MonadError Text m =>
-  GameModel ->
-  m GameModel
-playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
+  Model.Game ->
+  m Model.Game
+playOneTurn m@Model.Game {board, shared, playingPlayer, turn} =
   -- We need to play for the player
   case (playingPlayer == pSpot, AI.play AI.Easy shared board pSpot) of
     (False, _) ->
@@ -165,9 +165,9 @@ playOneTurn m@GameModel {board, shared, playingPlayer, turn} =
       playOneTurn m'
   where
     pSpot = Turn.toPlayerSpot turn
-    go :: MonadError Text m => GameModel -> [Move] -> m GameModel
+    go :: MonadError Text m => Model.Game -> [Move] -> m Model.Game
     go model [] = pure model
-    go model@GameModel {interaction} (move : moves) = do
+    go model@Model.Game {interaction} (move : moves) = do
       (model', nextSched) <- Update.updateGameModel model move interaction
       go model' ((nextSched <&> snd <&> Move.Sched & maybeToList) ++ moves)
 

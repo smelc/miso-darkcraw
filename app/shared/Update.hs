@@ -185,8 +185,8 @@ act m a i =
       pure $ updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
     _ -> pure $ updateDefault m i
 
-instance Interactable GameModel Game.Target (GameModel, NextSched) where
-  considerAction m@GameModel {uiAvail} a =
+instance Interactable Model.Game Game.Target (Model.Game, NextSched) where
+  considerAction m@Model.Game {uiAvail} a =
     case a of
       Move.DragEnd -> True
       Move.DragStart _ | uiAvail && isPlayerTurn m -> True
@@ -197,7 +197,7 @@ instance Interactable GameModel Game.Target (GameModel, NextSched) where
 
   drop m pSpot idx target = playOne m $ Game.PEvent $ Game.Place pSpot target idx
 
-  getPlayingPlayer GameModel {turn} = Turn.toPlayerSpot turn
+  getPlayingPlayer Model.Game {turn} = Turn.toPlayerSpot turn
 
   stopWrongDrop m = isPlayerTurn m
 
@@ -217,9 +217,9 @@ nextSchedToMiso ns =
 
 playOne ::
   MonadError Text.Text m =>
-  GameModel ->
+  Model.Game ->
   Game.Event ->
-  m (GameModel, NextSched)
+  m (Model.Game, NextSched)
 playOne m event =
   updateGameModel m (Move.Sched $ Move.Play event) NoInteraction
 
@@ -233,10 +233,10 @@ playOne m event =
 -- right away by doing a recursive call (or use 'playOne')
 updateGameModel ::
   MonadError Text.Text m =>
-  GameModel ->
+  Model.Game ->
   Move ->
   Interaction Game.Target ->
-  m (GameModel, NextSched)
+  m (Model.Game, NextSched)
 -- This is the only definition that should care about GameShowErrorInteraction:
 updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
@@ -265,10 +265,10 @@ updateGameModel m Move.ExecuteCmd _ =
   pure $
     updateDefault m $
       ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
-updateGameModel m@GameModel {shared} (Move.UpdateCmd misoStr) i =
+updateGameModel m@Model.Game {shared} (Move.UpdateCmd misoStr) i =
   pure $
     updateDefault
-      ((m {shared = SharedModel.withCmd shared (Just $ fromMisoString misoStr)}) :: GameModel)
+      ((m {shared = SharedModel.withCmd shared (Just $ fromMisoString misoStr)}) :: Model.Game)
       i
 -- default
 updateGameModel m _ i =
@@ -469,7 +469,7 @@ updateModel SayHelloWorld m =
 updateModel DeckBack (DeckModel' DeckModel {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
-updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
+updateModel (DeckGo deck) m@(GameModel' Model.Game {..}) =
   noEff $ DeckModel' $ DeckModel deck m playingPlayer t shared
   where
     t = Board.toPart board playingPlayer & Board.team
@@ -477,7 +477,7 @@ updateModel (DeckGo deck) m@(GameModel' GameModel {..}) =
 updateModel (LootGo model) _ =
   noEff $ LootModel' model
 -- Schedule leaving 'GameView', to go to 'LootView'
-updateModel _ m@(GameModel' gm@GameModel {board, level, playingPlayer, turn})
+updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
   | (Turn.next turn & Turn.toNat) > Constants.nbTurns =
     case Campaign.succ level of
       Nothing -> noEff m -- TODO, go to global victory view
@@ -494,7 +494,7 @@ updateModel _ m@(GameModel' gm@GameModel {board, level, playingPlayer, turn})
               EQ -> Campaign.Draw
               GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
-updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@GameModel {board, shared, playingPlayer})
+updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shared, playingPlayer})
   | SharedModel.getCmd shared & isJust =
     let cmdStr = SharedModel.getCmd shared
      in case cmdStr <&> Command.read & join of
@@ -570,7 +570,7 @@ updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, sce
     keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
     keyCodeToSceneAction _ = Nothing
 updateModel (Keyboard _) model = noEff model
-updateModel (GameAction' a) (GameModel' m@GameModel {interaction}) =
+updateModel (GameAction' a) (GameModel' m@Model.Game {interaction}) =
   if null actions
     then noEff m''
     else delayActions m'' (nextSchedToMiso actions)
@@ -601,7 +601,7 @@ level0GameModel ::
   Difficulty ->
   SharedModel ->
   (Teams Team) ->
-  GameModel
+  Model.Game
 level0GameModel difficulty shared teams =
   levelNGameModel
     difficulty
@@ -617,9 +617,9 @@ levelNGameModel ::
   Campaign.Level ->
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
-  GameModel
+  Model.Game
 levelNGameModel difficulty shared level teams =
-  GameModel {..}
+  Model.Game {..}
   where
     (_, board) = Board.initial shared teams
     interaction = NoInteraction
@@ -641,9 +641,9 @@ unsafeInitialGameModel ::
   (Teams (Team, [Card 'Core])) ->
   -- | The board
   Board 'Core ->
-  GameModel
+  Model.Game
 unsafeInitialGameModel difficulty shared teamsData board =
-  GameModel {..}
+  Model.Game {..}
   where
     interaction = NoInteraction
     level = Campaign.Level0
