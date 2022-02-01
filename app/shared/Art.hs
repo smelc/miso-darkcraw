@@ -28,13 +28,13 @@ toASCII board =
       stackLines board PlayerTop ++ []
         ++ [handLine board PlayerTop]
         ++ [scoreLine board PlayerTop]
-        ++ cardsLines board PlayerTop topSpots
+        ++ cardsLines board PlayerTop Spots.backSpots
         ++ ["\n"] -- vertical space between AI lines
-        ++ cardsLines board PlayerTop botSpots
+        ++ cardsLines board PlayerTop Spots.frontSpots
         ++ ["\n", "\n"] -- vertical space between players
-        ++ cardsLines board PlayerBot botSpots
+        ++ cardsLines board PlayerBot Spots.frontSpots
         ++ ["\n"] -- vertical space between player lines
-        ++ cardsLines board PlayerBot topSpots
+        ++ cardsLines board PlayerBot Spots.backSpots
         ++ []
         ++ [scoreLine board PlayerBot]
         ++ [handLine board PlayerBot]

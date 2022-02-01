@@ -205,11 +205,11 @@ targets board playingPlayer id =
     (CardTargetType ctk, Game.Playing) ->
       cardTargets playingPlayer ctk
     (CardTargetType ctk, Game.Opponent) ->
-      cardTargets (otherPlayerSpot playingPlayer) ctk
+      cardTargets (Spots.other playingPlayer) ctk
     (PlayerTargetType, Game.Playing) ->
       [Game.PlayerTarget playingPlayer]
     (PlayerTargetType, Game.Opponent) ->
-      [Game.PlayerTarget $ otherPlayerSpot playingPlayer]
+      [Game.PlayerTarget $ Spots.other playingPlayer]
   where
     cardTargets pSpot ctk =
       Board.toPlayerCardSpots board pSpot ctk & map (Game.CardTarget pSpot)

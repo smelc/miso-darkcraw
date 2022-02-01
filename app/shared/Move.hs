@@ -280,5 +280,5 @@ incrTurn m@Model.Game {board, difficulty, playingPlayer, shared, turn} = runIden
   where
     turn' = Turn.next turn
     pSpot = Turn.toPlayerSpot turn'
-    otherSpot = Spots.otherPlayerSpot pSpot
+    otherSpot = Spots.other pSpot
     isAI = pSpot /= playingPlayer

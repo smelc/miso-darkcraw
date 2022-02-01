@@ -54,7 +54,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
   ViewInternal.fade builder Nothing 2 $ animToFade anim
   where
     (z, zpp) = (0, z + 1)
-    enemySpot = otherPlayerSpot playingPlayer
+    enemySpot = Spots.other playingPlayer
     application :: Styled (Maybe (View Action)) =
       case anim of
         Game.Application pSpot target card -> do

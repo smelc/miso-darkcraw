@@ -52,7 +52,6 @@ module Board
     setInPlace,
     toInPlace,
     line,
-    botSpots,
     StackKind (..),
     Board.appliesTo,
     toScore,

@@ -87,9 +87,9 @@
 <a href="#v:bottomSpotOfTopVisual">bottomSpotOfTopVisual</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a>
 </li>
 <li class="src short">
-<a href="#v:botSpots">botSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
+<a href="#v:frontSpots">frontSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
-<a href="#v:topSpots">topSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
+<a href="#v:backSpots">backSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
 <a href="#v:inTheBack">inTheBack</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
@@ -112,7 +112,7 @@
 <a href="#v:endingPlayerSpot">endingPlayerSpot</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a>
 </li>
 <li class="src short">
-<a href="#v:otherPlayerSpot">otherPlayerSpot</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a>
+<a href="#v:other">other</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a>
 </li>
 </ul></details></div>
 <div id="interface">
@@ -435,8 +435,14 @@
  bottom position that you SEE; even if positions make sense for the top
  part. This method takes care of translating correctly.</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:botSpots" class="def">botSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:botSpots" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:topSpots" class="def">topSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:topSpots" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:frontSpots" class="def">frontSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:frontSpots" class="selflink">#</a></p>
+<div class="doc"><p>Spots on the frontline</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:backSpots" class="def">backSpots</a> :: [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:backSpots" class="selflink">#</a></p>
+<div class="doc"><p>Spots in the back line</p></div>
+</div>
 <div class="top">
 <p class="src"><a id="v:inTheBack" class="def">inTheBack</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:inTheBack" class="selflink">#</a></p>
 <div class="doc"><p>Whether a spot is in the back line</p></div>
@@ -462,16 +468,16 @@
 </div>
 <div class="top">
 <p class="src"><a id="v:startingPlayerSpot" class="def">startingPlayerSpot</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:startingPlayerSpot" class="selflink">#</a></p>
-<div class="doc"><p>The spot of the player that starts a game</p></div>
+<div class="doc"><p>The spot of the player that starts a game. FIXME @smelc rename to
+ <code>starting</code> and use me qualified.</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:endingPlayerSpot" class="def">endingPlayerSpot</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:endingPlayerSpot" class="selflink">#</a></p>
 <div class="doc"><p>The spot of the player that ends a game</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:otherPlayerSpot" class="def">otherPlayerSpot</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:otherPlayerSpot" class="selflink">#</a></p>
-<div class="doc"><p>The other spot
- XXX @smelc rename me to other and use me qualified</p></div>
+<p class="src"><a id="v:other" class="def">other</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:other" class="selflink">#</a></p>
+<div class="doc"><p>The other <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> spot. <code>other . other == id</code></p></div>
 </div>
 </div>
 </div>

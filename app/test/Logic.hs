@@ -33,7 +33,8 @@ import Pretty
 import SharedModel (SharedModel, idToCreature)
 import qualified SharedModel
 import qualified Skill
-import Spots
+import Spots (Card (..), Player (..))
+import qualified Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
@@ -109,7 +110,7 @@ testPlayFraming shared =
     relation _ _ _ (Left _) = True
     relation board pSpot cSpot (Right (Game.Result {board = board'})) = boardEq board pSpot [cSpot] board'
     boardEq (board :: Board 'Core) pSpot cSpots board' =
-      let otherSpot = otherPlayerSpot pSpot
+      let otherSpot = Spots.other pSpot
        in -- Board must be completely equivalent on part of player that doesn't play
           (Board.toPart board otherSpot == Board.toPart board' otherSpot)
             -- and agree w.r.t. partEq on the part of the player that played
@@ -173,7 +174,7 @@ testFear shared =
   where
     teams = Teams Undead Human
     (causingFear, fearTarget) = (CreatureID Skeleton Undead, CreatureID Archer Human)
-    (causingFearPSpot, otherPSpot) = (PlayerTop, Spots.otherPlayerSpot causingFearPSpot)
+    (causingFearPSpot, otherPSpot) = (PlayerTop, Spots.other causingFearPSpot)
     board = Board.small shared teams causingFear [] causingFearPSpot Bottom
     affectedByFear :: Creature 'Core =
       SharedModel.idToCreature shared fearTarget []
@@ -305,7 +306,7 @@ testBreathIce shared =
     it "Breath ice creature does nothing when in the backline" $ do
       board' Top `shouldSatisfy` pred'
   where
-    (team, pSpot, otherpSpot) = (Undead, PlayerTop, otherPlayerSpot pSpot)
+    (team, pSpot, otherpSpot) = (Undead, PlayerTop, Spots.other pSpot)
     mkCreature' kind team = mkCreature shared kind team False
     (dummy1, dummy2) = (Archer, Skeleton)
     mkBoard specterSpot =
@@ -339,7 +340,7 @@ testChurch shared =
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
           Spots.allCards
       where
-        otherSpot = otherPlayerSpot pSpot
+        otherSpot = Spots.other pSpot
         toCreature (b :: Board 'Core) cSpot =
           Board.toInPlace b pSpot & (Map.!? cSpot)
         (~=) before after =
@@ -365,7 +366,7 @@ testKing shared =
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
           Spots.allCards
       where
-        otherSpot = otherPlayerSpot pSpot
+        otherSpot = Spots.other pSpot
         toCreature (b :: Board 'Core) cSpot =
           Board.toInPlace b pSpot & (Map.!? cSpot)
         (~=) before after =
@@ -460,7 +461,7 @@ testVeteran shared =
       Game.play shared board'' (Game.ApplyFearNTerror otherSpot)
         `shouldSatisfy` (match board'')
   where
-    (team, pSpot, otherSpot) = (ZKnights, PlayerTop, otherPlayerSpot pSpot)
+    (team, pSpot, otherSpot) = (ZKnights, PlayerTop, Spots.other pSpot)
     board =
       Board.empty (Teams team Undead)
         & Board.setCreature pSpot Bottom (veteran {hp = 1}) -- Captain alone
@@ -483,7 +484,7 @@ testZealot shared =
       Game.play shared board'' (Game.ApplyFearNTerror otherSpot)
         `shouldSatisfy` zPartIsEmpty
   where
-    (team, pSpot, otherSpot) = (ZKnights, PlayerTop, otherPlayerSpot pSpot)
+    (team, pSpot, otherSpot) = (ZKnights, PlayerTop, Spots.other pSpot)
     board =
       Board.empty (Teams team Undead)
         & Board.setCreature pSpot Bottom (captain {hp = 1}) -- Captain alone
@@ -553,7 +554,7 @@ testAce shared =
       Board.toInPlace (snd (attack 4 shared board)) enemyPSpot `shouldSatisfy` null
   where
     (team, pSpot, enemyPSpot, cSpot, ckind) =
-      (Evil, PlayerTop, otherPlayerSpot pSpot, Top, Card.Beholder)
+      (Evil, PlayerTop, Spots.other pSpot, Top, Card.Beholder)
     beholder = mkCreature shared ckind team False
     enemy = mkCreature shared Card.Skeleton Undead False
     board :: Board 'Core =
@@ -581,7 +582,7 @@ testPowerful shared =
       Board.toScore pSpot (attack board) `shouldSatisfy` ((<) 0)
   where
     (team, pSpot, enemyPSpot, cSpot, ckind) =
-      (Evil, PlayerTop, otherPlayerSpot pSpot, Spots.Bottom, Card.Daemon)
+      (Evil, PlayerTop, Spots.other pSpot, Spots.Bottom, Card.Daemon)
     daemon = mkCreature shared ckind team False
     enemy = mkCreature shared Card.Skeleton Undead False
     board :: Board 'Core =

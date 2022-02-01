@@ -84,7 +84,8 @@ import SharedModel (SharedModel)
 import qualified SharedModel
 import Skill (Skill)
 import qualified Skill
-import Spots
+import Spots (Card (..), Player (..))
+import qualified Spots
 import System.Random.Shuffle (shuffleM)
 import qualified Tile
 import qualified Total
@@ -1024,7 +1025,7 @@ applyFearNTerrorM board affectingSpot = do
   let board''' = Board.addToDiscarded board'' affectedSpot killedToDiscard
   return board'''
   where
-    affectedSpot = otherPlayerSpot affectingSpot
+    affectedSpot = Spots.other affectingSpot
     affectingInPlace = Board.toInPlace board affectingSpot
     causingFear = Map.filter Total.causesFear affectingInPlace
     causingTerror = Map.filter Total.causesTerror affectingInPlace
@@ -1169,7 +1170,7 @@ attack board pSpot cSpot =
                 attackedCreatures
   where
     safeHead = \case [] -> Nothing; x : _ -> Just x
-    attackeePSpot = otherPlayerSpot pSpot
+    attackeePSpot = Spots.other pSpot
     attackersInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
     attackeesInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board attackeePSpot
     attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
@@ -1210,7 +1211,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
       else pure board'
   return $ fPowerful board' extra
   where
-    hitPspot = otherPlayerSpot pSpot
+    hitPspot = Spots.other pSpot
     place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
     fPowerful b extra
       | Total.isPowerful hitter = Board.mapScore b pSpot ((+) extra)
@@ -1395,7 +1396,7 @@ enemySpots c@Creature {skills} cSpot =
     (True, _, True) -> Ace -- Ace has precedence over Imprecise
     (True, True, _) -> Imprecise
     (True, False, False) ->
-      ( case (ranged, inFront cSpot) of
+      ( case (ranged, Spots.inFront cSpot) of
           (True, _) -> spotsInSight -- ranged
           (False, True) | breathIce || support -> spotsInSight -- in front, breathIce || support
           (False, True) -> take 1 spotsInSight -- in front, no relevant skill

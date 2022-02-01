@@ -64,11 +64,13 @@ bottomSpotOfTopVisual = \case
   Bottom -> Top
   BottomRight -> TopLeft
 
-botSpots :: [Spots.Card]
-botSpots = filter (not . inTheBack) allCards
+-- | Spots on the frontline
+frontSpots :: [Spots.Card]
+frontSpots = filter (not . inTheBack) allCards
 
-topSpots :: [Spots.Card]
-topSpots = filter inTheBack allCards
+-- | Spots in the back line
+backSpots :: [Spots.Card]
+backSpots = filter inTheBack allCards
 
 -- | Whether a spot is in the back line
 inTheBack :: Spots.Card -> Bool
@@ -129,7 +131,8 @@ line = \case
 allPlayers :: [Spots.Player]
 allPlayers = [minBound ..]
 
--- | The spot of the player that starts a game
+-- | The spot of the player that starts a game. FIXME @smelc rename to
+-- 'starting' and use me qualified.
 startingPlayerSpot :: Spots.Player
 startingPlayerSpot = PlayerBot
 
@@ -137,8 +140,6 @@ startingPlayerSpot = PlayerBot
 endingPlayerSpot :: Spots.Player
 endingPlayerSpot = PlayerTop
 
--- | The other spot
--- XXX @smelc rename me to other and use me qualified
-otherPlayerSpot :: Spots.Player -> Spots.Player
-otherPlayerSpot PlayerBot = PlayerTop
-otherPlayerSpot PlayerTop = PlayerBot
+-- | The other 'Player' spot. @other . other == id@
+other :: Spots.Player -> Spots.Player
+other = \case PlayerBot -> PlayerTop; PlayerTop -> PlayerBot

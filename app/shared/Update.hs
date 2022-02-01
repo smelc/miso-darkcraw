@@ -47,7 +47,7 @@ import Nat
 import ServerMessages
 import SharedModel (SharedModel)
 import qualified SharedModel
-import Spots hiding (Card)
+import qualified Spots hiding (Card)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import qualified Turn
@@ -487,7 +487,7 @@ updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
           m' = GameModel' gm {anim = Game.Fadeout}
           part = Board.toPart board playingPlayer
           (score, enemy) =
-            (Board.score part, Board.toPart board (otherPlayerSpot playingPlayer) & Board.score)
+            (Board.score part, Board.toPart board (Spots.other playingPlayer) & Board.score)
           outcome :: Campaign.Outcome =
             case compare score enemy of
               LT -> Campaign.Loss
@@ -623,7 +623,7 @@ levelNGameModel difficulty shared level teams =
   where
     (_, board) = Board.initial shared teams
     interaction = NoInteraction
-    playingPlayer = startingPlayerSpot
+    playingPlayer = Spots.startingPlayerSpot
     playingPlayerDeck =
       toData playingPlayer teams
         & snd
@@ -647,7 +647,7 @@ unsafeInitialGameModel difficulty shared teamsData board =
   where
     interaction = NoInteraction
     level = Campaign.Level0
-    playingPlayer = startingPlayerSpot
+    playingPlayer = Spots.startingPlayerSpot
     playingPlayerDeck =
       toData playingPlayer teamsData
         & snd
