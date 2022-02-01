@@ -1,9 +1,13 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
 -- This module deals with game actions (nicknamed moves). It's a spinoff of
@@ -19,15 +23,20 @@ module Move
 where
 
 import qualified AI
+import Board (Board)
 import qualified Board
 import BoardInstances (boardStart)
+import Card
 import Control.Arrow ((>>>))
 import Control.Monad.Except (MonadError, runExcept)
 import Control.Monad.Identity (runIdentity)
+import Control.Monad.Operational
+import Control.Monad.Writer
 import qualified Data.Bifunctor as Bifunctor
 import Data.Either.Extra
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import qualified Data.Functor.Identity
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
@@ -38,6 +47,7 @@ import qualified Game
 import Miso.String (MisoString)
 import Model
 import Nat
+import SharedModel (SharedModel)
 import qualified Spots
 import qualified Turn
 
@@ -226,6 +236,98 @@ runAll m s = do
 -- @resolve m events@ plays all events and then plays the game loop
 _resolve :: Model.Game -> [Game.Event] -> Model.Game
 _resolve _m _events = undefined
+
+-- | The various stages when a spot plays
+data Stage a where
+  STransferCards ::
+    -- | The spot at which to draw cards
+    Spots.Player ->
+    Stage ()
+  SPreTurnEvent ::
+    -- | The spot at which to draw cards
+    Spots.Player ->
+    Stage ()
+  SDrawCards ::
+    -- | How many cards to draw at most. @Nothing@ means draws everything.
+    Maybe Nat ->
+    Stage ()
+  SPlayCards :: Stage ()
+  SEndTurn ::
+    -- | Press "End Turn"
+    Stage ()
+
+type Script a = Program Stage a
+
+transferCards :: Spots.Player -> Script ()
+transferCards pSpot = singleton $ STransferCards pSpot
+
+preTurnEvents :: Spots.Player -> Script ()
+preTurnEvents pSpot = singleton $ SPreTurnEvent pSpot
+
+drawCards :: Maybe Nat -> Script ()
+drawCards n = singleton $ SDrawCards n
+
+playerScript :: Spots.Player -> Script ()
+playerScript pSpot = do
+  transferCards pSpot
+  preTurnEvents pSpot
+  drawCards $ Just 1
+
+aiScript :: Spots.Player -> Script ()
+aiScript pSpot = do
+  transferCards pSpot
+  preTurnEvents pSpot
+  drawCards Nothing
+  singleton SPlayCards
+  singleton SEndTurn
+
+runScript ::
+  MonadWriter (Board 'UI) m =>
+  (SharedModel, Board.Board 'Core) ->
+  (Script a) ->
+  m a
+runScript pair@(_shared, _board) m = case view m of
+  Return a -> return a
+  s :>>= next -> do
+    _ <- runStageAI pair s
+    undefined
+
+runStageAI ::
+  MonadError Text.Text m =>
+  MonadWriter (Board 'UI) m =>
+  (SharedModel, Board 'Core) ->
+  (Stage _) ->
+  m (SharedModel, Board 'Core)
+runStageAI (shared, board) s =
+  case s of
+    STransferCards pSpot -> do
+      let (s', b', bui') = Game.transferCards shared board pSpot
+      tell bui'
+      return (s', b')
+    SPreTurnEvent pSpot -> do
+      (s', b', bui') <- Game.playAllE shared board events
+      tell bui'
+      return (s', b')
+      where
+        otherSpot = Spots.otherPlayerSpot pSpot
+        events =
+          Game.keepEffectfull
+            shared
+            board
+            [ Game.ApplyFearNTerror otherSpot,
+              Game.ApplyBrainless pSpot,
+              Game.FillTheFrontline pSpot,
+              Game.ApplyKing pSpot
+            ]
+    _ -> undefined
+  where
+    returnTell (s, b, bui) = do
+      tell bui
+      return (s, b)
+    runTell f s b = do
+      let (s', b', bui') = f s b
+      tell bui'
+      return (s', b')
 
 -- TODO @smelc write a test that this function always returns GameEndTurnPressed
 -- when it's the AI turn.
