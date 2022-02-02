@@ -1,9 +1,13 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
 -- This module deals with game actions (nicknamed moves). It's a spinoff of
@@ -19,9 +23,10 @@ module Move
 where
 
 import qualified AI
+import Board (Board)
 import qualified Board
 import BoardInstances (boardStart)
-import Control.Arrow ((>>>))
+import Card
 import Control.Monad.Except (MonadError, runExcept)
 import Control.Monad.Identity (runIdentity)
 import qualified Data.Bifunctor as Bifunctor
@@ -33,11 +38,11 @@ import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe, maybeToList)
 import qualified Data.Text as Text
-import Debug.Trace (traceShow)
 import qualified Game
 import Miso.String (MisoString)
 import Model
 import Nat
+import SharedModel (SharedModel)
 import qualified Spots
 import qualified Turn
 
@@ -96,10 +101,12 @@ data Move
     UpdateCmd MisoString
   deriving (Show, Eq)
 
+-- FIXME @smelc rename me to @toMaybe@
 mkScheds :: [Sched] -> Maybe Sched
 mkScheds l =
   case NE.nonEmpty l of
     Nothing -> Nothing
+    Just (x NE.:| []) -> Just x
     Just l -> Just (Sequence l)
 
 eventsToSched :: [Game.Event] -> Maybe Sched
@@ -108,6 +115,9 @@ eventsToSched events =
     Nothing -> Nothing
     Just (event NE.:| []) -> Just $ Play $ event
     Just events -> Just $ Sequence $ NE.map Play events
+
+nextify :: Maybe Sched -> NextSched
+nextify m = (1,) <$> m
 
 -- | Event to fire after the given delay (in seconds). Delay should not be '0'.
 type NextSched = Maybe (Nat, Sched)
@@ -202,9 +212,14 @@ runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPres
         Just cSpot -> Play $ Game.Attack pSpot cSpot True True -- There's an attack to resolve
         -- enqeue it. When we handle the attack ('Play gameEvent' above), we will
         -- schedule the terminator 'IncrTurn'
-runOne m IncrTurn =
-  m & incrTurn & Bifunctor.first enableUI & pure
+runOne m@Model.Game {playingPlayer, turn} IncrTurn =
+  m' & startTurn actor pSpot <&> Bifunctor.first enableUI
   where
+    turn' = Turn.next turn
+    m' = m {turn = turn'}
+    pSpot = Turn.toPlayerSpot turn'
+    isAI :: Bool = pSpot /= playingPlayer
+    actor :: Actor = if isAI then AI else Player
     enableUI gm@Model.Game {playingPlayer, turn}
       | Turn.toPlayerSpot turn == playingPlayer =
         gm {uiAvail = True} -- Restore interactions if turn of player
@@ -227,58 +242,104 @@ runAll m s = do
 _resolve :: Model.Game -> [Game.Event] -> Model.Game
 _resolve _m _events = undefined
 
--- TODO @smelc write a test that this function always returns GameEndTurnPressed
--- when it's the AI turn.
-incrTurn ::
+-- | Events to execute when the turn of the given 'Spots.Player' starts
+preTurnEvents :: Spots.Player -> [Game.Event]
+preTurnEvents pSpot =
+  [ Game.ApplyFearNTerror $ Spots.other pSpot,
+    Game.ApplyBrainless pSpot,
+    Game.FillTheFrontline pSpot,
+    Game.ApplyKing pSpot
+  ]
+
+-- | Class to extract a piece 'b' from a type 'a', with the ability to
+-- set such a piece into an 'a'. Used for calling 'onContained' and also
+-- because `with` is convenient.
+--
+-- Please refrain from writing convenience instances for setting a single
+-- field of a record, and also from writing the automatic lifting
+-- @Contains a b => Contains a c => Contains (b, c)@. That would yield
+-- poor generated code.
+class Contains a b where
+  to :: a -> b
+  with :: a -> b -> a
+
+-- | @onContained f a@ applies 'f' on the subset of 'a' of type 'b' and
+-- then returns a variant of 'a' where the subset has been mapped over.
+onContained :: Contains a b => (b -> b) -> a -> a
+onContained f a = a `with` (f (Move.to a))
+
+instance Contains Model.Game (SharedModel, Board 'Core) where
+  to Model.Game {shared, board} = (shared, board)
+  with m (s, b) = m {shared = s, board = b}
+
+instance Contains Model.Game (SharedModel, Board 'Core, Board 'UI) where
+  to Model.Game {shared, board, anims} = (shared, board, anims)
+  with m (s, b, a) = m {shared = s, board = b, anims = a}
+
+data Actor = AI | Player
+
+-- | The layer above 'startAITurn' and 'startPlayerTurn'. It intentionally
+-- requires the 'Actor' AND 'Spots.Player' so that the AI can be used
+-- even when there are 1 or 2 players.
+startTurn ::
+  MonadError Text.Text m =>
+  Actor ->
+  Spots.Player ->
   Model.Game ->
+  m (Model.Game, NextSched)
+startTurn a pSpot m@Model.Game {board = b} =
+  ( case a of
+      AI -> startAITurn m' pSpot
+      Player -> pure $ startPlayerTurn m' pSpot
+  )
+    <&> Bifunctor.first postStart
+  where
+    m' = m {board = boardStart b pSpot}
+
+-- | This function is related to 'startAITurn'. If you change
+-- this function, consider changing 'startAITurn' too.
+startPlayerTurn ::
+  Model.Game ->
+  Spots.Player ->
   (Model.Game, NextSched)
-incrTurn m@Model.Game {board, difficulty, playingPlayer, shared, turn} = runIdentity $ do
-  board <- pure $ boardStart board pSpot
+startPlayerTurn m@Model.Game {board, shared} pSpot = runIdentity $ do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
-  let drawSrcs = Game.cardsToDraw board pSpot True
-      -- If it's the player turn, we wanna draw the first card right away,
-      -- so that the game feels responsive. If it's the AI we draw everything.
-      drawNow = if isAI then drawSrcs else take 1 drawSrcs
+  -- We draw the first card right away,
+  -- so that the game feels responsive when the player turn starts
+  let drawNow = Game.cardsToDraw board pSpot True & take 1
+      preTurnEs :: [Game.Event] = Game.keepEffectfull shared board $ preTurnEvents pSpot
   (shared, board, anims) <-
     pure $
       Game.drawCards shared board pSpot drawNow
         & (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
-  let preTurnEvents :: [Game.Event] =
-        Game.keepEffectfull
-          shared
-          board
-          [ Game.ApplyFearNTerror otherSpot,
-            Game.ApplyBrainless pSpot,
-            Game.FillTheFrontline pSpot,
-            Game.ApplyKing pSpot
-          ]
-  let actions :: [Sched] =
-        -- AI case: after drawing cards and playing its events
-        --          press "End Turn". We want a one second delay, it makes
-        --          it easier to understand what's going on
-        --
-        --          Also, we need to apply 'preTurnEvents' before computing the
-        --          AI's events.
-        -- player case: we drew the first card already (see drawNow),
-        --              enqueue next event (if any)
-        case (isAI, Game.playAll shared board preTurnEvents) of
-          (True, Left errMsg) -> traceShow ("AI cannot play:" ++ Text.unpack errMsg) []
-          (True, Right (Game.Result {board = board'})) ->
-            let plays :: [Game.Place] = AI.play difficulty shared board' pSpot
-             in case NE.nonEmpty plays of
-                  Nothing -> []
-                  Just plays -> [plays & NE.map (Game.PEvent >>> Play) & Sequence]
-          (False, _) -> Prelude.drop 1 drawSrcs & map DrawCards
-  actions :: [Sched] <-
+  let scheds = map DrawCards drawNow ++ (preTurnEs & eventsToSched & maybeToList)
+  return (m `with` (shared, board, anims), scheds & mkScheds & nextify)
+
+-- | This function is related to 'startPlayerTurn'. If you change
+-- this function, consider changing 'startPlayerTurn' too.
+startAITurn ::
+  MonadError Text.Text m =>
+  Model.Game ->
+  Spots.Player ->
+  m (Model.Game, NextSched)
+startAITurn m@Model.Game {board, difficulty, shared} pSpot = do
+  (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
+  let drawSrcs :: [Game.DrawSource] = Game.cardsToDraw board pSpot True
+      preTurnEs :: [Game.Event] = Game.keepEffectfull shared board $ preTurnEvents pSpot
+  (shared, board, anims) <-
     pure $
-      (preTurnEvents & eventsToSched & maybeToList)
-        ++ actions -- AI: its events, player: draw cards
-        ++ if isAI then [EndTurnPressed] else [] -- The AI MUST press end turn, no matter what
-        -- So better do it here than in the different cases above.
-  m <- pure $ m {anims, board, shared, turn = turn'}
-  pure $ (m, (1,) <$> mkScheds actions)
-  where
-    turn' = Turn.next turn
-    pSpot = Turn.toPlayerSpot turn'
-    otherSpot = Spots.other pSpot
-    isAI = pSpot /= playingPlayer
+      Game.drawCards shared board pSpot drawSrcs
+        & (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
+  let m' = m `with` (shared, board, anims) -- Create m' now, next events will be scheduled, not executed asap
+  (afterPreTurnEsShared, afterPreTurnEsBoard, _) <-
+    Game.playAllE shared board preTurnEs -- We want 'AI.play' to be executed on the state after pre turn events
+  let placeScheds :: [Sched] =
+        -- Use 'after pre turn events' data for playing the AI
+        AI.play difficulty afterPreTurnEsShared afterPreTurnEsBoard pSpot
+          & map (Play . Game.PEvent)
+      nextSched = (preTurnEs & eventsToSched & nextify) `cons` (placeScheds ++ [EndTurnPressed])
+  pure (m', nextSched)
+
+-- | Function to call after 'startPlayerTurn' and 'startAITurn'
+postStart :: Model.Game -> Model.Game
+postStart = id
