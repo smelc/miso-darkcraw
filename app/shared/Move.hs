@@ -101,9 +101,8 @@ data Move
     UpdateCmd MisoString
   deriving (Show, Eq)
 
--- FIXME @smelc rename me to @toMaybe@
-mkScheds :: [Sched] -> Maybe Sched
-mkScheds l =
+toMaybe :: [Sched] -> Maybe Sched
+toMaybe l =
   case NE.nonEmpty l of
     Nothing -> Nothing
     Just (x NE.:| []) -> Just x
@@ -165,13 +164,7 @@ runOne m@Model.Game {board, shared} (Play gameEvent) = do
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', (1,) <$> nextEvent)
 runOne m@Model.Game {board, shared, turn} (DrawCards draw) = do
-  pure $
-    ( m {anims = boardui', board = board', shared = shared'},
-      Nothing
-    )
-  where
-    (shared', board', boardui') = Game.drawCard shared board pSpot draw
-    pSpot = Turn.toPlayerSpot turn
+  pure (m `with` Game.drawCard shared board (Turn.toPlayerSpot turn) draw, Nothing)
 -- "End Turn" button pressed by the player or the AI
 runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPressed = do
   m@Model.Game {board} <-
@@ -188,16 +181,16 @@ runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPres
                   shared
                   emptyPlayerInPlaceBoard
                   (turn & Turn.next & Turn.toPlayerSpot)
-          (shared, board, anims) <- Game.playAllE shared board $ map Game.PEvent placements
-          pure $ m {anims, board, shared}
+          triplet@(_s, _b, _a) <- Game.playAllE shared board $ map Game.PEvent placements
+          pure $ m `with` triplet
         else pure m
       )
       <&> disableUI
-  let sched = mkSched board
+  let sched :: Sched = mkAttack board
   if isInitialTurn
     then -- We want a one second delay, to see clearly that the opponent
     -- puts its cards, and then proceed with resolving attacks
-      pure $ (m, Just (1, sched))
+      pure $ (m, nextify $ Just sched)
     else -- We don't want any delay so that the game feels responsive
     -- when the player presses "End Turn", hence the recursive call.
       runOne m sched
@@ -205,7 +198,7 @@ runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPres
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
     disableUI gm = if pSpot == playingPlayer then gm {uiAvail = False} else gm
-    mkSched b =
+    mkAttack b =
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
         Nothing -> IncrTurn -- no attack, change turn right away
@@ -313,7 +306,7 @@ startPlayerTurn m@Model.Game {board, shared} pSpot = runIdentity $ do
       Game.drawCards shared board pSpot drawNow
         & (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
   let scheds = map DrawCards drawNow ++ (preTurnEs & eventsToSched & maybeToList)
-  return (m `with` (shared, board, anims), scheds & mkScheds & nextify)
+  return (m `with` (shared, board, anims), scheds & toMaybe & nextify)
 
 -- | This function is related to 'startPlayerTurn'. If you change
 -- this function, consider changing 'startPlayerTurn' too.
