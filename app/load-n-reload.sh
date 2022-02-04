@@ -57,7 +57,7 @@ install entr "sudo apt install entr"
 
 function cabal_listen() {
   local -r ASSETS_TO_COPY="$(find assets -iname '*.png' -print0 | xargs -0)"
-  git ls-files "*.hs" | entr -s "cabal --project-file=cabal.config build all && mkdir -p $CABAL_ASSETS && cp $ASSETS_TO_COPY $CABAL_ASSETS/."
+  git ls-files "*.hs" | entr -s "cabal --project-file=cabal.config build app && mkdir -p $CABAL_ASSETS && cp $ASSETS_TO_COPY $CABAL_ASSETS/."
 }
 
 function cabal_server_listen() {

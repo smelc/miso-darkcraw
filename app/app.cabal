@@ -6,8 +6,7 @@ synopsis:            Pixel Card Wars
 category:            Game
 license:             Unlicense
 build-type:          Simple
-extra-source-files:
-  assets/*.png
+data-dir:            assets
 description:         Pixel Card Wars is a strategy cards game. Choose your team and walks up the path of the fame in the single player campaign, or bring a friend and play a best of 3/5/7 games. You progressively build your deck after each game.
 
 common common-all
