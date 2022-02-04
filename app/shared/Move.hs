@@ -2,6 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -13,12 +14,15 @@
 -- This module deals with game actions (nicknamed moves). It's a spinoff of
 -- 'Update', to reduce the length of the latter.
 module Move
-  ( DnDAction (..),
+  ( Actor (..),
+    DnDAction (..),
     Move (..),
     NextSched,
     runAll,
+    runAllMaybe,
     runOne,
     Sched (..),
+    startTurn,
   )
 where
 
@@ -231,9 +235,11 @@ runAll m s = do
     Nothing -> pure m'
     Just (_, s') -> runAll m' s'
 
--- @resolve m events@ plays all events and then plays the game loop
-_resolve :: Model.Game -> [Game.Event] -> Model.Game
-_resolve _m _events = undefined
+-- | @runAllMaybe m s@ executes @s@ (if it is @Just _@) and then continues executing the generated
+-- 'NextSched', if any. Returns when 's' is 'Nothing' or when executing the
+-- underlying 'Sched' doesn't yield a new one.
+runAllMaybe :: MonadError Text.Text m => Model.Game -> NextSched -> m Model.Game
+runAllMaybe m = \case Nothing -> pure m; Just (_, s) -> runAll m s
 
 -- | Events to execute when the turn of the given 'Spots.Player' starts
 preTurnEvents :: Spots.Player -> [Game.Event]

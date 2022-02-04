@@ -36,6 +36,14 @@
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
 <li class="src short">
+<span class="keyword">data</span> <a href="#t:Actor">Actor</a><ul class="subs">
+<li>= <a href="#v:AI">AI</a>
+</li>
+<li>| <a href="#v:Player">Player</a>
+</li>
+</ul>
+</li>
+<li class="src short">
 <span class="keyword">data</span> <a href="#t:DnDAction">DnDAction</a> a<ul class="subs">
 <li>= <a href="#v:DragEnd">DragEnd</a>
 </li>
@@ -72,6 +80,9 @@
 <a href="#v:runAll">runAll</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; m <a href="Model.html#t:Game" title="Model">Game</a>
 </li>
 <li class="src short">
+<a href="#v:runAllMaybe">runAllMaybe</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; m <a href="Model.html#t:Game" title="Model">Game</a>
+</li>
+<li class="src short">
 <a href="#v:runOne">runOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Sched">Sched</a><ul class="subs">
@@ -86,9 +97,27 @@
 <li>| <a href="#v:Sequence">Sequence</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Move.html#t:Sched" title="Move">Sched</a>)</li>
 </ul>
 </li>
+<li class="src short">
+<a href="#v:startTurn">startTurn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Move.html#t:Actor" title="Move">Actor</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Actor" class="def">Actor</a> <a href="#t:Actor" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:AI" class="def">AI</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:Player" class="def">Player</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+</div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:DnDAction" class="def">DnDAction</a> a <a href="#t:DnDAction" class="selflink">#</a></p>
 <div class="subs constructors">
@@ -236,6 +265,12 @@
 <div class="doc"><p><code>runAll m s</code> executes <code>s</code> and then continues executing the generated
  <code><a href="Move.html#t:NextSched" title="Move">NextSched</a></code>, if any. Returns when executing a <code><a href="Move.html#t:Sched" title="Move">Sched</a></code> doesn't yield a new one.</p></div>
 </div>
+<div class="top">
+<p class="src"><a id="v:runAllMaybe" class="def">runAllMaybe</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; m <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:runAllMaybe" class="selflink">#</a></p>
+<div class="doc"><p><code>runAllMaybe m s</code> executes <code>s</code> (if it is <code>Just _</code>) and then continues executing the generated
+ <code><a href="Move.html#t:NextSched" title="Move">NextSched</a></code>, if any. Returns when <code>s</code> is <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a></code> or when executing the
+ underlying <code><a href="Move.html#t:Sched" title="Move">Sched</a></code> doesn't yield a new one.</p></div>
+</div>
 <div class="top"><p class="src"><a id="v:runOne" class="def">runOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:runOne" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Sched" class="def">Sched</a> <a href="#t:Sched" class="selflink">#</a></p>
@@ -318,6 +353,12 @@
 <p class="src"><a href="#v:withInteraction">withInteraction</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:withInteraction" class="selflink">#</a></p>
 </div></details></td></tr>
 </table></details></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:startTurn" class="def">startTurn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Move.html#t:Actor" title="Move">Actor</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:startTurn" class="selflink">#</a></p>
+<div class="doc"><p>The layer above <code>startAITurn</code> and <code>startPlayerTurn</code>. It intentionally
+ requires the <code><a href="Move.html#t:Actor" title="Move">Actor</a></code> AND <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> so that the AI can be used
+ even when there are 1 or 2 players.</p></div>
 </div>
 </div>
 </div>

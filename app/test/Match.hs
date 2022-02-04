@@ -9,7 +9,7 @@
 -- |
 module Match (main, MatchResult (..), play, Result (..)) where
 
-import qualified AI (Difficulty (..), play)
+import qualified AI (Difficulty (..))
 import Board
 import Card
 import Control.Monad.Except
@@ -20,10 +20,8 @@ import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Debug.Trace (trace, traceShow)
-import qualified Game
 import Generators ()
 import Model
-import Move (Move)
 import qualified Move
 import Nat
 import SharedModel
@@ -141,51 +139,15 @@ toMatchResult Model.Game {board}
     (scoreTop, scoreBot) = (score PlayerTop, score PlayerBot)
 
 -- | Play one turn. XXX: return the intermediate 'GameModel's, because they
--- make sense for being checked with properties from 'Invariants'. It's
--- cumbersome to do though.
+-- make sense for being checked with properties from 'Invariants'.
 playOneTurn ::
   MonadError Text m =>
   Model.Game ->
   m Model.Game
-playOneTurn m@Model.Game {board, shared, playingPlayer, turn} =
-  -- We need to play for the player
-  case (playingPlayer == pSpot, AI.play AI.Easy shared board pSpot) of
-    (False, _) ->
-      throwError $
-        Text.pack $
-          "It should be the player turn (" ++ show playingPlayer ++ "), but found: " ++ show pSpot
-    (_, []) ->
-      -- The main loop will take care of playing the opponent when honoring
-      -- this event:
-      go m [Move.Sched Move.EndTurnPressed]
-    (_, event : _) -> do
-      -- Taking only the first event avoids the need for correcting
-      -- hand indices at the "cost" of doing recursion here:
-      m' <- go m $ placeToGameActions board event
-      playOneTurn m'
+playOneTurn m = do
+  m <- playPart startingPlayerSpot m
+  playPart (Spots.other startingPlayerSpot) m
   where
-    pSpot = Turn.toPlayerSpot turn
-    go :: MonadError Text m => Model.Game -> [Move] -> m Model.Game
-    go model [] = pure model
-    go model@Model.Game {interaction} (move : moves) = do
-      (model', nextSched) <- Update.updateGameModel model move interaction
-      go model' ((nextSched <&> snd <&> Move.Sched & maybeToList) ++ moves)
-
-placeToGameActions ::
-  Board 'Core ->
-  Game.Place ->
-  [Move]
-placeToGameActions board event =
-  map Move.DnD $ case event of
-    Game.Place _ target handIndex ->
-      [ Move.DragStart handIndex,
-        Move.DragEnter target,
-        Move.Drop,
-        Move.DragEnd
-      ]
-    Game.Place' pSpot target id ->
-      [ Move.DragStart $ Game.idToHandIndex board pSpot id & fromJust,
-        Move.DragEnter target,
-        Move.Drop,
-        Move.DragEnd
-      ]
+    playPart pSpot m = do
+      (m, nextSched) <- Move.startTurn Move.AI pSpot m
+      Move.runAllMaybe m nextSched
