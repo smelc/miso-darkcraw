@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Pretty where
 
@@ -20,12 +21,14 @@ instance Arbitrary a => Arbitrary (Pretty a) where
   arbitrary = Pretty <$> arbitrary
   shrink (Pretty x) = map Pretty (shrink x)
 
--- /!\ The instances that follow are easier to read but hide
+instance {-# OVERLAPPING #-} Show a => Show (Pretty (Maybe a)) where
+  show =
+    \case
+      Pretty Nothing -> "Nothing"
+      Pretty (Just a) -> show a
+
+-- /!\ The instance that follows is easier to read but hide
 -- some info, beware! /!\
 
 instance {-# OVERLAPPING #-} Show (Pretty (Board 'Core)) where
   show (Pretty b) = Art.toASCII b
-
-instance {-# OVERLAPPING #-} Show (Pretty (Maybe (Board 'Core))) where
-  show (Pretty Nothing) = "Nothing"
-  show (Pretty (Just b)) = Art.toASCII b

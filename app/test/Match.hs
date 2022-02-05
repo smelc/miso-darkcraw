@@ -7,7 +7,7 @@
 -- |
 -- This module simulates playing an entire game
 -- |
-module Match (main, MatchResult (..), play, Result (..)) where
+module Match (main, MatchResult (..), play, Result (..), testStupidity) where
 
 import qualified AI (Difficulty (..))
 import Board
@@ -82,9 +82,9 @@ testStupidity shared =
       \(cSpot, topTeam, seed) ->
         not (inTheBack cSpot)
           ==> let teams = Teams topTeam Human
-               in let board = initialBoard shared teams cSpot
-                   in let model = Update.unsafeInitialGameModel AI.Easy (mkShared seed) (mkTeamData teams) board
-                       in play model 8 `shouldSatisfy` isValid
+                  board = initialBoard shared teams cSpot
+                  model = Update.unsafeInitialGameModel AI.Easy (mkShared seed) (mkTeamData teams) board
+               in play model 8 `shouldSatisfy` isValid
   where
     initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot
     ogreID = CreatureID Card.Ogre Human

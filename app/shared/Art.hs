@@ -132,8 +132,11 @@ creatureToAscii ::
   Creature p ->
   LineNumber ->
   Maybe String
-creatureToAscii _ (Creature {creatureId = CreatureID {..}}) 0 =
-  Just $ show team ++ " " ++ show creatureKind
-creatureToAscii part (c@Creature {..}) 1 =
-  Just $ show hp ++ "<3 " ++ show (Total.attack part c) ++ "X"
-creatureToAscii _ _ _ = Nothing
+creatureToAscii part (c@Creature {creatureId = CreatureID {..}, hp, skills}) =
+  \case
+    0 -> Just $ show team ++ " " ++ show creatureKind
+    1 -> Just $ show hp ++ "<3 " ++ show (Total.attack part c) ++ "X"
+    i | (i - 2) `elem` idxes skills -> Just $ show $ skills !! (i - 2)
+    _ -> Nothing
+  where
+    idxes l = [0 .. length l - 1]
