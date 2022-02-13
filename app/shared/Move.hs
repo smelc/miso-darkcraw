@@ -286,14 +286,16 @@ startTurn ::
   Spots.Player ->
   Model.Game ->
   m (Model.Game, NextSched)
-startTurn a pSpot m@Model.Game {board = b} =
+startTurn a pSpot m@Model.Game {board = b, turn} =
   ( case a of
       AI -> startAITurn m' pSpot
       Player -> pure $ startPlayerTurn m' pSpot
   )
     <&> Bifunctor.first postStart
   where
-    m' = m {board = boardStart b pSpot}
+    m'
+      | turn == Turn.initial = m -- Don't increment stupidity counter for example
+      | otherwise = m {board = boardStart b pSpot}
 
 -- | This function is related to 'startAITurn'. If you change
 -- this function, consider changing 'startAITurn' too.
