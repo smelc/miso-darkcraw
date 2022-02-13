@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 
 -- |
 -- This module simulates playing an entire game
@@ -140,11 +141,11 @@ toMatchResult Model.Game {board}
 
 -- | Play one turn. XXX: return the intermediate 'GameModel's, because they
 -- make sense for being checked with properties from 'Invariants'.
-playOneTurn ::
-  MonadError Text m =>
-  Model.Game ->
-  m Model.Game
-playOneTurn m = do
+playOneTurn :: MonadError Text m => a ~ Model.Game => a -> m a
+playOneTurn m = Move.onContainedE playOneTurnK m
+
+playOneTurnK :: MonadError Text m => a ~ Move.Kernel => a -> m a
+playOneTurnK m = do
   m <- playPart startingPlayerSpot m
   playPart (Spots.other startingPlayerSpot) m
   where

@@ -6,8 +6,10 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
@@ -15,12 +17,16 @@
 -- 'Update', to reduce the length of the latter.
 module Move
   ( Actor (..),
+    Contains (..),
     DnDAction (..),
+    Kernel,
     Move (..),
     NextSched,
+    onContainedE,
     runAll,
     runAllMaybe,
     runOne,
+    runOneModel,
     Sched (..),
     startTurn,
   )
@@ -134,22 +140,44 @@ cons nga scheds =
     (Just pair, Nothing) -> Just pair
     (Just (n, ga), Just neActions) -> Just (n, Sequence (ga NE.<| neActions))
 
-runOne ::
-  MonadError Text.Text m =>
-  Model.Game ->
-  Sched ->
-  m (Model.Game, NextSched)
+-- | The subset of 'Model.Game' required by @run*@ functions /!\ If a field
+-- is added, extend the instance @Contains Model.Game Kernel@
+data Kernel = Kernel
+  { anim :: Game.Animation,
+    anims :: Board 'UI,
+    board :: Board 'Core,
+    difficulty :: AI.Difficulty,
+    playingPlayer :: Spots.Player,
+    shared :: SharedModel,
+    turn :: Turn.Turn,
+    uiAvail :: Bool
+  }
+
+instance Contains Kernel (SharedModel, Board 'Core, Board 'UI) where
+  to Kernel {shared, board, anims} = (shared, board, anims)
+  with m (s, b, a) = m {shared = s, board = b, anims = a}
+
+instance Contains Kernel (SharedModel, Board 'Core, Board 'UI, Game.Animation) where
+  to Kernel {shared, board, anims, anim} = (shared, board, anims, anim)
+  with m (s, b, a, an) = m {shared = s, board = b, anims = a, anim = an}
+
+instance Contains Model.Game Kernel where
+  to Model.Game {..} = Kernel {..}
+  with m Kernel {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail} =
+    m {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail}
+
+runOne :: MonadError Text.Text m => a ~ Kernel => a -> Sched -> m (a, NextSched)
 runOne m (Sequence (fst NE.:| rest)) = do
   (m', nga) <- runOne m fst
   return (m', cons nga rest)
-runOne m@Model.Game {board, shared} (Play gameEvent) = do
+runOne m@Kernel {board, shared} (Play gameEvent) = do
   (shared', board', anims', generated) <- Game.playE shared board gameEvent
   let anim =
         Game.eventToAnim shared board gameEvent
           & runExcept
           & eitherToMaybe
           & fromMaybe Game.NoAnimation -- Rather no animation that erroring out
-      m' = m {board = board', shared = shared', anims = anims', anim}
+      m' = m `with` (shared', board', anims', anim)
       nextEvent =
         case (gameEvent, generated) of
           (Game.Attack pSpot cSpot continue changeTurn, Nothing) ->
@@ -167,11 +195,11 @@ runOne m@Model.Game {board, shared} (Play gameEvent) = do
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', (1,) <$> nextEvent)
-runOne m@Model.Game {board, shared, turn} (DrawCards draw) = do
+runOne m@Kernel {board, shared, turn} (DrawCards draw) = do
   pure (m `with` Game.drawCard shared board (Turn.toPlayerSpot turn) draw, Nothing)
 -- "End Turn" button pressed by the player or the AI
-runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPressed = do
-  m@Model.Game {board} <-
+runOne m@Kernel {board, difficulty, playingPlayer, shared, turn} EndTurnPressed = do
+  m@Kernel {board} <-
     ( if isInitialTurn
         then do
           -- End Turn pressed at the end of the player's first turn, make the AI
@@ -201,7 +229,7 @@ runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPres
   where
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
-    disableUI gm = if pSpot == playingPlayer then gm {uiAvail = False} else gm
+    disableUI gm = if pSpot == playingPlayer then gm {uiAvail = False} :: Kernel else gm
     mkAttack b =
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
@@ -209,26 +237,28 @@ runOne m@Model.Game {board, difficulty, playingPlayer, shared, turn} EndTurnPres
         Just cSpot -> Play $ Game.Attack pSpot cSpot True True -- There's an attack to resolve
         -- enqeue it. When we handle the attack ('Play gameEvent' above), we will
         -- schedule the terminator 'IncrTurn'
-runOne m@Model.Game {playingPlayer, turn} IncrTurn =
+runOne m@Kernel {playingPlayer, turn} IncrTurn =
   m' & startTurn actor pSpot <&> Bifunctor.first enableUI
   where
     turn' = Turn.next turn
-    m' = m {turn = turn'}
+    m' = m {turn = turn'} :: Kernel
     pSpot = Turn.toPlayerSpot turn'
     isAI :: Bool = pSpot /= playingPlayer
     actor :: Actor = if isAI then AI else Player
-    enableUI gm@Model.Game {playingPlayer, turn}
+    enableUI gm@Kernel {playingPlayer, turn}
       | Turn.toPlayerSpot turn == playingPlayer =
-        gm {uiAvail = True} -- Restore interactions if turn of player
+        gm {uiAvail = True} :: Kernel -- Restore interactions if turn of player
       | otherwise = gm
+
+-- | Like 'runOne', but on 'Model.Game'
+runOneModel :: MonadError Text.Text m => a ~ Model.Game => a -> Sched -> m (a, NextSched)
+runOneModel m s = do
+  (k', s) <- Move.runOne (Move.to m) s
+  pure (m `Move.with` k', s)
 
 -- | @runAll m s@ executes @s@ and then continues executing the generated
 -- 'NextSched', if any. Returns when executing a 'Sched' doesn't yield a new one.
-runAll ::
-  MonadError Text.Text m =>
-  Model.Game ->
-  Sched ->
-  m Model.Game
+runAll :: MonadError Text.Text m => a ~ Kernel => a -> Sched -> m a
 runAll m s = do
   (m', next) <- runOne m s
   case next of
@@ -238,7 +268,7 @@ runAll m s = do
 -- | @runAllMaybe m s@ executes @s@ (if it is @Just _@) and then continues executing the generated
 -- 'NextSched', if any. Returns when 's' is 'Nothing' or when executing the
 -- underlying 'Sched' doesn't yield a new one.
-runAllMaybe :: MonadError Text.Text m => Model.Game -> NextSched -> m Model.Game
+runAllMaybe :: MonadError Text.Text m => a ~ Kernel => a -> NextSched -> m a
 runAllMaybe m = \case Nothing -> pure m; Just (_, s) -> runAll m s
 
 -- | Events to execute when the turn of the given 'Spots.Player' starts
@@ -267,6 +297,13 @@ class Contains a b where
 onContained :: Contains a b => (b -> b) -> a -> a
 onContained f a = a `with` (f (Move.to a))
 
+-- | @onContainedE f a@ applies 'f' on the subset of 'a' of type 'b' and
+-- then returns a variant of 'a' where the subset has been mapped over.
+onContainedE :: Contains a b => MonadError e m => (b -> m b) -> a -> m a
+onContainedE f a = do
+  b' <- f (Move.to a)
+  return $ a `with` b'
+
 instance Contains Model.Game (SharedModel, Board 'Core) where
   to Model.Game {shared, board} = (shared, board)
   with m (s, b) = m {shared = s, board = b}
@@ -281,12 +318,8 @@ data Actor = AI | Player
 -- requires the 'Actor' AND 'Spots.Player' so that the AI can be used
 -- even when there are 1 or 2 players.
 startTurn ::
-  MonadError Text.Text m =>
-  Actor ->
-  Spots.Player ->
-  Model.Game ->
-  m (Model.Game, NextSched)
-startTurn a pSpot m@Model.Game {board = b, turn} =
+  MonadError Text.Text m => a ~ Kernel => Actor -> Spots.Player -> a -> m (a, NextSched)
+startTurn a pSpot m@Kernel {board = b, turn} =
   ( case a of
       AI -> startAITurn m' pSpot
       Player -> pure $ startPlayerTurn m' pSpot
@@ -295,15 +328,12 @@ startTurn a pSpot m@Model.Game {board = b, turn} =
   where
     m'
       | turn == Turn.initial = m -- Don't increment stupidity counter for example
-      | otherwise = m {board = boardStart b pSpot}
+      | otherwise = m {board = boardStart b pSpot} :: Kernel
 
 -- | This function is related to 'startAITurn'. If you change
 -- this function, consider changing 'startAITurn' too.
-startPlayerTurn ::
-  Model.Game ->
-  Spots.Player ->
-  (Model.Game, NextSched)
-startPlayerTurn m@Model.Game {board, shared} pSpot = runIdentity $ do
+startPlayerTurn :: a ~ Kernel => a -> Spots.Player -> (a, NextSched)
+startPlayerTurn m@Kernel {board, shared} pSpot = runIdentity $ do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   -- We draw the first card right away,
   -- so that the game feels responsive when the player turn starts
@@ -319,11 +349,8 @@ startPlayerTurn m@Model.Game {board, shared} pSpot = runIdentity $ do
 -- | This function is related to 'startPlayerTurn'. If you change
 -- this function, consider changing 'startPlayerTurn' too.
 startAITurn ::
-  MonadError Text.Text m =>
-  Model.Game ->
-  Spots.Player ->
-  m (Model.Game, NextSched)
-startAITurn m@Model.Game {board, difficulty, shared} pSpot = do
+  MonadError Text.Text m => a ~ Kernel => a -> Spots.Player -> m (a, NextSched)
+startAITurn m@Kernel {board, difficulty, shared} pSpot = do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs :: [Game.DrawSource] = Game.cardsToDraw board pSpot True
       preTurnEs :: [Game.Event] = Game.keepEffectfull shared board $ preTurnEvents pSpot
@@ -342,5 +369,5 @@ startAITurn m@Model.Game {board, difficulty, shared} pSpot = do
   pure (m', nextSched)
 
 -- | Function to call after 'startPlayerTurn' and 'startAITurn'
-postStart :: Model.Game -> Model.Game
+postStart :: a ~ Kernel => a -> a
 postStart = id
