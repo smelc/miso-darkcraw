@@ -44,14 +44,6 @@
 </ul>
 </li>
 <li class="src short">
-<span class="keyword">class</span> <a href="#t:Contains">Contains</a> a b <span class="keyword">where</span><ul class="subs">
-<li>
-<a href="#v:to">to</a> :: a -&gt; b</li>
-<li>
-<a href="#v:with">with</a> :: a -&gt; b -&gt; a</li>
-</ul>
-</li>
-<li class="src short">
 <span class="keyword">data</span> <a href="#t:DnDAction">DnDAction</a> a<ul class="subs">
 <li>= <a href="#v:DragEnd">DragEnd</a>
 </li>
@@ -91,8 +83,6 @@
 </li>
 <li class="src short">
 <span class="keyword">type</span> <a href="#t:NextSched">NextSched</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Move.html#t:Sched" title="Move">Sched</a>)</li>
-<li class="src short">
-<a href="#v:onContainedE">onContainedE</a> :: <a href="Move.html#t:Contains" title="Move">Contains</a> a b =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> e m =&gt; (b -&gt; m b) -&gt; a -&gt; m a</li>
 <li class="src short">
 <a href="#v:runAll">runAll</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; Handlers a -&gt; a -&gt; m a</li>
 <li class="src short">
@@ -134,81 +124,6 @@
 </tr>
 </table>
 </div>
-</div>
-<div class="top">
-<p class="src"><span class="keyword">class</span> <a id="t:Contains" class="def">Contains</a> a b <span class="keyword">where</span> <a href="#t:Contains" class="selflink">#</a></p>
-<div class="doc">
-<p>Class to extract a piece <code>b</code> from a type <code>a</code>, with the ability to
- set such a piece into an <code>a</code>. Used for calling <code>onContained</code> and also
- because <code><a href="Move.html#v:with" title="Move">with</a></code> is convenient.</p>
-<p>Please refrain from writing convenience instances for setting a single
- field of a record, and also from writing the automatic lifting
- <code>Contains a b =&gt; Contains a c =&gt; Contains (b, c)</code>. That would yield
- poor generated code.</p>
-<p>FIXME @smelc Extact me to a file</p>
-</div>
-<div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a id="v:to" class="def">to</a> :: a -&gt; b <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a id="v:with" class="def">with</a> :: a -&gt; b -&gt; a <a href="#v:with" class="selflink">#</a></p>
-</div>
-<div class="subs instances"><details id="i:Contains" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Contains:Contains:1"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a></span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:ic:Contains:Contains:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Contains:Contains:2"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:ic:Contains:Contains:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Contains:Contains:3"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:ic:Contains:Contains:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Contains:Contains:4"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:ic:Contains:Contains:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Contains:Contains:5"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:ic:Contains:Contains:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-</table></details></div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:DnDAction" class="def">DnDAction</a> a <a href="#t:DnDAction" class="selflink">#</a></p>
@@ -273,7 +188,7 @@
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Kernel" class="def">Kernel</a> <a href="#t:Kernel" class="selflink">#</a></p>
 <div class="doc"><p>The subset of <code><a href="Model.html#t:Game" title="Model">Game</a></code> required by <code>run*</code> functions /! If a field
- is added, extend the instance <code>Contains Model.Game Kernel</code></p></div>
+ is added, extend the <code>Contains Model.Game Kernel</code> instance.</p></div>
 <div class="subs instances"><details id="i:Kernel" open="open"><summary>Instances</summary><table>
 <tr>
 <td class="src clearfix">
@@ -287,7 +202,7 @@
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:2"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a></span> <a href="#t:Kernel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:2"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a></span> <a href="#t:Kernel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
@@ -298,7 +213,7 @@
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:3"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:3"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
@@ -309,7 +224,7 @@
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:4"></span> <a href="Move.html#t:Contains" title="Move">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:4"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
@@ -422,11 +337,6 @@
 <div class="top">
 <p class="src"><span class="keyword">type</span> <a id="t:NextSched" class="def">NextSched</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Move.html#t:Sched" title="Move">Sched</a>) <a href="#t:NextSched" class="selflink">#</a></p>
 <div class="doc"><p>Event to fire after the given delay (in seconds). Delay should not be '0'.</p></div>
-</div>
-<div class="top">
-<p class="src"><a id="v:onContainedE" class="def">onContainedE</a> :: <a href="Move.html#t:Contains" title="Move">Contains</a> a b =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> e m =&gt; (b -&gt; m b) -&gt; a -&gt; m a <a href="#v:onContainedE" class="selflink">#</a></p>
-<div class="doc"><p><code>onContainedE f a</code> applies <code>f</code> on the subset of <code>a</code> of type <code>b</code> and
- then returns a variant of <code>a</code> where the subset has been mapped over.</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:runAll" class="def">runAll</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; Handlers a -&gt; a -&gt; m a <a href="#v:runAll" class="selflink">#</a></p>

@@ -17,13 +17,11 @@
 -- 'Update', to reduce the length of the latter.
 module Move
   ( Actor (..),
-    Contains (..),
     DnDAction (..),
     Kernel,
     MakeHandlers (..),
     Move (..),
     NextSched,
-    onContainedE,
     runAll,
     runAllMaybe,
     runOne,
@@ -38,6 +36,8 @@ import Board (Board)
 import qualified Board
 import BoardInstances (boardStart)
 import Card
+import Contains (Contains, with)
+import qualified Contains
 import Control.Monad.Except (MonadError, runExcept)
 import Control.Monad.Identity (runIdentity)
 import qualified Data.Bifunctor as Bifunctor
@@ -144,7 +144,7 @@ cons nga scheds =
     (Just (n, ga), Just neActions) -> Just (n, Sequence (ga NE.<| neActions))
 
 -- | The subset of 'Model.Game' required by @run*@ functions /!\ If a field
--- is added, extend the instance @Contains Model.Game Kernel@
+-- is added, extend the @Contains Model.Game Kernel@ instance.
 data Kernel = Kernel
   { anim :: Game.Animation,
     anims :: Board 'UI,
@@ -264,9 +264,9 @@ runOne IncrTurn Handlers {enableUI} m@Kernel {playingPlayer, turn} =
 runOneModel :: MonadError Text.Text m => a ~ Model.Game => Sched -> a -> m (a, NextSched)
 runOneModel s m = do
   (k', s) <- Move.runOne s make k
-  pure (m `Move.with` k', s)
+  pure (m `Contains.with` k', s)
   where
-    k = Move.to m
+    k = Contains.to m
 
 -- | @runAll m s@ executes @s@ and then continues executing the generated
 -- 'NextSched', if any. Returns when executing a 'Sched' doesn't yield a new one.
@@ -301,42 +301,6 @@ preTurnEvents pSpot =
     Game.FillTheFrontline pSpot,
     Game.ApplyKing pSpot
   ]
-
--- | Class to extract a piece 'b' from a type 'a', with the ability to
--- set such a piece into an 'a'. Used for calling 'onContained' and also
--- because `with` is convenient.
---
--- Please refrain from writing convenience instances for setting a single
--- field of a record, and also from writing the automatic lifting
--- @Contains a b => Contains a c => Contains (b, c)@. That would yield
--- poor generated code.
---
--- FIXME @smelc Extact me to a file
-class Contains a b where
-  to :: a -> b
-  with :: a -> b -> a
-
--- | @onContained f a@ applies 'f' on the subset of 'a' of type 'b' and
--- then returns a variant of 'a' where the subset has been mapped over.
-onContained :: Contains a b => (b -> b) -> a -> a
-onContained f a = a `with` (f (Move.to a))
-
--- | @onContainedE f a@ applies 'f' on the subset of 'a' of type 'b' and
--- then returns a variant of 'a' where the subset has been mapped over.
-onContainedE :: Contains a b => MonadError e m => (b -> m b) -> a -> m a
-onContainedE f a = do
-  b' <- f (Move.to a)
-  return $ a `with` b'
-
--- FIXME @smelc Move me to 'Model'
-instance Contains Model.Game (SharedModel, Board 'Core) where
-  to Model.Game {shared, board} = (shared, board)
-  with m (s, b) = m {shared = s, board = b}
-
--- FIXME @smelc Move me to 'Model'
-instance Contains Model.Game (SharedModel, Board 'Core, Board 'UI) where
-  to Model.Game {shared, board, anims} = (shared, board, anims)
-  with m (s, b, a) = m {shared = s, board = b, anims = a}
 
 data Actor = AI | Player
 

@@ -13,6 +13,7 @@ module Match (main, MatchResult (..), play, Result (..), testStupidity) where
 import qualified AI (Difficulty (..))
 import Board
 import Card
+import qualified Contains
 import Control.Monad.Except
 import Damage (Damage (..))
 import Data.Function ((&))
@@ -142,7 +143,7 @@ toMatchResult Model.Game {board}
 -- | Play one turn. XXX: return the intermediate 'GameModel's, because they
 -- make sense for being checked with properties from 'Invariants'.
 playOneTurn :: MonadError Text m => a ~ Model.Game => a -> m a
-playOneTurn m = Move.onContainedE playOneTurnK m
+playOneTurn m = Contains.onContainedE playOneTurnK m
 
 playOneTurnK :: MonadError Text m => a ~ Move.Kernel => a -> m a
 playOneTurnK m = do
