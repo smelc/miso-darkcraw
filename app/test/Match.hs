@@ -151,4 +151,4 @@ playOneTurnK m = do
   where
     playPart pSpot m = do
       (m, nextSched) <- Move.startTurn Move.AI pSpot m
-      Move.runAllMaybe m nextSched
+      Move.runAllMaybe nextSched m

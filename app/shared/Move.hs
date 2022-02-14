@@ -78,6 +78,7 @@ data Sched
     Sequence (NonEmpty Sched)
   deriving (Show, Eq)
 
+-- | Drag and drop actions
 data DnDAction a
   = -- | Dragging card in hand ends. When a successful drop is done,
     -- this event is fired right after 'Drop'. We rely on that. If Drop
@@ -125,6 +126,7 @@ eventsToSched events =
     Just (event NE.:| []) -> Just $ Play $ event
     Just events -> Just $ Sequence $ NE.map Play events
 
+-- | Transform a @Maybe Sched@ into a 'NextSched'
 nextify :: Maybe Sched -> NextSched
 nextify m = (1,) <$> m
 
@@ -166,11 +168,11 @@ instance Contains Model.Game Kernel where
   with m Kernel {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail} =
     m {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail}
 
-runOne :: MonadError Text.Text m => a ~ Kernel => a -> Sched -> m (a, NextSched)
-runOne m (Sequence (fst NE.:| rest)) = do
-  (m', nga) <- runOne m fst
+runOne :: MonadError Text.Text m => a ~ Kernel => Sched -> a -> m (a, NextSched)
+runOne (Sequence (fst NE.:| rest)) m = do
+  (m', nga) <- runOne fst m
   return (m', cons nga rest)
-runOne m@Kernel {board, shared} (Play gameEvent) = do
+runOne (Play gameEvent) m@Kernel {board, shared} = do
   (shared', board', anims', generated) <- Game.playE shared board gameEvent
   let anim =
         Game.eventToAnim shared board gameEvent
@@ -195,10 +197,10 @@ runOne m@Kernel {board, shared} (Play gameEvent) = do
   -- There MUST be a delay here, otherwise it means we would need
   -- to execute this event now. We don't want that. 'playAll' checks that.
   pure $ (m', (1,) <$> nextEvent)
-runOne m@Kernel {board, shared, turn} (DrawCards draw) = do
+runOne (DrawCards draw) m@Kernel {board, shared, turn} = do
   pure (m `with` Game.drawCard shared board (Turn.toPlayerSpot turn) draw, Nothing)
 -- "End Turn" button pressed by the player or the AI
-runOne m@Kernel {board, difficulty, playingPlayer, shared, turn} EndTurnPressed = do
+runOne EndTurnPressed m@Kernel {board, difficulty, playingPlayer, shared, turn} = do
   m@Kernel {board} <-
     ( if isInitialTurn
         then do
@@ -225,7 +227,7 @@ runOne m@Kernel {board, difficulty, playingPlayer, shared, turn} EndTurnPressed 
       pure $ (m, nextify $ Just sched)
     else -- We don't want any delay so that the game feels responsive
     -- when the player presses "End Turn", hence the recursive call.
-      runOne m sched
+      runOne sched m
   where
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
@@ -237,7 +239,7 @@ runOne m@Kernel {board, difficulty, playingPlayer, shared, turn} EndTurnPressed 
         Just cSpot -> Play $ Game.Attack pSpot cSpot True True -- There's an attack to resolve
         -- enqeue it. When we handle the attack ('Play gameEvent' above), we will
         -- schedule the terminator 'IncrTurn'
-runOne m@Kernel {playingPlayer, turn} IncrTurn =
+runOne IncrTurn m@Kernel {playingPlayer, turn} =
   m' & startTurn actor pSpot <&> Bifunctor.first enableUI
   where
     turn' = Turn.next turn
@@ -251,25 +253,25 @@ runOne m@Kernel {playingPlayer, turn} IncrTurn =
       | otherwise = gm
 
 -- | Like 'runOne', but on 'Model.Game'
-runOneModel :: MonadError Text.Text m => a ~ Model.Game => a -> Sched -> m (a, NextSched)
-runOneModel m s = do
-  (k', s) <- Move.runOne (Move.to m) s
+runOneModel :: MonadError Text.Text m => a ~ Model.Game => Sched -> a -> m (a, NextSched)
+runOneModel s m = do
+  (k', s) <- Move.runOne s (Move.to m)
   pure (m `Move.with` k', s)
 
 -- | @runAll m s@ executes @s@ and then continues executing the generated
 -- 'NextSched', if any. Returns when executing a 'Sched' doesn't yield a new one.
-runAll :: MonadError Text.Text m => a ~ Kernel => a -> Sched -> m a
+runAll :: MonadError Text.Text m => a ~ Kernel => Sched -> a -> m a
 runAll m s = do
   (m', next) <- runOne m s
   case next of
     Nothing -> pure m'
-    Just (_, s') -> runAll m' s'
+    Just (_, s') -> runAll s' m'
 
 -- | @runAllMaybe m s@ executes @s@ (if it is @Just _@) and then continues executing the generated
 -- 'NextSched', if any. Returns when 's' is 'Nothing' or when executing the
 -- underlying 'Sched' doesn't yield a new one.
-runAllMaybe :: MonadError Text.Text m => a ~ Kernel => a -> NextSched -> m a
-runAllMaybe m = \case Nothing -> pure m; Just (_, s) -> runAll m s
+runAllMaybe :: MonadError Text.Text m => a ~ Kernel => NextSched -> a -> m a
+runAllMaybe s m = case s of Nothing -> pure m; Just (_, s) -> runAll s m
 
 -- | Events to execute when the turn of the given 'Spots.Player' starts
 preTurnEvents :: Spots.Player -> [Game.Event]
@@ -288,6 +290,8 @@ preTurnEvents pSpot =
 -- field of a record, and also from writing the automatic lifting
 -- @Contains a b => Contains a c => Contains (b, c)@. That would yield
 -- poor generated code.
+--
+-- FIXME @smelc Extact me to a file
 class Contains a b where
   to :: a -> b
   with :: a -> b -> a
@@ -304,10 +308,12 @@ onContainedE f a = do
   b' <- f (Move.to a)
   return $ a `with` b'
 
+-- FIXME @smelc Move me to 'Model'
 instance Contains Model.Game (SharedModel, Board 'Core) where
   to Model.Game {shared, board} = (shared, board)
   with m (s, b) = m {shared = s, board = b}
 
+-- FIXME @smelc Move me to 'Model'
 instance Contains Model.Game (SharedModel, Board 'Core, Board 'UI) where
   to Model.Game {shared, board, anims} = (shared, board, anims)
   with m (s, b, a) = m {shared = s, board = b, anims = a}
