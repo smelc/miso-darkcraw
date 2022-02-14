@@ -242,7 +242,7 @@ updateGameModel m action (ShowErrorInteraction _) =
   updateGameModel m action NoInteraction -- clear error message
 updateGameModel m (Move.Sched s) _ =
   -- This is the only definition that should care about Move.Sched
-  Move.runOneModel s m
+  Move.prodRunOneModel s m
 -- Now onto "normal" stuff:
 updateGameModel m (Move.DnD a@Move.DragEnd) i = act m a i
 updateGameModel m (Move.DnD a@(Move.DragStart _)) i = act m a i

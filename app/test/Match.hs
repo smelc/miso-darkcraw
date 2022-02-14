@@ -145,11 +145,13 @@ toMatchResult Model.Game {board}
 playOneTurn :: MonadError Text m => a ~ Model.Game => a -> m a
 playOneTurn m = Contains.onContainedE playOneTurnK m
 
-playOneTurnK :: MonadError Text m => a ~ Move.Kernel => a -> m a
+-- | The signature @Move.Kernel ()@ is important. The @()@ instance triggers
+-- the 'simulation' case (see 'Move').
+playOneTurnK :: MonadError Text m => a ~ Move.Kernel () => a -> m a
 playOneTurnK m = do
   m <- playPart startingPlayerSpot m
   playPart (Spots.other startingPlayerSpot) m
   where
     playPart pSpot m = do
       (m, nextSched) <- Move.startTurn Move.AI pSpot m
-      Move.runAllMaybe nextSched m
+      Move.simRunAllMaybe nextSched m

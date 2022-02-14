@@ -19,13 +19,11 @@ module Move
   ( Actor (..),
     DnDAction (..),
     Kernel,
-    MakeHandlers (..),
     Move (..),
     NextSched,
-    runAll,
-    runAllMaybe,
-    runOne,
-    runOneModel,
+    -- Don't export @run*@ functions directly, use the @sim@ or @prod@ prefix!
+    simRunAllMaybe,
+    prodRunOneModel,
     Sched (..),
     startTurn,
   )
@@ -38,7 +36,7 @@ import BoardInstances (boardStart)
 import Card
 import Contains (Contains, with)
 import qualified Contains
-import Control.Monad.Except (MonadError, runExcept)
+import Control.Monad.Except (MonadError (throwError), runExcept)
 import Control.Monad.Identity (runIdentity)
 import qualified Data.Bifunctor as Bifunctor
 import Data.Either.Extra
@@ -144,44 +142,53 @@ cons nga scheds =
     (Just (n, ga), Just neActions) -> Just (n, Sequence (ga NE.<| neActions))
 
 -- | The subset of 'Model.Game' required by @run*@ functions /!\ If a field
--- is added, extend the @Contains Model.Game Kernel@ instance.
-data Kernel = Kernel
+-- is added, extend the two @Contains Model.Game (Kernel _)@instances. When running
+-- in production, @a@ is 'Spots.Player'. When in tests, @()@ should be used,
+-- as there is no playing player.
+data Kernel a = Kernel
   { anim :: Game.Animation,
     anims :: Board 'UI,
     board :: Board 'Core,
     difficulty :: AI.Difficulty,
-    playingPlayer :: Spots.Player,
+    playingPlayer :: a,
     shared :: SharedModel,
     turn :: Turn.Turn,
     uiAvail :: Bool
   }
 
-instance Contains Kernel (SharedModel, Board 'Core, Board 'UI) where
+instance Contains (Kernel a) (SharedModel, Board 'Core, Board 'UI) where
   to Kernel {shared, board, anims} = (shared, board, anims)
   with m (s, b, a) = m {shared = s, board = b, anims = a}
 
-instance Contains Kernel (SharedModel, Board 'Core, Board 'UI, Game.Animation) where
+instance Contains (Kernel a) (SharedModel, Board 'Core, Board 'UI, Game.Animation) where
   to Kernel {shared, board, anims, anim} = (shared, board, anims, anim)
   with m (s, b, a, an) = m {shared = s, board = b, anims = a, anim = an}
 
-instance Contains Model.Game Kernel where
+instance Contains Model.Game (Kernel Spots.Player) where
   to Model.Game {..} = Kernel {..}
   with m Kernel {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail} =
     m {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail}
+
+instance Contains Model.Game (Kernel ()) where
+  to Model.Game {..} = Kernel {playingPlayer = (), ..}
+  with m Kernel {anim, anims, board, difficulty, shared, turn, uiAvail} =
+    m {anim, anims, board, difficulty, shared, turn, uiAvail}
 
 -- | Making 'runOne' and friends customizable
 data Handlers a = Handlers
   { -- | Disable UI while AI is playing
     disableUI :: a -> a,
     -- | Renable UI after control is given back to player
-    enableUI :: a -> a
+    enableUI :: a -> a,
+    -- | Increment the turn counter. Must rely on 'incrTurnBase'
+    incrTurn :: a -> Either Text.Text (a, NextSched)
   }
 
 -- | Simple class for building 'Handlers' values
 class MakeHandlers a where
   make :: Handlers a
 
-runOne :: MonadError Text.Text m => a ~ Kernel => Sched -> Handlers a -> a -> m (a, NextSched)
+runOne :: MonadError Text.Text m => a ~ Kernel b => Sched -> Handlers a -> a -> m (a, NextSched)
 runOne (Sequence (fst NE.:| rest)) h m = do
   (m', nga) <- runOne fst h m
   return (m', cons nga rest)
@@ -251,47 +258,66 @@ runOne EndTurnPressed h@Handlers {disableUI} m@Kernel {board, difficulty, shared
         Just cSpot -> Play $ Game.Attack pSpot cSpot True True -- There's an attack to resolve
         -- enqeue it. When we handle the attack ('Play gameEvent' above), we will
         -- schedule the terminator 'IncrTurn'
-runOne IncrTurn Handlers {enableUI} m@Kernel {playingPlayer, turn} =
-  m' & startTurn actor pSpot <&> Bifunctor.first enableUI
-  where
-    turn' = Turn.next turn
-    m' = m {turn = turn'} :: Kernel
-    pSpot = Turn.toPlayerSpot turn'
-    isAI :: Bool = pSpot /= playingPlayer
-    actor :: Actor = if isAI then AI else Player
+runOne IncrTurn Handlers {incrTurn} m =
+  case incrTurn m of
+    Left msg -> throwError msg
+    Right pair -> pure pair
 
--- | Like 'runOne', but on 'Model.Game'
-runOneModel :: MonadError Text.Text m => a ~ Model.Game => Sched -> a -> m (a, NextSched)
-runOneModel s m = do
-  (k', s) <- Move.runOne s make k
+-- | Run one event, suited for production, because it keeps track of the playing
+-- player under the hood; thanks to the @Kernel Spots.Player@ instance.
+prodRunOneModel :: MonadError Text.Text m => a ~ Model.Game => Sched -> a -> m (a, NextSched)
+prodRunOneModel s m = do
+  (k', s) <- Move.runOne s (make :: Handlers (Kernel Spots.Player)) k
   pure (m `Contains.with` k', s)
   where
-    k = Contains.to m
+    k :: Kernel Spots.Player = Contains.to m
 
 -- | @runAll m s@ executes @s@ and then continues executing the generated
 -- 'NextSched', if any. Returns when executing a 'Sched' doesn't yield a new one.
-runAll :: MonadError Text.Text m => a ~ Kernel => Sched -> Handlers a -> a -> m a
+runAll :: MonadError Text.Text m => a ~ Kernel b => Sched -> Handlers a -> a -> m a
 runAll s h m = do
   (m', next) <- runOne s h m
   case next of
     Nothing -> pure m'
     Just (_, s') -> runAll s' h m'
 
--- | @runAllMaybe m s@ executes @s@ (if it is @Just _@) and then continues executing the generated
+-- | @simRunAllMaybe m s@ executes @s@ (if it is @Just _@) and then continues executing the generated
 -- 'NextSched', if any. Returns when 's' is 'Nothing' or when executing the
 -- underlying 'Sched' doesn't yield a new one.
-runAllMaybe :: MonadError Text.Text m => a ~ Kernel => NextSched -> a -> m a
-runAllMaybe s m = case s of Nothing -> pure m; Just (_, s) -> runAll s make m
+--
+-- Only suited for simulation/testing because it doesn't keep track of the playing player
+-- and doesn't trigger the AI automatically. It is up to the caller to do it.
+simRunAllMaybe :: MonadError Text.Text m => a ~ Kernel () => NextSched -> a -> m a
+simRunAllMaybe s m = case s of Nothing -> pure m; Just (_, s) -> runAll s make m
 
-instance MakeHandlers Kernel where
-  make = Handlers {disableUI, enableUI}
+-- | Function that should be called in every 'incrTurn' definition.
+incrTurnBase :: Kernel a -> Kernel a
+incrTurnBase k@Kernel {turn} = k {turn = Turn.next turn}
+
+-- | The instance for production, that plays the AI in 'incrTurn'
+instance MakeHandlers (Kernel Spots.Player) where
+  make = Handlers {disableUI, enableUI, incrTurn}
     where
       disableUI k@Kernel {playingPlayer, turn}
-        | Turn.toPlayerSpot turn == playingPlayer = k {uiAvail = False} :: Kernel
+        | Turn.toPlayerSpot turn == playingPlayer = k {Move.uiAvail = False}
         | otherwise = k
       enableUI k@Kernel {playingPlayer, turn}
-        | Turn.toPlayerSpot turn == playingPlayer = k {uiAvail = True} :: Kernel -- Restore interactions if turn of player
+        | Turn.toPlayerSpot turn == playingPlayer = k {Move.uiAvail = True} -- Restore interactions if turn of player
         | otherwise = k
+      incrTurn k@Kernel {playingPlayer} =
+        -- Production case: startTurn is called, triggering the AI
+        k' & startTurn actor pSpot & runExcept <&> Bifunctor.first enableUI
+        where
+          k'@Kernel {turn = turn'} = incrTurnBase k
+          pSpot = Turn.toPlayerSpot turn'
+          isAI :: Bool = pSpot /= playingPlayer
+          actor :: Actor = if isAI then AI else Player
+
+instance MakeHandlers (Kernel ()) where
+  make = Handlers {disableUI = id, enableUI = id, incrTurn}
+    where
+      -- Simulation case: do not call startTurn (AI not triggered)
+      incrTurn k = k & incrTurnBase & Right <&> (,Nothing)
 
 -- | Events to execute when the turn of the given 'Spots.Player' starts
 preTurnEvents :: Spots.Player -> [Game.Event]
@@ -307,8 +333,7 @@ data Actor = AI | Player
 -- | The layer above 'startAITurn' and 'startPlayerTurn'. It intentionally
 -- requires the 'Actor' AND 'Spots.Player' so that the AI can be used
 -- even when there are 1 or 2 players.
-startTurn ::
-  MonadError Text.Text m => a ~ Kernel => Actor -> Spots.Player -> a -> m (a, NextSched)
+startTurn :: MonadError Text.Text m => a ~ Kernel b => Actor -> Spots.Player -> a -> m (a, NextSched)
 startTurn a pSpot m@Kernel {board = b, turn} =
   ( case a of
       AI -> startAITurn m' pSpot
@@ -318,11 +343,11 @@ startTurn a pSpot m@Kernel {board = b, turn} =
   where
     m'
       | turn == Turn.initial = m -- Don't increment stupidity counter for example
-      | otherwise = m {board = boardStart b pSpot} :: Kernel
+      | otherwise = m {Move.board = boardStart b pSpot}
 
 -- | This function is related to 'startAITurn'. If you change
 -- this function, consider changing 'startAITurn' too.
-startPlayerTurn :: a ~ Kernel => a -> Spots.Player -> (a, NextSched)
+startPlayerTurn :: a ~ Kernel b => a -> Spots.Player -> (a, NextSched)
 startPlayerTurn m@Kernel {board, shared} pSpot = runIdentity $ do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   -- We draw the first card right away,
@@ -339,7 +364,7 @@ startPlayerTurn m@Kernel {board, shared} pSpot = runIdentity $ do
 -- | This function is related to 'startPlayerTurn'. If you change
 -- this function, consider changing 'startPlayerTurn' too.
 startAITurn ::
-  MonadError Text.Text m => a ~ Kernel => a -> Spots.Player -> m (a, NextSched)
+  MonadError Text.Text m => a ~ Kernel b => a -> Spots.Player -> m (a, NextSched)
 startAITurn m@Kernel {board, difficulty, shared} pSpot = do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs :: [Game.DrawSource] = Game.cardsToDraw board pSpot True
@@ -359,5 +384,5 @@ startAITurn m@Kernel {board, difficulty, shared} pSpot = do
   pure (m', nextSched)
 
 -- | Function to call after 'startPlayerTurn' and 'startAITurn'
-postStart :: a ~ Kernel => a -> a
+postStart :: a ~ Kernel b => a -> a
 postStart = id

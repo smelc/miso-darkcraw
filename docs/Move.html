@@ -56,12 +56,7 @@
 </ul>
 </li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:Kernel">Kernel</a>
-</li>
-<li class="src short">
-<span class="keyword">class</span> <a href="#t:MakeHandlers">MakeHandlers</a> a <span class="keyword">where</span><ul class="subs"><li>
-<a href="#v:make">make</a> :: Handlers a</li></ul>
-</li>
+<span class="keyword">data</span> <a href="#t:Kernel">Kernel</a> a</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Move">Move</a><ul class="subs">
 <li>= <a href="#v:DnD">DnD</a> (<a href="Move.html#t:DnDAction" title="Move">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</li>
@@ -84,13 +79,9 @@
 <li class="src short">
 <span class="keyword">type</span> <a href="#t:NextSched">NextSched</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Move.html#t:Sched" title="Move">Sched</a>)</li>
 <li class="src short">
-<a href="#v:runAll">runAll</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; Handlers a -&gt; a -&gt; m a</li>
+<a href="#v:simRunAllMaybe">simRunAllMaybe</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> () =&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; a -&gt; m a</li>
 <li class="src short">
-<a href="#v:runAllMaybe">runAllMaybe</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; a -&gt; m a</li>
-<li class="src short">
-<a href="#v:runOne">runOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; Handlers a -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
-<li class="src short">
-<a href="#v:runOneModel">runOneModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Model.html#t:Game" title="Model">Game</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
+<a href="#v:prodRunOneModel">prodRunOneModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Model.html#t:Game" title="Model">Game</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Sched">Sched</a><ul class="subs">
 <li>= <a href="#v:Play">Play</a> <a href="Game.html#t:Event" title="Game">Event</a>
@@ -105,7 +96,7 @@
 </ul>
 </li>
 <li class="src short">
-<a href="#v:startTurn">startTurn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Actor" title="Move">Actor</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
+<a href="#v:startTurn">startTurn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> b =&gt; <a href="Move.html#t:Actor" title="Move">Actor</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
@@ -186,72 +177,55 @@
 </table></details></div>
 </div>
 <div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:Kernel" class="def">Kernel</a> <a href="#t:Kernel" class="selflink">#</a></p>
+<p class="src"><span class="keyword">data</span> <a id="t:Kernel" class="def">Kernel</a> a <a href="#t:Kernel" class="selflink">#</a></p>
 <div class="doc"><p>The subset of <code><a href="Model.html#t:Game" title="Model">Game</a></code> required by <code>run*</code> functions /! If a field
- is added, extend the <code>Contains Model.Game Kernel</code> instance.</p></div>
+ is added, extend the two <code>Contains Model.Game (Kernel _)</code>instances. When running
+ in production, <code>a</code> is <code><a href="Spots.html#t:Player" title="Spots">Player</a></code>. When in tests, <code>()</code> should be used,
+ as there is no playing player.</p></div>
 <div class="subs instances"><details id="i:Kernel" open="open"><summary>Instances</summary><table>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:MakeHandlers:1"></span> <a href="Move.html#t:MakeHandlers" title="Move">MakeHandlers</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a></span> <a href="#t:Kernel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:1"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> ())</span> <a href="#t:Kernel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Kernel:MakeHandlers:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:id:Kernel:Contains:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:make">make</a> :: Handlers <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:make" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> () <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> () -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:with" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:2"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a></span> <a href="#t:Kernel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:2"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Model.html#t:Game" title="Model">Game</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="Spots.html#t:Player" title="Spots">Player</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><details id="i:id:Kernel:Contains:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:with" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:with" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:3"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:3"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> a) (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><details id="i:id:Kernel:Contains:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:with" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> a <a href="#v:with" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:4"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a> (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kernel:Contains:4"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> a) (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>)</span> <a href="#t:Kernel" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><details id="i:id:Kernel:Contains:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-</table></details></div>
-</div>
-<div class="top">
-<p class="src"><span class="keyword">class</span> <a id="t:MakeHandlers" class="def">MakeHandlers</a> a <span class="keyword">where</span> <a href="#t:MakeHandlers" class="selflink">#</a></p>
-<div class="doc"><p>Simple class for building <code>Handlers</code> values</p></div>
-<div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a id="v:make" class="def">make</a> :: Handlers a <a href="#v:make" class="selflink">#</a></p>
-</div>
-<div class="subs instances"><details id="i:MakeHandlers" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:MakeHandlers:MakeHandlers:1"></span> <a href="Move.html#t:MakeHandlers" title="Move">MakeHandlers</a> <a href="Move.html#t:Kernel" title="Move">Kernel</a></span> <a href="#t:MakeHandlers" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:ic:MakeHandlers:MakeHandlers:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:make">make</a> :: Handlers <a href="Move.html#t:Kernel" title="Move">Kernel</a> <a href="#v:make" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="SharedModel.html#t:SharedModel" title="SharedModel">SharedModel</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> a <a href="#v:with" class="selflink">#</a></p>
 </div></details></td></tr>
 </table></details></div>
 </div>
@@ -339,20 +313,19 @@
 <div class="doc"><p>Event to fire after the given delay (in seconds). Delay should not be '0'.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:runAll" class="def">runAll</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; Handlers a -&gt; a -&gt; m a <a href="#v:runAll" class="selflink">#</a></p>
-<div class="doc"><p><code>runAll m s</code> executes <code>s</code> and then continues executing the generated
- <code><a href="Move.html#t:NextSched" title="Move">NextSched</a></code>, if any. Returns when executing a <code><a href="Move.html#t:Sched" title="Move">Sched</a></code> doesn't yield a new one.</p></div>
-</div>
-<div class="top">
-<p class="src"><a id="v:runAllMaybe" class="def">runAllMaybe</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; a -&gt; m a <a href="#v:runAllMaybe" class="selflink">#</a></p>
-<div class="doc"><p><code>runAllMaybe m s</code> executes <code>s</code> (if it is <code>Just _</code>) and then continues executing the generated
+<p class="src"><a id="v:simRunAllMaybe" class="def">simRunAllMaybe</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> () =&gt; <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; a -&gt; m a <a href="#v:simRunAllMaybe" class="selflink">#</a></p>
+<div class="doc">
+<p><code>simRunAllMaybe m s</code> executes <code>s</code> (if it is <code>Just _</code>) and then continues executing the generated
  <code><a href="Move.html#t:NextSched" title="Move">NextSched</a></code>, if any. Returns when <code>s</code> is <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a></code> or when executing the
- underlying <code><a href="Move.html#t:Sched" title="Move">Sched</a></code> doesn't yield a new one.</p></div>
+ underlying <code><a href="Move.html#t:Sched" title="Move">Sched</a></code> doesn't yield a new one.</p>
+<p>Only suited for simulation/testing because it doesn't keep track of the playing player
+ and doesn't trigger the AI automatically. It is up to the caller to do it.</p>
 </div>
-<div class="top"><p class="src"><a id="v:runOne" class="def">runOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; Handlers a -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:runOne" class="selflink">#</a></p></div>
+</div>
 <div class="top">
-<p class="src"><a id="v:runOneModel" class="def">runOneModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Model.html#t:Game" title="Model">Game</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:runOneModel" class="selflink">#</a></p>
-<div class="doc"><p>Like <code><a href="Move.html#v:runOne" title="Move">runOne</a></code>, but on <code><a href="Model.html#t:Game" title="Model">Game</a></code></p></div>
+<p class="src"><a id="v:prodRunOneModel" class="def">prodRunOneModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Model.html#t:Game" title="Model">Game</a> =&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:prodRunOneModel" class="selflink">#</a></p>
+<div class="doc"><p>Run one event, suited for production, because it keeps track of the playing
+ player under the hood; thanks to the <code>Kernel Spots.Player</code> instance.</p></div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Sched" class="def">Sched</a> <a href="#t:Sched" class="selflink">#</a></p>
@@ -437,7 +410,7 @@
 </table></details></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:startTurn" class="def">startTurn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> =&gt; <a href="Move.html#t:Actor" title="Move">Actor</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:startTurn" class="selflink">#</a></p>
+<p class="src"><a id="v:startTurn" class="def">startTurn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> b =&gt; <a href="Move.html#t:Actor" title="Move">Actor</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:startTurn" class="selflink">#</a></p>
 <div class="doc"><p>The layer above <code>startAITurn</code> and <code>startPlayerTurn</code>. It intentionally
  requires the <code><a href="Move.html#t:Actor" title="Move">Actor</a></code> AND <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> so that the AI can be used
  even when there are 1 or 2 players.</p></div>
