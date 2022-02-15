@@ -1398,7 +1398,7 @@ enemySpots c@Creature {skills} cSpot =
     (True, False, False) ->
       ( case (ranged, Spots.inFront cSpot) of
           (True, _) -> spotsInSight -- ranged
-          (False, True) | breathIce || support -> spotsInSight -- in front, breathIce || support
+          (False, True) | longReach || breathIce -> spotsInSight -- in front, longReach || breathIce
           (False, True) -> take 1 spotsInSight -- in front, no relevant skill
           (False, False) | longReach || support -> take 1 spotsInSight -- in the back, longReach || support
           (False, False) -> [] -- in the back, no relevant skill

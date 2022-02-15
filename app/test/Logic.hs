@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testScore) where
+module Logic (disturber, main, mkCreature, testSupport) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -621,6 +621,36 @@ testScore shared =
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
         & (\(Game.Result {board = c}) -> c)
 
+testSupport shared =
+  describe "Support" $ do
+    it "is a skill of the Human spearman" $ do
+      Card.has fighter (Skill.Support :: Skill.State)
+    it "is not a skill of the Undead skeleton" $ do
+      not $ Card.has victim (Skill.Support :: Skill.State)
+    it "triggers when in the back line" $ do
+      -- Victim must always be two cells away from fighter
+      ( addFighter Top board & addVictim (Spots.bottomSpotOfTopVisual Top) & attack Top
+          & (\b -> Board.toInPlace b victimPSpot)
+        )
+        `shouldBe` mempty
+    it "does not trigger when in front line" $ do
+      ( addFighter Bottom board & addVictim (Spots.bottomSpotOfTopVisual Bottom) & attack Bottom
+          & (\b -> Board.toInPlace b victimPSpot)
+          & Map.elems
+        )
+        `shouldBe` [victim]
+  where
+    (fTeam, vTeam) = (Human, Undead)
+    (fighter, fighterPSpot) = (mkCreature shared Card.Spearman fTeam False, PlayerTop)
+    (victim, victimPSpot) = (mkCreature shared Card.Skeleton vTeam False, Spots.other fighterPSpot)
+    board :: Board 'Core = Board.empty (Teams fTeam vTeam)
+    addFighter cSpot = Board.setCreature fighterPSpot cSpot fighter
+    addVictim cSpot = Board.setCreature victimPSpot cSpot victim
+    attack cSpot b =
+      Game.play shared b (Game.Attack fighterPSpot cSpot False False)
+        & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
+        & (\(Game.Result {board = c}) -> c)
+
 main :: SharedModel -> SpecWith ()
 main shared = do
   -- Unit tests
@@ -634,6 +664,7 @@ main shared = do
   testPandemonium shared
   testPowerful shared
   testScore shared
+  testSupport shared
   testSquire shared
   testStrengthPot shared
   testVeteran shared

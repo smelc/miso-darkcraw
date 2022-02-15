@@ -217,6 +217,8 @@ play shareds level teams nbTurns =
     & count mempty
   where
     go (shared : rest) =
+      -- I tried setting AI to Hard once and it didn't change the outcome significantly,
+      -- except that it was wayyyyy slower.
       let result = Match.play (Update.levelNGameModel AI.Easy shared level teams) nbTurns
        in result : go rest
     go [] = []
