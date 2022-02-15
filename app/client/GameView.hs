@@ -207,7 +207,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         cardBoxShadowStyle rgb (borderWidth m target) "ease-in-out"
       ]
         ++ inPlaceEnterLeaveAttrs GameAction'
-        ++ (dragDropEvents <$> dragTarget & concat)
+        ++ (dragTarget <&> dragDropEvents & concat)
     )
     <$> do
       fades <- fadeouts shared (z + 1) attackEffect
@@ -216,7 +216,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
       attackg <- statChange (z + 1) Attack attackEffect
       cards <-
         case maybeCreature of
-          Nothing -> pure []
+          Nothing -> pure Nothing
           Just creature -> do
             let cdsty :: CardDrawStyle =
                   mempty
@@ -237,8 +237,8 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
                     Nothing -> noDrag
                     -- Dragging: disable nested events (see above)
                     Just _ -> style_ $ "pointer-events" =: "none"
-            return $ [div_ [attr] [v]]
-      return $ cards ++ [fades] ++ heartw ++ heartg ++ attackg
+            pure $ Just $ div_ [attr] [v]
+      return $ maybeToList cards ++ maybeToList fades ++ heartw ++ heartg ++ attackg
   where
     part = Board.toPart board pSpot
     t = Board.team part

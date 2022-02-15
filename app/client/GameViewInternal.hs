@@ -43,7 +43,7 @@ import qualified Data.Text as Text
 import Debug.Trace (trace)
 import qualified Game
 import Miso hiding (at)
-import Miso.String hiding (length, map)
+import Miso.String hiding (length, map, null)
 import Model
 import qualified Move
 import Nat
@@ -379,13 +379,15 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
         Right id -> Game.appliesTo board id playingPlayer pTarget
     handCard i = Board.lookupHand (Board.toHand board playingPlayer) i
 
-fadeouts :: SharedModel -> Int -> InPlaceEffect -> Styled (View Action)
+fadeouts :: SharedModel -> Int -> InPlaceEffect -> Styled (Maybe (View Action))
 fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
   death :: Maybe (View Action) <- case deadAsset of
     Nothing -> pure Nothing
     Just asset -> sequence $ Just $ f (builder asset)
-  views <- traverse (\tile -> ViewInternal.fade (tbuilder tile) Nothing 1 FadeOut) fadeOut
-  return $ div_ gloSty ((maybeToList death) ++ views)
+  fades <- traverse (\tile -> ViewInternal.fade (tbuilder tile) Nothing 1 FadeOut) fadeOut
+  let views = maybeToList death ++ fades
+  -- We shouldn't return a useless 'div_', hence:
+  pure $ if null views then Nothing else Just $ div_ gloSty views
   where
     f :: ([Attribute a] -> View a) -> Styled (View a)
     f builder =
