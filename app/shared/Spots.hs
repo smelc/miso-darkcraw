@@ -64,11 +64,11 @@ bottomSpotOfTopVisual = \case
   Bottom -> Top
   BottomRight -> TopLeft
 
--- | Spots on the frontline
+-- | Spots on the frontline. TODO @smelc rename me to front.
 frontSpots :: [Spots.Card]
 frontSpots = filter (not . inTheBack) allCards
 
--- | Spots in the back line
+-- | Spots in the back line. TODO @smelc rename me to front.
 backSpots :: [Spots.Card]
 backSpots = filter inTheBack allCards
 

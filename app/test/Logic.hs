@@ -630,12 +630,12 @@ testSupport shared =
     it "triggers when in the back line" $ do
       -- Victim must always be two cells away from fighter
       ( addFighter Top board & addVictim (Spots.bottomSpotOfTopVisual Top) & attack Top
-          & (\b -> Board.toInPlace b victimPSpot)
+          & flip Board.toInPlace victimPSpot
         )
         `shouldBe` mempty
     it "does not trigger when in front line" $ do
       ( addFighter Bottom board & addVictim (Spots.bottomSpotOfTopVisual Bottom) & attack Bottom
-          & (\b -> Board.toInPlace b victimPSpot)
+          & flip Board.toInPlace victimPSpot
           & Map.elems
         )
         `shouldBe` [victim]
