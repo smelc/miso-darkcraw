@@ -24,10 +24,11 @@ import Spots
 toLowerString :: String -> String
 toLowerString = map toLower
 
--- If you extend this datatype, extend 'allCommands' below
--- and 'getAllCommands' in SharedModel
+-- If you extend this datatype, extend 'allCommands' below.
 data Command
-  = -- | Command to end the current game. Parameter indicates how
+  = -- | Make the AI play at a spot
+    AIPlay Spots.Player
+  | -- | Command to end the current game. Parameter indicates how
     -- the playing player performed.
     EndGame Campaign.Outcome
   | -- | Command to trgger the 'fill the frontline' event
@@ -51,6 +52,7 @@ allCommands cids =
   [Gimme $ Card.IDC cid [] | cid <- sortBy compareCID cids]
     ++ [Gimme $ Card.IDI item | item <- sortOn show allItems]
     ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
+    ++ [AIPlay pSpot | pSpot <- [minBound ..]]
     ++ [EndGame r | r <- [minBound ..]]
     ++ [e pSpot | e <- [FillTheFrontline, HailToTheKing, Killall], pSpot <- [minBound ..]]
     ++ [GimmeMana]
@@ -66,6 +68,7 @@ allCommands cids =
 instance Show Command where
   show =
     \case
+      (AIPlay pSpot) -> "aiplay " ++ show pSpot
       (EndGame r) ->
         ( case r of
             Campaign.Win -> "win"

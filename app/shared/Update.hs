@@ -501,6 +501,12 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
             Nothing ->
               let errMsg = "Unrecognized command: " ++ show cmdStr
                in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
+            Just (Command.AIPlay pSpot) ->
+              case Game.playAll shared board events of
+                Left errMsg -> noEff $ GameModel' $ gm {interaction = ShowErrorInteraction errMsg}
+                Right (Game.Result {board = board'}) -> withBoard board'
+              where
+                events = AI.play AI.Hard shared board pSpot & map Game.PEvent
             Just (Command.EndGame outcome) ->
               noEff $ LootModel' $ Model.endGame gm outcome
             Just (Command.FillTheFrontline pSpot) ->
