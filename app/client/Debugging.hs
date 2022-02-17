@@ -49,7 +49,7 @@ indexWithNoOps noop frames i = count i frames
     count 0 _ = 0
     count i (frame :<| frames)
       | isNoOpFrame noop frame = 1 + count i frames
-      | otherwise = 1 + count (i -1) frames
+      | otherwise = 1 + count (i - 1) frames
     count _ Empty = error "unexepected empty frames"
 
 debugApp :: (Eq e, Show e, Show m) => e -> App m e -> App (DebuggingModel e m) (DebuggingEvent e)
@@ -77,49 +77,49 @@ debugView view (Running (_ :|> DebuggingFrame _ m)) =
     ]
 debugView view (Debugging noOpMode i frames renderedModel)
   | Just (DebuggingFrame e m) <- S.lookup i frames =
-    div_
-      [style_ ("display" =: "flex")]
-      [ fmap LiftEvent (view m),
-        div_
-          [style_ ("margin-left" =: "20px")]
-          [ button_
-              [ onClick ResumeFromHere,
-                style_ ("display" =: "block" <> "margin-bottom" =: "20px")
-              ]
-              [text "resume from selected frame"],
-            input_
-              [ style_ ("width" =: "500px"),
-                id_ "debug-slider",
-                type_ "range",
-                min_ "0",
-                max_ (ms $ length frames - 1),
-                step_ "1'",
-                value_ (ms i),
-                onInput (JumpToFrame . read . fromMisoString),
-                autofocus_ True
-              ],
-            label_
-              [for_ "debug-slider"]
-              [text (ms $ show i <> "/" <> show (length frames))],
-            div_
-              [style_ ("display" =: "block")]
-              [ input_
-                  [ id_ "noop-checkbox",
-                    type_ "checkbox",
-                    checked_ (noOpsHidden noOpMode),
-                    onChecked SetHideNoOps
-                  ],
-                label_
-                  [for_ "noop-checkbox"]
-                  [text "hide no-ops"]
-              ],
-            button_
-              [onClick ShowModel, style_ ("display" =: "block")]
-              [text "show model"],
-            pre_ [] [text (ms $ pShowNoColor e)],
-            pre_ [] [text renderedModel]
-          ]
-      ]
+      div_
+        [style_ ("display" =: "flex")]
+        [ fmap LiftEvent (view m),
+          div_
+            [style_ ("margin-left" =: "20px")]
+            [ button_
+                [ onClick ResumeFromHere,
+                  style_ ("display" =: "block" <> "margin-bottom" =: "20px")
+                ]
+                [text "resume from selected frame"],
+              input_
+                [ style_ ("width" =: "500px"),
+                  id_ "debug-slider",
+                  type_ "range",
+                  min_ "0",
+                  max_ (ms $ length frames - 1),
+                  step_ "1'",
+                  value_ (ms i),
+                  onInput (JumpToFrame . read . fromMisoString),
+                  autofocus_ True
+                ],
+              label_
+                [for_ "debug-slider"]
+                [text (ms $ show i <> "/" <> show (length frames))],
+              div_
+                [style_ ("display" =: "block")]
+                [ input_
+                    [ id_ "noop-checkbox",
+                      type_ "checkbox",
+                      checked_ (noOpsHidden noOpMode),
+                      onChecked SetHideNoOps
+                    ],
+                  label_
+                    [for_ "noop-checkbox"]
+                    [text "hide no-ops"]
+                ],
+              button_
+                [onClick ShowModel, style_ ("display" =: "block")]
+                [text "show model"],
+              pre_ [] [text (ms $ pShowNoColor e)],
+              pre_ [] [text renderedModel]
+            ]
+        ]
   | otherwise = error "out of bounds"
   where
     noOpsHidden (HideNoOps _) = True
@@ -147,13 +147,13 @@ debugUpdate noop _ e m = update e m
       noEff $ Running (S.take (indexWithNoOps noop frames i + 1) frames)
     update (JumpToFrame i) (Debugging noOpMode _ frames _)
       | Just _ <- S.lookup i frames =
-        noEff $ Debugging noOpMode i frames "[...]"
+          noEff $ Debugging noOpMode i frames "[...]"
     update ShowModel (Debugging noOpMode i frames@(_ :|> DebuggingFrame _ m) _) =
       noEff $ Debugging noOpMode i frames (ms $ pShowNoColor m)
     update (SetHideNoOps (Checked False)) (Debugging (HideNoOps frames) i _ str) =
       noEff $ Debugging ShowNoOps (indexWithNoOps noop frames i) frames str
     update (SetHideNoOps (Checked True)) (Debugging ShowNoOps i frames str)
       | hasNoOpFrames noop frames =
-        let trimmedFrames = S.filter (not . isNoOpFrame noop) frames
-         in noEff $ Debugging (HideNoOps frames) (indexWhithoutNoOps noop frames i) trimmedFrames str
+          let trimmedFrames = S.filter (not . isNoOpFrame noop) frames
+           in noEff $ Debugging (HideNoOps frames) (indexWhithoutNoOps noop frames i) trimmedFrames str
     update _ m = noEff m

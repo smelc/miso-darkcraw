@@ -26,7 +26,7 @@ natLength (_ : rest) = 1 + natLength rest
 
 -- | Negate a natural. The returned value is less or equal to 0.
 negate :: Nat -> Int
-negate n = - (natToInt n)
+negate n = -(natToInt n)
 
 -- | minusNatClamped n m returns n - m if n >= m, otherwise it returns 0.
 minusNatClamped :: Nat -> Nat -> Nat

@@ -291,7 +291,7 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
       Selected -> False
     verticalMargin GameViewInternal.Board _ = "top" =: px (scoreMarginTop PlayerTop)
     verticalMargin Hand Button = "bottom" =: px (cps `div` 2)
-    verticalMargin Hand Plus = "bottom" =: px (- (cps `div` 2))
+    verticalMargin Hand Plus = "bottom" =: px (-(cps `div` 2))
     horizontalMargin :: StackPosition -> StackKind -> StackWidgetType -> MisoString
     horizontalMargin GameViewInternal.Board Handed Button = px (cps `div` 2)
     horizontalMargin GameViewInternal.Board _ Button = px (cps * 4)
@@ -356,7 +356,7 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot)
       | pSpot /= pSpotHov && cSpot `elem` attackedSpots ->
-        borderSize
+          borderSize
       where
         attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
         attackedSpots :: [Spots.Card] =
@@ -367,7 +367,7 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
             Just (Game.Spots spots) -> spots
     (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.PlayerTarget pSpot)
       | pSpot /= pSpotHov && imprecise ->
-        borderSize
+          borderSize
       where
         attacker :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpotHov cSpotHov
         imprecise :: Bool = attacker `has` (Skill.Imprecise :: Skill.State)
@@ -435,7 +435,7 @@ heartWobble z ae =
     hpLoss = hpc < 0
     delay = 250 -- The delay between each wobbling heart, milliseconds
     delays =
-      [delay * (i - 1) | i <- if hpLoss then [1 .. (- hpc)] else []]
+      [delay * (i - 1) | i <- if hpLoss then [1 .. (-hpc)] else []]
     sty = pltwh Absolute left top imgw imgh <> "z-index" =: ms z
     (imgw, imgh) :: (Int, Int) = (seize, imgw)
     (left, top) = ((cardPixelWidth - imgw) `div` 2, 0)

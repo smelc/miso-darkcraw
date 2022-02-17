@@ -125,7 +125,7 @@ play model nbTurns =
   where
     go m@Model.Game {turn} models
       | Turn.toNat turn > nbTurns =
-        Result (reverse models) (toMatchResult m)
+          Result (reverse models) (toMatchResult m)
     go m models =
       case playOneTurn m of
         Left msg -> Result (reverse models) (Error msg)

@@ -16,10 +16,10 @@ data Configuration
     -- This version is pushed when relevant by @smelc (where there's a devlog
     -- with it usually). Second parameter is the commit hash.
     Itch Edition String
-    -- | Version released on https://www.schplaf.org/hgames/darkcraw
+  | -- | Version released on https://www.schplaf.org/hgames/darkcraw
     -- This version is usually pushed at every commit by @smelc.
     -- Second parameter is the commit hash.
-  | Schplaf Edition String
+    Schplaf Edition String
 
 isDev :: Bool
 isDev =

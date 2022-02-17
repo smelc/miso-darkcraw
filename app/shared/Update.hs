@@ -439,13 +439,13 @@ updateSceneModel (JumpToFrameForDebugging i) sceneModel =
   case sceneModel of
     SceneNotStarted frames
       | indexWithinBounds frames ->
-        noEff $ ScenePausedForDebugging frames i
+          noEff $ ScenePausedForDebugging frames i
     SceneComplete frames
       | indexWithinBounds frames ->
-        noEff $ ScenePausedForDebugging frames i
+          noEff $ ScenePausedForDebugging frames i
     ScenePausedForDebugging frames _
       | indexWithinBounds frames ->
-        noEff $ ScenePausedForDebugging frames i
+          noEff $ ScenePausedForDebugging frames i
     anyOtherState ->
       noEff anyOtherState
   where
@@ -479,51 +479,51 @@ updateModel (LootGo model) _ =
 -- Schedule leaving 'GameView', to go to 'LootView'
 updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
   | (Turn.next turn & Turn.toNat) > Constants.nbTurns =
-    case Campaign.succ level of
-      Nothing -> noEff m -- TODO, go to global victory view
-      Just _ ->
-        delayActions m' [(toSecs 1, LootGo $ Model.endGame gm outcome)]
-        where
-          m' = GameModel' gm {anim = Game.Fadeout}
-          part = Board.toPart board playingPlayer
-          (score, enemy) =
-            (Board.score part, Board.toPart board (Spots.other playingPlayer) & Board.score)
-          outcome :: Campaign.Outcome =
-            case compare score enemy of
-              LT -> Campaign.Loss
-              EQ -> Campaign.Draw
-              GT -> Campaign.Win
+      case Campaign.succ level of
+        Nothing -> noEff m -- TODO, go to global victory view
+        Just _ ->
+          delayActions m' [(toSecs 1, LootGo $ Model.endGame gm outcome)]
+          where
+            m' = GameModel' gm {anim = Game.Fadeout}
+            part = Board.toPart board playingPlayer
+            (score, enemy) =
+              (Board.score part, Board.toPart board (Spots.other playingPlayer) & Board.score)
+            outcome :: Campaign.Outcome =
+              case compare score enemy of
+                LT -> Campaign.Loss
+                EQ -> Campaign.Draw
+                GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
 updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shared, playingPlayer})
   | SharedModel.getCmd shared & isJust =
-    let cmdStr = SharedModel.getCmd shared
-     in case cmdStr <&> Command.read & join of
-          Nothing ->
-            let errMsg = "Unrecognized command: " ++ show cmdStr
-             in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
-          Just (Command.EndGame outcome) ->
-            noEff $ LootModel' $ Model.endGame gm outcome
-          Just (Command.FillTheFrontline pSpot) ->
-            playEvent Game.FillTheFrontline pSpot
-          Just (Command.Gimme cid) ->
-            withBoard $ Board.addToHand board playingPlayer cid
-          Just (Command.GimmeMana) ->
-            let mana = Board.toPart board playingPlayer & Board.mana
-             in withBoard $ Board.setMana (mana + 1) playingPlayer board
-          Just (Command.HailToTheKing pSpot) ->
-            playEvent Game.ApplyKing pSpot
-          Just (Command.Killall pSpot) ->
-            withBoard $ Board.setPart board pSpot (part {inPlace = mempty})
-            where
-              part = Board.toPart board pSpot
-          Just (Command.Reboot pSpot team) ->
-            withBoard $ Board.setPart board pSpot part
-            where
-              (inHand, stack) =
-                SharedModel.getInitialDeck shared team
-                  & map Card.cardToIdentifier
-                  & splitAt Constants.initialHandSize
-              part = (Board.empty team) {inHand, stack}
+      let cmdStr = SharedModel.getCmd shared
+       in case cmdStr <&> Command.read & join of
+            Nothing ->
+              let errMsg = "Unrecognized command: " ++ show cmdStr
+               in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
+            Just (Command.EndGame outcome) ->
+              noEff $ LootModel' $ Model.endGame gm outcome
+            Just (Command.FillTheFrontline pSpot) ->
+              playEvent Game.FillTheFrontline pSpot
+            Just (Command.Gimme cid) ->
+              withBoard $ Board.addToHand board playingPlayer cid
+            Just (Command.GimmeMana) ->
+              let mana = Board.toPart board playingPlayer & Board.mana
+               in withBoard $ Board.setMana (mana + 1) playingPlayer board
+            Just (Command.HailToTheKing pSpot) ->
+              playEvent Game.ApplyKing pSpot
+            Just (Command.Killall pSpot) ->
+              withBoard $ Board.setPart board pSpot (part {inPlace = mempty})
+              where
+                part = Board.toPart board pSpot
+            Just (Command.Reboot pSpot team) ->
+              withBoard $ Board.setPart board pSpot part
+              where
+                (inHand, stack) =
+                  SharedModel.getInitialDeck shared team
+                    & map Card.cardToIdentifier
+                    & splitAt Constants.initialHandSize
+                part = (Board.empty team) {inHand, stack}
   where
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
     playEvent eventMaker pSpot =

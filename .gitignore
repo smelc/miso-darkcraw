@@ -1,5 +1,6 @@
 .mypy_cache
 .venv
+.bin/ormolu
 app/.ghc.environment.x86_64-linux-8.6.5
 app/assets
 app/client/.liquid

@@ -25,23 +25,23 @@ viewLobby (WaitingForNameSubmission userName) =
     text ("submitting " <> ms userName)
 viewLobby (DisplayingUserList merror me users)
   | null otherUsers =
-    whoAmIFrame me $
-      text "there is no other player at the moment"
+      whoAmIFrame me $
+        text "there is no other player at the moment"
   | otherwise =
-    whoAmIFrame me $
-      div_
-        []
-        ( maybeToList (fmap viewError merror)
-            ++ [ text "select user to invite",
-                 ul_
-                   []
-                   [ li_
-                       []
-                       [button_ [onClick (LobbyInviteUser user)] [text (ms user)]]
-                     | user <- otherUsers
-                   ]
-               ]
-        )
+      whoAmIFrame me $
+        div_
+          []
+          ( maybeToList (fmap viewError merror)
+              ++ [ text "select user to invite",
+                   ul_
+                     []
+                     [ li_
+                         []
+                         [button_ [onClick (LobbyInviteUser user)] [text (ms user)]]
+                       | user <- otherUsers
+                     ]
+                 ]
+          )
   where
     otherUsers = delete me users
 viewLobby (InvitingUser me _ user WaitingForUserInvitationAck) =

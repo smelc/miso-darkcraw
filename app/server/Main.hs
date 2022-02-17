@@ -122,57 +122,57 @@ removeClient user state = do
 createInvitation :: CanSendMessages m => UserName -> UserName -> ServerState -> m ServerState
 createInvitation from to state
   | state ^? clientStateOf from /= Just ClientIdle = do
-    sendToName state from UnexpectedMessage
-    return state
+      sendToName state from UnexpectedMessage
+      return state
   | state ^? clientStateOf to /= Just ClientIdle = do
-    sendToName state from UserBusy
-    return state
+      sendToName state from UserBusy
+      return state
   | otherwise = do
-    sendToName state to (IncomingInvitation from)
-    sendToName state from InvitationSent
-    broadcastNewUserList $
-      state
-        & clientStateOf from .~ ClientWaitingRsvpFrom to
-        & clientStateOf to .~ ClientConsideringInvitationFrom from
+      sendToName state to (IncomingInvitation from)
+      sendToName state from InvitationSent
+      broadcastNewUserList $
+        state
+          & clientStateOf from .~ ClientWaitingRsvpFrom to
+          & clientStateOf to .~ ClientConsideringInvitationFrom from
 
 cancelInvitationFrom :: CanSendMessages m => UserName -> ServerState -> m ServerState
 cancelInvitationFrom from state
   | Just (ClientWaitingRsvpFrom to) <- state ^? clientStateOf from = do
-    sendToName state to IncomingInvitationCancelled
-    sendToName state from InvitationDropAck
-    broadcastNewUserList $
-      state
-        & clientStateOf from .~ ClientIdle
-        & clientStateOf to .~ ClientIdle
+      sendToName state to IncomingInvitationCancelled
+      sendToName state from InvitationDropAck
+      broadcastNewUserList $
+        state
+          & clientStateOf from .~ ClientIdle
+          & clientStateOf to .~ ClientIdle
   | otherwise = do
-    sendToName state from UnexpectedMessage
-    return state
+      sendToName state from UnexpectedMessage
+      return state
 
 rejectInvitationTo :: CanSendMessages m => UserName -> ServerState -> m ServerState
 rejectInvitationTo to state
   | Just (ClientConsideringInvitationFrom from) <- state ^? clientStateOf to = do
-    sendToName state from InvitationRejected
-    sendToName state to IncomingInvitationRejectionAck
-    broadcastNewUserList $
-      state
-        & clientStateOf from .~ ClientIdle
-        & clientStateOf to .~ ClientIdle
+      sendToName state from InvitationRejected
+      sendToName state to IncomingInvitationRejectionAck
+      broadcastNewUserList $
+        state
+          & clientStateOf from .~ ClientIdle
+          & clientStateOf to .~ ClientIdle
   | otherwise = do
-    sendToName state to UnexpectedMessage
-    return state
+      sendToName state to UnexpectedMessage
+      return state
 
 acceptInvitationTo :: CanSendMessages m => UserName -> ServerState -> m ServerState
 acceptInvitationTo to state
   | Just (ClientConsideringInvitationFrom from) <- state ^? clientStateOf to = do
-    sendToName state from InvitationAccepted
-    sendToName state to IncomingInvitationAcceptanceAck
-    broadcastNewUserList $
-      state
-        & clientStateOf from .~ ClientPlayingWith to
-        & clientStateOf to .~ ClientPlayingWith from
+      sendToName state from InvitationAccepted
+      sendToName state to IncomingInvitationAcceptanceAck
+      broadcastNewUserList $
+        state
+          & clientStateOf from .~ ClientPlayingWith to
+          & clientStateOf to .~ ClientPlayingWith from
   | otherwise = do
-    sendToName state to UnexpectedMessage
-    return state
+      sendToName state to UnexpectedMessage
+      return state
 
 broadcastNewUserList :: CanSendMessages m => ServerState -> m ServerState
 broadcastNewUserList state = do
@@ -225,10 +225,10 @@ application stateVar pending = do
   case msg of
     CreateUser userName
       | userNameExists userName clients ->
-        send "" conn (UserCreationFailed UsernameAlreadyExists)
+          send "" conn (UserCreationFailed UsernameAlreadyExists)
       | otherwise -> flip finally (disconnect userName) $ do
-        modifyMVar_ stateVar (addClient userName conn)
-        talk userName conn stateVar
+          modifyMVar_ stateVar (addClient userName conn)
+          talk userName conn stateVar
     _ ->
       send "" conn UnexpectedMessage
   where

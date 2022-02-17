@@ -428,12 +428,13 @@ tryPlayM board (PEvent (Place pSpot target (handhi :: HandIndex))) = do
       throwError $ Text.pack $ "Unexpected state, CardCommon should be there if Card is there"
     (_, _, Just (CardCommon {mana = manaCost}))
       | manaCost > manaAvail ->
-        -- Not enough mana
-        return $ impossible NotEnoughMana
+          -- Not enough mana
+          return $ impossible NotEnoughMana
     (CardTarget pSpot cSpot, Just (CreatureCard _ creature), Just CardCommon {mana}) -> do
       e <- playCreatureM board' pSpot cSpot creature & runExceptT
       e >=> (\board'' -> (decreaseMana mana board'', Nothing))
       where
+
     (CardTarget pSpot cSpot, Just (ItemCard _ itemObj), Just CardCommon {mana}) -> do
       e <- playItemM board' pSpot cSpot (Card.item itemObj) & runExceptT
       e >=> (\board'' -> (decreaseMana mana board'', Nothing))
@@ -895,7 +896,7 @@ transferCardsM board pSpot =
   if not needTransfer
     then pure board
     else do
-      tell $ Board.setDiscarded mempty pSpot (- length discarded)
+      tell $ Board.setDiscarded mempty pSpot (-length discarded)
       tell $ Board.setStack mempty pSpot (length discarded)
       discarded' <- shuffleM discarded
       let part' = part {discarded = [], stack = stack ++ discarded'}
@@ -1121,8 +1122,8 @@ attack board pSpot cSpot =
     (Nothing, _) -> return board -- no attacker
     (Just _, _)
       | isStupid board pSpot cSpot ->
-        -- TODO @smelc record an animation
-        return board
+          -- TODO @smelc record an animation
+          return board
     (_, Just _) -> return board -- an ally blocks the way
     (Just hitter, _) ->
       case enemySpots hitter cSpot of

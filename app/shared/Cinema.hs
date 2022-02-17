@@ -209,10 +209,10 @@ render scene =
     eval lastDate frame threads
       | null dates = return ([], lastDate)
       | otherwise = do
-        let date = minimum dates
-        (newThreads, newFrame) <- E.runState frame (advanceThreads date threads)
-        (timedFrames, newLastDate) <- eval date newFrame newThreads
-        return ((date, newFrame) : timedFrames, newLastDate)
+          let date = minimum dates
+          (newThreads, newFrame) <- E.runState frame (advanceThreads date threads)
+          (timedFrames, newLastDate) <- eval date newFrame newThreads
+          return ((date, newFrame) : timedFrames, newLastDate)
       where
         dates = [date | Thread _ (WaitingForDate date) _ <- threads]
     advanceThreads :: Date -> [Thread] -> Stepper [Thread]

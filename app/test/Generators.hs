@@ -216,19 +216,19 @@ genSceneAst i = do
       oneof
         [ (:)
             <$> (NewActor <$> arbitrary <*> arbitrary)
-            <*> go (n -1) (i + 1),
+            <*> go (n - 1) (i + 1),
           (:)
             <$> ((:|||:) <$> subSequence i <*> subSequence i)
-            <*> go (n -1) i,
+            <*> go (n - 1) i,
           (:)
             <$> (Fork <$> subSequence i)
-            <*> go (n -1) i,
+            <*> go (n - 1) i,
           (:)
             <$> (Wait <$> (getPositive <$> arbitrary))
-            <*> go (n -1) i,
+            <*> go (n - 1) i,
           (:)
-            <$> (SetActorState <$> choose (0, n -1) <*> arbitrary)
-            <*> go (n -1) i
+            <$> (SetActorState <$> choose (0, n - 1) <*> arbitrary)
+            <*> go (n - 1) i
         ]
       where
         subSequence :: Int -> Gen SceneAst

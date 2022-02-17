@@ -42,7 +42,7 @@ loop (mrev :: Maybe GitRev) = do
   nextRev <- case either of
     Left err
       | isJust (asyncExceptionFromException err :: Maybe SomeAsyncException) ->
-        throw err
+          throw err
     Left err -> do
       putStrLn $ show err -- Print error
       return mrev -- Keep previous rev

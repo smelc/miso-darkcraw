@@ -289,7 +289,7 @@ instance Score Damage where
 scoreHandCard :: Card 'Core -> Int
 scoreHandCard = \case
   CreatureCard _ Creature {..} ->
-    sum $ [- (natToInt hp), - (natToInt $ score attack)] ++ map scoreSkill skills
+    sum $ [-(natToInt hp), -(natToInt $ score attack)] ++ map scoreSkill skills
   NeutralCard _ NeutralObject {neutral} ->
     case neutral of
       Health -> -1
@@ -330,7 +330,7 @@ scoreSkill s =
     Skill.Regeneration n -> Nat.negate n
     Skill.Powerful -> -2
     Skill.Sadism -> -1
-    Skill.Source (n, avail) -> if avail then - (natToInt n) else 0 -- TODO @smelc donc inspec avail
+    Skill.Source (n, avail) -> if avail then -(natToInt n) else 0 -- TODO @smelc donc inspec avail
     Skill.Squire -> 1
     Skill.StrengthPot -> -1
     Skill.Stupid4 _ -> if Skill.isStupid s then 2 else 1

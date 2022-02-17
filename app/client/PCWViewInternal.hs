@@ -452,7 +452,7 @@ createContext z shared =
     -- Leave 24x24_3_0.png untouched if direction is ToLeft
     dirToFilename filepath dir
       | dir == defaultDirection =
-        ms $ Tile.filepathToString filepath
+          ms $ Tile.filepathToString filepath
     -- Return 24x24_3_1.png untouched if direction is ToRight. This is
     -- where we rely on the right version of a sprite to be one line below
     -- its left version

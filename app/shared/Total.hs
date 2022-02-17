@@ -99,9 +99,9 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
       case (Skill.Knight `elem` skills, place) of -- A knight..
         (True, Just Place {place, cardSpot})
           | Spots.inFront cardSpot -> -- .. in the frontline
-            case place Map.!? (Board.switchLine cardSpot) of -- Inspect creature in frontline
-              Just Creature {skills = skills'} | Skill.Squire `elem` skills' -> Constants.squireAttackBonus
-              _ -> 0
+              case place Map.!? (Board.switchLine cardSpot) of -- Inspect creature in frontline
+                Just Creature {skills = skills'} | Skill.Squire `elem` skills' -> Constants.squireAttackBonus
+                _ -> 0
         _ -> 0
     strengthPotBonus =
       filter ((==) Skill.StrengthPot) skills

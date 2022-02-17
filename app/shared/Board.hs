@@ -284,9 +284,9 @@ lookupHand ::
 lookupHand hand i
   | i < 0 = Left $ Text.pack $ "Invalid hand index: " ++ show i
   | i >= handLength =
-    Left $
-      Text.pack $
-        "Invalid hand index: " ++ show i ++ ". Hand has " ++ show handLength ++ " card(s)."
+      Left $
+        Text.pack $
+          "Invalid hand index: " ++ show i ++ ". Hand has " ++ show handLength ++ " card(s)."
   | otherwise = Right (hand !! i)
   where
     handLength = length hand

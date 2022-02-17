@@ -91,17 +91,17 @@ viewWelcomeModel WelcomeModel {..} = do
     debugSlider :: [View Action]
     debugSlider
       | (ScenePausedForDebugging frames i) <- sceneModel =
-        [ input_
-            [ type_ "range",
-              min_ "0",
-              max_ (ms $ length frames - 1),
-              step_ "1'",
-              value_ (ms i),
-              onInput (SceneAction' . JumpToFrameForDebugging . read . fromMisoString),
-              autofocus_ True,
-              style_ ("position" =: "absolute" <> "top" =: "650px" <> "width" =: "500px")
-            ]
-        ]
+          [ input_
+              [ type_ "range",
+                min_ "0",
+                max_ (ms $ length frames - 1),
+                step_ "1'",
+                value_ (ms i),
+                onInput (SceneAction' . JumpToFrameForDebugging . read . fromMisoString),
+                autofocus_ True,
+                style_ ("position" =: "absolute" <> "top" =: "650px" <> "width" =: "500px")
+              ]
+          ]
       | otherwise = []
     viewWelcomeScene :: SceneModel -> [View Action]
     viewWelcomeScene (ScenePlaying frames i) = viewFrameAt NormalMode frames i
