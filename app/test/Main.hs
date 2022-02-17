@@ -6,10 +6,11 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 
-module Main where
+module Main (main, testFighterAI) where
 
 import AI
 import qualified Balance
@@ -21,6 +22,7 @@ import qualified Command
 import Constants
 import Control.Monad.Except
 import Data.Either
+import Data.Either.Extra
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List as List
@@ -28,7 +30,9 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
 import Data.Text (Text)
+import Data.Tuple.Extra (both)
 import Debug.Trace (traceShow)
+import GHC.Base (assert)
 import Game (Target (..))
 import qualified Game
 import Generators
@@ -42,15 +46,13 @@ import Pretty
 import SceneEquivalence
 import SharedModel (SharedModel)
 import qualified SharedModel
+import qualified Skill
 import Spots hiding (Card)
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import TestLib (shouldAllSatisfy, shouldSatisfyRight)
 import Turn
-
-creatureSum :: [Creature p] -> (Creature p -> Int) -> Int
-creatureSum cards getter = sum (map getter cards)
 
 getAllDecks :: [Card 'UI] -> [[Card 'Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
@@ -344,6 +346,36 @@ testRewards =
     acceptable ZKnights = False
     acceptable _ = True
 
+testFighterAI shared =
+  describe "AI" $ do
+    it "Mummy doesn't have Ranged" $ do
+      not $ Card.has fighter (Skill.Ranged :: Skill.State)
+    it "Mummy is placed on frontline when expected" $ do
+      ( board & addVictims & addToFighterHand & place fighterPSpot
+          & flip Board.toInPlace fighterPSpot
+          & Map.partitionWithKey (\cSpot _ -> Spots.inFront cSpot)
+          & both Map.elems
+        )
+        `shouldBe` ([fighter], [archer])
+  where
+    (fTeam, vTeam) = (Undead, Human)
+    archer = Logic.mkCreature shared Card.Archer fTeam False
+    (fighter, fighterPSpot) = (Logic.mkCreature shared Card.Mummy fTeam False, PlayerTop)
+    (victim, victimPSpot) = (Logic.mkCreature shared Card.Spearman vTeam False, Spots.other fighterPSpot)
+    board :: Board 'Core = Board.empty (Teams fTeam vTeam)
+    addVictims b = foldr (\cSpot b -> Board.setCreature victimPSpot cSpot victim b) b Spots.frontSpots
+    addToFighterHand (b :: Board 'Core) =
+      Board.addToHand b fighterPSpot (fighter & Card.creatureId & flip IDC [])
+        & (\b -> Board.addToHand b fighterPSpot (archer & Card.creatureId & flip IDC []))
+    place :: Spots.Player -> Board 'Core -> Board 'Core
+    place pSpot b =
+      AI.play AI.Hard shared b pSpot
+        & map Game.PEvent
+        & (\events -> assert (length events == 2) events)
+        & Game.playAll shared b
+        & fromRight'
+        & Game.board
+
 testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
@@ -453,7 +485,12 @@ main = hspec $ do
   -- From fast tests to slow tests (to maximize failing early)
   -- Unit tests
   testItemsAI shared
+  testShowCommands
+  testAIImprecise shared
+  testFighterAI shared
   -- PBT tests
+  testMana shared
+  testNeighbors
   testRewards
   testShared shared
   testAIPlace shared
