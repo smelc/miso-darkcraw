@@ -107,6 +107,27 @@ def _check_jsondata_dot_hs() -> int:
     return _run_cmd(None, ["./th/main.py", "--check"])
 
 
+def _check_ormolu_version() -> int:
+    """ Check that ormolu's version is the expected one. Returns a return
+        code. """
+    expected_version = "0.4.0.0"
+    cmd = ["ormolu", "--version"]
+    ormolu_output = subprocess.run(cmd,
+                                   check=True,
+                                   stdout=subprocess.PIPE,
+                                   universal_newlines=True).stdout
+    ormolu_output = ormolu_output.split(" ")
+    version = ormolu_output[1] if len(ormolu_output) >= 2 else None
+    if version is None:
+        print(f"Unexpected ormolu --version output: {ormolu_output}")
+        return 1
+    elif version != expected_version:
+        print(f"Unexpected ormolu version: {version}. Expected: {expected_version}")
+        return 1
+    else:
+        return 0  # success case
+
+
 def _build() -> int:
     """
     Build the project in release mode
@@ -211,9 +232,11 @@ def main() -> int:
 
     relevant_hs_files = _git_diff(staged, "hs")
     if relevant_hs_files:
-        ormolu_rc = _call_tool(relevant_hs_files, staged,
-                               ["ormolu", "-m", "inplace"])
-        return_code = max(return_code, ormolu_rc)
+        return_code = _check_ormolu_version()
+        if return_code == 0:  # ormolu version is the expected one
+            ormolu_rc = _call_tool(relevant_hs_files, staged,
+                                   ["ormolu", "-m", "inplace"])
+            return_code = max(return_code, ormolu_rc)
         if _BUILD_TEST:
             return_code = max(return_code, _build())
             return_code = max(return_code, _test())

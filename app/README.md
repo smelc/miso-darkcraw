@@ -24,6 +24,13 @@ nix-shell -A release.env default.nix
 cabal --project-file=cabal.config build all
 ```
 
+# Formatting
+
+Haskell code in miso-darkcraw must be formatted with
+[Ormolu 0.4.0.0](https://github.com/tweag/ormolu/releases/tag/0.4.0.0).
+The [pre-commit hook](https://github.com/smelc/miso-darkcraw/blob/master/hooks/pre_commit.py)
+automatically amends commits to honor formatting.
+
 # Documentation
 
 ## Online version
