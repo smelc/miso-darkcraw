@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -47,7 +48,6 @@ import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe, maybeToList)
-import Data.Proxy
 import qualified Data.Text as Text
 import qualified Game
 import Miso.String (MisoString)
@@ -192,7 +192,7 @@ data HandlersKind = Prod | Sim
 
 -- | Simple class for building 'Handlers' values
 class MakeHandlers (b :: HandlersKind) a where
-  make :: Proxy b -> Handlers a
+  make :: Handlers a
 
 runOne :: MonadError Text.Text m => a ~ Kernel b => Sched -> Handlers a -> a -> m (a, NextSched)
 runOne (Sequence (fst NE.:| rest)) h m = do
@@ -273,7 +273,7 @@ runOne IncrTurn Handlers {incrTurn} m =
 -- player under the hood; thanks to the @Kernel Spots.Player@ instance.
 prodRunOneModel :: MonadError Text.Text m => a ~ Model.Game => Sched -> a -> m (a, NextSched)
 prodRunOneModel s m = do
-  (k', s) <- Move.runOne s (make @ 'Prod Proxy) k
+  (k', s) <- Move.runOne s (make @ 'Prod) k
   pure (m `Contains.with` k', s)
   where
     k :: Kernel Spots.Player = Contains.to m
@@ -294,7 +294,7 @@ runAll s h m = do
 -- Only suited for simulation/testing because it doesn't keep track of the playing player
 -- and doesn't trigger the AI automatically. It is up to the caller to do it.
 simRunAllMaybe :: MonadError Text.Text m => a ~ Kernel () => NextSched -> a -> m a
-simRunAllMaybe s m = case s of Nothing -> pure m; Just (_, s) -> runAll s (make @ 'Sim Proxy) m
+simRunAllMaybe s m = case s of Nothing -> pure m; Just (_, s) -> runAll s (make @ 'Sim) m
 
 -- | Function that should be called in every 'incrTurn' definition.
 incrTurnBase :: Kernel a -> Kernel a
@@ -302,7 +302,7 @@ incrTurnBase k@Kernel {turn} = k {turn = Turn.next turn}
 
 -- | The instance for production, that plays the AI in 'incrTurn'
 instance MakeHandlers 'Prod (Kernel Spots.Player) where
-  make _ = Handlers {disableUI, enableUI, incrTurn}
+  make = Handlers {disableUI, enableUI, incrTurn}
     where
       disableUI k@Kernel {playingPlayer, turn}
         | Turn.toPlayerSpot turn == playingPlayer = k {Move.uiAvail = False}
@@ -320,7 +320,7 @@ instance MakeHandlers 'Prod (Kernel Spots.Player) where
           actor :: Actor = if isAI then AI else Player
 
 instance MakeHandlers 'Sim (Kernel ()) where
-  make _ = Handlers {disableUI = id, enableUI = id, incrTurn}
+  make = Handlers {disableUI = id, enableUI = id, incrTurn}
     where
       -- Simulation case: do not call startTurn (AI not triggered)
       incrTurn k = k & incrTurnBase & Right <&> (,Nothing)
