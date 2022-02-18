@@ -9,10 +9,12 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 
 module Main (main, testFighterAI) where
 
 import AI
+import qualified Art
 import qualified Balance
 import Board
 import qualified Campaign
@@ -20,6 +22,7 @@ import Card
 import Cinema
 import qualified Command
 import Constants
+import Control.Category ((>>>))
 import Control.Monad.Except
 import Data.Either
 import Data.Either.Extra
@@ -31,7 +34,7 @@ import Data.Maybe
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Data.Tuple.Extra (both)
-import Debug.Trace (traceShow)
+import Debug.Trace (trace, traceShow)
 import GHC.Base (assert)
 import Game (Target (..))
 import qualified Game
@@ -40,6 +43,7 @@ import qualified Invariants
 import Json
 import qualified Logic (main, mkCreature)
 import qualified Match
+import qualified Model
 import Movie
 import Nat
 import Pretty
@@ -53,6 +57,7 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import TestLib (shouldAllSatisfy, shouldSatisfyRight)
 import Turn
+import qualified Update
 
 getAllDecks :: [Card 'UI] -> [[Card 'Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
@@ -348,30 +353,25 @@ testRewards =
 
 testFighterAI shared =
   describe "AI" $ do
-    it "Mummy doesn't have Ranged" $ do
+    it "Spearman doesn't have Ranged" $ do
       not $ Card.has fighter (Skill.Ranged :: Skill.State)
-    it "Mummy is placed on frontline when expected" $ do
-      ( board & addVictims & addToFighterHand & place fighterPSpot
-          & flip Board.toInPlace fighterPSpot
+    xit "Spearman isn't placed in backline" $ do
+      ( board & place PlayerBot
+          & flip Board.toInPlace PlayerBot
           & Map.partitionWithKey (\cSpot _ -> Spots.inFront cSpot)
-          & both Map.elems
+          & both (Map.elems >>> map (Card.creatureId >>> Card.creatureKind))
         )
-        `shouldBe` ([fighter], [archer])
+        `shouldSatisfy` (\(_front, back) -> all ((/=) Card.Spearman) back)
   where
-    (fTeam, vTeam) = (Undead, Human)
-    archer = Logic.mkCreature shared Card.Archer fTeam False
-    (fighter, fighterPSpot) = (Logic.mkCreature shared Card.Mummy fTeam False, PlayerTop)
-    (victim, victimPSpot) = (Logic.mkCreature shared Card.Spearman vTeam False, Spots.other fighterPSpot)
-    board :: Board 'Core = Board.empty (Teams fTeam vTeam)
-    addVictims b = foldr (\cSpot b -> Board.setCreature victimPSpot cSpot victim b) b Spots.frontSpots
-    addToFighterHand (b :: Board 'Core) =
-      Board.addToHand b fighterPSpot (fighter & Card.creatureId & flip IDC [])
-        & (\b -> Board.addToHand b fighterPSpot (archer & Card.creatureId & flip IDC []))
+    teams = Board.Teams topTeam botTeam
+    (topTeam, botTeam) = (Undead, Human)
+    fighter = Logic.mkCreature shared Card.Spearman botTeam False
+    board :: Board 'Core = Update.level0GameModel AI.Hard shared teams & Model.board
     place :: Spots.Player -> Board 'Core -> Board 'Core
     place pSpot b =
       AI.play AI.Hard shared b pSpot
         & map Game.PEvent
-        & (\events -> assert (length events == 2) events)
+        & (\events -> assert (length events == 3) events)
         & Game.playAll shared b
         & fromRight'
         & Game.board
