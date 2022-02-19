@@ -5,9 +5,9 @@
 
 module Invariants where
 
-import qualified AI
 import Board
 import Card
+import qualified Constants
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Maybe
@@ -78,7 +78,7 @@ main shared = do
          in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) 32
               `shouldSatisfy` (\Match.Result {models} -> all isValid' models)
   where
-    difficulty = AI.Easy
+    difficulty = Constants.Easy
     isValid :: [String] -> Bool
     isValid [] = True
     isValid violations = traceShow (unlines violations) False

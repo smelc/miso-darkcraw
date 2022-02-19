@@ -10,9 +10,9 @@
 -- |
 module Match (main, MatchResult (..), play, Result (..), testStupidity) where
 
-import qualified AI (Difficulty (..))
 import Board
 import Card
+import qualified Constants (Difficulty (..))
 import qualified Contains
 import Control.Monad.Except
 import Damage (Damage (..))
@@ -47,7 +47,7 @@ main shared = do
         [1 .. 48]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = level0GameModel AI.Easy (SharedModel.withSeed shared seed) $ Teams t1 t2
+        model seed = level0GameModel Constants.Easy (SharedModel.withSeed shared seed) $ Teams t1 t2
     isError (Error msg) = traceShow msg True
     isError Draw = False
     isError (Win _) = False
@@ -85,7 +85,7 @@ testStupidity shared =
         not (inTheBack cSpot)
           ==> let teams = Teams topTeam Human
                   board = initialBoard shared teams cSpot
-                  model = Update.unsafeInitialGameModel AI.Easy (mkShared seed) (mkTeamData teams) board
+                  model = Update.unsafeInitialGameModel Constants.Easy (mkShared seed) (mkTeamData teams) board
                in play model 8 `shouldSatisfy` isValid
   where
     initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot

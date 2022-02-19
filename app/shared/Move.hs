@@ -36,6 +36,7 @@ import Board (Board)
 import qualified Board
 import BoardInstances (boardStart)
 import Card
+import qualified Constants
 import Contains (Contains, with)
 import qualified Contains
 import Control.Monad.Except (MonadError (throwError), runExcept)
@@ -151,7 +152,7 @@ data Kernel a = Kernel
   { anim :: Game.Animation,
     anims :: Board 'UI,
     board :: Board 'Core,
-    difficulty :: AI.Difficulty,
+    difficulty :: Constants.Difficulty,
     playingPlayer :: a,
     shared :: SharedModel,
     turn :: Turn.Turn,

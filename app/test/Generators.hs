@@ -9,11 +9,11 @@
 
 module Generators where
 
-import AI (Difficulty)
 import Board
 import qualified Campaign
 import Card
 import Cinema
+import qualified Constants (Difficulty)
 import Damage (Damage (..))
 import Data.Function ((&))
 import Data.Maybe
@@ -190,8 +190,8 @@ instance Arbitrary (Teams Team) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary (Difficulty) where
-  arbitrary = genericArbitraryU
+instance Arbitrary (Constants.Difficulty) where
+  arbitrary = elements $ [minBound ..]
   shrink = genericShrink
 
 instance Arbitrary (Campaign.Outcome) where

@@ -6,12 +6,12 @@
 
 module Model where
 
-import AI (Difficulty (Easy))
 import qualified Art
 import Board
 import Campaign
 import Card
 import Cinema (TimedFrame)
+import qualified Constants (Difficulty (..))
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Generics.Labels ()
@@ -64,7 +64,7 @@ data Game = Game
     -- | The core part of the model
     board :: Board 'Core,
     -- | The game's difficulty
-    difficulty :: Difficulty,
+    difficulty :: Constants.Difficulty,
     -- | What user interaction is going on
     interaction :: Interaction Game.Target,
     -- | The current level
@@ -135,7 +135,7 @@ unsafeGameModel WelcomeModel {shared} =
     teams' = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
     turn = Turn.initial
     level = Campaign.Level0
-    difficulty = AI.Easy
+    difficulty = Constants.Easy
     interaction = NoInteraction
     playingPlayer = startingPlayerSpot
     (_, board) = Board.initial shared teams'

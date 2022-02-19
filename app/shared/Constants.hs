@@ -1,8 +1,10 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Constants where
 
+import GHC.Generics (Generic)
 import Miso.String
 import Nat
 
@@ -87,6 +89,13 @@ chargeAmount = 2
 -- | The number of cards to draw at the beginning of a turn
 nbCardsToDraw :: Int
 nbCardsToDraw = 3
+
+-- | The AI's level. Not truly a constant, I know.
+data Difficulty
+  = Easy
+  | Medium
+  | Hard
+  deriving (Bounded, Enum, Eq, Generic, Show)
 
 gameTitle :: MisoString
 gameTitle = "Pixel Card Wars"

@@ -73,7 +73,7 @@ testAIRanged shared turn =
     archer = IDC (CreatureID Archer t) []
     pSpot = Turn.toPlayerSpot turn
     board = Board.addToHand (Board.empty teams) pSpot archer
-    events = AI.play AI.Easy shared board pSpot
+    events = AI.play Constants.Easy shared board pSpot
 
 testShared shared =
   describe "SharedModel" $ do
@@ -259,7 +259,7 @@ testAIPlace shared =
                 `shouldSatisfy` isJust
   where
     play = AI.play difficulty shared
-    difficulty = AI.Easy
+    difficulty = Constants.Easy
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
     spotsDiffer _ _ = error "Only Place' events should have been generated"
@@ -320,7 +320,7 @@ testPlayScoreMonotonic shared =
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
       \(board, pSpot) ->
         let score = flip boardPlayerScore pSpot
-         in let (initialScore, events) = (score board, AI.play AI.Easy shared board pSpot)
+         in let (initialScore, events) = (score board, AI.play Constants.Easy shared board pSpot)
              in let nextScore =
                       Game.playAll shared board (map Game.PEvent events)
                         & takeBoard <&> score
@@ -366,10 +366,10 @@ testFighterAI shared =
     teams = Board.Teams topTeam botTeam
     (topTeam, botTeam) = (Undead, Human)
     fighter = Logic.mkCreature shared Card.Spearman botTeam False
-    board :: Board 'Core = Update.level0GameModel AI.Hard shared teams & Model.board
+    board :: Board 'Core = Update.level0GameModel Constants.Hard shared teams & Model.board
     place :: Spots.Player -> Board 'Core -> Board 'Core
     place pSpot b =
-      AI.play AI.Hard shared b pSpot
+      AI.play Constants.Hard shared b pSpot
         & map Game.PEvent
         & (\events -> assert (length events == 3) events)
         & Game.playAll shared b
@@ -391,14 +391,14 @@ testItemsAI shared =
     teams = Teams Undead Undead
     mkCreature' kind team = Logic.mkCreature shared kind team False
     play board =
-      Game.playAll shared board $ map Game.PEvent $ AI.play AI.Easy shared board pSpot
+      Game.playAll shared board $ map Game.PEvent $ AI.play Constants.Easy shared board pSpot
     hasItem board pSpot cSpot item =
       (Board.toInPlaceCreature board pSpot cSpot) `has` item
 
 testAIImprecise shared =
   describe "AI" $ do
     it "Imprecise card is put in back line" $
-      (Game.playAll shared board $ map Game.PEvent $ AI.play AI.Easy shared board pSpot)
+      (Game.playAll shared board $ map Game.PEvent $ AI.play Constants.Easy shared board pSpot)
         `shouldSatisfyRight` ( \(Game.Result {board = board'}) ->
                                  Board.toPlayerCardSpots board' pSpot Occupied
                                    & (\spots -> length spots == 1 && all inTheBack spots)

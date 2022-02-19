@@ -13,7 +13,6 @@
 
 module Update where
 
-import AI (Difficulty)
 import qualified AI
 import Board
 import qualified Campaign
@@ -21,6 +20,7 @@ import Card
 import Cinema
 import qualified Command
 import qualified Constants
+import qualified Constants (Difficulty)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
@@ -506,7 +506,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
                 Left errMsg -> noEff $ GameModel' $ gm {interaction = ShowErrorInteraction errMsg}
                 Right (Game.Result {board = board'}) -> withBoard board'
               where
-                events = AI.play AI.Hard shared board pSpot & map Game.PEvent
+                events = AI.play Constants.Hard shared board pSpot & map Game.PEvent
             Just (Command.EndGame outcome) ->
               noEff $ LootModel' $ Model.endGame gm outcome
             Just (Command.FillTheFrontline pSpot) ->
@@ -549,7 +549,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ level0GameModel AI.Hard shared $ Teams Undead team
+    noEff $ GameModel' $ level0GameModel Constants.Hard shared $ Teams Undead team
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -604,7 +604,7 @@ updateModel a m =
 
 -- | The initial model, appropriately shuffled with 'SharedModel' rng
 level0GameModel ::
-  Difficulty ->
+  Constants.Difficulty ->
   SharedModel ->
   (Teams Team) ->
   Model.Game
@@ -618,7 +618,7 @@ level0GameModel difficulty shared teams =
 -- | A model that takes the decks as parameters, for use after the initial
 -- start of the game
 levelNGameModel ::
-  Difficulty ->
+  Constants.Difficulty ->
   SharedModel ->
   Campaign.Level ->
   -- | The initial decks
@@ -641,7 +641,7 @@ levelNGameModel difficulty shared level teams =
 
 -- | An initial model, with a custom board
 unsafeInitialGameModel ::
-  Difficulty ->
+  Constants.Difficulty ->
   SharedModel ->
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->

@@ -10,7 +10,7 @@
 -- |
 -- This module defines how the AI plays.
 -- 'applyDifficulty', 'boardScore', and 'playHand' are exported for tests
-module AI (applyDifficulty, AI.play, boardPlayerScore, Difficulty (..), playHand) where
+module AI (applyDifficulty, AI.play, boardPlayerScore, playHand) where
 
 import Board
   ( Board,
@@ -19,6 +19,7 @@ import Board
 import qualified Board
 import BoardInstances ()
 import Card
+import Constants
 import Control.Exception
 import Damage (Damage (..))
 import Data.Function ((&))
@@ -30,7 +31,6 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Debug.Trace (traceShow)
-import GHC.Generics (Generic)
 import qualified Game (Event (..), Place (..), Result (..), Target (..), WhichPlayerTarget (..), maybePlay, playAll, whichPlayerTarget)
 import Nat
 import SharedModel (SharedModel)
@@ -41,13 +41,6 @@ import qualified Spots
 import System.Random (StdGen)
 import System.Random.Shuffle (shuffle')
 import qualified Total
-
--- | The AI's level
-data Difficulty
-  = Easy
-  | Medium
-  | Hard
-  deriving (Eq, Generic, Show)
 
 -- | Given the hand, the permutations to consider for playing this hand
 applyDifficulty :: forall a. Ord a => Difficulty -> StdGen -> [a] -> [[a]]

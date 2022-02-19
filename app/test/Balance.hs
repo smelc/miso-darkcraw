@@ -11,10 +11,10 @@
 -- |
 module Balance where
 
-import qualified AI
 import Board
 import qualified Campaign
 import Card
+import qualified Constants
 import qualified Data.ByteString as BS
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -219,7 +219,7 @@ play shareds level teams nbTurns =
     go (shared : rest) =
       -- I tried setting AI to Hard once and it didn't change the outcome significantly,
       -- except that it was wayyyyy slower.
-      let result = Match.play (Update.levelNGameModel AI.Easy shared level teams) nbTurns
+      let result = Match.play (Update.levelNGameModel Constants.Easy shared level teams) nbTurns
        in result : go rest
     go [] = []
     count :: Stat -> [Match.MatchResult] -> Stat
