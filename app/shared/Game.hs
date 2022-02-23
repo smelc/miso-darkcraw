@@ -40,6 +40,7 @@ module Game
     playE,
     playAll,
     playAllE,
+    toSpot,
     tryPlayM,
     StatChange (..), -- exported for tests only
     transferCards,
@@ -132,6 +133,10 @@ data Place
     -- testing behavior than 'Place': it makes the generated events commute.
     Place' Spots.Player Target Card.ID
   deriving (Eq, Generic, Show)
+
+-- | The 'Spots.Player' in a 'Place', i.e. the player playing an event
+toSpot :: Place -> Spots.Player
+toSpot = \case Place pSpot _ _ -> pSpot; Place' pSpot _ _ -> pSpot
 
 data Event
   = -- | Apply brainless of the creatures at the given 'Spots.Player'

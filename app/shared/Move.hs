@@ -20,8 +20,10 @@
 module Move
   ( Actor (..),
     DnDAction (..),
-    Kernel,
+    Kernel (board),
+    mkSimKernel,
     Move (..),
+    nextify,
     NextSched,
     -- Don't export @run*@ functions directly, use the @sim@ or @prod@ prefix!
     simRunAllMaybe,
@@ -31,7 +33,7 @@ module Move
   )
 where
 
-import qualified AI
+import {-# SOURCE #-} qualified AI (play)
 import Board (Board)
 import qualified Board
 import BoardInstances (boardStart)
@@ -159,6 +161,15 @@ data Kernel a = Kernel
     uiAvail :: Bool
   }
 
+-- | Creates a minimal kernel, suited for simulation
+mkSimKernel :: Constants.Difficulty -> SharedModel -> Turn.Turn -> Board 'Core -> Kernel ()
+mkSimKernel difficulty shared turn board = Kernel {..}
+  where
+    anim = Game.NoAnimation
+    anims = mempty
+    playingPlayer = ()
+    uiAvail = False
+
 instance Contains (Kernel a) (SharedModel, Board 'Core, Board 'UI) where
   to Kernel {shared, board, anims} = (shared, board, anims)
   with m (s, b, a) = m {shared = s, board = b, anims = a}
@@ -237,6 +248,7 @@ runOne EndTurnPressed h@Handlers {disableUI} m@Kernel {board, difficulty, shared
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
               placements =
+                -- FIXME @smelc only allow to place creatures and items (no spell)
                 AI.play
                   difficulty
                   shared
@@ -289,8 +301,8 @@ runAll s h m = do
     Just (_, s') -> runAll s' h m'
 
 -- | @simRunAllMaybe m s@ executes @s@ (if it is @Just _@) and then continues executing the generated
--- 'NextSched', if any. Returns when 's' is 'Nothing' or when executing the
--- underlying 'Sched' doesn't yield a new one.
+-- 'NextSched', if any. Returns immediately when 's' is 'Nothing', if 's' is @Just _@ execute it,
+-- as well as the generated @Sched@ values, until it runs out of @Sched@ values.
 --
 -- Only suited for simulation/testing because it doesn't keep track of the playing player
 -- and doesn't trigger the AI automatically. It is up to the caller to do it.
@@ -318,7 +330,7 @@ instance MakeHandlers 'Prod (Kernel Spots.Player) where
           k'@Kernel {turn = turn'} = incrTurnBase k
           pSpot = Turn.toPlayerSpot turn'
           isAI :: Bool = pSpot /= playingPlayer
-          actor :: Actor = if isAI then AI else Player
+          actor :: Actor = if isAI then Move.AI else Player
 
 instance MakeHandlers 'Sim (Kernel ()) where
   make = Handlers {disableUI = id, enableUI = id, incrTurn}
@@ -343,13 +355,14 @@ data Actor = AI | Player
 startTurn :: MonadError Text.Text m => a ~ Kernel b => Actor -> Spots.Player -> a -> m (a, NextSched)
 startTurn a pSpot m@Kernel {board = b, turn} =
   ( case a of
-      AI -> startAITurn m' pSpot
+      Move.AI -> startAITurn m' pSpot
       Player -> pure $ startPlayerTurn m' pSpot
   )
     <&> Bifunctor.first postStart
   where
     m'
-      | turn == Turn.initial = m -- Don't increment stupidity counter for example
+      | turn == Turn.initial = m -- Don't increment stupidity counter for example.
+      -- FIXME don't generate preTurnEvents either (somewhere else)
       | otherwise = m {Move.board = boardStart b pSpot}
 
 -- | This function is related to 'startAITurn'. If you change

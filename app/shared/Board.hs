@@ -35,6 +35,7 @@ module Board
     InHandType (),
     lookupHand,
     lookupHandM,
+    mapHand,
     PlayerPart (..),
     StackType (),
     small,
@@ -330,6 +331,9 @@ increaseScore board pSpot change =
   where
     score = Board.toScore pSpot board
 
+mapHand :: Spots.Player -> (InHandType p -> InHandType p) -> Board p -> Board p
+mapHand pSpot f b = setHand b pSpot (f (toHand b pSpot))
+
 -- | Changes the mana at the given 'Spots.Player', applying a function
 -- on the existing mana.
 mapMana :: Spots.Player -> (Board.ManaType p -> Board.ManaType p) -> Board p -> Board p
@@ -420,6 +424,9 @@ toHoleyInPlace board =
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
 
+-- | Returns the spots available for playing a card with the given target kind.
+-- For creature cards for example it returns empty spots. For item cards
+-- it returns occupied spots.
 toPlayerCardSpots :: Board 'Core -> Spots.Player -> CardTargetKind -> [Spots.Card]
 toPlayerCardSpots board pSpot ctk =
   toPlayerHoleyInPlace board pSpot

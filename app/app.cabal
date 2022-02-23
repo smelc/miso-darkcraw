@@ -48,8 +48,10 @@ common common-all
     Damage
     Event
     Game
+    HeuristicAI
     Json
     JsonData
+    MCTSAI
     Model
     Move
     Movie

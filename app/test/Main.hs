@@ -39,6 +39,7 @@ import GHC.Base (assert)
 import Game (Target (..))
 import qualified Game
 import Generators
+import qualified HeuristicAI
 import qualified Invariants
 import Json
 import qualified Logic (main, mkCreature)
@@ -319,7 +320,7 @@ testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
       \(board, pSpot) ->
-        let score = flip boardPlayerScore pSpot
+        let score = flip HeuristicAI.boardPlayerScore pSpot
          in let (initialScore, events) = (score board, AI.play Constants.Easy shared board pSpot)
              in let nextScore =
                       Game.playAll shared board (map Game.PEvent events)
@@ -446,7 +447,7 @@ testApplyDifficulty stdgen =
     prop "Returned lists are permutations of the input list" $
       \(difficulty, SmallList (l :: [Int])) ->
         let perms = permutations l
-         in AI.applyDifficulty difficulty stdgen l
+         in HeuristicAI.applyDifficulty difficulty stdgen l
               `shouldAllSatisfy` (`elem` perms)
 
 main :: IO ()
