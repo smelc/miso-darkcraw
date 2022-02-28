@@ -22,18 +22,18 @@ balances =
   [ -- Level0
     -- Endomatches: if starting team doesn't have an advantage this data should
     -- show roughly 50% win on each side. It doesn't seem to be the case now.
-    (Human, Campaign.Level0, Human, 40, 19, 5),
-    (Evil, Campaign.Level0, Evil, 45, 18, 1),
-    (Undead, Campaign.Level0, Undead, 41, 21, 2),
+    (Human, Campaign.Level0, Human, 48, 15, 1),
+    (Evil, Campaign.Level0, Evil, 48, 16, 0),
+    (Undead, Campaign.Level0, Undead, 44, 17, 3),
     -- Matchups
-    (Human, Campaign.Level0, Evil, 58, 6, 0),
-    (Human, Campaign.Level0, Undead, 61, 2, 1),
-    (Human, Campaign.Level0, ZKnights, 47, 15, 2),
-    (Evil, Campaign.Level0, Undead, 39, 23, 2),
+    (Human, Campaign.Level0, Evil, 15, 48, 1),
+    (Human, Campaign.Level0, Undead, 13, 49, 2),
+    (Human, Campaign.Level0, ZKnights, 21, 42, 1),
+    (Evil, Campaign.Level0, Undead, 22, 39, 3),
     -- Level1
-    (Human, Campaign.Level1, Evil, 172, 19, 1),
-    (Human, Campaign.Level1, Undead, 339, 42, 3),
-    (Evil, Campaign.Level1, Undead, 60, 65, 3)
+    (Human, Campaign.Level1, Evil, 42, 148, 2),
+    (Human, Campaign.Level1, Undead, 40, 342, 2),
+    (Evil, Campaign.Level1, Undead, 31, 95, 2)
   ]
 
 -- | Returns the balance of the given matchup

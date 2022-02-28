@@ -353,6 +353,7 @@ testRewards =
     acceptable _ = True
 
 testFighterAI shared =
+  -- TODO @smelc delete me?
   describe "AI" $ do
     it "Spearman doesn't have Ranged" $ do
       not $ Card.has fighter (Skill.Ranged :: Skill.State)

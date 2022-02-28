@@ -6,7 +6,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module MCTSAI (newPlaySim) where
+module MCTSAI (place, newPlaySim) where
 
 import Board (Board)
 import qualified Board
@@ -32,7 +32,7 @@ import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
 import qualified Skill
-import Spots hiding (Card, Line(..))
+import Spots hiding (Card, Line (..))
 import qualified Turn
 
 -- | Sorts a pair of lists, using the first member as the ordering. Usual

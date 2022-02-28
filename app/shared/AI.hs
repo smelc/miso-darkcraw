@@ -8,9 +8,11 @@ module AI (AI.play) where
 
 import Board
 import Card
+-- import qualified HeuristicAI
+
+import qualified ConcreteAI
 import qualified Constants
 import qualified Game
-import qualified HeuristicAI
 import SharedModel (SharedModel)
 import qualified Spots
 
@@ -24,6 +26,7 @@ play ::
   -- | Events generated for player 'pSpot'
   [Game.Place]
 play difficulty shared board pSpot =
-  HeuristicAI.play difficulty shared board pSpot
+  -- HeuristicAI.play difficulty shared board pSpot
+  ConcreteAI.play difficulty shared board pSpot
 
 -- MCTSAI.newPlaySim difficulty shared pSpot board

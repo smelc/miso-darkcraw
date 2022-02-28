@@ -43,6 +43,7 @@ common common-all
     CardInstances
     Cinema
     Command
+    ConcreteAI
     Contains
     Constants
     Damage
