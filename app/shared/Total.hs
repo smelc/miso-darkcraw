@@ -92,7 +92,7 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
                 then Constants.chargeAmount
                 else 0
           where
-            spots = Board.line cardSpot
+            spots = Spots.toLine cardSpot
         _ -> 0
     hasCharge Creature {skills} = any ((==) Skill.Charge) skills
     squireBonus =

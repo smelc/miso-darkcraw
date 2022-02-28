@@ -41,6 +41,10 @@ data Neighborhood
     All
   deriving (Eq, Generic, Show)
 
+-- | The back line, or the front line
+data Line = Front | Back
+  deriving (Show)
+
 -- * Functions about 'CardSpot'
 
 -- | All 'Spots.Card' values.
@@ -83,6 +87,23 @@ inTheBack _ = False
 inFront :: Spots.Card -> Bool
 inFront = not . inTheBack
 
+-- | All spots in a given line
+line :: Line -> [Spots.Card]
+line =
+  \case
+    Front -> [BottomLeft, Bottom, BottomRight]
+    Back -> [TopLeft, Top, TopRight]
+
+-- | Whether a spot is in the center
+isCentered :: Spots.Card -> Bool
+isCentered = \case
+  TopLeft -> False
+  Top -> True
+  TopRight -> False
+  BottomLeft -> False
+  Bottom -> True
+  BottomRight -> False
+
 neighbors :: Neighborhood -> Spots.Card -> [Spots.Card]
 neighbors All pSpot = neighbors Diagonal pSpot ++ neighbors Cardinal pSpot
 neighbors Cardinal pSpot =
@@ -113,8 +134,8 @@ switchLine Bottom = Top
 switchLine BottomRight = TopRight
 
 -- | All spots in the same line
-line :: Spots.Card -> [Spots.Card]
-line = \case
+toLine :: Spots.Card -> [Spots.Card]
+toLine = \case
   TopLeft -> top
   Top -> top
   TopRight -> top

@@ -32,7 +32,7 @@ import Nat
 import SharedModel (SharedModel)
 import qualified SharedModel
 import qualified Skill
-import Spots hiding (Card)
+import Spots hiding (Card, Line(..))
 import qualified Turn
 
 -- | Sorts a pair of lists, using the first member as the ordering. Usual
