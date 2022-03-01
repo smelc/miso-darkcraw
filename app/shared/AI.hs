@@ -2,7 +2,7 @@
 
 -- |
 -- This module defines how the AI plays. It is actually just a dispatching
--- module that delegates either to 'MCTSAI' or to 'HeuristicAI'.
+-- module that delegates either to 'MCTSAI', 'HeuristicAI', or 'ConcreteAI'.
 -- 'applyDifficulty', 'boardScore', and 'playHand' are exported for tests
 module AI (AI.play) where
 

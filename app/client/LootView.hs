@@ -8,6 +8,10 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+-- |
+-- Module to display the view reached after a successful end of 'GameView'.
+-- This view sits between two games, where the player can pick new
+-- cards to augment its deck.
 module LootView where
 
 import Card
@@ -29,17 +33,13 @@ import qualified PCWViewInternal
 import SharedModel (SharedModel)
 import qualified SharedModel
 import Update (Action (LootAction'), LootAction (Pick, Unpick))
+import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
-
--- |
--- Module to display the view reached after a successful end of 'GameView'.
--- This view sits between two games, where the player can pick new
--- cards to augment its deck.
--- |
 
 -- | Top-level rendering function
 view :: LootModel -> Styled (View Action)
 view LootModel {..} = do
+  next <- nextView zpppp remainingToPick
   rewards <- rewardsView ctxt zpppp rewards
   deck <-
     deckView
@@ -52,6 +52,7 @@ view LootModel {..} = do
       [style_ $ bgStyle z]
       [ rewards,
         rewardsLegend,
+        next,
         deck,
         deckLegend,
         div_
@@ -211,6 +212,21 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
         picked' = case picked of Model.Picked -> True; Model.NotPicked -> False
         xCellsOffset = Constants.cardCellWidth + 1 -- card width + horizontal margin
         x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
+
+nextView :: Int -> Nat -> Styled (View action)
+nextView z remainingToPick = do
+  button <- textButton gui z state [style_ textStyle] "Next →"
+  let sty =
+        "z-index" =: ms z
+          <> "position" =: "absolute"
+          <> "margin-left" =: px (Constants.lobbiesPixelWidth - (Constants.cps * 2))
+          -- And tell the element to center horizontally, not to its left
+          <> "transform" =: "translate(-50%, 0%)"
+          -- Finally shift element down
+          <> "margin-top" =: px ((rewardsViewTopMargin + rewardsViewHeight) + (Constants.cps `div` 2))
+  return $ div_ [style_ sty] [button]
+  where
+    state = if remainingToPick == 0 then Enabled else Disabled
 
 deckViewTopMargin :: Int
 deckViewTopMargin = Constants.cps * 14
