@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="4" height="6" tilewidth="24" tileheight="24" infinite="0" nextlayerid="3" nextobjectid="1">
+ <tileset firstgid="1" source="oryx_16bit_fantasy_world_trans.tsx"/>
+ <layer id="1" name="bg" width="4" height="6">
+  <data encoding="csv">
+789,789,789,789,
+789,789,789,789,
+789,789,789,789,
+789,789,789,789,
+789,789,789,789,
+789,789,789,789
+</data>
+ </layer>
+ <layer id="2" name="fg" width="4" height="6">
+  <data encoding="csv">
+0,0,0,0,
+0,0,0,0,
+0,0,0,0,
+0,0,0,0,
+0,0,0,0,
+0,0,0,90
+</data>
+ </layer>
+</map>
