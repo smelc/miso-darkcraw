@@ -13,7 +13,6 @@
 -- Module to display an instance of the main view, i.e.
 -- the battle between two players. Only this module (and modules that
 -- depend on it) can depend on 'GameViewInternal'.
--- |
 module GameView where
 
 import Board
@@ -39,6 +38,8 @@ import PCWViewInternal
 import SharedModel
 import Spots hiding (Card)
 import qualified Spots
+import Theme (Theme)
+import qualified Theme
 import qualified Total
 import Update
 import ViewBlocks (dummyOn)
@@ -83,16 +84,17 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
       return $
         div_ [style_ boardStyle] $
           concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ apps ++ [manaView_]
+    theme :: Theme = Theme.kindToTheme Theme.DarkForest
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
-        <> "background-image" =: assetsUrl "forest.png"
+        <> "background-image" =: assetsUrl (Theme.board theme)
     handDivM = do
       cells <- boardToInHandCells zpp $ toHandDrawingInput model
       stacks <- traverse (stackView model z playingPlayer Hand) [Discarded, Stacked]
       return $ div_ [style_ handStyle] $ cells ++ concat stacks
     handStyle =
       zpltwh z Relative 0 0 handPixelWidth handPixelHeight
-        <> "background-image" =: assetsUrl "forest-hand.png"
+        <> "background-image" =: assetsUrl (Theme.hand theme)
     dragTargetType =
       case interaction of
         DragInteraction (Dragging (HandIndex i) _) ->

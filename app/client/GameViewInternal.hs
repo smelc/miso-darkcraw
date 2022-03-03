@@ -53,6 +53,8 @@ import qualified SharedModel (unsafeIdentToCard)
 import qualified Skill
 import Spots (Player (..))
 import qualified Spots
+import Theme (Theme)
+import qualified Theme
 import qualified Tile
 import qualified Turn
 import Update
@@ -237,11 +239,12 @@ turnView model@Model.Game {turn} z = do
   line3 <- line3M
   return $ div_ [style_ $ turnViewStyle <> textStyle] [line1, line2, line3]
   where
+    theme :: Theme = Theme.kindToTheme Theme.DarkForest
     turnViewStyle =
       zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight
         <> flexColumnStyle
         <> "justify-content" =: "center"
-        <> "background-image" =: assetsUrl "turn.png"
+        <> "background-image" =: assetsUrl (Theme.turn theme)
     line1 :: View Action = Miso.text $ "Turn " <> ms (Turn.toNat turn)
     playerImgY =
       case Turn.toPlayerSpot turn of
