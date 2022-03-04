@@ -153,7 +153,13 @@
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Outcome" class="def">Outcome</a> <a href="#t:Outcome" class="selflink">#</a></p>
-<div class="doc"><p>The outcome of playing a single game</p></div>
+<div class="doc">
+<p><code>mkJourney team shared</code> returns a journey for when the player
+ plays <code>team</code>
+ mkJourney :: Team -&gt; SharedModel -&gt; (Journey, SharedModel)
+ mkJourney team shared = undefined</p>
+<p>The outcome of playing a single game</p>
+</div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>

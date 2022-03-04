@@ -24,13 +24,10 @@ module SharedModel
     unsafeGet,
     unsafeIdentToCard,
     SharedModel.liftSkill,
-    shuffle,
-    SharedModel.shuffleM,
     create,
     SharedModel.getStdGen,
     getCards,
     getCmd,
-    roll,
     withCmd,
     withStdGen,
     getCardIdentifiers,
@@ -41,23 +38,17 @@ module SharedModel
     unsafeToCardCommon,
     identToItem,
     identToNeutral,
-    pick,
     getInitialDeck,
-    oneof,
   )
 where
 
 import Card hiding (ID)
 import qualified Card
 import Command
-import Control.Monad.Identity (Identity (runIdentity))
 import Control.Monad.Random hiding (lift)
-import Control.Monad.State hiding (lift)
 import Data.Foldable (find)
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NE
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Maybe
@@ -66,12 +57,21 @@ import GHC.Generics (Generic)
 import Json (loadJson)
 import Skill (Skill)
 import qualified Skill
-import System.Random.Shuffle (shuffleM)
 import Tile (Filepath, Tile, TileUI (..))
 import qualified Tile
 
 instance Eq StdGen where
   std1 == std2 = show std1 == show std2
+
+-- | Instance to be able to use 'SharedModel' like a random generator.
+instance RandomGen SharedModel where
+  next sh@SharedModel {sharedStdGen} =
+    let (i, gen') = next sharedStdGen
+     in (i, sh {sharedStdGen = gen'})
+  genRange = genRange . sharedStdGen
+  split sh@SharedModel {sharedStdGen} =
+    let (gen1, gen2) = split sharedStdGen
+     in (sh {sharedStdGen = gen1}, sh {sharedStdGen = gen2})
 
 -- | The part of the model that is likely to be used by all pages
 -- | i.e. all possible models
@@ -264,75 +264,6 @@ liftSkill SharedModel {sharedSkills} skill =
     -- Dummy value
     text = show skill ++ " not found!"
     title = text
-
--- | Pick one element at random from the second argument, using the random
--- generator of 'SharedModel'. Returns the updated 'SharedModel' and the
--- picked element (being 'Just' if the list non-empty). See 'oneof' for
--- a variant of this function.
-pick :: SharedModel -> [a] -> (SharedModel, Maybe a)
-pick shared@SharedModel {sharedStdGen = stdgen} l =
-  case length l of
-    0 -> (shared, Nothing)
-    len ->
-      let (i, stdgen') = randomR (0, len - 1) stdgen
-       in (shared {sharedStdGen = stdgen'}, Just $ l !! i)
-
--- | Shuffles the second argument with the random generator
--- of 'SharedModel'. Returns the shuffle and the updated 'SharedModel'
-shuffle :: SharedModel -> [a] -> (SharedModel, [a])
-shuffle shared@SharedModel {sharedStdGen} l =
-  (shared {sharedStdGen = stdgen'}, l')
-  where
-    (l', stdgen') =
-      System.Random.Shuffle.shuffleM l
-        & flip runRandT sharedStdGen
-        & runIdentity
-
--- | Shuffles the given list with the random generator of 'SharedModel'
-shuffleM :: MonadState SharedModel m => [a] -> m [a]
-shuffleM =
-  \case
-    [] -> pure []
-    l -> do
-      shared <- get
-      let (shared', l') = shuffle shared l
-      put shared'
-      return l'
-
--- | Returns a random element from the list, using 'sharedStdGen' as
--- the random generator.
-oneof ::
-  MonadState SharedModel m =>
-  -- | The elements from which something must be picked
-  NonEmpty a ->
-  m a
-oneof elems = do
-  shared@SharedModel {sharedStdGen = stdgen} <- get
-  let (idx, stdgen') = randomR (0, nbElems - 1) stdgen
-  put (shared {sharedStdGen = stdgen'})
-  return $ elems NE.!! idx
-  where
-    nbElems :: Int = NE.length elems
-
--- XXX @smelc make SharedModel an instance of StdGen, use that in this
--- function and other neighbors functions too.
-
--- | 'roll min max' returns a value between 'min' (included) and 'max'
--- (included). 'min <= max' should hold.
-roll ::
-  MonadState SharedModel m =>
-  Random p =>
-  Ord p =>
-  -- | The minimum element
-  p ->
-  -- | The maximum element
-  p ->
-  m p
-roll min max = do
-  shared@SharedModel {sharedStdGen = stdgen} <- get
-  let (res, stdgen') = assert (min <= max) $ randomR (min, max) stdgen
-  put (shared {sharedStdGen = stdgen'})
-  return res
 
 tileToFilepath :: SharedModel -> Tile -> Tile.Size -> Filepath
 tileToFilepath SharedModel {sharedTiles} tile defaultSize =

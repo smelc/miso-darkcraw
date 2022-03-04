@@ -85,8 +85,8 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 import GHC.Generics (Generic)
 import Nat
+import qualified Random
 import SharedModel (SharedModel, idToCreature)
-import qualified SharedModel
 import Spots hiding (Card)
 import qualified Spots
 import Tile (Tile)
@@ -539,7 +539,7 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
   where
     part team smodel deck = (smodel', (empty team) {inHand = hand', stack = stack'})
       where
-        (smodel', deck') = SharedModel.shuffle smodel deck
+        (smodel', deck') = Random.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
         hand' = map cardToIdentifier hand
         stack' = map cardToIdentifier stack

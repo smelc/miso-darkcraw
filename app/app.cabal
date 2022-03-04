@@ -57,6 +57,7 @@ common common-all
     Move
     Movie
     Nat
+    Random
     ServerMessages
     SharedModel
     Skill

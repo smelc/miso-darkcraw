@@ -28,6 +28,7 @@ import Data.Tuple.Extra
 import qualified Game
 import qualified HeuristicAI
 import qualified MCTSAI
+import qualified Random
 import SharedModel
 import qualified Spots
 import qualified Total
@@ -51,7 +52,7 @@ play difficulty shared board pSpot =
     --> reverse third & fst
   where
     shuffleHand b =
-      let hand' = SharedModel.shuffle shared (Board.toHand b pSpot) & snd
+      let hand' = Random.shuffle shared (Board.toHand b pSpot) & snd
        in Board.setHand b pSpot hand'
     first = [ConcreteAI.Creature FrontFighter, ConcreteAI.Creature Shooter, ConcreteAI.Creature Support]
     second = [ConcreteAI.Creature Support, ConcreteAI.Creature Shooter, ConcreteAI.Creature FrontOrBackFighter]
@@ -74,7 +75,7 @@ playWhat diff shared pSpot what board =
   case what of
     [] -> Nothing
     w : wrest ->
-      case playFirst diff shared pSpot board w & SharedModel.pick shared & snd of
+      case playFirst diff shared pSpot board w & Random.pick shared & snd of
         Nothing -> playWhat diff shared pSpot wrest board
         Just (place, board') ->
           case playWhat diff shared pSpot wrest board' of
@@ -147,7 +148,7 @@ playFirstItem ::
   Item ->
   [(Game.Place, Board 'Core)]
 playFirstItem diff shared pSpot board item =
-  case (item, itemToPrefClass item <&> SharedModel.shuffle shared <&> snd) of
+  case (item, itemToPrefClass item <&> Random.shuffle shared <&> snd) of
     (Crown, Nothing) ->
       -- Crown case, look for a fighter, ideally centered; that doesn't have discipline
       let spots :: [Spots.Card] =
@@ -176,7 +177,7 @@ playFirstItem diff shared pSpot board item =
                 map (Map.toList >>> map (fst >>> toEvent)) candidates
               mresult = map (map ((diff, shared, board) ~>)) places
            in -- Shuffle because classes are unordered
-              map catMaybes mresult & SharedModel.shuffle shared & snd & firstNE
+              map catMaybes mresult & Random.shuffle shared & snd & firstNE
     (_, pref) -> error $ "Unexpected item/itemToPrefClass combination: " ++ show item ++ "/" ++ show pref
   where
     toEvent cspot = Game.Place' pSpot (Game.CardTarget pSpot cspot) (Card.IDI item)

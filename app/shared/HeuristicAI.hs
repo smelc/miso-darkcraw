@@ -43,6 +43,7 @@ import Debug.Trace (traceShow, traceShowId)
 import qualified Game
 import qualified Move
 import Nat
+import qualified Random
 import SharedModel (SharedModel)
 import qualified SharedModel
 import qualified Skill
@@ -175,7 +176,7 @@ aiPlayFirst shared board pSpot =
       let scores' = scores id & sortByFst
       -- Take all targets that have the same best score and pick one randomly
       -- Should I returned a mutated SharedModel?
-      target <- takeBestOnes scores' & SharedModel.shuffle shared & snd & listToMaybe
+      target <- takeBestOnes scores' & Random.shuffle shared & snd & listToMaybe
       return (pSpot, target, id)
   where
     handIndex = HandIndex 0

@@ -81,6 +81,7 @@ import Data.Tuple (swap)
 import Debug.Trace
 import GHC.Generics (Generic)
 import Nat
+import qualified Random
 import SharedModel (SharedModel)
 import qualified SharedModel
 import Skill (Skill)
@@ -596,7 +597,7 @@ playNeutralM board _playingPlayer target n =
       -- Take existing creatures
       let creatures = Board.toInPlace board pSpot & Map.elems
       -- Generate random spots
-      spots <- SharedModel.shuffleM Spots.allCards
+      spots <- Random.shuffleM Spots.allCards
       -- Put existing creatures on new spots
       let board' = Board.setInPlace board pSpot (Map.fromList $ zip spots creatures)
       -- Report fadeIn effects on each new spot
@@ -944,7 +945,7 @@ applyBrainlessM board pSpot = do
   if null brainless
     then return board -- Nothing to do, avoid useless things
     else do
-      shuffledFreeSpots :: [Spots.Card] <- SharedModel.shuffleM freeSpots
+      shuffledFreeSpots :: [Spots.Card] <- Random.shuffleM freeSpots
       let shuffled = Map.fromList (zip shuffledFreeSpots (Map.elems brainless))
       let inPlace' = Map.union shuffled rest
       return (Board.setInPlace board pSpot inPlace')
@@ -987,7 +988,7 @@ applyChurchM ::
   m (Board 'Core)
 applyChurchM board pSpot = do
   -- TODO @smelc generate one effect per church
-  effect <- SharedModel.oneof allChurchEffects
+  effect <- Random.oneof allChurchEffects
   case effect of
     PlusOneAttack ->
       go (\c@Creature {attack} -> c {Card.attack = attack +^ 1}) (mempty {attackChange = 1})
@@ -1136,7 +1137,7 @@ attack board pSpot cSpot =
           -- Attacker has the Ace skill. Attack an occupied spot.
           -- Never contributes to score.
           let occupiedSlots = Board.toInPlace board attackeePSpot & Map.toList
-          occupiedSlots <- SharedModel.shuffleM occupiedSlots <&> safeHead
+          occupiedSlots <- Random.shuffleM occupiedSlots <&> safeHead
           case occupiedSlots of
             Nothing -> return board -- Nothing to attack. XXX @smelc record question mark animation
             Just (attackedSpot, attacked) -> do
@@ -1144,7 +1145,7 @@ attack board pSpot cSpot =
         Imprecise -> do
           -- Attacker has the Imprecise skill. Attack a spot at random.
           -- Never contribute to score.
-          attackedSpot :: Spots.Card <- SharedModel.oneof Spots.allCardsNE
+          attackedSpot :: Spots.Card <- Random.oneof Spots.allCardsNE
           case Board.toInPlaceCreature board attackeePSpot attackedSpot of
             Nothing -> do
               -- Imprecise creature targets an empty spot, report attack
@@ -1276,7 +1277,7 @@ applyFlailOfTheDamned board creature pSpot =
             Board.toPlayerHoleyInPlace board pSpot
               & filter (isNothing . snd)
               & map fst
-      let (shared', spawningSpot) = SharedModel.pick shared spots
+      let (shared', spawningSpot) = Random.pick shared spots
       case spawningSpot of
         Nothing -> return noChange
         Just spawningSpot -> do
@@ -1333,7 +1334,7 @@ singleAttack place attacker@Creature {skills} defender = do
 deal :: MonadState SharedModel m => Damage -> m Nat
 deal Damage {base, variance}
   | variance == 0 = return base -- No need to roll a dice
-  | otherwise = SharedModel.roll base (base + variance)
+  | otherwise = Random.roll base (base + variance)
 
 -- | The spot that blocks a spot from attacking, which happens
 -- | if the input spot is in the back line
