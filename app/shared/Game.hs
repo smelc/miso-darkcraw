@@ -1277,7 +1277,7 @@ applyFlailOfTheDamned board creature pSpot =
             Board.toPlayerHoleyInPlace board pSpot
               & filter (isNothing . snd)
               & map fst
-      let (shared', spawningSpot) = Random.pick shared spots
+      let (spawningSpot, shared') = Random.pick shared spots
       case spawningSpot of
         Nothing -> return noChange
         Just spawningSpot -> do

@@ -539,7 +539,7 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
   where
     part team smodel deck = (smodel', (empty team) {inHand = hand', stack = stack'})
       where
-        (smodel', deck') = Random.shuffle smodel deck
+        (deck', smodel') = Random.shuffle smodel deck
         (hand, stack) = splitAt initialHandSize deck'
         hand' = map cardToIdentifier hand
         stack' = map cardToIdentifier stack

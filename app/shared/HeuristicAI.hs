@@ -176,7 +176,7 @@ aiPlayFirst shared board pSpot =
       let scores' = scores id & sortByFst
       -- Take all targets that have the same best score and pick one randomly
       -- Should I returned a mutated SharedModel?
-      target <- takeBestOnes scores' & Random.shuffle shared & snd & listToMaybe
+      target <- takeBestOnes scores' & Random.pick shared & fst
       return (pSpot, target, id)
   where
     handIndex = HandIndex 0

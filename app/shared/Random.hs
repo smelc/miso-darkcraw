@@ -18,27 +18,20 @@ import qualified System.Random.Shuffle
 -- generator of 'SharedModel'. Returns the updated 'SharedModel' and the
 -- picked element (being 'Just' if the list non-empty). See 'oneof' for
 -- a variant of this function.
---
--- TODO @smelc change order of returned pair, to be consistent with 'RandomGen'
-pick :: RandomGen r => r -> [a] -> (r, Maybe a)
+pick :: RandomGen r => r -> [a] -> (Maybe a, r)
 pick r = \case
-  [] -> (r, Nothing)
+  [] -> (Nothing, r)
   l ->
     let (i, r') = randomR (0, length l - 1) r
-     in (r', Just $ l !! i)
+     in (Just $ l !! i, r')
 
 -- | Shuffles the second argument with the random generator
 -- of 'SharedModel'. Returns the shuffle and the updated 'SharedModel'
---
--- TODO @smelc change order of returned pair, to be consistent with 'RandomGen'
-shuffle :: RandomGen r => r -> [a] -> (r, [a])
+shuffle :: RandomGen r => r -> [a] -> ([a], r)
 shuffle r l =
-  (r', l')
-  where
-    (l', r') =
-      System.Random.Shuffle.shuffleM l
-        & flip runRandT r
-        & runIdentity
+  System.Random.Shuffle.shuffleM l
+    & flip runRandT r
+    & runIdentity
 
 -- | Shuffles the given list with the random generator of 'SharedModel'
 shuffleM :: RandomGen r => MonadState r m => [a] -> m [a]
@@ -47,8 +40,8 @@ shuffleM =
     [] -> pure []
     l -> do
       shared <- get
-      let (shared', l') = shuffle shared l
-      put shared'
+      let (l', r') = shuffle shared l
+      put r'
       return l'
 
 -- | Returns a random element from the list, using 'sharedStdGen' as
