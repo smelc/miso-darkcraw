@@ -28,6 +28,7 @@ import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
+import qualified Data.Map as Map
 import Data.Maybe (isJust, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -36,6 +37,7 @@ import qualified Data.Text.Lazy as LazyText
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
+import GHC.Base (assert)
 import qualified Game
 import Miso
 import Miso.String (MisoString, fromMisoString)
@@ -549,7 +551,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ level0GameModel Constants.Hard shared $ Teams Undead team
+    noEff $ GameModel' $ level0GameModel Constants.Hard shared (Campaign.mkJourney team) (Teams Undead team)
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -606,13 +608,15 @@ updateModel a m =
 level0GameModel ::
   Constants.Difficulty ->
   SharedModel ->
-  (Teams Team) ->
+  Campaign.Journey ->
+  Teams Team ->
   Model.Game
-level0GameModel difficulty shared teams =
+level0GameModel difficulty shared journey teams =
   levelNGameModel
     difficulty
     shared
     Campaign.Level0
+    journey
     $ (teams <&> (\t -> (t, SharedModel.getInitialDeck shared t)))
 
 -- | A model that takes the decks as parameters, for use after the initial
@@ -621,25 +625,29 @@ levelNGameModel ::
   Constants.Difficulty ->
   SharedModel ->
   Campaign.Level ->
-  -- | The initial decks
+  Campaign.Journey ->
+  -- | The decks
   (Teams (Team, [Card 'Core])) ->
   Model.Game
-levelNGameModel difficulty shared level teams =
-  Model.Game {..}
+levelNGameModel difficulty shared level journey@(Campaign.Journey j) teams =
+  assert correctOpponent Model.Game {..}
   where
     (_, board) = Board.initial shared teams
     interaction = NoInteraction
     playingPlayer = Spots.startingPlayerSpot
     playingPlayerDeck =
-      toData playingPlayer teams
+      Board.toData playingPlayer teams
         & snd
         & map Card.cardToIdentifier
     turn = Turn.initial
     anims = mempty
     anim = Game.NoAnimation
     uiAvail = True
+    correctOpponent =
+      (Just (fst $ Board.toData (Spots.other playingPlayer) teams))
+        == (Map.lookup level j <&> fst)
 
--- | An initial model, with a custom board
+-- | An initial model, with a custom board. /!\ Not for production /!\
 unsafeInitialGameModel ::
   Constants.Difficulty ->
   SharedModel ->
@@ -648,14 +656,18 @@ unsafeInitialGameModel ::
   -- | The board
   Board 'Core ->
   Model.Game
-unsafeInitialGameModel difficulty shared teamsData board =
+unsafeInitialGameModel difficulty shared teams board =
   Model.Game {..}
   where
     interaction = NoInteraction
+    journey =
+      Campaign.unsafeJourney
+        level
+        (Board.toData (Spots.other Spots.startingPlayerSpot) teams & fst)
     level = Campaign.Level0
     playingPlayer = Spots.startingPlayerSpot
     playingPlayerDeck =
-      toData playingPlayer teamsData
+      toData playingPlayer teams
         & snd
         & map Card.cardToIdentifier
     turn = Turn.initial

@@ -368,7 +368,8 @@ testFighterAI shared =
     teams = Board.Teams topTeam botTeam
     (topTeam, botTeam) = (Undead, Human)
     fighter = Logic.mkCreature shared Card.Spearman botTeam False
-    board :: Board 'Core = Update.level0GameModel Constants.Hard shared teams & Model.board
+    board :: Board 'Core = Update.level0GameModel Constants.Hard shared journey teams & Model.board
+    journey = Campaign.unsafeJourney Campaign.Level0 topTeam
     place :: Spots.Player -> Board 'Core -> Board 'Core
     place pSpot b =
       AI.play Constants.Hard shared b pSpot

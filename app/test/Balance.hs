@@ -219,9 +219,13 @@ play shareds level teams nbTurns =
     go (shared : rest) =
       -- I tried setting AI to Hard once and it didn't change the outcome significantly,
       -- except that it was wayyyyy slower.
-      let result = Match.play (Update.levelNGameModel Constants.Easy shared level teams) nbTurns
+      let result = Match.play (Update.levelNGameModel Constants.Easy shared level journey teams) nbTurns
        in result : go rest
     go [] = []
+    journey =
+      Campaign.unsafeJourney
+        level
+        (Board.toData (Spots.other Spots.startingPlayerSpot) teams & fst)
     count :: Stat -> [Match.MatchResult] -> Stat
     count acc [] = acc
     count s (Match.Error {} : tail) = count s tail -- not this test's business to fail on Error

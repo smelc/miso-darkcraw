@@ -36,6 +36,8 @@
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
 <li class="src short">
+<span class="keyword">newtype</span> <a href="#t:Journey">Journey</a> = <a href="#v:Journey">Journey</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a> (<a href="Card.html#t:Team" title="Card">Team</a>, <a href="Theme.html#t:Theme" title="Theme">Theme</a>))</li>
+<li class="src short">
 <span class="keyword">data</span> <a href="#t:Level">Level</a><ul class="subs">
 <li>= <a href="#v:Level0">Level0</a>
 </li>
@@ -60,6 +62,9 @@
 <li class="src short">
 <a href="#v:fixed">fixed</a> :: [(<a href="Card.html#t:Team" title="Card">Team</a>, <a href="Campaign.html#t:Level" title="Campaign">Level</a>)]</li>
 <li class="src short">
+<a href="#v:mkJourney">mkJourney</a> :: <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a>
+</li>
+<li class="src short">
 <a href="#v:loot">loot</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="Campaign.html#t:Outcome" title="Campaign">Outcome</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>]</li>
 <li class="src short">
 <a href="#v:nbRewards">nbRewards</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
@@ -67,9 +72,72 @@
 <li class="src short">
 <a href="#v:succ">succ</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a>
 </li>
+<li class="src short">
+<a href="#v:unsafeJourney">unsafeJourney</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a>
+</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">newtype</span> <a id="t:Journey" class="def">Journey</a> <a href="#t:Journey" class="selflink">#</a></p>
+<div class="doc"><p>For every level, the opponent and the theme. Maps of this type
+ are complete: the domain is the entire of <code><a href="Campaign.html#t:Level" title="Campaign">Level</a></code></p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table><tr>
+<td class="src">
+<a id="v:Journey" class="def">Journey</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a> (<a href="Card.html#t:Team" title="Card">Team</a>, <a href="Theme.html#t:Theme" title="Theme">Theme</a>))</td>
+<td class="doc empty">&nbsp;</td>
+</tr></table>
+</div>
+<div class="subs instances"><details id="i:Journey" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Journey:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a></span> <a href="#t:Journey" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Journey:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Journey:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a></span> <a href="#t:Journey" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Journey:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Campaign.html#t:Journey" title="Campaign">Journey</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Journey:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a></span> <a href="#t:Journey" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Journey:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> x -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Journey:Rep:4"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a></span> <a href="#t:Journey" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Journey:Rep:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Journey" "Campaign" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Journey" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-TypeLits.html#t:Symbol" title="GHC.TypeLits">Symbol</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a> (<a href="Card.html#t:Team" title="Card">Team</a>, <a href="Theme.html#t:Theme" title="Theme">Theme</a>)))))</div></details></td></tr>
+</table></details></div>
+</div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Level" class="def">Level</a> <a href="#t:Level" class="selflink">#</a></p>
 <div class="doc"><p>The levels: <code><a href="Campaign.html#v:Level0" title="Campaign">Level0</a></code> is the first level (no reward was given yet),
@@ -90,22 +158,50 @@
 <div class="subs instances"><details id="i:Level" open="open"><summary>Instances</summary><table>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Bounded:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Bounded" title="Prelude">Bounded</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Level:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:id:Level:Bounded:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:minBound">minBound</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> <a href="#v:minBound" class="selflink">#</a></p>
+<p class="src"><a href="#v:maxBound">maxBound</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> <a href="#v:maxBound" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Enum:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Enum" title="Prelude">Enum</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Level:Enum:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:succ">succ</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> <a href="#v:succ" class="selflink">#</a></p>
+<p class="src"><a href="#v:pred">pred</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> <a href="#v:pred" class="selflink">#</a></p>
+<p class="src"><a href="#v:toEnum">toEnum</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> <a href="#v:toEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:fromEnum">fromEnum</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:fromEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFrom">enumFrom</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; [<a href="Campaign.html#t:Level" title="Campaign">Level</a>] <a href="#v:enumFrom" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThen">enumFromThen</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; [<a href="Campaign.html#t:Level" title="Campaign">Level</a>] <a href="#v:enumFromThen" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromTo">enumFromTo</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; [<a href="Campaign.html#t:Level" title="Campaign">Level</a>] <a href="#v:enumFromTo" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThenTo">enumFromThenTo</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; [<a href="Campaign.html#t:Level" title="Campaign">Level</a>] <a href="#v:enumFromThenTo" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Eq:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Level:Eq:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
 <p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Ord:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Ord:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Level:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:id:Level:Ord:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:compare">compare</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
 <p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
@@ -117,11 +213,11 @@
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Show:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Level:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:id:Level:Show:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
 <p class="src"><a href="#v:show">show</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
@@ -129,11 +225,11 @@
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Generic:6"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Level:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs associated-types">
+<tr><td colspan="2"><details id="i:id:Level:Generic:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="subs associated-types">
 <p class="caption">Associated Types</p>
 <p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
 </div> <div class="subs methods">
@@ -143,11 +239,11 @@
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Rep:5"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Level:Rep:7"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a></span> <a href="#t:Level" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Level:Rep:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="src">
+<tr><td colspan="2"><details id="i:id:Level:Rep:7"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Campaign.html">Campaign</a></p> <div class="src">
 <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Level" "Campaign" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Level0" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Level1" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>))</div></details></td></tr>
 </table></details></div>
 </div>
@@ -250,6 +346,11 @@
 <div class="doc"><p>Fights that can be done only at specific levels</p></div>
 </div>
 <div class="top">
+<p class="src"><a id="v:mkJourney" class="def">mkJourney</a> :: <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> <a href="#v:mkJourney" class="selflink">#</a></p>
+<div class="doc"><p><code>mkJourney team</code> returns a journey for when the player
+ plays <code>team</code>. In the future it will likely be randomized.</p></div>
+</div>
+<div class="top">
 <p class="src"><a id="v:loot" class="def">loot</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:StdGen" title="System.Random">StdGen</a> -&gt; <a href="Campaign.html#t:Outcome" title="Campaign">Outcome</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>] <a href="#v:loot" class="selflink">#</a></p>
 <div class="doc"><p>The possible rewards when finishing the given <code><a href="Campaign.html#t:Level" title="Campaign">Level</a></code> with the given <code><a href="Campaign.html#t:Outcome" title="Campaign">Outcome</a></code></p></div>
 </div>
@@ -260,6 +361,11 @@
 <div class="top">
 <p class="src"><a id="v:succ" class="def">succ</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Campaign.html#t:Level" title="Campaign">Level</a> <a href="#v:succ" class="selflink">#</a></p>
 <div class="doc"><p>Given a level, its successor</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:unsafeJourney" class="def">unsafeJourney</a> :: <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> <a href="#v:unsafeJourney" class="selflink">#</a></p>
+<div class="doc"><p>An incomplete journey, but fine for playing one game at the given level,
+ against the given team.</p></div>
 </div>
 </div>
 </div>

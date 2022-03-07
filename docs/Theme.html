@@ -33,10 +33,40 @@
 <p class="caption">Description</p>
 <div class="doc"><p>Module containing themes</p></div>
 </div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<a href="#v:kindToTheme">kindToTheme</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Theme" title="Theme">Theme</a>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Kind">Kind</a><ul class="subs">
+<li>= <a href="#v:DarkForest">DarkForest</a>
+</li>
+<li>| <a href="#v:Forest">Forest</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Theme">Theme</a> = <a href="#v:Theme">Theme</a> {<ul class="subs">
+<li>
+<a href="#v:board">board</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+<li>
+<a href="#v:hand">hand</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+<li>
+<a href="#v:turn">turn</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+</ul>}</li>
+</ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
 <div class="top">
+<p class="src"><a id="v:kindToTheme" class="def">kindToTheme</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Theme" title="Theme">Theme</a> <a href="#v:kindToTheme" class="selflink">#</a></p>
+<div class="doc"><p>Transforms an identifier to useful data</p></div>
+</div>
+<div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Kind" class="def">Kind</a> <a href="#t:Kind" class="selflink">#</a></p>
+<div class="doc"><p>Identifiers of themes</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
@@ -50,9 +80,52 @@
 </tr>
 </table>
 </div>
+<div class="subs instances"><details id="i:Kind" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kind:Bounded:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Bounded" title="Prelude">Bounded</a> <a href="Theme.html#t:Kind" title="Theme">Kind</a></span> <a href="#t:Kind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Kind:Bounded:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Theme.html">Theme</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:minBound">minBound</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> <a href="#v:minBound" class="selflink">#</a></p>
+<p class="src"><a href="#v:maxBound">maxBound</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> <a href="#v:maxBound" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kind:Enum:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Enum" title="Prelude">Enum</a> <a href="Theme.html#t:Kind" title="Theme">Kind</a></span> <a href="#t:Kind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Kind:Enum:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Theme.html">Theme</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:succ">succ</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> <a href="#v:succ" class="selflink">#</a></p>
+<p class="src"><a href="#v:pred">pred</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> <a href="#v:pred" class="selflink">#</a></p>
+<p class="src"><a href="#v:toEnum">toEnum</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> <a href="#v:toEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:fromEnum">fromEnum</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:fromEnum" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFrom">enumFrom</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; [<a href="Theme.html#t:Kind" title="Theme">Kind</a>] <a href="#v:enumFrom" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThen">enumFromThen</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; [<a href="Theme.html#t:Kind" title="Theme">Kind</a>] <a href="#v:enumFromThen" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromTo">enumFromTo</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; [<a href="Theme.html#t:Kind" title="Theme">Kind</a>] <a href="#v:enumFromTo" class="selflink">#</a></p>
+<p class="src"><a href="#v:enumFromThenTo">enumFromThenTo</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; [<a href="Theme.html#t:Kind" title="Theme">Kind</a>] <a href="#v:enumFromThenTo" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Kind:Show:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Theme.html#t:Kind" title="Theme">Kind</a></span> <a href="#t:Kind" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Kind:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Theme.html">Theme</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Theme.html#t:Kind" title="Theme">Kind</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Theme" class="def">Theme</a> <a href="#t:Theme" class="selflink">#</a></p>
+<div class="doc"><p>The names of assets of this theme. Only filenames: no paths.</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
@@ -76,8 +149,32 @@
 </div></td></tr>
 </table>
 </div>
+<div class="subs instances"><details id="i:Theme" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Theme:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Theme.html#t:Theme" title="Theme">Theme</a></span> <a href="#t:Theme" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Theme:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Theme.html">Theme</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Theme.html#t:Theme" title="Theme">Theme</a> -&gt; <a href="Theme.html#t:Theme" title="Theme">Theme</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Theme.html#t:Theme" title="Theme">Theme</a> -&gt; <a href="Theme.html#t:Theme" title="Theme">Theme</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Theme:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Theme.html#t:Theme" title="Theme">Theme</a></span> <a href="#t:Theme" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Theme:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Theme.html">Theme</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Theme.html#t:Theme" title="Theme">Theme</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Theme.html#t:Theme" title="Theme">Theme</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Theme.html#t:Theme" title="Theme">Theme</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
 </div>
-<div class="top"><p class="src"><a id="v:kindToTheme" class="def">kindToTheme</a> :: <a href="Theme.html#t:Kind" title="Theme">Kind</a> -&gt; <a href="Theme.html#t:Theme" title="Theme">Theme</a> <a href="#v:kindToTheme" class="selflink">#</a></p></div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>

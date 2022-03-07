@@ -11,6 +11,7 @@
 module Match (main, MatchResult (..), play, Result (..), testStupidity) where
 
 import Board
+import qualified Campaign
 import Card
 import qualified Constants (Difficulty (..))
 import qualified Contains
@@ -47,7 +48,8 @@ main shared = do
         [1 .. 48]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = level0GameModel Constants.Easy (SharedModel.withSeed shared seed) $ Teams t1 t2
+        model seed = level0GameModel Constants.Easy (SharedModel.withSeed shared seed) journey (Teams t1 t2)
+        journey = Campaign.unsafeJourney Campaign.Level0 t1
     isError (Error msg) = traceShow msg True
     isError Draw = False
     isError (Win _) = False

@@ -6,6 +6,7 @@
 module Invariants where
 
 import Board
+import qualified Campaign
 import Card
 import qualified Constants
 import Data.Function ((&))
@@ -16,6 +17,7 @@ import qualified Match
 import qualified Model
 import Pretty
 import SharedModel
+import qualified Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Turn
@@ -61,23 +63,27 @@ main shared = do
     prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in let Model.Game {board} = Update.level0GameModel difficulty shared' teams
-             in board `shouldSatisfy` isValid'
+            Model.Game {board} = Update.level0GameModel difficulty shared' (mkJourney teams) teams
+         in board `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
-      \(Pretty team1, Pretty team2, seed) ->
+      \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) 32
+         in Match.play (Update.level0GameModel difficulty shared' (mkJourney teams) teams) 32
               `shouldSatisfy` isValidResult
   describe "GameModel invariant" $ do
     prop "holds initially" $
       \(difficulty, teams) ->
-        Update.level0GameModel difficulty shared teams `shouldSatisfy` isValid'
+        Update.level0GameModel difficulty shared (mkJourney teams) teams `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
-      \(Pretty team1, Pretty team2, seed) ->
+      \(Pretty teams, seed) ->
         let shared' = SharedModel.withSeed shared seed
-         in Match.play (Update.level0GameModel difficulty shared' $ Teams team1 team2) 32
+         in Match.play (Update.level0GameModel difficulty shared' (mkJourney teams) teams) 32
               `shouldSatisfy` (\Match.Result {models} -> all isValid' models)
   where
+    mkJourney teams =
+      Campaign.unsafeJourney
+        Campaign.Level0
+        (Board.toData (Spots.other Spots.startingPlayerSpot) teams)
     difficulty = Constants.Easy
     isValid :: [String] -> Bool
     isValid [] = True

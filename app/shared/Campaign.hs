@@ -6,25 +6,32 @@
 -- This module deals with the succession of matches
 -- |
 module Campaign
-  ( Level (..),
+  ( Journey (..),
+    Level (..),
     Outcome (..),
     anywhere,
     augment,
     fixed,
+    mkJourney,
     loot,
     nbRewards,
     succ,
+    unsafeJourney,
   )
 where
 
 import Card (Team (..))
 import qualified Card
+import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
+import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import GHC.Generics
 import Nat
 import System.Random (Random (..), StdGen, random)
 import System.Random.Shuffle (shuffle')
+import Theme (Theme)
+import qualified Theme
 import Prelude hiding (pred, succ)
 
 -- | The levels: 'Level0' is the first level (no reward was given yet),
@@ -32,7 +39,34 @@ import Prelude hiding (pred, succ)
 data Level
   = Level0
   | Level1
-  deriving (Eq, Generic, Ord, Show)
+  deriving (Bounded, Enum, Eq, Generic, Ord, Show)
+
+-- | For every level, the opponent and the theme. Maps of this type
+-- are complete: the domain is the entire of 'Level'
+newtype Journey = Journey (Map.Map Level (Team, Theme))
+  deriving (Eq, Generic, Show)
+
+-- | @mkJourney team@ returns a journey for when the player
+-- plays @team@. In the future it will likely be randomized.
+mkJourney :: Team -> Journey
+mkJourney team =
+  Journey $
+    Map.fromList $
+      zip [minBound ..] $
+        map (Bifunctor.second Theme.kindToTheme) $ opponents team
+  where
+    opponents t =
+      case t of
+        Evil -> [(Human, Theme.Forest), (Undead, Theme.Forest), (ZKnights, Theme.Forest)]
+        Human -> [(Undead, Theme.Forest), (Evil, Theme.Forest), (ZKnights, Theme.Forest)]
+        Undead -> [(Human, Theme.Forest), (Evil, Theme.Forest), (ZKnights, Theme.Forest)]
+        ZKnights -> opponents Human -- We don't really care, it's not a plyable team
+
+-- | An incomplete journey, but fine for playing one game at the given level,
+-- against the given team.
+unsafeJourney :: Campaign.Level -> Team -> Journey
+unsafeJourney level opponent =
+  Journey $ Map.fromList [(level, (opponent, Theme.kindToTheme Theme.Forest))]
 
 -- | The outcome of playing a single game
 data Outcome

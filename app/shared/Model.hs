@@ -57,7 +57,8 @@ data HandFiddle
     HandDragging HandIndex
   deriving (Eq, Show, Generic)
 
--- | The model of the gaming page
+-- | The model of the gaming page. If you add a field, think about
+-- extending the 'Show' instance below.
 data Game = Game
   { -- | Part of the model shared among all pages
     shared :: SharedModel,
@@ -67,6 +68,8 @@ data Game = Game
     difficulty :: Constants.Difficulty,
     -- | What user interaction is going on
     interaction :: Interaction Game.Target,
+    -- | The list of games to play
+    journey :: Campaign.Journey,
     -- | The current level
     level :: Campaign.Level,
     -- | Where the player plays
@@ -83,6 +86,14 @@ data Game = Game
     anim :: Game.Animation
   }
   deriving (Eq, Generic)
+
+instance Show Game where
+  show Game {..} =
+    "{ gameShared = omitted\n"
+      ++ unlines [Art.toASCII board, f "interaction" interaction, f "journey" journey, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
+      ++ "\n}"
+    where
+      f s x = "  " ++ s ++ " = " ++ show x
 
 -- This implementation will be wrong once volatile cards are generated
 -- during a match. When this happen, the player's deck will have to be
@@ -131,7 +142,9 @@ unsafeGameModel WelcomeModel {shared} =
   where
     anim = Game.NoAnimation
     anims = mempty
-    teams = Teams Undead Human
+    journey = Campaign.mkJourney team
+    team = Human
+    teams = Teams Undead team
     teams' = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
     turn = Turn.initial
     level = Campaign.Level0
@@ -144,14 +157,6 @@ unsafeGameModel WelcomeModel {shared} =
         & snd
         & map Card.cardToIdentifier
     uiAvail = True
-
-instance Show Game where
-  show Game {..} =
-    "{ gameShared = omitted\n"
-      ++ unlines [Art.toASCII board, f "interaction" interaction, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
-      ++ "\n}"
-    where
-      f s x = "  " ++ s ++ " = " ++ show x
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.
