@@ -495,8 +495,8 @@ updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
                 GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
 updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shared, playingPlayer})
-  | SharedModel.getCmd shared & isJust =
-      let cmdStr = SharedModel.getCmd shared
+  | SharedModel.cmd shared & isJust =
+      let cmdStr = SharedModel.cmd shared
        in case cmdStr <&> Command.read & join of
             Nothing ->
               let errMsg = "Unrecognized command: " ++ show cmdStr

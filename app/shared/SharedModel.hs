@@ -19,7 +19,7 @@ module SharedModel
     idToCreature,
     Lift (..),
     Mlift (..),
-    SharedModel,
+    SharedModel (cmd),
     tileToFilepath,
     unsafeGet,
     unsafeIdentToCard,
@@ -27,7 +27,6 @@ module SharedModel
     create,
     SharedModel.getStdGen,
     getCards,
-    getCmd,
     withCmd,
     withStdGen,
     getCardIdentifiers,
@@ -65,37 +64,46 @@ instance Eq StdGen where
 
 -- | Instance to be able to use 'SharedModel' like a random generator.
 instance RandomGen SharedModel where
-  next sh@SharedModel {sharedStdGen} =
-    let (i, gen') = next sharedStdGen
-     in (i, sh {sharedStdGen = gen'})
-  genRange = genRange . sharedStdGen
-  split sh@SharedModel {sharedStdGen} =
-    let (gen1, gen2) = split sharedStdGen
-     in (sh {sharedStdGen = gen1}, sh {sharedStdGen = gen2})
+  next sh@SharedModel {stdGen} =
+    let (i, gen') = next stdGen
+     in (i, sh {stdGen = gen'})
+  genRange = genRange . stdGen
+  split sh@SharedModel {stdGen} =
+    let (gen1, gen2) = split stdGen
+     in (sh {stdGen = gen1}, sh {stdGen = gen2})
 
 -- | The part of the model that is likely to be used by all pages
--- | i.e. all possible models
+-- i.e. all possible models /!\ If you add a field, extend the 'EQ' instance below. /!\
+-- Note that we MUST have an 'EQ' instance, because ultimately, our top-level
+-- model should have one. It is required by miso in the @startApp@ function.
+-- It makes sense, since miso does diffs on models.
 data SharedModel = SharedModel
   { -- | Data obtained at load time, that never changes
-    sharedCards :: Map Card.ID (Card 'UI),
+    cards :: Map Card.ID (Card 'UI),
     -- | The current debug command (in dev mode only)
-    sharedCmd :: Maybe String,
-    sharedSkills :: Map Skill Skill.Pack,
-    sharedTiles :: Map Tile TileUI,
+    cmd :: Maybe String,
+    skills :: Map Skill Skill.Pack,
+    tiles :: Map Tile TileUI,
     -- | RNG obtained at load time, to be user whenever randomness is needed
-    sharedStdGen :: StdGen
+    stdGen :: StdGen
   }
-  deriving (Eq, Generic, Show)
+  deriving (Generic, Show)
+
+instance Eq SharedModel where
+  (==) SharedModel {cmd = cmd1, stdGen = gen1} SharedModel {cmd = cmd2, stdGen = gen2} =
+    -- Not comparing the other fields, because they should all the time be
+    -- the same, since they are loaded from static Json.
+    cmd1 == cmd2 && gen1 == gen2
 
 create :: [Card 'UI] -> [Skill.Pack] -> [TileUI] -> StdGen -> SharedModel
-create cards skills tiles sharedStdGen =
+create c sks tls stdGen =
   SharedModel {..}
   where
     groupBy f l = map (\e -> (f e, e)) l & Map.fromList
-    sharedCards = groupBy cardToIdentifier cards
-    sharedSkills = groupBy Skill.skill skills
-    sharedTiles = groupBy Tile.tile tiles
-    sharedCmd = Nothing
+    cards = groupBy cardToIdentifier c
+    skills = groupBy Skill.skill sks
+    tiles = groupBy Tile.tile tls
+    cmd = Nothing
 
 -- | An instance of 'SharedModel' obtained by reading the Json data
 createWithSeed :: Int -> SharedModel
@@ -128,29 +136,26 @@ allCommands shared = Command.allCommands cids
         & catMaybes
 
 getCardIdentifiers :: SharedModel -> [Card.ID]
-getCardIdentifiers SharedModel {sharedCards} = Map.keys sharedCards
+getCardIdentifiers = Map.keys . cards
 
 getCards :: SharedModel -> [Card 'UI]
-getCards SharedModel {sharedCards} = Map.elems sharedCards
-
-getCmd :: SharedModel -> Maybe String
-getCmd SharedModel {sharedCmd} = sharedCmd
+getCards = Map.elems . cards
 
 -- | The starting deck of the given team, not shuffled
 getInitialDeck :: SharedModel -> Team -> [Card 'Core]
 getInitialDeck shared team = Card.teamDeck (getCards shared) team
 
 getStdGen :: SharedModel -> StdGen
-getStdGen SharedModel {sharedStdGen} = sharedStdGen
+getStdGen SharedModel {stdGen} = stdGen
 
 withCmd :: SharedModel -> Maybe String -> SharedModel
-withCmd shared cmd = shared {sharedCmd = cmd}
+withCmd shared c = shared {cmd = c}
 
 withSeed :: SharedModel -> Int -> SharedModel
-withSeed shared seed = shared {sharedStdGen = mkStdGen seed}
+withSeed shared seed = shared {stdGen = mkStdGen seed}
 
 withStdGen :: SharedModel -> StdGen -> SharedModel
-withStdGen shared stdgen = shared {sharedStdGen = stdgen}
+withStdGen shared stdgen = shared {stdGen = stdgen}
 
 -- | An instance of 'SharedModel' that is fine for debugging. Don't use
 -- it in production!
@@ -158,8 +163,8 @@ unsafeGet :: SharedModel
 unsafeGet = createWithSeed 42
 
 identToCard :: SharedModel -> Card.ID -> Maybe (Card 'UI)
-identToCard s@SharedModel {sharedCards} (IDC cid items) =
-  case sharedCards Map.!? IDC cid [] of
+identToCard s@SharedModel {cards} (IDC cid items) =
+  case cards Map.!? IDC cid [] of
     Nothing -> Nothing
     Just (CreatureCard cc c@Creature {items = is}) ->
       -- and then we fill the result with the expected items:
@@ -167,11 +172,11 @@ identToCard s@SharedModel {sharedCards} (IDC cid items) =
         let itemsUI = map (lift s . mkCoreItemObject) items
          in Just $ CreatureCard cc (c {items = itemsUI})
     Just _ -> error "Unexpected card. Expected CreatureCard."
-identToCard SharedModel {sharedCards} id = sharedCards Map.!? id
+identToCard SharedModel {cards} id = cards Map.!? id
 
 identToItem :: SharedModel -> Item -> ItemObject 'UI
-identToItem SharedModel {sharedCards} i =
-  case sharedCards Map.!? IDI i of
+identToItem SharedModel {cards} i =
+  case cards Map.!? IDI i of
     -- This should not happen, see 'testShared'
     Nothing -> error $ "Unmapped item: " ++ show i
     Just (ItemCard _ res) -> res
@@ -186,8 +191,8 @@ idToCreature shared cid items =
     Just _ -> error "Unexpected card. Expected CreatureCard."
 
 identToNeutral :: SharedModel -> Neutral -> NeutralObject 'UI
-identToNeutral SharedModel {sharedCards} n =
-  case sharedCards Map.!? IDN n of
+identToNeutral SharedModel {cards} n =
+  case cards Map.!? IDN n of
     Nothing -> error $ "Unmapped neutral: " ++ show n
     Just (NeutralCard _ res) -> res
     -- To avoid this case, I could split the cards in SharedModel
@@ -238,9 +243,9 @@ instance Lift NeutralObject where
 -- An alternative implementation could return the pristine, formal, UI card.
 instance Mlift Creature where
   mlift :: SharedModel -> Creature 'Core -> Maybe (Creature 'UI)
-  mlift s@SharedModel {sharedCards} c@Creature {..} =
+  mlift s@SharedModel {cards} c@Creature {..} =
     -- Because creatures in data.json don't have items, we send []:
-    case sharedCards Map.!? IDC creatureId [] of
+    case cards Map.!? IDC creatureId [] of
       Nothing -> Nothing
       Just (CreatureCard _ (Creature {items = is})) ->
         -- and then we fill the result with the expected items:
@@ -255,10 +260,8 @@ instance Mlift Creature where
       Just card -> error $ "Creature " ++ show c ++ " mapped in UI to: " ++ show card
 
 liftSkill :: SharedModel -> Skill -> Skill.Pack
-liftSkill SharedModel {sharedSkills} skill =
-  fromMaybe
-    default_
-    $ find (\Skill.Pack {skill = sk} -> sk == skill) sharedSkills
+liftSkill SharedModel {skills} skill =
+  fromMaybe default_ (find (\Skill.Pack {skill = sk} -> sk == skill) skills)
   where
     default_ = Skill.Pack {skill = Skill.Support, ..}
     -- Dummy value
@@ -266,8 +269,8 @@ liftSkill SharedModel {sharedSkills} skill =
     title = text
 
 tileToFilepath :: SharedModel -> Tile -> Tile.Size -> Filepath
-tileToFilepath SharedModel {sharedTiles} tile defaultSize =
-  case (find (\TileUI {tile = t} -> t == tile) sharedTiles, defaultSize) of
+tileToFilepath SharedModel {tiles} tile defaultSize =
+  case (find (\TileUI {tile = t} -> t == tile) tiles, defaultSize) of
     (Nothing, Tile.Sixteen) -> Tile.default16Filepath
     (Nothing, Tile.TwentyFour) -> Tile.default24Filepath
     (Just TileUI {Tile.filepath}, _) -> filepath

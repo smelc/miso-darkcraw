@@ -163,14 +163,21 @@ data Event
     PEvent Place
   deriving (Eq, Generic, Show)
 
--- | The result of playing game events
+-- | The result of playing game events. If you add a field, extend
+-- the 'Eq' instance below.
 data Result e = Result
   { board :: Board 'Core,
     anims :: Board 'UI,
     event :: e,
     shared :: SharedModel
   }
-  deriving (Eq, Show)
+  deriving (Show)
+
+instance Eq a => Eq (Result a) where
+  (==)
+    Result {board = b1, anims = a1, event = e1, shared = s1}
+    Result {board = b2, anims = a2, event = e2, shared = s2} =
+      b1 == b2 && a1 == a2 && e1 == e2 && s1 == s2
 
 toResult :: SharedModel -> Board 'Core -> Result (Maybe a)
 toResult s b = Result {board = b, anims = mempty, event = Nothing, shared = s}
