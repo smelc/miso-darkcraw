@@ -86,7 +86,7 @@ import qualified Data.Text as Text
 import GHC.Generics (Generic)
 import Nat
 import qualified Random
-import qualified SharedModel as Shared
+import qualified Shared
 import Spots hiding (Card)
 import qualified Spots
 import System.Random (RandomGen)
@@ -526,7 +526,7 @@ toData :: Spots.Player -> Teams a -> a
 toData PlayerTop Teams {topTeam} = topTeam
 toData PlayerBot Teams {botTeam} = botTeam
 
--- | The initial board, appropriately shuffled with 'SharedModel' rng,
+-- | The initial board, appropriately shuffled with a rng,
 -- and the starting decks of both teams.
 initial ::
   RandomGen r =>

@@ -14,8 +14,8 @@ import GHC.Base (assert)
 import System.Random
 import qualified System.Random.Shuffle
 
--- | Pick one element at random from the second argument, using the random
--- generator of 'SharedModel'. Returns the updated 'SharedModel' and the
+-- | Pick one element at random from the second argument, using the given random
+-- generator. Returns the updated generator and the
 -- picked element (being 'Just' if the list non-empty). See 'oneof' for
 -- a variant of this function.
 pick :: RandomGen r => r -> [a] -> (Maybe a, r)
@@ -25,15 +25,15 @@ pick r = \case
     let (i, r') = randomR (0, length l - 1) r
      in (Just $ l !! i, r')
 
--- | Shuffles the second argument with the random generator
--- of 'SharedModel'. Returns the shuffle and the updated 'SharedModel'
+-- | Shuffles the second argument with the random generator.
+-- Returns the shuffle and the updated generator.
 shuffle :: RandomGen r => r -> [a] -> ([a], r)
 shuffle r l =
   System.Random.Shuffle.shuffleM l
     & flip runRandT r
     & runIdentity
 
--- | Shuffles the given list with the random generator of 'SharedModel'
+-- | Shuffles the given list with a random generator
 shuffleM :: RandomGen r => MonadState r m => [a] -> m [a]
 shuffleM =
   \case

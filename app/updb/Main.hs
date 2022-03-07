@@ -8,10 +8,10 @@
 module Main where
 
 import qualified Balance
-import qualified SharedModel
+import qualified Shared
 import Test.Hspec
 
 main :: IO ()
 main = do
-  _ <- hspec $ Balance.main (SharedModel.unsafeGet) True
+  _ <- hspec $ Balance.main (Shared.unsafeGet) True
   return ()

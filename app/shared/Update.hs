@@ -47,7 +47,7 @@ import qualified Move
 import Movie (welcomeMovie)
 import Nat
 import ServerMessages
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Spots hiding (Card)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -603,7 +603,7 @@ updateModel a m =
         <> "\nand the action being:\n"
         <> pShowNoColor a
 
--- | The initial model, appropriately shuffled with 'SharedModel' rng
+-- | The initial model, appropriately shuffled with 'Shared.Model' rng
 level0GameModel ::
   Constants.Difficulty ->
   Shared.Model ->

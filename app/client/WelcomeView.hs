@@ -21,7 +21,7 @@ import Miso
 import Miso.String (fromMisoString, ms)
 import Model (SceneModel (..), TimedFrames, WelcomeModel (..))
 import PCWViewInternal (DisplayMode (..), viewFrame)
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Tile
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)

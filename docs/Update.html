@@ -167,16 +167,16 @@
 <a href="#v:updateModel">updateModel</a> :: <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="Model.html#t:Model" title="Model">Model</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:Model" title="Model">Model</a>
 </li>
 <li class="src short">
-<a href="#v:level0GameModel">level0GameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="SharedModel.html#t:Model" title="SharedModel">Model</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a>
+<a href="#v:level0GameModel">level0GameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a>
 </li>
 <li class="src short">
-<a href="#v:levelNGameModel">levelNGameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="SharedModel.html#t:Model" title="SharedModel">Model</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; <a href="Model.html#t:Game" title="Model">Game</a>
+<a href="#v:levelNGameModel">levelNGameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Campaign.html#t:Level" title="Campaign">Level</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; <a href="Model.html#t:Game" title="Model">Game</a>
 </li>
 <li class="src short">
-<a href="#v:unsafeInitialGameModel">unsafeInitialGameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="SharedModel.html#t:Model" title="SharedModel">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a>
+<a href="#v:unsafeInitialGameModel">unsafeInitialGameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a>
 </li>
 <li class="src short">
-<a href="#v:initialWelcomeModel">initialWelcomeModel</a> :: <a href="SharedModel.html#t:Model" title="SharedModel">Model</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a>
+<a href="#v:initialWelcomeModel">initialWelcomeModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a>
 </li>
 </ul></details></div>
 <div id="interface">
@@ -619,8 +619,8 @@
  | it needs to be in `Action -&gt; Model -&gt; Model`.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:level0GameModel" class="def">level0GameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="SharedModel.html#t:Model" title="SharedModel">Model</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:level0GameModel" class="selflink">#</a></p>
-<div class="doc"><p>The initial model, appropriately shuffled with <code>SharedModel</code> rng</p></div>
+<p class="src"><a id="v:level0GameModel" class="def">level0GameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Campaign.html#t:Journey" title="Campaign">Journey</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:level0GameModel" class="selflink">#</a></p>
+<div class="doc"><p>The initial model, appropriately shuffled with <code><a href="Shared.html#t:Model" title="Shared">Model</a></code> rng</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:levelNGameModel" class="def">levelNGameModel</a> <a href="#v:levelNGameModel" class="selflink">#</a></p>
@@ -633,7 +633,7 @@
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
-<td class="src">-&gt; <a href="SharedModel.html#t:Model" title="SharedModel">Model</a>
+<td class="src">-&gt; <a href="Shared.html#t:Model" title="Shared">Model</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
@@ -672,7 +672,7 @@
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
-<td class="src">-&gt; <a href="SharedModel.html#t:Model" title="SharedModel">Model</a>
+<td class="src">-&gt; <a href="Shared.html#t:Model" title="Shared">Model</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
@@ -694,7 +694,7 @@
 </div>
 <div class="doc"><p>An initial model, with a custom board. <em>! Not for production </em>!\</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:initialWelcomeModel" class="def">initialWelcomeModel</a> :: <a href="SharedModel.html#t:Model" title="SharedModel">Model</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> <a href="#v:initialWelcomeModel" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:initialWelcomeModel" class="def">initialWelcomeModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> <a href="#v:initialWelcomeModel" class="selflink">#</a></p></div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>

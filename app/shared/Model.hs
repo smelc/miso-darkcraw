@@ -23,7 +23,7 @@ import GHC.Generics
 import qualified Game (Animation (..), Target)
 import Nat
 import ServerMessages
-import qualified SharedModel as Shared
+import qualified Shared
 import Spots hiding (Card)
 import Turn (Turn)
 import qualified Turn

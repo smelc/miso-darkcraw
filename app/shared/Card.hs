@@ -135,7 +135,7 @@ allCreatureKinds :: [CreatureKind]
 allCreatureKinds = [minBound ..]
 
 -- | The identifier of a creature. Not all identifiers are actually mapped
--- by 'SharedModel'.
+-- by 'Shared.Model'.
 data CreatureID = CreatureID {creatureKind :: CreatureKind, team :: Team}
   deriving (Eq, Generic, Ord, Show)
 
@@ -319,7 +319,7 @@ cardToNeutralObject (NeutralCard _ n) = Just n
 cardToNeutralObject (CreatureCard {}) = Nothing
 cardToNeutralObject (ItemCard {}) = Nothing
 
--- | The minimal identifier of a card. See 'SharedModel' to obtain
+-- | The minimal identifier of a card. See 'Shared.Model' to obtain
 -- | a full-fledged card from that.
 data ID
   = IDC CreatureID [Item]

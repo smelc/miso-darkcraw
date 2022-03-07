@@ -27,7 +27,7 @@ import Generators ()
 import Model
 import qualified Move
 import Nat
-import qualified SharedModel as Shared
+import qualified Shared
 import Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck

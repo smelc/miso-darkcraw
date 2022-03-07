@@ -30,7 +30,7 @@ import GHC.IO (unsafePerformIO)
 import qualified Match
 import qualified Model (Game (..))
 import Nat
-import qualified SharedModel as Shared
+import qualified Shared
 import Spots hiding (Card)
 import Test.Hspec
 import qualified Update

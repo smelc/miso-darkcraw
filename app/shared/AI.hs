@@ -13,7 +13,7 @@ import Card
 import qualified ConcreteAI
 import qualified Constants
 import qualified Game
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Spots
 
 -- | Executes the AI.

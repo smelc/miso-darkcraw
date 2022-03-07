@@ -49,7 +49,7 @@ import Movie
 import Nat
 import Pretty
 import SceneEquivalence
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Skill
 import Spots hiding (Card)
 import Test.Hspec

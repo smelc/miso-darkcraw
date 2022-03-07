@@ -16,7 +16,7 @@ import Debug.Trace (traceShow)
 import qualified Match
 import qualified Model
 import Pretty
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck

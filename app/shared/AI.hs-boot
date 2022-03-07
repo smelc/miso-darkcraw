@@ -8,7 +8,7 @@ import Board
 import Card
 import Constants (Difficulty)
 import qualified Game
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Spots
 
 play ::

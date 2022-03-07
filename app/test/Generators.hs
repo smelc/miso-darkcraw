@@ -20,7 +20,7 @@ import Data.Maybe
 import GHC.Generics
 import qualified Game
 import Generic.Random
-import qualified SharedModel
+import qualified Shared
 import Skill (Skill)
 import qualified Skill
 import Spots hiding (Card)
@@ -69,12 +69,12 @@ instance Arbitrary Damage where
   arbitrary = Damage <$> arbitrary <*> arbitrary
 
 instance Arbitrary CreatureID where
-  -- Only generate CreatureID that are known to SharedModel, because
+  -- Only generate CreatureID that are known to Shared.Model, because
   -- we map them back a lot.
   arbitrary =
     elements $
-      SharedModel.unsafeGet
-        & SharedModel.getCardIdentifiers
+      Shared.unsafeGet
+        & Shared.getCardIdentifiers
         & mapMaybe identToId
   shrink = genericShrink
 
@@ -89,7 +89,7 @@ instance Arbitrary (NeutralObject 'Core) where
   shrink = genericShrink
 
 instance Arbitrary Card.ID where
-  arbitrary = elements $ SharedModel.getCardIdentifiers SharedModel.unsafeGet
+  arbitrary = elements $ Shared.getCardIdentifiers Shared.unsafeGet
   shrink = genericShrink
 
 instance Arbitrary Spots.Card where
@@ -114,9 +114,9 @@ instance Arbitrary Skill.State where
 
 instance Arbitrary (Creature 'Core) where
   arbitrary =
-    let shared = SharedModel.unsafeGet
+    let shared = Shared.unsafeGet
      in elements $
-          SharedModel.getCards shared
+          Shared.getCards shared
             & mapMaybe (\case CreatureCard _ creature -> Just creature; _ -> Nothing)
             & map Card.unlift
   shrink = genericShrink
@@ -127,10 +127,8 @@ instance Arbitrary (CardCommon 'Core) where
 
 instance Arbitrary (Card 'Core) where
   arbitrary =
-    let shared = SharedModel.unsafeGet
-     in elements $
-          SharedModel.getCards shared
-            & map Card.unlift
+    let shared = Shared.unsafeGet
+     in elements $ Shared.getCards shared & map Card.unlift
   shrink = genericShrink
 
 instance Arbitrary (PlayerPart 'Core) where

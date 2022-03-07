@@ -35,7 +35,7 @@ import Model
 import qualified Move
 import Nat
 import PCWViewInternal
-import qualified SharedModel as Shared
+import qualified Shared
 import Spots hiding (Card)
 import qualified Spots
 import Theme (Theme)

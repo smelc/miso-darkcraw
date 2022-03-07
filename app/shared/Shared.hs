@@ -13,7 +13,7 @@
 -- I didn't want to make 'Game' depend on 'Model', because it seemed overkill
 -- and dangerous cyclewise in the long run. Hence I introduced this module.
 -- |
-module SharedModel
+module Shared
   ( creatureToFilepath,
     identToCard,
     idToCreature,
@@ -25,14 +25,14 @@ module SharedModel
     unsafeIdentToCard,
     liftSkill,
     create,
-    SharedModel.getStdGen,
+    Shared.getStdGen,
     getCards,
     withCmd,
     withStdGen,
     getCardIdentifiers,
     cardToFilepath,
     withSeed,
-    SharedModel.allCommands,
+    Shared.allCommands,
     toCardCommon,
     unsafeToCardCommon,
     identToItem,
@@ -62,7 +62,7 @@ import qualified Tile
 instance Eq StdGen where
   std1 == std2 = show std1 == show std2
 
--- | Instance to be able to use 'SharedModel' like a random generator.
+-- | Instance to be able to use 'Model' like a random generator.
 instance RandomGen Model where
   next sh@Model {stdGen} =
     let (i, gen') = next stdGen
@@ -157,7 +157,7 @@ withSeed shared seed = shared {stdGen = mkStdGen seed}
 withStdGen :: Model -> StdGen -> Model
 withStdGen shared stdgen = shared {stdGen = stdgen}
 
--- | An instance of 'SharedModel' that is fine for debugging. Don't use
+-- | An instance of 'Model' that is fine for debugging. Don't use
 -- it in production!
 unsafeGet :: Model
 unsafeGet = createWithSeed 42
@@ -180,7 +180,7 @@ identToItem Model {cards} i =
     -- This should not happen, see 'testShared'
     Nothing -> error $ "Unmapped item: " ++ show i
     Just (ItemCard _ res) -> res
-    -- To avoid this case, I could split the cards in SharedModel
+    -- To avoid this case, I could split the cards in Model
     Just w -> error $ "Item " ++ show i ++ " not mapped to ItemCard, found " ++ show w ++ " instead."
 
 idToCreature :: Model -> CreatureID -> [Item] -> Maybe (Creature 'UI)
@@ -195,7 +195,7 @@ identToNeutral Model {cards} n =
   case cards Map.!? IDN n of
     Nothing -> error $ "Unmapped neutral: " ++ show n
     Just (NeutralCard _ res) -> res
-    -- To avoid this case, I could split the cards in SharedModel
+    -- To avoid this case, I could split the cards in Model
     Just w -> error $ "Neutral " ++ show n ++ " not mapped to NeutralCard, found " ++ show w ++ " instead."
 
 toCardCommon :: Model -> Card.ID -> Maybe (CardCommon 'UI)

@@ -48,7 +48,7 @@ import Model
 import qualified Move
 import Nat
 import PCWViewInternal (tileCell)
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Skill
 import Spots (Player (..))
 import qualified Spots

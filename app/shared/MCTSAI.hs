@@ -29,7 +29,7 @@ import qualified Game
 import qualified HeuristicAI
 import qualified Move
 import Nat
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Skill
 import Spots hiding (Card, Line (..))
 import qualified Turn

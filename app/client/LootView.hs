@@ -30,7 +30,7 @@ import Model (LootModel (..), Picked (..))
 import Nat
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
 import qualified PCWViewInternal
-import qualified SharedModel as Shared
+import qualified Shared
 import Update (Action (LootAction'), LootAction (Pick, Unpick))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal

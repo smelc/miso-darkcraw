@@ -19,7 +19,7 @@ import Data.Maybe (fromMaybe, isJust)
 import Miso
 import Miso.String hiding (concat, length, map)
 import Model (SinglePlayerLobbyModel (..))
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Tile
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)

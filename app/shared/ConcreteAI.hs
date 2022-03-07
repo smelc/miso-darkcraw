@@ -29,7 +29,7 @@ import qualified Game
 import qualified HeuristicAI
 import qualified MCTSAI
 import qualified Random
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Spots
 import qualified Total
 

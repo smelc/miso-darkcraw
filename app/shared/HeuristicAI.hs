@@ -44,7 +44,7 @@ import qualified Game
 import qualified Move
 import Nat
 import qualified Random
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Skill
 import Spots hiding (Card)
 import qualified Spots
@@ -174,7 +174,7 @@ aiPlayFirst shared board pSpot =
     id : _ -> do
       let scores' = scores id & sortByFst
       -- Take all targets that have the same best score and pick one randomly
-      -- Should I returned a mutated SharedModel?
+      -- Should I returned a mutated Shared.Model?
       target <- takeBestOnes scores' & Random.pick shared & fst
       return (pSpot, target, id)
   where

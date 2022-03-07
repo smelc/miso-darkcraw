@@ -45,7 +45,7 @@ import Data.Maybe
 import Miso
 import Miso.String (MisoString, ToMisoString (..), ms)
 import Nat
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Skill
 import Tile (Tile)
 import qualified Tile

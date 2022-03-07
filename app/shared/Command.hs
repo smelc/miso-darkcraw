@@ -45,7 +45,7 @@ data Command
     -- game with the given team.
     Reboot Spots.Player Team
 
--- See 'SharedModel' for the version that uses content from 'SharedModel'
+-- See 'Shared' for the version that uses content from 'Shared.Model'
 -- to instantiate the parameter.
 allCommands :: [CreatureID] -> [Command]
 allCommands cids =

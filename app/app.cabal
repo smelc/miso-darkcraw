@@ -59,7 +59,7 @@ common common-all
     Nat
     Random
     ServerMessages
-    SharedModel
+    Shared
     Skill
     Spots
     Theme

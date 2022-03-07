@@ -82,7 +82,7 @@ import Debug.Trace
 import GHC.Generics (Generic)
 import Nat
 import qualified Random
-import qualified SharedModel as Shared
+import qualified Shared
 import Skill (Skill)
 import qualified Skill
 import Spots (Card (..), Player (..))

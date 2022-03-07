@@ -30,7 +30,7 @@ import Debug.Trace (traceShow)
 import qualified Game
 import Generators ()
 import Pretty
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Skill
 import Spots (Card (..), Player (..))
 import qualified Spots

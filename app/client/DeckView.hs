@@ -24,7 +24,7 @@ import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
 import Model
 import PCWViewInternal
-import qualified SharedModel as Shared
+import qualified Shared
 import Spots hiding (Card)
 import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)

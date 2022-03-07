@@ -56,7 +56,7 @@ import qualified Game
 import Miso.String (MisoString)
 import Model
 import Nat
-import qualified SharedModel as Shared
+import qualified Shared
 import qualified Spots
 import qualified Turn
 
