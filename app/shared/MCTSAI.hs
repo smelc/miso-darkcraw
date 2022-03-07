@@ -29,8 +29,7 @@ import qualified Game
 import qualified HeuristicAI
 import qualified Move
 import Nat
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import qualified Skill
 import Spots hiding (Card, Line (..))
 import qualified Turn
@@ -178,7 +177,7 @@ instance Preference Item where
 -- by running the simulation.
 newPlaySim ::
   Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   -- | The spot to play
   Spots.Player ->
   -- | The board to consider
@@ -201,7 +200,7 @@ newPlaySim difficulty shared pSpot board =
     lift (x, Right y) = Just (x, y)
 
 -- | Make a 'Kernel' value for simulating the given board
-mkKernel :: Difficulty -> SharedModel -> Player -> Board 'Core -> Move.Kernel ()
+mkKernel :: Difficulty -> Shared.Model -> Player -> Board 'Core -> Move.Kernel ()
 mkKernel difficulty shared pSpot =
   Move.mkSimKernel difficulty shared turn
   where
@@ -211,7 +210,7 @@ mkKernel difficulty shared pSpot =
 -- Doesn't run the simulation (no call to 'Move').
 newPlay ::
   Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   -- | The spot to play
   Spots.Player ->
   -- | The board to consider
@@ -243,7 +242,7 @@ data First
   | -- | AI is done, because playing player has no mana
     NoMana
   | -- | Played one card at the given spot, yielding the given board
-    -- FIXME return the updated SharedModel
+    -- FIXME return the updated Shared.Model
     One (Card.ID, [(Game.Place, Board 'Core)])
   deriving (Show)
 
@@ -253,7 +252,7 @@ data First
 -- because it doesn't enqueue the created events. We cannot use 'Game.playAll'
 -- because it doesn't distinguish if the first event succeeded. If it didn't,
 -- we MUST know it, so that the AI skips this event.
-place :: Difficulty -> SharedModel -> Game.Place -> Board 'Core -> Maybe (Board 'Core)
+place :: Difficulty -> Shared.Model -> Game.Place -> Board 'Core -> Maybe (Board 'Core)
 place difficulty shared place board =
   case Game.maybePlay shared board (Game.PEvent place) of
     Nothing -> Nothing
@@ -268,7 +267,7 @@ place difficulty shared place board =
 
 newPlayFirst ::
   Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Spots.Player ->
   Board 'Core ->
   First
@@ -300,7 +299,7 @@ newPlayFirst difficulty shared pSpot board =
             lift (_x, Nothing) = Nothing
   where
     hand = Board.toHand board pSpot
-    mana id = SharedModel.toCardCommon shared id <&> Card.mana
+    mana id = Shared.toCardCommon shared id <&> Card.mana
     availMana = Board.toPart board pSpot & Board.mana
     availTargets :: Card.ID -> [Game.Target] = HeuristicAI.targets board pSpot
     withCards cards = Board.setHand board pSpot cards

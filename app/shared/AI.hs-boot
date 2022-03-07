@@ -8,12 +8,12 @@ import Board
 import Card
 import Constants (Difficulty)
 import qualified Game
-import SharedModel (SharedModel)
+import qualified SharedModel as Shared
 import qualified Spots
 
 play ::
   Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The playing player
   Spots.Player ->

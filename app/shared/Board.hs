@@ -86,9 +86,10 @@ import qualified Data.Text as Text
 import GHC.Generics (Generic)
 import Nat
 import qualified Random
-import SharedModel (SharedModel, idToCreature)
+import qualified SharedModel as Shared
 import Spots hiding (Card)
 import qualified Spots
+import System.Random (RandomGen)
 import Tile (Tile)
 
 type CardsOnTable = Map.Map Spots.Card (Creature 'Core)
@@ -528,12 +529,12 @@ toData PlayerBot Teams {botTeam} = botTeam
 -- | The initial board, appropriately shuffled with 'SharedModel' rng,
 -- and the starting decks of both teams.
 initial ::
-  -- | The shared model, only used for shuffling
-  SharedModel ->
+  RandomGen r =>
+  r ->
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
   -- | The shared model, with its RNG updated; and the initial board
-  (SharedModel, Board 'Core)
+  (r, Board 'Core)
 initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)} =
   (smodel'', Board topPart botPart)
   where
@@ -548,12 +549,12 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.
-small :: SharedModel -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> Spots.Card -> Board 'Core
+small :: Shared.Model -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> Spots.Card -> Board 'Core
 small shared teams cid items pSpot cSpot =
   setCreature pSpot cSpot c (empty teams)
   where
     c =
-      SharedModel.idToCreature shared cid items
+      Shared.idToCreature shared cid items
         & fromJust
         & Card.unlift
 

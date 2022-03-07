@@ -82,8 +82,7 @@ import Debug.Trace
 import GHC.Generics (Generic)
 import Nat
 import qualified Random
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import Skill (Skill)
 import qualified Skill
 import Spots (Card (..), Player (..))
@@ -169,7 +168,7 @@ data Result e = Result
   { board :: Board 'Core,
     anims :: Board 'UI,
     event :: e,
-    shared :: SharedModel
+    shared :: Shared.Model
   }
   deriving (Show)
 
@@ -179,7 +178,7 @@ instance Eq a => Eq (Result a) where
     Result {board = b2, anims = a2, event = e2, shared = s2} =
       b1 == b2 && a1 == a2 && e1 == e2 && s1 == s2
 
-toResult :: SharedModel -> Board 'Core -> Result (Maybe a)
+toResult :: Shared.Model -> Board 'Core -> Result (Maybe a)
 toResult s b = Result {board = b, anims = mempty, event = Nothing, shared = s}
 
 data MessageText
@@ -279,7 +278,7 @@ reportEffect pSpot cSpot effect =
 -- | Play a single 'Event' on the given 'Board'. Monad version is 'playM' below.
 -- If the event cannot be played, the input board is returned as is. Use
 -- 'tryPlayM' for the version distinguishing the error and success cases.
-play :: SharedModel -> Board 'Core -> Event -> Either Text (Result (Maybe Event))
+play :: Shared.Model -> Board 'Core -> Event -> Either Text (Result (Maybe Event))
 play shared board action =
   tryPlayM board action
     & runWriterT
@@ -288,7 +287,7 @@ play shared board action =
     & fmap f
   where
     f ::
-      ((Possible (Board 'Core, Maybe Event), Board 'UI), SharedModel) ->
+      ((Possible (Board 'Core, Maybe Event), Board 'UI), Shared.Model) ->
       Result (Maybe Event)
     f ((Left _, _), _) = toResult shared board -- Impossible case
     f (((Right (b, e), bui), s)) = Result {anims = bui, board = b, event = e, shared = s}
@@ -298,10 +297,10 @@ play shared board action =
 -- why this function doesn't have 'Impossible' in its return type.
 playE ::
   MonadError Text m =>
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   Event ->
-  m (SharedModel, Board 'Core, Board 'UI, Maybe Event)
+  m (Shared.Model, Board 'Core, Board 'UI, Maybe Event)
 playE shared board action =
   tryPlayM board action
     & runWriterT
@@ -309,18 +308,18 @@ playE shared board action =
     & fmap f
   where
     f ::
-      ((Possible (Board 'Core, Maybe Event), Board 'UI), SharedModel) ->
-      (SharedModel, Board 'Core, Board 'UI, Maybe Event)
+      ((Possible (Board 'Core, Maybe Event), Board 'UI), Shared.Model) ->
+      (Shared.Model, Board 'Core, Board 'UI, Maybe Event)
     f (((Left _), _), _) = (shared, board, mempty, Nothing)
     f (((Right (b, e), bui), s)) = (s, b, bui, e)
 
 -- | Try to play an event. If the event cannot be played or a hard error
 -- occurs (@MonadError Text _@ in other functions of this API), simply return 'Nothing'.
 maybePlay ::
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   Event ->
-  Maybe (SharedModel, Board 'Core, Maybe Event)
+  Maybe (Shared.Model, Board 'Core, Maybe Event)
 maybePlay shared board event =
   tryPlayM board event
     & runWriterT
@@ -329,8 +328,8 @@ maybePlay shared board event =
     & f
   where
     f ::
-      Either Text ((Possible (Board 'Core, Maybe Event), Board 'UI), SharedModel) ->
-      Maybe (SharedModel, Board 'Core, Maybe Event)
+      Either Text ((Possible (Board 'Core, Maybe Event), Board 'UI), Shared.Model) ->
+      Maybe (Shared.Model, Board 'Core, Maybe Event)
     f =
       \case
         Left _ -> Nothing
@@ -340,7 +339,7 @@ maybePlay shared board event =
 -- | Play a list of events, playing newly produced events as they are being
 -- produced. That is why, contrary to 'play', this function doesn't return
 -- events: it consumes them all eagerly. See 'playAllM' for the monad version
-playAll :: SharedModel -> Board 'Core -> [Event] -> Either Text (Result ())
+playAll :: Shared.Model -> Board 'Core -> [Event] -> Either Text (Result ())
 playAll shared board events =
   playAllM board events
     & runWriterT
@@ -348,17 +347,17 @@ playAll shared board events =
     & runExcept
     & fmap f
   where
-    f :: ((Board 'Core, Board 'UI), SharedModel) -> Result ()
+    f :: ((Board 'Core, Board 'UI), Shared.Model) -> Result ()
     f ((b, anims), sh) = Result {anims, board = b, event = (), shared = sh}
 
 -- | Like 'playAll', but in the error monad. This function skips unapplicable
 -- events. That is why its return type doesn't have 'Impossible'.
 playAllE ::
   MonadError Text m =>
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   [Event] ->
-  m (SharedModel, Board 'Core, Board 'UI)
+  m (Shared.Model, Board 'Core, Board 'UI)
 playAllE shared board events =
   playAllM board events
     & runWriterT
@@ -370,7 +369,7 @@ playAllE shared board events =
 playAllM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   Board 'Core ->
   [Event] ->
   m (Board 'Core)
@@ -391,7 +390,7 @@ playAllM board = \case
 
 -- | 'keepEffectfull board es' returns the elements of 'es'
 -- that have an effect. Elements of 'es' are played in sequence.
-keepEffectfull :: SharedModel -> Board 'Core -> [Event] -> [Event]
+keepEffectfull :: Shared.Model -> Board 'Core -> [Event] -> [Event]
 keepEffectfull _ _ [] = []
 keepEffectfull shared board (e : es) =
   case play shared board e of
@@ -407,7 +406,7 @@ keepEffectfull shared board (e : es) =
 tryPlayM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   Board 'Core ->
   Event ->
   m (Possible (Board 'Core, Maybe Event))
@@ -432,7 +431,7 @@ tryPlayM board NoPlayEvent = return $ pure $ (board, Nothing)
 tryPlayM board (PEvent (Place pSpot target (handhi :: HandIndex))) = do
   shared <- get
   ident <- Board.lookupHandM hand handi
-  let uiCard = SharedModel.identToCard shared ident
+  let uiCard = Shared.identToCard shared ident
   let card = unlift <$> uiCard
   case (target, card, uiCard <&> Card.toCommon) of
     (_, Nothing, _) ->
@@ -476,7 +475,7 @@ tryPlayM board (PEvent (Place' pSpot target id)) =
 -- middle of the 'Board'.
 eventToAnim ::
   MonadError Text m =>
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   Event ->
   m Animation
@@ -503,7 +502,7 @@ eventToAnim shared board =
       where
         parts@(part, part') = (Board.toPart board pSpot, Board.toPart board' pSpot)
         board' = applyChurch shared board pSpot & (\(b, _, _) -> b)
-        churchTile = SharedModel.tileToFilepath shared Tile.HumanChurch Tile.TwentyFour
+        churchTile = Shared.tileToFilepath shared Tile.HumanChurch Tile.TwentyFour
         creatures :: ([Creature 'Core], [Creature 'Core]) =
           both (Map.elems . Board.inPlace) parts
         toHPs cs = sum $ map Card.hp cs
@@ -541,10 +540,10 @@ eventToAnim shared board =
         movedCreatures :: [Creature 'UI] =
           (map (part' Map.!?) $ Set.toList movedSpots)
             & catMaybes
-            & map (SharedModel.mlift shared)
+            & map (Shared.mlift shared)
             & catMaybes
         movedTiles :: [Tile.Filepath] =
-          map (SharedModel.creatureToFilepath shared) movedCreatures
+          map (Shared.creatureToFilepath shared) movedCreatures
             & catMaybes
     Game.NoPlayEvent -> pure NoAnimation
     Game.PEvent (Game.Place pSpot target (HandIndex {unHandIndex = idx})) -> do
@@ -554,14 +553,14 @@ eventToAnim shared board =
       pure $ go pSpot target id
   where
     duration = 2
-    attackTile = SharedModel.tileToFilepath shared Tile.Sword1 Tile.Sixteen
-    heartTile = SharedModel.tileToFilepath shared Tile.Heart Tile.Sixteen
+    attackTile = Shared.tileToFilepath shared Tile.Sword1 Tile.Sixteen
+    heartTile = Shared.tileToFilepath shared Tile.Heart Tile.Sixteen
     go pSpot target =
       \case
         IDC {} -> NoAnimation
         IDI {} -> NoAnimation -- We should rather highlight the new item in Board 'UI
         id@(IDN _) ->
-          Game.Application pSpot target (SharedModel.unsafeIdentToCard shared id & Card.unlift)
+          Game.Application pSpot target (Shared.unsafeIdentToCard shared id & Card.unlift)
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot
@@ -576,7 +575,7 @@ idToHandIndex board pSpot id =
 playNeutralM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   Board 'Core ->
   Spots.Player ->
   Target ->
@@ -796,13 +795,13 @@ applySquire board Creature {skills} pSpot cSpot =
         & fromMaybe False
 
 drawCards ::
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The player drawing cards
   Spots.Player ->
   -- | The sources from which to draw the cards
   [DrawSource] ->
-  (SharedModel, Board 'Core, Board 'UI)
+  (Shared.Model, Board 'Core, Board 'UI)
 drawCards shared board pSpot =
   \case
     [] -> (shared, board, mempty)
@@ -813,13 +812,13 @@ drawCards shared board pSpot =
       return (shared'', board'', boardui <> boardui')
 
 drawCard ::
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The player drawing cards
   Spots.Player ->
   -- | The reason for drawing a card
   DrawSource ->
-  (SharedModel, Board 'Core, Board 'UI)
+  (Shared.Model, Board 'Core, Board 'UI)
 drawCard shared board pSpot src =
   drawCardM board pSpot src
     & runWriterT
@@ -828,7 +827,7 @@ drawCard shared board pSpot src =
 
 drawCardM ::
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   Board 'Core ->
   -- | The playing player, used to find the hand to draw from if the
   -- 'DrawSource' is 'Native'.
@@ -842,9 +841,9 @@ drawCardM board p src =
     (Right witness, _) -> do
       let hand = Board.toHand board pSpot
       shared <- get
-      let stdgen = SharedModel.getStdGen shared
+      let stdgen = Shared.getStdGen shared
       let (idrawn, stdgen') = randomR (0, assert (stackLen >= 1) $ stackLen - 1) stdgen
-      put $ SharedModel.withStdGen shared stdgen'
+      put $ Shared.withStdGen shared stdgen'
       let ident :: Card.ID = stack !! idrawn
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [ident]
@@ -878,15 +877,15 @@ drawCardM board p src =
       Board.setCreature pSpot cSpot (c {skills = setAt skilli skill' skills}) b
 
 transferCards ::
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   Spots.Player ->
-  (SharedModel, Board 'Core, Board 'UI)
+  (Shared.Model, Board 'Core, Board 'UI)
 transferCards shared board pSpot =
-  (SharedModel.withStdGen shared stdgen', board', boardui')
+  (Shared.withStdGen shared stdgen', board', boardui')
   where
     (board', boardui', stdgen') =
-      transferCards' (SharedModel.getStdGen shared) board pSpot
+      transferCards' (Shared.getStdGen shared) board pSpot
 
 transferCards' ::
   StdGen ->
@@ -942,7 +941,7 @@ appliesTo board id playingPlayer target =
 
 applyBrainlessM ::
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   -- | The input board
   Board 'Core ->
   -- | The part where brainless takes effect
@@ -976,7 +975,7 @@ data ChurchEffect
 allChurchEffects :: NE.NonEmpty ChurchEffect
 allChurchEffects = PlusOneAttack NE.:| [PlusOneHealth ..]
 
-applyChurch :: SharedModel -> Board 'Core -> Spots.Player -> (Board 'Core, Board 'UI, SharedModel)
+applyChurch :: Shared.Model -> Board 'Core -> Spots.Player -> (Board 'Core, Board 'UI, Shared.Model)
 applyChurch shared board pSpot =
   applyChurchM board pSpot
     & runWriterT
@@ -987,7 +986,7 @@ applyChurch shared board pSpot =
 
 applyChurchM ::
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   -- | The input board
   Board 'Core ->
   -- | The part where churchs take effect
@@ -1123,7 +1122,7 @@ applyKingM board pSpot = do
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   Board 'Core ->
   -- The attacker's player spot
   Spots.Player ->
@@ -1209,7 +1208,7 @@ attack board pSpot cSpot =
 -- @hit@ at @hitSpot@.
 attackOneSpot ::
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   Board 'Core ->
   (Creature 'Core, Spots.Player, Spots.Card) ->
   (Creature 'Core, Spots.Card) ->
@@ -1267,7 +1266,7 @@ applyInPlaceEffect effect creature@Creature {..} =
 
 applyFlailOfTheDamned ::
   MonadWriter (Board 'UI) m =>
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   -- The input board
   Board 'Core ->
   -- The hitter
@@ -1291,7 +1290,7 @@ applyFlailOfTheDamned board creature pSpot =
           put shared'
           let spawned =
                 CreatureID Skeleton Undead
-                  & (\cid -> SharedModel.idToCreature shared' cid [])
+                  & (\cid -> Shared.idToCreature shared' cid [])
                   & fromJust
                   & Card.unlift
           let spawned' = spawned {transient = True}
@@ -1306,7 +1305,7 @@ applyFlailOfTheDamned board creature pSpot =
 -- | The effect of an attack on the defender. Note that this function
 -- cannot return a 'StatChange'. It needs the full expressivity of 'InPlaceEffect'.
 singleAttack ::
-  MonadState SharedModel m =>
+  MonadState Shared.Model m =>
   p ~ 'Core =>
   Total.Place ->
   -- | The attacker
@@ -1338,7 +1337,7 @@ singleAttack place attacker@Creature {skills} defender = do
         else mempty
 
 -- | Apply a 'Damage'
-deal :: MonadState SharedModel m => Damage -> m Nat
+deal :: MonadState Shared.Model m => Damage -> m Nat
 deal Damage {base, variance}
   | variance == 0 = return base -- No need to roll a dice
   | otherwise = Random.roll base (base + variance)

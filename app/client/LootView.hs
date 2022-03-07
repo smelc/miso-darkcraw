@@ -30,8 +30,7 @@ import Model (LootModel (..), Picked (..))
 import Nat
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
 import qualified PCWViewInternal
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import Update (Action (LootAction'), LootAction (Pick, Unpick))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
@@ -108,7 +107,7 @@ view LootModel {..} = do
 -- | Context that is common to all calls to 'deckView'
 data Context = Context
   { remainingToPick :: Nat,
-    shared :: SharedModel,
+    shared :: Shared.Model,
     team :: Team
   }
 
@@ -152,7 +151,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
               _ -> traceShow ("Unexpected number of rewards cards: " ++ show nbCards) 5
           )
     cards' :: [(Card 'Core, Model.Picked)] =
-      map (Data.Bifunctor.first $ SharedModel.identToCard shared) cards
+      map (Data.Bifunctor.first $ Shared.identToCard shared) cards
         & mapMaybe liftNothing
         & map (Data.Bifunctor.first unlift)
       where
@@ -295,7 +294,7 @@ deckView Context {shared, LootView.team} _z cards = do
   where
     z = 64
     cards' :: [DeckCard (Card 'Core)] =
-      map (fmap $ SharedModel.identToCard shared) cards
+      map (fmap $ Shared.identToCard shared) cards
         & mapMaybe sequence -- Pull Maybe out of DeckCard.card
         & map (fmap unlift)
     -- First nat is the index in the whole list of cards. Last nat

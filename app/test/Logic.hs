@@ -30,8 +30,7 @@ import Debug.Trace (traceShow)
 import qualified Game
 import Generators ()
 import Pretty
-import SharedModel (SharedModel, idToCreature)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import qualified Skill
 import Spots (Card (..), Player (..))
 import qualified Spots
@@ -54,9 +53,9 @@ disturbingItem = \case
   SwordOfMight -> False
 
 -- 'disturber' identifies cards which, when played, affect other spots on the board
-disturber :: SharedModel -> Card.ID -> Bool
+disturber :: Shared.Model -> Card.ID -> Bool
 disturber shared (IDC id items) =
-  SharedModel.idToCreature shared id items
+  Shared.idToCreature shared id items
     & fromJust
     & Card.unlift
     & ( orf
@@ -81,7 +80,7 @@ disturber _ (IDN neutral) =
 
 -- Tests that playing a creature only affects the target spot. Some
 -- cards are omitted, see 'disturber.
-testPlayFraming :: SharedModel -> SpecWith ()
+testPlayFraming :: Shared.Model -> SpecWith ()
 testPlayFraming shared =
   describe
     "Playing some cards doesn't change"
@@ -122,7 +121,7 @@ testPlayFraming shared =
         score == score' && stack == stack' && discarded == discarded' && team == team'
           && (Map.withoutKeys inPlace (Set.fromList cSpots) == Map.withoutKeys inPlace' (Set.fromList cSpots))
 
-testDrawCards :: SharedModel -> SpecWith ()
+testDrawCards :: Shared.Model -> SpecWith ()
 testDrawCards shared =
   describe
     "Drawing cards"
@@ -156,7 +155,7 @@ testNoPlayEventNeutral shared =
   where
     play board = Game.playAll shared board
 
-testFear :: SharedModel -> SpecWith ()
+testFear :: Shared.Model -> SpecWith ()
 testFear shared =
   describe "Fear works as expected" $ do
     it "fear triggers when expected" $
@@ -177,7 +176,7 @@ testFear shared =
     (causingFearPSpot, otherPSpot) = (PlayerTop, Spots.other causingFearPSpot)
     board = Board.small shared teams causingFear [] causingFearPSpot Bottom
     affectedByFear :: Creature 'Core =
-      SharedModel.idToCreature shared fearTarget []
+      Shared.idToCreature shared fearTarget []
         & fromJust
         & Card.unlift
         & (\Creature {..} -> Creature {hp = 1, ..})
@@ -188,7 +187,7 @@ testFear shared =
     toEither (Right (Game.Result {board = b})) = Right b
     hasConsumedFear Creature {skills} = any ((==) (Skill.Fear False)) skills
 
-testFearNTerror :: SharedModel -> SpecWith ()
+testFearNTerror :: Shared.Model -> SpecWith ()
 testFearNTerror shared =
   describe "Fear and terror" $ do
     prop "Creature causing fear is immune to fear" $
@@ -201,7 +200,7 @@ testFearNTerror shared =
       causingFear `shouldAllSatisfy` Total.affectedByTerror False
   where
     creatures =
-      SharedModel.getCards shared
+      Shared.getCards shared
         & mapMaybe (\case CreatureCard _ c -> Just c; _ -> Nothing)
         & map Card.unlift
     causingTerror = creatures & filter Total.causesTerror
@@ -221,7 +220,7 @@ testPlague shared =
       case firstEmpty of
         Nothing -> b
         Just cSpot ->
-          let creature = SharedModel.idToCreature shared cid items & fromJust & Card.unlift
+          let creature = Shared.idToCreature shared cid items & fromJust & Card.unlift
            in Board.setInPlace b pSpot (Board.toInPlace b pSpot & Map.insert cSpot creature)
       where
         firstEmpty =
@@ -268,9 +267,9 @@ testDamageMonoid =
 -- | 'mkCreature shared kind t transient' creates a creature with the
 -- given kind and team. The 'Bool' is whether the creature should be transient.
 -- or not.
-mkCreature :: SharedModel -> CreatureKind -> Team -> Bool -> Creature 'Core
+mkCreature :: Shared.Model -> CreatureKind -> Team -> Bool -> Creature 'Core
 mkCreature shared kind team transient =
-  SharedModel.idToCreature shared (CreatureID kind team) []
+  Shared.idToCreature shared (CreatureID kind team) []
     & fromJust
     & Card.unlift
     & (\c -> c {transient})
@@ -298,7 +297,7 @@ testFillTheFrontline shared =
     (~=) Nothing _ = False
     (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
 
-testBreathIce :: SharedModel -> SpecWith ()
+testBreathIce :: Shared.Model -> SpecWith ()
 testBreathIce shared =
   describe "Breath ice" $ do
     it "Breath ice creature hits two creatures in a row when in the frontline" $ do
@@ -326,7 +325,7 @@ testBreathIce shared =
     (~=) Nothing _ = False
     (~=) (Just Creature {creatureId = CreatureID {creatureKind = actual}}) expected = actual == expected
 
-testChurch :: SharedModel -> SpecWith ()
+testChurch :: Shared.Model -> SpecWith ()
 testChurch shared =
   describe "Church" $ do
     prop "Church effect is as expected" $
@@ -352,7 +351,7 @@ testChurch shared =
             (Nothing, Nothing) -> True
             _ -> False
 
-testKing :: SharedModel -> SpecWith ()
+testKing :: Shared.Model -> SpecWith ()
 testKing shared =
   describe "King" $ do
     prop "King effect is as expected" $
@@ -398,7 +397,7 @@ testTeamDeck shared =
   describe "Card.rawTeamDeck" $ do
     prop "doesn't return None" $ do
       \team ->
-        rawTeamDeck (SharedModel.getCards shared) team `shouldAllSatisfy` isJust
+        rawTeamDeck (Shared.getCards shared) team `shouldAllSatisfy` isJust
 
 testCharge shared =
   describe "Skill.Charge" $ do
@@ -522,7 +521,7 @@ testStrengthPot shared =
     ckind = Card.Beholder
     beholder :: Creature 'Core = mkCreature shared ckind team False
     beholderUI :: Creature 'UI =
-      SharedModel.idToCreature shared (CreatureID ckind team) []
+      Shared.idToCreature shared (CreatureID ckind team) []
         & fromJust
 
 testPandemonium shared =
@@ -651,7 +650,7 @@ testSupport shared =
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
         & (\(Game.Result {board = c}) -> c)
 
-main :: SharedModel -> SpecWith ()
+main :: Shared.Model -> SpecWith ()
 main shared = do
   -- Unit tests
   testAce shared

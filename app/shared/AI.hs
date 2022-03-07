@@ -13,13 +13,13 @@ import Card
 import qualified ConcreteAI
 import qualified Constants
 import qualified Game
-import SharedModel (SharedModel)
+import qualified SharedModel as Shared
 import qualified Spots
 
 -- | Executes the AI.
 play ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The playing player
   Spots.Player ->

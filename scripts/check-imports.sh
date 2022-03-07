@@ -2,7 +2,7 @@
 #
 # Check that some modules are always imported qualified
 
-declare -r MODULES="Tile"
+declare -r MODULES="SharedModel Tile"
 
 # shellcheck disable=SC2155
 declare -r FILES=$(git ls-files "app/*.hs" | xargs)

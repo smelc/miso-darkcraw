@@ -44,8 +44,7 @@ import qualified Game
 import qualified Move
 import Nat
 import qualified Random
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import qualified Skill
 import Spots hiding (Card)
 import qualified Spots
@@ -91,7 +90,7 @@ applyDifficulty difficulty stdgen hand =
 -- | Smart play events
 play ::
   Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The playing player
   Spots.Player ->
@@ -105,13 +104,13 @@ play difficulty shared board pSpot =
     availMana = Board.toPart board pSpot & Board.mana
     hands :: [[Card.ID]] =
       Board.toHand board pSpot
-        & map (SharedModel.unsafeIdentToCard shared)
+        & map (Shared.unsafeIdentToCard shared)
         -- TODO @smelc don't do this filtering once there are cards to gain mana
         & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
         & map Card.unlift
         & sortOn scoreHandCard
         & map cardToIdentifier
-        & applyDifficulty difficulty (SharedModel.getStdGen shared)
+        & applyDifficulty difficulty (Shared.getStdGen shared)
     possibles :: [[Game.Place]] =
       map
         (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
@@ -142,7 +141,7 @@ boardPlayerScore board pSpot =
 -- | Events for playing all cards of the hand, in order. Each card
 -- is played optimally.
 playHand ::
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The playing player
   Spots.Player ->
@@ -163,7 +162,7 @@ playHand shared board pSpot =
 -- | Take the hand's first card (if any) and return a [Place] event
 -- for best placing this card.
 aiPlayFirst ::
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The playing player, i.e. the player whose hand should the
   -- the card be picked from.

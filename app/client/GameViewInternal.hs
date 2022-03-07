@@ -48,8 +48,7 @@ import Model
 import qualified Move
 import Nat
 import PCWViewInternal (tileCell)
-import SharedModel (SharedModel)
-import qualified SharedModel (unsafeIdentToCard)
+import qualified SharedModel as Shared
 import qualified Skill
 import Spots (Player (..))
 import qualified Spots
@@ -329,7 +328,7 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
       Stacked -> Board.toStack anims pSpot
       Discarded -> Board.toDiscarded anims pSpot + nbDeaths
     deck :: [Card 'Core] =
-      Board.toPart board pSpot & getter & map (Card.unlift . SharedModel.unsafeIdentToCard shared)
+      Board.toPart board pSpot & getter & map (Card.unlift . Shared.unsafeIdentToCard shared)
     atColonSize = length deck
     pAnims = Board.toInPlace anims pSpot
     nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 pAnims
@@ -382,7 +381,7 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
         Right id -> Game.appliesTo board id playingPlayer pTarget
     handCard i = Board.lookupHand (Board.toHand board playingPlayer) i
 
-fadeouts :: SharedModel -> Int -> InPlaceEffect -> Styled (Maybe (View Action))
+fadeouts :: Shared.Model -> Int -> InPlaceEffect -> Styled (Maybe (View Action))
 fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
   death :: Maybe (View Action) <- case deadAsset of
     Nothing -> pure Nothing

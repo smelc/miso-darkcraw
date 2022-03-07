@@ -35,7 +35,7 @@ import Model
 import qualified Move
 import Nat
 import PCWViewInternal
-import SharedModel
+import qualified SharedModel as Shared
 import Spots hiding (Card)
 import qualified Spots
 import Theme (Theme)
@@ -124,7 +124,7 @@ mkTargetOffset target =
         (xCells, yCells) = cardCellsBoardOffset pSpot cSpot
         (xPixels, yPixels) = (xCells * cps, yCells * cps)
 
-cmdDiv :: SharedModel -> [View Action]
+cmdDiv :: Shared.Model -> [View Action]
 cmdDiv shared =
   buttons ++ [doc]
   where
@@ -150,7 +150,7 @@ cmdDiv shared =
         [ div_ [style_ $ "margin-top" =: px 8] [Miso.text "Available commands:"],
           ul_
             []
-            [li_ [] [Miso.text $ show cmd & ms] | cmd <- SharedModel.allCommands shared]
+            [li_ [] [Miso.text $ show cmd & ms] | cmd <- Shared.allCommands shared]
         ]
 
 -- | Dumb container to reduce the number of arguments to some functions of
@@ -357,7 +357,7 @@ toHandDrawingInput Model.Game {interaction = gInteraction, ..} =
             zip
               [0 ..]
               ( Board.toHand board playingPlayer
-                  & map (Card.unlift . SharedModel.unsafeIdentToCard shared)
+                  & map (Card.unlift . Shared.unsafeIdentToCard shared)
               ),
           let fadeIn = i `elem` Board.toHand anims playingPlayer
       ]
@@ -393,7 +393,7 @@ data HandDrawingInput = HandDrawingInput
     team :: Team,
     -- | The player of the hand being drawn
     playingPlayer :: Spots.Player,
-    shared :: SharedModel
+    shared :: Shared.Model
   }
 
 boardToInHandCell ::
@@ -456,7 +456,7 @@ boardToInHandCell
           ++ [style_ $ "filter" =: "brightness(50%)" | not playable]
       cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
       playable =
-        case mlift shared card <&> Card.toCommon of
+        case Shared.mlift shared card <&> Card.toCommon of
           Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True
           Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
 

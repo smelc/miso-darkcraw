@@ -47,8 +47,7 @@ import qualified Move
 import Movie (welcomeMovie)
 import Nat
 import ServerMessages
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import qualified Spots hiding (Card)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
@@ -270,7 +269,7 @@ updateGameModel m Move.ExecuteCmd _ =
 updateGameModel m@Model.Game {shared} (Move.UpdateCmd misoStr) i =
   pure $
     updateDefault
-      ((m {shared = SharedModel.withCmd shared (Just $ fromMisoString misoStr)}) :: Model.Game)
+      ((m {shared = Shared.withCmd shared (Just $ fromMisoString misoStr)}) :: Model.Game)
       i
 -- default
 updateGameModel m _ i =
@@ -497,8 +496,8 @@ updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
                 GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
 updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shared, playingPlayer})
-  | SharedModel.cmd shared & isJust =
-      let cmdStr = SharedModel.cmd shared
+  | Shared.cmd shared & isJust =
+      let cmdStr = Shared.cmd shared
        in case cmdStr <&> Command.read & join of
             Nothing ->
               let errMsg = "Unrecognized command: " ++ show cmdStr
@@ -528,7 +527,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
               withBoard $ Board.setPart board pSpot part
               where
                 (inHand, stack) =
-                  SharedModel.getInitialDeck shared team
+                  Shared.getInitialDeck shared team
                     & map Card.cardToIdentifier
                     & splitAt Constants.initialHandSize
                 part = (Board.empty team) {inHand, stack}
@@ -607,7 +606,7 @@ updateModel a m =
 -- | The initial model, appropriately shuffled with 'SharedModel' rng
 level0GameModel ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Campaign.Journey ->
   Teams Team ->
   Model.Game
@@ -617,13 +616,13 @@ level0GameModel difficulty shared journey teams =
     shared
     Campaign.Level0
     journey
-    $ (teams <&> (\t -> (t, SharedModel.getInitialDeck shared t)))
+    $ (teams <&> (\t -> (t, Shared.getInitialDeck shared t)))
 
 -- | A model that takes the decks as parameters, for use after the initial
 -- start of the game
 levelNGameModel ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Campaign.Level ->
   Campaign.Journey ->
   -- | The decks
@@ -650,7 +649,7 @@ levelNGameModel difficulty shared level journey@(Campaign.Journey j) teams =
 -- | An initial model, with a custom board. /!\ Not for production /!\
 unsafeInitialGameModel ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
   -- | The board
@@ -675,7 +674,7 @@ unsafeInitialGameModel difficulty shared teams board =
     anim = Game.NoAnimation
     uiAvail = True
 
-initialWelcomeModel :: SharedModel -> WelcomeModel
+initialWelcomeModel :: Shared.Model -> WelcomeModel
 initialWelcomeModel shared =
   WelcomeModel
     { sceneModel = toSceneModel Movie.welcomeMovie,

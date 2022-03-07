@@ -29,14 +29,14 @@ import qualified Game
 import qualified HeuristicAI
 import qualified MCTSAI
 import qualified Random
-import SharedModel
+import qualified SharedModel as Shared
 import qualified Spots
 import qualified Total
 
 -- | Executes the AI.
 play ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Board 'Core ->
   -- | The playing player
   Spots.Player ->
@@ -64,7 +64,7 @@ play difficulty shared board pSpot =
 
 playWhat ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   -- | The playing player
   Spots.Player ->
   [What] ->
@@ -90,7 +90,7 @@ data What
 
 playFirst ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Spots.Player ->
   Board 'Core ->
   What ->
@@ -122,13 +122,13 @@ playFirst diff shared pSpot board what =
         (_, _, _) -> continueWithHand rest
   where
     availMana = Board.toPart board pSpot & Board.mana
-    mana id = SharedModel.toCardCommon shared id <&> Card.mana
+    mana id = Shared.toCardCommon shared id <&> Card.mana
     withHand cards b = Board.setHand b pSpot cards
     continueWithHand rest = playFirst diff shared pSpot (withHand rest board) what
 
 -- | Given a state, run one event on this state
 (~>) ::
-  (Constants.Difficulty, SharedModel, Board 'Core) ->
+  (Constants.Difficulty, Shared.Model, Board 'Core) ->
   Game.Place ->
   Maybe (Game.Place, Board 'Core)
 (~>) (diff, shared, board) place =
@@ -142,7 +142,7 @@ firstNE = \case [] -> []; ([] : rest) -> firstNE rest; (l : _) -> l
 -- A part of 'playFirst' to avoid 'playFirst' to be gigantic.
 playFirstItem ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Spots.Player ->
   Board 'Core ->
   Item ->
@@ -186,7 +186,7 @@ playFirstItem diff shared pSpot board item =
 -- A part of 'playFirst' to avoid 'playFirst' to be gigantic.
 playFirstNeutral ::
   Constants.Difficulty ->
-  SharedModel ->
+  Shared.Model ->
   Spots.Player ->
   Board 'Core ->
   Neutral ->

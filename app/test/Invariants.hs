@@ -16,7 +16,7 @@ import Debug.Trace (traceShow)
 import qualified Match
 import qualified Model
 import Pretty
-import SharedModel
+import qualified SharedModel as Shared
 import qualified Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -57,17 +57,17 @@ instance Invariant Model.Game where
   -- All GameModel invariants have been checked, delegate to smaller pieces:
   violation Model.Game {board, turn} = violation board ++ violation turn
 
-main :: SharedModel -> SpecWith ()
+main :: Shared.Model -> SpecWith ()
 main shared = do
   describe "Board invariant" $ do
     prop "holds initially" $
       \(Pretty teams, seed) ->
-        let shared' = SharedModel.withSeed shared seed
+        let shared' = Shared.withSeed shared seed
             Model.Game {board} = Update.level0GameModel difficulty shared' (mkJourney teams) teams
          in board `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty teams, seed) ->
-        let shared' = SharedModel.withSeed shared seed
+        let shared' = Shared.withSeed shared seed
          in Match.play (Update.level0GameModel difficulty shared' (mkJourney teams) teams) 32
               `shouldSatisfy` isValidResult
   describe "GameModel invariant" $ do
@@ -76,7 +76,7 @@ main shared = do
         Update.level0GameModel difficulty shared (mkJourney teams) teams `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty teams, seed) ->
-        let shared' = SharedModel.withSeed shared seed
+        let shared' = Shared.withSeed shared seed
          in Match.play (Update.level0GameModel difficulty shared' (mkJourney teams) teams) 32
               `shouldSatisfy` (\Match.Result {models} -> all isValid' models)
   where

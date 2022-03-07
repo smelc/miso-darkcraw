@@ -24,7 +24,7 @@ import Miso.String (MisoString, ms)
 import Miso.Util ((=:))
 import Model
 import PCWViewInternal
-import SharedModel
+import qualified SharedModel as Shared
 import Spots hiding (Card)
 import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)
@@ -40,7 +40,7 @@ data GenericModel = GenericModel
     -- | To which team the deck being shown belongs
     team :: Team,
     -- | Part of the model shared among all pages
-    shared :: SharedModel
+    shared :: Shared.Model
   }
 
 viewDeck :: Model.Deck -> Styled (View Action)

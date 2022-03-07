@@ -45,8 +45,7 @@ import Data.Maybe
 import Miso
 import Miso.String (MisoString, ToMisoString (..), ms)
 import Nat
-import SharedModel (SharedModel, tileToFilepath)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import qualified Skill
 import Tile (Tile)
 import qualified Tile
@@ -140,7 +139,7 @@ cardView ::
   DisplayLocation ->
   -- | The z index
   Int ->
-  SharedModel ->
+  Shared.Model ->
   -- | The team of the card, for selecting the background.
   Team ->
   Card 'Core ->
@@ -159,10 +158,10 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
     manaColorStyle = "color" =: "#2087BA"
     mana = uiCard <&> Card.toCommon <&> Card.mana <&> ms & fromMaybe (ms ("?" :: String))
     drawMana = case loc of GameHandLoc -> True; DeckLoc -> True; _ -> False
-    uiCard = SharedModel.mlift shared card
+    uiCard = Shared.mlift shared card
     filepath =
       uiCard
-        <&> SharedModel.cardToFilepath shared
+        <&> Shared.cardToFilepath shared
         & fromMaybe Tile.default24Filepath
     avatarPicCell = imgCell $ ms $ Tile.filepathToString filepath
     manaDiv =
@@ -194,7 +193,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
 noCardView ::
   -- | The z index
   Int ->
-  SharedModel ->
+  Shared.Model ->
   Board.InPlaceEffect ->
   Styled (View Action)
 noCardView z shared Board.InPlaceEffect {fadeOut} = do
@@ -220,7 +219,7 @@ scrollbarStyle =
     <> "overflow-x" =: "hidden" -- No horizontal scrollbar
 
 -- | The 'Place' argument is where the @Card 'Core@ is, if any.
-cardView' :: Int -> SharedModel -> Maybe Total.Place -> Card 'Core -> [View Action]
+cardView' :: Int -> Shared.Model -> Maybe Total.Place -> Card 'Core -> [View Action]
 cardView' z shared part card =
   -- Note that we don't have this function to take a Card UI, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI
@@ -283,7 +282,7 @@ cardView' z shared part card =
       error $ "Wrong core/ui combination: " ++ show core ++ "/" ++ show ui
   where
     ui :: Card 'UI =
-      case SharedModel.mlift shared card of
+      case Shared.mlift shared card of
         Nothing -> error $ "Cannot lift card: " ++ show card
         Just c -> c
     (topMargin, leftMargin) = (cps `div` 4, topMargin)
@@ -336,11 +335,11 @@ itemNeutralView z card INViewInput {fontStyle, text, title} =
         [Miso.text $ ms $ typeset text]
     ]
 
-skillDiv :: SharedModel -> Skill.State -> View a
+skillDiv :: Shared.Model -> Skill.State -> View a
 skillDiv shared skill =
   div_ [style_ color, hover] [label & ms & Miso.text]
   where
-    Skill.Pack {text, title} = Skill.lift skill & SharedModel.liftSkill shared
+    Skill.Pack {text, title} = Skill.lift skill & Shared.liftSkill shared
     color =
       case skill of
         Skill.DrawCard False -> "color" =: greyHTML
@@ -357,7 +356,7 @@ skillDiv shared skill =
     hover = title_ $ ms $ typeset text
 
 -- | Div to show an item on a creature in place
-itemDiv :: Int -> SharedModel -> Int -> ItemObject 'UI -> View a
+itemDiv :: Int -> Shared.Model -> Int -> ItemObject 'UI -> View a
 itemDiv z shared i iobj@ItemObject {item} =
   div_ [style_ itemStyle] [pictureCell]
   where
@@ -368,9 +367,9 @@ itemDiv z shared i iobj@ItemObject {item} =
         <> "top" =: px (i * (imgSize + (imgSize `div` 4)))
     id = IDI item
     imgSize = picSize id
-    card = ItemCard (SharedModel.unsafeToCardCommon shared id) iobj
+    card = ItemCard (Shared.unsafeToCardCommon shared id) iobj
     filepath =
-      SharedModel.cardToFilepath shared card
+      Shared.cardToFilepath shared card
         & Tile.filepathToString
         & ms
     pictureCell = imgCellwh filepath imgSize imgSize Nothing
@@ -438,16 +437,16 @@ cardPositionStyle' xPixelsOffset yPixelsOffset =
 data Context = Context
   { z :: Int,
     paths :: Map.Map CreatureID (Direction -> MisoString),
-    shared :: SharedModel
+    shared :: Shared.Model
   }
 
-createContext :: Int -> SharedModel -> Context
+createContext :: Int -> Shared.Model -> Context
 createContext z shared =
   Context {..}
   where
-    paths = map f (SharedModel.getCards shared) & catMaybes & Map.fromList
+    paths = map f (Shared.getCards shared) & catMaybes & Map.fromList
     f card@(CreatureCard _ Creature {creatureId}) =
-      Just (creatureId, dirToFilename (SharedModel.cardToFilepath shared card))
+      Just (creatureId, dirToFilename (Shared.cardToFilepath shared card))
     f _ = Nothing
     -- Leave 24x24_3_0.png untouched if direction is ToLeft
     dirToFilename filepath dir
@@ -459,7 +458,7 @@ createContext z shared =
     dirToFilename f@Tile.Filepath {..} _ =
       dirToFilename f {Tile.fpY = fpY + 1} defaultDirection
 
-viewFrame :: DisplayMode -> Int -> SharedModel -> Frame -> View a
+viewFrame :: DisplayMode -> Int -> Shared.Model -> Frame -> View a
 viewFrame mode z smodel (Frame mapping) =
   div_
     []
@@ -476,11 +475,11 @@ stateToAttribute z ActorState {x, y} =
     pltwh Absolute (x * cps) (y * cps) cps cps
       <> "z-index" =: ms z
 
-tileCell :: SharedModel -> Tile.Size -> Tile -> View a
+tileCell :: Shared.Model -> Tile.Size -> Tile -> View a
 tileCell shared sz tile = imgCell path
   where
     path =
-      tileToFilepath shared tile sz
+      Shared.tileToFilepath shared tile sz
         & Tile.filepathToString
         & ms
 
@@ -503,7 +502,7 @@ viewEntry mode Context {..} element (Actor mname state@ActorState {direction, te
         case paths Map.!? cid of
           Nothing -> error $ "CreatureID has no corresponding filename: " ++ show cid
           Just dirToPath -> dirToPath direction
-      Right tile -> tileToFilepath shared tile Tile.TwentyFour & Tile.filepathToString & ms
+      Right tile -> Shared.tileToFilepath shared tile Tile.TwentyFour & Tile.filepathToString & ms
     bubbleStyle ActorState {x, y} =
       style_ $
         "position" =: "absolute"

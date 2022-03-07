@@ -49,8 +49,7 @@ import Movie
 import Nat
 import Pretty
 import SceneEquivalence
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import qualified Skill
 import Spots hiding (Card)
 import Test.Hspec
@@ -64,7 +63,7 @@ getAllDecks :: [Card 'UI] -> [[Card 'Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
 
 -- | Tests that the AI treats 'Ranged' correctly.
-testAIRanged :: SharedModel -> Turn -> Board 'Core
+testAIRanged :: Shared.Model -> Turn -> Board 'Core
 testAIRanged shared turn =
   case Game.playAll shared board $ map Game.PEvent events of
     Left _ -> error "AI failed"
@@ -77,31 +76,31 @@ testAIRanged shared turn =
     events = AI.play Constants.Easy shared board pSpot
 
 testShared shared =
-  describe "SharedModel" $ do
+  describe "Shared.Model" $ do
     prop "maps all Item values" $
       \item ->
         let found =
-              SharedModel.getCards shared
+              Shared.getCards shared
                 & mapMaybe (\case ItemCard _ ItemObject {item = i} | item == i -> Just i; _ -> Nothing)
          in found `shouldBe` [item]
     prop "maps all Neutral values" $
       \n ->
         let found =
-              SharedModel.getCards shared
+              Shared.getCards shared
                 & mapMaybe (\case NeutralCard _ NeutralObject {neutral = n'} | n == n' -> Just n'; _ -> Nothing)
          in found `shouldBe` [n]
     it "All Item cards specify a text" $
-      ( SharedModel.getCards shared
+      ( Shared.getCards shared
           & mapMaybe (\case ItemCard CardCommon {text} _ -> Just text; _ -> Nothing)
       )
         `shouldAllSatisfy` isJust
     it "All Neutral cards specify a text" $
-      ( SharedModel.getCards shared
+      ( Shared.getCards shared
           & mapMaybe (\case NeutralCard CardCommon {text} _ -> Just text; _ -> Nothing)
       )
         `shouldAllSatisfy` isJust
     it "Text and skills are exclusive in Creature cards" $
-      ( SharedModel.getCards shared
+      ( Shared.getCards shared
           & mapMaybe (\case CreatureCard CardCommon {text} Creature {skills} -> Just (text, skills); _ -> Nothing)
       )
         `shouldAllSatisfy` ( \case
@@ -437,7 +436,7 @@ testMana shared =
         go pSpot HandIndex {unHandIndex = i} = do
           id :: Card.ID <- card
           card :: Card 'UI <-
-            SharedModel.identToCard shared id
+            Shared.identToCard shared id
               & (\case Nothing -> Left "card not found"; Just x -> Right x)
           return $ (Card.toCommon card & Card.mana) <= avail
           where
@@ -477,7 +476,7 @@ main = hspec $ do
       all
         (\pSpot -> length Spots.allCards == length (Game.attackOrder pSpot))
         Spots.allPlayers
-  let shared = SharedModel.unsafeGet
+  let shared = Shared.unsafeGet
   describe "AI.hs" $
     it "AI puts Ranged creature in back line" $
       let occupiedSpots =
@@ -498,7 +497,7 @@ main = hspec $ do
   testShared shared
   testAIPlace shared
   testInPlaceEffectsMonoid
-  testApplyDifficulty $ SharedModel.getStdGen shared
+  testApplyDifficulty $ Shared.getStdGen shared
   testPlayScoreMonotonic shared
   -- Onto other files
   Invariants.main shared

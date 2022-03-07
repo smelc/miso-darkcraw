@@ -30,14 +30,13 @@ import GHC.IO (unsafePerformIO)
 import qualified Match
 import qualified Model (Game (..))
 import Nat
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import Spots hiding (Card)
 import Test.Hspec
 import qualified Update
 import qualified Weight
 
-main :: SharedModel -> Bool -> SpecWith ()
+main :: Shared.Model -> Bool -> SpecWith ()
 main shared update =
   describe "Balance" $ do
     it "Balance data is well formed" $ do
@@ -71,7 +70,7 @@ main shared update =
         prefix = show team ++ "/" ++ show opponent ++ " matchup at " ++ show level ++ ": "
         expected = Weight.find team level opponent & fromJust & (\(i, j, k) -> Stat i j k)
     seeds = [0, 31 ..]
-    mkShareds n = take n seeds & map (SharedModel.withSeed shared)
+    mkShareds n = take n seeds & map (Shared.withSeed shared)
     nbMatches = 64
     nbTurns :: Nat = 8
     balances = Weight.balances & map (\(x, y, z, _, _, _) -> (x, y, z))
@@ -138,7 +137,7 @@ details top Stat {topWins, botWins, draws} bot =
 playAll ::
   -- | The models to use for a start (length of this list implies the
   -- the number of games to play)
-  [SharedModel] ->
+  [Shared.Model] ->
   -- | The team to test
   Team ->
   -- | The level of the team
@@ -158,11 +157,11 @@ playAll shareds team level nbTurns opponent =
   where
     ids t =
       Campaign.augment
-        (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
+        (Shared.getInitialDeck shared t & map Card.cardToIdentifier)
         level
         t
     decks t =
-      [ mapMaybe (SharedModel.identToCard shared) cards
+      [ mapMaybe (Shared.identToCard shared) cards
           & map Card.unlift
         | cards <- ids t
       ]
@@ -171,7 +170,7 @@ playAll shareds team level nbTurns opponent =
 playOne ::
   -- | The models to use for a start (length of this list implies the
   -- the number of games to play)
-  [SharedModel] ->
+  [Shared.Model] ->
   -- | The team to test
   Team ->
   -- | The level of the team
@@ -191,11 +190,11 @@ playOne shareds team level (opponent, opponentDeck) nbTurns =
   where
     ids t =
       Campaign.augment
-        (SharedModel.getInitialDeck shared t & map Card.cardToIdentifier)
+        (Shared.getInitialDeck shared t & map Card.cardToIdentifier)
         level
         t
     decks t =
-      [ mapMaybe (SharedModel.identToCard shared) cards & map Card.unlift
+      [ mapMaybe (Shared.identToCard shared) cards & map Card.unlift
         | cards <- ids t
       ]
     shared = head shareds
@@ -203,7 +202,7 @@ playOne shareds team level (opponent, opponentDeck) nbTurns =
 play ::
   -- | The models to use for a start (length of this list implies the
   -- the number of games to play)
-  [SharedModel] ->
+  [Shared.Model] ->
   -- | The level being used
   Campaign.Level ->
   -- | The decks to use

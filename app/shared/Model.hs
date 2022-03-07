@@ -23,7 +23,7 @@ import GHC.Generics
 import qualified Game (Animation (..), Target)
 import Nat
 import ServerMessages
-import SharedModel (SharedModel, getInitialDeck, getStdGen)
+import qualified SharedModel as Shared
 import Spots hiding (Card)
 import Turn (Turn)
 import qualified Turn
@@ -61,7 +61,7 @@ data HandFiddle
 -- extending the 'Show' instance below.
 data Game = Game
   { -- | Part of the model shared among all pages
-    shared :: SharedModel,
+    shared :: Shared.Model,
     -- | The core part of the model
     board :: Board 'Core,
     -- | The game's difficulty
@@ -114,7 +114,7 @@ endGame Game {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, sha
     nbRewards = 1 -- Change this?
     rewards =
       zip
-        (Campaign.loot (Just $ SharedModel.getStdGen shared) outcome level team)
+        (Campaign.loot (Just $ Shared.getStdGen shared) outcome level team)
         (repeat NotPicked)
     team = Board.toPart board pSpot & Board.team
 
@@ -127,10 +127,10 @@ unsafeLootModel WelcomeModel {shared} =
     nbRewards = 1
     team = Human
     rewards = zip (getRewards team Campaign.Level0) $ repeat NotPicked
-    getRewards team level = Campaign.loot (Just $ SharedModel.getStdGen shared) Campaign.Win level team
+    getRewards team level = Campaign.loot (Just $ Shared.getStdGen shared) Campaign.Win level team
     next = Campaign.Level1
     deck =
-      SharedModel.getInitialDeck shared team
+      Shared.getInitialDeck shared team
         & map Card.cardToIdentifier
 
 -- | Function for debugging only. Used to
@@ -145,7 +145,7 @@ unsafeGameModel WelcomeModel {shared} =
     journey = Campaign.mkJourney team
     team = Human
     teams = Teams Undead team
-    teams' = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
+    teams' = teams <&> (\t -> (t, Shared.getInitialDeck shared t))
     turn = Turn.initial
     level = Campaign.Level0
     difficulty = Constants.Easy
@@ -185,7 +185,7 @@ data WelcomeModel = WelcomeModel
   { -- The state of the scene
     sceneModel :: SceneModel,
     -- | Part of the model shared among all pages
-    shared :: SharedModel,
+    shared :: Shared.Model,
     -- | Keys currently down
     keysDown :: Set Int
   }
@@ -195,7 +195,7 @@ data SinglePlayerLobbyModel = SinglePlayerLobbyModel
   { -- | The chosen team
     singlePlayerLobbyTeam :: Maybe Team,
     -- | Part of the model shared among all pages
-    singlePlayerLobbyShared :: SharedModel
+    singlePlayerLobbyShared :: Shared.Model
   }
   deriving (Eq, Generic, Show)
 
@@ -236,7 +236,7 @@ data Deck = Deck
     -- | To which team the deck being shown belongs
     team :: Team,
     -- | Part of the model shared among all pages
-    shared :: SharedModel
+    shared :: Shared.Model
   }
   deriving (Eq, Generic, Show)
 
@@ -258,7 +258,7 @@ data LootModel = LootModel
     -- | To which team the deck being shown belongs
     team :: Team,
     -- | Part of the model shared among all pages
-    shared :: SharedModel,
+    shared :: Shared.Model,
     -- | The possible rewards, and whether they have been picked already
     -- or not.
     rewards :: [(Card.ID, Picked)]

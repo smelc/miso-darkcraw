@@ -21,8 +21,7 @@ import Miso
 import Miso.String (fromMisoString, ms)
 import Model (SceneModel (..), TimedFrames, WelcomeModel (..))
 import PCWViewInternal (DisplayMode (..), viewFrame)
-import SharedModel (SharedModel)
-import qualified SharedModel
+import qualified SharedModel as Shared
 import qualified Tile
 import Update
 import ViewBlocks (ButtonState (..), gui, textButton)
@@ -132,7 +131,7 @@ torchesDiv z =
         <> "animation" =: ("torch " <> duration x <> " steps(2) infinite")
     duration x = if x then "2s" else "2.5s"
 
-versionDiv :: SharedModel -> Int -> Configuration -> View Action
+versionDiv :: Shared.Model -> Int -> Configuration -> View Action
 versionDiv shared z config =
   div_
     [style_ $ style <> textStyle, style_ flexLineStyle]
@@ -156,7 +155,7 @@ versionDiv shared z config =
     y = lobbiesPixelHeight - cps
     style = zplt z Absolute x y
     tile16 tile =
-      SharedModel.tileToFilepath shared tile Tile.Sixteen
+      Shared.tileToFilepath shared tile Tile.Sixteen
         & Tile.filepathToString
         & ms
         & Constants.assetsPath

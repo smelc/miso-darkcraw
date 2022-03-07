@@ -56,7 +56,7 @@ import qualified Game
 import Miso.String (MisoString)
 import Model
 import Nat
-import SharedModel (SharedModel)
+import qualified SharedModel as Shared
 import qualified Spots
 import qualified Turn
 
@@ -156,13 +156,13 @@ data Kernel a = Kernel
     board :: Board 'Core,
     difficulty :: Constants.Difficulty,
     playingPlayer :: a,
-    shared :: SharedModel,
+    shared :: Shared.Model,
     turn :: Turn.Turn,
     uiAvail :: Bool
   }
 
 -- | Creates a minimal kernel, suited for simulation
-mkSimKernel :: Constants.Difficulty -> SharedModel -> Turn.Turn -> Board 'Core -> Kernel ()
+mkSimKernel :: Constants.Difficulty -> Shared.Model -> Turn.Turn -> Board 'Core -> Kernel ()
 mkSimKernel difficulty shared turn board = Kernel {..}
   where
     anim = Game.NoAnimation
@@ -170,11 +170,11 @@ mkSimKernel difficulty shared turn board = Kernel {..}
     playingPlayer = ()
     uiAvail = False
 
-instance Contains (Kernel a) (SharedModel, Board 'Core, Board 'UI) where
+instance Contains (Kernel a) (Shared.Model, Board 'Core, Board 'UI) where
   to Kernel {shared, board, anims} = (shared, board, anims)
   with m (s, b, a) = m {shared = s, board = b, anims = a}
 
-instance Contains (Kernel a) (SharedModel, Board 'Core, Board 'UI, Game.Animation) where
+instance Contains (Kernel a) (Shared.Model, Board 'Core, Board 'UI, Game.Animation) where
   to Kernel {shared, board, anims, anim} = (shared, board, anims, anim)
   with m (s, b, a, an) = m {shared = s, board = b, anims = a, anim = an}
 

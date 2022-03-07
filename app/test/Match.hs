@@ -27,7 +27,7 @@ import Generators ()
 import Model
 import qualified Move
 import Nat
-import SharedModel
+import qualified SharedModel as Shared
 import Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
@@ -35,7 +35,7 @@ import Test.QuickCheck ((==>))
 import Turn
 import Update
 
-main :: SharedModel -> SpecWith ()
+main :: Shared.Model -> SpecWith ()
 main shared = do
   describe "Playing a match doesn't return Error" $
     it "forall t1, t2 :: Team, play shared t1 t2 8 isn't Error" $
@@ -48,7 +48,7 @@ main shared = do
         [1 .. 48]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = level0GameModel Constants.Easy (SharedModel.withSeed shared seed) journey (Teams t1 t2)
+        model seed = level0GameModel Constants.Easy (Shared.withSeed shared seed) journey (Teams t1 t2)
         journey = Campaign.unsafeJourney Campaign.Level0 t1
     isError (Error msg) = traceShow msg True
     isError Draw = False
@@ -79,7 +79,7 @@ main shared = do
             ++ " "
             ++ show (Board.toScore pSpot board)
 
-testStupidity :: SharedModel -> SpecWith ()
+testStupidity :: Shared.Model -> SpecWith ()
 testStupidity shared =
   describe "Stupidity is handled correctly" $
     prop "the score is correctly predicted" $
@@ -93,9 +93,9 @@ testStupidity shared =
     initialBoard s teams cSpot = Board.small s teams ogreID [] startingPlayerSpot cSpot
     ogreID = CreatureID Card.Ogre Human
     ogreSpot = PlayerBot
-    Damage {base = ogreAttack} = SharedModel.idToCreature shared ogreID [] & fromJust & attack
-    mkShared seed = SharedModel.withSeed shared seed
-    mkTeamData teams = teams <&> (\t -> (t, SharedModel.getInitialDeck shared t))
+    Damage {base = ogreAttack} = Shared.idToCreature shared ogreID [] & fromJust & attack
+    mkShared seed = Shared.withSeed shared seed
+    mkTeamData teams = teams <&> (\t -> (t, Shared.getInitialDeck shared t))
     isValid Result {models} = all isValidModel models
     isValidModel Model.Game {board, turn} =
       expectedScore == score

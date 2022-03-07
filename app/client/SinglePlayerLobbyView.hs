@@ -19,7 +19,7 @@ import Data.Maybe (fromMaybe, isJust)
 import Miso
 import Miso.String hiding (concat, length, map)
 import Model (SinglePlayerLobbyModel (..))
-import SharedModel (SharedModel (), cardToFilepath, idToCreature, unsafeToCardCommon)
+import qualified SharedModel as Shared
 import qualified Tile
 import Update
 import ViewBlocks (ButtonState (..), anyButton, gui, textButton)
@@ -101,7 +101,7 @@ viewSinglePlayerLobbyModel SinglePlayerLobbyModel {..} = do
           "Back"
       return $ div_ [style_ $ "margin-top" =: voffset] [button]
 
-selectTeamDiv :: SharedModel -> Int -> Maybe Team -> Styled (View Action)
+selectTeamDiv :: Shared.Model -> Int -> Maybe Team -> Styled (View Action)
 selectTeamDiv smodel z chosen = do
   -- startButtonDiv <- startButtonDivM
   teamButtons <- sequence [teamButton smodel z chosen t | t <- pickable]
@@ -114,7 +114,7 @@ selectTeamDiv smodel z chosen = do
       ]
 
 teamButton ::
-  SharedModel ->
+  Shared.Model ->
   -- The z index
   Int ->
   -- | The selected team, if any
@@ -131,11 +131,11 @@ teamButton smodel z chosen team = do
         Nothing -> (Enabled, LobbySelectTeam $ Just team)
         Just t | t == team -> (Selected, LobbySelectTeam Nothing) -- toggle
         Just _ -> (Disabled, LobbySelectTeam $ Just team)
-    creature kind team items = idToCreature smodel (CreatureID kind team) items
+    creature kind team items = Shared.idToCreature smodel (CreatureID kind team) items
     path team kind =
       creature kind team []
-        <&> (CreatureCard $ SharedModel.unsafeToCardCommon smodel $ IDC (CreatureID kind team) [])
-        <&> SharedModel.cardToFilepath smodel
+        <&> (CreatureCard $ Shared.unsafeToCardCommon smodel $ IDC (CreatureID kind team) [])
+        <&> Shared.cardToFilepath smodel
         & fromMaybe Tile.default24Filepath
         & Tile.filepathToString
     tile team =
