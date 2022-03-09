@@ -17,6 +17,7 @@ import Miso.String (MisoString)
 data Kind
   = DarkForest
   | Forest
+  | MossDungeon
   deriving (Enum, Bounded, Show)
 
 -- | The names of assets of this theme. Only filenames: no paths.
@@ -48,4 +49,12 @@ kindToTheme =
         { board = "forest.png",
           hand = "forest-hand.png",
           turn = "turn.png"
+        }
+    MossDungeon -> ofPrefix "moss-dungeon"
+  where
+    ofPrefix prefix =
+      Theme
+        { board = prefix <> "-board.png",
+          hand = prefix <> "-hand.png",
+          turn = prefix <> "-turn.png"
         }

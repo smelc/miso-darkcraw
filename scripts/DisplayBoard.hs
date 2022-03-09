@@ -16,6 +16,7 @@
 -- Example call (from the git root):
 --
 -- ./scripts/DisplayBoard.hs app/assets forest.png turn.png forest-hand.png
+-- ./scripts/DisplayBoard.hs app/assets moss-dungeon-board.png moss-dungeon-turn.png moss-dungeon-hand.png
 
 import Codec.Picture
 import Data.IORef
