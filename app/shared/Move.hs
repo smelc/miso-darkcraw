@@ -347,6 +347,11 @@ preTurnEvents pSpot =
     Game.ApplyKing pSpot
   ]
 
+mkPreTurnEvents :: Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
+mkPreTurnEvents shared turn pSpot board
+  | Turn.initial == turn = [] -- No pre turn events when game starts
+  | otherwise = preTurnEvents pSpot & Game.keepEffectfull shared board
+
 data Actor = AI | Player
 
 -- | The layer above 'startAITurn' and 'startPlayerTurn'. It intentionally
@@ -362,18 +367,17 @@ startTurn a pSpot m@Kernel {board = b, turn} =
   where
     m'
       | turn == Turn.initial = m -- Don't increment stupidity counter for example.
-      -- FIXME don't generate preTurnEvents either (somewhere else)
       | otherwise = m {Move.board = boardStart b pSpot}
 
 -- | This function is related to 'startAITurn'. If you change
 -- this function, consider changing 'startAITurn' too.
 startPlayerTurn :: a ~ Kernel b => a -> Spots.Player -> (a, NextSched)
-startPlayerTurn m@Kernel {board, shared} pSpot = runIdentity $ do
+startPlayerTurn m@Kernel {board, shared, turn} pSpot = runIdentity $ do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   -- We draw the first card right away,
   -- so that the game feels responsive when the player turn starts
   let drawNow = Game.cardsToDraw board pSpot True & take 1
-      preTurnEs :: [Game.Event] = Game.keepEffectfull shared board $ preTurnEvents pSpot
+      preTurnEs :: [Game.Event] = mkPreTurnEvents shared turn pSpot board
   (shared, board, anims) <-
     pure $
       Game.drawCards shared board pSpot drawNow
@@ -385,10 +389,10 @@ startPlayerTurn m@Kernel {board, shared} pSpot = runIdentity $ do
 -- this function, consider changing 'startPlayerTurn' too.
 startAITurn ::
   MonadError Text.Text m => a ~ Kernel b => a -> Spots.Player -> m (a, NextSched)
-startAITurn m@Kernel {board, difficulty, shared} pSpot = do
+startAITurn m@Kernel {board, difficulty, shared, turn} pSpot = do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs :: [Game.DrawSource] = Game.cardsToDraw board pSpot True
-      preTurnEs :: [Game.Event] = Game.keepEffectfull shared board $ preTurnEvents pSpot
+      preTurnEs :: [Game.Event] = mkPreTurnEvents shared turn pSpot board
   (shared, board, anims) <-
     pure $
       Game.drawCards shared board pSpot drawSrcs
