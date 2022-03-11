@@ -148,7 +148,7 @@ cardView ::
 cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
   ViewInternal.fade builder Nothing 1 fade
   where
-    fade = if fadeIn then ViewInternal.FadeIn else ViewInternal.DontFade
+    fade = if fadeIn then Constants.FadeIn else Constants.DontFade
     avatarPicStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize id) `div` 2) picTopMargin
     id = Card.cardToIdentifier card

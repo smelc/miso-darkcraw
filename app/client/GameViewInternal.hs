@@ -97,7 +97,7 @@ messageView =
     Game.Fadeout -> Nothing
     Game.Message txt duration ->
       -- Message shown during 'duration' seconds and fades out during 1 second
-      Just $ ViewInternal.fade builder (Just duration) 1 ViewInternal.FadeOut
+      Just $ ViewInternal.fade builder (Just duration) 1 Constants.FadeOut
       where
         builder attrs = div_ (pos : attrs) [div_ [nested] $ map viewMessageText txt]
         -- TODO @smelc share code with LootView
@@ -128,12 +128,12 @@ messageView =
           img_ [src_ $ assetsPath $ ms $ Tile.filepathToString filepath]
 
 -- | What fading a 'Game.Animation' triggers
-animToFade :: Game.Animation -> ViewInternal.Fade
+animToFade :: Game.Animation -> Constants.Fade
 animToFade = \case
-  Game.Application {} -> ViewInternal.DontFade
-  Game.NoAnimation -> ViewInternal.DontFade
-  Game.Fadeout -> ViewInternal.FadeOut
-  Game.Message {} -> ViewInternal.DontFade
+  Game.Application {} -> Constants.DontFade
+  Game.NoAnimation -> Constants.DontFade
+  Game.Fadeout -> Constants.FadeOut
+  Game.Message {} -> Constants.DontFade
 
 scoreViews :: Model.Game -> Int -> [Styled (View Action)]
 scoreViews m@Model.Game {anims, board} z =

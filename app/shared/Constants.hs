@@ -97,6 +97,15 @@ data Difficulty
   | Hard
   deriving (Bounded, Enum, Eq, Generic, Show)
 
+-- | Fade or not fade. Not truly a constant. I know.
+data Fade
+  = -- | Fadein (transparent->visible)
+    FadeIn
+  | -- | Fadeout (visible->transparent)
+    FadeOut
+  | -- | Don't do any fadeing
+    DontFade
+
 gameTitle :: MisoString
 gameTitle = "Pixel Card Wars"
 

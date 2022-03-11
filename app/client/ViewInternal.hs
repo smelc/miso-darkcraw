@@ -17,7 +17,7 @@
 -- |
 module ViewInternal where
 
-import Constants (assetsPath, cellPixelSize)
+import qualified Constants
 import Control.Monad.Writer
 import Data.Function ((&))
 import Data.List
@@ -119,7 +119,7 @@ flexLineStyle =
     ]
 
 imgCell :: MisoString -> View a
-imgCell filename = img_ [src_ $ assetsPath filename, noDrag]
+imgCell filename = img_ [src_ $ Constants.assetsPath filename, noDrag]
 
 -- | An image with the given width and height, in pixels
 imgCellwh :: MisoString -> Int -> Int -> Maybe Position -> View a
@@ -127,7 +127,7 @@ imgCellwh filename w h pos =
   -- Don't use 'px x', width and height are always in pixels, it'd
   -- make them considered as being 0.
   img_ $
-    [src_ $ assetsPath filename, noDrag, width_ $ ms w, height_ $ ms h]
+    [src_ $ Constants.assetsPath filename, noDrag, width_ $ ms w, height_ $ ms h]
       ++ ( case pos of
              Nothing -> mempty
              Just pos -> [style_ $ "position" =: (ms $ show pos)]
@@ -144,14 +144,6 @@ keyframes name from steps to =
         & Data.List.concat
     to_ = "100% { " <> to <> " }"
     tail = from_ <> " " <> ms steps' <> " " <> to_
-
-data Fade
-  = -- | Fadein (transparent->visible)
-    FadeIn
-  | -- | Fadeout (visible->transparent)
-    FadeOut
-  | -- | Don't do any fadeing
-    DontFade
 
 -- XXX smelc Get rid of this function altogether?
 keyframed ::
@@ -176,13 +168,13 @@ fade ::
   -- | The duration, in seconds
   Nat ->
   -- | Whether it's a fadein ('True'), or a fadeout ('False')
-  Fade ->
+  Constants.Fade ->
   Styled (View a)
 fade builder delay duration =
   \case
-    FadeIn -> go "opacity: 0;" "opacity: 1;" True
-    FadeOut -> go "opacity: 1;" "opacity: 0;" False
-    DontFade -> return $ builder []
+    Constants.FadeIn -> go "opacity: 0;" "opacity: 1;" True
+    Constants.FadeOut -> go "opacity: 1;" "opacity: 0;" False
+    Constants.DontFade -> return $ builder []
   where
     go start end inOrOut =
       keyframed
@@ -316,7 +308,9 @@ stytextztrbl z txt t r b l =
 -- | i.e. of a rectangle of size 'cellPixelSize'.
 tilezprb :: Int -> Position -> Int -> Int -> Map.Map MisoString MisoString
 tilezprb z pos right bot =
-  zprbwh z pos (cellPixelSize * right) (cellPixelSize * bot) cellPixelSize cellPixelSize
+  zprbwh z pos (cps * right) (cps * bot) cps cps
+  where
+    cps = Constants.cps
 
 -- | A style specifying the z-index, the position,
 -- | the left margin (in pixels), and the top margin (in pixels)
