@@ -95,7 +95,7 @@ instance Monoid BorderOverlay where
 
 data CardDrawStyle = CardDrawStyle
   { -- | Whether the card should fade in
-    fadeIn :: Bool,
+    fade :: Constants.Fade,
     -- | Whether the card is being hovered
     hover :: Bool,
     -- | Whether to show a green overlay border. Used for cards picked
@@ -105,10 +105,10 @@ data CardDrawStyle = CardDrawStyle
 
 instance Semigroup CardDrawStyle where
   CardDrawStyle fadeIn1 hover1 o1 <> CardDrawStyle fadeIn2 hover2 o2 =
-    CardDrawStyle (fadeIn1 || fadeIn2) (hover1 || hover2) (o1 <> o2)
+    CardDrawStyle (fadeIn1 <> fadeIn2) (hover1 || hover2) (o1 <> o2)
 
 instance Monoid CardDrawStyle where
-  mempty = CardDrawStyle False False None
+  mempty = CardDrawStyle mempty False None
 
 instance Miso.String.ToMisoString Nat where
   toMisoString = toMisoString . show
@@ -145,10 +145,9 @@ cardView ::
   Card 'Core ->
   CardDrawStyle ->
   Styled (View Action)
-cardView loc z shared team card cdsty@CardDrawStyle {fadeIn} =
+cardView loc z shared team card cdsty@CardDrawStyle {fade} =
   ViewInternal.fade builder Nothing 1 fade
   where
-    fade = if fadeIn then Constants.FadeIn else Constants.DontFade
     avatarPicStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize id) `div` 2) picTopMargin
     id = Card.cardToIdentifier card

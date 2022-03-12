@@ -105,6 +105,18 @@ data Fade
     FadeOut
   | -- | Don't do any fadeing
     DontFade
+  deriving (Eq, Generic, Show)
+
+instance Semigroup Fade where
+  FadeIn <> FadeIn = FadeIn
+  FadeOut <> FadeOut = FadeOut
+  FadeIn <> FadeOut = DontFade
+  FadeOut <> FadeIn = DontFade
+  DontFade <> _ = DontFade
+  _ <> DontFade = DontFade
+
+instance Monoid Fade where
+  mempty = DontFade
 
 gameTitle :: MisoString
 gameTitle = "Pixel Card Wars"

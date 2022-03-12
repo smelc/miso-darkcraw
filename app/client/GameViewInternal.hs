@@ -190,7 +190,7 @@ scorePluses board z pSpot = do
       ]
       pluses
   where
-    f = fade builder Nothing 1 FadeOut
+    f = ViewInternal.fade builder Nothing 1 FadeOut
     builder attrs = div_ attrs [Miso.text "+1"]
     scoreIncrease =
       Board.toInPlace board pSpot

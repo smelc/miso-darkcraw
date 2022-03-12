@@ -13,7 +13,7 @@ import Board
 import qualified Campaign
 import Card
 import Cinema
-import qualified Constants (Difficulty)
+import qualified Constants (Difficulty, Fade)
 import Damage (Damage (..))
 import Data.Function ((&))
 import Data.Maybe
@@ -152,6 +152,10 @@ instance Arbitrary Turn where
   shrink = genericShrink
 
 instance Arbitrary DeathCause where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
+instance Arbitrary Constants.Fade where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

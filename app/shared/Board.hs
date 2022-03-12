@@ -146,8 +146,8 @@ data InPlaceEffect = InPlaceEffect
     -- | Hit points that were not dealt because the defender died. Contributes
     -- to the score with 'Skill.Powerful'.
     extra :: Nat,
-    -- | Card fades-in
-    fadeIn :: Bool,
+    -- | Card fade-in or fade-out
+    fade :: Constants.Fade,
     -- | Tiles to fade out atop the card spot, both when there's a creature
     -- and when there's not.
     fadeOut :: [Tile.Tile],
@@ -157,15 +157,15 @@ data InPlaceEffect = InPlaceEffect
   deriving (Eq, Generic, Show)
 
 instance Semigroup InPlaceEffect where
-  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fadeIn = fi1, fadeOut = fo1, scoreChange = c1}
-    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fadeIn = fi2, fadeOut = fo2, scoreChange = c2} =
+  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fade = fi1, fadeOut = fo1, scoreChange = c1}
+    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fade = fi2, fadeOut = fo2, scoreChange = c2} =
       InPlaceEffect
         { attackChange = ac1 + ac2,
           death = d1 <> d2,
           attackBump = ab1 || ab2,
           extra = e1 + e2,
           hitPointsChange = hp1 + hp2,
-          fadeIn = fi1 || fi2,
+          fade = fi1 <> fi2,
           fadeOut = fo1 ++ fo2,
           scoreChange = c1 + c2
         }
@@ -178,7 +178,7 @@ instance Monoid InPlaceEffect where
         attackBump = False,
         extra = 0,
         hitPointsChange = 0,
-        fadeIn = False,
+        fade = mempty,
         fadeOut = [],
         scoreChange = 0
       }

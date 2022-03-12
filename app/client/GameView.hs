@@ -62,7 +62,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
           c :: View Action <- cardView GameApplicationLoc (zpp + 4) shared team card cdsty
           return $ pure $ div_ [style_ $ mkTargetOffset target] [c]
           where
-            cdsty :: CardDrawStyle = mempty {PCWViewInternal.fadeIn = True} -- FIXME @smelc it's fadeOut we want
+            cdsty :: CardDrawStyle = mempty {PCWViewInternal.fade = Constants.FadeOut}
             team = Board.toPart board pSpot & Board.team
         Game.NoAnimation -> pure Nothing
         Game.Fadeout -> pure Nothing
@@ -223,7 +223,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
             let cdsty :: CardDrawStyle =
                   mempty
                     { hover = beingHovered,
-                      PCWViewInternal.fadeIn = Board.fadeIn attackEffect
+                      PCWViewInternal.fade = Board.fade attackEffect
                     }
             v <- cardView loc z shared t (CreatureCard mkCoreCardCommon creature) cdsty
             -- "pointer-events: none" turns off handling of drag/drog
@@ -443,7 +443,7 @@ boardToInHandCell
       cpw' = (maxHSpace - cardPixelWidth) `div` (handSize - 1)
       handSize = length hand
       maxHSpace = (5 * cardPixelWidth) + 4 * hgap -- cards + gaps
-      fadeIn = map snd hand !! unHandIndex i
+      fade = if (map snd hand !! unHandIndex i) then Constants.FadeIn else Constants.DontFade
       attrs =
         [ style_ $ cardPositionStyle' x' y',
           prop "draggable" True,
@@ -454,7 +454,7 @@ boardToInHandCell
           onMouseLeave' "card" $ onMouseLeave i
         ]
           ++ [style_ $ "filter" =: "brightness(50%)" | not playable]
-      cdsty = mempty {hover = beingHovered, PCWViewInternal.fadeIn = fadeIn}
+      cdsty = mempty {hover = beingHovered, PCWViewInternal.fade = fade}
       playable =
         case Shared.mlift shared card <&> Card.toCommon of
           Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True

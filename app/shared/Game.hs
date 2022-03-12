@@ -607,7 +607,7 @@ playNeutralM board _playingPlayer target n =
       -- Put existing creatures on new spots
       let board' = Board.setInPlace board pSpot (Map.fromList $ zip spots creatures)
       -- Report fadeIn effects on each new spot
-      traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {fadeIn = True})) spots
+      traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {fade = Constants.FadeIn})) spots
       return (board', Nothing)
     (Plague, PlayerTarget pSpot) -> do
       board' <- applyPlagueM board pSpot
@@ -645,7 +645,7 @@ playCreatureM board pSpot cSpot creature =
       -- an event computed by the AI fail.
       throwError CannotPlaceCreature
     _ -> do
-      reportEffect pSpot cSpot $ mempty {fadeIn = True} -- report creature addition effect
+      reportEffect pSpot cSpot $ mempty {fade = Constants.FadeIn} -- report creature addition effect
       board <- pure $ Board.setCreature pSpot cSpot creature board -- set creature
       board <- applyDiscipline board creature pSpot cSpot
       board <- applySquire board creature pSpot cSpot
@@ -665,7 +665,7 @@ playItemM board pSpot cSpot item =
     Nothing ->
       throwError CannotPlaceItem
     Just creature -> do
-      reportEffect pSpot cSpot $ mempty {fadeIn = True}
+      reportEffect pSpot cSpot $ mempty {fade = Constants.FadeIn}
       -- TODO @smelc record animation for item arrival
       let creature' = installItem creature item
       return $ Board.setCreature pSpot cSpot creature' board
@@ -1296,7 +1296,7 @@ applyFlailOfTheDamned board creature pSpot =
           let spawned' = spawned {transient = True}
           let board' = Board.setCreature pSpot spawningSpot spawned' board
           -- TODO @smelc record an animation highlighting the flail
-          reportEffect pSpot spawningSpot $ mempty {fadeIn = True}
+          reportEffect pSpot spawningSpot $ mempty {fade = Constants.FadeIn}
           return board'
   where
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
