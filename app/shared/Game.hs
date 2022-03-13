@@ -1122,7 +1122,7 @@ applyFearNTerrorM board affectingSpot = do
     board
       & Board.setInPlace affectedSpot affectedInPlace''
       & Board.setInPlace affectingSpot affectingInPlace'
-      & (\b -> Board.addToDiscarded b affectedSpot killedToDiscard)
+      & Board.addToDiscarded affectedSpot killedToDiscard
   where
     affectedSpot = Spots.other affectingSpot
     affectingInPlace = Board.toInPlace board affectingSpot

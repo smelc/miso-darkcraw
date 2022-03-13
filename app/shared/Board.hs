@@ -314,9 +314,9 @@ instance Semigroup (Board 'UI) where
 instance Monoid (Board 'UI) where
   mempty = Board mempty mempty
 
-addToDiscarded :: Board 'Core -> Spots.Player -> DiscardedType 'Core -> Board 'Core
-addToDiscarded board pSpot addition =
-  setDiscarded board pSpot $ discarded ++ addition
+addToDiscarded :: Spots.Player -> DiscardedType 'Core -> Board 'Core -> Board 'Core
+addToDiscarded pSpot addition board =
+  setDiscarded board pSpot (discarded ++ addition)
   where
     discarded = toDiscarded board pSpot
 
