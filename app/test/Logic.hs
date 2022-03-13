@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testSupport) where
+module Logic (disturber, main, mkCreature, testAssassins) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -22,6 +22,7 @@ import Card
 import Constants
 import Control.Lens hiding (at, (+=))
 import Damage (Damage, (+^), (-^))
+import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Set as Set
@@ -650,10 +651,39 @@ testSupport shared =
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
         & (\(Game.Result {board = c}) -> c)
 
+testAssassins shared =
+  describe "Assassin" $ do
+    it "is a skill of the Evil assassin" $ do
+      fighter `Card.has` (Skill.Assassin :: Skill.State)
+    it "does not trigger when opponent is in back line" $ do
+      let board' = addVictim (Spots.bottomSpotOfTopVisual Bottom) board
+      applyAssassin fighterPSpot board' `shouldBe` board'
+    it "triggers when opponents is in front line" $ do
+      let board' = addVictim (Spots.bottomSpotOfTopVisual Top) board
+      ( applyAssassin fighterPSpot board'
+          & flip Board.toInPlace fighterPSpot
+          & Map.partitionWithKey (\cSpot _ -> Spots.inFront cSpot)
+          & Bifunctor.bimap Map.elems length
+        )
+        `shouldBe` ([fighter], 0)
+  where
+    (fTeam, vTeam) = (Evil, Undead)
+    (fighter, fighterPSpot) = (mkCreature shared Card.Assassin fTeam False, PlayerTop)
+    (victim, victimPSpot) = (mkCreature shared Card.Skeleton vTeam False, Spots.other fighterPSpot)
+    board :: Board 'Core =
+      Board.empty (Teams fTeam vTeam)
+        & Board.setCreature fighterPSpot Spots.Bottom fighter
+    addVictim cSpot = Board.setCreature victimPSpot cSpot victim
+    applyAssassin pSpot b =
+      Game.play shared b (Game.ApplyAssassins pSpot)
+        & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
+        & (\(Game.Result {board = c}) -> c)
+
 main :: Shared.Model -> SpecWith ()
 main shared = do
   -- Unit tests
   testAce shared
+  testAssassins shared
   testAxeOfRage shared
   testBreathIce shared
   testCharge shared

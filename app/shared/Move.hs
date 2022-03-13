@@ -12,7 +12,6 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 -- |
 -- This module deals with game actions (nicknamed moves). It's a spinoff of
@@ -342,6 +341,7 @@ instance MakeHandlers 'Sim (Kernel ()) where
 preTurnEvents :: Spots.Player -> [Game.Event]
 preTurnEvents pSpot =
   [ Game.ApplyFearNTerror $ Spots.other pSpot,
+    Game.ApplyAssassins pSpot,
     Game.ApplyBrainless pSpot,
     Game.FillTheFrontline pSpot,
     Game.ApplyKing pSpot

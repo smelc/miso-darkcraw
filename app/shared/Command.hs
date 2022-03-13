@@ -28,6 +28,8 @@ toLowerString = map toLower
 data Command
   = -- | Make the AI play at a spot
     AIPlay Spots.Player
+  | -- | Command to trigger the 'assassins' event
+    Assassins Spots.Player
   | -- | Command to end the current game. Parameter indicates how
     -- the playing player performed.
     EndGame Campaign.Outcome
@@ -54,7 +56,7 @@ allCommands cids =
     ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
     ++ [AIPlay pSpot | pSpot <- [minBound ..]]
     ++ [EndGame r | r <- [minBound ..]]
-    ++ [e pSpot | e <- [FillTheFrontline, HailToTheKing, Killall], pSpot <- [minBound ..]]
+    ++ [e pSpot | e <- [Assassins, FillTheFrontline, HailToTheKing, Killall], pSpot <- [minBound ..]]
     ++ [GimmeMana]
     ++ [Reboot pSpot t | pSpot <- [minBound ..], t <- allTeams]
   where
@@ -69,6 +71,7 @@ instance Show Command where
   show =
     \case
       (AIPlay pSpot) -> "aiplay " ++ show pSpot
+      (Assassins pSpot) -> "assassins " ++ show pSpot
       (EndGame r) ->
         ( case r of
             Campaign.Win -> "win"

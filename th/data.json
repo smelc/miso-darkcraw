@@ -125,7 +125,7 @@
   ],
   "skills": [
     { "skill":"Ace",         "title":"Ace",        "text":"Hits any enemy"},
-    { "skill":"Assassin",    "title":"Assassin",   "text":"At beginning of turn, move in contact with most ponent ennemy (if possible)"},
+    { "skill":"Assassin",    "title":"Assassin",   "text":"At beginning of turn, move in contact with most potent ennemy (if possible)"},
     { "skill":"Blow",        "title":"Blow",       "text":"+2 :crossed_swords: during first turn"},
     { "skill":"Brainless",   "title":"Brainless",  "text":"Moves to a random empty spot at beginning of turn. Immune to fear and terror."},
     { "skill":"BreathIce",   "title":"Ice Breath", "text":"Attacks enemy in front as well as enemy behind"},

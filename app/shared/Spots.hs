@@ -59,6 +59,8 @@ allCardsNE = minBound NE.:| [succ minBound ..]
 -- I.e. if you give this method [TopLeft], it'll correspond to the [TopLeft]
 -- bottom position that you SEE; even if positions make sense for the top
 -- part. This method takes care of translating correctly.
+--
+-- TODO @smelc rename me to @bottomSpot@
 bottomSpotOfTopVisual :: Spots.Card -> Spots.Card
 bottomSpotOfTopVisual = \case
   TopLeft -> BottomRight

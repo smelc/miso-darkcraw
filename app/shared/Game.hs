@@ -41,6 +41,7 @@ module Game
     playAll,
     playAllE,
     toSpot,
+    toSpots,
     tryPlayM,
     StatChange (..), -- exported for tests only
     transferCards,
@@ -139,7 +140,9 @@ toSpot :: Place -> Spots.Player
 toSpot = \case Place pSpot _ _ -> pSpot; Place' pSpot _ _ -> pSpot
 
 data Event
-  = -- | Apply brainless of the creatures at the given 'Spots.Player'
+  = -- | Apply assassins of the creatures at the given 'Spots.Player'
+    ApplyAssassins Spots.Player
+  | -- | Apply brainless of the creatures at the given 'Spots.Player'
     ApplyBrainless Spots.Player
   | -- | Apply church of the creatures at the given 'Spots.Player'
     ApplyChurch Spots.Player
@@ -410,6 +413,9 @@ tryPlayM ::
   Board 'Core ->
   Event ->
   m (Possible (Board 'Core, Maybe Event))
+tryPlayM board (ApplyAssassins pSpot) = do
+  board' <- Game.applyAssassinsM board pSpot
+  return $ pure $ (board', Nothing)
 tryPlayM board (ApplyBrainless pSpot) = do
   board' <- Game.applyBrainlessM board pSpot
   return $ pure $ (board', Nothing)
@@ -483,6 +489,16 @@ eventToAnim shared board =
   -- Note that, in this function, we do not need to check if the
   -- Event has an effect. This is done by the caller of 'keepEffectfull'
   \case
+    Game.ApplyAssassins pSpot ->
+      pure $ Message [Text msg] duration
+      where
+        assassins =
+          Board.toInPlace board pSpot
+            & Map.filter (`has` (Skill.Assassin :: Skill.State))
+        msg =
+          if Map.size assassins == 1
+            then "The assassin closes in on its target"
+            else "Assassins close in on their targets"
     Game.ApplyBrainless pSpot ->
       pure $ Message [Text msg] duration
       where
@@ -939,6 +955,76 @@ appliesTo board id playingPlayer target =
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
 
+applyAssassinsM ::
+  MonadWriter (Board 'UI) m =>
+  MonadState Shared.Model m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part where assassin takes effect
+  Spots.Player ->
+  m (Board 'Core)
+applyAssassinsM board pSpot =
+  foldM (\b pair -> applyAssassinM b pSpot pair) board assassins
+  where
+    inPlace :: Map.Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
+    assassins :: [(Spots.Card, Creature 'Core)] =
+      Map.filter (`has` (Skill.Assassin :: Skill.State)) inPlace
+        & Map.toList
+
+applyAssassinM ::
+  MonadWriter (Board 'UI) m =>
+  MonadState Shared.Model m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part where assassin takes effect
+  Spots.Player ->
+  -- | The concerned assassin. It is at @board[pSpot]@.
+  (Spots.Card, Creature 'Core) ->
+  m (Board 'Core)
+applyAssassinM board pSpot (cSpot, creature) =
+  -- We reverse the result, because sorting is ascending (0, 2, 4, etc.); but
+  -- we want the bigger value.
+  case reverse $ sortBy (\(_, c1) (_, c2) -> compare (eval c1) (eval c2)) targetFrontSpots of
+    [] -> return board -- Cannot move the assassin
+    ((bestSpot, _) : _) ->
+      case move (Move {from = (pSpot, cSpot), to = (pSpot, bestSpot)}) board of
+        Nothing -> error "move should have succeeded"
+        Just board' -> return board'
+  where
+    other :: Spots.Player =
+      assert
+        (Board.toInPlaceCreature board pSpot cSpot == Just creature)
+        (Spots.other pSpot)
+    enemyMap :: Map Spots.Card (Creature 'Core) = Board.toInPlace board other
+    -- The free front spots of 'board', with the enemy in front of them. Left
+    -- member is in 'pSpot' while right member is in 'other'
+    targetFrontSpots :: [(Spots.Card, Creature 'Core)] =
+      Spots.frontSpots \\ (Board.toInPlace board pSpot & Map.keys)
+        & map (\c -> (c, c & enemySpots creature & toSpots & map (enemyMap Map.!?) & catMaybes))
+        & map (Bifunctor.second listToMaybe)
+        & map liftMaybe
+        & catMaybes
+    liftMaybe = \case (_, Nothing) -> Nothing; (x, Just y) -> Just (x, y)
+    eval Creature {attack, hp} = Damage.mean attack + hp
+
+data Move = Move
+  { from :: (Spots.Player, Spots.Card),
+    to :: (Spots.Player, Spots.Card)
+  }
+
+-- | @move m board@ moves the creature at @move.from m@ to @move.to m@
+-- Returns 'Nothing' if the move is impossible
+move :: Move -> Board 'Core -> Maybe (Board 'Core)
+move Move {from, to} board =
+  case (at from board, at to board) of
+    (Just c, Nothing) ->
+      Board.rmCreature (fst from) (snd from) board
+        & Board.setCreature (fst to) (snd to) c
+        & Just
+    _ -> Nothing
+  where
+    at (p, c) b = Board.toInPlaceCreature b p c
+
 applyBrainlessM ::
   MonadWriter (Board 'UI) m =>
   MonadState Shared.Model m =>
@@ -947,13 +1033,12 @@ applyBrainlessM ::
   -- | The part where brainless takes effect
   Spots.Player ->
   m (Board 'Core)
-applyBrainlessM board pSpot = do
-  if null brainless
-    then return board -- Nothing to do, avoid useless things
-    else do
+applyBrainlessM board pSpot
+  | null brainless = return board -- Nothing to do, avoid useless things
+  | otherwise = do
       shuffledFreeSpots :: [Spots.Card] <- Random.shuffleM freeSpots
       let shuffled = Map.fromList (zip shuffledFreeSpots (Map.elems brainless))
-      let inPlace' = Map.union shuffled rest
+          inPlace' = Map.union shuffled rest
       return (Board.setInPlace board pSpot inPlace')
   where
     inPlace :: Map.Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
@@ -1423,6 +1508,9 @@ enemySpots c@Creature {skills} cSpot =
         longReach = Skill.LongReach `elem` skills
         support = Skill.Support `elem` skills
         ranged = Skill.Ranged `elem` skills
+
+toSpots :: EnemySpots [Spots.Card] -> [Spots.Card]
+toSpots = \case Ace -> []; Imprecise -> []; Spots s -> s
 
 -- | The order in which cards attack
 attackOrder :: Spots.Player -> [Spots.Card]

@@ -49,6 +49,7 @@ module Board
     setCreature,
     setMaybeCreature,
     toDiscarded,
+    rmCreature,
     setDiscarded,
     setInPlace,
     toInPlace,
@@ -355,6 +356,12 @@ mapInPlace f pSpot cSpots board =
 mapScore :: Board p -> Spots.Player -> (ScoreType p -> ScoreType p) -> Board p
 mapScore board pSpot f =
   Board.setScore board pSpot (f (Board.toScore pSpot board))
+
+rmCreature :: Spots.Player -> Spots.Card -> Board 'Core -> Board 'Core
+rmCreature pSpot cSpot board =
+  Board.setInPlace board pSpot $ Map.delete cSpot onTable
+  where
+    onTable = Board.toPart board pSpot & inPlace
 
 -- | Puts a creature, replacing the existing one if any
 setCreature :: Spots.Player -> Spots.Card -> Creature 'Core -> Board 'Core -> Board 'Core

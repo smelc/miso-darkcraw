@@ -508,6 +508,8 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
                 Right (Game.Result {board = board'}) -> withBoard board'
               where
                 events = AI.play Constants.Hard shared board pSpot & map Game.PEvent
+            Just (Command.Assassins pSpot) ->
+              playEvent Game.ApplyAssassins pSpot
             Just (Command.EndGame outcome) ->
               noEff $ LootModel' $ Model.endGame gm outcome
             Just (Command.FillTheFrontline pSpot) ->

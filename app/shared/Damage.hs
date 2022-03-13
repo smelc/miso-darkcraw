@@ -53,3 +53,7 @@ instance Dealer Damage where
 instance Dealer a => Dealer (Maybe a) where
   dealer (Just a) = dealer a
   dealer Nothing = False
+
+-- The mean damage
+mean :: Damage -> Nat
+mean Damage {base, variance} = base + variance `div` 2
