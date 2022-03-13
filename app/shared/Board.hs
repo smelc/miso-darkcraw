@@ -314,9 +314,10 @@ instance Semigroup (Board 'UI) where
 instance Monoid (Board 'UI) where
   mempty = Board mempty mempty
 
+-- TODO @smelc replace me by mapDiscarded
 addToDiscarded :: Spots.Player -> DiscardedType 'Core -> Board 'Core -> Board 'Core
 addToDiscarded pSpot addition board =
-  setDiscarded board pSpot (discarded ++ addition)
+  setDiscarded pSpot (discarded ++ addition) board
   where
     discarded = toDiscarded board pSpot
 
@@ -383,8 +384,9 @@ setMaybeCreature pSpot cSpot creature board =
         Just c -> Map.insert cSpot c
     part' = part {inPlace = update existing}
 
-setDiscarded :: Board p -> Spots.Player -> DiscardedType p -> Board p
-setDiscarded board pSpot discarded =
+-- TODO @smelc replace me by mapDiscarded
+setDiscarded :: Spots.Player -> DiscardedType p -> Board p -> Board p
+setDiscarded pSpot discarded board =
   setPart board pSpot $ part {discarded = discarded}
   where
     part = toPart board pSpot

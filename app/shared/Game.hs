@@ -924,7 +924,7 @@ transferCardsM board pSpot =
   if not needTransfer
     then pure board
     else do
-      tell $ Board.setDiscarded mempty pSpot (-length discarded)
+      tell $ Board.setDiscarded pSpot (-length discarded) mempty
       tell $ Board.setStack mempty pSpot (length discarded)
       discarded' <- shuffleM discarded
       let part' = part {discarded = [], stack = stack ++ discarded'}
@@ -1329,10 +1329,7 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
   case hittee' of
     Just _ -> board'
     Nothing | Card.transient hittee -> board' -- Dont' put hittee in discarded stack
-    Nothing ->
-      let discarded = Board.toDiscarded board' pSpot
-       in -- TODO @smelc use Board.addToDiscarded instead
-          Board.setDiscarded board' pSpot $ discarded ++ [IDC creatureId items]
+    Nothing -> Board.addToDiscarded pSpot [IDC creatureId items] board'
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:
