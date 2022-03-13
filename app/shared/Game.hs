@@ -924,7 +924,7 @@ transferCardsM board pSpot =
   if not needTransfer
     then pure board
     else do
-      tell $ Board.setDiscarded pSpot (-length discarded) mempty
+      tell $ Board.mapDiscarded pSpot (const $ -length discarded) mempty
       tell $ Board.setStack mempty pSpot (length discarded)
       discarded' <- shuffleM discarded
       let part' = part {discarded = [], stack = stack ++ discarded'}
@@ -1122,7 +1122,7 @@ applyFearNTerrorM board affectingSpot = do
     board
       & Board.setInPlace affectedSpot affectedInPlace''
       & Board.setInPlace affectingSpot affectingInPlace'
-      & Board.addToDiscarded affectedSpot killedToDiscard
+      & Board.mapDiscarded affectedSpot (++ killedToDiscard)
   where
     affectedSpot = Spots.other affectingSpot
     affectingInPlace = Board.toInPlace board affectingSpot
@@ -1329,7 +1329,7 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
   case hittee' of
     Just _ -> board'
     Nothing | Card.transient hittee -> board' -- Dont' put hittee in discarded stack
-    Nothing -> Board.addToDiscarded pSpot [IDC creatureId items] board'
+    Nothing -> Board.mapDiscarded pSpot (++ [IDC creatureId items]) board'
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:

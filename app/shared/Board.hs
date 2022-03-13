@@ -43,14 +43,13 @@ module Board
     setStack,
     setHand,
     addToHand,
-    addToDiscarded,
     empty,
     increaseScore,
+    mapDiscarded,
     setCreature,
     setMaybeCreature,
     toDiscarded,
     rmCreature,
-    setDiscarded,
     setInPlace,
     toInPlace,
     line,
@@ -314,13 +313,6 @@ instance Semigroup (Board 'UI) where
 instance Monoid (Board 'UI) where
   mempty = Board mempty mempty
 
--- TODO @smelc replace me by mapDiscarded
-addToDiscarded :: Spots.Player -> DiscardedType 'Core -> Board 'Core -> Board 'Core
-addToDiscarded pSpot addition board =
-  setDiscarded pSpot (discarded ++ addition) board
-  where
-    discarded = toDiscarded board pSpot
-
 addToHand :: Board p -> Spots.Player -> HandElemType p -> Board p
 addToHand board pSpot handElem =
   setPart board pSpot $ part {inHand = hand ++ [handElem]}
@@ -333,6 +325,13 @@ increaseScore board pSpot change =
   Board.setScore board pSpot (score + change)
   where
     score = Board.toScore pSpot board
+
+-- | Map over the 'discarded' field of the given player in the given board
+mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> Board p -> Board p
+mapDiscarded pSpot f board =
+  setPart board pSpot $ part {discarded = f d}
+  where
+    part@PlayerPart {discarded = d} = toPart board pSpot
 
 mapHand :: Spots.Player -> (InHandType p -> InHandType p) -> Board p -> Board p
 mapHand pSpot f b = setHand b pSpot (f (toHand b pSpot))
@@ -383,13 +382,6 @@ setMaybeCreature pSpot cSpot creature board =
         Nothing -> Map.delete cSpot
         Just c -> Map.insert cSpot c
     part' = part {inPlace = update existing}
-
--- TODO @smelc replace me by mapDiscarded
-setDiscarded :: Spots.Player -> DiscardedType p -> Board p -> Board p
-setDiscarded pSpot discarded board =
-  setPart board pSpot $ part {discarded = discarded}
-  where
-    part = toPart board pSpot
 
 setInPlace :: Spots.Player -> InPlaceType p -> Board p -> Board p
 setInPlace pSpot inPlace board =
