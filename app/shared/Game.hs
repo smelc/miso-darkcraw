@@ -621,7 +621,7 @@ playNeutralM board _playingPlayer target n =
       -- Generate random spots
       spots <- Random.shuffleM Spots.allCards
       -- Put existing creatures on new spots
-      let board' = Board.setInPlace board pSpot (Map.fromList $ zip spots creatures)
+      let board' = Board.setInPlace pSpot (Map.fromList $ zip spots creatures) board
       -- Report fadeIn effects on each new spot
       traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {fade = Constants.FadeIn})) spots
       return (board', Nothing)
@@ -1039,7 +1039,7 @@ applyBrainlessM board pSpot
       shuffledFreeSpots :: [Spots.Card] <- Random.shuffleM freeSpots
       let shuffled = Map.fromList (zip shuffledFreeSpots (Map.elems brainless))
           inPlace' = Map.union shuffled rest
-      return (Board.setInPlace board pSpot inPlace')
+      return (Board.setInPlace pSpot inPlace' board)
   where
     inPlace :: Map.Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
     freeSpots :: [Spots.Card] = Spots.allCards \\ Map.keys inPlace
@@ -1118,10 +1118,11 @@ applyFearNTerrorM ::
 applyFearNTerrorM board affectingSpot = do
   traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByTerror) terrorAffected
   traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByFear) fearAffected
-  let board' = Board.setInPlace board affectedSpot affectedInPlace''
-  let board'' = Board.setInPlace board' affectingSpot affectingInPlace'
-  let board''' = Board.addToDiscarded board'' affectedSpot killedToDiscard
-  return board'''
+  return $
+    board
+      & Board.setInPlace affectedSpot affectedInPlace''
+      & Board.setInPlace affectingSpot affectingInPlace'
+      & (\b -> Board.addToDiscarded b affectedSpot killedToDiscard)
   where
     affectedSpot = Spots.other affectingSpot
     affectingInPlace = Board.toInPlace board affectingSpot

@@ -222,7 +222,7 @@ testPlague shared =
         Nothing -> b
         Just cSpot ->
           let creature = Shared.idToCreature shared cid items & fromJust & Card.unlift
-           in Board.setInPlace b pSpot (Board.toInPlace b pSpot & Map.insert cSpot creature)
+           in Board.setInPlace pSpot (Board.toInPlace b pSpot & Map.insert cSpot creature) b
       where
         firstEmpty =
           Board.toPlayerHoleyInPlace b pSpot
@@ -233,7 +233,7 @@ testPlague shared =
     mapInPlace f pSpot (board :: Board 'Core) =
       Board.toInPlace board pSpot
         & Map.map f
-        & Board.setInPlace board pSpot
+        & (\x -> Board.setInPlace pSpot x board)
     setHp i c = c {hp = i}
     applyPlague f teams cids =
       Game.applyPlague board pSpot & flip Board.toInPlace pSpot

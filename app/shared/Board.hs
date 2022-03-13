@@ -359,7 +359,7 @@ mapScore board pSpot f =
 
 rmCreature :: Spots.Player -> Spots.Card -> Board 'Core -> Board 'Core
 rmCreature pSpot cSpot board =
-  Board.setInPlace board pSpot $ Map.delete cSpot onTable
+  Board.setInPlace pSpot (Map.delete cSpot onTable) board
   where
     onTable = Board.toPart board pSpot & inPlace
 
@@ -389,8 +389,8 @@ setDiscarded board pSpot discarded =
   where
     part = toPart board pSpot
 
-setInPlace :: Board p -> Spots.Player -> InPlaceType p -> Board p
-setInPlace board pSpot inPlace =
+setInPlace :: Spots.Player -> InPlaceType p -> Board p -> Board p
+setInPlace pSpot inPlace board =
   setPart board pSpot $ part {inPlace = inPlace}
   where
     part = toPart board pSpot

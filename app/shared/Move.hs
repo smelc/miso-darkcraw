@@ -245,7 +245,7 @@ runOne EndTurnPressed h@Handlers {disableUI} m@Kernel {board, difficulty, shared
           -- place its card in a state where the player did not put its
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
-          let emptyPlayerInPlaceBoard = Board.setInPlace board pSpot Map.empty
+          let emptyPlayerInPlaceBoard = Board.setInPlace pSpot Map.empty board
               placements =
                 -- FIXME @smelc only allow to place creatures and items (no spell)
                 AI.play
