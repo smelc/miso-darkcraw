@@ -343,6 +343,7 @@ scoreSkill s =
     Skill.Unique -> 0
     Skill.Veteran -> -1
     Skill.Zealot -> -1
+    _ -> error $ "unmatched: " ++ show s ++ " but this AI should be unused now"
 
 sortByFst :: Ord a => [(a, b)] -> [(a, b)]
 sortByFst l =

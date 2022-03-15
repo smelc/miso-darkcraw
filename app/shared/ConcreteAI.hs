@@ -248,7 +248,7 @@ instance ToClass Card.CreatureID where
           Priest -> Support
           Spearman -> FrontOrBackFighter
           Troll -> FrontFighter
-          _ -> error msg
+          _ -> error $ msg team
       Human ->
         case kind of
           Archer -> Shooter
@@ -259,7 +259,13 @@ instance ToClass Card.CreatureID where
           Priest -> Support
           Spearman -> FrontOrBackFighter
           Swordsman -> FrontFighter
-          _ -> error msg
+          _ -> error $ msg team
+      Sylvan ->
+        case kind of
+          Archer -> Shooter
+          Priest -> Support
+          Tree -> FrontFighter
+          _ -> error $ msg team
       Undead ->
         case kind of
           Archer -> Shooter
@@ -271,7 +277,7 @@ instance ToClass Card.CreatureID where
           Specter -> FrontFighter
           Warrior -> FrontFighter
           Vampire -> FrontFighter
-          _ -> error msg
+          _ -> error $ msg team
       ZKnights ->
         case kind of
           Captain -> FrontFighter
@@ -281,9 +287,9 @@ instance ToClass Card.CreatureID where
           Squire -> Support
           Trebuchet -> Support
           Veteran -> FrontFighter
-          _ -> error msg
+          _ -> error $ msg team
     where
-      msg = "cannot classify " ++ show id
+      msg t = "cannot classify " ++ show id ++ " in team " ++ show t
 
 instance ToClass (Creature 'Core) where
   toClass = creatureId >>> toClass

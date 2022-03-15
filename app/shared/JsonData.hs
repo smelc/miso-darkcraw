@@ -41,7 +41,10 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"zknights\" }, \"title\":\"Knight\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKnight\",        \"skills\":[\"Knight\", \"Charge\"], \"mana\":1 },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"zknights\" }, \"title\":\"Priest\",  \"hp\":1, \"attack\":\"0\", \"tile\":\"ZPriest\",        \"skills\":[\"Source 2\"], \"mana\":1 },\n\
          \    { \"id\": { \"name\":\"squire\",    \"team\":\"zknights\" }, \"title\":\"Squire\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"Squire\",         \"skills\":[\"Squire\"] },\n\
-         \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":2 }\n\
+         \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"sylvan\" }, \"title\":\"Archer\", \"hp\":2, \"attack\":\"1-1\",  \"tile\":\"SylvanArcher\",   \"skills\":[\"Ace\", \"Sylvan\"], \"mana\":1 },\n\
+         \    { \"id\": { \"name\":\"priest\",    \"team\":\"sylvan\" }, \"title\":\"Priest\", \"hp\":1, \"attack\":\"0\",    \"tile\":\"SylvanPriest\",   \"skills\":[\"GreenAffinity\"], \"mana\":1 },\n\
+         \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"1-2\",  \"tile\":\"Tree\",           \"skills\":[\"Growth\"], \"mana\":2 }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
@@ -132,11 +135,13 @@ jsonData = "{\n\
          \    { \"tile\":\"ZVeteran\",      \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":11 } },\n\
          \    { \"tile\":\"Squire\",        \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":11 } },\n\
          \    { \"tile\":\"ZKing\",         \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":11 } },\n\
-         \    { \"tile\":\"ZPriest\",       \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":11 } }\n\
+         \    { \"tile\":\"SylvanPriest\",  \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":12 } },\n\
+         \    { \"tile\":\"Tree\",          \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":12 } },\n\
+         \    { \"tile\":\"SylvanArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":12 } }\n\
          \  ],\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Ace\",         \"title\":\"Ace\",        \"text\":\"Hits any enemy\"},\n\
-         \    { \"skill\":\"Assassin\",    \"title\":\"Assassin\",   \"text\":\"At beginning of turn, move in contact with most ponent ennemy (if possible)\"},\n\
+         \    { \"skill\":\"Assassin\",    \"title\":\"Assassin\",   \"text\":\"At beginning of turn, move in contact with most potent ennemy (if possible)\"},\n\
          \    { \"skill\":\"Blow\",        \"title\":\"Blow\",       \"text\":\"+2 :crossed_swords: during first turn\"},\n\
          \    { \"skill\":\"Brainless\",   \"title\":\"Brainless\",  \"text\":\"Moves to a random empty spot at beginning of turn. Immune to fear and terror.\"},\n\
          \    { \"skill\":\"BreathIce\",   \"title\":\"Ice Breath\", \"text\":\"Attacks enemy in front as well as enemy behind\"},\n\
@@ -146,6 +151,8 @@ jsonData = "{\n\
          \    { \"skill\":\"Fame 1\",      \"title\":\"Fame 1\",     \"text\":\"Contribute 1 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fame 2\",      \"title\":\"Fame 2\",     \"text\":\"Contribute 2 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
+         \    { \"skill\":\"GreenAffinity\", \"title\":\"Gaia's Will\", \"text\":\"At beginning of turn, create forest around a spot\"},\n\
+         \    { \"skill\":\"Growth\",       \"title\":\"Growth\",    \"text\":\"If in a forest, at beginning of turn, +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\
          \    { \"skill\":\"King\",        \"title\":\"King\",       \"text\":\"At every turn, every knight gains +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Knight\",      \"title\":\"Knight\",     \"text\":\"A knight anointed by the king\"},\n\
@@ -160,6 +167,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Source 2\",    \"title\":\"Source 2\",   \"text\":\"Gain 2 extra mana at beginning of turn\"},\n\
          \    { \"skill\":\"Stupid4\",     \"title\":\"Stupid\",     \"text\":\"1 out of 4 turns: does not attack\"},\n\
          \    { \"skill\":\"Support\",     \"title\":\"Support\",    \"text\":\"Hits 2 cells away when in the back line\"},\n\
+         \    { \"skill\":\"Sylvan\",      \"title\":\"Sylvan\",     \"text\":\"+1 :heart: and +1 :crossed_swords: when in a forest\"},\n\
          \    { \"skill\":\"Terror\",      \"title\":\"Terror\",     \"text\":\"Nearby opponent with 2 :heart: (or less) dies at beginning of its turn. Immune to to fear and terror.\"},\n\
          \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"Never goes back to the stack\"},\n\
          \    { \"skill\":\"Veteran\",     \"title\":\"Veteran\",    \"text\":\"Immune to fear and terror\"},\n\

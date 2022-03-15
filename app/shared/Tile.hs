@@ -82,7 +82,10 @@ data Tile
   | Sword1
   | Sword2
   | Sword3
+  | SylvanArcher
+  | SylvanPriest
   | Trebuchet
+  | Tree
   | Troll
   | UndeadArcher
   | UndeadGhost

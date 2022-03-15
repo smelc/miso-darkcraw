@@ -31,7 +31,7 @@ import qualified Skill
 import Tile (Tile)
 
 -- If you add a member, augment the tests in 'Balance.hs'
-data Team = Evil | Human | Undead | ZKnights
+data Team = Evil | Human | Sylvan | Undead | ZKnights
   deriving (Bounded, Enum, Eq, Generic, Show, Ord)
 
 ppTeam :: Team -> String
@@ -125,6 +125,7 @@ data CreatureKind
   | Squire
   | Swordsman
   | Trebuchet
+  | Tree
   | Troll
   | Vampire
   | Veteran
@@ -358,6 +359,7 @@ rawTeamDeck cards t =
       case t of
         Evil -> 2 * Knight ++ 2 * Spearman ++ 1 * Daemon ++ 1 * Beholder ++ 1 * Abomination ++ 1 * Priest ++ 1 * Assassin
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
+        Sylvan -> 3 * Archer ++ 2 * Tree ++ 2 * Priest
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
         ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet
       where
@@ -374,6 +376,7 @@ rawTeamDeck cards t =
       case t of
         Evil -> 1 * Pandemonium ++ 1 * StrengthPot
         Human -> 1 * Health ++ 1 * Life
+        Sylvan -> []
         Undead -> 2 * InfernalHaste ++ 1 * Plague
         ZKnights -> 1 * Life
       where
@@ -390,6 +393,7 @@ rawTeamDeck cards t =
       case t of
         Evil -> 1 * SpikyMace
         Human -> 1 * SwordOfMight
+        Sylvan -> []
         Undead -> 1 * Card.FlailOfTheDamned
         ZKnights -> 1 * CrushingMace ++ 1 * SwordOfMight
       where

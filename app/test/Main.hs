@@ -335,19 +335,21 @@ testRewards =
   describe "Rewards work as expected" $ do
     it "initialisation" $ do
       Campaign.augment [] Campaign.Level0 Human == [[]]
-    -- TODO @smelc, test Evil too
-    prop "one card is received at every reward (except Evil, ZKnights)" $ do
+    -- TODO @smelc, test Evil, Sylvan too
+    prop "one card is received at every reward (except Evil, Sylvan, ZKnights)" $ do
       \(level, team) ->
         acceptable team
           ==> Campaign.augment [] level team
           `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
-    -- TODO @smelc, test Evil too
-    prop "There is always at least one reward (except Evil, ZKnights)" $ do
+    -- TODO @smelc, test Evil, Sylvan too
+    prop "There is always at least one reward (except Evil, Sylvan, ZKnights)" $ do
       \(outcome, level, team) ->
         acceptable team
           ==> Campaign.loot Nothing outcome level team `shouldSatisfy` (not . null)
   where
+    -- FIXME @smelc, write a custom generator
     acceptable Evil = False
+    acceptable Sylvan = False
     acceptable ZKnights = False
     acceptable _ = True
 

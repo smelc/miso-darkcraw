@@ -89,6 +89,7 @@ showTeamShort :: Team -> String
 showTeamShort = \case
   Evil -> "E"
   Human -> "H"
+  Sylvan -> "S"
   Undead -> "UD"
   ZKnights -> "Z"
 

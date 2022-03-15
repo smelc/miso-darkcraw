@@ -143,6 +143,7 @@ teamButton smodel z chosen team = do
         case team of
           Evil -> Knight
           Human -> General
+          Sylvan -> Archer
           Undead -> Vampire
           ZKnights -> Veteran
     textAndTile =

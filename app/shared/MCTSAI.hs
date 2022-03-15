@@ -107,6 +107,7 @@ instance NewScore Skill.State where
       Skill.Unique -> 0
       Skill.Veteran -> 1
       Skill.Zealot -> 1
+      s -> error $ "unmatched: " ++ show s ++ " but this AI should be unused now"
 
 instance NewScore Item where
   nscore =
@@ -161,6 +162,7 @@ instance Preference Skill.State where
       Skill.Unique -> NoPref
       Skill.Veteran -> Front
       Skill.Zealot -> Front
+      s -> error $ "unmatched: " ++ show s ++ " but this AI should be unused now"
 
 instance Preference Item where
   preference =

@@ -59,8 +59,9 @@ mkJourney team =
       case t of
         Evil -> [(Human, Theme.Forest), (Undead, Theme.Forest), (ZKnights, Theme.Forest)]
         Human -> [(Undead, Theme.Forest), (Evil, Theme.Forest), (ZKnights, Theme.Forest)]
+        Sylvan -> [(Evil, Theme.Forest), (Undead, Theme.Forest), (ZKnights, Theme.Forest)]
         Undead -> [(Human, Theme.Forest), (Evil, Theme.Forest), (ZKnights, Theme.Forest)]
-        ZKnights -> opponents Human -- We don't really care, it's not a plyable team
+        ZKnights -> opponents Human -- We don't really care, it's not a playable team
 
 -- | An incomplete journey, but fine for playing one game at the given level,
 -- against the given team.
@@ -110,12 +111,13 @@ rewards :: Level -> Team -> [Card.ID]
 rewards level team =
   case (level, team) of
     (Level0, Evil) -> [Card.IDI Card.AxeOfRage]
-    (Level1, Evil) -> []
+    (Level1, Evil) -> [] -- TODO @smelc extend me
     (Level0, Human) -> map (mkIDC team) [Card.Knight] ++ map Card.IDI [Card.Crown] ++ map Card.IDN [Card.Life]
     (Level1, Human) -> map (mkIDC team) [Card.Ogre]
+    (_, Sylvan) -> [] -- TODO @smelc extend me
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
     (Level1, Undead) -> [Card.IDI Card.SkBanner]
-    (_, ZKnights) -> []
+    (_, ZKnights) -> [] -- Not a playable team, it's fine
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
 

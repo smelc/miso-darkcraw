@@ -12,7 +12,7 @@ import Nat
 -- | The type of skills. Highly polymorphic, because we use
 -- two different instances. Callers should only use
 -- the concrete instances 'Skill' and 'State'.
-data T blow drawCard fame fear regen source stupid terror
+data T blow drawCard fame fear green growth regen source stupid terror
   = Ace
   | -- | At turn start, moves against ponent ennemy
     Assassin
@@ -27,6 +27,10 @@ data T blow drawCard fame fear regen source stupid terror
     Fame fame
   | -- | Creature causes fear
     Fear fear
+  | -- | Creates a forest at turn beginning
+    GreenAffinity green
+  | -- | +1 hp at turn beginning
+    Growth growth
   | -- | Creature attacks a random spot
     Imprecise
   | King
@@ -49,6 +53,8 @@ data T blow drawCard fame fear regen source stupid terror
     Squire
   | Stupid4 stupid
   | Support
+  | -- | +1 hp/+1 attack when in a forest
+    Sylvan
   | -- | Creature causes terror
     Terror terror
   | Unique
@@ -64,6 +70,8 @@ type Skill =
     () -- drawCard
     Nat -- fame
     () -- fear
+    () -- green
+    () -- growth
     Nat -- regen
     Nat -- source
     () -- stupid
@@ -77,6 +85,8 @@ type State =
     -- indicates whether skill is available (True) or consumed already (False)
     Bool -- fear, creature causes fear, the Boolean indicates whether the skill
     -- is available (True) or used already (False)
+    Bool -- green affinity, whether the skill is available (True) or consumed (False)
+    Bool -- growth, whether the skill is available (True) or consumed (False)
     Nat -- regeneration, number of hitpoints gained at beginning of turn
     (Nat, Bool) -- source, creature create mana at beginning of turn. Boolean indicates
     -- whether the skill is available (True) or used already (False)
@@ -107,6 +117,8 @@ lift skill =
     DrawCard {} -> DrawCard ()
     Fame (n, _) -> Fame n
     Fear {} -> Fear ()
+    GreenAffinity {} -> GreenAffinity ()
+    Growth {} -> Growth ()
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
@@ -120,6 +132,7 @@ lift skill =
     StrengthPot -> StrengthPot
     Stupid4 {} -> Stupid4 ()
     Support -> Support
+    Sylvan -> Sylvan
     Terror {} -> Terror ()
     Unique -> Unique
     Veteran -> Veteran
@@ -140,6 +153,8 @@ unlift skill =
     DrawCard {} -> DrawCard True
     Fame n -> Fame (n, True)
     Fear {} -> Fear True
+    GreenAffinity {} -> GreenAffinity True
+    Growth {} -> Growth True
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
@@ -153,6 +168,7 @@ unlift skill =
     StrengthPot -> StrengthPot
     Stupid4 {} -> Stupid4 0
     Support -> Support
+    Sylvan -> Sylvan
     Terror {} -> Terror True
     Unique -> Unique
     Veteran -> Veteran
