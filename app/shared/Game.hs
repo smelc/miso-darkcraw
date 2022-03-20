@@ -146,8 +146,12 @@ data Event
     ApplyBrainless Spots.Player
   | -- | Apply church of the creatures at the given 'Spots.Player'
     ApplyChurch Spots.Player
+  | -- | Apply the create forest spell of the creatures at the given 'Spots.Player'
+    ApplyCreateForest Spots.Player
   | -- | Apply fear caused by the creatures at the given 'Spots.Player'
     ApplyFearNTerror Spots.Player
+  | -- | Apply growth of the creatures at the given 'Spots.Player'
+    ApplyGrowth Spots.Player
   | -- | Apply king of the creatures at the given 'Spots.Player'
     ApplyKing Spots.Player
   | -- | A card attacks at the given spot. The first Boolean indicates
@@ -422,8 +426,14 @@ tryPlayM board (ApplyBrainless pSpot) = do
 tryPlayM board (ApplyChurch pSpot) = do
   board' <- Game.applyChurchM board pSpot
   return $ pure $ (board', Nothing)
+tryPlayM board (ApplyCreateForest pSpot) = do
+  board' <- Game.applyCreateForestM board pSpot
+  return $ pure $ (board', Nothing)
 tryPlayM board (ApplyFearNTerror pSpot) = do
   board' <- Game.applyFearNTerrorM board pSpot
+  return $ pure $ (board', Nothing)
+tryPlayM board (ApplyGrowth pSpot) = do
+  board' <- foldM (\b cSpot -> Game.applyGrowthM b pSpot cSpot) board (Spots.allCards)
   return $ pure $ (board', Nothing)
 tryPlayM board (ApplyKing pSpot) = do
   board' <- Game.applyKingM board pSpot
@@ -527,7 +537,9 @@ eventToAnim shared board =
         (attack :: Damage, attack' :: Damage) = both toAttack creatures
         both f = Bifunctor.bimap f f
         fill suffix = Message ([Text "Church", Image churchTile] ++ suffix) duration
+    Game.ApplyCreateForest {} -> pure $ Message [Text "Let be forests 🌲"] duration
     Game.ApplyFearNTerror {} -> pure NoAnimation
+    Game.ApplyGrowth {} -> pure $ Message [Text "Unstoppable growth 🌳"] duration
     Game.ApplyKing {} ->
       pure $
         Message
@@ -665,6 +677,7 @@ playCreatureM board pSpot cSpot creature =
       board <- pure $ Board.setCreature pSpot cSpot creature board -- set creature
       board <- applyDiscipline board creature pSpot cSpot
       board <- applySquire board creature pSpot cSpot
+      board <- applySylvan pSpot cSpot board
       return board
 
 -- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
@@ -716,10 +729,9 @@ applyDiscipline ::
   -- | The spot where the creature arrives. It has already been filled with 'creature'.
   Spots.Card ->
   m (Board 'Core)
-applyDiscipline board creature pSpot cSpot =
-  if not $ Total.isDisciplined creature
-    then return board -- No change
-    else do
+applyDiscipline board creature pSpot cSpot
+  | not $ Total.isDisciplined creature = return board
+  | otherwise = do
       traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) disciplinedNeighbors
       return $ Board.mapInPlace (apply change) pSpot disciplinedNeighbors board
   where
@@ -1099,6 +1111,63 @@ applyChurchM board pSpot = do
       (Set.fromList (map fst others)) Set.\\ (Set.fromList (map fst churchs))
     isChurch Creature {creatureId = CreatureID {creatureKind = kind}} = kind == Card.Church
 
+applyCreateForestM ::
+  MonadWriter (Board 'UI) m =>
+  MonadState Shared.Model m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part where churchs take effect
+  Spots.Player ->
+  m (Board 'Core)
+applyCreateForestM board pSpot = do
+  shared <- get
+  case (priests, Random.pick shared targetSpots) of
+    ([], _) -> return board
+    (_, (Nothing, _)) -> return board
+    (priestSpot : _, (Just forestSpot, shared')) -> do
+      put shared'
+      board' <-
+        Board.mapCreature pSpot priestSpot consume board
+          & Board.alterDeco pSpot forestSpot (const (Just Board.Forest))
+          & applySylvan pSpot forestSpot
+      applyCreateForestM board' pSpot
+  where
+    part = Board.toPart board pSpot
+    priests =
+      part
+        & Board.inPlace
+        & Map.filter (`has` (Skill.GreenAffinity True :: Skill.State))
+        & Map.keys
+    targetSpots =
+      [ cSpot
+        | cSpot <- Spots.allCards,
+          Board.deco part & Map.notMember cSpot
+      ]
+    consume c@Creature {skills} = c {skills = consume' skills}
+    consume' =
+      \case
+        [] -> []
+        (Skill.GreenAffinity True : rest) -> Skill.GreenAffinity False : rest
+        (fst : rest) -> fst : consume' rest
+
+-- | Trigger the sylvan skill at the given place, if relevant. Returns the
+-- updated board.
+applySylvan ::
+  MonadWriter (Board 'UI) m =>
+  Spots.Player ->
+  Spots.Card ->
+  Board 'Core ->
+  m (Board 'Core)
+applySylvan pSpot cSpot board =
+  case Board.toInPlaceCreature board pSpot cSpot of
+    Nothing -> pure board
+    Just c | not (c `has` (Skill.Sylvan :: Skill.State)) -> pure board
+    Just _ | (Board.toPart board pSpot & Board.deco & Map.lookup cSpot) /= Just (Board.Forest) -> pure board
+    Just c@Creature {attack, hp} -> do
+      let c' = c {Card.attack = attack Damage.+^ 1, hp = hp + 1}
+      reportEffect pSpot cSpot $ mempty {attackChange = 1, hitPointsChange = 1}
+      pure $ Board.setCreature pSpot cSpot c' board
+
 applyFearNTerror ::
   -- | The input board
   Board 'Core ->
@@ -1182,6 +1251,31 @@ applyFearNTerrorM board affectingSpot = do
     consumeTerrorSkill [] = []
     consumeTerrorSkill ((Skill.Terror True) : rest) = Skill.Terror False : rest
     consumeTerrorSkill (s : rest) = s : consumeTerrorSkill rest
+
+applyGrowthM ::
+  MonadWriter (Board 'UI) m =>
+  -- | The input board
+  Board 'Core ->
+  -- | The part where growth triggers
+  Spots.Player ->
+  -- | The part where to try apply growth
+  Spots.Card ->
+  m (Board 'Core)
+applyGrowthM board pSpot cSpot =
+  case Board.toInPlaceCreature board pSpot cSpot of
+    Nothing -> return board
+    Just (Creature {skills}) | (Skill.Growth True) `notElem` skills -> return board
+    Just _ | Map.lookup cSpot deco /= (Just Forest) -> return board
+    Just c@(Creature {attack, skills, hp}) -> do
+      let effect = mempty {attackChange = 1, hitPointsChange = 1}
+          c' = c {Card.attack = attack +^ 1, hp = hp + 1, skills = consume skills}
+      reportEffect pSpot cSpot effect
+      return $ Board.setCreature pSpot cSpot c' board
+  where
+    consume [] = []
+    consume (Skill.Growth True : rest) = Skill.Growth False : rest
+    consume (fst : rest) = fst : consume rest
+    deco = Board.toPart board pSpot & Board.deco
 
 -- | Applies the effect of kings, i.e. give +1/+1 to all knights, for every
 -- king in place.
@@ -1520,6 +1614,10 @@ attackOrder PlayerBot =
 -- | @nextAttackSpot b pSpot cSpot@ returns the spots to attack after @cSpot@.
 -- If @cSpot@ is @Nothing@, the first spot in the order is considered; if
 -- @cSpot@ is @Just _@, then spots after @cSpot@ are considered.
+--
+-- If pre End Turn events are changed in 'Move', this function may have
+-- to be adapted to play the events beforehand. This should be discovered
+-- automatically, as this property is checked with a PBT.
 nextAttackSpot :: Board 'Core -> Spots.Player -> Maybe Spots.Card -> Maybe Spots.Card
 nextAttackSpot board pSpot cSpot =
   case cSpot of
@@ -1533,7 +1631,7 @@ nextAttackSpot board pSpot cSpot =
                in find hasCreature spots'
   where
     spots :: [Spots.Card] = attackOrder pSpot
-    hasCreature c = isJust $ Board.toInPlaceCreature board pSpot c
+    hasCreature c = Board.toPart board pSpot & Board.inPlace & Map.member c
 
 -- | The reason for drawing a card
 data DrawSource

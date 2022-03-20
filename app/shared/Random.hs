@@ -25,6 +25,25 @@ pick r = \case
     let (i, r') = randomR (0, length l - 1) r
      in (Just $ l !! i, r')
 
+-- | Returns a random element from the list, if it is non empty. If
+-- you a non-empty list at hand, call 'oneof' instead.
+pickM ::
+  RandomGen r =>
+  MonadState r m =>
+  -- | The elements from which something must be picked
+  [a] ->
+  m (Maybe a)
+pickM elems =
+  case elems of
+    [] -> return Nothing
+    _ -> do
+      r <- get
+      let (idx, r') = randomR (0, nbElems - 1) r
+      put r'
+      return $ Just $ elems !! idx
+      where
+        nbElems :: Int = length elems
+
 -- | Shuffles the second argument with the random generator.
 -- Returns the shuffle and the updated generator.
 shuffle :: RandomGen r => r -> [a] -> ([a], r)
@@ -44,8 +63,8 @@ shuffleM =
       put r'
       return l'
 
--- | Returns a random element from the list, using 'sharedStdGen' as
--- the random generator.
+-- | Returns a random element from the list. If you have a possibly empty list
+-- at hand, call 'pickM' instead.
 oneof ::
   RandomGen r =>
   MonadState r m =>

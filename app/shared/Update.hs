@@ -510,6 +510,8 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
                 events = AI.play Constants.Hard shared board pSpot & map Game.PEvent
             Just (Command.Assassins pSpot) ->
               playEvent Game.ApplyAssassins pSpot
+            Just (Command.CreateForest pSpot) ->
+              playEvent Game.ApplyCreateForest pSpot
             Just (Command.EndGame outcome) ->
               noEff $ LootModel' $ Model.endGame gm outcome
             Just (Command.FillTheFrontline pSpot) ->
@@ -519,6 +521,8 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
             Just (Command.GimmeMana) ->
               let mana = Board.toPart board playingPlayer & Board.mana
                in withBoard $ Board.setMana (mana + 1) playingPlayer board
+            Just (Command.Growth pSpot) ->
+              playEvent Game.ApplyGrowth pSpot
             Just (Command.HailToTheKing pSpot) ->
               playEvent Game.ApplyKing pSpot
             Just (Command.Killall pSpot) ->

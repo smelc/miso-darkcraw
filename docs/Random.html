@@ -37,6 +37,8 @@
 <li class="src short">
 <a href="#v:pick">pick</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; r -&gt; [a] -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a, r)</li>
 <li class="src short">
+<a href="#v:pickM">pickM</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> r m =&gt; [a] -&gt; m (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</li>
+<li class="src short">
 <a href="#v:shuffle">shuffle</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; r -&gt; [a] -&gt; ([a], r)</li>
 <li class="src short">
 <a href="#v:shuffleM">shuffleM</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> r m =&gt; [a] -&gt; m [a]</li>
@@ -53,6 +55,32 @@
  generator. Returns the updated generator and the
  picked element (being <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a></code> if the list non-empty). See <code><a href="Random.html#v:oneof" title="Random">oneof</a></code> for
  a variant of this function.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:pickM" class="def">pickM</a> <a href="#v:pickM" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> r m</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; [a]</td>
+<td class="doc"><p>The elements from which something must be picked</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; m (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="doc"><p>Returns a random element from the list, if it is non empty. If
+ you a non-empty list at hand, call <code><a href="Random.html#v:oneof" title="Random">oneof</a></code> instead.</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:shuffle" class="def">shuffle</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; r -&gt; [a] -&gt; ([a], r) <a href="#v:shuffle" class="selflink">#</a></p>
@@ -86,8 +114,8 @@
 </tr>
 </table>
 </div>
-<div class="doc"><p>Returns a random element from the list, using <code>sharedStdGen</code> as
- the random generator.</p></div>
+<div class="doc"><p>Returns a random element from the list. If you have a possibly empty list
+ at hand, call <code><a href="Random.html#v:pickM" title="Random">pickM</a></code> instead.</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:roll" class="def">roll</a> <a href="#v:roll" class="selflink">#</a></p>

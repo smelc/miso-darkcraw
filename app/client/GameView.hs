@@ -54,12 +54,12 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
   let builder attrs = div_ attrs divs
   ViewInternal.fade builder Nothing 2 $ animToFade anim
   where
-    (z, zpp) = (0, z + 1)
+    (z, zpp, zpppp) = (0, z + 1, zpp + 1)
     enemySpot = Spots.other playingPlayer
     application :: Styled (Maybe (View Action)) =
       case anim of
         Game.Application pSpot target card -> do
-          c :: View Action <- cardView GameApplicationLoc (zpp + 4) shared team card cdsty
+          c :: View Action <- cardView GameApplicationLoc (zpppp + 4) shared team card cdsty
           return $ pure $ div_ [style_ $ mkTargetOffset target] [c]
           where
             cdsty :: CardDrawStyle = mempty {PCWViewInternal.fade = Constants.FadeOut}
@@ -70,7 +70,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
     boardCardsM = boardToInPlaceCells (InPlaceCellContext {z = zpp, mkOffset}) model dragTargetType
     mkOffset pSpot cSpot = cardCellsBoardOffset pSpot cSpot & uncurry cardPositionStyle
     boardDivM = do
-      let errs = errView model zpp & maybeToList
+      let errs = errView model zpppp & maybeToList
       stacks <-
         if Configuration.isDev
           then traverse (stackView model z enemySpot GameViewInternal.Board) [minBound ..]
@@ -81,9 +81,10 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
       boardCards <- boardCardsM
       apps <- application <&> maybeToList
       let manaView_ = manaView model zpp
+          decos = concat [decoViews zpppp pSpot board | pSpot <- Spots.allPlayers]
       return $
         div_ [style_ boardStyle] $
-          concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ apps ++ [manaView_]
+          concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ decos ++ apps ++ [manaView_]
     theme :: Theme = Theme.kindToTheme Theme.DarkForest
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
@@ -272,6 +273,21 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         (Just (CardTargetType Hole), Nothing) -> Just target
         (Just (CardTargetType Occupied), Just _) -> Just target
         _ -> Nothing
+
+decoViews :: Int -> Spots.Player -> Board 'Core -> [View Action]
+decoViews z pSpot board =
+  [ img_
+      [ src_ $ assetsPath assetRoundTreeForestSpell,
+        noDrag,
+        -- minus one, because the asset is larger than a card and must
+        -- be offseted accordingly.
+        style_ $ zplt z Absolute ((x - 1) * cps) ((y - 1) * cps),
+        -- Avoid disturbing drag/drop events:
+        style_ $ "pointer-events" =: "none"
+      ]
+    | (cSpot, _deco) <- Board.toPart board pSpot & Board.deco & Map.toList,
+      let (x, y) = cardCellsBoardOffset pSpot cSpot
+  ]
 
 -- | Whether to show the player target at @pSpot@
 boardToPlayerTarget ::

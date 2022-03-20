@@ -30,9 +30,11 @@ module Board
     toPart,
     Board (..),
     DeathCause (..),
+    Deco (..),
     initial,
     HandIndex (..),
     InHandType (),
+    alterDeco,
     lookupHand,
     lookupHandM,
     mapHand,
@@ -45,6 +47,7 @@ module Board
     addToHand,
     empty,
     increaseScore,
+    mapCreature,
     mapDiscarded,
     setCreature,
     setMaybeCreature,
@@ -74,7 +77,7 @@ where
 
 import Card hiding (ID)
 import qualified Card
-import Constants
+import qualified Constants
 import Control.Monad.Except (MonadError, throwError)
 import Data.Function ((&))
 import Data.Generics.Labels ()
@@ -185,6 +188,19 @@ instance Monoid InPlaceEffect where
 
 type InPlaceEffects = Map.Map Spots.Card InPlaceEffect
 
+data Deco
+  = -- Usually I would have NoDeco here, but because these values are stored
+    -- in maps, it creates an ambiguity w.r.t. to absence in the map.
+    Forest
+  deriving (Bounded, Enum, Eq, Generic, Show)
+
+instance Semigroup Deco where
+  Forest <> Forest = Forest
+
+type family DecoType (p :: Phase) where
+  DecoType 'Core = Deco
+  DecoType 'UI = Constants.Fade
+
 -- TODO @smelc Move the type parameter inside the map, to share code
 -- between the two cases.
 type family InPlaceType (p :: Phase) where
@@ -219,7 +235,8 @@ type family TeamType (p :: Phase) where
   TeamType 'UI = ()
 
 type Forall (c :: Type -> Constraint) (p :: Phase) =
-  ( c (HandElemType p),
+  ( c (DecoType p),
+    c (HandElemType p),
     c (InPlaceType p),
     c (InHandType p),
     c (Board.ManaType p),
@@ -230,7 +247,8 @@ type Forall (c :: Type -> Constraint) (p :: Phase) =
   )
 
 data PlayerPart (p :: Phase) = PlayerPart
-  { -- | Cards on the board
+  { deco :: Map.Map Spots.Card (DecoType p),
+    -- | Cards on the board
     inPlace :: InPlaceType p,
     -- | Cards in hand
     inHand :: InHandType p,
@@ -250,11 +268,15 @@ deriving instance Board.Forall Ord p => Ord (PlayerPart p)
 deriving instance Board.Forall Show p => Show (PlayerPart p)
 
 instance Semigroup (PlayerPart 'UI) where
-  PlayerPart inPlace1 inHand1 mana1 () s1 d1 () <> PlayerPart inPlace2 inHand2 mana2 () s2 d2 () =
-    PlayerPart (inPlace1 <> inPlace2) (inHand1 <> inHand2) (mana1 + mana2) () (s1 + s2) (d1 + d2) ()
+  PlayerPart deco1 inPlace1 inHand1 mana1 () s1 d1 () <> PlayerPart deco2 inPlace2 inHand2 mana2 () s2 d2 () =
+    PlayerPart (deco1 <> deco2) (inPlace1 <> inPlace2) (inHand1 <> inHand2) (mana1 + mana2) () (s1 + s2) (d1 + d2) ()
 
 instance Monoid (PlayerPart 'UI) where
-  mempty = PlayerPart {inPlace = mempty, inHand = mempty, mana = 0, score = (), stack = 0, discarded = 0, team = ()}
+  mempty = PlayerPart {..}
+    where
+      (deco, inPlace, inHand) = (mempty, mempty, mempty)
+      (discarded, mana, stack) = (0, 0, 0)
+      (score, team) = ((), ())
 
 -- FIXME @smelc make me a Nat
 newtype HandIndex = HandIndex {unHandIndex :: Int}
@@ -319,12 +341,27 @@ addToHand board pSpot handElem =
   where
     part@PlayerPart {inHand = hand} = toPart board pSpot
 
+-- | Map over the 'deco' field of the given player in the given board
+alterDeco :: e ~ Maybe (DecoType p) => Spots.Player -> Spots.Card -> (e -> e) -> Board p -> Board p
+alterDeco pSpot cSpot f board =
+  setPart board pSpot $ part {deco = Map.alter f cSpot d}
+  where
+    part@PlayerPart {deco = d} = toPart board pSpot
+
 -- TODO @smelc replace by calls to 'mapScore'
 increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
 increaseScore board pSpot change =
   Board.setScore board pSpot (score + change)
   where
     score = Board.toScore pSpot board
+
+-- | Map over the 'creature' of the given player in the given board, at the given spot
+-- Does nothing if there is no creature. TODO @smelc, rename to @adjustCreature@
+mapCreature :: p ~ 'Core => Spots.Player -> Spots.Card -> (Creature p -> Creature p) -> Board p -> Board p
+mapCreature pSpot cSpot f board =
+  setPart board pSpot $ part {inPlace = Map.adjust f cSpot m}
+  where
+    part@PlayerPart {inPlace = m} = toPart board pSpot
 
 -- | Map over the 'discarded' field of the given player in the given board
 mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> Board p -> Board p
@@ -372,6 +409,8 @@ setCreature pSpot cSpot creature board =
     part' = part {inPlace = Map.insert cSpot creature existing}
 
 -- | Replace or remove a creature.
+-- TODO @smelc, rename me to @updateCreature@, change implementation to
+-- call @Map.update@
 setMaybeCreature :: Spots.Player -> Spots.Card -> Maybe (Creature 'Core) -> Board 'Core -> Board 'Core
 setMaybeCreature pSpot cSpot creature board =
   setPart board pSpot part'
@@ -510,12 +549,10 @@ instance Empty (Teams Team) (Board 'Core) where
 instance Empty Team (PlayerPart 'Core) where
   empty team = PlayerPart {..}
     where
-      inPlace = mempty
-      inHand = mempty
-      mana = initialMana
+      (deco, inPlace, inHand) = (mempty, mempty, mempty)
+      mana = Constants.initialMana
       score = 0
-      stack = mempty
-      discarded = mempty
+      (stack, discarded) = (mempty, mempty)
 
 data Teams a = Teams
   { topTeam :: a,
@@ -542,7 +579,7 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
     part team smodel deck = (smodel', (empty team) {inHand = hand', stack = stack'})
       where
         (deck', smodel') = Random.shuffle smodel deck
-        (hand, stack) = splitAt initialHandSize deck'
+        (hand, stack) = splitAt Constants.initialHandSize deck'
         hand' = map cardToIdentifier hand
         stack' = map cardToIdentifier stack
     (smodel', topPart) = part topTeam shared topDeck

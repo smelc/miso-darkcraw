@@ -27,12 +27,14 @@ balances =
     (Undead, Campaign.Level0, Undead, 44, 17, 3),
     -- Matchups
     (Human, Campaign.Level0, Evil, 14, 50, 0),
+    (Human, Campaign.Level0, Sylvan, 63, 1, 0),
     (Human, Campaign.Level0, Undead, 13, 49, 2),
     (Human, Campaign.Level0, ZKnights, 21, 42, 1),
     (Evil, Campaign.Level0, Undead, 25, 36, 3),
     -- Level1
     (Human, Campaign.Level1, Evil, 43, 147, 2),
     (Human, Campaign.Level1, Undead, 40, 342, 2),
+    (Evil, Campaign.Level1, Sylvan, 64, 0, 0),
     (Evil, Campaign.Level1, Undead, 32, 94, 2)
   ]
 

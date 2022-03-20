@@ -30,6 +30,7 @@ import qualified Data.Text as Text
 import Debug.Trace (traceShow)
 import qualified Game
 import Generators ()
+import qualified Move
 import Pretty
 import qualified Shared
 import qualified Skill
@@ -517,7 +518,7 @@ testStrengthPot shared =
     board' :: Board 'Core =
       Game.play shared board (Game.PEvent (Game.Place' pSpot (Game.CardTarget pSpot cSpot) strength))
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right b' -> b')
-        & (\(Game.Result {board = b}) -> b)
+        & Game.board
     board'' :: Board 'Core = BoardInstances.boardStart board' pSpot
     ckind = Card.Beholder
     beholder :: Creature 'Core = mkCreature shared ckind team False
@@ -591,7 +592,7 @@ testPowerful shared =
     attack b =
       Game.play shared b (Game.Attack pSpot cSpot False False)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & (\(Game.Result {board = c}) -> c)
+        & Game.board
 
 testAxeOfRage shared =
   describe "Axe of Rage" $ do
@@ -619,7 +620,7 @@ testScore shared =
     attack b cSpot =
       Game.play shared b (Game.Attack pSpot cSpot False False)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & (\(Game.Result {board = c}) -> c)
+        & Game.board
 
 testSupport shared =
   describe "Support" $ do
@@ -649,7 +650,7 @@ testSupport shared =
     attack cSpot b =
       Game.play shared b (Game.Attack fighterPSpot cSpot False False)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & (\(Game.Result {board = c}) -> c)
+        & Game.board
 
 testAssassins shared =
   describe "Assassin" $ do
@@ -677,7 +678,19 @@ testAssassins shared =
     applyAssassin pSpot b =
       Game.play shared b (Game.ApplyAssassins pSpot)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & (\(Game.Result {board = c}) -> c)
+        & Game.board
+
+testPreEndTurnEventNextAttackSpot shared =
+  describe "Executing pre EndTurn events doesn't change the next attack spot" $
+    prop "prop" $
+      \(Pretty board, pSpot, cSpot, turn) ->
+        let nextAttackSpot b = Game.nextAttackSpot b pSpot cSpot
+            events = Move.mkPreEndTurnEvents shared turn pSpot board
+            board' =
+              Game.playAll shared board events
+                & (\case Left errMsg -> error $ Text.unpack errMsg; Right x -> x)
+                & Game.board
+         in nextAttackSpot board `shouldBe` nextAttackSpot board'
 
 main :: Shared.Model -> SpecWith ()
 main shared = do
@@ -709,3 +722,4 @@ main shared = do
   testPlayFraming shared
   testDrawCards shared
   testNoPlayEventNeutral shared
+  testPreEndTurnEventNextAttackSpot shared

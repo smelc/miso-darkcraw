@@ -44,12 +44,14 @@ main shared update =
     it "The teams' balance is as expected" $ do
       -- Level0
       check Human Campaign.Level0 Evil
+      check Human Campaign.Level0 Sylvan
       check Human Campaign.Level0 Undead
       check Human Campaign.Level0 ZKnights
       check Evil Campaign.Level0 Undead
       -- Level1
       check Human Campaign.Level1 Evil
       check Human Campaign.Level1 Undead
+      check Evil Campaign.Level1 Sylvan
       check Evil Campaign.Level1 Undead
     it "Endomatches balance is as expected" $ do
       check Human Campaign.Level0 Human

@@ -151,7 +151,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Fame 1\",      \"title\":\"Fame 1\",     \"text\":\"Contribute 1 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fame 2\",      \"title\":\"Fame 2\",     \"text\":\"Contribute 2 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
-         \    { \"skill\":\"GreenAffinity\", \"title\":\"Gaia's Will\", \"text\":\"At beginning of turn, create forest around a spot\"},\n\
+         \    { \"skill\":\"GreenAffinity\", \"title\":\"Gaia's Will\", \"text\":\"At end of turn, create forest around a spot\"},\n\
          \    { \"skill\":\"Growth\",       \"title\":\"Growth\",    \"text\":\"If in a forest, at beginning of turn, +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\
          \    { \"skill\":\"King\",        \"title\":\"King\",       \"text\":\"At every turn, every knight gains +1 :heart: and +1 :crossed_swords:\"},\n\

@@ -18,6 +18,7 @@
 -- @nix-shell --run '...'@ and nix-shell nesting is erroneous.
 --
 -- This daemon supposes that it executes from the @app/@ directory.
+-- Use @app/judge.sh@ for launching it
 module Main where
 
 import Control.Concurrent

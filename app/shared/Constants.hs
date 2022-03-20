@@ -38,6 +38,9 @@ assetFilenameSkull = "16x16_1_1.png"
 assetFilenameSword :: MisoString
 assetFilenameSword = "16x16_1_0.png"
 
+assetRoundTreeForestSpell :: MisoString
+assetRoundTreeForestSpell = "round-trees-forest-spell.png"
+
 assetSlotBlue :: MisoString
 assetSlotBlue = "blue_slot.png"
 

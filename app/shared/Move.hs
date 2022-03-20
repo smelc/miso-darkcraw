@@ -29,6 +29,7 @@ module Move
     prodRunOneModel,
     Sched (..),
     startTurn,
+    mkPreEndTurnEvents,
   )
 where
 
@@ -258,17 +259,23 @@ runOne EndTurnPressed h@Handlers {disableUI} m@Kernel {board, difficulty, shared
         else pure m
       )
       <&> disableUI
-  let sched :: Sched = mkAttack board
-  if isInitialTurn
-    then -- We want a one second delay, to see clearly that the opponent
-    -- puts its cards, and then proceed with resolving attacks
-      pure $ (m, nextify $ Just sched)
-    else -- We don't want any delay so that the game feels responsive
-    -- when the player presses "End Turn", hence the recursive call.
+  let es = mkEvents PreEndTurn shared turn pSpot board
+  boardAfterEs <- Game.playAllE shared board es <&> (\(_, b', _) -> b')
+  let sched :: NextSched = cons (nextify $ eventsToSched es) [mkAttack boardAfterEs]
+  case (isInitialTurn, sched) of
+    -- In case 'isInitialTurn' holds, we want a one second delay, to see clearly
+    -- that the opponent puts its cards, and then proceed with resolving attacks. This delay
+    -- is introduced by 'cons' above.
+    (True, _) -> pure $ (m, sched)
+    (False, Nothing) -> pure $ (m, sched)
+    (False, Just (_delay, sched)) ->
+      -- We don't want any delay for the first event, so that the game feels responsive
+      -- when the player presses "End Turn", hence the recursive call.
       runOne sched h m
   where
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
+    mkAttack :: Board 'Core -> Sched
     mkAttack b =
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
@@ -337,20 +344,42 @@ instance MakeHandlers 'Sim (Kernel ()) where
       -- Simulation case: do not call startTurn (AI not triggered)
       incrTurn k = k & incrTurnBase & Right <&> (,Nothing)
 
--- | Events to execute when the turn of the given 'Spots.Player' starts
+-- | The kind of events that happen depending on what is on the board
+data EventsKind
+  = -- | Events that happen at the turn start
+    PreTurn
+  | -- | Events that happen when pressing @End Turn@
+    PreEndTurn
+
+-- | Events to execute when the turn of the given 'Spots.Player' starts.
+-- When extending this list, you likely wanna extend 'Command.Command' for
+-- testing the new event.
 preTurnEvents :: Spots.Player -> [Game.Event]
 preTurnEvents pSpot =
   [ Game.ApplyFearNTerror $ Spots.other pSpot,
     Game.ApplyAssassins pSpot,
     Game.ApplyBrainless pSpot,
     Game.FillTheFrontline pSpot,
+    Game.ApplyGrowth pSpot,
     Game.ApplyKing pSpot
   ]
 
-mkPreTurnEvents :: Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
-mkPreTurnEvents shared turn pSpot board
-  | Turn.initial == turn = [] -- No pre turn events when game starts
-  | otherwise = preTurnEvents pSpot & Game.keepEffectfull shared board
+-- | Events to execute when the given 'Spots.Player' pressed @End Turn@
+preEndTurnEvents :: Spots.Player -> [Game.Event]
+preEndTurnEvents pSpot =
+  [ Game.ApplyCreateForest pSpot
+  ]
+
+mkEvents :: EventsKind -> Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
+mkEvents kind shared turn pSpot board =
+  Game.keepEffectfull shared board $ case kind of
+    PreTurn | Turn.initial == turn -> [] -- No pre turn events when game starts
+    PreTurn -> preTurnEvents pSpot
+    PreEndTurn -> preEndTurnEvents pSpot
+
+-- | Use to avoid exposing 'EventsKind'
+mkPreEndTurnEvents :: Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
+mkPreEndTurnEvents = mkEvents PreEndTurn
 
 data Actor = AI | Player
 
@@ -377,7 +406,7 @@ startPlayerTurn m@Kernel {board, shared, turn} pSpot = runIdentity $ do
   -- We draw the first card right away,
   -- so that the game feels responsive when the player turn starts
   let drawNow = Game.cardsToDraw board pSpot True & take 1
-      preTurnEs :: [Game.Event] = mkPreTurnEvents shared turn pSpot board
+      preTurnEs :: [Game.Event] = mkEvents PreTurn shared turn pSpot board
   (shared, board, anims) <-
     pure $
       Game.drawCards shared board pSpot drawNow
@@ -392,7 +421,7 @@ startAITurn ::
 startAITurn m@Kernel {board, difficulty, shared, turn} pSpot = do
   (shared, board, anims) <- pure $ Game.transferCards shared board pSpot
   let drawSrcs :: [Game.DrawSource] = Game.cardsToDraw board pSpot True
-      preTurnEs :: [Game.Event] = mkPreTurnEvents shared turn pSpot board
+      preTurnEs :: [Game.Event] = mkEvents PreTurn shared turn pSpot board
   (shared, board, anims) <-
     pure $
       Game.drawCards shared board pSpot drawSrcs

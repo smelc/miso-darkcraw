@@ -102,6 +102,8 @@
 </li>
 <li class="src short">
 <a href="#v:startTurn">startTurn</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; a ~ <a href="Move.html#t:Kernel" title="Move">Kernel</a> b =&gt; <a href="Move.html#t:Actor" title="Move">Actor</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; a -&gt; m (a, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
+<li class="src short">
+<a href="#v:mkPreEndTurnEvents">mkPreEndTurnEvents</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
@@ -427,6 +429,10 @@
 <div class="doc"><p>The layer above <code>startAITurn</code> and <code>startPlayerTurn</code>. It intentionally
  requires the <code><a href="Move.html#t:Actor" title="Move">Actor</a></code> AND <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> so that the AI can be used
  even when there are 1 or 2 players.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:mkPreEndTurnEvents" class="def">mkPreEndTurnEvents</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] <a href="#v:mkPreEndTurnEvents" class="selflink">#</a></p>
+<div class="doc"><p>Use to avoid exposing <code>EventsKind</code></p></div>
 </div>
 </div>
 </div>

@@ -28,6 +28,7 @@ toASCII board =
       stackLines board PlayerTop ++ []
         ++ [handLine board PlayerTop]
         ++ [scoreLine board PlayerTop]
+        ++ [decoLine board PlayerTop]
         ++ cardsLines board PlayerTop Spots.backSpots
         ++ ["\n"] -- vertical space between AI lines
         ++ cardsLines board PlayerTop Spots.frontSpots
@@ -36,6 +37,7 @@ toASCII board =
         ++ ["\n"] -- vertical space between player lines
         ++ cardsLines board PlayerBot Spots.backSpots
         ++ []
+        ++ [decoLine board PlayerBot]
         ++ [scoreLine board PlayerBot]
         ++ [handLine board PlayerBot]
         ++ stackLines board PlayerBot
@@ -68,6 +70,13 @@ handLine board pSpot =
   "Hand: " ++ intercalate ", " (map showID hand)
   where
     hand = toHand board pSpot
+
+decoLine :: Board 'Core -> Spots.Player -> String
+decoLine board pSpot
+  | null d = "no deco"
+  | otherwise = "deco: " ++ show d
+  where
+    d = Board.toPart board pSpot & Board.deco
 
 scoreLine :: Board 'Core -> Spots.Player -> String
 scoreLine board pSpot =

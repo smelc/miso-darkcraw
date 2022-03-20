@@ -346,6 +346,8 @@ skillDiv shared skill =
         Skill.Blow True -> "color" =: greenHTML
         Skill.Fear False -> "color" =: greyHTML
         Skill.Terror False -> "color" =: greyHTML
+        Skill.GreenAffinity False -> "color" =: greyHTML
+        Skill.Growth False -> "color" =: greyHTML
         _ | Skill.isStupid skill -> "color" =: redHTML
         _ -> mempty
     label =

@@ -30,6 +30,8 @@ data Command
     AIPlay Spots.Player
   | -- | Command to trigger the 'assassins' event
     Assassins Spots.Player
+  | -- | Command to trigger the 'create forest' event
+    CreateForest Spots.Player
   | -- | Command to end the current game. Parameter indicates how
     -- the playing player performed.
     EndGame Campaign.Outcome
@@ -39,6 +41,8 @@ data Command
     Gimme Card.ID
   | -- | Command to obtain mana
     GimmeMana
+  | -- | Command to trigger the 'growth' event
+    Growth Spots.Player
   | -- | Command to trigger the 'king' event
     HailToTheKing Spots.Player
   | -- | Command to kill all creatures in a part
@@ -56,7 +60,10 @@ allCommands cids =
     ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
     ++ [AIPlay pSpot | pSpot <- [minBound ..]]
     ++ [EndGame r | r <- [minBound ..]]
-    ++ [e pSpot | e <- [Assassins, FillTheFrontline, HailToTheKing, Killall], pSpot <- [minBound ..]]
+    ++ [ e pSpot
+         | e <- [Assassins, CreateForest, FillTheFrontline, Growth, HailToTheKing, Killall],
+           pSpot <- [minBound ..]
+       ]
     ++ [GimmeMana]
     ++ [Reboot pSpot t | pSpot <- [minBound ..], t <- allTeams]
   where
@@ -72,6 +79,7 @@ instance Show Command where
     \case
       (AIPlay pSpot) -> "aiplay " ++ show pSpot
       (Assassins pSpot) -> "assassins " ++ show pSpot
+      (CreateForest pSpot) -> "create forest " ++ show pSpot
       (EndGame r) ->
         ( case r of
             Campaign.Win -> "win"
@@ -85,6 +93,7 @@ instance Show Command where
       (Gimme (Card.IDI item)) -> "gimme " ++ (show' item)
       (Gimme (Card.IDN neutral)) -> "gimme " ++ (show' neutral)
       GimmeMana -> "gimme mana"
+      (Growth pSpot) -> "growth " ++ show pSpot
       (HailToTheKing pSpot) -> "hail to the " ++ show pSpot ++ " king"
       (Killall pSpot) -> "killall " ++ show pSpot
       (Reboot pSpot team) -> "reboot " ++ show pSpot ++ " " ++ show' team

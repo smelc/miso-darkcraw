@@ -131,6 +131,10 @@ instance Arbitrary (Card 'Core) where
      in elements $ Shared.getCards shared & map Card.unlift
   shrink = genericShrink
 
+instance Arbitrary Deco where
+  arbitrary = elements $ [minBound ..]
+  shrink = genericShrink
+
 instance Arbitrary (PlayerPart 'Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
