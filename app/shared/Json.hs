@@ -97,6 +97,7 @@ instance FromJSON Skill where
           "Powerful" -> return Skill.Powerful
           "Ranged" -> return Skill.Ranged
           "Sadism" -> return Skill.Sadism
+          "Slow" -> return $ Skill.Slow ()
           "Sylvan" -> return Skill.Sylvan
           "Squire" -> return Skill.Squire
           "StrengthPot" -> return $ Skill.StrengthPot

@@ -12,7 +12,7 @@ import Nat
 -- | The type of skills. Highly polymorphic, because we use
 -- two different instances. Callers should only use
 -- the concrete instances 'Skill' and 'State'.
-data T blow drawCard fame fear green growth regen source stupid terror
+data T blow drawCard fame fear green growth regen slow source stupid terror
   = Ace
   | -- | At turn start, moves against ponent ennemy
     Assassin
@@ -45,6 +45,8 @@ data T blow drawCard fame fear green growth regen source stupid terror
     Regeneration regen
   | -- | Upon a kill, killed neighbors get -1 attack
     Sadism
+  | -- | -1 attack the first turn
+    Slow slow
   | -- | Strength potion in action
     StrengthPot
   | -- | Creature creates mana at beginning of turn
@@ -73,6 +75,7 @@ type Skill =
     () -- green
     () -- growth
     Nat -- regen
+    () -- slow
     Nat -- source
     () -- stupid
     () -- terror
@@ -88,6 +91,7 @@ type State =
     Bool -- green affinity, whether the skill is available (True) or consumed (False)
     Bool -- growth, whether the skill is available (True) or consumed (False)
     Nat -- regeneration, number of hitpoints gained at beginning of turn
+    Bool -- slow, whether creature is slow right now (True), or not (False)
     (Nat, Bool) -- source, creature create mana at beginning of turn. Boolean indicates
     -- whether the skill is available (True) or used already (False)
     Nat -- stupid, the turn, at 0, 1, or 2 not stupid; at 3 stupid; then back to 0
@@ -127,6 +131,7 @@ lift skill =
     Ranged -> Ranged
     Regeneration n -> Regeneration n
     Sadism -> Sadism
+    Slow {} -> Slow ()
     Squire -> Squire
     Source (n, _) -> Source n
     StrengthPot -> StrengthPot
@@ -163,6 +168,7 @@ unlift skill =
     Ranged -> Ranged
     Regeneration n -> Regeneration n
     Sadism -> Sadism
+    Slow {} -> Slow True
     Source n -> Source (n, True)
     Squire -> Squire
     StrengthPot -> StrengthPot

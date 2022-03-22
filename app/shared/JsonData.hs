@@ -44,7 +44,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"sylvan\" }, \"title\":\"Archer\", \"hp\":2, \"attack\":\"1-1\",  \"tile\":\"SylvanArcher\",   \"skills\":[\"Ace\", \"Sylvan\"], \"mana\":1 },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"sylvan\" }, \"title\":\"Priest\", \"hp\":1, \"attack\":\"0\",    \"tile\":\"SylvanPriest\",   \"skills\":[\"GreenAffinity\"], \"mana\":1 },\n\
-         \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"1-2\",  \"tile\":\"Tree\",           \"skills\":[\"Growth\"], \"mana\":2 }\n\
+         \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"2-1\",  \"tile\":\"Tree\",           \"skills\":[\"Growth\", \"Slow\"], \"mana\":2 }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
@@ -161,6 +161,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
          \    { \"skill\":\"Regeneration 1\", \"title\":\"Regeneration 1\", \"text\":\"Gain 1 :heart: at beginning of turn\"},\n\
          \    { \"skill\":\"Sadism\",      \"title\":\"Sadism\",     \"text\":\"When killing an enemy, the enemy's neighbors get -1 :crosswed_swords:\"},\n\
+         \    { \"skill\":\"Slow\",        \"title\":\"Slow\",       \"text\":\"-1 :crossed_swords: during arrival turn\"},\n\
          \    { \"skill\":\"StrengthPot\", \"title\":\"Strength Potion\", \"text\":\"+3 :crossed_swords: until end of turn\"},\n\
          \    { \"skill\":\"Squire\",      \"title\":\"Squire\",     \"text\":\"Knight in front line (if any) gains: +1 :heart: upon arrival and +1 :crossed_swords: while the squire lives\"},\n\
          \    { \"skill\":\"Source 1\",    \"title\":\"Source 1\",   \"text\":\"Gain 1 extra mana at beginning of turn\"},\n\

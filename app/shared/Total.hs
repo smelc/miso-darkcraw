@@ -14,7 +14,7 @@ module Total where
 import Board
 import Card
 import qualified Constants
-import Damage (Damage (..), (+^))
+import Damage (Damage (..), (+^), (-^))
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Nat
@@ -63,6 +63,7 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
     +^ chargeBonus
     +^ squireBonus
     +^ strengthPotBonus
+    -^ slowMalus
   where
     crushingMace = mconcat $ replicate nbMaces maceDamage
       where
@@ -95,6 +96,9 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
             spots = Spots.toLine cardSpot
         _ -> 0
     hasCharge Creature {skills} = any ((==) Skill.Charge) skills
+    slowMalus =
+      filter (\case Skill.Slow True -> True; _ -> False) skills
+        & natLength
     squireBonus =
       case (Skill.Knight `elem` skills, place) of -- A knight..
         (True, Just Place {place, cardSpot})
