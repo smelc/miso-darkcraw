@@ -1394,19 +1394,32 @@ attackOneSpot ::
   (Creature 'Core, Spots.Card) ->
   m (Board 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
-  effect@InPlaceEffect {extra} <- singleAttack place hitter hit
+  effect@InPlaceEffect {death, extra} <- singleAttack place hitter hit
   let board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
-  reportEffect pSpot cSpot $ mempty {attackBump = True} -- hitter
+  reportEffect pSpot cSpot $ mempty {attackBump = True} -- make hitter bump
   reportEffect hitPspot hitSpot effect -- hittee
   board' <-
-    if (isDead . death) effect
+    if isDead death
       then applyFlailOfTheDamned board' hitter pSpot
       else pure board'
-  return $ fPowerful board' extra
+  let behind b =
+        (if Spots.inFront hitSpot then Just (Spots.switchLine hitSpot) else Nothing)
+          <&> (\s -> (Board.toInPlaceCreature b hitPspot s, s))
+          & (\case Just (Just c, s) -> Just (c, s); _ -> Nothing)
+  case behind board' of
+    Just behind | 0 < extra && Total.hasRampage hitter -> do
+      -- Rampage applies
+      let hitter' = hitter {Card.attack = Damage.const extra}
+      attackOneSpot board' (hitter', pSpot, cSpot) behind -- Note that,
+      -- because we recurse, the rampage attack can trigger powerful!
+    _ -> do
+      -- Rampage doesn't apply, powerful may
+      return $ fPowerful board' extra
   where
     hitPspot = Spots.other pSpot
     place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
     fPowerful b extra
+      | extra == 0 = b
       | Total.isPowerful hitter = Board.mapScore b pSpot ((+) extra)
       | otherwise = b
 
@@ -1509,9 +1522,7 @@ singleAttack place attacker@Creature {skills} defender = do
     ace = mkFadeOut Skill.Ace Tile.Arrow
     imprecise = mkFadeOut Skill.Imprecise Tile.Explosion
     mkFadeOut skill tile =
-      if skill `elem` skills
-        then mempty {fadeOut = [tile]}
-        else mempty
+      mempty {fadeOut = if skill `elem` skills then [tile] else []}
 
 -- | Apply a 'Damage'
 deal :: MonadState Shared.Model m => Damage -> m Nat

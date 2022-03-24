@@ -40,6 +40,7 @@ data T blow drawCard fame fear green growth regen slow source stupid terror
     LongReach
   | -- | Undealt damage contributes to score
     Powerful
+  | Rampage
   | Ranged
   | -- | Regenerates the number of hitpoints at beginning of turn
     Regeneration regen
@@ -128,6 +129,7 @@ lift skill =
     Knight -> Knight
     LongReach -> LongReach
     Powerful -> Powerful
+    Rampage -> Rampage
     Ranged -> Ranged
     Regeneration n -> Regeneration n
     Sadism -> Sadism
@@ -165,6 +167,7 @@ unlift skill =
     Knight -> Knight
     LongReach {} -> LongReach
     Powerful -> Powerful
+    Rampage -> Rampage
     Ranged -> Ranged
     Regeneration n -> Regeneration n
     Sadism -> Sadism

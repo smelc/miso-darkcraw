@@ -263,6 +263,7 @@ instance ToClass Card.CreatureID where
       Sylvan ->
         case kind of
           Archer -> Shooter
+          Bear -> FrontFighter
           Priest -> Support
           Tree -> FrontFighter
           _ -> error $ msg team

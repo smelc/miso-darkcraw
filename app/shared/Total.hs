@@ -130,6 +130,9 @@ hasDiscipline :: [Skill.Skill] -> [Item] -> Bool
 hasDiscipline skills items =
   Skill.Discipline `elem` skills || Card.Crown `elem` items
 
+hasRampage :: Creature 'Core -> Bool
+hasRampage Creature {skills} = Skill.Rampage `elem` skills
+
 hasPowerful :: [Skill.State] -> [Item] -> Bool
 hasPowerful skills items =
   Skill.Powerful `elem` skills || Card.AxeOfRage `elem` items

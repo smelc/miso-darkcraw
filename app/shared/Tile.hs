@@ -35,6 +35,7 @@ data Tile
   | Arrow
   | Assassin
   | AxeOfRage
+  | Bear
   | Beholder
   | BlackAppears0
   | BlackAppears1

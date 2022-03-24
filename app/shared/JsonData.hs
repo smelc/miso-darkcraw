@@ -30,7 +30,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"abomination\", \"team\":\"evil\" }, \"title\":\"Abomination\", \"hp\":4, \"attack\":\"3\", \"tile\":\"Abomination\",  \"skills\":[\"Brainless\"],          \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"assassin\",  \"team\":\"evil\" },   \"title\":\"Assassin\",  \"hp\":1, \"attack\":\"5\", \"tile\":\"Assassin\",       \"skills\":[\"Assassin\"],           \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"beholder\",  \"team\":\"evil\" },   \"title\":\"Beholder\",  \"hp\":2, \"attack\":\"2\", \"tile\":\"Beholder\",       \"skills\":[\"Ace\"],                \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"daemon\",    \"team\":\"evil\" },   \"title\":\"Daemon\",    \"hp\":6, \"attack\":\"6\", \"tile\":\"Daemon\",         \"skills\":[\"Terror\", \"Powerful\"], \"mana\":5 },\n\
+         \    { \"id\": { \"name\":\"daemon\",    \"team\":\"evil\" },   \"title\":\"Daemon\",    \"hp\":6, \"attack\":\"6\", \"tile\":\"Daemon\",         \"skills\":[\"Terror\", \"Powerful\", \"Rampage\"], \"mana\":5 },\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"evil\" },   \"title\":\"Knight\",    \"hp\":2, \"attack\":\"3\", \"tile\":\"EvilKnight\",     \"skills\":[\"Blow\"],               \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"evil\" },   \"title\":\"priest\",    \"hp\":1, \"attack\":\"0\", \"tile\":\"EvilPriest\",     \"skills\":[\"DrawCard\", \"Source 1\"] },\n\
          \    { \"id\": { \"name\":\"troll\",     \"team\":\"evil\" },   \"title\":\"Troll\",     \"hp\":4, \"attack\":\"3\", \"tile\":\"EvilTroll\",      \"skills\":[\"Regeneration 1\", \"Stupid4\"], \"mana\":3 },\n\
@@ -43,6 +43,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"squire\",    \"team\":\"zknights\" }, \"title\":\"Squire\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"Squire\",         \"skills\":[\"Squire\"] },\n\
          \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"sylvan\" }, \"title\":\"Archer\", \"hp\":2, \"attack\":\"1-1\",  \"tile\":\"SylvanArcher\",   \"skills\":[\"Ace\", \"Sylvan\"], \"mana\":1 },\n\
+         \    { \"id\": { \"name\":\"bear\",      \"team\":\"sylvan\" },   \"title\":\"Bear\",   \"hp\":3, \"attack\":\"3-1\",  \"tile\":\"Bear\",           \"skills\":[\"Rampage\", \"Sylvan\", \"Slow\"], \"mana\":2 },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"sylvan\" }, \"title\":\"Priest\", \"hp\":1, \"attack\":\"0\",    \"tile\":\"SylvanPriest\",   \"skills\":[\"GreenAffinity\"], \"mana\":1 },\n\
          \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"2-1\",  \"tile\":\"Tree\",           \"skills\":[\"Growth\", \"Slow\"], \"mana\":2 }\n\
          \  ],\n\
@@ -68,6 +69,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Arrow\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":3  } },\n\
          \    { \"tile\":\"Assassin\",      \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":10 } },\n\
          \    { \"tile\":\"AxeOfRage\",     \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":3  } },\n\
+         \    { \"tile\":\"Bear\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":12 } },\n\
          \    { \"tile\":\"Beholder\",      \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":10 } },\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\
          \    { \"tile\":\"BlackAppears1\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":6 } },\n\
@@ -159,6 +161,7 @@ jsonData = "{\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long Reach\", \"text\":\"Hits 2 cells away\"},\n\
          \    { \"skill\":\"Powerful\",    \"title\":\"Powerful\",   \"text\":\"When killing an enemy, extraenous damage is contributed to the score\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\
+         \    { \"skill\":\"Rampage\",     \"title\":\"Rampage\",    \"text\":\"When killing an enemy, extraneous damage is contributed to the enemy behind (if any)\"},\n\
          \    { \"skill\":\"Regeneration 1\", \"title\":\"Regeneration 1\", \"text\":\"Gain 1 :heart: at beginning of turn\"},\n\
          \    { \"skill\":\"Sadism\",      \"title\":\"Sadism\",     \"text\":\"When killing an enemy, the enemy's neighbors get -1 :crosswed_swords:\"},\n\
          \    { \"skill\":\"Slow\",        \"title\":\"Slow\",       \"text\":\"-1 :crossed_swords: during arrival turn\"},\n\

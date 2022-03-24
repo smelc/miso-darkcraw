@@ -12,7 +12,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testAssassins) where
+module Logic (disturber, main, mkCreature, testRampage) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -580,7 +580,7 @@ testPowerful shared =
     it "is a skill of the Daemon" $ do
       Card.has daemon (Skill.Powerful :: Skill.State)
     it "works as expected" $ do
-      Board.toScore pSpot (attack board) `shouldSatisfy` ((<) 0)
+      (attack board <&> Board.toScore pSpot) `shouldSatisfyRight` ((<) 0)
   where
     (team, pSpot, enemyPSpot, cSpot, ckind) =
       (Evil, PlayerTop, Spots.other pSpot, Spots.Bottom, Card.Daemon)
@@ -591,8 +591,26 @@ testPowerful shared =
         & Board.setCreature enemyPSpot cSpot enemy
     attack b =
       Game.play shared b (Game.Attack pSpot cSpot False False)
-        & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & Game.board
+        <&> Game.board
+
+testRampage shared =
+  describe "Rampage" $ do
+    it "is a skill of the Bear" $ do
+      Card.has bear (Skill.Rampage :: Skill.State)
+    it "works as expected" $ do
+      (attack board <&> flip Board.toInPlace enemyPSpot) `shouldSatisfyRight` null
+  where
+    (team, pSpot, enemyPSpot, cSpot, ckind) =
+      (Sylvan, PlayerTop, Spots.other pSpot, Spots.Bottom, Card.Bear)
+    bear = mkCreature shared ckind team False
+    enemy = mkCreature shared Card.Skeleton Undead False
+    board :: Board 'Core =
+      Board.small shared (Teams team team) (creatureId bear) [] pSpot cSpot
+        & Board.setCreature enemyPSpot cSpot enemy
+        & Board.setCreature enemyPSpot (Spots.switchLine cSpot) enemy
+    attack b =
+      Game.play shared b (Game.Attack pSpot cSpot False False)
+        <&> Game.board
 
 testAxeOfRage shared =
   describe "Axe of Rage" $ do
@@ -705,6 +723,7 @@ main shared = do
   testTransient shared
   testPandemonium shared
   testPowerful shared
+  testRampage shared
   testScore shared
   testSupport shared
   testSquire shared

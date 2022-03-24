@@ -54,6 +54,10 @@ instance Dealer a => Dealer (Maybe a) where
   dealer (Just a) = dealer a
   dealer Nothing = False
 
+-- | An instance of 'Damage' that deals a fixed number of damage.
+const :: Nat -> Damage
+const base = Damage {base, variance = 0}
+
 -- The mean damage
 mean :: Damage -> Nat
 mean Damage {base, variance} = base + variance `div` 2
