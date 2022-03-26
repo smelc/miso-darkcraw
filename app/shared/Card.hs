@@ -25,6 +25,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)
 import GHC.Generics (Generic)
+import qualified Mana
 import Nat
 import Skill (Skill)
 import qualified Skill
@@ -58,7 +59,7 @@ type family ItemType (p :: Phase) where
   ItemType 'Core = Item
 
 type family ManaType (p :: Phase) where
-  ManaType 'UI = Nat -- Mana cost
+  ManaType 'UI = Mana.Mana -- Mana cost
   ManaType 'Core = () -- Card is on table, mana doesn't matter
 
 type family OffsetType (p :: Phase) where
@@ -131,6 +132,7 @@ data CreatureKind
   | Vampire
   | Veteran
   | Warrior
+  | Worm
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
 allCreatureKinds :: [CreatureKind]

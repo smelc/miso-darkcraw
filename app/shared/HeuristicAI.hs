@@ -101,12 +101,12 @@ play difficulty shared board pSpot =
     [] -> []
     (_, events) : _ -> events
   where
-    availMana = Board.toPart board pSpot & Board.mana
+    _availMana = Board.toPart board pSpot & Board.mana
     hands :: [[Card.ID]] =
       Board.toHand board pSpot
         & map (Shared.unsafeIdentToCard shared)
         -- TODO @smelc don't do this filtering once there are cards to gain mana
-        & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
+        -- & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
         & map Card.unlift
         & sortOn scoreHandCard
         & map cardToIdentifier
@@ -122,7 +122,7 @@ play difficulty shared board pSpot =
         & sortByFst
     playAll events =
       -- TODO @smelc write a test the 'Left' case doesn't occur often
-      case Game.playAll shared board (map Game.PEvent events) of
+      case Game.playAll shared $ Game.Playable board (map Game.PEvent events) undefined of
         Left msg -> traceShow ("Cannot playAll AI-generated event: " ++ Text.unpack msg) Nothing
         Right (Game.Result {board = board'}) -> Just (boardPlayerScore board' pSpot, events)
 
@@ -151,7 +151,7 @@ playHand shared board pSpot =
     Nothing -> []
     Just (f, s, t) ->
       let place = Game.Place' f s t
-       in case Game.playAll shared board [Game.PEvent place] of
+       in case Game.playAll shared $ Game.Playable board [Game.PEvent place] undefined of
             Right (Game.Result {board = b', shared = shared'}) ->
               place : playHand shared' b' pSpot
             Left msg ->
@@ -180,7 +180,7 @@ aiPlayFirst shared board pSpot =
   where
     handIndex = HandIndex 0
     scores :: ID -> [(Nat, Game.Target)] = \id ->
-      [ Game.maybePlay shared board (Game.PEvent (Game.Place pSpot target handIndex)) -- Compute next board
+      [ Game.maybePlay shared (Game.Playable board (Game.PEvent (Game.Place pSpot target handIndex)) undefined) -- Compute next board
           <&> (\(_, b, _me) -> (boardPlayerScore b pSpot, target)) -- FIXME Use '_me'
         | target <- targets board pSpot id
       ]

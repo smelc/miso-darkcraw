@@ -39,6 +39,7 @@ import qualified Data.Vector as V
 import Debug.Trace
 import GHC.Base (assert)
 import qualified Game
+import qualified Mana
 import Miso
 import Miso.String (MisoString, fromMisoString)
 import Model
@@ -471,7 +472,7 @@ updateModel DeckBack (DeckModel' Model.Deck {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
 updateModel (DeckGo deck) m@(GameModel' Model.Game {..}) =
-  noEff $ DeckModel' $ Model.Deck deck m playingPlayer t shared
+  noEff $ DeckModel' $ Model.Deck deck m playingPlayer t turn shared
   where
     t = Board.toPart board playingPlayer & Board.team
 -- Go to 'LootView'
@@ -495,19 +496,20 @@ updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
                 EQ -> Campaign.Draw
                 GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
-updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shared, playingPlayer})
+updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shared, turn, playingPlayer})
   | Shared.cmd shared & isJust =
       let cmdStr = Shared.cmd shared
-       in case cmdStr <&> Command.read & join of
+       in case cmdStr <&> Mana.read & join of
             Nothing ->
               let errMsg = "Unrecognized command: " ++ show cmdStr
                in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
             Just (Command.AIPlay pSpot) ->
-              case Game.playAll shared board events of
+              case Game.playAll shared $ Game.Playable board events t of
                 Left errMsg -> noEff $ GameModel' $ gm {interaction = ShowErrorInteraction errMsg}
                 Right (Game.Result {board = board'}) -> withBoard board'
               where
-                events = AI.play Constants.Hard shared board pSpot & map Game.PEvent
+                t = Turn.setSpot pSpot turn
+                events = AI.play Constants.Hard shared board pSpot t & map Game.PEvent
             Just (Command.Assassins pSpot) ->
               playEvent Game.ApplyAssassins pSpot
             Just (Command.CreateForest pSpot) ->

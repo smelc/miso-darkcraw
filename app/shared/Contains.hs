@@ -14,6 +14,8 @@ import Control.Monad.Except
 -- field of a record, and also from writing the automatic lifting
 -- @Contains a b => Contains a c => Contains (b, c)@. That would yield
 -- harder to understand code, for not much value.
+--
+-- FIXME @smelc split me into Contains a b and With a b
 class Contains a b where
   to :: a -> b
   with :: a -> b -> a

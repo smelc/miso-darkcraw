@@ -210,8 +210,8 @@ runOne :: MonadError Text.Text m => a ~ Kernel b => Sched -> Handlers a -> a -> 
 runOne (Sequence (fst NE.:| rest)) h m = do
   (m', nga) <- runOne fst h m
   return (m', cons nga rest)
-runOne (Play gameEvent) _ m@Kernel {board, shared} = do
-  (shared', board', anims', generated) <- Game.playE shared board gameEvent
+runOne (Play gameEvent) _ m@Kernel {board, shared, turn} = do
+  (shared', board', anims', generated) <- Game.playE shared $ Game.Playable board gameEvent turn
   let anim =
         Game.eventToAnim shared board gameEvent
           & runExcept
@@ -247,20 +247,22 @@ runOne EndTurnPressed h@Handlers {disableUI} m@Kernel {board, difficulty, shared
           -- card yet, then place them all at once; and then continue
           -- Do not reveal player placement to AI
           let emptyPlayerInPlaceBoard = Board.setInPlace pSpot Map.empty board
+              turn' = Turn.next turn
               placements =
                 -- FIXME @smelc only allow to place creatures and items (no spell)
                 AI.play
                   difficulty
                   shared
                   emptyPlayerInPlaceBoard
-                  (turn & Turn.next & Turn.toPlayerSpot)
-          triplet@(_s, _b, _a) <- Game.playAllE shared board $ map Game.PEvent placements
+                  (Turn.toPlayerSpot turn')
+                  turn'
+          triplet@(_s, _b, _a) <- Game.playAllE shared $ Game.Playable board (map Game.PEvent placements) turn
           pure $ m `with` triplet
         else pure m
       )
       <&> disableUI
   let es = mkEvents PreEndTurn shared turn pSpot board
-  boardAfterEs <- Game.playAllE shared board es <&> (\(_, b', _) -> b')
+  boardAfterEs <- Game.playAllE shared (Game.Playable board es turn) <&> (\(_, b', _) -> b')
   let sched :: NextSched = cons (nextify $ eventsToSched es) [mkAttack boardAfterEs]
   case (isInitialTurn, sched) of
     -- In case 'isInitialTurn' holds, we want a one second delay, to see clearly
@@ -372,10 +374,13 @@ preEndTurnEvents pSpot =
 
 mkEvents :: EventsKind -> Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
 mkEvents kind shared turn pSpot board =
-  Game.keepEffectfull shared board $ case kind of
-    PreTurn | Turn.initial == turn -> [] -- No pre turn events when game starts
-    PreTurn -> preTurnEvents pSpot
-    PreEndTurn -> preEndTurnEvents pSpot
+  Game.keepEffectfull shared (Game.Playable board events turn)
+  where
+    events =
+      case kind of
+        PreTurn | Turn.initial == turn -> [] -- No pre turn events when game starts
+        PreTurn -> preTurnEvents pSpot
+        PreEndTurn -> preEndTurnEvents pSpot
 
 -- | Use to avoid exposing 'EventsKind'
 mkPreEndTurnEvents :: Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
@@ -428,10 +433,10 @@ startAITurn m@Kernel {board, difficulty, shared, turn} pSpot = do
         & (\(s, b, a) -> (s, b, a <> anims)) -- Don't forget earlier 'anims'
   let m' = m `with` (shared, board, anims) -- Create m' now, next events will be scheduled, not executed asap
   (afterPreTurnEsShared, afterPreTurnEsBoard, _) <-
-    Game.playAllE shared board preTurnEs -- We want 'AI.play' to be executed on the state after pre turn events
+    Game.playAllE shared $ Game.Playable board preTurnEs turn -- We want 'AI.play' to be executed on the state after pre turn events
   let placeScheds :: [Sched] =
         -- Use 'after pre turn events' data for playing the AI
-        AI.play difficulty afterPreTurnEsShared afterPreTurnEsBoard pSpot
+        AI.play difficulty afterPreTurnEsShared afterPreTurnEsBoard pSpot turn
           & map (Play . Game.PEvent)
       nextSched = (preTurnEs & eventsToSched & nextify) `cons` (placeScheds ++ [EndTurnPressed])
   pure (m', nextSched)

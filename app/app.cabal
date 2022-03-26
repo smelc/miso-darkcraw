@@ -52,6 +52,7 @@ common common-all
     HeuristicAI
     Json
     JsonData
+    Mana
     MCTSAI
     Model
     Move

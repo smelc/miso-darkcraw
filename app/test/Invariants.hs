@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -14,7 +15,7 @@ import Data.Functor ((<&>))
 import Data.Maybe
 import Debug.Trace (traceShow)
 import qualified Match
-import qualified Model
+import qualified Model hiding (Deck (..))
 import Pretty
 import qualified Shared
 import qualified Spots

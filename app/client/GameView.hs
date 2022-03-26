@@ -29,6 +29,7 @@ import Debug.Trace (traceShow)
 import Event
 import qualified Game
 import GameViewInternal
+import qualified Mana
 import Miso hiding (at)
 import Miso.String hiding (concat, intersperse, last, length, map, null, zip)
 import Model
@@ -41,6 +42,7 @@ import qualified Spots
 import Theme (Theme)
 import qualified Theme
 import qualified Total
+import qualified Turn
 import Update
 import ViewBlocks (dummyOn)
 import ViewInternal
@@ -59,7 +61,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
     application :: Styled (Maybe (View Action)) =
       case anim of
         Game.Application pSpot target card -> do
-          c :: View Action <- cardView GameApplicationLoc (zpppp + 4) shared team card cdsty
+          c :: View Action <- cardView loc (zpppp + 4) shared team card cdsty
           return $ pure $ div_ [style_ $ mkTargetOffset target] [c]
           where
             cdsty :: CardDrawStyle = mempty {PCWViewInternal.fade = Constants.FadeOut}
@@ -85,6 +87,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
       return $
         div_ [style_ boardStyle] $
           concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ decos ++ apps ++ [manaView_]
+    loc = GameApplicationLoc (Mana.labeler model)
     theme :: Theme = Theme.kindToTheme Theme.DarkForest
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
@@ -245,7 +248,10 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
   where
     part = Board.toPart board pSpot
     t = Board.team part
-    loc = GameInPlaceLoc $ Total.Place {place = Board.inPlace part, cardSpot = cSpot}
+    loc =
+      GameInPlaceLoc
+        (Mana.labeler m)
+        (Total.Place {place = Board.inPlace part, cardSpot = cSpot})
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = Board.toInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs lift =
@@ -364,7 +370,7 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
         <&> GameAction'
 
 toHandDrawingInput :: Model.Game -> HandDrawingInput
-toHandDrawingInput Model.Game {interaction = gInteraction, ..} =
+toHandDrawingInput m@Model.Game {interaction = gInteraction, ..} =
   HandDrawingInput {..}
   where
     hand =
@@ -378,6 +384,7 @@ toHandDrawingInput Model.Game {interaction = gInteraction, ..} =
           let fadeIn = i `elem` Board.toHand anims playingPlayer
       ]
     interaction = Just gInteraction
+    labeler = Mana.labeler m
     offseter = id
     part = Board.toPart board playingPlayer
     (mana, team) = (Board.mana part, Board.team part)
@@ -401,12 +408,16 @@ data HandDrawingInput = HandDrawingInput
     hand :: [(Card 'Core, Bool)],
     -- | The current interaction, if any. FIXME @smelc do not hardcode Game.Target
     interaction :: Maybe (Interaction Game.Target),
+    -- | How to typeset mana
+    labeler :: Mana.Mana -> String,
     -- | The mana of the team being drawn
     mana :: Nat,
     -- | How to offset the default position of the hand's cards
     offseter :: HandOffseter,
     -- | The team of the hand being drawn
     team :: Team,
+    -- | The current turn
+    turn :: Turn.Turn,
     -- | The player of the hand being drawn
     playingPlayer :: Spots.Player,
     shared :: Shared.Model
@@ -441,7 +452,7 @@ boardToInHandCell
           Just NoInteraction -> (False, False)
           Just (ShowErrorInteraction _) -> (False, False)
           Nothing -> (False, False)
-      loc = if beingDragged then GameDragLoc else GameHandLoc
+      loc = (if beingDragged then GameDragLoc else GameHandLoc) labeler
       rightmargin = cps * 2
       hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
       i' = unHandIndex i
@@ -474,7 +485,7 @@ boardToInHandCell
       playable =
         case Shared.mlift shared card <&> Card.toCommon of
           Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True
-          Just (CardCommon {mana = requiredMana}) -> availMana >= requiredMana
+          Just (CardCommon {mana = requiredMana}) -> (Mana.<=) turn requiredMana availMana
 
 -- | Offsets, in number of cells, from the board's origin
 cardCellsBoardOffset :: Spots.Player -> Spots.Card -> (Int, Int)

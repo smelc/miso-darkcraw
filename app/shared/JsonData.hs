@@ -11,41 +11,42 @@ import Data.Text
 jsonData :: Text
 jsonData = "{\n\
          \  \"creatures\": [\n\
-         \    { \"id\": { \"name\":\"church\",    \"team\":\"human\" },  \"title\":\"Church\",    \"hp\":5, \"attack\":\"0\", \"tile\":\"HumanChurch\",    \"mana\":3, \"text\": \"At each turn, one of: +1 :heart: to all, +1 :crossed_swords: to all, or +1 :droplet:\", \"text_sz_offset\":-2  },\n\
+         \    { \"id\": { \"name\":\"church\",    \"team\":\"human\" },  \"title\":\"Church\",    \"hp\":5, \"attack\":\"0\", \"tile\":\"HumanChurch\",    \"mana\":\"3\", \"text\": \"At each turn, one of: +1 :heart: to all, +1 :crossed_swords: to all, or +1 :droplet:\", \"text_sz_offset\":-2  },\n\
          \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"Support\"] },\n\
          \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
-         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"HumanGeneral\",   \"skills\":[\"Unique\"],  \"mana\":3 },\n\
-         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":\"2\", \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"],    \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":\"3\", \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"], \"mana\":3 },\n\
+         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"HumanGeneral\",   \"skills\":[\"Unique\"],  \"mana\":\"3\" },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":\"2\", \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"],    \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":\"3\", \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"], \"mana\":\"3\" },\n\
          \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"UndeadSkeleton\", \"skills\":[\"Fear\"] },\n\
-         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"UndeadVampire\",  \"skills\":[\"Terror\"],  \"mana\":3 },\n\
+         \    { \"id\": { \"name\":\"vampire\",   \"team\":\"undead\" }, \"title\":\"vampire\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"UndeadVampire\",  \"skills\":[\"Terror\"],  \"mana\":\"3\" },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"undead\" }, \"title\":\"archer\",    \"hp\":1, \"attack\":\"1\", \"tile\":\"UndeadArcher\",   \"skills\":[\"Fear\", \"Ranged\"]    },\n\
-         \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":\"2\", \"tile\":\"UndeadMummy\",    \"skills\":[\"Fear\"],    \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"mummy\",     \"team\":\"undead\" }, \"title\":\"mummy\",     \"hp\":5, \"attack\":\"2\", \"tile\":\"UndeadMummy\",    \"skills\":[\"Fear\"],    \"mana\":\"2\" },\n\
          \    { \"id\": { \"name\":\"necromancer\", \"team\":\"undead\" }, \"title\":\"necromancer\", \"hp\":1, \"attack\":\"0\", \"tile\":\"UndeadNecromancer\", \"skills\":[\"DrawCard\", \"Fear\", \"Source 1\"] },\n\
          \    { \"id\": { \"name\":\"warrior\",   \"team\":\"undead\" }, \"title\":\"warrior\",   \"hp\":1, \"attack\":\"2\", \"tile\":\"UndeadWarrior\",  \"skills\":[\"Fear\"]  },\n\
          \    { \"id\": { \"name\":\"ghost\",     \"team\":\"undead\" }, \"title\":\"ghost\",     \"hp\":1, \"attack\":\"0\", \"tile\":\"UndeadGhost\",    \"skills\":[\"Fear\"]  },\n\
          \    { \"id\": { \"name\":\"shade\",     \"team\":\"undead\" }, \"title\":\"shade\",     \"hp\":1, \"attack\":\"2\", \"tile\":\"UndeadShade\",    \"skills\":[\"Fear\"]  },\n\
          \    { \"id\": { \"name\":\"specter\",   \"team\":\"undead\" }, \"title\":\"specter\",   \"hp\":2, \"attack\":\"2\", \"tile\":\"UndeadSpecter\",  \"skills\":[\"Terror\", \"BreathIce\"]    },\n\
-         \    { \"id\": { \"name\":\"abomination\", \"team\":\"evil\" }, \"title\":\"Abomination\", \"hp\":4, \"attack\":\"3\", \"tile\":\"Abomination\",  \"skills\":[\"Brainless\"],          \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"assassin\",  \"team\":\"evil\" },   \"title\":\"Assassin\",  \"hp\":1, \"attack\":\"5\", \"tile\":\"Assassin\",       \"skills\":[\"Assassin\"],           \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"beholder\",  \"team\":\"evil\" },   \"title\":\"Beholder\",  \"hp\":2, \"attack\":\"2\", \"tile\":\"Beholder\",       \"skills\":[\"Ace\"],                \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"daemon\",    \"team\":\"evil\" },   \"title\":\"Daemon\",    \"hp\":6, \"attack\":\"6\", \"tile\":\"Daemon\",         \"skills\":[\"Terror\", \"Powerful\", \"Rampage\"], \"mana\":5 },\n\
-         \    { \"id\": { \"name\":\"knight\",    \"team\":\"evil\" },   \"title\":\"Knight\",    \"hp\":2, \"attack\":\"3\", \"tile\":\"EvilKnight\",     \"skills\":[\"Blow\"],               \"mana\":2 },\n\
+         \    { \"id\": { \"name\":\"abomination\", \"team\":\"evil\" }, \"title\":\"Abomination\", \"hp\":4, \"attack\":\"3\", \"tile\":\"Abomination\",  \"skills\":[\"Brainless\"],          \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"assassin\",  \"team\":\"evil\" },   \"title\":\"Assassin\",  \"hp\":1, \"attack\":\"5\", \"tile\":\"Assassin\",       \"skills\":[\"Assassin\"],           \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"beholder\",  \"team\":\"evil\" },   \"title\":\"Beholder\",  \"hp\":2, \"attack\":\"2\", \"tile\":\"Beholder\",       \"skills\":[\"Ace\"],                \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"daemon\",    \"team\":\"evil\" },   \"title\":\"Daemon\",    \"hp\":6, \"attack\":\"6\", \"tile\":\"Daemon\",         \"skills\":[\"Terror\", \"Powerful\", \"Rampage\"], \"mana\":\"5\" },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"evil\" },   \"title\":\"Knight\",    \"hp\":2, \"attack\":\"3\", \"tile\":\"EvilKnight\",     \"skills\":[\"Blow\"],               \"mana\":\"2\" },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"evil\" },   \"title\":\"priest\",    \"hp\":1, \"attack\":\"0\", \"tile\":\"EvilPriest\",     \"skills\":[\"DrawCard\", \"Source 1\"] },\n\
-         \    { \"id\": { \"name\":\"troll\",     \"team\":\"evil\" },   \"title\":\"Troll\",     \"hp\":4, \"attack\":\"3\", \"tile\":\"EvilTroll\",      \"skills\":[\"Regeneration 1\", \"Stupid4\"], \"mana\":3 },\n\
+         \    { \"id\": { \"name\":\"troll\",     \"team\":\"evil\" },   \"title\":\"Troll\",     \"hp\":4, \"attack\":\"3\", \"tile\":\"EvilTroll\",      \"skills\":[\"Regeneration 1\", \"Stupid4\"], \"mana\":\"3\" },\n\
          \    { \"id\": { \"name\":\"spearman\",  \"team\":\"evil\" },   \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"EvilSpearman\",   \"skills\":[\"LongReach\"]                    },\n\
-         \    { \"id\": { \"name\":\"captain\",   \"team\":\"zknights\" }, \"title\":\"Captain\", \"hp\":2, \"attack\":\"2\", \"tile\":\"ZCaptain\",       \"skills\":[\"Knight\", \"Charge\", \"Zealot\"],  \"mana\":1 },\n\
-         \    { \"id\": { \"name\":\"veteran\",   \"team\":\"zknights\" }, \"title\":\"Veteran\", \"hp\":3, \"attack\":\"3\", \"tile\":\"ZVeteran\",       \"skills\":[\"Knight\", \"Charge\", \"Veteran\"], \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"king\",      \"team\":\"zknights\" }, \"title\":\"King\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKing\",          \"skills\":[\"King\"], \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"knight\",    \"team\":\"zknights\" }, \"title\":\"Knight\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKnight\",        \"skills\":[\"Knight\", \"Charge\"], \"mana\":1 },\n\
-         \    { \"id\": { \"name\":\"priest\",    \"team\":\"zknights\" }, \"title\":\"Priest\",  \"hp\":1, \"attack\":\"0\", \"tile\":\"ZPriest\",        \"skills\":[\"Source 2\"], \"mana\":1 },\n\
+         \    { \"id\": { \"name\":\"captain\",   \"team\":\"zknights\" }, \"title\":\"Captain\", \"hp\":2, \"attack\":\"2\", \"tile\":\"ZCaptain\",       \"skills\":[\"Knight\", \"Charge\", \"Zealot\"],  \"mana\":\"1\" },\n\
+         \    { \"id\": { \"name\":\"veteran\",   \"team\":\"zknights\" }, \"title\":\"Veteran\", \"hp\":3, \"attack\":\"3\", \"tile\":\"ZVeteran\",       \"skills\":[\"Knight\", \"Charge\", \"Veteran\"], \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"king\",      \"team\":\"zknights\" }, \"title\":\"King\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKing\",          \"skills\":[\"King\"], \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"knight\",    \"team\":\"zknights\" }, \"title\":\"Knight\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKnight\",        \"skills\":[\"Knight\", \"Charge\"], \"mana\":\"1\" },\n\
+         \    { \"id\": { \"name\":\"priest\",    \"team\":\"zknights\" }, \"title\":\"Priest\",  \"hp\":1, \"attack\":\"0\", \"tile\":\"ZPriest\",        \"skills\":[\"Source 2\"], \"mana\":\"1\" },\n\
          \    { \"id\": { \"name\":\"squire\",    \"team\":\"zknights\" }, \"title\":\"Squire\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"Squire\",         \"skills\":[\"Squire\"] },\n\
-         \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"archer\",    \"team\":\"sylvan\" }, \"title\":\"Archer\", \"hp\":2, \"attack\":\"1-1\",  \"tile\":\"SylvanArcher\",   \"skills\":[\"Ace\", \"Sylvan\"], \"mana\":1 },\n\
-         \    { \"id\": { \"name\":\"bear\",      \"team\":\"sylvan\" },   \"title\":\"Bear\",   \"hp\":3, \"attack\":\"3-1\",  \"tile\":\"Bear\",           \"skills\":[\"Rampage\", \"Sylvan\", \"Slow\"], \"mana\":2 },\n\
-         \    { \"id\": { \"name\":\"priest\",    \"team\":\"sylvan\" }, \"title\":\"Priest\", \"hp\":1, \"attack\":\"0\",    \"tile\":\"SylvanPriest\",   \"skills\":[\"GreenAffinity\"], \"mana\":1 },\n\
-         \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"2-1\",  \"tile\":\"Tree\",           \"skills\":[\"Growth\", \"Slow\"], \"mana\":2 }\n\
+         \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"sylvan\" }, \"title\":\"Archer\", \"hp\":2, \"attack\":\"1-1\",  \"tile\":\"SylvanArcher\",   \"skills\":[\"Ace\", \"Sylvan\"], \"mana\":\"1\" },\n\
+         \    { \"id\": { \"name\":\"bear\",      \"team\":\"sylvan\" },   \"title\":\"Bear\",   \"hp\":3, \"attack\":\"3-1\", \"tile\":\"Bear\",          \"skills\":[\"Sylvan\", \"Rampage\", \"Slow\"], \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"priest\",    \"team\":\"sylvan\" }, \"title\":\"Priest\", \"hp\":1, \"attack\":\"0\",     \"tile\":\"SylvanPriest\",  \"skills\":[\"GreenAffinity\"], \"mana\":\"1\" },\n\
+         \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"2-1\",   \"tile\":\"Tree\",          \"skills\":[\"Growth\", \"Slow\"], \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"worm\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":6, \"attack\":\"6\",     \"tile\":\"SylvanWorm\",    \"skills\":[\"Sylvan\", \"Powerful\", \"Rampage\"], \"mana\":\"remaining_turns\" }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
@@ -139,7 +140,8 @@ jsonData = "{\n\
          \    { \"tile\":\"ZKing\",         \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":11 } },\n\
          \    { \"tile\":\"SylvanPriest\",  \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":12 } },\n\
          \    { \"tile\":\"Tree\",          \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":12 } },\n\
-         \    { \"tile\":\"SylvanArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":12 } }\n\
+         \    { \"tile\":\"SylvanArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":12 } },\n\
+         \    { \"tile\":\"SylvanWorm\",    \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":12 } }\n\
          \  ],\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Ace\",         \"title\":\"Ace\",        \"text\":\"Hits any enemy\"},\n\

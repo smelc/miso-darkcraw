@@ -8,7 +8,6 @@
 -- |
 module Command
   ( Command (..),
-    Command.Read (..),
     allCommands,
   )
 where
@@ -19,6 +18,7 @@ import Data.Char
 import Data.Function ((&))
 import Data.Functor
 import Data.List.Extra
+import qualified Mana
 import Spots
 
 toLowerString :: String -> String
@@ -101,10 +101,7 @@ instance Show Command where
       show' :: Show a => a -> String
       show' = toLowerString . show
 
-class Read a where
-  read :: String -> Maybe a
-
-instance Command.Read Command where
+instance Mana.Read Command where
   read s =
     allCommands cids
       & map (\c -> (c, show c))

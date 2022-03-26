@@ -110,13 +110,19 @@ nbRewards level =
 rewards :: Level -> Team -> [Card.ID]
 rewards level team =
   case (level, team) of
+    -- Evil
     (Level0, Evil) -> [Card.IDI Card.AxeOfRage]
-    (Level1, Evil) -> [] -- TODO @smelc extend me
+    (Level1, Evil) -> []
+    -- Human
     (Level0, Human) -> map (mkIDC team) [Card.Knight] ++ map Card.IDI [Card.Crown] ++ map Card.IDN [Card.Life]
     (Level1, Human) -> map (mkIDC team) [Card.Ogre]
-    (_, Sylvan) -> [] -- TODO @smelc extend me
+    -- Sylvan
+    (Level0, Sylvan) -> map (mkIDC Sylvan) [Card.Worm]
+    (Level1, Sylvan) -> []
+    -- Undead
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
     (Level1, Undead) -> [Card.IDI Card.SkBanner]
+    -- Unplayable teams
     (_, ZKnights) -> [] -- Not a playable team, it's fine
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []

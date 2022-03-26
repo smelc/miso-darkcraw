@@ -11,7 +11,7 @@
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 
-module Main (main, testFighterAI) where
+module Main (main) where
 
 import AI
 import qualified Art
@@ -37,12 +37,13 @@ import Data.Tuple.Extra (both)
 import Debug.Trace (trace, traceShow)
 import GHC.Base (assert)
 import Game (Target (..))
-import qualified Game
+import qualified Game hiding (Playable (..))
 import Generators
 import qualified HeuristicAI
 import qualified Invariants
 import Json
 import qualified Logic (main, mkCreature)
+import qualified Mana
 import qualified Match
 import qualified Model
 import Movie
@@ -65,7 +66,7 @@ getAllDecks cards = [teamDeck cards t | t <- allTeams]
 -- | Tests that the AI treats 'Ranged' correctly.
 testAIRanged :: Shared.Model -> Turn -> Board 'Core
 testAIRanged shared turn =
-  case Game.playAll shared board $ map Game.PEvent events of
+  case Game.playAll shared (Game.mkPlayable board (map Game.PEvent events) turn) of
     Left _ -> error "AI failed"
     Right (Game.Result {board = board'}) -> board'
   where
@@ -73,7 +74,7 @@ testAIRanged shared turn =
     archer = IDC (CreatureID Archer t) []
     pSpot = Turn.toPlayerSpot turn
     board = Board.addToHand (Board.empty teams) pSpot archer
-    events = AI.play Constants.Easy shared board pSpot
+    events = AI.play Constants.Easy shared board pSpot turn
 
 testShared shared =
   describe "Shared.Model" $ do
@@ -255,10 +256,11 @@ testAIPlace shared =
       \(Pretty (board :: Board 'Core)) (Pretty pSpot) ->
         let place = play board pSpot & listToMaybe
          in isJust place
-              ==> (Game.maybePlay shared board (Game.PEvent $ fromJust place))
+              ==> (Game.maybePlay shared (Game.mkPlayable board (Game.PEvent (fromJust place)) turn))
                 `shouldSatisfy` isJust
   where
-    play = AI.play difficulty shared
+    play b p = AI.play difficulty shared b p turn
+    turn = Turn.initial
     difficulty = Constants.Easy
     spotsDiffer (Game.Place' _ (Game.CardTarget pSpot1 cSpot1) _) (Game.Place' _ (Game.CardTarget pSpot2 cSpot2) _) =
       pSpot1 /= pSpot2 || cSpot1 /= cSpot2
@@ -318,13 +320,14 @@ testInPlaceEffectsMonoid =
 testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
     prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
-      \(board, pSpot) ->
+      \(board, pSpot, turn) ->
         let score = flip HeuristicAI.boardPlayerScore pSpot
-         in let (initialScore, events) = (score board, AI.play Constants.Easy shared board pSpot)
-             in let nextScore =
-                      Game.playAll shared board (map Game.PEvent events)
-                        & takeBoard <&> score
-                 in monotonic initialScore nextScore
+            initialScore = score board
+            events = AI.play Constants.Easy shared board pSpot turn
+            nextScore =
+              Game.playAll shared (Game.mkPlayable board (map Game.PEvent events) turn)
+                & takeBoard <&> score
+         in monotonic initialScore nextScore
   where
     takeBoard (Left _) = Nothing
     takeBoard (Right (Game.Result {board = b})) = Just b
@@ -353,33 +356,6 @@ testRewards =
     acceptable ZKnights = False
     acceptable _ = True
 
-testFighterAI shared =
-  -- TODO @smelc delete me?
-  describe "AI" $ do
-    it "Spearman doesn't have Ranged" $ do
-      not $ Card.has fighter (Skill.Ranged :: Skill.State)
-    xit "Spearman isn't placed in backline" $ do
-      ( board & place PlayerBot
-          & flip Board.toInPlace PlayerBot
-          & Map.partitionWithKey (\cSpot _ -> Spots.inFront cSpot)
-          & both (Map.elems >>> map (Card.creatureId >>> Card.creatureKind))
-        )
-        `shouldSatisfy` (\(_front, back) -> all ((/=) Card.Spearman) back)
-  where
-    teams = Board.Teams topTeam botTeam
-    (topTeam, botTeam) = (Undead, Human)
-    fighter = Logic.mkCreature shared Card.Spearman botTeam False
-    board :: Board 'Core = Update.level0GameModel Constants.Hard shared journey teams & Model.board
-    journey = Campaign.unsafeJourney Campaign.Level0 topTeam
-    place :: Spots.Player -> Board 'Core -> Board 'Core
-    place pSpot b =
-      AI.play Constants.Hard shared b pSpot
-        & map Game.PEvent
-        & (\events -> assert (length events == 3) events)
-        & Game.playAll shared b
-        & fromRight'
-        & Game.board
-
 testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
@@ -395,14 +371,17 @@ testItemsAI shared =
     teams = Teams Undead Undead
     mkCreature' kind team = Logic.mkCreature shared kind team False
     play board =
-      Game.playAll shared board $ map Game.PEvent $ AI.play Constants.Easy shared board pSpot
+      Game.playAll
+        shared
+        (Game.mkPlayable board (map Game.PEvent (AI.play Constants.Easy shared board pSpot turn)) turn)
+    turn = Turn.initial
     hasItem board pSpot cSpot item =
       (Board.toInPlaceCreature board pSpot cSpot) `has` item
 
 testAIImprecise shared =
   describe "AI" $ do
     it "Imprecise card is put in back line" $
-      (Game.playAll shared board $ map Game.PEvent $ AI.play Constants.Easy shared board pSpot)
+      (Game.playAll shared (Game.mkPlayable board (map Game.PEvent (AI.play Constants.Easy shared board pSpot turn)) turn))
         `shouldSatisfyRight` ( \(Game.Result {board = board'}) ->
                                  Board.toPlayerCardSpots board' pSpot Occupied
                                    & (\spots -> length spots == 1 && all inTheBack spots)
@@ -412,18 +391,19 @@ testAIImprecise shared =
     (team, teams) = (ZKnights, Teams team team)
     board = Board.empty teams & (\b -> Board.addToHand b pSpot trebuchet)
     trebuchet = Card.IDC (CreatureID Trebuchet team) []
+    turn = Turn.initial
 
 testMana shared =
   describe "AI" $ do
     prop "only play cards for which enough mana is available" $
-      \(board, pSpot) ->
+      \(board, pSpot, turn) ->
         let manaAvailable = Board.toPart board pSpot & Board.mana
-         in AI.play Easy shared board pSpot `shouldAllSatisfy` manaCostGeq board manaAvailable
+         in AI.play Easy shared board pSpot turn `shouldAllSatisfy` manaCostGeq board turn manaAvailable
   where
     -- manaCostGeq returns True if 'avail' is greater or equal to the
     -- mana cost of 'card'.
-    manaCostGeq :: Board 'Core -> Nat -> Game.Place -> Bool
-    manaCostGeq board avail =
+    manaCostGeq :: Board 'Core -> Turn.Turn -> Nat -> Game.Place -> Bool
+    manaCostGeq board turn avail =
       \case
         Game.Place pSpot _ hi -> go' pSpot hi
         Game.Place' pSpot _ id ->
@@ -440,7 +420,7 @@ testMana shared =
           card :: Card 'UI <-
             Shared.identToCard shared id
               & (\case Nothing -> Left "card not found"; Just x -> Right x)
-          return $ (Card.toCommon card & Card.mana) <= avail
+          return ((Mana.<=) turn (Card.toCommon card & Card.mana) avail)
           where
             card :: Either Text Card.ID =
               Board.lookupHand (Board.toHand board pSpot) i
@@ -491,7 +471,6 @@ main = hspec $ do
   testItemsAI shared
   testShowCommands
   testAIImprecise shared
-  testFighterAI shared
   -- PBT tests
   testMana shared
   testNeighbors

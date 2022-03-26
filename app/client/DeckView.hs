@@ -8,47 +8,28 @@
 -- Module to display a list of cards.
 -- |
 module DeckView
-  ( GenericModel (..),
-    viewDeck,
-    viewGeneric,
+  ( viewDeck,
   )
 where
 
-import Card (Card, Phase (Core), Team, groupCards)
+import Card (groupCards)
 import Constants
 import Data.Function ((&))
 import Data.List
 import qualified Data.Map.Strict as Map
+import qualified Mana
 import Miso (View, div_, onClick, style_)
-import Miso.String (MisoString, ms)
+import Miso.String (ms)
 import Miso.Util ((=:))
 import Model
 import PCWViewInternal
-import qualified Shared
 import Spots hiding (Card)
 import Update (Action (DeckBack))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal (Position (..), Styled (..), imgCell, px, textStyle, zpltwh)
 
-data GenericModel = GenericModel
-  { -- | The background to use
-    background :: MisoString,
-    -- | The deck to show
-    deck :: [Card 'Core],
-    -- | To which player 'gDeck' belongs
-    player :: Spots.Player,
-    -- | To which team the deck being shown belongs
-    team :: Team,
-    -- | Part of the model shared among all pages
-    shared :: Shared.Model
-  }
-
 viewDeck :: Model.Deck -> Styled (View Action)
-viewDeck Model.Deck {..} =
-  viewGeneric GenericModel {background = "deck.png", ..}
-
-viewGeneric :: GenericModel -> Styled (View Action)
-viewGeneric GenericModel {background = bg, ..} = do
+viewDeck m@Model.Deck {..} = do
   backDiv <- backDivM
   cardsDiv <- cardsDiver 0 0 cards
   return $
@@ -59,7 +40,7 @@ viewGeneric GenericModel {background = bg, ..} = do
     (z, zpp) = (0, z + 1)
     bgStyle =
       zpltwh z Relative 0 0 lobbiesPixelWidth lobbiesPixelHeight
-        <> "background-image" =: assetsUrl bg
+        <> "background-image" =: assetsUrl "deck.png"
     cards = groupCards deck & Map.toList & sort
     -- Terminal case
     cardsDiver x y _ | x == 4 && y == 3 = return []
@@ -81,7 +62,7 @@ viewGeneric GenericModel {background = bg, ..} = do
     yoffset y = 3 + (y * (cardCellHeight + 1))
     -- Create div of a single card
     cardDiver x y card = do
-      card <- cardView DeckLoc z shared team card mempty
+      card <- cardView (makeLoc m) z shared team card mempty
       return $ div_ [style_ $ cardPositionStyle (xoffset x) (yoffset y)] [card]
     -- Create background of slot
     slotDiver x y =
@@ -111,3 +92,6 @@ viewGeneric GenericModel {background = bg, ..} = do
               -- Finally shift element down
               <> "margin-top" =: px ((boardCellHeight - 3) * cps)
       return $ div_ [style_ sty] [button]
+
+makeLoc :: Model.Deck -> DisplayLocation
+makeLoc m = DeckLoc (Mana.labeler m)

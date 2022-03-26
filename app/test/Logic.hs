@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -25,10 +26,9 @@ import Damage (Damage, (+^), (-^))
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Map.Strict as Map
 import Data.Maybe
-import qualified Data.Set as Set
 import qualified Data.Text as Text
 import Debug.Trace (traceShow)
-import qualified Game
+import qualified Game hiding (Playable (..))
 import Generators ()
 import qualified Move
 import Pretty
@@ -38,7 +38,6 @@ import Spots (Card (..), Player (..))
 import qualified Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Test.QuickCheck
 import TestLib (shouldAllSatisfy, shouldSatisfyJust, shouldSatisfyRight)
 import qualified Total
 import Turn
@@ -80,49 +79,6 @@ disturber _ (IDN neutral) =
     Plague -> True
     StrengthPot -> False
 
--- Tests that playing a creature only affects the target spot. Some
--- cards are omitted, see 'disturber.
-testPlayFraming :: Shared.Model -> SpecWith ()
-testPlayFraming shared =
-  describe
-    "Playing some cards doesn't change"
-    $ prop "other spots of the board when placing non-disturbing creature" $
-      \(Pretty board, Pretty turn) ->
-        let pSpot = Turn.toPlayerSpot turn
-         in let pair = pickCardSpot board 0 pSpot
-             in isJust pair
-                  ==> let (i, cSpot) = fromJust pair
-                       in Game.play shared board (Game.PEvent (Game.Place pSpot (Game.CardTarget pSpot cSpot) (HandIndex i)))
-                            `shouldSatisfy` relation board pSpot cSpot
-  where
-    -- Very simple AI-like function
-    pickCardSpot (board :: Board 'Core) i pSpot =
-      case Board.toHand board pSpot of
-        [] -> Nothing
-        id : hand' ->
-          if disturber shared id
-            then pickCardSpot (Board.setHand board pSpot hand') (i + 1) pSpot -- try next card
-            else case targetType id of
-              PlayerTargetType -> Nothing
-              CardTargetType ctk ->
-                Board.toPlayerCardSpots board pSpot ctk
-                  & listToMaybe
-                  <&> (i,)
-    relation _ _ _ (Left _) = True
-    relation board pSpot cSpot (Right (Game.Result {board = board'})) = boardEq board pSpot [cSpot] board'
-    boardEq (board :: Board 'Core) pSpot cSpots board' =
-      let otherSpot = Spots.other pSpot
-       in -- Board must be completely equivalent on part of player that doesn't play
-          (Board.toPart board otherSpot == Board.toPart board' otherSpot)
-            -- and agree w.r.t. partEq on the part of the player that played
-            && partEq (Board.toPart board pSpot) (Board.toPart board' pSpot) cSpots
-    partEq
-      (PlayerPart {..} :: PlayerPart 'Core)
-      (PlayerPart {inPlace = inPlace', score = score', stack = stack', discarded = discarded', team = team'} :: PlayerPart 'Core)
-      cSpots =
-        score == score' && stack == stack' && discarded == discarded' && team == team'
-          && (Map.withoutKeys inPlace (Set.fromList cSpots) == Map.withoutKeys inPlace' (Set.fromList cSpots))
-
 testDrawCards :: Shared.Model -> SpecWith ()
 testDrawCards shared =
   describe
@@ -151,11 +107,11 @@ testDrawCards shared =
 testNoPlayEventNeutral shared =
   describe "Game.NoPlayEvent is neutral w.r.t Game.playAll" $
     prop "Game.playAll $ [NoPlayEvent] ++ es == Game.playAll $ es ++ [NoPlayEvent]" $
-      \(board, events) ->
-        play board ([Game.NoPlayEvent] ++ events)
-          `shouldBe` play board (events ++ [Game.NoPlayEvent])
+      \(board, events, turn) ->
+        let play es = Game.playAll shared $ Game.mkPlayable board es turn
+         in play ([Game.NoPlayEvent] ++ events)
+              `shouldBe` play (events ++ [Game.NoPlayEvent])
   where
-    play board = Game.playAll shared board
 
 testFear :: Shared.Model -> SpecWith ()
 testFear shared =
@@ -183,7 +139,9 @@ testFear shared =
         & Card.unlift
         & (\Creature {..} -> Creature {hp = 1, ..})
     board' = Board.setCreature otherPSpot (bottomSpotOfTopVisual Top) affectedByFear board
-    applyFear b = Game.play shared b (Game.ApplyFearNTerror causingFearPSpot)
+    applyFear b =
+      Game.play shared $
+        Game.mkPlayable b (Game.ApplyFearNTerror causingFearPSpot) Turn.initial
     board'' = Board.setCreature otherPSpot (bottomSpotOfTopVisual Bottom) affectedByFear board
     toEither (Left errMsg) = Left errMsg
     toEither (Right (Game.Result {board = b})) = Right b
@@ -290,7 +248,9 @@ testFillTheFrontline shared =
       Board.empty (Teams team team)
         & Board.setCreature pSpot Top (mkCreature' Archer team)
         & Board.setCreature pSpot TopLeft (mkCreature' Spearman team)
-    board' = Game.play shared board $ Game.FillTheFrontline pSpot
+    board' =
+      Game.play shared $
+        Game.mkPlayable board (Game.FillTheFrontline pSpot) Turn.initial
     pred (Left errMsg) = traceShow errMsg False
     pred (Right (Game.Result {board = board''})) =
       Board.toInPlaceCreature board'' pSpot Top == Nothing -- Archer moved
@@ -303,9 +263,9 @@ testBreathIce :: Shared.Model -> SpecWith ()
 testBreathIce shared =
   describe "Breath ice" $ do
     it "Breath ice creature hits two creatures in a row when in the frontline" $ do
-      board' Bottom `shouldSatisfy` pred
+      board' Bottom `shouldSatisfyRight` pred
     it "Breath ice creature does nothing when in the backline" $ do
-      board' Top `shouldSatisfy` pred'
+      board' Top `shouldSatisfyRight` pred'
   where
     (team, pSpot, otherpSpot) = (Undead, PlayerTop, Spots.other pSpot)
     mkCreature' kind team = mkCreature shared kind team False
@@ -316,12 +276,14 @@ testBreathIce shared =
         & Board.setCreature otherpSpot Top (mkCreature' dummy1 team)
         & Board.setCreature otherpSpot Bottom (mkCreature' dummy2 team)
     board' specterSpot =
-      Game.play shared (mkBoard specterSpot) $ Game.Attack pSpot specterSpot False False
-    pred (Left errMsg) = traceShow errMsg False
-    pred (Right (Game.Result {board = board''})) =
+      Game.play shared $
+        Game.mkPlayable
+          (mkBoard specterSpot)
+          (Game.Attack pSpot specterSpot False False)
+          Turn.initial
+    pred (Game.Result {board = board''}) =
       Board.toInPlace board'' otherpSpot == mempty -- Both dummies killed
-    pred' (Left errMsg) = traceShow errMsg False
-    pred' (Right (Game.Result {board = board''})) =
+    pred' (Game.Result {board = board''}) =
       Board.toInPlaceCreature board'' otherpSpot Top ~= dummy1 -- dummy1 stayed alive
         && (Board.toInPlaceCreature board'' otherpSpot Bottom ~= dummy2) -- dummy2 stayed alive
     (~=) Nothing _ = False
@@ -331,11 +293,11 @@ testChurch :: Shared.Model -> SpecWith ()
 testChurch shared =
   describe "Church" $ do
     prop "Church effect is as expected" $
-      \(Pretty board, pSpot) ->
-        Game.play shared board (Game.ApplyChurch pSpot) `shouldSatisfy` (pred board pSpot)
+      \(Pretty board, pSpot, turn) ->
+        Game.play shared (Game.mkPlayable board (Game.ApplyChurch pSpot) turn)
+          `shouldSatisfyRight` (pred board pSpot)
   where
-    pred _ _ (Left errMsg) = traceShow errMsg False
-    pred board pSpot (Right (Game.Result {board = board'})) =
+    pred board pSpot (Game.Result {board = board'}) =
       Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
         && all
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
@@ -357,11 +319,11 @@ testKing :: Shared.Model -> SpecWith ()
 testKing shared =
   describe "King" $ do
     prop "King effect is as expected" $
-      \(Pretty board, pSpot) ->
-        Game.play shared board (Game.ApplyKing pSpot) `shouldSatisfy` (pred board pSpot)
+      \(Pretty board, pSpot, turn) ->
+        (Game.play shared (Game.mkPlayable board (Game.ApplyKing pSpot) turn))
+          `shouldSatisfyRight` (pred board pSpot)
   where
-    pred _ _ (Left errMsg) = traceShow errMsg False
-    pred board pSpot (Right (Game.Result {board = board'})) =
+    pred board pSpot (Game.Result {board = board'}) =
       Board.toPart board otherSpot == Board.toPart board' otherSpot -- Other spot is unchanged
         && all
           (\cSpot -> (toCreature board cSpot) ~= (toCreature board' cSpot))
@@ -389,7 +351,9 @@ testTransient shared =
       Board.empty (Teams Undead Human)
         & Board.setCreature PlayerTop Bottom (mkCreature shared Skeleton Undead True)
         & Board.setCreature PlayerBot botCardSpot (mkCreature shared Vampire Undead True)
-    board' = Game.play shared board $ Game.Attack PlayerBot botCardSpot False False
+    board' =
+      Game.play shared $
+        Game.mkPlayable board (Game.Attack PlayerBot botCardSpot False False) Turn.initial
     pred (Left errMsg) = traceShow errMsg False
     pred (Right (Game.Result {board = board''})) =
       Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
@@ -456,11 +420,11 @@ testVeteran shared =
     it "is a skill of the ZKnights veteran" $ do
       Skill.Veteran `elem` (Card.skills veteran)
     it "protects against fear" $ do
-      Game.play shared board' (Game.ApplyFearNTerror otherSpot)
-        `shouldSatisfy` (match board')
+      (Game.play shared (Game.mkPlayable board' (Game.ApplyFearNTerror otherSpot) Turn.initial))
+        `shouldSatisfyRight` (match board')
     it "protects against terror" $ do
-      Game.play shared board'' (Game.ApplyFearNTerror otherSpot)
-        `shouldSatisfy` (match board'')
+      (Game.play shared (Game.mkPlayable board'' (Game.ApplyFearNTerror otherSpot) Turn.initial))
+        `shouldSatisfyRight` (match board'')
   where
     (team, pSpot, otherSpot) = (ZKnights, PlayerTop, Spots.other pSpot)
     board =
@@ -471,19 +435,18 @@ testVeteran shared =
     veteran :: Creature 'Core = mkCreature shared Card.Veteran team False
     skeleton :: Creature 'Core = mkCreature shared Card.Skeleton Undead False
     vampire :: Creature 'Core = mkCreature shared Card.Vampire Undead False
-    match _ (Left errMsg) = traceShow errMsg False
-    match expected (Right (Game.Result {board = b})) = b == expected
+    match expected (Game.Result {board = b}) = b == expected
 
 testZealot shared =
   describe "Skill.Zealot" $ do
     it "is a skill of the ZKnights captain" $ do
       Skill.Zealot `elem` (Card.skills captain)
     it "protects against fear" $ do
-      Game.play shared board' (Game.ApplyFearNTerror otherSpot)
-        `shouldSatisfy` (match board')
+      Game.play shared (Game.mkPlayable board' (Game.ApplyFearNTerror otherSpot) Turn.initial)
+        `shouldSatisfyRight` (match board')
     it "doesn't protect against terror" $ do
-      Game.play shared board'' (Game.ApplyFearNTerror otherSpot)
-        `shouldSatisfy` zPartIsEmpty
+      Game.play shared (Game.mkPlayable board'' (Game.ApplyFearNTerror otherSpot) Turn.initial)
+        `shouldSatisfyRight` zPartIsEmpty
   where
     (team, pSpot, otherSpot) = (ZKnights, PlayerTop, Spots.other pSpot)
     board =
@@ -494,11 +457,8 @@ testZealot shared =
     captain :: Creature 'Core = mkCreature shared Card.Captain team False
     skeleton :: Creature 'Core = mkCreature shared Card.Skeleton Undead False
     vampire :: Creature 'Core = mkCreature shared Card.Vampire Undead False
-    match _ (Left errMsg) = traceShow errMsg False
-    match expected (Right (Game.Result {board = b})) = b == expected
-    zPartIsEmpty (Left errMsg) = traceShow errMsg False
-    zPartIsEmpty (Right (Game.Result {board = b})) =
-      Board.toInPlace b pSpot == mempty
+    match expected (Game.Result {board = b}) = b == expected
+    zPartIsEmpty (Game.Result {board = b}) = Board.toInPlace b pSpot == mempty
 
 testStrengthPot shared =
   describe "Potion of Strength" $ do
@@ -516,7 +476,13 @@ testStrengthPot shared =
       Board.small shared (Teams team team) (CreatureID ckind team) [] pSpot cSpot
         & (\b -> Board.addToHand b pSpot strength)
     board' :: Board 'Core =
-      Game.play shared board (Game.PEvent (Game.Place' pSpot (Game.CardTarget pSpot cSpot) strength))
+      Game.play
+        shared
+        ( Game.mkPlayable
+            board
+            (Game.PEvent (Game.Place' pSpot (Game.CardTarget pSpot cSpot) strength))
+            Turn.initial
+        )
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right b' -> b')
         & Game.board
     board'' :: Board 'Core = BoardInstances.boardStart board' pSpot
@@ -540,7 +506,13 @@ testPandemonium shared =
       | otherwise = apply (count + 1) shared' b'
       where
         (shared', b') =
-          Game.play sh (prepare b) (Game.PEvent (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium))
+          Game.play
+            sh
+            ( Game.mkPlayable
+                (prepare b)
+                (Game.PEvent (Game.Place' pSpot (Game.PlayerTarget pSpot) pandemonium))
+                Turn.initial
+            )
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
             & (\(Game.Result {shared = s, board = c}) -> (s, c))
         prepare b =
@@ -571,7 +543,7 @@ testAce shared =
         else attack (count - 1) sh' b'
       where
         (sh', b') =
-          Game.play sh b (Game.Attack pSpot cSpot False False)
+          Game.play sh (Game.mkPlayable b (Game.Attack pSpot cSpot False False) Turn.initial)
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
             & (\(Game.Result {board = c, shared = s}) -> (s, c))
 
@@ -590,7 +562,7 @@ testPowerful shared =
       Board.small shared (Teams team team) (creatureId daemon) [] pSpot cSpot
         & Board.setCreature enemyPSpot cSpot enemy
     attack b =
-      Game.play shared b (Game.Attack pSpot cSpot False False)
+      Game.play shared (Game.mkPlayable b (Game.Attack pSpot cSpot False False) Turn.initial)
         <&> Game.board
 
 testRampage shared =
@@ -609,7 +581,7 @@ testRampage shared =
         & Board.setCreature enemyPSpot cSpot enemy
         & Board.setCreature enemyPSpot (Spots.switchLine cSpot) enemy
     attack b =
-      Game.play shared b (Game.Attack pSpot cSpot False False)
+      Game.play shared (Game.mkPlayable b (Game.Attack pSpot cSpot False False) Turn.initial)
         <&> Game.board
 
 testAxeOfRage shared =
@@ -625,20 +597,19 @@ testAxeOfRage shared =
 testScore shared =
   describe "Score" $ do
     it "is increased by fighter in front" $ do
-      (attack (addFighter Bottom board) Bottom & Board.toScore pSpot)
-        `shouldSatisfy` (\x -> x > 0)
+      (attack (addFighter Bottom board) Bottom <&> Board.toScore pSpot)
+        `shouldSatisfyRight` (\x -> x > 0)
     it "is not increased by fighter in the back" $ do
-      (attack (addFighter Top board) Top & Board.toScore pSpot)
-        `shouldSatisfy` ((==) 0)
+      (attack (addFighter Top board) Top <&> Board.toScore pSpot)
+        `shouldSatisfyRight` ((==) 0)
   where
     (team, pSpot, ckind) = (Evil, PlayerTop, Card.Knight)
     fighter = mkCreature shared ckind team False
     board :: Board 'Core = Board.empty (Teams team team)
     addFighter cSpot = Board.setCreature pSpot cSpot fighter
     attack b cSpot =
-      Game.play shared b (Game.Attack pSpot cSpot False False)
-        & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
-        & Game.board
+      Game.play shared (Game.mkPlayable b (Game.Attack pSpot cSpot False False) Turn.initial)
+        <&> Game.board
 
 testSupport shared =
   describe "Support" $ do
@@ -666,7 +637,7 @@ testSupport shared =
     addFighter cSpot = Board.setCreature fighterPSpot cSpot fighter
     addVictim cSpot = Board.setCreature victimPSpot cSpot victim
     attack cSpot b =
-      Game.play shared b (Game.Attack fighterPSpot cSpot False False)
+      Game.play shared (Game.mkPlayable b (Game.Attack fighterPSpot cSpot False False) Turn.initial)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
         & Game.board
 
@@ -694,7 +665,7 @@ testAssassins shared =
         & Board.setCreature fighterPSpot Spots.Bottom fighter
     addVictim cSpot = Board.setCreature victimPSpot cSpot victim
     applyAssassin pSpot b =
-      Game.play shared b (Game.ApplyAssassins pSpot)
+      Game.play shared (Game.mkPlayable b (Game.ApplyAssassins pSpot) Turn.initial)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
         & Game.board
 
@@ -705,7 +676,7 @@ testPreEndTurnEventNextAttackSpot shared =
         let nextAttackSpot b = Game.nextAttackSpot b pSpot cSpot
             events = Move.mkPreEndTurnEvents shared turn pSpot board
             board' =
-              Game.playAll shared board events
+              Game.playAll shared (Game.mkPlayable board events Turn.initial)
                 & (\case Left errMsg -> error $ Text.unpack errMsg; Right x -> x)
                 & Game.board
          in nextAttackSpot board `shouldBe` nextAttackSpot board'
@@ -738,7 +709,6 @@ main shared = do
   testChurch shared
   testKing shared
   testPlague shared
-  testPlayFraming shared
   testDrawCards shared
   testNoPlayEventNeutral shared
   testPreEndTurnEventNextAttackSpot shared

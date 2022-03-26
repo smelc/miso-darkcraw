@@ -1,8 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
@@ -32,7 +35,9 @@ module Game
     EnemySpots (..),
     Event (..),
     MessageText (..),
+    mkPlayable,
     Place (..),
+    Playable (..),
     Result (..),
     maybePlay,
     nextAttackSpot,
@@ -56,6 +61,8 @@ import BoardInstances
 import Card hiding (ID)
 import qualified Card
 import qualified Constants
+import Contains (with)
+import qualified Contains
 import Control.Exception (assert)
 import Control.Monad.Except
 import Control.Monad.Identity (runIdentity)
@@ -81,6 +88,7 @@ import qualified Data.Text as Text
 import Data.Tuple (swap)
 import Debug.Trace
 import GHC.Generics (Generic)
+import qualified Mana
 import Nat
 import qualified Random
 import qualified Shared
@@ -91,6 +99,7 @@ import qualified Spots
 import System.Random.Shuffle (shuffleM)
 import qualified Tile
 import qualified Total
+import qualified Turn
 
 -- | On what a card can be applied
 data Target
@@ -100,6 +109,35 @@ data Target
     -- or Neutral card applies to a given in place card of a player
     CardTarget Spots.Player Spots.Card
   deriving (Eq, Generic, Show)
+
+-- | The input type to most @play*@ functions
+data Playable e = Playable
+  { board :: Board 'Core,
+    event :: e,
+    turn :: Turn.Turn
+  }
+
+-- | To allow callers to hide the implementation of 'Playable', to avoid
+-- fields names conflicts.
+mkPlayable :: Board 'Core -> e -> Turn.Turn -> Playable e
+mkPlayable board event turn = Playable {..}
+
+instance Contains.Contains (Playable a) (Board 'Core) where
+  to = board
+  with p b = p {board = b}
+
+instance Contains.Contains (Playable a) a where
+  to = event
+  with p e = p {event = e}
+
+instance
+  ( Contains.Contains (Playable a) (Board 'Core),
+    Contains.Contains (Playable a) a
+  ) =>
+  Contains.Contains (Playable a) (Board 'Core, a)
+  where
+  to p = (Contains.to p, Contains.to p)
+  with p (b, e) = p {board = b, event = e}
 
 targetToPlayerSpot :: Target -> Spots.Player
 targetToPlayerSpot (PlayerTarget pSpot) = pSpot
@@ -285,9 +323,9 @@ reportEffect pSpot cSpot effect =
 -- | Play a single 'Event' on the given 'Board'. Monad version is 'playM' below.
 -- If the event cannot be played, the input board is returned as is. Use
 -- 'tryPlayM' for the version distinguishing the error and success cases.
-play :: Shared.Model -> Board 'Core -> Event -> Either Text (Result (Maybe Event))
-play shared board action =
-  tryPlayM board action
+play :: Shared.Model -> Playable Event -> Either Text (Result (Maybe Event))
+play shared p@Playable {board} =
+  tryPlayM p
     & runWriterT
     & flip runStateT shared
     & runExcept
@@ -305,11 +343,10 @@ play shared board action =
 playE ::
   MonadError Text m =>
   Shared.Model ->
-  Board 'Core ->
-  Event ->
+  Playable Event ->
   m (Shared.Model, Board 'Core, Board 'UI, Maybe Event)
-playE shared board action =
-  tryPlayM board action
+playE shared p@Playable {board} =
+  tryPlayM p
     & runWriterT
     & flip runStateT shared
     & fmap f
@@ -324,11 +361,10 @@ playE shared board action =
 -- occurs (@MonadError Text _@ in other functions of this API), simply return 'Nothing'.
 maybePlay ::
   Shared.Model ->
-  Board 'Core ->
-  Event ->
+  Playable Event ->
   Maybe (Shared.Model, Board 'Core, Maybe Event)
-maybePlay shared board event =
-  tryPlayM board event
+maybePlay shared p =
+  tryPlayM p
     & runWriterT
     & flip runStateT shared
     & runExcept
@@ -346,9 +382,9 @@ maybePlay shared board event =
 -- | Play a list of events, playing newly produced events as they are being
 -- produced. That is why, contrary to 'play', this function doesn't return
 -- events: it consumes them all eagerly. See 'playAllM' for the monad version
-playAll :: Shared.Model -> Board 'Core -> [Event] -> Either Text (Result ())
-playAll shared board events =
-  playAllM board events
+playAll :: Shared.Model -> Playable [Event] -> Either Text (Result ())
+playAll shared p =
+  playAllM p
     & runWriterT
     & flip runStateT shared
     & runExcept
@@ -362,11 +398,10 @@ playAll shared board events =
 playAllE ::
   MonadError Text m =>
   Shared.Model ->
-  Board 'Core ->
-  [Event] ->
+  Playable [Event] ->
   m (Shared.Model, Board 'Core, Board 'UI)
-playAllE shared board events =
-  playAllM board events
+playAllE shared p =
+  playAllM p
     & runWriterT
     & flip runStateT shared
     & fmap (\((b, anims), sh) -> (sh, b, anims))
@@ -377,115 +412,119 @@ playAllM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
   MonadState Shared.Model m =>
-  Board 'Core ->
-  [Event] ->
+  Playable [Event] ->
   m (Board 'Core)
-playAllM board = \case
-  [] -> return board
-  event : rest -> do
-    e <- tryPlayM board event
-    let (board', generated) = eitherToMaybe e & fromMaybe (board, Nothing)
-    -- /!\ We're enqueueing the event created by playing 'event' i.e. 'generated',
-    -- before the rest of the events ('rest'). This means 'rest' will be played in a state
-    -- that is NOT the one planned when building 'event : rest' (except if the
-    -- caller is very smart). We have no way around that: this is caused
-    -- by Infernal Haste that creates events when playing it. But this means
-    -- we shouldn't be too hard with events that yield failures. Maybe
-    -- they are being played in an unexpected context (imagine if
-    -- Infernal Haste clears the opponent's board, next spells may be useless).
-    playAllM board' (maybeToList generated <> rest)
+playAllM p@Playable {board, event} =
+  case event of
+    [] -> return board
+    event : rest -> do
+      e <- tryPlayM p {event = event}
+      let (board', generated) = eitherToMaybe e & fromMaybe (board, Nothing)
+      -- /!\ We're enqueueing the event created by playing 'event' i.e. 'generated',
+      -- before the rest of the events ('rest'). This means 'rest' will be played in a state
+      -- that is NOT the one planned when building 'event : rest' (except if the
+      -- caller is very smart). We have no way around that: this is caused
+      -- by Infernal Haste that creates events when playing it. But this means
+      -- we shouldn't be too hard with events that yield failures. Maybe
+      -- they are being played in an unexpected context (imagine if
+      -- Infernal Haste clears the opponent's board, next spells may be useless).
+      playAllM $ p `with` (board', maybeToList generated <> rest)
 
 -- | 'keepEffectfull board es' returns the elements of 'es'
 -- that have an effect. Elements of 'es' are played in sequence.
-keepEffectfull :: Shared.Model -> Board 'Core -> [Event] -> [Event]
-keepEffectfull _ _ [] = []
-keepEffectfull shared board (e : es) =
-  case play shared board e of
-    Left err -> traceShow err (keepEffectfull shared board es)
-    Right (Result {shared = shared', board = board', event = new}) ->
-      case playAll shared' board' (maybeToList new) of
-        Left err -> traceShow err (keepEffectfull shared' board' es)
-        Right (Result {shared = shared'', board = board''}) ->
-          if board'' == board
-            then {- 'e' had no effect -} keepEffectfull shared board es
-            else {- 'e' had an effect -} e : keepEffectfull shared'' board'' es
+keepEffectfull :: Shared.Model -> Playable [Event] -> [Event]
+keepEffectfull shared p@Playable {board, event} =
+  case event of
+    [] -> []
+    (e : es) ->
+      case play shared p {event = e} of
+        Left err -> traceShow err (keepEffectfull shared (p `with` es))
+        Right (Result {shared = shared', board = board', event = new}) ->
+          case playAll shared' (p `with` (board', maybeToList new)) of
+            Left err -> traceShow err (keepEffectfull shared' (p `with` (board', es)))
+            Right (Result {shared = shared'', board = board''}) ->
+              if board'' == board
+                then {- 'e' had no effect -} keepEffectfull shared (p `with` es)
+                else {- 'e' had an effect -} e : keepEffectfull shared'' (p `with` (board'', es))
 
 tryPlayM ::
   MonadError Text m =>
   MonadWriter (Board 'UI) m =>
   MonadState Shared.Model m =>
-  Board 'Core ->
-  Event ->
+  Playable Event ->
   m (Possible (Board 'Core, Maybe Event))
-tryPlayM board (ApplyAssassins pSpot) = do
-  board' <- Game.applyAssassinsM board pSpot
-  return $ pure $ (board', Nothing)
-tryPlayM board (ApplyBrainless pSpot) = do
-  board' <- Game.applyBrainlessM board pSpot
-  return $ pure $ (board', Nothing)
-tryPlayM board (ApplyChurch pSpot) = do
-  board' <- Game.applyChurchM board pSpot
-  return $ pure $ (board', Nothing)
-tryPlayM board (ApplyCreateForest pSpot) = do
-  board' <- Game.applyCreateForestM board pSpot
-  return $ pure $ (board', Nothing)
-tryPlayM board (ApplyFearNTerror pSpot) = do
-  board' <- Game.applyFearNTerrorM board pSpot
-  return $ pure $ (board', Nothing)
-tryPlayM board (ApplyGrowth pSpot) = do
-  board' <- foldM (\b cSpot -> Game.applyGrowthM b pSpot cSpot) board (Spots.allCards)
-  return $ pure $ (board', Nothing)
-tryPlayM board (ApplyKing pSpot) = do
-  board' <- Game.applyKingM board pSpot
-  return $ pure $ (board', Nothing)
-tryPlayM board (Attack pSpot cSpot _ _) = do
-  board' <- Game.attack board pSpot cSpot
-  return $ pure $ (board', Nothing)
-tryPlayM board (FillTheFrontline pSpot) = do
-  return $ pure $ (applyFillTheFrontline board pSpot, Nothing)
-tryPlayM board NoPlayEvent = return $ pure $ (board, Nothing)
-tryPlayM board (PEvent (Place pSpot target (handhi :: HandIndex))) = do
-  shared <- get
-  ident <- Board.lookupHandM hand handi
-  let uiCard = Shared.identToCard shared ident
-  let card = unlift <$> uiCard
-  case (target, card, uiCard <&> Card.toCommon) of
-    (_, Nothing, _) ->
-      throwError $ Text.pack $ "ident not found: " ++ show ident
-    (_, _, Nothing) ->
-      throwError $ Text.pack $ "Unexpected state, CardCommon should be there if Card is there"
-    (_, _, Just (CardCommon {mana = manaCost}))
-      | manaCost > manaAvail ->
-          -- Not enough mana
-          return $ impossible NotEnoughMana
-    (CardTarget pSpot cSpot, Just (CreatureCard _ creature), Just CardCommon {mana}) -> do
-      e <- playCreatureM board' pSpot cSpot creature & runExceptT
-      e >=> (\board'' -> (decreaseMana mana board'', Nothing))
+tryPlayM p@Playable {board, turn, event} =
+  case event of
+    ApplyAssassins pSpot -> do
+      board' <- Game.applyAssassinsM board pSpot
+      return $ pure $ (board', Nothing)
+    ApplyBrainless pSpot -> do
+      board' <- Game.applyBrainlessM board pSpot
+      return $ pure $ (board', Nothing)
+    ApplyChurch pSpot -> do
+      board' <- Game.applyChurchM board pSpot
+      return $ pure $ (board', Nothing)
+    ApplyCreateForest pSpot -> do
+      board' <- Game.applyCreateForestM board pSpot
+      return $ pure $ (board', Nothing)
+    ApplyFearNTerror pSpot -> do
+      board' <- Game.applyFearNTerrorM board pSpot
+      return $ pure $ (board', Nothing)
+    ApplyGrowth pSpot -> do
+      board' <- foldM (\b cSpot -> Game.applyGrowthM b pSpot cSpot) board (Spots.allCards)
+      return $ pure $ (board', Nothing)
+    ApplyKing pSpot -> do
+      board' <- Game.applyKingM board pSpot
+      return $ pure $ (board', Nothing)
+    Attack pSpot cSpot _ _ -> do
+      board' <- Game.attack board pSpot cSpot
+      return $ pure $ (board', Nothing)
+    FillTheFrontline pSpot -> do
+      return $ pure $ (applyFillTheFrontline board pSpot, Nothing)
+    NoPlayEvent ->
+      return $ pure $ (board, Nothing)
+    PEvent (Place pSpot target (handhi :: HandIndex)) -> do
+      shared <- get
+      ident <- Board.lookupHandM hand handi
+      let uiCard = Shared.identToCard shared ident
+      let card = unlift <$> uiCard
+      case (target, card, uiCard <&> Card.toCommon) of
+        (_, Nothing, _) ->
+          throwError $ Text.pack $ "ident not found: " ++ show ident
+        (_, _, Nothing) ->
+          throwError $ Text.pack $ "Unexpected state, CardCommon should be there if Card is there"
+        (_, _, Just (CardCommon {mana = manaCost}))
+          | (Mana.>) turn manaCost manaAvail ->
+              -- Not enough mana
+              return $ impossible NotEnoughMana
+        (CardTarget pSpot cSpot, Just (CreatureCard _ creature), Just CardCommon {mana}) -> do
+          e <- playCreatureM board' pSpot cSpot creature & runExceptT
+          e >=> (\board'' -> (decreaseMana mana board'', Nothing))
+        (CardTarget pSpot cSpot, Just (ItemCard _ itemObj), Just CardCommon {mana}) -> do
+          e <- playItemM board' pSpot cSpot (Card.item itemObj) & runExceptT
+          e >=> (\board'' -> (decreaseMana mana board'', Nothing))
+        (_, Just (NeutralCard _ NeutralObject {neutral}), Just CardCommon {mana}) -> do
+          (board'', event) <- playNeutralM board' pSpot target neutral
+          return $ pure $ (decreaseMana mana board'', event)
+        _ ->
+          let pair = show target ++ ", " ++ show card
+           in throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ pair ++ ")"
       where
-
-    (CardTarget pSpot cSpot, Just (ItemCard _ itemObj), Just CardCommon {mana}) -> do
-      e <- playItemM board' pSpot cSpot (Card.item itemObj) & runExceptT
-      e >=> (\board'' -> (decreaseMana mana board'', Nothing))
-    (_, Just (NeutralCard _ NeutralObject {neutral}), Just CardCommon {mana}) -> do
-      (board'', event) <- playNeutralM board' pSpot target neutral
-      return $ pure $ (decreaseMana mana board'', event)
-    _ ->
-      throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ show target ++ ", " ++ show card ++ ")"
-  where
-    handi = unHandIndex handhi
-    (hand, hand') = (Board.toHand board pSpot, deleteAt handi hand)
-    board' = Board.setHand board pSpot hand'
-    manaAvail :: Nat = Board.toPart board pSpot & Board.mana
-    decreaseMana manaCost (b :: Board 'Core) = Board.setMana (manaAvail - manaCost) pSpot b
-    -- Apply continuation 'f' on 'i' if a success, otherwise return
-    (>=>) i f =
-      case i of
-        Left imp -> return $ impossible imp
-        Right b -> return $ pure $ f b
-tryPlayM board (PEvent (Place' pSpot target id)) =
-  case idToHandIndex board pSpot id of
-    Nothing -> return $ impossible CardNotFound
-    Just i -> tryPlayM board (PEvent (Place pSpot target i))
+        handi = unHandIndex handhi
+        (hand, hand') = (Board.toHand board pSpot, deleteAt handi hand)
+        board' = Board.setHand board pSpot hand'
+        manaAvail :: Nat = Board.toPart board pSpot & Board.mana
+        decreaseMana (manaCost :: Mana.Mana) (b :: Board 'Core) =
+          Board.setMana (manaAvail - (Mana.amount turn manaCost)) pSpot b
+        -- Apply continuation 'f' on 'i' if a success, otherwise return
+        (>=>) i f =
+          case i of
+            Left imp -> return $ impossible imp
+            Right b -> return $ pure $ f b
+    PEvent (Place' pSpot target id) ->
+      case idToHandIndex board pSpot id of
+        Nothing -> return $ impossible CardNotFound
+        Just i -> tryPlayM $ p `with` (PEvent (Place pSpot target i))
 
 -- | Translates an 'Event' into an animation displayed in the
 -- middle of the 'Board'.

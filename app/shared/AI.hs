@@ -15,6 +15,7 @@ import qualified Constants
 import qualified Game
 import qualified Shared
 import qualified Spots
+import qualified Turn
 
 -- | Executes the AI.
 play ::
@@ -23,10 +24,12 @@ play ::
   Board 'Core ->
   -- | The playing player
   Spots.Player ->
+  -- | The current turn
+  Turn.Turn ->
   -- | Events generated for player 'pSpot'
   [Game.Place]
-play difficulty shared board pSpot =
+play difficulty shared board pSpot turn =
   -- HeuristicAI.play difficulty shared board pSpot
-  ConcreteAI.play difficulty shared board pSpot
+  ConcreteAI.play difficulty shared board turn pSpot
 
 -- MCTSAI.newPlaySim difficulty shared pSpot board

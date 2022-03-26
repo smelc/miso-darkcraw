@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 
@@ -12,6 +13,7 @@ import Campaign
 import Card
 import Cinema (TimedFrame)
 import qualified Constants (Difficulty (..))
+import qualified Contains
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Generics.Labels ()
@@ -94,6 +96,10 @@ instance Show Game where
       ++ "\n}"
     where
       f s x = "  " ++ s ++ " = " ++ show x
+
+instance Contains.Contains Game Turn where
+  to = turn
+  with d t = d {turn = t}
 
 -- This implementation will be wrong once volatile cards are generated
 -- during a match. When this happen, the player's deck will have to be
@@ -235,10 +241,16 @@ data Deck = Deck
     player :: Spots.Player,
     -- | To which team the deck being shown belongs
     team :: Team,
+    -- | The current turn
+    turn :: Turn.Turn,
     -- | Part of the model shared among all pages
     shared :: Shared.Model
   }
   deriving (Eq, Generic, Show)
+
+instance Contains.Contains Deck Turn where
+  to = turn
+  with d t = d {turn = t}
 
 -- | Whether a card has been picked or not in the 'LootView'
 data Picked

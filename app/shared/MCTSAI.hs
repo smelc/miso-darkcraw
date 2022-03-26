@@ -254,9 +254,9 @@ data First
 -- because it doesn't enqueue the created events. We cannot use 'Game.playAll'
 -- because it doesn't distinguish if the first event succeeded. If it didn't,
 -- we MUST know it, so that the AI skips this event.
-place :: Difficulty -> Shared.Model -> Game.Place -> Board 'Core -> Maybe (Board 'Core)
-place difficulty shared place board =
-  case Game.maybePlay shared board (Game.PEvent place) of
+place :: Difficulty -> Shared.Model -> Game.Place -> Board 'Core -> Turn.Turn -> Maybe (Board 'Core)
+place difficulty shared place board turn =
+  case Game.maybePlay shared (Game.Playable board (Game.PEvent place) turn) of
     Nothing -> Nothing
     Just (_, board', Nothing) -> Just board'
     Just (shared', board', Just nextEvent) ->
@@ -281,8 +281,8 @@ newPlayFirst difficulty shared pSpot board =
       case (mana card, availTargets card) of
         (Nothing, _) ->
           error ("Mana of card not found: " ++ show card)
-        (Just manaNeeded, targets)
-          | availMana < manaNeeded || null targets ->
+        (Just _manaNeeded, targets)
+          | availMana < undefined {- manaNeeded -} || null targets ->
               -- Not enough mana, or no target for this card. Skip it by deleting
               -- it from the hand in a recursive call:
               newPlayFirst difficulty shared pSpot $ withCards rest
@@ -294,7 +294,7 @@ newPlayFirst difficulty shared pSpot board =
                 & map
                   ( \target ->
                       let place = Game.Place' pSpot target card
-                       in (place, MCTSAI.place difficulty shared place board)
+                       in (place, MCTSAI.place difficulty shared place board undefined)
                   )
                 & mapMaybe lift
             lift (x, Just y) = Just (x, y)

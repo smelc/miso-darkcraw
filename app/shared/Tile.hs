@@ -85,6 +85,7 @@ data Tile
   | Sword3
   | SylvanArcher
   | SylvanPriest
+  | SylvanWorm
   | Trebuchet
   | Tree
   | Troll

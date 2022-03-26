@@ -79,7 +79,7 @@
 <a href="#v:eventToAnim">eventToAnim</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m <a href="Game.html#t:Animation" title="Game">Animation</a>
 </li>
 <li class="src short">
-<a href="#v:keepEffectfull">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
+<a href="#v:keepEffectfull">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:EnemySpots">EnemySpots</a> a<ul class="subs">
 <li>= <a href="#v:Ace">Ace</a>
@@ -124,6 +124,8 @@
 </ul>
 </li>
 <li class="src short">
+<a href="#v:mkPlayable">mkPlayable</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; e -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> e</li>
+<li class="src short">
 <span class="keyword">data</span> <a href="#t:Place">Place</a><ul class="subs">
 <li>= <a href="#v:Place">Place</a> <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="Game.html#t:Target" title="Game">Target</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
 </li>
@@ -131,6 +133,17 @@
 </li>
 </ul>
 </li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Playable">Playable</a> e = <a href="#v:Playable">Playable</a> {<ul class="subs">
+<li>
+<a href="#v:board">board</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+</li>
+<li>
+<a href="#v:event">event</a> :: e</li>
+<li>
+<a href="#v:turn">turn</a> :: <a href="Turn.html#t:Turn" title="Turn">Turn</a>
+</li>
+</ul>}</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Result">Result</a> e = <a href="#v:Result">Result</a> {<ul class="subs">
 <li>
@@ -146,25 +159,25 @@
 </li>
 </ul>}</li>
 <li class="src short">
-<a href="#v:maybePlay">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)</li>
+<a href="#v:maybePlay">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)</li>
 <li class="src short">
 <a href="#v:nextAttackSpot">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a>
 </li>
 <li class="src short">
-<a href="#v:play">play</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>))</li>
+<a href="#v:play">play</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>))</li>
 <li class="src short">
-<a href="#v:playE">playE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)</li>
+<a href="#v:playE">playE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)</li>
 <li class="src short">
-<a href="#v:playAll">playAll</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> ())</li>
+<a href="#v:playAll">playAll</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> ())</li>
 <li class="src short">
-<a href="#v:playAllE">playAllE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
+<a href="#v:playAllE">playAllE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
 <li class="src short">
 <a href="#v:toSpot">toSpot</a> :: <a href="Game.html#t:Place" title="Game">Place</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a>
 </li>
 <li class="src short">
 <a href="#v:toSpots">toSpots</a> :: <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
-<a href="#v:tryPlayM">tryPlayM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Writer-Class.html#t:MonadWriter" title="Control.Monad.Writer.Class">MonadWriter</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) m =&gt; <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="Shared.html#t:Model" title="Shared">Model</a> m =&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (Possible (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>))</li>
+<a href="#v:tryPlayM">tryPlayM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Writer-Class.html#t:MonadWriter" title="Control.Monad.Writer.Class">MonadWriter</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) m =&gt; <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="Shared.html#t:Model" title="Shared">Model</a> m =&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (Possible (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>))</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:StatChange">StatChange</a> = <a href="#v:StatChange">StatChange</a> {<ul class="subs">
 <li>
@@ -531,7 +544,7 @@
  middle of the <code><a href="Board.html#t:Board" title="Board">Board</a></code>.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:keepEffectfull" class="def">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] <a href="#v:keepEffectfull" class="selflink">#</a></p>
+<p class="src"><a id="v:keepEffectfull" class="def">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] <a href="#v:keepEffectfull" class="selflink">#</a></p>
 <div class="doc"><p>'keepEffectfull board es' returns the elements of <code>es</code>
  that have an effect. Elements of <code>es</code> are played in sequence.</p></div>
 </div>
@@ -751,6 +764,11 @@
 </table></details></div>
 </div>
 <div class="top">
+<p class="src"><a id="v:mkPlayable" class="def">mkPlayable</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; e -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> e <a href="#v:mkPlayable" class="selflink">#</a></p>
+<div class="doc"><p>To allow callers to hide the implementation of <code><a href="Game.html#t:Playable" title="Game">Playable</a></code>, to avoid
+ fields names conflicts.</p></div>
+</div>
+<div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Place" class="def">Place</a> <a href="#t:Place" class="selflink">#</a></p>
 <div class="doc"><p>Placing events. These events are the ones that the <code>AI</code> generates (as
  opposed to the more general <code><a href="Game.html#t:Event" title="Game">Event</a></code> type).</p></div>
@@ -823,6 +841,68 @@
 </table></details></div>
 </div>
 <div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Playable" class="def">Playable</a> e <a href="#t:Playable" class="selflink">#</a></p>
+<div class="doc"><p>The input type to most <code>play*</code> functions</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Playable" class="def">Playable</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:board" class="def">board</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a></dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:event" class="def">event</a> :: e</dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:turn" class="def">turn</a> :: <a href="Turn.html#t:Turn" title="Turn">Turn</a></dfn><div class="doc empty">&nbsp;</div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Playable" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Playable:Contains:1"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) a</span> <a href="#t:Playable" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Playable:Contains:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; a <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; a -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> a <a href="#v:with" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Playable:Contains:2"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#t:Playable" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Playable:Contains:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> a <a href="#v:with" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Playable:Contains:3"></span> (<a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>), <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) a) =&gt; <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, a)</span> <a href="#t:Playable" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Playable:Contains:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, a) <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, a) -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> a <a href="#v:with" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Result" class="def">Result</a> e <a href="#t:Result" class="selflink">#</a></p>
 <div class="doc"><p>The result of playing game events. If you add a field, extend
  the <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a></code> instance below.</p></div>
@@ -879,7 +959,7 @@
 </table></details></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:maybePlay" class="def">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>) <a href="#v:maybePlay" class="selflink">#</a></p>
+<p class="src"><a id="v:maybePlay" class="def">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>) <a href="#v:maybePlay" class="selflink">#</a></p>
 <div class="doc"><p>Try to play an event. If the event cannot be played or a hard error
  occurs (<code>MonadError Text _</code> in other functions of this API), simply return <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a></code>.</p></div>
 </div>
@@ -895,25 +975,25 @@
 </div>
 </div>
 <div class="top">
-<p class="src"><a id="v:play" class="def">play</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)) <a href="#v:play" class="selflink">#</a></p>
+<p class="src"><a id="v:play" class="def">play</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)) <a href="#v:play" class="selflink">#</a></p>
 <div class="doc"><p>Play a single <code><a href="Game.html#t:Event" title="Game">Event</a></code> on the given <code><a href="Board.html#t:Board" title="Board">Board</a></code>. Monad version is <code>playM</code> below.
  If the event cannot be played, the input board is returned as is. Use
  <code><a href="Game.html#v:tryPlayM" title="Game">tryPlayM</a></code> for the version distinguishing the error and success cases.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:playE" class="def">playE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>) <a href="#v:playE" class="selflink">#</a></p>
+<p class="src"><a id="v:playE" class="def">playE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>) <a href="#v:playE" class="selflink">#</a></p>
 <div class="doc"><p>A variant of <code><a href="Game.html#v:play" title="Game">play</a></code> and <code><a href="Game.html#v:playE" title="Game">playE</a></code> that is only in the error monad. This
  function returns the input board if the event is unapplicable. That is
  why this function doesn't have <code>Impossible</code> in its return type.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:playAll" class="def">playAll</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> ()) <a href="#v:playAll" class="selflink">#</a></p>
+<p class="src"><a id="v:playAll" class="def">playAll</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> ()) <a href="#v:playAll" class="selflink">#</a></p>
 <div class="doc"><p>Play a list of events, playing newly produced events as they are being
  produced. That is why, contrary to <code><a href="Game.html#v:play" title="Game">play</a></code>, this function doesn't return
  events: it consumes them all eagerly. See <code>playAllM</code> for the monad version</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:playAllE" class="def">playAllE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:playAllE" class="selflink">#</a></p>
+<p class="src"><a id="v:playAllE" class="def">playAllE</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; m (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:playAllE" class="selflink">#</a></p>
 <div class="doc"><p>Like <code><a href="Game.html#v:playAll" title="Game">playAll</a></code>, but in the error monad. This function skips unapplicable
  events. That is why its return type doesn't have <code>Impossible</code>.</p></div>
 </div>
@@ -922,7 +1002,7 @@
 <div class="doc"><p>The <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> in a <code><a href="Game.html#t:Place" title="Game">Place</a></code>, i.e. the player playing an event</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:toSpots" class="def">toSpots</a> :: <a href="Game.html#t:EnemySpots" title="Game">EnemySpots</a> [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:toSpots" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:tryPlayM" class="def">tryPlayM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Writer-Class.html#t:MonadWriter" title="Control.Monad.Writer.Class">MonadWriter</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) m =&gt; <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="Shared.html#t:Model" title="Shared">Model</a> m =&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (Possible (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)) <a href="#v:tryPlayM" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:tryPlayM" class="def">tryPlayM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Writer-Class.html#t:MonadWriter" title="Control.Monad.Writer.Class">MonadWriter</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) m =&gt; <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="Shared.html#t:Model" title="Shared">Model</a> m =&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (Possible (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)) <a href="#v:tryPlayM" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:StatChange" class="def">StatChange</a> <a href="#t:StatChange" class="selflink">#</a></p>
 <div class="doc"><p>A change in stats of a creature. Using <code><a href="Nat.html#t:Nat" title="Nat">Nat</a></code> for now because it suffices

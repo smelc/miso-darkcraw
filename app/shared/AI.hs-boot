@@ -10,6 +10,7 @@ import Constants (Difficulty)
 import qualified Game
 import qualified Shared
 import qualified Spots
+import qualified Turn
 
 play ::
   Difficulty ->
@@ -17,5 +18,6 @@ play ::
   Board 'Core ->
   -- | The playing player
   Spots.Player ->
+  Turn.Turn ->
   -- | Events generated for player 'pSpot'
   [Game.Place]

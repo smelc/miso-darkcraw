@@ -3,6 +3,7 @@
 module Turn
   ( initial,
     next,
+    setSpot,
     Turn,
     toNat,
     toPlayerSpot,
@@ -23,6 +24,12 @@ next :: Turn -> Turn
 next (Turn (i, pSpot))
   | pSpot == startingPlayerSpot = Turn (i, endingPlayerSpot)
   | otherwise = Turn (i + 1, startingPlayerSpot)
+
+-- | Changes the spot in a 'Turn'
+setSpot :: Spots.Player -> Turn -> Turn
+setSpot spot t@(Turn (n, existing))
+  | spot == existing = t
+  | otherwise = Turn (n, spot)
 
 toNat :: Turn -> Nat
 toNat (Turn (n, _)) = n

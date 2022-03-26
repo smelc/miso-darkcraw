@@ -42,6 +42,7 @@ import Data.Functor ((<&>))
 import Data.List.Extra
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import qualified Mana
 import Miso
 import Miso.String (MisoString, ToMisoString (..), ms)
 import Nat
@@ -55,24 +56,35 @@ import ViewInternal
 
 data DisplayMode = NormalMode | DebugMode
 
+type ManaShower = Mana.Mana -> String
+
 -- | Where a card is being drawn
 data DisplayLocation
-  = GameApplicationLoc
-  | GameInPlaceLoc Total.Place
-  | GameHandLoc
-  | GameDragLoc
-  | DeckLoc
-  | LootLoc
+  = GameApplicationLoc ManaShower
+  | GameInPlaceLoc ManaShower Total.Place
+  | GameHandLoc ManaShower
+  | GameDragLoc ManaShower
+  | DeckLoc ManaShower
+  | LootLoc ManaShower
+
+toManaShower :: DisplayLocation -> ManaShower
+toManaShower = \case
+  GameApplicationLoc f -> f
+  GameInPlaceLoc f _ -> f
+  GameHandLoc f -> f
+  GameDragLoc f -> f
+  DeckLoc f -> f
+  LootLoc f -> f
 
 toPlace :: DisplayLocation -> Maybe Total.Place
 toPlace =
   \case
-    GameApplicationLoc -> Nothing
-    GameInPlaceLoc place -> Just place
-    GameHandLoc -> Nothing
-    GameDragLoc -> Nothing
-    DeckLoc -> Nothing
-    LootLoc -> Nothing
+    GameApplicationLoc {} -> Nothing
+    GameInPlaceLoc _ place -> Just place
+    GameHandLoc {} -> Nothing
+    GameDragLoc {} -> Nothing
+    DeckLoc {} -> Nothing
+    LootLoc {} -> Nothing
 
 -- | The overlay to show the selected card in the 'LootView'
 data BorderOverlay
@@ -155,8 +167,9 @@ cardView loc z shared team card cdsty@CardDrawStyle {fade} =
       zplt (z + 1) Absolute (cps `div` 4) (cps `div` 6)
         <> mkFontStyle skillFontSize
     manaColorStyle = "color" =: "#2087BA"
-    mana = uiCard <&> Card.toCommon <&> Card.mana <&> ms & fromMaybe (ms ("?" :: String))
-    drawMana = case loc of GameHandLoc -> True; DeckLoc -> True; _ -> False
+    mana = uiCard <&> Card.toCommon <&> Card.mana <&> manaShower <&> ms & fromMaybe (ms ("?" :: String))
+    drawMana = case loc of GameHandLoc {} -> True; DeckLoc {} -> True; _ -> False
+    manaShower = toManaShower loc
     uiCard = Shared.mlift shared card
     filepath =
       uiCard
@@ -242,9 +255,10 @@ cardView' z shared part card =
             ]
         (attack, totalAttack) = (Card.attack core, Total.attack part core)
         attackStyle =
-          if attack == totalAttack
-            then mempty
-            else "color" =: greenHTML <> "display" =: "inline-block"
+          case compare attack totalAttack of
+            EQ -> mempty
+            LT -> "color" =: Constants.greenHTML <> "display" =: "inline-block"
+            GT -> "color" =: Constants.greenHTML <> "display" =: "inline-block"
         textDiv text =
           div_
             [ style_ $

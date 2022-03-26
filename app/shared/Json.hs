@@ -33,6 +33,7 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding
 import GHC.Generics
 import JsonData
+import qualified Mana
 import Nat
 import Skill (Skill)
 import qualified Skill
@@ -133,13 +134,22 @@ data CreatureObjectJSON = CreatureObjectJSON
   { creatureId :: CreatureID,
     hp :: Nat,
     attack :: Damage,
-    mana :: Nat,
+    mana :: Mana.Mana,
     skills :: [Skill],
     text :: Maybe String,
     textSzOffset :: Int,
     tile :: Tile
   }
   deriving (Show)
+
+instance FromJSON Mana.Mana where
+  parseJSON = withText "Mana" go
+    where
+      go :: Text -> Parser Mana.Mana
+      go s =
+        case Mana.read (Text.unpack s) of
+          Just m -> return m
+          Nothing -> fail $ "Invalid mana string: " ++ show (Text.unpack s)
 
 instance FromJSON Damage where
   parseJSON = withText "Attack" go
@@ -166,7 +176,7 @@ instance FromJSON CreatureObjectJSON where
       <$> v .: "id"
       <*> v .: "hp"
       <*> v .: "attack"
-      <*> v .:? "mana" .!= defaultManaCost
+      <*> v .:? "mana" .!= (Mana.Const defaultManaCost)
       <*> v .:? "skills" .!= []
       <*> v .:? "text"
       <*> v .:? "text_sz_offset" .!= 0
@@ -273,12 +283,12 @@ parseJson json = do
     mkItemCard :: ItemObjectJSON -> Card 'UI
     mkItemCard ItemObjectJSON {text = t, ..} =
       ItemCard
-        (CardCommon {text = Just t, ..})
+        (CardCommon {mana = Mana.Const mana, text = Just t, ..})
         (ItemObject {..})
     mkNeutralCard :: NeutralObjectJSON -> Card 'UI
     mkNeutralCard NeutralObjectJSON {text = t, ..} =
       NeutralCard
-        (CardCommon {text = Just t, ..})
+        (CardCommon {mana = Mana.Const mana, text = Just t, ..})
         (NeutralObject {..})
 
 loadJson :: Either String LoadedJson

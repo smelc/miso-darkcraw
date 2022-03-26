@@ -24,6 +24,7 @@ import Data.List.Index
 import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)
+import qualified Mana
 import Miso
 import Miso.String hiding (drop, filter, findIndex, length, map, partition, split, take, zip)
 import Model (LootModel (..), Picked (..))
@@ -184,7 +185,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
           <> "font-size" =: px 10
     divCard :: (Nat, (Card 'Core, Model.Picked)) -> Styled (View Action)
     divCard (i, (card, picked)) = do
-      inner <- PCWViewInternal.cardView LootLoc z shared team card mempty
+      inner <- PCWViewInternal.cardView loc z shared team card mempty
       return $
         div_
           ( [ style_ $
@@ -308,7 +309,7 @@ deckView Context {shared, LootView.team} _z cards = do
       return $ div_ [] cards
     divCard :: (Nat, DeckCard (Card 'Core)) -> Int -> Styled (View Action)
     divCard (i, DeckCard {card, picked}) stackIdx = do
-      inner <- PCWViewInternal.cardView LootLoc z shared team card cds
+      inner <- PCWViewInternal.cardView loc z shared team card cds
       return $
         div_
           ( [ style_ $
@@ -335,3 +336,6 @@ deckView Context {shared, LootView.team} _z cards = do
                   PCWViewInternal.Green
                 Nothing -> PCWViewInternal.None
             }
+
+loc :: DisplayLocation
+loc = LootLoc (Mana.show Nothing)

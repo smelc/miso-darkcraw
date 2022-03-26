@@ -16,6 +16,7 @@ module ConcreteAI (play) where
 import Board
 import Card
 import qualified Constants
+import Contains (with)
 import Control.Category hiding ((.))
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -28,21 +29,24 @@ import Data.Tuple.Extra
 import qualified Game
 import qualified HeuristicAI
 import qualified MCTSAI
+import qualified Mana
 import qualified Random
 import qualified Shared
 import qualified Spots
 import qualified Total
+import qualified Turn
 
 -- | Executes the AI.
 play ::
   Constants.Difficulty ->
   Shared.Model ->
   Board 'Core ->
+  Turn.Turn ->
   -- | The playing player
   Spots.Player ->
   -- | Events generated for player 'pSpot'
   [Game.Place]
-play difficulty shared board pSpot =
+play difficulty shared board turn pSpot =
   ([], shuffleHand board)
     --> first
     --> second
@@ -58,7 +62,7 @@ play difficulty shared board pSpot =
     second = [ConcreteAI.Creature Support, ConcreteAI.Creature Shooter, ConcreteAI.Creature FrontOrBackFighter]
     third = [Item, Neutral]
     (-->) (prev, b) whats =
-      case playWhat difficulty shared pSpot whats b of
+      case playWhat difficulty shared pSpot $ Game.Playable {board = b, event = whats, turn} of
         Nothing -> (prev, b)
         Just (places, b') -> (prev ++ places, b')
 
@@ -67,18 +71,17 @@ playWhat ::
   Shared.Model ->
   -- | The playing player
   Spots.Player ->
-  [What] ->
-  Board 'Core ->
+  Game.Playable [What] ->
   -- | Events generated for player 'pSpot', with the resulting board
   Maybe ([Game.Place], Board 'Core)
-playWhat diff shared pSpot what board =
+playWhat diff shared pSpot p@Game.Playable {event = what} =
   case what of
     [] -> Nothing
     w : wrest ->
-      case playFirst diff shared pSpot board w & Random.pick shared & fst of
-        Nothing -> playWhat diff shared pSpot wrest board
+      case playFirst diff shared pSpot (p {Game.event = w}) & Random.pick shared & fst of
+        Nothing -> playWhat diff shared pSpot (p `with` wrest)
         Just (place, board') ->
-          case playWhat diff shared pSpot wrest board' of
+          case playWhat diff shared pSpot (p `with` (board', wrest)) of
             Nothing -> Just ([place], board')
             Just (x, board'') -> Just (place : x, board'')
 
@@ -92,10 +95,9 @@ playFirst ::
   Constants.Difficulty ->
   Shared.Model ->
   Spots.Player ->
-  Board 'Core ->
-  What ->
+  Game.Playable What ->
   [(Game.Place, Board 'Core)]
-playFirst diff shared pSpot board what =
+playFirst diff shared pSpot p@Game.Playable {board, event = what, turn} =
   case (Board.toHand board pSpot, availMana) of
     ([], _) -> []
     (_, 0) -> []
@@ -103,7 +105,7 @@ playFirst diff shared pSpot board what =
       case (card, mana card, what) of
         (_, Nothing, _) -> error ("Mana of card not found: " ++ show card)
         (_, Just requiredMana, _)
-          | availMana < requiredMana ->
+          | (Mana.>) turn requiredMana availMana ->
               -- Skip card for which we don't have enough mana
               continueWithHand rest
         (Card.IDC cid _, _, ConcreteAI.Creature clazz)
@@ -113,26 +115,26 @@ playFirst diff shared pSpot board what =
         (Card.IDC {}, _, ConcreteAI.Creature clazz) ->
           let tgs :: [[Game.Target]] = targets clazz pSpot board
               places :: [[Game.Place]] = map (map (\target -> Game.Place' pSpot target card)) tgs
-              pairs = map ((map ((diff, shared, board) ~>)) >>> catMaybes) places
+              pairs = map ((map ((diff, shared, board, turn) ~>)) >>> catMaybes) places
            in concat pairs
         (Card.IDI i, _, Item) ->
-          playFirstItem diff shared pSpot board i
+          playFirstItem diff shared pSpot (Game.mkPlayable board i turn)
         (Card.IDN n, _, Neutral) ->
-          playFirstNeutral diff shared pSpot board n
+          playFirstNeutral diff shared pSpot (Game.mkPlayable board n turn)
         (_, _, _) -> continueWithHand rest
   where
     availMana = Board.toPart board pSpot & Board.mana
     mana id = Shared.toCardCommon shared id <&> Card.mana
     withHand cards b = Board.setHand b pSpot cards
-    continueWithHand rest = playFirst diff shared pSpot (withHand rest board) what
+    continueWithHand rest = playFirst diff shared pSpot (p `with` (withHand rest board))
 
 -- | Given a state, run one event on this state
 (~>) ::
-  (Constants.Difficulty, Shared.Model, Board 'Core) ->
+  (Constants.Difficulty, Shared.Model, Board 'Core, Turn.Turn) ->
   Game.Place ->
   Maybe (Game.Place, Board 'Core)
-(~>) (diff, shared, board) place =
-  MCTSAI.place diff shared place board <&> (place,)
+(~>) (diff, shared, board, turn) place =
+  MCTSAI.place diff shared place board turn <&> (place,)
 
 -- | Returns the first non-empty list
 firstNE :: [[a]] -> [a]
@@ -144,10 +146,9 @@ playFirstItem ::
   Constants.Difficulty ->
   Shared.Model ->
   Spots.Player ->
-  Board 'Core ->
-  Item ->
+  Game.Playable Item ->
   [(Game.Place, Board 'Core)]
-playFirstItem diff shared pSpot board item =
+playFirstItem diff shared pSpot Game.Playable {board, event = item, turn} =
   case (item, itemToPrefClass item <&> Random.shuffle shared <&> fst) of
     (Crown, Nothing) ->
       -- Crown case, look for a fighter, ideally centered; that doesn't have discipline
@@ -162,7 +163,7 @@ playFirstItem diff shared pSpot board item =
             partition Spots.isCentered spots
           places :: ([Game.Place], [Game.Place]) =
             both (map toEvent) order
-          mresult = both (map ((diff, shared, board) ~>)) places
+          mresult = both (map ((diff, shared, board, turn) ~>)) places
        in both catMaybes mresult & (\(a, b) -> [a, b]) & firstNE
     (_, Just classes)
       | notNull classes ->
@@ -175,7 +176,7 @@ playFirstItem diff shared pSpot board item =
                 filter (not . Map.null) candidatesm
               places :: [[Game.Place]] =
                 map (Map.toList >>> map (fst >>> toEvent)) candidates
-              mresult = map (map ((diff, shared, board) ~>)) places
+              mresult = map (map ((diff, shared, board, turn) ~>)) places
            in -- Shuffle because classes are unordered
               map catMaybes mresult & Random.shuffle shared & fst & firstNE
     (_, pref) -> error $ "Unexpected item/itemToPrefClass combination: " ++ show item ++ "/" ++ show pref
@@ -188,13 +189,12 @@ playFirstNeutral ::
   Constants.Difficulty ->
   Shared.Model ->
   Spots.Player ->
-  Board 'Core ->
-  Neutral ->
+  Game.Playable Neutral ->
   [(Game.Place, Board 'Core)]
-playFirstNeutral diff shared pSpot board neutral =
+playFirstNeutral diff shared pSpot Game.Playable {board, event = neutral, turn} =
   let tgs :: [Game.Target] = HeuristicAI.targets board pSpot id
       places :: [Game.Place] = map (\target -> Game.Place' pSpot target id) tgs
-      result :: [Maybe (Game.Place, Board 'Core)] = map ((diff, shared, board) ~>) places
+      result :: [Maybe (Game.Place, Board 'Core)] = map ((diff, shared, board, turn) ~>) places
    in catMaybes result
   where
     id = Card.IDN neutral
@@ -266,6 +266,7 @@ instance ToClass Card.CreatureID where
           Bear -> FrontFighter
           Priest -> Support
           Tree -> FrontFighter
+          Worm -> FrontFighter
           _ -> error $ msg team
       Undead ->
         case kind of
