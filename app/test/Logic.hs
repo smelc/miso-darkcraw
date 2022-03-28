@@ -688,7 +688,8 @@ testManaTurnOrd = do
       (Turn.initial <= Turn.initial) `shouldBe` True
     it "Turn.next" $ do
       (Turn.initial <= Turn.next Turn.initial) `shouldBe` True
-      -- (Turn.next Turn.initial <= Turn.initial) `shouldBe` False FIXME @smelc
+      (Turn.next Turn.initial <= Turn.initial) `shouldBe` False
+      (Turn.next (Turn.next Turn.initial) <= Turn.initial) `shouldBe` False
       (Turn.next Turn.initial <= Turn.next Turn.initial) `shouldBe` True
   describe "Mana.<=" $ do
     it "Mana" $ do

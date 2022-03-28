@@ -31,8 +31,9 @@ data Player = PlayerBot | PlayerTop
 -- point is that the Ord instance matches the order in which turns are played:
 -- the bottom player plays before the top player.
 instance Ord Player where
-  (<=) PlayerTop PlayerBot = False
-  (<=) _ _ = False
+  compare PlayerBot PlayerTop = LT
+  compare PlayerTop PlayerBot = GT
+  compare _ _ = EQ
 
 instance Show Spots.Player where
   show PlayerBot = "bot"
