@@ -25,7 +25,14 @@ data Card
 
 -- | The position of a player
 data Player = PlayerBot | PlayerTop
-  deriving (Bounded, Enum, Eq, Ord, Generic)
+  deriving (Bounded, Enum, Eq, Generic)
+
+-- | Ord instance that makes explicit that @PlayerBot < PlayerTop@. The
+-- point is that the Ord instance matches the order in which turns are played:
+-- the bottom player plays before the top player.
+instance Ord Player where
+  (<=) PlayerTop PlayerBot = False
+  (<=) _ _ = False
 
 instance Show Spots.Player where
   show PlayerBot = "bot"

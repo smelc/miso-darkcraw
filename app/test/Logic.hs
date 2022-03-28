@@ -30,6 +30,7 @@ import qualified Data.Text as Text
 import Debug.Trace (traceShow)
 import qualified Game hiding (Playable (..))
 import Generators ()
+import qualified Mana
 import qualified Move
 import Pretty
 import qualified Shared
@@ -681,6 +682,30 @@ testPreEndTurnEventNextAttackSpot shared =
                 & Game.board
          in nextAttackSpot board `shouldBe` nextAttackSpot board'
 
+testManaTurnOrd = do
+  describe "<= Turn.Turn works as expected" $ do
+    it "Turn.initial" $
+      (Turn.initial <= Turn.initial) `shouldBe` True
+    it "Turn.next" $ do
+      (Turn.initial <= Turn.next Turn.initial) `shouldBe` True
+      -- (Turn.next Turn.initial <= Turn.initial) `shouldBe` False FIXME @smelc
+      (Turn.next Turn.initial <= Turn.next Turn.initial) `shouldBe` True
+  describe "Mana.<=" $ do
+    it "Mana" $ do
+      ((Mana.<=) Turn.initial (Mana.Const 0) 0) `shouldBe` True
+      ((Mana.<=) Turn.initial (Mana.Const 1) 1) `shouldBe` True
+      ((Mana.<=) Turn.initial (Mana.Const 0) 1) `shouldBe` True
+      ((Mana.<=) Turn.initial (Mana.Const 1) 0) `shouldBe` False
+
+testManaRemainingTurns =
+  describe "Mana.amount is inversely monotonic with Turn.Turn" $ do
+    prop "prop" $
+      \(m :: Mana.Mana, t1 :: Turn.Turn, t2 :: Turn.Turn) ->
+        case compare t1 t2 of
+          LT -> (Mana.amount t1 m >= Mana.amount t2 m) `shouldBe` True
+          GT -> (Mana.amount t1 m <= Mana.amount t2 m) `shouldBe` True
+          EQ -> pure ()
+
 main :: Shared.Model -> SpecWith ()
 main shared = do
   -- Unit tests
@@ -691,6 +716,8 @@ main shared = do
   testCharge shared
   testFear shared
   testFillTheFrontline shared
+  testManaRemainingTurns
+  testManaTurnOrd
   testTransient shared
   testPandemonium shared
   testPowerful shared

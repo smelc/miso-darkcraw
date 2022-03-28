@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
@@ -21,6 +22,7 @@ where
 
 import qualified Constants
 import qualified Contains
+import GHC.Generics (Generic)
 import Nat
 import Text.Read
 import qualified Turn
@@ -31,7 +33,7 @@ data Mana
     Const Nat
   | -- | Mana cost equals the number of remaining turns
     RemainingNbOfTurns
-  deriving (Show)
+  deriving (Generic, Show)
 
 -- | A safe alternative to prelude's @Read@
 class Read a where

@@ -20,6 +20,7 @@ import Data.Maybe
 import GHC.Generics
 import qualified Game
 import Generic.Random
+import qualified Mana
 import qualified Shared
 import Skill (Skill)
 import qualified Skill
@@ -119,6 +120,10 @@ instance Arbitrary (Creature 'Core) where
           Shared.getCards shared
             & mapMaybe (\case CreatureCard _ creature -> Just creature; _ -> Nothing)
             & map Card.unlift
+  shrink = genericShrink
+
+instance Arbitrary Mana.Mana where
+  arbitrary = genericArbitraryU
   shrink = genericShrink
 
 instance Arbitrary (CardCommon 'Core) where

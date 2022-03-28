@@ -15,7 +15,7 @@ import Nat
 import Spots
 
 newtype Turn = Turn (Nat, Spots.Player)
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic, Ord, Show)
 
 initial :: Turn
 initial = Turn (1, startingPlayerSpot)
