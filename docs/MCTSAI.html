@@ -31,14 +31,14 @@
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
 <li class="src short">
-<a href="#v:place">place</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Place" title="Game">Place</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
+<a href="#v:place">place</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Place" title="Game">Place</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
 <li class="src short">
-<a href="#v:newPlaySim">newPlaySim</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</li>
+<a href="#v:newPlaySim">newPlaySim</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
 <div class="top">
-<p class="src"><a id="v:place" class="def">place</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Place" title="Game">Place</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>) <a href="#v:place" class="selflink">#</a></p>
+<p class="src"><a id="v:place" class="def">place</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Place" title="Game">Place</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>) <a href="#v:place" class="selflink">#</a></p>
 <div class="doc"><p>Plays one event and plays following events if any. The point of
  this function is to get the next state after playing one card. If the
  card cannot be played, <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a></code> is returned. We cannot use <code><a href="Game.html#v:maybePlay" title="Game">maybePlay</a></code>
@@ -67,7 +67,7 @@
 <td class="doc"><p>The spot to play</p></td>
 </tr>
 <tr>
-<td class="src">-&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+<td class="src">-&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </td>
 <td class="doc"><p>The board to consider</p></td>
 </tr>

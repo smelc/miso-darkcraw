@@ -10,7 +10,7 @@
 -- |
 module Match (main, MatchResult (..), play, Result (..), testStupidity) where
 
-import Board
+import qualified Board
 import qualified Campaign
 import Card
 import qualified Constants (Difficulty (..))
@@ -48,7 +48,7 @@ main shared = do
         [1 .. 48]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = level0GameModel Constants.Easy (Shared.withSeed shared seed) journey (Teams t1 t2)
+        model seed = level0GameModel Constants.Easy (Shared.withSeed shared seed) journey (Board.Teams t1 t2)
         journey = Campaign.unsafeJourney Campaign.Level0 t1
     isError (Error msg) = traceShow msg True
     isError Draw = False
@@ -67,14 +67,14 @@ main shared = do
         ++ " "
         ++ showScore board PlayerBot
       where
-        sign (Just (board :: Board 'Core)) =
+        sign (Just (board :: Board.T 'Core)) =
           case compare (Board.toScore PlayerTop board) (Board.toScore PlayerBot board) of
             LT -> "<"
             EQ -> "="
             GT -> ">"
         sign Nothing = "?"
         showScore Nothing _ = "?"
-        showScore (Just (board :: Board 'Core)) pSpot =
+        showScore (Just (board :: Board.T 'Core)) pSpot =
           show (Board.toPart board pSpot & Board.team)
             ++ " "
             ++ show (Board.toScore pSpot board)
@@ -85,7 +85,7 @@ testStupidity shared =
     prop "the score is correctly predicted" $
       \(cSpot, topTeam, seed) ->
         not (inTheBack cSpot)
-          ==> let teams = Teams topTeam Human
+          ==> let teams = Board.Teams topTeam Human
                   board = initialBoard shared teams cSpot
                   model = Update.unsafeInitialGameModel Constants.Easy (mkShared seed) (mkTeamData teams) board
                in play model 8 `shouldSatisfy` isValid

@@ -24,7 +24,7 @@ instance Startable Skill.State where
   start (Slow _) = Slow False -- Turn it off
   start (Source (n, True)) = Source (n, False) -- Always turn OFF, as
   -- it is simultaneously being consumed in the Startable instance of
-  -- Board 'Core. This means that the only time this skill appears
+  -- Board.T 'Core. This means that the only time this skill appears
   -- not being used is when you place the card. After, it's marked
   -- used at the start of your turn.
   start s@(Stupid4 _) | isStupid s = Stupid4 0

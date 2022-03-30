@@ -31,6 +31,9 @@
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
 <li class="src short">
+<a href="#v:appliesTo">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li class="src short">
 <span class="keyword">data</span> <a href="#t:Teams">Teams</a> a = <a href="#v:Teams">Teams</a> {<ul class="subs">
 <li>
 <a href="#v:topTeam">topTeam</a> :: a</li>
@@ -73,22 +76,15 @@
 <a href="#v:bottomSpotOfTopVisual">bottomSpotOfTopVisual</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a>
 </li>
 <li class="src short">
-<a href="#v:setPart">setPart</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:setPart">setPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:toHoleyInPlace">toHoleyInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))]</li>
+<a href="#v:toHoleyInPlace">toHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))]</li>
 <li class="src short">
-<a href="#v:toInPlaceCreature">toInPlaceCreature</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
+<a href="#v:toInPlaceCreature">toInPlaceCreature</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
 <li class="src short">
-<a href="#v:toHand">toHand</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p</li>
+<a href="#v:toHand">toHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p</li>
 <li class="src short">
-<a href="#v:toPart">toPart</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:Board">Board</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) = <a href="#v:Board">Board</a> {<ul class="subs">
-<li>
-<a href="#v:playerTop">playerTop</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
-<li>
-<a href="#v:playerBottom">playerBottom</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
-</ul>}</li>
+<a href="#v:toPart">toPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:DeathCause">DeathCause</a><ul class="subs">
 <li>= <a href="#v:DeathByFear">DeathByFear</a>
@@ -107,7 +103,7 @@
 <span class="keyword">data</span> <a href="#t:Deco">Deco</a> = <a href="#v:Forest">Forest</a>
 </li>
 <li class="src short">
-<a href="#v:initial">initial</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; r -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; (r, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
+<a href="#v:initial">initial</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; r -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; (r, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
 <li class="src short">
 <span class="keyword">newtype</span> <a href="#t:HandIndex">HandIndex</a> = <a href="#v:HandIndex">HandIndex</a> {<ul class="subs"><li>
 <a href="#v:unHandIndex">unHandIndex</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
@@ -116,13 +112,13 @@
 <span class="keyword">type family</span> <a href="#t:InHandType">InHandType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
 </li>
 <li class="src short">
-<a href="#v:alterDeco">alterDeco</a> :: e ~ <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (DecoType p) =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (e -&gt; e) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:alterDeco">alterDeco</a> :: e ~ <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (DecoType p) =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (e -&gt; e) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <a href="#v:lookupHand">lookupHand</a> :: [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> a</li>
 <li class="src short">
 <a href="#v:lookupHandM">lookupHandM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; m a</li>
 <li class="src short">
-<a href="#v:mapHand">mapHand</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:mapHand">mapHand</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:PlayerPart">PlayerPart</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) = <a href="#v:PlayerPart">PlayerPart</a> {<ul class="subs">
 <li>
@@ -146,39 +142,39 @@
 <span class="keyword">type family</span> <a href="#t:StackType">StackType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
 </li>
 <li class="src short">
-<a href="#v:small">small</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+<a href="#v:small">small</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 <li class="src short">
-<a href="#v:toStack">toStack</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p</li>
+<a href="#v:toStack">toStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p</li>
 <li class="src short">
-<a href="#v:setStack">setStack</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:setStack">setStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:setHand">setHand</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:setHand">setHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:addToHand">addToHand</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; HandElemType p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:addToHand">addToHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; HandElemType p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <a href="#v:empty">empty</a> :: Empty a b =&gt; a -&gt; b</li>
 <li class="src short">
-<a href="#v:increaseScore">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:increaseScore">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:mapCreature">mapCreature</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> p -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:mapCreature">mapCreature</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> p -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:mapDiscarded">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:mapDiscarded">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:setCreature">setCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+<a href="#v:setCreature">setCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 <li class="src short">
-<a href="#v:setMaybeCreature">setMaybeCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+<a href="#v:setMaybeCreature">setMaybeCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 <li class="src short">
-<a href="#v:toDiscarded">toDiscarded</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; DiscardedType p</li>
+<a href="#v:toDiscarded">toDiscarded</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; DiscardedType p</li>
 <li class="src short">
-<a href="#v:rmCreature">rmCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+<a href="#v:rmCreature">rmCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 <li class="src short">
-<a href="#v:setInPlace">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:setInPlace">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:toInPlace">toInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p</li>
+<a href="#v:toInPlace">toInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p</li>
 <li class="src short">
 <a href="#v:line">line</a> :: <a href="Spots.html#t:Line" title="Spots">Line</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
@@ -192,14 +188,11 @@
 </ul>
 </li>
 <li class="src short">
-<a href="#v:appliesTo">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
-</li>
+<a href="#v:toScore">toScore</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; ScoreType p</li>
 <li class="src short">
-<a href="#v:toScore">toScore</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; ScoreType p</li>
+<a href="#v:mapMana">mapMana</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:ManaType" title="Board">ManaType</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:mapMana">mapMana</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:ManaType" title="Board">ManaType</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
-<li class="src short">
-<a href="#v:mapScore">mapScore</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (ScoreType p -&gt; ScoreType p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:mapScore">mapScore</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (ScoreType p -&gt; ScoreType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <a href="#v:neighbors">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
@@ -213,18 +206,25 @@
 </ul>
 </li>
 <li class="src short">
-<a href="#v:toPlayerHoleyInPlace">toPlayerHoleyInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))]</li>
+<span class="keyword">data</span> <a href="#t:T">T</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) = <a href="#v:T">T</a> {<ul class="subs">
+<li>
+<a href="#v:playerTop">playerTop</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
+<li>
+<a href="#v:playerBottom">playerBottom</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
+</ul>}</li>
 <li class="src short">
-<a href="#v:toNeighbors">toNeighbors</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)]</li>
+<a href="#v:toPlayerHoleyInPlace">toPlayerHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))]</li>
 <li class="src short">
-<a href="#v:toPlayerCardSpots">toPlayerCardSpots</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Card.html#t:CardTargetKind" title="Card">CardTargetKind</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
+<a href="#v:toNeighbors">toNeighbors</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)]</li>
+<li class="src short">
+<a href="#v:toPlayerCardSpots">toPlayerCardSpots</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Card.html#t:CardTargetKind" title="Card">CardTargetKind</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
 <a href="#v:isDead">isDead</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li class="src short">
 <a href="#v:toData">toData</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; a</li>
 <li class="src short">
-<a href="#v:setMana">setMana</a> :: <a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p</li>
+<a href="#v:setMana">setMana</a> :: <a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <span class="keyword">type family</span> <a href="#t:ManaType">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
 </li>
@@ -232,11 +232,12 @@
 <a href="#v:switchLine">switchLine</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a>
 </li>
 <li class="src short">
-<a href="#v:mapInPlace">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>
+<a href="#v:mapInPlace">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
+<div class="top"><p class="src"><a id="v:appliesTo" class="def">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:appliesTo" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Teams" class="def">Teams</a> a <a href="#t:Teams" class="selflink">#</a></p>
 <div class="subs constructors">
@@ -454,175 +455,11 @@
 <p>TODO <code>smelc rename me to </code>bottomSpot@</p>
 </div>
 </div>
-<div class="top"><p class="src"><a id="v:setPart" class="def">setPart</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setPart" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toHoleyInPlace" class="def">toHoleyInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))] <a href="#v:toHoleyInPlace" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toInPlaceCreature" class="def">toInPlaceCreature</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) <a href="#v:toInPlaceCreature" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toHand" class="def">toHand</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p <a href="#v:toHand" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toPart" class="def">toPart</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p <a href="#v:toPart" class="selflink">#</a></p></div>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:Board" class="def">Board</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <a href="#t:Board" class="selflink">#</a></p>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src"><a id="v:Board" class="def">Board</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><div class="subs fields">
-<p class="caption">Fields</p>
-<ul>
-<li>
-<dfn class="src"><a id="v:playerTop" class="def">playerTop</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</dfn><div class="doc empty">&nbsp;</div>
-</li>
-<li>
-<dfn class="src"><a id="v:playerBottom" class="def">playerBottom</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</dfn><div class="doc empty">&nbsp;</div>
-</li>
-</ul>
-</div></td></tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:Board" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Eq:1"></span> Forall <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> p =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> (<a href="Board.html#t:Board" title="Board">Board</a> p)</span> <a href="#t:Board" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Ord:2"></span> Forall <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> p =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> (<a href="Board.html#t:Board" title="Board">Board</a> p)</span> <a href="#t:Board" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:compare">compare</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
-<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:max">max</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:max" class="selflink">#</a></p>
-<p class="src"><a href="#v:min">min</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:min" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Show:3"></span> Forall <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> p =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> (<a href="Board.html#t:Board" title="Board">Board</a> p)</span> <a href="#t:Board" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:Board" title="Board">Board</a> p] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> (<a href="Board.html#t:Board" title="Board">Board</a> p)</span> <a href="#t:Board" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
-<p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Board" title="Board">Board</a> p) :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
-</div> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Board" title="Board">Board</a> p) x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Board" title="Board">Board</a> p) x -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:to" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Semigroup:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Board" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Semigroup:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:-60--62-" class="selflink">#</a></p>
-<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:sconcat" class="selflink">#</a></p>
-<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:stimes" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Monoid:6"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Board" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Monoid:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:mempty">mempty</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:mempty" class="selflink">#</a></p>
-<p class="src"><a href="#v:mappend">mappend</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:mappend" class="selflink">#</a></p>
-<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:mconcat" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Stupid:7"></span> <a href="BoardInstances.html#t:Stupid" title="BoardInstances">Stupid</a> (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#t:Stupid" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Stupid:7"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="BoardInstances.html">BoardInstances</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:isStupid">isStupid</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:isStupid" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Contains:8"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Contains:8"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> a <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Contains:9"></span> (<a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>), <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) a) =&gt; <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, a)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Contains:9"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, a) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; (<a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, a) -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> a <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Contains:10"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> a) (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Contains:10"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> a <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Contains:11"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> a) (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>)</span> <a href="#t:Contains" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Contains:11"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) <a href="#v:to" class="selflink">#</a></p>
-<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> a <a href="#v:with" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Board:Rep:12"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Board" title="Board">Board</a> p)</span> <a href="#t:Board" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Board:Rep:12"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Board" title="Board">Board</a> p) = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Board" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Board" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "playerTop") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "playerBottom") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p))))</div></details></td></tr>
-</table></details></div>
-</div>
+<div class="top"><p class="src"><a id="v:setPart" class="def">setPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setPart" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toHoleyInPlace" class="def">toHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))] <a href="#v:toHoleyInPlace" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toInPlaceCreature" class="def">toInPlaceCreature</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) <a href="#v:toInPlaceCreature" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toHand" class="def">toHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p <a href="#v:toHand" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toPart" class="def">toPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p <a href="#v:toPart" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:DeathCause" class="def">DeathCause</a> <a href="#t:DeathCause" class="selflink">#</a></p>
 <div class="doc"><p>Animations recorded upon death. If you are looking for the same
@@ -840,7 +677,7 @@
 <td class="doc"><p>The initial decks</p></td>
 </tr>
 <tr>
-<td class="src">-&gt; (r, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>)</td>
+<td class="src">-&gt; (r, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</td>
 <td class="doc"><p>The shared model, with its RNG updated; and the initial board</p></td>
 </tr>
 </table>
@@ -942,12 +779,12 @@
 </div>
 </div>
 <div class="top">
-<p class="src"><a id="v:alterDeco" class="def">alterDeco</a> :: e ~ <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (DecoType p) =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (e -&gt; e) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:alterDeco" class="selflink">#</a></p>
+<p class="src"><a id="v:alterDeco" class="def">alterDeco</a> :: e ~ <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (DecoType p) =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (e -&gt; e) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:alterDeco" class="selflink">#</a></p>
 <div class="doc"><p>Map over the <code><a href="Board.html#v:deco" title="Board">deco</a></code> field of the given player in the given board</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:lookupHand" class="def">lookupHand</a> :: [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> a <a href="#v:lookupHand" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:lookupHandM" class="def">lookupHandM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; m a <a href="#v:lookupHandM" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:mapHand" class="def">mapHand</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:mapHand" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:mapHand" class="def">mapHand</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapHand" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:PlayerPart" class="def">PlayerPart</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <a href="#t:PlayerPart" class="selflink">#</a></p>
 <div class="subs constructors">
@@ -1106,39 +943,39 @@
 </div>
 </div>
 <div class="top">
-<p class="src"><a id="v:small" class="def">small</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:small" class="selflink">#</a></p>
+<p class="src"><a id="v:small" class="def">small</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:small" class="selflink">#</a></p>
 <div class="doc"><p>A board with a single creature in place. Hands are empty. Handy for
  debugging for example.</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:toStack" class="def">toStack</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p <a href="#v:toStack" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:setStack" class="def">setStack</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setStack" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:setHand" class="def">setHand</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setHand" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:addToHand" class="def">addToHand</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; HandElemType p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:addToHand" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toStack" class="def">toStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p <a href="#v:toStack" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setStack" class="def">setStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setStack" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setHand" class="def">setHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setHand" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:addToHand" class="def">addToHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; HandElemType p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:addToHand" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:empty" class="def">empty</a> :: Empty a b =&gt; a -&gt; b <a href="#v:empty" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:increaseScore" class="def">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:increaseScore" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:increaseScore" class="def">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:increaseScore" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:mapCreature" class="def">mapCreature</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> p -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:mapCreature" class="selflink">#</a></p>
+<p class="src"><a id="v:mapCreature" class="def">mapCreature</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> p -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapCreature" class="selflink">#</a></p>
 <div class="doc"><p>Map over the <code>creature</code> of the given player in the given board, at the given spot
  Does nothing if there is no creature. TODO <code>smelc, rename to </code>adjustCreature@</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:mapDiscarded" class="def">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:mapDiscarded" class="selflink">#</a></p>
+<p class="src"><a id="v:mapDiscarded" class="def">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapDiscarded" class="selflink">#</a></p>
 <div class="doc"><p>Map over the <code><a href="Board.html#v:discarded" title="Board">discarded</a></code> field of the given player in the given board</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:setCreature" class="def">setCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setCreature" class="selflink">#</a></p>
+<p class="src"><a id="v:setCreature" class="def">setCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setCreature" class="selflink">#</a></p>
 <div class="doc"><p>Puts a creature, replacing the existing one if any</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:setMaybeCreature" class="def">setMaybeCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setMaybeCreature" class="selflink">#</a></p>
+<p class="src"><a id="v:setMaybeCreature" class="def">setMaybeCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setMaybeCreature" class="selflink">#</a></p>
 <div class="doc"><p>Replace or remove a creature.
  TODO <code>smelc, rename me to </code>updateCreature<code>, change implementation to
  call </code>Map.update@</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:toDiscarded" class="def">toDiscarded</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; DiscardedType p <a href="#v:toDiscarded" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:rmCreature" class="def">rmCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:rmCreature" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:setInPlace" class="def">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setInPlace" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toInPlace" class="def">toInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p <a href="#v:toInPlace" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toDiscarded" class="def">toDiscarded</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; DiscardedType p <a href="#v:toDiscarded" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:rmCreature" class="def">rmCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:rmCreature" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setInPlace" class="def">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setInPlace" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toInPlace" class="def">toInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p <a href="#v:toInPlace" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:line" class="def">line</a> :: <a href="Spots.html#t:Line" title="Spots">Line</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:line" class="selflink">#</a></p>
 <div class="doc"><p>All spots in a given line</p></div>
@@ -1193,14 +1030,13 @@
 </div></details></td></tr>
 </table></details></div>
 </div>
-<div class="top"><p class="src"><a id="v:appliesTo" class="def">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:appliesTo" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toScore" class="def">toScore</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; ScoreType p <a href="#v:toScore" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toScore" class="def">toScore</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; ScoreType p <a href="#v:toScore" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:mapMana" class="def">mapMana</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:ManaType" title="Board">ManaType</a> p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:mapMana" class="selflink">#</a></p>
+<p class="src"><a id="v:mapMana" class="def">mapMana</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Board.html#t:ManaType" title="Board">ManaType</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapMana" class="selflink">#</a></p>
 <div class="doc"><p>Changes the mana at the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code>, applying a function
  on the existing mana.</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:mapScore" class="def">mapScore</a> :: <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (ScoreType p -&gt; ScoreType p) -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:mapScore" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:mapScore" class="def">mapScore</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (ScoreType p -&gt; ScoreType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapScore" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:neighbors" class="def">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:neighbors" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Neighborhood" class="def">Neighborhood</a> <a href="#t:Neighborhood" class="selflink">#</a></p>
@@ -1270,14 +1106,179 @@
 <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Neighborhood" "Spots" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Cardinal" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Diagonal" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "All" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>)))</div></details></td></tr>
 </table></details></div>
 </div>
-<div class="top"><p class="src"><a id="v:toPlayerHoleyInPlace" class="def">toPlayerHoleyInPlace</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))] <a href="#v:toPlayerHoleyInPlace" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:toNeighbors" class="def">toNeighbors</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)] <a href="#v:toNeighbors" class="selflink">#</a></p>
+<p class="src"><span class="keyword">data</span> <a id="t:T" class="def">T</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <a href="#t:T" class="selflink">#</a></p>
+<div class="doc"><p>Things on the board (hand excluded)</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:T" class="def">T</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:playerTop" class="def">playerTop</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:playerBottom" class="def">playerBottom</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</dfn><div class="doc empty">&nbsp;</div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:T" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Eq:1"></span> Forall <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> p =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> (<a href="Board.html#t:T" title="Board">T</a> p)</span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Ord:2"></span> Forall <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> p =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ord" title="Data.Ord">Ord</a> (<a href="Board.html#t:T" title="Board">T</a> p)</span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Ord:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:compare">compare</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Ord.html#t:Ordering" title="Data.Ord">Ordering</a> <a href="#v:compare" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60-">(&lt;)</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--61-">(&lt;=)</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-60--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62-">(&gt;)</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-62--61-">(&gt;=)</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-62--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:max">max</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:max" class="selflink">#</a></p>
+<p class="src"><a href="#v:min">min</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:min" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Show:3"></span> Forall <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> p =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> (<a href="Board.html#t:T" title="Board">T</a> p)</span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Show:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:T" title="Board">T</a> p] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Generic:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> (<a href="Board.html#t:T" title="Board">T</a> p)</span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Generic:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:T" title="Board">T</a> p) :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:T" title="Board">T</a> p) x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:T" title="Board">T</a> p) x -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Semigroup:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Semigroup:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:-60--62-" class="selflink">#</a></p>
+<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:sconcat" class="selflink">#</a></p>
+<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:stimes" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Monoid:6"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Monoid:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:mempty">mempty</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:mempty" class="selflink">#</a></p>
+<p class="src"><a href="#v:mappend">mappend</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:mappend" class="selflink">#</a></p>
+<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>] -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:mconcat" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Stupid:7"></span> <a href="BoardInstances.html#t:Stupid" title="BoardInstances">Stupid</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#t:Stupid" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Stupid:7"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="BoardInstances.html">BoardInstances</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:isStupid">isStupid</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:isStupid" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Contains:8"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#t:Contains" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Contains:8"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> a <a href="#v:with" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Contains:9"></span> (<a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>), <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) a) =&gt; <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Game.html#t:Playable" title="Game">Playable</a> a) (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, a)</span> <a href="#t:Contains" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Contains:9"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Game.html">Game</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, a) <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Game.html#t:Playable" title="Game">Playable</a> a -&gt; (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, a) -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> a <a href="#v:with" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Contains:10"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> a) (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>)</span> <a href="#t:Contains" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Contains:10"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> a <a href="#v:with" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Contains:11"></span> <a href="Contains.html#t:Contains" title="Contains">Contains</a> (<a href="Move.html#t:Kernel" title="Move">Kernel</a> a) (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>)</span> <a href="#t:Contains" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Contains:11"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:to">to</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:with">with</a> :: <a href="Move.html#t:Kernel" title="Move">Kernel</a> a -&gt; (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>, <a href="Game.html#t:Animation" title="Game">Animation</a>) -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> a <a href="#v:with" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Rep:12"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:T" title="Board">T</a> p)</span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Rep:12"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:T" title="Board">T</a> p) = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "T" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "T" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "playerTop") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "playerBottom") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p))))</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:toPlayerHoleyInPlace" class="def">toPlayerHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))] <a href="#v:toPlayerHoleyInPlace" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:toNeighbors" class="def">toNeighbors</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)] <a href="#v:toNeighbors" class="selflink">#</a></p>
 <div class="doc"><p>The neighbors of the card at the given spot, for the given player,
  and for the given kind of neighbors.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:toPlayerCardSpots" class="def">toPlayerCardSpots</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Card.html#t:CardTargetKind" title="Card">CardTargetKind</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:toPlayerCardSpots" class="selflink">#</a></p>
+<p class="src"><a id="v:toPlayerCardSpots" class="def">toPlayerCardSpots</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Card.html#t:CardTargetKind" title="Card">CardTargetKind</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:toPlayerCardSpots" class="selflink">#</a></p>
 <div class="doc"><p>Returns the spots available for playing a card with the given target kind.
  For creature cards for example it returns empty spots. For item cards
  it returns occupied spots.</p></div>
@@ -1287,7 +1288,7 @@
 <div class="doc"><p>Whether this death cause represents a death</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:toData" class="def">toData</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; a <a href="#v:toData" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:setMana" class="def">setMana</a> :: <a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p -&gt; <a href="Board.html#t:Board" title="Board">Board</a> p <a href="#v:setMana" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setMana" class="def">setMana</a> :: <a href="Board.html#t:ManaType" title="Board">ManaType</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setMana" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">type family</span> <a id="t:ManaType" class="def">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span> <a href="#t:ManaType" class="selflink">#</a></p>
 <div class="subs equations">
@@ -1314,7 +1315,7 @@
  a backline spot, the corresponding frontline spot.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:mapInPlace" class="def">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:mapInPlace" class="selflink">#</a></p>
+<p class="src"><a id="v:mapInPlace" class="def">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:mapInPlace" class="selflink">#</a></p>
 <div class="doc"><p>Map <code>f</code> over creatures in the given <code><a href="Spots.html#t:Card" title="Spots">Card</a></code> in the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code></p></div>
 </div>
 </div>

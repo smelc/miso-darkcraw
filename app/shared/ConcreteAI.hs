@@ -13,7 +13,7 @@
 -- smart but makes the game feel good playing, because it plays "logically".
 module ConcreteAI (play) where
 
-import Board
+import qualified Board
 import Card
 import qualified Constants
 import Contains (with)
@@ -40,7 +40,7 @@ import qualified Turn
 play ::
   Constants.Difficulty ->
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   Turn.Turn ->
   -- | The playing player
   Spots.Player ->
@@ -73,7 +73,7 @@ playWhat ::
   Spots.Player ->
   Game.Playable [What] ->
   -- | Events generated for player 'pSpot', with the resulting board
-  Maybe ([Game.Place], Board 'Core)
+  Maybe ([Game.Place], Board.T 'Core)
 playWhat diff shared pSpot p@Game.Playable {event = what} =
   case what of
     [] -> Nothing
@@ -96,7 +96,7 @@ playFirst ::
   Shared.Model ->
   Spots.Player ->
   Game.Playable What ->
-  [(Game.Place, Board 'Core)]
+  [(Game.Place, Board.T 'Core)]
 playFirst diff shared pSpot p@Game.Playable {board, event = what, turn} =
   case (Board.toHand board pSpot, availMana) of
     ([], _) -> []
@@ -130,9 +130,9 @@ playFirst diff shared pSpot p@Game.Playable {board, event = what, turn} =
 
 -- | Given a state, run one event on this state
 (~>) ::
-  (Constants.Difficulty, Shared.Model, Board 'Core, Turn.Turn) ->
+  (Constants.Difficulty, Shared.Model, Board.T 'Core, Turn.Turn) ->
   Game.Place ->
-  Maybe (Game.Place, Board 'Core)
+  Maybe (Game.Place, Board.T 'Core)
 (~>) (diff, shared, board, turn) place =
   MCTSAI.place diff shared place board turn <&> (place,)
 
@@ -147,7 +147,7 @@ playFirstItem ::
   Shared.Model ->
   Spots.Player ->
   Game.Playable Item ->
-  [(Game.Place, Board 'Core)]
+  [(Game.Place, Board.T 'Core)]
 playFirstItem diff shared pSpot Game.Playable {board, event = item, turn} =
   case (item, itemToPrefClass item <&> Random.shuffle shared <&> fst) of
     (Crown, Nothing) ->
@@ -190,11 +190,11 @@ playFirstNeutral ::
   Shared.Model ->
   Spots.Player ->
   Game.Playable Neutral ->
-  [(Game.Place, Board 'Core)]
+  [(Game.Place, Board.T 'Core)]
 playFirstNeutral diff shared pSpot Game.Playable {board, event = neutral, turn} =
   let tgs :: [Game.Target] = HeuristicAI.targets board pSpot id
       places :: [Game.Place] = map (\target -> Game.Place' pSpot target id) tgs
-      result :: [Maybe (Game.Place, Board 'Core)] = map ((diff, shared, board, turn) ~>) places
+      result :: [Maybe (Game.Place, Board.T 'Core)] = map ((diff, shared, board, turn) ~>) places
    in catMaybes result
   where
     id = Card.IDN neutral
@@ -202,7 +202,7 @@ playFirstNeutral diff shared pSpot Game.Playable {board, event = neutral, turn} 
 -- | Possible targets for playing a card of the given 'Class'. Returned lists
 -- are ordered by "best first" and all elements of an inner list are equivalent
 -- (so can be randomly picked from).
-targets :: Class -> Spots.Player -> Board 'Core -> [[Game.Target]]
+targets :: Class -> Spots.Player -> Board.T 'Core -> [[Game.Target]]
 targets clazz pSpot board =
   case clazz of
     -- TODO @smelc, prefer spots with enemies in front
@@ -215,7 +215,7 @@ targets clazz pSpot board =
   where
     free line = freeSpots line pSpot board & Set.toList & map (Game.CardTarget pSpot)
 
-freeSpots :: Spots.Line -> Spots.Player -> Board 'Core -> Set Spots.Card
+freeSpots :: Spots.Line -> Spots.Player -> Board.T 'Core -> Set Spots.Card
 freeSpots l pSpot board =
   (Spots.line l & Set.fromList)
     Set.\\ (Board.toInPlace board pSpot & Map.keys & Set.fromList)

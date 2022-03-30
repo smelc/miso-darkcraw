@@ -14,7 +14,7 @@
 module Update where
 
 import qualified AI
-import Board
+import qualified Board
 import qualified Campaign
 import Card
 import Cinema
@@ -141,7 +141,7 @@ class Interactable m t mseq | m -> t, m -> mseq where
     MonadError Text.Text n =>
     m ->
     Spots.Player ->
-    HandIndex ->
+    Board.HandIndex ->
     t ->
     n mseq
 
@@ -528,7 +528,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
             Just (Command.HailToTheKing pSpot) ->
               playEvent Game.ApplyKing pSpot
             Just (Command.Killall pSpot) ->
-              withBoard $ Board.setPart board pSpot (part {inPlace = mempty})
+              withBoard $ Board.setPart board pSpot (part {Board.inPlace = mempty})
               where
                 part = Board.toPart board pSpot
             Just (Command.Reboot pSpot team) ->
@@ -538,7 +538,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
                   Shared.getInitialDeck shared team
                     & map Card.cardToIdentifier
                     & splitAt Constants.initialHandSize
-                part = (Board.empty team) {inHand, stack}
+                part = (Board.empty team) {Board.inHand, Board.stack}
   where
     withBoard board' = noEff $ GameModel' $ gm {board = board'}
     playEvent eventMaker pSpot =
@@ -558,7 +558,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ level0GameModel Constants.Hard shared (Campaign.mkJourney team) (Teams Undead team)
+    noEff $ GameModel' $ level0GameModel Constants.Hard shared (Campaign.mkJourney team) (Board.Teams Undead team)
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -616,7 +616,7 @@ level0GameModel ::
   Constants.Difficulty ->
   Shared.Model ->
   Campaign.Journey ->
-  Teams Team ->
+  Board.Teams Team ->
   Model.Game
 level0GameModel difficulty shared journey teams =
   levelNGameModel
@@ -634,7 +634,7 @@ levelNGameModel ::
   Campaign.Level ->
   Campaign.Journey ->
   -- | The decks
-  (Teams (Team, [Card 'Core])) ->
+  (Board.Teams (Team, [Card 'Core])) ->
   Model.Game
 levelNGameModel difficulty shared level journey@(Campaign.Journey j) teams =
   assert correctOpponent Model.Game {..}
@@ -659,9 +659,9 @@ unsafeInitialGameModel ::
   Constants.Difficulty ->
   Shared.Model ->
   -- | The initial decks
-  (Teams (Team, [Card 'Core])) ->
+  (Board.Teams (Team, [Card 'Core])) ->
   -- | The board
-  Board 'Core ->
+  Board.T 'Core ->
   Model.Game
 unsafeInitialGameModel difficulty shared teams board =
   Model.Game {..}
@@ -674,7 +674,7 @@ unsafeInitialGameModel difficulty shared teams board =
     level = Campaign.Level0
     playingPlayer = Spots.startingPlayerSpot
     playingPlayerDeck =
-      toData playingPlayer teams
+      Board.toData playingPlayer teams
         & snd
         & map Card.cardToIdentifier
     turn = Turn.initial

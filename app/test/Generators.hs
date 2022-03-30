@@ -9,7 +9,7 @@
 
 module Generators where
 
-import Board
+import qualified Board
 import qualified Campaign
 import Card
 import Cinema
@@ -136,15 +136,15 @@ instance Arbitrary (Card 'Core) where
      in elements $ Shared.getCards shared & map Card.unlift
   shrink = genericShrink
 
-instance Arbitrary Deco where
+instance Arbitrary Board.Deco where
   arbitrary = elements $ [minBound ..]
   shrink = genericShrink
 
-instance Arbitrary (PlayerPart 'Core) where
+instance Arbitrary (Board.PlayerPart 'Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary (Board 'Core) where
+instance Arbitrary (Board.T 'Core) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
@@ -160,7 +160,7 @@ instance Arbitrary Turn where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary DeathCause where
+instance Arbitrary Board.DeathCause where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
@@ -168,7 +168,7 @@ instance Arbitrary Constants.Fade where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary InPlaceEffect where
+instance Arbitrary Board.InPlaceEffect where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
@@ -176,7 +176,7 @@ instance Arbitrary Game.StatChange where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary HandIndex where
+instance Arbitrary Board.HandIndex where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
@@ -197,7 +197,7 @@ instance Arbitrary Neighborhood where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary (Teams Team) where
+instance Arbitrary (Board.Teams Team) where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

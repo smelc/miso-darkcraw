@@ -16,10 +16,6 @@
 -- 'applyDifficulty', 'boardScore', and 'playHand' are exported for tests
 module HeuristicAI (applyDifficulty, boardPlayerScore, HeuristicAI.play, targets) where
 
-import Board
-  ( Board,
-    HandIndex (HandIndex),
-  )
 import qualified Board
 import BoardInstances ()
 import Card
@@ -91,7 +87,7 @@ applyDifficulty difficulty stdgen hand =
 play ::
   Difficulty ->
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The playing player
   Spots.Player ->
   -- | Events generated for player 'pSpot'
@@ -128,7 +124,7 @@ play difficulty shared board pSpot =
 
 -- | The score of given player's in-place cards. Smaller is the best.
 -- Both negative and positive values are returned.
-boardPlayerScore :: Board 'Core -> Spots.Player -> Nat
+boardPlayerScore :: Board.T 'Core -> Spots.Player -> Nat
 boardPlayerScore board pSpot =
   sum scores
   where
@@ -142,7 +138,7 @@ boardPlayerScore board pSpot =
 -- is played optimally.
 playHand ::
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The playing player
   Spots.Player ->
   [Game.Place]
@@ -163,7 +159,7 @@ playHand shared board pSpot =
 -- for best placing this card.
 aiPlayFirst ::
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The playing player, i.e. the player whose hand should the
   -- the card be picked from.
   Spots.Player ->
@@ -178,7 +174,7 @@ aiPlayFirst shared board pSpot =
       target <- takeBestOnes scores' & Random.pick shared & fst
       return (pSpot, target, id)
   where
-    handIndex = HandIndex 0
+    handIndex = Board.HandIndex 0
     scores :: ID -> [(Nat, Game.Target)] = \id ->
       [ Game.maybePlay shared (Game.Playable board (Game.PEvent (Game.Place pSpot target handIndex)) undefined) -- Compute next board
           <&> (\(_, b, _me) -> (boardPlayerScore b pSpot, target)) -- FIXME Use '_me'
@@ -197,7 +193,7 @@ aiPlayFirst shared board pSpot =
         go _ _ = [] -- Because list is sorted, if first score doesn't match, then stop
 
 targets ::
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The player placing a card
   Spots.Player ->
   -- | The card being played
@@ -220,7 +216,7 @@ targets board playingPlayer id =
 
 -- | The score of the card at the given position
 scorePlace ::
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The creature at 'pSpot' 'cSpot'
   Creature 'Core ->
   -- | Where to place the creature
@@ -250,7 +246,7 @@ scorePlace board inPlace@Creature {attack} pSpot cSpot =
 -- | The score of the items of this creature (which is on the passed spot).
 -- 0 is the worst. Higher values are better. The spots are where
 -- the creature is.
-scoreCreatureItems :: Board 'Core -> Creature 'Core -> Spots.Player -> Spots.Card -> Nat
+scoreCreatureItems :: Board.T 'Core -> Creature 'Core -> Spots.Player -> Spots.Card -> Nat
 scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
   sum $ map scoreCreatureItem items
   where

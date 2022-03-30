@@ -10,7 +10,7 @@
 -- |
 module BoardInstances where
 
-import Board
+import qualified Board
 import Card
 import CardInstances
 import Constants
@@ -21,9 +21,9 @@ import Nat
 import qualified Skill
 import Spots
 
-instance Startable (PlayerPart 'Core) where
-  start PlayerPart {..} =
-    PlayerPart {inPlace = Map.map start inPlace, mana = mana + initialMana + extraMana, ..}
+instance Startable (Board.PlayerPart 'Core) where
+  start Board.PlayerPart {..} =
+    Board.PlayerPart {inPlace = Map.map start inPlace, mana = mana + initialMana + extraMana, ..}
     where
       extraMana =
         foldr'
@@ -35,11 +35,11 @@ instance Startable (PlayerPart 'Core) where
       -- the flag value, it's anyway simultaneously set to False.
       sumSources (_ : skills) = sumSources skills
       gaiaCloak cSpot Creature {items} =
-        case Map.lookup cSpot deco == Just Forest of
+        case Map.lookup cSpot deco == Just Board.Forest of
           True -> filter ((==) CloakOfGaia) items & natLength
           False -> 0
 
-boardStart :: Board 'Core -> Spots.Player -> Board 'Core
+boardStart :: Board.T 'Core -> Spots.Player -> Board.T 'Core
 boardStart board pSpot =
   Board.setPart board pSpot $ start $ Board.toPart board pSpot
 
@@ -52,7 +52,7 @@ instance Stupid Skill.State where
 instance Stupid (Creature 'Core) where
   isStupid Creature {skills} _ _ = any Skill.isStupid skills
 
-instance Stupid (Board 'Core) where
+instance Stupid (Board.T 'Core) where
   isStupid b pSpot cSpot =
     case Board.toInPlaceCreature b pSpot cSpot of
       Nothing -> False

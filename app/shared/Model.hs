@@ -8,7 +8,7 @@
 module Model where
 
 import qualified Art
-import Board
+import qualified Board
 import Campaign
 import Card
 import Cinema (TimedFrame)
@@ -43,20 +43,20 @@ data Interaction a
   deriving (Eq, Generic, Show)
 
 newtype Hovering = Hovering
-  {hoveredCard :: HandIndex}
+  {hoveredCard :: Board.HandIndex}
   deriving (Eq, Generic, Show)
 
 data Dragging a = Dragging
-  { draggedCard :: HandIndex,
+  { draggedCard :: Board.HandIndex,
     dragTarget :: Maybe a
   }
   deriving (Eq, Show, Generic)
 
 data HandFiddle
   = -- | Card in hand being hovered
-    HandHovering HandIndex
+    HandHovering Board.HandIndex
   | -- | Card in hand being dragged
-    HandDragging HandIndex
+    HandDragging Board.HandIndex
   deriving (Eq, Show, Generic)
 
 -- | The model of the gaming page. If you add a field, think about
@@ -65,7 +65,7 @@ data Game = Game
   { -- | Part of the model shared among all pages
     shared :: Shared.Model,
     -- | The core part of the model
-    board :: Board 'Core,
+    board :: Board.T 'Core,
     -- | The game's difficulty
     difficulty :: Constants.Difficulty,
     -- | What user interaction is going on
@@ -83,7 +83,7 @@ data Game = Game
     -- | Whether interactions are possible right now
     uiAvail :: Bool,
     -- | Animations to perform next
-    anims :: Board 'UI,
+    anims :: Board.T 'UI,
     -- | Animation unrelated to 'Board'
     anim :: Game.Animation
   }
@@ -108,7 +108,7 @@ gameToDeck :: Game -> [Card.ID]
 gameToDeck Game {..} =
   inPlace' ++ inHand ++ stack ++ discarded
   where
-    PlayerPart {..} = Board.toPart board playingPlayer
+    Board.PlayerPart {..} = Board.toPart board playingPlayer
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 endGame :: Game -> Campaign.Outcome -> LootModel
@@ -150,7 +150,7 @@ unsafeGameModel WelcomeModel {shared} =
     anims = mempty
     journey = Campaign.mkJourney team
     team = Human
-    teams = Teams Undead team
+    teams = Board.Teams Undead team
     teams' = teams <&> (\t -> (t, Shared.getInitialDeck shared t))
     turn = Turn.initial
     level = Campaign.Level0
@@ -159,7 +159,7 @@ unsafeGameModel WelcomeModel {shared} =
     playingPlayer = startingPlayerSpot
     (_, board) = Board.initial shared teams'
     playingPlayerDeck =
-      toData startingPlayerSpot teams'
+      Board.toData startingPlayerSpot teams'
         & snd
         & map Card.cardToIdentifier
     uiAvail = True

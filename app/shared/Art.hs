@@ -10,17 +10,16 @@
 -- because it depends on 'Total' and 'Total' needs to depend on 'Board'.
 module Art (toASCII) where
 
-import Board
+import qualified Board
 import Card
 import Data.Function ((&))
 import Data.List
-import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Spots
 import qualified Total
 
 -- | Converts a 'Board' to an ASCII String, omitting some data for readibility
-toASCII :: Board 'Core -> String
+toASCII :: Board.T 'Core -> String
 toASCII board =
   (intersperse "\n" lines & concat) ++ "\n"
   where
@@ -42,19 +41,19 @@ toASCII board =
         ++ [handLine board PlayerBot]
         ++ stackLines board PlayerBot
 
-stackLines :: Board 'Core -> Spots.Player -> [String]
+stackLines :: Board.T 'Core -> Spots.Player -> [String]
 stackLines board pSpot =
   map (\s -> replicate 4 ' ' ++ s) $ reverse $ go 0 []
   where
-    discarded = toDiscarded board pSpot
-    stack = toStack board pSpot
+    discarded = Board.toDiscarded board pSpot
+    stack = Board.toStack board pSpot
     hspace = replicate 8 ' '
     stackWidth = 16
     justify s | length s < stackWidth = s ++ replicate (stackWidth - length s) ' '
     justify s | length s > stackWidth = take stackWidth s
     justify s = s
     go i acc =
-      case (stackLine Discarded discarded i, stackLine Stacked stack i) of
+      case (stackLine Board.Discarded discarded i, stackLine Board.Stacked stack i) of
         (Nothing, Nothing) -> acc
         (d, st) ->
           let line =
@@ -65,26 +64,26 @@ stackLines board pSpot =
           where
             blanks = replicate stackWidth ' '
 
-handLine :: Board 'Core -> Spots.Player -> String
+handLine :: Board.T 'Core -> Spots.Player -> String
 handLine board pSpot =
   "Hand: " ++ intercalate ", " (map showID hand)
   where
-    hand = toHand board pSpot
+    hand = Board.toHand board pSpot
 
-decoLine :: Board 'Core -> Spots.Player -> String
+decoLine :: Board.T 'Core -> Spots.Player -> String
 decoLine board pSpot
   | null d = "no deco"
   | otherwise = "deco: " ++ show d
   where
     d = Board.toPart board pSpot & Board.deco
 
-scoreLine :: Board 'Core -> Spots.Player -> String
+scoreLine :: Board.T 'Core -> Spots.Player -> String
 scoreLine board pSpot =
-  replicate cardWidth ' ' ++ " Score: " ++ show (toScore pSpot board)
+  replicate cardWidth ' ' ++ " Score: " ++ show (Board.toScore pSpot board)
 
-stackLine :: StackKind -> [Card.ID] -> LineNumber -> Maybe String
-stackLine Discarded _ 0 = Just "Discarded"
-stackLine Stacked _ 0 = Just "Stack"
+stackLine :: Board.StackKind -> [Card.ID] -> LineNumber -> Maybe String
+stackLine Board.Discarded _ 0 = Just "Discarded"
+stackLine Board.Stacked _ 0 = Just "Stack"
 stackLine _ cards i | i > length cards = Nothing
 stackLine _ cards i = Just $ showID $ cards !! (i - 1)
 
@@ -102,7 +101,7 @@ showTeamShort = \case
   Undead -> "UD"
   ZKnights -> "Z"
 
-cardsLines :: Board 'Core -> Spots.Player -> [Spots.Card] -> [String]
+cardsLines :: Board.T 'Core -> Spots.Player -> [Spots.Card] -> [String]
 cardsLines board pSpot cSpots =
   map f [0 .. cardHeight - 1]
   where
@@ -121,14 +120,14 @@ cardWidth = 16
 type LineNumber = Int
 
 -- | The line number must be in [0, cardHeight)
-cardLine :: Board 'Core -> Spots.Player -> Spots.Card -> LineNumber -> String
+cardLine :: Board.T 'Core -> Spots.Player -> Spots.Card -> LineNumber -> String
 cardLine board pSpot cSpot lineNb =
   case length base of
     i | i < cardWidth -> base ++ replicate (cardWidth - i) '.'
     i | i > cardWidth -> take cardWidth base
     _ -> base
   where
-    maybeCreature = toInPlace board pSpot Map.!? cSpot
+    maybeCreature = Board.toInPlaceCreature board pSpot cSpot
     emptyLine :: String = replicate cardWidth '.'
     base = case maybeCreature of
       Nothing -> if lineNb == 0 then show cSpot else emptyLine

@@ -8,7 +8,7 @@
 
 module Invariants where
 
-import Board
+import qualified Board
 import qualified Campaign
 import Card
 import qualified Constants
@@ -44,12 +44,12 @@ instance Invariant (Creature 'Core) where
         not (Game.meetsRequirement item c)
     ]
 
-instance Invariant (PlayerPart 'Core) where
-  violation PlayerPart {inPlace} =
+instance Invariant (Board.PlayerPart 'Core) where
+  violation Board.PlayerPart {inPlace} =
     concat $ map violation (Map.elems inPlace)
 
-instance Invariant (Board 'Core) where
-  violation Board {playerTop, playerBottom} =
+instance Invariant (Board.T 'Core) where
+  violation Board.T {playerTop, playerBottom} =
     violation playerTop ++ violation playerBottom
 
 instance Invariant Turn where

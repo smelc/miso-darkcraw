@@ -15,7 +15,7 @@
 -- depend on it) can depend on 'GameViewInternal'.
 module GameView where
 
-import Board
+import qualified Board
 import Card
 import qualified Configuration
 import Constants
@@ -94,14 +94,14 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
         <> "background-image" =: assetsUrl (Theme.board theme)
     handDivM = do
       cells <- boardToInHandCells zpp $ toHandDrawingInput model
-      stacks <- traverse (stackView model z playingPlayer Hand) [Discarded, Stacked]
+      stacks <- traverse (stackView model z playingPlayer Hand) [Board.Discarded, Board.Stacked]
       return $ div_ [style_ handStyle] $ cells ++ concat stacks
     handStyle =
       zpltwh z Relative 0 0 handPixelWidth handPixelHeight
         <> "background-image" =: assetsUrl (Theme.hand theme)
     dragTargetType =
       case interaction of
-        DragInteraction (Dragging (HandIndex i) _) ->
+        DragInteraction (Dragging (Board.HandIndex i) _) ->
           case Board.toHand board playingPlayer & flip Board.lookupHand i of
             Left err -> traceShow (Text.unpack err) Nothing
             Right id -> Just $ targetType id
@@ -271,7 +271,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         & fromMaybe mempty
     bounceStyle =
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
-        | attackBump attackEffect
+        | Board.attackBump attackEffect
       ]
     rgb = borderRGB interaction target
     dragTarget =
@@ -280,7 +280,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         (Just (CardTargetType Occupied), Just _) -> Just target
         _ -> Nothing
 
-decoViews :: Int -> Spots.Player -> Board 'Core -> [View Action]
+decoViews :: Int -> Spots.Player -> Board.T 'Core -> [View Action]
 decoViews z pSpot board =
   [ img_
       [ src_ $ assetsPath assetRoundTreeForestSpell,
@@ -355,7 +355,7 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
   traverse (boardToInHandCell hdi actionizer bigZ) zicreatures'
   where
     cards = map fst hand
-    icreatures = zip cards [HandIndex 0 ..]
+    icreatures = zip cards [Board.HandIndex 0 ..]
     zicreatures = zip [z, z + 2 ..] icreatures
     bigZ = case safeLast zicreatures of Nothing -> z; Just (z', _) -> z' + 2
     safeLast l = if null l then Nothing else Just $ last l
@@ -391,13 +391,13 @@ toHandDrawingInput m@Model.Game {interaction = gInteraction, ..} =
 
 data HandActionizer a = HandActionizer
   { -- The event to raise when starting to drag a card
-    onDragStart :: HandIndex -> a,
+    onDragStart :: Board.HandIndex -> a,
     -- The event to raise when stopping hovering a card
     onDragEnd :: a,
     -- The event to raise when hovering a card
-    onMouseEnter :: HandIndex -> a,
+    onMouseEnter :: Board.HandIndex -> a,
     -- The event to raise when stopping hovering a card
-    onMouseLeave :: HandIndex -> a
+    onMouseLeave :: Board.HandIndex -> a
   }
   deriving (Functor)
 
@@ -429,7 +429,7 @@ boardToInHandCell ::
   -- The z-index when the card is on top of others
   Int ->
   -- The z-index, the card, the index in the hand
-  (Int, Card 'Core, HandIndex) ->
+  (Int, Card 'Core, Board.HandIndex) ->
   Styled (View Action)
 boardToInHandCell
   HandDrawingInput
@@ -455,7 +455,7 @@ boardToInHandCell
       loc = (if beingDragged then GameDragLoc else GameHandLoc) labeler
       rightmargin = cps * 2
       hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
-      i' = unHandIndex i
+      i' = Board.unHandIndex i
       y = 2 * cps
       x =
         rightmargin
@@ -470,7 +470,7 @@ boardToInHandCell
       cpw' = (maxHSpace - cardPixelWidth) `div` (handSize - 1)
       handSize = length hand
       maxHSpace = (5 * cardPixelWidth) + 4 * hgap -- cards + gaps
-      fade = if (map snd hand !! unHandIndex i) then Constants.FadeIn else Constants.DontFade
+      fade = if (map snd hand !! Board.unHandIndex i) then Constants.FadeIn else Constants.DontFade
       attrs =
         [ style_ $ cardPositionStyle' x' y',
           prop "draggable" True,

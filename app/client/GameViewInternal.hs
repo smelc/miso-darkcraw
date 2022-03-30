@@ -173,7 +173,7 @@ scoreView Model.Game {board} z pSpot =
       div_ [] [Miso.text $ ms $ show $ Board.toScore pSpot board]
     ]
 
-scorePluses :: Board 'UI -> Int -> Spots.Player -> Styled (View Action)
+scorePluses :: Board.T 'UI -> Int -> Spots.Player -> Styled (View Action)
 scorePluses board z pSpot = do
   pluses <- traverse (\_ -> f) [0 .. scoreIncrease - 1]
   return $

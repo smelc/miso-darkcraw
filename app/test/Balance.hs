@@ -11,7 +11,7 @@
 -- |
 module Balance where
 
-import Board
+import qualified Board
 import qualified Campaign
 import Card
 import qualified Constants
@@ -155,7 +155,7 @@ playAll shareds team level nbTurns opponent =
   [ play shareds level teams nbTurns
     | teamDeck <- decks team,
       opponentDeck <- decks opponent,
-      let teams = Teams (team, teamDeck) (opponent, opponentDeck)
+      let teams = Board.Teams (team, teamDeck) (opponent, opponentDeck)
   ]
   where
     ids t =
@@ -188,7 +188,7 @@ playOne shareds team level (opponent, opponentDeck) nbTurns =
   [ play shareds level teams nbTurns
     | -- Try permutations of opponentDeck, for variety
       (teamDeck, otherDeck) <- zip (decks team) (permutations opponentDeck),
-      let teams = Teams (team, teamDeck) (opponent, otherDeck)
+      let teams = Board.Teams (team, teamDeck) (opponent, otherDeck)
   ]
   where
     ids t =
@@ -209,7 +209,7 @@ play ::
   -- | The level being used
   Campaign.Level ->
   -- | The decks to use
-  Teams (Team, [Card 'Core]) ->
+  Board.Teams (Team, [Card 'Core]) ->
   -- | The number of turns to play
   Nat ->
   Stat
@@ -254,7 +254,7 @@ play shareds level teams nbTurns =
             ++ unwords (map freqIdToStr cardsFreq)
             ++ ")"
           where
-            cards = toData pSpot teams & snd
+            cards = Board.toData pSpot teams & snd
             cardsFreq =
               map cardToIdentifier cards
                 & group

@@ -4,7 +4,7 @@
 -- 'Move' and 'AI'.
 module AI where
 
-import Board
+import qualified Board
 import Card
 import Constants (Difficulty)
 import qualified Game
@@ -15,7 +15,7 @@ import qualified Turn
 play ::
   Difficulty ->
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The playing player
   Spots.Player ->
   Turn.Turn ->

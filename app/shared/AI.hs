@@ -6,7 +6,7 @@
 -- 'applyDifficulty', 'boardScore', and 'playHand' are exported for tests
 module AI (AI.play) where
 
-import Board
+import qualified Board
 import Card
 -- import qualified HeuristicAI
 
@@ -21,7 +21,7 @@ import qualified Turn
 play ::
   Constants.Difficulty ->
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The playing player
   Spots.Player ->
   -- | The current turn

@@ -57,7 +57,7 @@ module Game
   )
 where
 
-import Board
+import qualified Board
 import BoardInstances
 import Card hiding (ID)
 import qualified Card
@@ -113,17 +113,17 @@ data Target
 
 -- | The input type to most @play*@ functions
 data Playable e = Playable
-  { board :: Board 'Core,
+  { board :: Board.T 'Core,
     event :: e,
     turn :: Turn.Turn
   }
 
 -- | To allow callers to hide the implementation of 'Playable', to avoid
 -- fields names conflicts.
-mkPlayable :: Board 'Core -> e -> Turn.Turn -> Playable e
+mkPlayable :: Board.T 'Core -> e -> Turn.Turn -> Playable e
 mkPlayable board event turn = Playable {..}
 
-instance Contains.Contains (Playable a) (Board 'Core) where
+instance Contains.Contains (Playable a) (Board.T 'Core) where
   to = board
   with p b = p {board = b}
 
@@ -132,10 +132,10 @@ instance Contains.Contains (Playable a) a where
   with p e = p {event = e}
 
 instance
-  ( Contains.Contains (Playable a) (Board 'Core),
+  ( Contains.Contains (Playable a) (Board.T 'Core),
     Contains.Contains (Playable a) a
   ) =>
-  Contains.Contains (Playable a) (Board 'Core, a)
+  Contains.Contains (Playable a) (Board.T 'Core, a)
   where
   to p = (Contains.to p, Contains.to p)
   with p (b, e) = p {board = b, event = e}
@@ -168,7 +168,7 @@ data Place
   = -- | Player puts a card from his hand on its part of the board. First
     -- argument is the player, second argument is the target, third argument
     -- is the card being played.
-    Place Spots.Player Target HandIndex
+    Place Spots.Player Target Board.HandIndex
   | -- | AI puts a card from his hand. This constructor has better
     -- testing behavior than 'Place': it makes the generated events commute.
     Place' Spots.Player Target Card.ID
@@ -211,8 +211,8 @@ data Event
 -- | The result of playing game events. If you add a field, extend
 -- the 'Eq' instance below.
 data Result e = Result
-  { board :: Board 'Core,
-    anims :: Board 'UI,
+  { board :: Board.T 'Core,
+    anims :: Board.T 'UI,
     event :: e,
     shared :: Shared.Model
   }
@@ -224,7 +224,7 @@ instance Eq a => Eq (Result a) where
     Result {board = b2, anims = a2, event = e2, shared = s2} =
       b1 == b2 && a1 == a2 && e1 == e2 && s1 == s2
 
-toResult :: Shared.Model -> Board 'Core -> Result (Maybe a)
+toResult :: Shared.Model -> Board.T 'Core -> Result (Maybe a)
 toResult s b = Result {board = b, anims = mempty, event = Nothing, shared = s}
 
 data MessageText
@@ -237,7 +237,7 @@ data MessageText
 
 -- | An animation that makes sense at the 'Game' level. If you
 -- consider extending this variant, consider whether it would be
--- be better in @Board 'UI@
+-- be better in @Board.T 'UI@
 data Animation
   = -- | Player plays the given card played on a target. This is used for example
     -- to display 'Plague' when played or when adding an item to a creature.
@@ -295,22 +295,22 @@ instance Semigroup StatChange where
 instance Monoid StatChange where
   mempty = StatChange {attackDiff = 0, hpDiff = 0}
 
-changeToEffect :: StatChange -> InPlaceEffect
+changeToEffect :: StatChange -> Board.InPlaceEffect
 changeToEffect StatChange {attackDiff, hpDiff} =
-  mempty {attackChange = natToInt attackDiff, hitPointsChange = natToInt hpDiff}
+  mempty {Board.attackChange = natToInt attackDiff, Board.hitPointsChange = natToInt hpDiff}
 
 apply :: StatChange -> Creature p -> Creature p
 apply StatChange {attackDiff, hpDiff} c@Creature {attack, hp} =
   c {Card.attack = attack +^ attackDiff, hp = hp + hpDiff}
 
 reportEffect ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   Spots.Player ->
   Spots.Card ->
-  InPlaceEffect ->
+  Board.InPlaceEffect ->
   m ()
 reportEffect pSpot cSpot effect =
-  tell $ Board {playerTop = pTop, playerBottom = pBot}
+  tell $ Board.T {playerTop = pTop, playerBottom = pBot}
   where
     effectfull = Map.singleton cSpot effect
     effectless = mempty
@@ -318,8 +318,8 @@ reportEffect pSpot cSpot effect =
       case pSpot of
         PlayerBot -> (effectfull, effectless)
         PlayerTop -> (effectless, effectfull)
-    pTop :: PlayerPart 'UI = mempty {inPlace = topInPlace}
-    pBot :: PlayerPart 'UI = mempty {inPlace = botInPlace}
+    pTop :: Board.PlayerPart 'UI = mempty {Board.inPlace = topInPlace}
+    pBot :: Board.PlayerPart 'UI = mempty {Board.inPlace = botInPlace}
 
 -- | Play a single 'Event' on the given 'Board'. Monad version is 'playM' below.
 -- If the event cannot be played, the input board is returned as is. Use
@@ -333,7 +333,7 @@ play shared p@Playable {board} =
     & fmap f
   where
     f ::
-      ((Possible (Board 'Core, Maybe Event), Board 'UI), Shared.Model) ->
+      ((Possible (Board.T 'Core, Maybe Event), Board.T 'UI), Shared.Model) ->
       Result (Maybe Event)
     f ((Left _, _), _) = toResult shared board -- Impossible case
     f (((Right (b, e), bui), s)) = Result {anims = bui, board = b, event = e, shared = s}
@@ -345,7 +345,7 @@ playE ::
   MonadError Text m =>
   Shared.Model ->
   Playable Event ->
-  m (Shared.Model, Board 'Core, Board 'UI, Maybe Event)
+  m (Shared.Model, Board.T 'Core, Board.T 'UI, Maybe Event)
 playE shared p@Playable {board} =
   tryPlayM p
     & runWriterT
@@ -353,8 +353,8 @@ playE shared p@Playable {board} =
     & fmap f
   where
     f ::
-      ((Possible (Board 'Core, Maybe Event), Board 'UI), Shared.Model) ->
-      (Shared.Model, Board 'Core, Board 'UI, Maybe Event)
+      ((Possible (Board.T 'Core, Maybe Event), Board.T 'UI), Shared.Model) ->
+      (Shared.Model, Board.T 'Core, Board.T 'UI, Maybe Event)
     f (((Left _), _), _) = (shared, board, mempty, Nothing)
     f (((Right (b, e), bui), s)) = (s, b, bui, e)
 
@@ -363,7 +363,7 @@ playE shared p@Playable {board} =
 maybePlay ::
   Shared.Model ->
   Playable Event ->
-  Maybe (Shared.Model, Board 'Core, Maybe Event)
+  Maybe (Shared.Model, Board.T 'Core, Maybe Event)
 maybePlay shared p =
   tryPlayM p
     & runWriterT
@@ -372,8 +372,8 @@ maybePlay shared p =
     & f
   where
     f ::
-      Either Text ((Possible (Board 'Core, Maybe Event), Board 'UI), Shared.Model) ->
-      Maybe (Shared.Model, Board 'Core, Maybe Event)
+      Either Text ((Possible (Board.T 'Core, Maybe Event), Board.T 'UI), Shared.Model) ->
+      Maybe (Shared.Model, Board.T 'Core, Maybe Event)
     f =
       \case
         Left _ -> Nothing
@@ -391,7 +391,7 @@ playAll shared p =
     & runExcept
     & fmap f
   where
-    f :: ((Board 'Core, Board 'UI), Shared.Model) -> Result ()
+    f :: ((Board.T 'Core, Board.T 'UI), Shared.Model) -> Result ()
     f ((b, anims), sh) = Result {anims, board = b, event = (), shared = sh}
 
 -- | Like 'playAll', but in the error monad. This function skips unapplicable
@@ -400,7 +400,7 @@ playAllE ::
   MonadError Text m =>
   Shared.Model ->
   Playable [Event] ->
-  m (Shared.Model, Board 'Core, Board 'UI)
+  m (Shared.Model, Board.T 'Core, Board.T 'UI)
 playAllE shared p =
   playAllM p
     & runWriterT
@@ -411,10 +411,10 @@ playAllE shared p =
 -- events. That is why its return type doesn't have 'Impossible'.
 playAllM ::
   MonadError Text m =>
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   Playable [Event] ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 playAllM p@Playable {board, event} =
   case event of
     [] -> return board
@@ -450,10 +450,10 @@ keepEffectfull shared p@Playable {board, event} =
 
 tryPlayM ::
   MonadError Text m =>
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   Playable Event ->
-  m (Possible (Board 'Core, Maybe Event))
+  m (Possible (Board.T 'Core, Maybe Event))
 tryPlayM p@Playable {board, turn, event} =
   case event of
     ApplyAssassins pSpot -> do
@@ -484,7 +484,7 @@ tryPlayM p@Playable {board, turn, event} =
       return $ pure $ (applyFillTheFrontline board pSpot, Nothing)
     NoPlayEvent ->
       return $ pure $ (board, Nothing)
-    PEvent (Place pSpot target (handhi :: HandIndex)) -> do
+    PEvent (Place pSpot target (handhi :: Board.HandIndex)) -> do
       shared <- get
       ident <- Board.lookupHandM hand handi
       let uiCard = Shared.identToCard shared ident
@@ -511,11 +511,11 @@ tryPlayM p@Playable {board, turn, event} =
           let pair = show target ++ ", " ++ show card
            in throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ pair ++ ")"
       where
-        handi = unHandIndex handhi
+        handi = Board.unHandIndex handhi
         (hand, hand') = (Board.toHand board pSpot, deleteAt handi hand)
         board' = Board.setHand board pSpot hand'
         manaAvail :: Nat = Board.toPart board pSpot & Board.mana
-        decreaseMana (manaCost :: Mana.Mana) (b :: Board 'Core) =
+        decreaseMana (manaCost :: Mana.Mana) (b :: Board.T 'Core) =
           Board.setMana (manaAvail - (Mana.amount turn manaCost)) pSpot b
         -- Apply continuation 'f' on 'i' if a success, otherwise return
         (>=>) i f =
@@ -532,7 +532,7 @@ tryPlayM p@Playable {board, turn, event} =
 eventToAnim ::
   MonadError Text m =>
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   Event ->
   m Animation
 eventToAnim shared board =
@@ -614,7 +614,7 @@ eventToAnim shared board =
           map (Shared.creatureToFilepath shared) movedCreatures
             & catMaybes
     Game.NoPlayEvent -> pure NoAnimation
-    Game.PEvent (Game.Place pSpot target (HandIndex {unHandIndex = idx})) -> do
+    Game.PEvent (Game.Place pSpot target (Board.HandIndex {unHandIndex = idx})) -> do
       id <- Board.lookupHandM (Board.toHand board pSpot) idx
       return $ go pSpot target id
     Game.PEvent (Game.Place' pSpot target id) ->
@@ -626,29 +626,29 @@ eventToAnim shared board =
     go pSpot target =
       \case
         IDC {} -> NoAnimation
-        IDI {} -> NoAnimation -- We should rather highlight the new item in Board 'UI
+        IDI {} -> NoAnimation -- We should rather highlight the new item in Board.T 'UI
         id@(IDN _) ->
           Game.Application pSpot target (Shared.unsafeIdentToCard shared id & Card.unlift)
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot
-idToHandIndex :: Board 'Core -> Spots.Player -> Card.ID -> Maybe HandIndex
+idToHandIndex :: Board.T 'Core -> Spots.Player -> Card.ID -> Maybe Board.HandIndex
 idToHandIndex board pSpot id =
   find
     (\(_, m) -> m == id)
-    (Board.toHand board pSpot & zip [HandIndex 0 ..])
+    (Board.toHand board pSpot & zip [Board.HandIndex 0 ..])
     <&> fst
 
 -- | Play a 'Neutral'. Doesn't deal with consuming mana (done by caller)
 playNeutralM ::
   MonadError Text m =>
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
-  Board 'Core ->
+  Board.T 'Core ->
   Spots.Player ->
   Target ->
   Neutral ->
-  m (Board 'Core, Maybe Event)
+  m (Board.T 'Core, Maybe Event)
 playNeutralM board _playingPlayer target n =
   case (n, target) of
     (InfernalHaste, PlayerTarget pSpot) ->
@@ -659,12 +659,12 @@ playNeutralM board _playingPlayer target n =
             <&> (\cSpot -> Attack pSpot cSpot True False)
     (Health, CardTarget pSpot cSpot) -> do
       let increase = 1
-      reportEffect pSpot cSpot (mempty {hitPointsChange = increase})
+      reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
       board' <- addHitpoints pSpot cSpot increase
       return (board', Nothing)
     (Life, CardTarget pSpot cSpot) -> do
       let increase = 3
-      reportEffect pSpot cSpot (mempty {hitPointsChange = increase})
+      reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
       board' <- addHitpoints pSpot cSpot increase
       return (board', Nothing)
     (Pandemonium, PlayerTarget pSpot) -> do
@@ -675,7 +675,7 @@ playNeutralM board _playingPlayer target n =
       -- Put existing creatures on new spots
       let board' = Board.setInPlace pSpot (Map.fromList $ zip spots creatures) board
       -- Report fadeIn effects on each new spot
-      traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {fade = Constants.FadeIn})) spots
+      traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {Board.fade = Constants.FadeIn})) spots
       return (board', Nothing)
     (Plague, PlayerTarget pSpot) -> do
       board' <- applyPlagueM board pSpot
@@ -684,7 +684,7 @@ playNeutralM board _playingPlayer target n =
       case Board.toInPlaceCreature board pSpot cSpot of
         Nothing -> return (board, Nothing)
         Just c@Creature {skills} -> do
-          reportEffect pSpot cSpot (mempty {attackChange = Nat.natToInt Constants.strengthPotAttackBonus})
+          reportEffect pSpot cSpot (mempty {Board.attackChange = Nat.natToInt Constants.strengthPotAttackBonus})
           let board' = Board.setCreature pSpot cSpot (c {skills = skills ++ [Skill.StrengthPot]}) board
           return (board', Nothing)
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
@@ -698,12 +698,12 @@ playNeutralM board _playingPlayer target n =
 -- | Play a 'Creature'. Doesn't deal with consuming mana (done by caller)
 playCreatureM ::
   MonadError Impossible m =>
-  MonadWriter (Board 'UI) m =>
-  Board 'Core ->
+  MonadWriter (Board.T 'UI) m =>
+  Board.T 'Core ->
   Spots.Player ->
   Spots.Card ->
   Creature 'Core ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 playCreatureM board pSpot cSpot creature =
   case Map.member cSpot $ Board.toInPlace board pSpot of
     True ->
@@ -713,7 +713,7 @@ playCreatureM board pSpot cSpot creature =
       -- an event computed by the AI fail.
       throwError CannotPlaceCreature
     _ -> do
-      reportEffect pSpot cSpot $ mempty {fade = Constants.FadeIn} -- report creature addition effect
+      reportEffect pSpot cSpot $ mempty {Board.fade = Constants.FadeIn} -- report creature addition effect
       board <- pure $ Board.setCreature pSpot cSpot creature board -- set creature
       board <- applyDiscipline board creature pSpot cSpot
       board <- applySquire board creature pSpot cSpot
@@ -723,12 +723,12 @@ playCreatureM board pSpot cSpot creature =
 -- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
 playItemM ::
   MonadError Impossible m =>
-  MonadWriter (Board 'UI) m =>
-  Board 'Core ->
+  MonadWriter (Board.T 'UI) m =>
+  Board.T 'Core ->
   Spots.Player ->
   Spots.Card ->
   Item ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 playItemM board pSpot cSpot item =
   case Board.toInPlaceCreature board pSpot cSpot of
     Nothing ->
@@ -737,7 +737,7 @@ playItemM board pSpot cSpot item =
       | not (meetsRequirement item creature) ->
           throwError CannotPlaceItem
     Just creature -> do
-      reportEffect pSpot cSpot $ mempty {fade = Constants.FadeIn}
+      reportEffect pSpot cSpot $ mempty {Board.fade = Constants.FadeIn}
       -- TODO @smelc record animation for item arrival
       let creature' = installItem item creature
       return $ Board.setCreature pSpot cSpot creature' board
@@ -771,16 +771,16 @@ installItem item c@Creature {hp, items} =
         SwordOfMight -> 1
 
 applyDiscipline ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The creature being played
   Creature 'Core ->
   -- | The part where the creature is being played
   Spots.Player ->
   -- | The spot where the creature arrives. It has already been filled with 'creature'.
   Spots.Card ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyDiscipline board creature pSpot cSpot
   | not $ Total.isDisciplined creature = return board
   | otherwise = do
@@ -796,11 +796,11 @@ applyDiscipline board creature pSpot cSpot
         & map fst
 
 applyFillTheFrontline ::
-  Board 'Core ->
+  Board.T 'Core ->
   Spots.Player ->
-  Board 'Core
+  Board.T 'Core
 applyFillTheFrontline board pSpot =
-  Board.setPart board pSpot part {inPlace = Map.fromList bindings'}
+  Board.setPart board pSpot part {Board.inPlace = Map.fromList bindings'}
   where
     part = Board.toPart board pSpot
     inPlace = Board.inPlace part
@@ -820,19 +820,19 @@ applyFillTheFrontline board pSpot =
     applies Creature {skills} = Skill.Ranged `elem` skills
 
 applyPlague ::
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part on which to apply plague
   Spots.Player ->
-  Board 'Core
+  Board.T 'Core
 applyPlague board actingPlayer = applyPlagueM board actingPlayer & runWriter & fst
 
 applyPlagueM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part on which to apply plague
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyPlagueM board pSpot = do
   -- Record animation
   traverse_ (\(cSpot, c) -> reportEffect pSpot cSpot $ plagueEffect c) $ Map.toList affecteds
@@ -844,21 +844,21 @@ applyPlagueM board pSpot = do
       affecteds
   where
     affecteds = Board.toInPlace board pSpot
-    baseEffect = mempty {hitPointsChange = -1}
-    plagueEffect Creature {hp} | hp <= 1 = baseEffect {death = UsualDeath}
-    plagueEffect _ = baseEffect {fadeOut = [Tile.HeartBroken]}
+    baseEffect = mempty {Board.hitPointsChange = -1}
+    plagueEffect Creature {hp} | hp <= 1 = baseEffect {Board.death = Board.UsualDeath}
+    plagueEffect _ = baseEffect {Board.fadeOut = [Tile.HeartBroken]}
 
 applySquire ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The creature being played
   Creature 'Core ->
   -- | The part where the creature is being played
   Spots.Player ->
   -- | The spot where the creature arrives. It has already been filled with the creature.
   Spots.Card ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applySquire board Creature {skills} pSpot cSpot =
   if Skill.Squire `notElem` skills || Spots.inFront cSpot || not knightInFront
     then return board -- No change
@@ -876,12 +876,12 @@ applySquire board Creature {skills} pSpot cSpot =
 
 drawCards ::
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The player drawing cards
   Spots.Player ->
   -- | The sources from which to draw the cards
   [DrawSource] ->
-  (Shared.Model, Board 'Core, Board 'UI)
+  (Shared.Model, Board.T 'Core, Board.T 'UI)
 drawCards shared board pSpot =
   \case
     [] -> (shared, board, mempty)
@@ -893,12 +893,12 @@ drawCards shared board pSpot =
 
 drawCard ::
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The player drawing cards
   Spots.Player ->
   -- | The reason for drawing a card
   DrawSource ->
-  (Shared.Model, Board 'Core, Board 'UI)
+  (Shared.Model, Board.T 'Core, Board.T 'UI)
 drawCard shared board pSpot src =
   drawCardM board pSpot src
     & runWriterT
@@ -906,14 +906,14 @@ drawCard shared board pSpot src =
     & (\((b, bui), s) -> (s, b, bui))
 
 drawCardM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The playing player, used to find the hand to draw from if the
   -- 'DrawSource' is 'Native'.
   Spots.Player ->
   DrawSource ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 drawCardM board p src =
   case (srcKind board & runExcept, stack) of
     (_, []) -> return board -- cannot draw: stack is empty
@@ -938,7 +938,7 @@ drawCardM board p src =
     pSpot = case src of Native -> p; CardDrawer custom _ -> custom
     srcKind ::
       MonadError Impossible m =>
-      Board 'Core ->
+      Board.T 'Core ->
       m (Maybe (Spots.Card, Creature 'Core, Int, Skill.State))
     srcKind b =
       case src of
@@ -958,9 +958,9 @@ drawCardM board p src =
 
 transferCards ::
   Shared.Model ->
-  Board 'Core ->
+  Board.T 'Core ->
   Spots.Player ->
-  (Shared.Model, Board 'Core, Board 'UI)
+  (Shared.Model, Board.T 'Core, Board.T 'UI)
 transferCards shared board pSpot =
   (Shared.withStdGen shared stdgen', board', boardui')
   where
@@ -969,9 +969,9 @@ transferCards shared board pSpot =
 
 transferCards' ::
   StdGen ->
-  Board 'Core ->
+  Board.T 'Core ->
   Spots.Player ->
-  (Board 'Core, Board 'UI, StdGen)
+  (Board.T 'Core, Board.T 'UI, StdGen)
 transferCards' stdgen board pSpot =
   transferCardsM board pSpot & flip runRandT stdgen & runWriter & reorg
   where
@@ -980,10 +980,10 @@ transferCards' stdgen board pSpot =
 -- | Transfer cards from the discarded stack to the other stack
 transferCardsM ::
   MonadRandom m =>
-  MonadWriter (Board 'UI) m =>
-  Board 'Core ->
+  MonadWriter (Board.T 'UI) m =>
+  Board.T 'Core ->
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 transferCardsM board pSpot =
   if not needTransfer
     then pure board
@@ -991,7 +991,7 @@ transferCardsM board pSpot =
       tell $ Board.mapDiscarded pSpot (const $ -length discarded) mempty
       tell $ Board.setStack mempty pSpot (length discarded)
       discarded' <- shuffleM discarded
-      let part' = part {discarded = [], stack = stack ++ discarded'}
+      let part' = part {Board.discarded = [], Board.stack = stack ++ discarded'}
       return $ Board.setPart board pSpot part'
   where
     nbCardsToDraw = cardsToDraw board pSpot False & length
@@ -1002,7 +1002,7 @@ transferCardsM board pSpot =
 
 -- | board id pSpot target holds iff player at 'pSpot' can play card 'id'
 -- on 'target'
-appliesTo :: Board 'Core -> Card.ID -> Spots.Player -> Target -> Bool
+appliesTo :: Board.T 'Core -> Card.ID -> Spots.Player -> Target -> Bool
 appliesTo board id playingPlayer target =
   correctPlayer && correctHoleyness && satisfiedConstraints
   where
@@ -1029,13 +1029,13 @@ appliesTo board id playingPlayer target =
             Just c -> meetsRequirement item c
 
 applyAssassinsM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part where assassin takes effect
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyAssassinsM board pSpot =
   foldM (\b pair -> applyAssassinM b pSpot pair) board assassins
   where
@@ -1045,15 +1045,15 @@ applyAssassinsM board pSpot =
         & Map.toList
 
 applyAssassinM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part where assassin takes effect
   Spots.Player ->
   -- | The concerned assassin. It is at @board[pSpot]@.
   (Spots.Card, Creature 'Core) ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyAssassinM board pSpot (cSpot, creature) =
   -- We reverse the result, because sorting is ascending (0, 2, 4, etc.); but
   -- we want the bigger value.
@@ -1087,7 +1087,7 @@ data Move = Move
 
 -- | @move m board@ moves the creature at @move.from m@ to @move.to m@
 -- Returns 'Nothing' if the move is impossible
-move :: Move -> Board 'Core -> Maybe (Board 'Core)
+move :: Move -> Board.T 'Core -> Maybe (Board.T 'Core)
 move Move {from, to} board =
   case (at from board, at to board) of
     (Just c, Nothing) ->
@@ -1099,13 +1099,13 @@ move Move {from, to} board =
     at (p, c) b = Board.toInPlaceCreature b p c
 
 applyBrainlessM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part where brainless takes effect
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyBrainlessM board pSpot
   | null brainless = return board -- Nothing to do, avoid useless things
   | otherwise = do
@@ -1133,7 +1133,7 @@ data ChurchEffect
 allChurchEffects :: NE.NonEmpty ChurchEffect
 allChurchEffects = PlusOneAttack NE.:| [PlusOneHealth ..]
 
-applyChurch :: Shared.Model -> Board 'Core -> Spots.Player -> (Board 'Core, Board 'UI, Shared.Model)
+applyChurch :: Shared.Model -> Board.T 'Core -> Spots.Player -> (Board.T 'Core, Board.T 'UI, Shared.Model)
 applyChurch shared board pSpot =
   applyChurchM board pSpot
     & runWriterT
@@ -1143,23 +1143,23 @@ applyChurch shared board pSpot =
     reorg ((x, y), z) = (x, y, z)
 
 applyChurchM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part where churchs take effect
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyChurchM board pSpot = do
   -- TODO @smelc generate one effect per church
   effect <- Random.oneof allChurchEffects
   case effect of
     PlusOneAttack ->
-      go (\c@Creature {attack} -> c {Card.attack = attack +^ 1}) (mempty {attackChange = 1})
+      go (\c@Creature {attack} -> c {Card.attack = attack +^ 1}) (mempty {Board.attackChange = 1})
     PlusOneHealth ->
-      go (\c@Creature {hp} -> c {hp = hp + 1}) (mempty {attackChange = 1})
+      go (\c@Creature {hp} -> c {hp = hp + 1}) (mempty {Board.attackChange = 1})
     PlusOneMana -> do
-      tell (setMana 1 pSpot mempty :: Board 'UI)
+      tell (Board.setMana 1 pSpot mempty :: Board.T 'UI)
       return $ Board.setMana (Board.toPart board pSpot & Board.mana) pSpot board
   where
     go creatureFun effect = do
@@ -1173,13 +1173,13 @@ applyChurchM board pSpot = do
     isChurch Creature {creatureId = CreatureID {creatureKind = kind}} = kind == Card.Church
 
 applyCreateForestM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part where churchs take effect
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyCreateForestM board pSpot = do
   shared <- get
   case (priests, Random.pick shared targetSpots) of
@@ -1214,11 +1214,11 @@ applyCreateForestM board pSpot = do
 -- | Trigger the sylvan skill at the given place, if relevant. Returns the
 -- updated board.
 applySylvan ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   Spots.Player ->
   Spots.Card ->
-  Board 'Core ->
-  m (Board 'Core)
+  Board.T 'Core ->
+  m (Board.T 'Core)
 applySylvan pSpot cSpot board =
   case Board.toInPlaceCreature board pSpot cSpot of
     Nothing -> pure board
@@ -1226,28 +1226,28 @@ applySylvan pSpot cSpot board =
     Just _ | (Board.toPart board pSpot & Board.deco & Map.lookup cSpot) /= Just (Board.Forest) -> pure board
     Just c@Creature {attack, hp} -> do
       let c' = c {Card.attack = attack Damage.+^ 1, hp = hp + 1}
-      reportEffect pSpot cSpot $ mempty {attackChange = 1, hitPointsChange = 1}
+      reportEffect pSpot cSpot $ mempty {Board.attackChange = 1, Board.hitPointsChange = 1}
       pure $ Board.setCreature pSpot cSpot c' board
 
 applyFearNTerror ::
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part causing fear
   Spots.Player ->
-  (Board 'Core, Board 'UI)
+  (Board.T 'Core, Board.T 'UI)
 applyFearNTerror board pSpot =
   applyFearNTerrorM board pSpot & runWriter
 
 applyFearNTerrorM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part causing fear
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyFearNTerrorM board affectingSpot = do
-  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByTerror) terrorAffected
-  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy DeathByFear) fearAffected
+  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy Board.DeathByTerror) terrorAffected
+  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy Board.DeathByFear) fearAffected
   return $
     board
       & Board.setInPlace affectedSpot affectedInPlace''
@@ -1301,7 +1301,7 @@ applyFearNTerrorM board affectingSpot = do
       -- consume skills
       Map.mapWithKey consumeTerror affectingInPlace
         & Map.mapWithKey consumeFear
-    deathBy cause = mempty {death = cause}
+    deathBy cause = mempty {Board.death = cause}
     consumeFear cSpot c | cSpot `notElem` fearKillers = c
     consumeFear _ c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []
@@ -1314,21 +1314,21 @@ applyFearNTerrorM board affectingSpot = do
     consumeTerrorSkill (s : rest) = s : consumeTerrorSkill rest
 
 applyGrowthM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part where growth triggers
   Spots.Player ->
   -- | The part where to try apply growth
   Spots.Card ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyGrowthM board pSpot cSpot =
   case Board.toInPlaceCreature board pSpot cSpot of
     Nothing -> return board
     Just (Creature {skills}) | (Skill.Growth True) `notElem` skills -> return board
-    Just _ | Map.lookup cSpot deco /= (Just Forest) -> return board
+    Just _ | Map.lookup cSpot deco /= (Just Board.Forest) -> return board
     Just c@(Creature {attack, skills, hp}) -> do
-      let effect = mempty {attackChange = 1, hitPointsChange = 1}
+      let effect = mempty {Board.attackChange = 1, Board.hitPointsChange = 1}
           c' = c {Card.attack = attack +^ 1, hp = hp + 1, skills = consume skills}
       reportEffect pSpot cSpot effect
       return $ Board.setCreature pSpot cSpot c' board
@@ -1341,12 +1341,12 @@ applyGrowthM board pSpot cSpot =
 -- | Applies the effect of kings, i.e. give +1/+1 to all knights, for every
 -- king in place.
 applyKingM ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The part where kings are used
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyKingM board pSpot = do
   traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) knightSpots
   return $ Board.mapInPlace (apply change) pSpot knightSpots board
@@ -1362,14 +1362,14 @@ applyKingM board pSpot = do
 
 -- | Card at [pSpot],[cSpot] attacks; causing changes to a board
 attack ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
-  Board 'Core ->
+  Board.T 'Core ->
   -- The attacker's player spot
   Spots.Player ->
   -- The attacker's card spot
   Spots.Card ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 attack board pSpot cSpot =
   case (attacker, allyBlocker) of
     (Nothing, _) -> return board -- no attacker
@@ -1397,8 +1397,8 @@ attack board pSpot cSpot =
             Nothing -> do
               -- Imprecise creature targets an empty spot, report attack
               -- and exposion.
-              reportEffect pSpot cSpot $ mempty {attackBump = True}
-              reportEffect attackeePSpot attackedSpot $ mempty {fadeOut = [Tile.Explosion]}
+              reportEffect pSpot cSpot $ mempty {Board.attackBump = True}
+              reportEffect attackeePSpot attackedSpot $ mempty {Board.fadeOut = [Tile.Explosion]}
               pure board -- No change
             Just attacked ->
               -- Imprecise creature attacks an occupied spot
@@ -1414,7 +1414,7 @@ attack board pSpot cSpot =
               -- Creature can attack an enemy spot, but it is empty: contributed to the score
               let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
               hit :: Nat <- deal $ Total.attack (Just place) hitter
-              reportEffect pSpot cSpot $ mempty {attackBump = True, scoreChange = natToInt hit}
+              reportEffect pSpot cSpot $ mempty {Board.attackBump = True, Board.scoreChange = natToInt hit}
               return $ Board.increaseScore board pSpot hit
             else do
               -- or something to attack; attack it
@@ -1448,19 +1448,19 @@ attack board pSpot cSpot =
 -- returns the board after having @hitter@ (at @(pSpot, cSpot)@) attacked
 -- @hit@ at @hitSpot@.
 attackOneSpot ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
-  Board 'Core ->
+  Board.T 'Core ->
   (Creature 'Core, Spots.Player, Spots.Card) ->
   (Creature 'Core, Spots.Card) ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
-  effect@InPlaceEffect {death, extra} <- singleAttack place hitter hit
+  effect@Board.InPlaceEffect {death, extra} <- singleAttack place hitter hit
   let board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
-  reportEffect pSpot cSpot $ mempty {attackBump = True} -- make hitter bump
+  reportEffect pSpot cSpot $ mempty {Board.attackBump = True} -- make hitter bump
   reportEffect hitPspot hitSpot effect -- hittee
   board' <-
-    if isDead death
+    if Board.isDead death
       then applyFlailOfTheDamned board' hitter pSpot
       else pure board'
   let behind b =
@@ -1486,13 +1486,13 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
 
 applyInPlaceEffectOnBoard ::
   -- | The effect of the attacker on the hittee
-  InPlaceEffect ->
+  Board.InPlaceEffect ->
   -- | The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- | The creature being hit
   (Spots.Player, Spots.Card, Creature 'Core) ->
   -- | The updated board
-  Board 'Core
+  Board.T 'Core
 applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) =
   case hittee' of
     Just _ -> board'
@@ -1505,26 +1505,26 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
 
 applyInPlaceEffect ::
   -- | The effect of the attacker on the hittee
-  InPlaceEffect ->
+  Board.InPlaceEffect ->
   -- | The creature being hit
   Creature 'Core ->
   -- | The creature being hit, after applying the effect; or None if dead
   Maybe (Creature 'Core)
 applyInPlaceEffect effect creature@Creature {..} =
   case effect of
-    InPlaceEffect {death} | isDead death -> Nothing
-    InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
+    Board.InPlaceEffect {death} | Board.isDead death -> Nothing
+    Board.InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
 
 applyFlailOfTheDamned ::
-  MonadWriter (Board 'UI) m =>
+  MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   -- The input board
-  Board 'Core ->
+  Board.T 'Core ->
   -- The hitter
   Creature 'Core ->
   -- The hitter's position
   Spots.Player ->
-  m (Board 'Core)
+  m (Board.T 'Core)
 applyFlailOfTheDamned board creature pSpot =
   if not hasFlailOfTheDamned
     then return noChange
@@ -1547,7 +1547,7 @@ applyFlailOfTheDamned board creature pSpot =
           let spawned' = spawned {transient = True}
           let board' = Board.setCreature pSpot spawningSpot spawned' board
           -- TODO @smelc record an animation highlighting the flail
-          reportEffect pSpot spawningSpot $ mempty {fade = Constants.FadeIn}
+          reportEffect pSpot spawningSpot $ mempty {Board.fade = Constants.FadeIn}
           return board'
   where
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
@@ -1563,7 +1563,7 @@ singleAttack ::
   Creature p ->
   -- | The defender
   Creature p ->
-  m InPlaceEffect
+  m Board.InPlaceEffect
 singleAttack place attacker@Creature {skills} defender = do
   hit :: Nat <- deal damage
   let afterHit :: Int = (natToInt (Card.hp defender)) - (natToInt hit)
@@ -1571,19 +1571,19 @@ singleAttack place attacker@Creature {skills} defender = do
   let hps' :: Nat = Nat.intToClampedNat afterHit
   let hpChangeEffect =
         if hps' <= 0
-          then mempty {death}
-          else mempty {hitPointsChange = Nat.negate hit}
-  return $ (hpChangeEffect {extra}) <> ace <> imprecise
+          then mempty {Board.death}
+          else mempty {Board.hitPointsChange = Nat.negate hit}
+  return $ (hpChangeEffect {Board.extra}) <> ace <> imprecise
   where
     damage = Total.attack (Just place) attacker
     death =
       if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
-        then DeathByBreathIce
-        else UsualDeath
+        then Board.DeathByBreathIce
+        else Board.UsualDeath
     ace = mkFadeOut Skill.Ace Tile.Arrow
     imprecise = mkFadeOut Skill.Imprecise Tile.Explosion
     mkFadeOut skill tile =
-      mempty {fadeOut = if skill `elem` skills then [tile] else []}
+      mempty {Board.fadeOut = if skill `elem` skills then [tile] else []}
 
 -- | Apply a 'Damage'
 deal :: MonadState Shared.Model m => Damage -> m Nat
@@ -1619,7 +1619,7 @@ allEnemySpots ::
   -- | Spots that can be attacked
   [Spots.Card]
 allEnemySpots cSpot =
-  map bottomSpotOfTopVisual spotsInSight
+  map Board.bottomSpotOfTopVisual spotsInSight
   where
     spotsInSight =
       case cSpot of
@@ -1681,7 +1681,7 @@ attackOrder :: Spots.Player -> [Spots.Card]
 attackOrder PlayerTop =
   [BottomRight, Bottom, BottomLeft, TopRight, Top, TopLeft]
 attackOrder PlayerBot =
-  map bottomSpotOfTopVisual $ reverse $ attackOrder PlayerTop
+  map Board.bottomSpotOfTopVisual $ reverse $ attackOrder PlayerTop
 
 -- | @nextAttackSpot b pSpot cSpot@ returns the spots to attack after @cSpot@.
 -- If @cSpot@ is @Nothing@, the first spot in the order is considered; if
@@ -1690,7 +1690,7 @@ attackOrder PlayerBot =
 -- If pre End Turn events are changed in 'Move', this function may have
 -- to be adapted to play the events beforehand. This should be discovered
 -- automatically, as this property is checked with a PBT.
-nextAttackSpot :: Board 'Core -> Spots.Player -> Maybe Spots.Card -> Maybe Spots.Card
+nextAttackSpot :: Board.T 'Core -> Spots.Player -> Maybe Spots.Card -> Maybe Spots.Card
 nextAttackSpot board pSpot cSpot =
   case cSpot of
     Nothing -> find hasCreature spots
@@ -1716,7 +1716,7 @@ data DrawSource
 
 -- | The cards to draw, the Boolean indicates whether to bound by the
 -- stack's length or not
-cardsToDraw :: Board 'Core -> Spots.Player -> Bool -> [DrawSource]
+cardsToDraw :: Board.T 'Core -> Spots.Player -> Bool -> [DrawSource]
 cardsToDraw board pSpot considerStack =
   map (const Native) [0 .. natives - 1] ++ map (CardDrawer pSpot) cardsDrawer
   where

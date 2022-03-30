@@ -16,7 +16,7 @@ module Main (main) where
 import AI
 import qualified Art
 import qualified Balance
-import Board
+import qualified Board
 import qualified Campaign
 import Card
 import Cinema
@@ -64,13 +64,13 @@ getAllDecks :: [Card 'UI] -> [[Card 'Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
 
 -- | Tests that the AI treats 'Ranged' correctly.
-testAIRanged :: Shared.Model -> Turn -> Board 'Core
+testAIRanged :: Shared.Model -> Turn -> Board.T 'Core
 testAIRanged shared turn =
   case Game.playAll shared (Game.mkPlayable board (map Game.PEvent events) turn) of
     Left _ -> error "AI failed"
     Right (Game.Result {board = board'}) -> board'
   where
-    (t, teams) = (Undead, Teams Undead Undead)
+    (t, teams) = (Undead, Board.Teams Undead Undead)
     archer = IDC (CreatureID Archer t) []
     pSpot = Turn.toPlayerSpot turn
     board = Board.addToHand (Board.empty teams) pSpot archer
@@ -253,7 +253,7 @@ testAIPlace shared =
     prop "placeCards returns events playing cards of the player whose turn it is" $
       \board pSpot -> play board pSpot `shouldSatisfy` playerIs pSpot
     prop "playHand's first card can always be played successfully" $
-      \(Pretty (board :: Board 'Core)) (Pretty pSpot) ->
+      \(Pretty (board :: Board.T 'Core)) (Pretty pSpot) ->
         let place = play board pSpot & listToMaybe
          in isJust place
               ==> (Game.maybePlay shared (Game.mkPlayable board (Game.PEvent (fromJust place)) turn))
@@ -268,14 +268,14 @@ testAIPlace shared =
     allDiff [] = True
     allDiff (event : events) = all (spotsDiffer event) events && allDiff events
     goodCards _ _ [] = True
-    goodCards board pSpot (Game.Place _ _ HandIndex {unHandIndex = i} : tl) =
+    goodCards board pSpot (Game.Place _ _ Board.HandIndex {unHandIndex = i} : tl) =
       case (0 <= i, i < handSize) of
         (False, _) -> traceShow ("Wrong hand index: " ++ show i) False
         (_, False) -> traceShow ("Wrong hand index: " ++ show i ++ ", hand has " ++ show handSize ++ " members.") False
         _ -> goodCards board pSpot tl
       where
         handSize = List.length $ Board.toHand board pSpot
-    goodCards (board :: Board 'Core) pSpot (Game.Place' _ _ id : tl) =
+    goodCards (board :: Board.T 'Core) pSpot (Game.Place' _ _ id : tl) =
       if id `elem` hand
         then goodCards board pSpot tl
         else traceShow ("Wrong ID: " ++ show id ++ "It does not belong to the hand: " ++ show hand) False
@@ -293,13 +293,13 @@ testAIPlace shared =
 testInPlaceEffectsMonoid =
   describe "InPlaceEffects is a well behaved Monoid" $ do
     prop "mempty <> effects == effect" $
-      \(effect :: InPlaceEffects) ->
+      \(effect :: Board.InPlaceEffects) ->
         mempty <> effect `shouldBe` effect
     prop "effects <> mempty == effect" $
-      \(effect :: InPlaceEffects) ->
+      \(effect :: Board.InPlaceEffects) ->
         effect <> mempty `shouldBe` effect
     prop "effects <> effects' == effects' <> effects (modulo fadeOut)" $
-      \(effect :: InPlaceEffects, effect') ->
+      \(effect :: Board.InPlaceEffects, effect') ->
         let (e1, e2) = rmCommonFadeout effect effect'
          in e1 <> e2 `shouldBe` e1 <> e2
   where
@@ -311,11 +311,11 @@ testInPlaceEffectsMonoid =
         )
         Spots.allCards
     nonEmptyFadeout Nothing = False
-    nonEmptyFadeout (Just effect) = not $ null $ fadeOut effect
+    nonEmptyFadeout (Just effect) = not $ null $ Board.fadeOut effect
     rmCommonFadeout e1 e2 | hasCommonFadeout e1 e2 = (rmFadeout e1, e2)
     rmCommonFadeout e1 e2 = (e1, e2)
     rmFadeout effects =
-      Map.map (\effect -> effect {fadeOut = []}) effects
+      Map.map (\effect -> effect {Board.fadeOut = []}) effects
 
 testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
@@ -369,7 +369,7 @@ testItemsAI shared =
         & Board.setCreature pSpot TopLeft id1
         & Board.setCreature pSpot Bottom id2
         & (\b -> Board.addToHand b pSpot (IDI item))
-    teams = Teams Undead Undead
+    teams = Board.Teams Undead Undead
     mkCreature' kind team = Logic.mkCreature shared kind team False
     play board =
       Game.playAll
@@ -389,7 +389,7 @@ testAIImprecise shared =
                              )
   where
     pSpot = PlayerTop
-    (team, teams) = (ZKnights, Teams team team)
+    (team, teams) = (ZKnights, Board.Teams team team)
     board = Board.empty teams & (\b -> Board.addToHand b pSpot trebuchet)
     trebuchet = Card.IDC (CreatureID Trebuchet team) []
     turn = Turn.initial
@@ -403,7 +403,7 @@ testMana shared =
   where
     -- manaCostGeq returns True if 'avail' is greater or equal to the
     -- mana cost of 'card'.
-    manaCostGeq :: Board 'Core -> Turn.Turn -> Nat -> Game.Place -> Bool
+    manaCostGeq :: Board.T 'Core -> Turn.Turn -> Nat -> Game.Place -> Bool
     manaCostGeq board turn avail =
       \case
         Game.Place pSpot _ hi -> go' pSpot hi
@@ -416,7 +416,7 @@ testMana shared =
           case go pSpot hi of
             Left errMsg -> traceShow errMsg False
             _ -> True
-        go pSpot HandIndex {unHandIndex = i} = do
+        go pSpot Board.HandIndex {unHandIndex = i} = do
           id :: Card.ID <- card
           card :: Card 'UI <-
             Shared.identToCard shared id

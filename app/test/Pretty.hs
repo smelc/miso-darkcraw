@@ -5,7 +5,7 @@
 module Pretty where
 
 import qualified Art
-import Board
+import qualified Board
 import Card
 import qualified Data.Text.Lazy as T
 import Test.QuickCheck
@@ -30,5 +30,5 @@ instance {-# OVERLAPPING #-} Show a => Show (Pretty (Maybe a)) where
 -- /!\ The instance that follows is easier to read but hide
 -- some info, beware! /!\
 
-instance {-# OVERLAPPING #-} Show (Pretty (Board 'Core)) where
+instance {-# OVERLAPPING #-} Show (Pretty (Board.T 'Core)) where
   show (Pretty b) = Art.toASCII b

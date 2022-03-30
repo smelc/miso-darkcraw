@@ -11,7 +11,7 @@
 -- |
 module Total where
 
-import Board
+import qualified Board
 import Card
 import qualified Constants
 import Damage (Damage (..), (+^), (-^))
@@ -45,7 +45,7 @@ affectedByTerror _ _ = True
 data Place = Place {place :: Board.InPlaceType 'Core, cardSpot :: Spots.Card}
 
 -- | Builds a 'Place' from a 'Board'
-mkPlace :: Board 'Core -> Spots.Player -> Spots.Card -> Place
+mkPlace :: Board.T 'Core -> Spots.Player -> Spots.Card -> Place
 mkPlace board pSpot cardSpot = Place {place = Board.toInPlace board pSpot, cardSpot}
 
 -- | The total attack of a creature, including boosts of skills and items.

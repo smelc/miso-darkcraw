@@ -18,7 +18,8 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Board
-  ( Teams (..),
+  ( Board.appliesTo,
+    Teams (..),
     InPlaceEffect (..),
     InPlaceEffects,
     InPlaceType,
@@ -28,7 +29,6 @@ module Board
     toInPlaceCreature,
     toHand,
     toPart,
-    Board (..),
     DeathCause (..),
     Deco (..),
     initial,
@@ -57,12 +57,12 @@ module Board
     toInPlace,
     line,
     StackKind (..),
-    Board.appliesTo,
     toScore,
     mapMana,
     mapScore,
     neighbors,
     Neighborhood (..),
+    T (..),
     toPlayerHoleyInPlace,
     toNeighbors,
     toPlayerCardSpots,
@@ -315,41 +315,41 @@ lookupHand hand i
   where
     handLength = length hand
 
--- TODO @smelc rename me to T
-data Board (p :: Phase) = Board
+-- | Things on the board (hand excluded)
+data T (p :: Phase) = T
   { playerTop :: PlayerPart p,
     playerBottom :: PlayerPart p
   }
   deriving (Generic)
 
-deriving instance Board.Forall Eq p => Eq (Board p)
+deriving instance Board.Forall Eq p => Eq (T p)
 
-deriving instance Board.Forall Ord p => Ord (Board p)
+deriving instance Board.Forall Ord p => Ord (T p)
 
-deriving instance Board.Forall Show p => Show (Board p)
+deriving instance Board.Forall Show p => Show (T p)
 
-instance Semigroup (Board 'UI) where
-  Board top1 bot1 <> Board top2 bot2 =
-    Board (top1 <> top2) (bot1 <> bot2)
+instance Semigroup (T 'UI) where
+  T top1 bot1 <> T top2 bot2 =
+    T (top1 <> top2) (bot1 <> bot2)
 
-instance Monoid (Board 'UI) where
-  mempty = Board mempty mempty
+instance Monoid (T 'UI) where
+  mempty = T mempty mempty
 
-addToHand :: Board p -> Spots.Player -> HandElemType p -> Board p
+addToHand :: T p -> Spots.Player -> HandElemType p -> T p
 addToHand board pSpot handElem =
   setPart board pSpot $ part {inHand = hand ++ [handElem]}
   where
     part@PlayerPart {inHand = hand} = toPart board pSpot
 
 -- | Map over the 'deco' field of the given player in the given board
-alterDeco :: e ~ Maybe (DecoType p) => Spots.Player -> Spots.Card -> (e -> e) -> Board p -> Board p
+alterDeco :: e ~ Maybe (DecoType p) => Spots.Player -> Spots.Card -> (e -> e) -> T p -> T p
 alterDeco pSpot cSpot f board =
   setPart board pSpot $ part {deco = Map.alter f cSpot d}
   where
     part@PlayerPart {deco = d} = toPart board pSpot
 
 -- TODO @smelc replace by calls to 'mapScore'
-increaseScore :: p ~ 'Core => Board p -> Spots.Player -> Nat -> Board p
+increaseScore :: p ~ 'Core => T p -> Spots.Player -> Nat -> T p
 increaseScore board pSpot change =
   Board.setScore board pSpot (score + change)
   where
@@ -357,32 +357,32 @@ increaseScore board pSpot change =
 
 -- | Map over the 'creature' of the given player in the given board, at the given spot
 -- Does nothing if there is no creature. TODO @smelc, rename to @adjustCreature@
-mapCreature :: p ~ 'Core => Spots.Player -> Spots.Card -> (Creature p -> Creature p) -> Board p -> Board p
+mapCreature :: p ~ 'Core => Spots.Player -> Spots.Card -> (Creature p -> Creature p) -> T p -> T p
 mapCreature pSpot cSpot f board =
   setPart board pSpot $ part {inPlace = Map.adjust f cSpot m}
   where
     part@PlayerPart {inPlace = m} = toPart board pSpot
 
 -- | Map over the 'discarded' field of the given player in the given board
-mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> Board p -> Board p
+mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> T p -> T p
 mapDiscarded pSpot f board =
   setPart board pSpot $ part {discarded = f d}
   where
     part@PlayerPart {discarded = d} = toPart board pSpot
 
-mapHand :: Spots.Player -> (InHandType p -> InHandType p) -> Board p -> Board p
+mapHand :: Spots.Player -> (InHandType p -> InHandType p) -> T p -> T p
 mapHand pSpot f b = setHand b pSpot (f (toHand b pSpot))
 
 -- | Changes the mana at the given 'Spots.Player', applying a function
 -- on the existing mana.
-mapMana :: Spots.Player -> (Board.ManaType p -> Board.ManaType p) -> Board p -> Board p
+mapMana :: Spots.Player -> (Board.ManaType p -> Board.ManaType p) -> T p -> T p
 mapMana pSpot f board =
   setPart board pSpot $ part {Board.mana = f mana}
   where
     part@PlayerPart {mana} = toPart board pSpot
 
 -- | Map 'f' over creatures in the given 'Spots.Card' in the given 'Spots.Player'
-mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [Spots.Card] -> Board 'Core -> Board 'Core
+mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [Spots.Card] -> T 'Core -> T 'Core
 mapInPlace f pSpot cSpots board =
   setPart board pSpot (part {inPlace = inPlace'})
   where
@@ -390,18 +390,18 @@ mapInPlace f pSpot cSpots board =
     (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) inPlace
     inPlace' = Map.union (Map.map f changed) untouched
 
-mapScore :: Board p -> Spots.Player -> (ScoreType p -> ScoreType p) -> Board p
+mapScore :: T p -> Spots.Player -> (ScoreType p -> ScoreType p) -> T p
 mapScore board pSpot f =
   Board.setScore board pSpot (f (Board.toScore pSpot board))
 
-rmCreature :: Spots.Player -> Spots.Card -> Board 'Core -> Board 'Core
+rmCreature :: Spots.Player -> Spots.Card -> T 'Core -> T 'Core
 rmCreature pSpot cSpot board =
   Board.setInPlace pSpot (Map.delete cSpot onTable) board
   where
     onTable = Board.toPart board pSpot & inPlace
 
 -- | Puts a creature, replacing the existing one if any
-setCreature :: Spots.Player -> Spots.Card -> Creature 'Core -> Board 'Core -> Board 'Core
+setCreature :: Spots.Player -> Spots.Card -> Creature 'Core -> T 'Core -> T 'Core
 setCreature pSpot cSpot creature board =
   setPart board pSpot part'
   where
@@ -411,7 +411,7 @@ setCreature pSpot cSpot creature board =
 -- | Replace or remove a creature.
 -- TODO @smelc, rename me to @updateCreature@, change implementation to
 -- call @Map.update@
-setMaybeCreature :: Spots.Player -> Spots.Card -> Maybe (Creature 'Core) -> Board 'Core -> Board 'Core
+setMaybeCreature :: Spots.Player -> Spots.Card -> Maybe (Creature 'Core) -> T 'Core -> T 'Core
 setMaybeCreature pSpot cSpot creature board =
   setPart board pSpot part'
   where
@@ -422,42 +422,42 @@ setMaybeCreature pSpot cSpot creature board =
         Just c -> Map.insert cSpot c
     part' = part {inPlace = update existing}
 
-setInPlace :: Spots.Player -> InPlaceType p -> Board p -> Board p
+setInPlace :: Spots.Player -> InPlaceType p -> T p -> T p
 setInPlace pSpot inPlace board =
   setPart board pSpot $ part {inPlace = inPlace}
   where
     part = toPart board pSpot
 
-setHand :: Board p -> Spots.Player -> InHandType p -> Board p
+setHand :: T p -> Spots.Player -> InHandType p -> T p
 setHand board pSpot hand =
   setPart board pSpot $ part {inHand = hand}
   where
     part = toPart board pSpot
 
-setMana :: Board.ManaType p -> Spots.Player -> Board p -> Board p
+setMana :: Board.ManaType p -> Spots.Player -> T p -> T p
 setMana mana pSpot board =
   setPart board pSpot $ part {Board.mana = mana}
   where
     part = toPart board pSpot
 
-setPart :: Board p -> Spots.Player -> PlayerPart p -> Board p
+setPart :: T p -> Spots.Player -> PlayerPart p -> T p
 setPart board PlayerTop part = board {playerTop = part}
 setPart board PlayerBot part = board {playerBottom = part}
 
-setStack :: Board p -> Spots.Player -> StackType p -> Board p
+setStack :: T p -> Spots.Player -> StackType p -> T p
 setStack board pSpot stack =
   setPart board pSpot $ part {stack = stack}
   where
     part = toPart board pSpot
 
 -- TODO @smelc replace by mapScore
-setScore :: Board p -> Spots.Player -> ScoreType p -> Board p
+setScore :: T p -> Spots.Player -> ScoreType p -> T p
 setScore board pSpot score =
   setPart board pSpot $ part {score}
   where
     part = toPart board pSpot
 
-toHoleyInPlace :: Board 'Core -> [(Spots.Player, Spots.Card, Maybe (Creature 'Core))]
+toHoleyInPlace :: T 'Core -> [(Spots.Player, Spots.Card, Maybe (Creature 'Core))]
 toHoleyInPlace board =
   [ (pSpot, cSpot, maybeCreature)
     | pSpot <- Spots.allPlayers,
@@ -468,7 +468,7 @@ toHoleyInPlace board =
 -- | Returns the spots available for playing a card with the given target kind.
 -- For creature cards for example it returns empty spots. For item cards
 -- it returns occupied spots.
-toPlayerCardSpots :: Board 'Core -> Spots.Player -> CardTargetKind -> [Spots.Card]
+toPlayerCardSpots :: T 'Core -> Spots.Player -> CardTargetKind -> [Spots.Card]
 toPlayerCardSpots board pSpot ctk =
   toPlayerHoleyInPlace board pSpot
     & filter
@@ -481,29 +481,29 @@ toPlayerCardSpots board pSpot ctk =
     & map fst
 
 toPlayerHoleyInPlace ::
-  Board 'Core -> Spots.Player -> [(Spots.Card, Maybe (Creature 'Core))]
+  T 'Core -> Spots.Player -> [(Spots.Card, Maybe (Creature 'Core))]
 toPlayerHoleyInPlace board pSpot =
   [ (cSpot, maybeCreature)
     | cSpot <- Spots.allCards,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
 
-toDiscarded :: Board p -> Spots.Player -> DiscardedType p
-toDiscarded Board {playerTop} PlayerTop = discarded playerTop
-toDiscarded Board {playerBottom} PlayerBot = discarded playerBottom
+toDiscarded :: T p -> Spots.Player -> DiscardedType p
+toDiscarded T {playerTop} PlayerTop = discarded playerTop
+toDiscarded T {playerBottom} PlayerBot = discarded playerBottom
 
-toHand :: Board p -> Spots.Player -> InHandType p
-toHand Board {playerTop} PlayerTop = inHand playerTop
-toHand Board {playerBottom} PlayerBot = inHand playerBottom
+toHand :: T p -> Spots.Player -> InHandType p
+toHand T {playerTop} PlayerTop = inHand playerTop
+toHand T {playerBottom} PlayerBot = inHand playerBottom
 
-toInPlace :: Board p -> Spots.Player -> InPlaceType p
-toInPlace Board {playerTop} PlayerTop = inPlace playerTop
-toInPlace Board {playerBottom} PlayerBot = inPlace playerBottom
+toInPlace :: T p -> Spots.Player -> InPlaceType p
+toInPlace T {playerTop} PlayerTop = inPlace playerTop
+toInPlace T {playerBottom} PlayerBot = inPlace playerBottom
 
 -- | The neighbors of the card at the given spot, for the given player,
 -- and for the given kind of neighbors.
 toNeighbors ::
-  Board 'Core ->
+  T 'Core ->
   Spots.Player ->
   Spots.Card ->
   Neighborhood ->
@@ -518,19 +518,19 @@ toNeighbors board pSpot cSpot neighborhood =
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing
 
-toPart :: Board p -> Spots.Player -> PlayerPart p
-toPart Board {playerTop} PlayerTop = playerTop
-toPart Board {playerBottom} PlayerBot = playerBottom
+toPart :: T p -> Spots.Player -> PlayerPart p
+toPart T {playerTop} PlayerTop = playerTop
+toPart T {playerBottom} PlayerBot = playerBottom
 
-toScore :: Spots.Player -> Board p -> ScoreType p
+toScore :: Spots.Player -> T p -> ScoreType p
 toScore pSpot board = toPart board pSpot & score
 
-toStack :: Board p -> Spots.Player -> StackType p
-toStack Board {playerTop} PlayerTop = stack playerTop
-toStack Board {playerBottom} PlayerBot = stack playerBottom
+toStack :: T p -> Spots.Player -> StackType p
+toStack T {playerTop} PlayerTop = stack playerTop
+toStack T {playerBottom} PlayerBot = stack playerBottom
 
 toInPlaceCreature ::
-  Board 'Core ->
+  T 'Core ->
   Spots.Player ->
   Spots.Card ->
   Maybe (Creature 'Core)
@@ -542,9 +542,9 @@ toInPlaceCreature board pSpot cSpot = inPlace Map.!? cSpot
 class Empty a b where
   empty :: a -> b
 
-instance Empty (Teams Team) (Board 'Core) where
+instance Empty (Teams Team) (T 'Core) where
   empty Teams {topTeam, botTeam} =
-    Board {playerTop = empty topTeam, playerBottom = empty botTeam}
+    T {playerTop = empty topTeam, playerBottom = empty botTeam}
 
 instance Empty Team (PlayerPart 'Core) where
   empty team = PlayerPart {..}
@@ -572,9 +572,9 @@ initial ::
   -- | The initial decks
   (Teams (Team, [Card 'Core])) ->
   -- | The shared model, with its RNG updated; and the initial board
-  (r, Board 'Core)
+  (r, T 'Core)
 initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)} =
-  (smodel'', Board topPart botPart)
+  (smodel'', T topPart botPart)
   where
     part team smodel deck = (smodel', (empty team) {inHand = hand', stack = stack'})
       where
@@ -587,7 +587,7 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
 
 -- | A board with a single creature in place. Hands are empty. Handy for
 -- debugging for example.
-small :: Shared.Model -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> Spots.Card -> Board 'Core
+small :: Shared.Model -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> Spots.Card -> T 'Core
 small shared teams cid items pSpot cSpot =
   setCreature pSpot cSpot c (empty teams)
   where
@@ -596,7 +596,7 @@ small shared teams cid items pSpot cSpot =
         & fromJust
         & Card.unlift
 
-appliesTo :: Card.ID -> Board 'Core -> Spots.Player -> Spots.Card -> Bool
+appliesTo :: Card.ID -> T 'Core -> Spots.Player -> Spots.Card -> Bool
 appliesTo id board pSpot cSpot =
   case (Card.targetType id, toInPlaceCreature board pSpot cSpot) of
     (Card.CardTargetType Occupied, Just _) -> True

@@ -8,7 +8,6 @@
 
 module MCTSAI (place, newPlaySim) where
 
-import Board (Board)
 import qualified Board
 import BoardInstances ()
 import Card
@@ -48,7 +47,7 @@ class NewScore a where
   -- The score of a structure. Bigger is the best
   nscore :: a -> Int
 
-instance NewScore (Board 'Core, Spots.Player) where
+instance NewScore (Board.T 'Core, Spots.Player) where
   nscore (board, pSpot) =
     nscore (Board.toPart board pSpot) - nscore (Board.toPart board (Spots.other pSpot))
 
@@ -187,7 +186,7 @@ newPlaySim ::
   -- | The spot to play
   Spots.Player ->
   -- | The board to consider
-  Board 'Core ->
+  Board.T 'Core ->
   [Game.Place]
 newPlaySim difficulty shared pSpot board =
   case simulated & sortByLargerFst & listToMaybe of
@@ -196,7 +195,7 @@ newPlaySim difficulty shared pSpot board =
   where
     nextSched = Move.nextify $ Just Move.EndTurnPressed
     mkKernel' = mkKernel difficulty shared pSpot
-    simulated :: [(Int, (NE.NonEmpty Game.Place, Board 'Core))] =
+    simulated :: [(Int, (NE.NonEmpty Game.Place, Board.T 'Core))] =
       map (\(events, board) -> (events, Move.simRunAllMaybe nextSched (mkKernel' board) & runExcept)) events
         & mapMaybe lift
         & map (Bifunctor.second Move.board)
@@ -206,7 +205,7 @@ newPlaySim difficulty shared pSpot board =
     lift (x, Right y) = Just (x, y)
 
 -- | Make a 'Kernel' value for simulating the given board
-mkKernel :: Difficulty -> Shared.Model -> Player -> Board 'Core -> Move.Kernel ()
+mkKernel :: Difficulty -> Shared.Model -> Player -> Board.T 'Core -> Move.Kernel ()
 mkKernel difficulty shared pSpot =
   Move.mkSimKernel difficulty shared turn
   where
@@ -220,15 +219,15 @@ newPlay ::
   -- | The spot to play
   Spots.Player ->
   -- | The board to consider
-  Board 'Core ->
+  Board.T 'Core ->
   -- | Generated events, and the resulting board after having played those
   -- events.
-  [(NE.NonEmpty Game.Place, Board 'Core)]
+  [(NE.NonEmpty Game.Place, Board.T 'Core)]
 newPlay difficulty shared pSpot board =
   case newPlayFirst difficulty shared pSpot board of
     EmptyHand -> []
     NoMana -> []
-    One (_id, pairs :: [(Game.Place, Board 'Core)]) ->
+    One (_id, pairs :: [(Game.Place, Board.T 'Core)]) ->
       pairs
         & map (\(place, board') -> (place, board', newPlay difficulty shared pSpot board'))
         & map
@@ -249,7 +248,7 @@ data First
     NoMana
   | -- | Played one card at the given spot, yielding the given board
     -- FIXME return the updated Shared.Model
-    One (Card.ID, [(Game.Place, Board 'Core)])
+    One (Card.ID, [(Game.Place, Board.T 'Core)])
   deriving (Show)
 
 -- | Plays one event and plays following events if any. The point of
@@ -258,7 +257,7 @@ data First
 -- because it doesn't enqueue the created events. We cannot use 'Game.playAll'
 -- because it doesn't distinguish if the first event succeeded. If it didn't,
 -- we MUST know it, so that the AI skips this event.
-place :: Difficulty -> Shared.Model -> Game.Place -> Board 'Core -> Turn.Turn -> Maybe (Board 'Core)
+place :: Difficulty -> Shared.Model -> Game.Place -> Board.T 'Core -> Turn.Turn -> Maybe (Board.T 'Core)
 place difficulty shared place board turn =
   case Game.maybePlay shared (Game.Playable board (Game.PEvent place) turn) of
     Nothing -> Nothing
@@ -275,7 +274,7 @@ newPlayFirst ::
   Difficulty ->
   Shared.Model ->
   Spots.Player ->
-  Board 'Core ->
+  Board.T 'Core ->
   First
 newPlayFirst difficulty shared pSpot board =
   case (hand, availMana) of
@@ -293,7 +292,7 @@ newPlayFirst difficulty shared pSpot board =
         (Just _, targets) ->
           One (card, pairs)
           where
-            pairs :: [(Game.Place, Board 'Core)] =
+            pairs :: [(Game.Place, Board.T 'Core)] =
               targets
                 & map
                   ( \target ->

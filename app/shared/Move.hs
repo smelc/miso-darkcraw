@@ -34,7 +34,6 @@ module Move
 where
 
 import {-# SOURCE #-} qualified AI (play)
-import Board (Board)
 import qualified Board
 import BoardInstances (boardStart)
 import Card
@@ -152,8 +151,8 @@ cons nga scheds =
 -- as there is no playing player.
 data Kernel a = Kernel
   { anim :: Game.Animation,
-    anims :: Board 'UI,
-    board :: Board 'Core,
+    anims :: Board.T 'UI,
+    board :: Board.T 'Core,
     difficulty :: Constants.Difficulty,
     playingPlayer :: a,
     shared :: Shared.Model,
@@ -162,7 +161,7 @@ data Kernel a = Kernel
   }
 
 -- | Creates a minimal kernel, suited for simulation
-mkSimKernel :: Constants.Difficulty -> Shared.Model -> Turn.Turn -> Board 'Core -> Kernel ()
+mkSimKernel :: Constants.Difficulty -> Shared.Model -> Turn.Turn -> Board.T 'Core -> Kernel ()
 mkSimKernel difficulty shared turn board = Kernel {..}
   where
     anim = Game.NoAnimation
@@ -170,11 +169,11 @@ mkSimKernel difficulty shared turn board = Kernel {..}
     playingPlayer = ()
     uiAvail = False
 
-instance Contains (Kernel a) (Shared.Model, Board 'Core, Board 'UI) where
+instance Contains (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI) where
   to Kernel {shared, board, anims} = (shared, board, anims)
   with m (s, b, a) = m {shared = s, board = b, anims = a}
 
-instance Contains (Kernel a) (Shared.Model, Board 'Core, Board 'UI, Game.Animation) where
+instance Contains (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI, Game.Animation) where
   to Kernel {shared, board, anims, anim} = (shared, board, anims, anim)
   with m (s, b, a, an) = m {shared = s, board = b, anims = a, anim = an}
 
@@ -277,7 +276,7 @@ runOne EndTurnPressed h@Handlers {disableUI} m@Kernel {board, difficulty, shared
   where
     pSpot = Turn.toPlayerSpot turn
     isInitialTurn = turn == Turn.initial
-    mkAttack :: Board 'Core -> Sched
+    mkAttack :: Board.T 'Core -> Sched
     mkAttack b =
       -- schedule resolving first attack
       case Game.nextAttackSpot b pSpot Nothing of
@@ -372,7 +371,7 @@ preEndTurnEvents pSpot =
   [ Game.ApplyCreateForest pSpot
   ]
 
-mkEvents :: EventsKind -> Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
+mkEvents :: EventsKind -> Shared.Model -> Turn.Turn -> Spots.Player -> Board.T 'Core -> [Game.Event]
 mkEvents kind shared turn pSpot board =
   Game.keepEffectfull shared (Game.Playable board events turn)
   where
@@ -383,7 +382,7 @@ mkEvents kind shared turn pSpot board =
         PreEndTurn -> preEndTurnEvents pSpot
 
 -- | Use to avoid exposing 'EventsKind'
-mkPreEndTurnEvents :: Shared.Model -> Turn.Turn -> Spots.Player -> Board 'Core -> [Game.Event]
+mkPreEndTurnEvents :: Shared.Model -> Turn.Turn -> Spots.Player -> Board.T 'Core -> [Game.Event]
 mkPreEndTurnEvents = mkEvents PreEndTurn
 
 data Actor = AI | Player
