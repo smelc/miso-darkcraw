@@ -56,6 +56,7 @@ main shared update =
     it "Endomatches balance is as expected" $ do
       check Human Campaign.Level0 Human
       check Evil Campaign.Level0 Evil
+      check Sylvan Campaign.Level0 Sylvan
       check Undead Campaign.Level0 Undead
   where
     check team level opponent =

@@ -79,8 +79,6 @@
 <a href="#v:eventToAnim">eventToAnim</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m <a href="Game.html#t:Animation" title="Game">Animation</a>
 </li>
 <li class="src short">
-<a href="#v:keepEffectfull">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
-<li class="src short">
 <span class="keyword">data</span> <a href="#t:EnemySpots">EnemySpots</a> a<ul class="subs">
 <li>= <a href="#v:Ace">Ace</a>
 </li>
@@ -116,6 +114,13 @@
 </ul>
 </li>
 <li class="src short">
+<a href="#v:keepEffectfull">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>]</li>
+<li class="src short">
+<a href="#v:maybePlay">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)</li>
+<li class="src short">
+<a href="#v:meetsRequirement">meetsRequirement</a> :: <a href="Card.html#t:Item" title="Card">Item</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li class="src short">
 <span class="keyword">data</span> <a href="#t:MessageText">MessageText</a><ul class="subs">
 <li>= <a href="#v:Text">Text</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a>
 </li>
@@ -125,6 +130,9 @@
 </li>
 <li class="src short">
 <a href="#v:mkPlayable">mkPlayable</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; e -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> e</li>
+<li class="src short">
+<a href="#v:nextAttackSpot">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a>
+</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Place">Place</a><ul class="subs">
 <li>= <a href="#v:Place">Place</a> <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="Game.html#t:Target" title="Game">Target</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
@@ -158,11 +166,6 @@
 <a href="#v:shared">shared</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a>
 </li>
 </ul>}</li>
-<li class="src short">
-<a href="#v:maybePlay">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)</li>
-<li class="src short">
-<a href="#v:nextAttackSpot">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a>
-</li>
 <li class="src short">
 <a href="#v:play">play</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>))</li>
 <li class="src short">
@@ -544,11 +547,6 @@
  middle of the <code><a href="Board.html#t:Board" title="Board">Board</a></code>.</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:keepEffectfull" class="def">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] <a href="#v:keepEffectfull" class="selflink">#</a></p>
-<div class="doc"><p>'keepEffectfull board es' returns the elements of <code>es</code>
- that have an effect. Elements of <code>es</code> are played in sequence.</p></div>
-</div>
-<div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:EnemySpots" class="def">EnemySpots</a> a <a href="#t:EnemySpots" class="selflink">#</a></p>
 <div class="doc"><p>Type to handle various custom skills when resolving attacks</p></div>
 <div class="subs constructors">
@@ -708,6 +706,17 @@
 </table></details></div>
 </div>
 <div class="top">
+<p class="src"><a id="v:keepEffectfull" class="def">keepEffectfull</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> [<a href="Game.html#t:Event" title="Game">Event</a>] -&gt; [<a href="Game.html#t:Event" title="Game">Event</a>] <a href="#v:keepEffectfull" class="selflink">#</a></p>
+<div class="doc"><p>'keepEffectfull board es' returns the elements of <code>es</code>
+ that have an effect. Elements of <code>es</code> are played in sequence.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:maybePlay" class="def">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>) <a href="#v:maybePlay" class="selflink">#</a></p>
+<div class="doc"><p>Try to play an event. If the event cannot be played or a hard error
+ occurs (<code>MonadError Text _</code> in other functions of this API), simply return <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a></code>.</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:meetsRequirement" class="def">meetsRequirement</a> :: <a href="Card.html#t:Item" title="Card">Item</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:meetsRequirement" class="selflink">#</a></p></div>
+<div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:MessageText" class="def">MessageText</a> <a href="#t:MessageText" class="selflink">#</a></p>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
@@ -767,6 +776,17 @@
 <p class="src"><a id="v:mkPlayable" class="def">mkPlayable</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; e -&gt; <a href="Turn.html#t:Turn" title="Turn">Turn</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> e <a href="#v:mkPlayable" class="selflink">#</a></p>
 <div class="doc"><p>To allow callers to hide the implementation of <code><a href="Game.html#t:Playable" title="Game">Playable</a></code>, to avoid
  fields names conflicts.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:nextAttackSpot" class="def">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a> <a href="#v:nextAttackSpot" class="selflink">#</a></p>
+<div class="doc">
+<p><code>nextAttackSpot b pSpot cSpot</code> returns the spots to attack after <code>cSpot</code>.
+ If <code>cSpot</code> is <code>Nothing</code>, the first spot in the order is considered; if
+ <code>cSpot</code> is <code>Just _</code>, then spots after <code>cSpot</code> are considered.</p>
+<p>If pre End Turn events are changed in <code>Move</code>, this function may have
+ to be adapted to play the events beforehand. This should be discovered
+ automatically, as this property is checked with a PBT.</p>
+</div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Place" class="def">Place</a> <a href="#t:Place" class="selflink">#</a></p>
@@ -957,22 +977,6 @@
 <p class="src"><a href="#v:showList">showList</a> :: [<a href="Game.html#t:Result" title="Game">Result</a> e] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
 </div></details></td></tr>
 </table></details></div>
-</div>
-<div class="top">
-<p class="src"><a id="v:maybePlay" class="def">maybePlay</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Shared.html#t:Model" title="Shared">Model</a>, <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>) <a href="#v:maybePlay" class="selflink">#</a></p>
-<div class="doc"><p>Try to play an event. If the event cannot be played or a hard error
- occurs (<code>MonadError Text _</code> in other functions of this API), simply return <code><a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a></code>.</p></div>
-</div>
-<div class="top">
-<p class="src"><a id="v:nextAttackSpot" class="def">nextAttackSpot</a> :: <a href="Board.html#t:Board" title="Board">Board</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a> <a href="#v:nextAttackSpot" class="selflink">#</a></p>
-<div class="doc">
-<p><code>nextAttackSpot b pSpot cSpot</code> returns the spots to attack after <code>cSpot</code>.
- If <code>cSpot</code> is <code>Nothing</code>, the first spot in the order is considered; if
- <code>cSpot</code> is <code>Just _</code>, then spots after <code>cSpot</code> are considered.</p>
-<p>If pre End Turn events are changed in <code>Move</code>, this function may have
- to be adapted to play the events beforehand. This should be discovered
- automatically, as this property is checked with a PBT.</p>
-</div>
 </div>
 <div class="top">
 <p class="src"><a id="v:play" class="def">play</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Game.html#t:Playable" title="Game">Playable</a> <a href="Game.html#t:Event" title="Game">Event</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> (<a href="Game.html#t:Result" title="Game">Result</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Game.html#t:Event" title="Game">Event</a>)) <a href="#v:play" class="selflink">#</a></p>

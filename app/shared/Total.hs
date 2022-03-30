@@ -55,7 +55,8 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
   -- Items adding attack are dealth with here, as opposed to items
   -- adding health, which are dealth with in 'Game'
   ( attack
-      <> crushingMace
+      <> bonus CrushingMace (Damage {base = 0, variance = 2})
+      <> bonus BowOfStrength (Damage {base = 0, variance = 2})
   )
     +^ (nbBlows * Constants.blowAmount)
     +^ nbSwordsOfMight
@@ -65,10 +66,9 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
     +^ strengthPotBonus
     -^ slowMalus
   where
-    crushingMace = mconcat $ replicate nbMaces maceDamage
-      where
-        nbMaces = filter (== CrushingMace) items & length
-        maceDamage = Damage {base = 0, variance = 2}
+    bonus searched damage =
+      let nb = filter (== searched) items & length
+       in mconcat (replicate nb damage)
     nbBlows =
       filter (\case Skill.Blow True -> True; _ -> False) skills & natLength
     nbSwordsOfMight =

@@ -319,15 +319,16 @@ testInPlaceEffectsMonoid =
 
 testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $
-    prop "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
-      \(board, pSpot, turn) ->
-        let score = flip HeuristicAI.boardPlayerScore pSpot
-            initialScore = score board
-            events = AI.play Constants.Easy shared board pSpot turn
-            nextScore =
-              Game.playAll shared (Game.mkPlayable board (map Game.PEvent events) turn)
-                & takeBoard <&> score
-         in monotonic initialScore nextScore
+    xit "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
+      property $
+        \(board, pSpot, turn) ->
+          let score = flip HeuristicAI.boardPlayerScore pSpot
+              initialScore = score board
+              events = AI.play Constants.Easy shared board pSpot turn
+              nextScore =
+                Game.playAll shared (Game.mkPlayable board (map Game.PEvent events) turn)
+                  & takeBoard <&> score
+           in monotonic initialScore nextScore
   where
     takeBoard (Left _) = Nothing
     takeBoard (Right (Game.Result {board = b})) = Just b

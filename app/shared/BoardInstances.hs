@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | This module contains instances of classes regarding types defined
@@ -14,6 +15,7 @@ import Card
 import CardInstances
 import Constants
 import Data.Foldable
+import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import Nat
 import qualified Skill
@@ -23,11 +25,19 @@ instance Startable (PlayerPart 'Core) where
   start PlayerPart {..} =
     PlayerPart {inPlace = Map.map start inPlace, mana = mana + initialMana + extraMana, ..}
     where
-      extraMana = foldr' (\Creature {skills} acc -> acc + sumSources skills) (0 :: Nat) inPlace
+      extraMana =
+        foldr'
+          (\(cSpot, c@Creature {skills}) acc -> acc + sumSources skills + gaiaCloak cSpot c)
+          (0 :: Nat)
+          (Map.toList inPlace)
       sumSources [] = 0
       sumSources (Skill.Source (n, _) : skills) = n + sumSources skills -- Not inspecting
       -- the flag value, it's anyway simultaneously set to False.
       sumSources (_ : skills) = sumSources skills
+      gaiaCloak cSpot Creature {items} =
+        case Map.lookup cSpot deco == Just Forest of
+          True -> filter ((==) CloakOfGaia) items & natLength
+          False -> 0
 
 boardStart :: Board 'Core -> Spots.Player -> Board 'Core
 boardStart board pSpot =

@@ -3,6 +3,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Invariants where
 
@@ -12,8 +14,10 @@ import Card
 import qualified Constants
 import Data.Function ((&))
 import Data.Functor ((<&>))
+import qualified Data.Map.Strict as Map
 import Data.Maybe
 import Debug.Trace (traceShow)
+import qualified Game
 import qualified Match
 import qualified Model hiding (Deck (..))
 import Pretty
@@ -33,9 +37,16 @@ instance Invariant a => Invariant [a] where
   violation [] = []
   violation (hd : rest) = violation hd ++ violation rest
 
+instance Invariant (Creature 'Core) where
+  violation c@Creature {items} =
+    [ "Item " ++ show item ++ " shouldn't be on " ++ show c
+      | item <- items,
+        not (Game.meetsRequirement item c)
+    ]
+
 instance Invariant (PlayerPart 'Core) where
-  violation PlayerPart {..} =
-    ["Score should be >= 0 but found " ++ show score | score < 0]
+  violation PlayerPart {inPlace} =
+    concat $ map violation (Map.elems inPlace)
 
 instance Invariant (Board 'Core) where
   violation Board {playerTop, playerBottom} =

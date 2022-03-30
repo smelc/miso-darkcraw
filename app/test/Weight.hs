@@ -24,17 +24,18 @@ balances =
     -- show roughly 50% win on each side. It doesn't seem to be the case now.
     (Human, Campaign.Level0, Human, 48, 15, 1),
     (Evil, Campaign.Level0, Evil, 45, 19, 0),
+    (Sylvan, Campaign.Level0, Sylvan, 51, 11, 2),
     (Undead, Campaign.Level0, Undead, 44, 17, 3),
     -- Matchups
     (Human, Campaign.Level0, Evil, 14, 50, 0),
-    (Human, Campaign.Level0, Sylvan, 42, 21, 1),
+    (Human, Campaign.Level0, Sylvan, 50, 14, 0),
     (Human, Campaign.Level0, Undead, 13, 49, 2),
     (Human, Campaign.Level0, ZKnights, 21, 42, 1),
     (Evil, Campaign.Level0, Undead, 23, 37, 4),
     -- Level1
     (Human, Campaign.Level1, Evil, 43, 147, 2),
     (Human, Campaign.Level1, Undead, 40, 342, 2),
-    (Evil, Campaign.Level1, Sylvan, 41, 21, 2),
+    (Evil, Campaign.Level1, Sylvan, 108, 19, 1),
     (Evil, Campaign.Level1, Undead, 30, 96, 2)
   ]
 

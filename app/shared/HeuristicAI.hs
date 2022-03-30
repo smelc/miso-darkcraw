@@ -256,6 +256,8 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
   where
     scoreCreatureItem :: Item -> Nat = \case
       AxeOfRage -> score attack
+      BowOfStrength -> undefined
+      CloakOfGaia -> undefined
       Crown ->
         levelUpBonus + positionBonus
         where
@@ -305,6 +307,8 @@ scoreHandCard = \case
   ItemCard _ ItemObject {item} ->
     case item of
       AxeOfRage -> -1
+      BowOfStrength -> undefined
+      CloakOfGaia -> undefined
       Crown -> -1
       CrushingMace -> -1
       FlailOfTheDamned -> -1

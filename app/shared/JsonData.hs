@@ -51,13 +51,15 @@ jsonData = "{\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          , \"teams\": [\"human\"]  },\n\
-         \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          , \"teams\": [\"human\", \"zknights\"]  },\n\
+         \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          , \"teams\": [\"human\", \"sylvan\", \"zknights\"]  },\n\
          \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"tile\":\"Pandemonium\",  \"text\":\"Randomly shuffle enemy board\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] },\n\
          \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"    , \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"tile\":\"StrengthPot\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] }\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"tile\":\"AxeOfRage\",        \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"tile\":\"BowOfStrength\",    \"text\":\"Add 0-2 damage. Ace only.\",  \"teams\": [\"sylvan\"] },\n\
+         \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"tile\":\"CloakOfGaia\",      \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\",  \"teams\": [\"sylvan\"] },\n\
          \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
          \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"tile\":\"CrushingMace\",     \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
@@ -87,6 +89,8 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones4\",        \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":8 } },\n\
          \    { \"tile\":\"Bones5\",        \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":8 } },\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
+         \    { \"tile\":\"BowOfStrength\", \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":3 } },\n\
+         \    { \"tile\":\"CloakOfGaia\",   \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":3 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"CrushingMace\",  \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":2 } },\n\
          \    { \"tile\":\"Daemon\",        \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":10 } },\n\

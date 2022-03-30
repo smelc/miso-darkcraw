@@ -113,6 +113,8 @@ instance NewScore Item where
   nscore =
     \case
       AxeOfRage -> 1
+      BowOfStrength -> undefined
+      CloakOfGaia -> undefined
       Crown -> 1
       CrushingMace -> 1
       FlailOfTheDamned -> 1
@@ -168,6 +170,8 @@ instance Preference Item where
   preference =
     \case
       AxeOfRage -> Front
+      BowOfStrength -> undefined
+      CloakOfGaia -> undefined
       Crown -> NoPref
       CrushingMace -> Front
       FlailOfTheDamned -> NoPref

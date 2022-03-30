@@ -13,7 +13,7 @@
 -- |
 -- This module tests the game logic
 -- |
-module Logic (disturber, main, mkCreature, testRampage) where
+module Logic (main, mkCreature, testRampage) where
 
 -- This module should not import 'AI'. Tests of the AI are in 'Main'.
 
@@ -42,43 +42,6 @@ import Test.Hspec.QuickCheck
 import TestLib (shouldAllSatisfy, shouldSatisfyJust, shouldSatisfyRight)
 import qualified Total
 import Turn
-
--- 'disturbingItem i' returns 'False' if playing 'i' only changes
--- the 'Spots.Card' it is applied on.
-disturbingItem = \case
-  AxeOfRage -> False
-  Crown -> False
-  CrushingMace -> False
-  FlailOfTheDamned -> False
-  SkBanner -> True
-  SpikyMace -> False
-  SwordOfMight -> False
-
--- 'disturber' identifies cards which, when played, affect other spots on the board
-disturber :: Shared.Model -> Card.ID -> Bool
-disturber shared (IDC id items) =
-  Shared.idToCreature shared id items
-    & fromJust
-    & Card.unlift
-    & ( orf
-          [ \Creature {skills} -> Skill.Squire `elem` skills,
-            \Creature {items} -> any disturbingItem items,
-            Total.isDisciplined
-          ]
-      )
-  where
-    orf :: [a -> Bool] -> a -> Bool
-    orf [] = const False
-    orf (f : fs) = \x -> (f x || orf fs x)
-disturber _ (IDI item) = disturbingItem item
-disturber _ (IDN neutral) =
-  case neutral of
-    Health -> False
-    InfernalHaste -> True
-    Life -> False
-    Pandemonium -> True
-    Plague -> True
-    StrengthPot -> False
 
 testDrawCards :: Shared.Model -> SpecWith ()
 testDrawCards shared =

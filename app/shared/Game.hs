@@ -31,16 +31,17 @@ module Game
     idToHandIndex,
     DrawSource (..),
     eventToAnim,
-    keepEffectfull,
     EnemySpots (..),
     Event (..),
+    keepEffectfull,
+    maybePlay,
+    meetsRequirement,
     MessageText (..),
     mkPlayable,
+    nextAttackSpot,
     Place (..),
     Playable (..),
     Result (..),
-    maybePlay,
-    nextAttackSpot,
     play,
     playE,
     playAll,
@@ -732,24 +733,36 @@ playItemM board pSpot cSpot item =
   case Board.toInPlaceCreature board pSpot cSpot of
     Nothing ->
       throwError CannotPlaceItem
+    Just creature
+      | not (meetsRequirement item creature) ->
+          throwError CannotPlaceItem
     Just creature -> do
       reportEffect pSpot cSpot $ mempty {fade = Constants.FadeIn}
       -- TODO @smelc record animation for item arrival
-      let creature' = installItem creature item
+      let creature' = installItem item creature
       return $ Board.setCreature pSpot cSpot creature' board
 
+meetsRequirement :: Item -> Creature 'Core -> Bool
+meetsRequirement item Creature {skills} =
+  case Card.requirement item of
+    NoReq -> True
+    SomeReq s -> s `elem` (map Skill.lift skills)
+
 installItem ::
-  Creature 'Core ->
   Item ->
+  Creature 'Core ->
   Creature 'Core
-installItem c@Creature {hp, items} item =
-  c {hp = hp + hpChange, items = item : items}
+installItem item c@Creature {hp, items} =
+  assert (meetsRequirement item c) $
+    c {hp = hp + hpChange, items = item : items}
   where
     -- Items adding health are resolved here, as opposed to items
     -- adding attack, which are dealt with in 'Total'
     hpChange =
       case item of
         AxeOfRage -> 0
+        BowOfStrength -> 0
+        CloakOfGaia -> 0
         Crown -> 0
         CrushingMace -> 0
         FlailOfTheDamned -> 0
@@ -991,7 +1004,7 @@ transferCardsM board pSpot =
 -- on 'target'
 appliesTo :: Board 'Core -> Card.ID -> Spots.Player -> Target -> Bool
 appliesTo board id playingPlayer target =
-  correctPlayer && correctHoleyness
+  correctPlayer && correctHoleyness && satisfiedConstraints
   where
     correctPlayer =
       case whichPlayerTarget id of
@@ -1005,6 +1018,15 @@ appliesTo board id playingPlayer target =
           Board.toInPlaceCreature board pSpot cSpot & isJust
         (PlayerTarget _, PlayerTargetType) -> True
         _ -> False
+    satisfiedConstraints =
+      case (id, target) of
+        (IDC {}, _) -> True
+        (IDN {}, _) -> True
+        (IDI {}, PlayerTarget _) -> False
+        (IDI item, CardTarget pSpot cSpot) ->
+          case Board.toInPlaceCreature board pSpot cSpot of
+            Nothing -> False
+            Just c -> meetsRequirement item c
 
 applyAssassinsM ::
   MonadWriter (Board 'UI) m =>

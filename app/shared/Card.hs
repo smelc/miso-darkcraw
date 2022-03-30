@@ -194,9 +194,6 @@ data Neutral
 allNeutrals :: [Neutral]
 allNeutrals = [minBound ..]
 
--- If Creature and NeutralObject start having more in common than solely
--- tile/ntile, a new record can be introduced; to share code.
-
 data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
     -- | The teams to which this neutral card applies
@@ -214,6 +211,8 @@ deriving instance Forall Show p => Show (NeutralObject p)
 
 data Item
   = AxeOfRage
+  | BowOfStrength
+  | CloakOfGaia
   | Crown
   | CrushingMace
   | FlailOfTheDamned
@@ -221,6 +220,27 @@ data Item
   | SpikyMace
   | SwordOfMight
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
+
+-- | Requirements for being able to have some item
+data Requirement
+  = -- | No requirement
+    NoReq
+  | -- | Requirement to have some skill
+    SomeReq Skill.Skill
+
+-- | Requirements for being able to carry an item. Could be encoded
+-- in json, but I'm afraid complex requirements would be tartelette to implement.
+requirement :: Item -> Requirement
+requirement = \case
+  AxeOfRage -> NoReq
+  BowOfStrength -> SomeReq Skill.Ace
+  CloakOfGaia -> NoReq
+  Crown -> NoReq
+  CrushingMace -> NoReq
+  FlailOfTheDamned -> NoReq
+  SkBanner -> NoReq
+  SpikyMace -> NoReq
+  SwordOfMight -> NoReq
 
 allItems :: [Item]
 allItems = [minBound ..]
@@ -379,7 +399,7 @@ rawTeamDeck cards t =
       case t of
         Evil -> 1 * Pandemonium ++ 1 * StrengthPot
         Human -> 1 * Health ++ 1 * Life
-        Sylvan -> []
+        Sylvan -> 1 * Life
         Undead -> 2 * InfernalHaste ++ 1 * Plague
         ZKnights -> 1 * Life
       where
@@ -396,7 +416,7 @@ rawTeamDeck cards t =
       case t of
         Evil -> 1 * SpikyMace
         Human -> 1 * SwordOfMight
-        Sylvan -> []
+        Sylvan -> 1 * CloakOfGaia
         Undead -> 1 * Card.FlailOfTheDamned
         ZKnights -> 1 * CrushingMace ++ 1 * SwordOfMight
       where

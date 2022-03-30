@@ -114,10 +114,10 @@ rewards level team =
     (Level0, Evil) -> [Card.IDI Card.AxeOfRage]
     (Level1, Evil) -> []
     -- Human
-    (Level0, Human) -> map (mkIDC team) [Card.Knight] ++ map Card.IDI [Card.Crown] ++ map Card.IDN [Card.Life]
+    (Level0, Human) -> map (mkIDC team) [Card.Knight] ++ [Card.IDI Card.Crown] ++ map Card.IDN [Card.Life]
     (Level1, Human) -> map (mkIDC team) [Card.Ogre]
     -- Sylvan
-    (Level0, Sylvan) -> map (mkIDC Sylvan) [Card.Worm]
+    (Level0, Sylvan) -> map (mkIDC Sylvan) [Card.Worm] ++ [Card.IDI Card.BowOfStrength]
     (Level1, Sylvan) -> []
     -- Undead
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]

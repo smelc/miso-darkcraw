@@ -52,6 +52,8 @@ data Tile
   | Bones4
   | Bones5
   | Bones6
+  | BowOfStrength
+  | CloakOfGaia
   | Crown
   | CrushingMace
   | Daemon
