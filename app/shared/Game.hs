@@ -115,12 +115,12 @@ data Target
 data Playable e = Playable
   { board :: Board.T 'Core,
     event :: e,
-    turn :: Turn.Turn
+    turn :: Turn.T
   }
 
 -- | To allow callers to hide the implementation of 'Playable', to avoid
 -- fields names conflicts.
-mkPlayable :: Board.T 'Core -> e -> Turn.Turn -> Playable e
+mkPlayable :: Board.T 'Core -> e -> Turn.T -> Playable e
 mkPlayable board event turn = Playable {..}
 
 instance Contains.Contains (Playable a) (Board.T 'Core) where

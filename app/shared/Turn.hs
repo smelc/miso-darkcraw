@@ -4,7 +4,7 @@ module Turn
   ( initial,
     next,
     setSpot,
-    Turn,
+    T,
     toNat,
     toPlayerSpot,
   )
@@ -14,25 +14,25 @@ import GHC.Generics (Generic)
 import Nat
 import Spots
 
-newtype Turn = Turn (Nat, Spots.Player)
+newtype T = T (Nat, Spots.Player)
   deriving (Eq, Generic, Ord, Show)
 
-initial :: Turn
-initial = Turn (1, startingPlayerSpot)
+initial :: T
+initial = T (1, startingPlayerSpot)
 
-next :: Turn -> Turn
-next (Turn (i, pSpot))
-  | pSpot == startingPlayerSpot = Turn (i, endingPlayerSpot)
-  | otherwise = Turn (i + 1, startingPlayerSpot)
+next :: T -> T
+next (T (i, pSpot))
+  | pSpot == startingPlayerSpot = T (i, endingPlayerSpot)
+  | otherwise = T (i + 1, startingPlayerSpot)
 
--- | Changes the spot in a 'Turn'
-setSpot :: Spots.Player -> Turn -> Turn
-setSpot spot t@(Turn (n, existing))
+-- | Changes the spot in a 'T'
+setSpot :: Spots.Player -> T -> T
+setSpot spot t@(T (n, existing))
   | spot == existing = t
-  | otherwise = Turn (n, spot)
+  | otherwise = T (n, spot)
 
-toNat :: Turn -> Nat
-toNat (Turn (n, _)) = n
+toNat :: T -> Nat
+toNat (T (n, _)) = n
 
-toPlayerSpot :: Turn -> Spots.Player
-toPlayerSpot (Turn (_, pSpot)) = pSpot
+toPlayerSpot :: T -> Spots.Player
+toPlayerSpot (T (_, pSpot)) = pSpot

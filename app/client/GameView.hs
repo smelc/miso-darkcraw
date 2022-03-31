@@ -417,7 +417,7 @@ data HandDrawingInput = HandDrawingInput
     -- | The team of the hand being drawn
     team :: Team,
     -- | The current turn
-    turn :: Turn.Turn,
+    turn :: Turn.T,
     -- | The player of the hand being drawn
     playingPlayer :: Spots.Player,
     shared :: Shared.Model

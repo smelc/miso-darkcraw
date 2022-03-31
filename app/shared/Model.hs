@@ -27,7 +27,6 @@ import Nat
 import ServerMessages
 import qualified Shared
 import Spots hiding (Card)
-import Turn (Turn)
 import qualified Turn
 
 -- | An interaction happening in the game page
@@ -79,7 +78,7 @@ data Game = Game
     -- | The deck of 'playingPlayer'
     playingPlayerDeck :: [Card.ID],
     -- | The current turn
-    turn :: Turn,
+    turn :: Turn.T,
     -- | Whether interactions are possible right now
     uiAvail :: Bool,
     -- | Animations to perform next
@@ -97,7 +96,7 @@ instance Show Game where
     where
       f s x = "  " ++ s ++ " = " ++ show x
 
-instance Contains.Contains Game Turn where
+instance Contains.Contains Game Turn.T where
   to = turn
   with d t = d {turn = t}
 
@@ -242,13 +241,13 @@ data Deck = Deck
     -- | To which team the deck being shown belongs
     team :: Team,
     -- | The current turn
-    turn :: Turn.Turn,
+    turn :: Turn.T,
     -- | Part of the model shared among all pages
     shared :: Shared.Model
   }
   deriving (Eq, Generic, Show)
 
-instance Contains.Contains Deck Turn where
+instance Contains.Contains Deck Turn.T where
   to = turn
   with d t = d {turn = t}
 

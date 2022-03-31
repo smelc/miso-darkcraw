@@ -18,6 +18,6 @@ play ::
   Board.T 'Core ->
   -- | The playing player
   Spots.Player ->
-  Turn.Turn ->
+  Turn.T ->
   -- | Events generated for player 'pSpot'
   [Game.Place]

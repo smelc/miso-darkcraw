@@ -25,7 +25,7 @@ play ::
   -- | The playing player
   Spots.Player ->
   -- | The current turn
-  Turn.Turn ->
+  Turn.T ->
   -- | Events generated for player 'pSpot'
   [Game.Place]
 play difficulty shared board pSpot turn =

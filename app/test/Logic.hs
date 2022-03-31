@@ -41,7 +41,7 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import TestLib (shouldAllSatisfy, shouldSatisfyJust, shouldSatisfyRight)
 import qualified Total
-import Turn
+import qualified Turn
 
 testDrawCards :: Shared.Model -> SpecWith ()
 testDrawCards shared =
@@ -646,7 +646,7 @@ testPreEndTurnEventNextAttackSpot shared =
          in nextAttackSpot board `shouldBe` nextAttackSpot board'
 
 testManaTurnOrd = do
-  describe "<= Turn.Turn works as expected" $ do
+  describe "<= Turn.T works as expected" $ do
     it "Turn.initial" $
       (Turn.initial <= Turn.initial) `shouldBe` True
     it "Turn.next" $ do
@@ -662,9 +662,9 @@ testManaTurnOrd = do
       ((Mana.<=) Turn.initial (Mana.Const 1) 0) `shouldBe` False
 
 testManaRemainingTurns =
-  describe "Mana.amount is inversely monotonic with Turn.Turn" $ do
+  describe "Mana.amount is inversely monotonic with Turn.T" $ do
     prop "prop" $
-      \(m :: Mana.Mana, t1 :: Turn.Turn, t2 :: Turn.Turn) ->
+      \(m :: Mana.Mana, t1 :: Turn.T, t2 :: Turn.T) ->
         case compare t1 t2 of
           LT -> (Mana.amount t1 m >= Mana.amount t2 m) `shouldBe` True
           GT -> (Mana.amount t1 m <= Mana.amount t2 m) `shouldBe` True

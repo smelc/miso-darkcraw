@@ -156,12 +156,12 @@ data Kernel a = Kernel
     difficulty :: Constants.Difficulty,
     playingPlayer :: a,
     shared :: Shared.Model,
-    turn :: Turn.Turn,
+    turn :: Turn.T,
     uiAvail :: Bool
   }
 
 -- | Creates a minimal kernel, suited for simulation
-mkSimKernel :: Constants.Difficulty -> Shared.Model -> Turn.Turn -> Board.T 'Core -> Kernel ()
+mkSimKernel :: Constants.Difficulty -> Shared.Model -> Turn.T -> Board.T 'Core -> Kernel ()
 mkSimKernel difficulty shared turn board = Kernel {..}
   where
     anim = Game.NoAnimation
@@ -371,7 +371,7 @@ preEndTurnEvents pSpot =
   [ Game.ApplyCreateForest pSpot
   ]
 
-mkEvents :: EventsKind -> Shared.Model -> Turn.Turn -> Spots.Player -> Board.T 'Core -> [Game.Event]
+mkEvents :: EventsKind -> Shared.Model -> Turn.T -> Spots.Player -> Board.T 'Core -> [Game.Event]
 mkEvents kind shared turn pSpot board =
   Game.keepEffectfull shared (Game.Playable board events turn)
   where
@@ -382,7 +382,7 @@ mkEvents kind shared turn pSpot board =
         PreEndTurn -> preEndTurnEvents pSpot
 
 -- | Use to avoid exposing 'EventsKind'
-mkPreEndTurnEvents :: Shared.Model -> Turn.Turn -> Spots.Player -> Board.T 'Core -> [Game.Event]
+mkPreEndTurnEvents :: Shared.Model -> Turn.T -> Spots.Player -> Board.T 'Core -> [Game.Event]
 mkPreEndTurnEvents = mkEvents PreEndTurn
 
 data Actor = AI | Player

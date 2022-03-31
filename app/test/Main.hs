@@ -57,14 +57,14 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 import TestLib (shouldAllSatisfy, shouldSatisfyRight)
-import Turn
+import qualified Turn
 import qualified Update
 
 getAllDecks :: [Card 'UI] -> [[Card 'Core]]
 getAllDecks cards = [teamDeck cards t | t <- allTeams]
 
 -- | Tests that the AI treats 'Ranged' correctly.
-testAIRanged :: Shared.Model -> Turn -> Board.T 'Core
+testAIRanged :: Shared.Model -> Turn.T -> Board.T 'Core
 testAIRanged shared turn =
   case Game.playAll shared (Game.mkPlayable board (map Game.PEvent events) turn) of
     Left _ -> error "AI failed"
@@ -403,7 +403,7 @@ testMana shared =
   where
     -- manaCostGeq returns True if 'avail' is greater or equal to the
     -- mana cost of 'card'.
-    manaCostGeq :: Board.T 'Core -> Turn.Turn -> Nat -> Game.Place -> Bool
+    manaCostGeq :: Board.T 'Core -> Turn.T -> Nat -> Game.Place -> Bool
     manaCostGeq board turn avail =
       \case
         Game.Place pSpot _ hi -> go' pSpot hi

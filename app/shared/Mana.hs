@@ -46,33 +46,33 @@ instance Mana.Read Mana where
       Left _ | s == "remaining_turns" -> Just RemainingNbOfTurns
       Left _ -> Nothing
 
-comp :: (Nat -> Nat -> Bool) -> Turn.Turn -> Mana -> Nat -> Bool
+comp :: (Nat -> Nat -> Bool) -> Turn.T -> Mana -> Nat -> Bool
 comp op t m n = amount t m `op` n
 
 -- | @>= t m n@ returns whether @m >= n@ when it's turn @t@
-(>=) :: Turn.Turn -> Mana -> Nat -> Bool
+(>=) :: Turn.T -> Mana -> Nat -> Bool
 (>=) = comp (Prelude.>=)
 
 -- | @> t m n@ returns whether @m > n@ when it's turn @t@
-(>) :: Turn.Turn -> Mana -> Nat -> Bool
+(>) :: Turn.T -> Mana -> Nat -> Bool
 (>) = comp (Prelude.>)
 
 -- | @<= t m n@ returns whether @m <= n@ when it's turn @t@
-(<=) :: Turn.Turn -> Mana -> Nat -> Bool
+(<=) :: Turn.T -> Mana -> Nat -> Bool
 (<=) = comp (Prelude.<=)
 
 -- | @< t m n@ returns whether @m < n@ when it's turn @t@
-(<) :: Turn.Turn -> Mana -> Nat -> Bool
+(<) :: Turn.T -> Mana -> Nat -> Bool
 (<) = comp (Prelude.<)
 
 -- | @amount t m@ returns the amount of mana of @m@ at turn @t@
-amount :: Turn.Turn -> Mana -> Nat
+amount :: Turn.T -> Mana -> Nat
 amount t = \case
   Const n -> n
   RemainingNbOfTurns -> Constants.nbTurns `minusNatClamped` (Turn.toNat t)
 
 -- | The text to show for mana, depending on whether the turn is provided or not
-show :: Maybe Turn.Turn -> Mana -> String
+show :: Maybe Turn.T -> Mana -> String
 show t m =
   case (t, m) of
     (Just t, m) -> Prelude.show $ amount t m
@@ -83,7 +83,7 @@ show t m =
 class Labeler a where
   labeler :: a -> Mana -> String
 
-instance Contains.Contains a Turn.Turn => Labeler a where
+instance Contains.Contains a Turn.T => Labeler a where
   labeler a =
-    let turn :: Turn.Turn = Contains.to a
+    let turn :: Turn.T = Contains.to a
      in Mana.show (Just turn)

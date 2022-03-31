@@ -28,7 +28,7 @@ import Spots hiding (Card)
 import qualified Spots
 import Test.QuickCheck
 import Tile (Tile)
-import Turn
+import qualified Turn
 import Unsafe.Coerce (unsafeCoerce)
 
 newtype SceneAst = SceneAst [SceneAction]
@@ -156,7 +156,7 @@ instance Arbitrary Spots.Player where
   arbitrary = elements $ Spots.allPlayers
   shrink = genericShrink
 
-instance Arbitrary Turn where
+instance Arbitrary Turn.T where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

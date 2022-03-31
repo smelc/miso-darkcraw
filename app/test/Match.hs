@@ -32,7 +32,7 @@ import Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck ((==>))
-import Turn
+import qualified Turn
 import Update
 
 main :: Shared.Model -> SpecWith ()

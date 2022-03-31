@@ -41,7 +41,7 @@ play ::
   Constants.Difficulty ->
   Shared.Model ->
   Board.T 'Core ->
-  Turn.Turn ->
+  Turn.T ->
   -- | The playing player
   Spots.Player ->
   -- | Events generated for player 'pSpot'
@@ -130,7 +130,7 @@ playFirst diff shared pSpot p@Game.Playable {board, event = what, turn} =
 
 -- | Given a state, run one event on this state
 (~>) ::
-  (Constants.Difficulty, Shared.Model, Board.T 'Core, Turn.Turn) ->
+  (Constants.Difficulty, Shared.Model, Board.T 'Core, Turn.T) ->
   Game.Place ->
   Maybe (Game.Place, Board.T 'Core)
 (~>) (diff, shared, board, turn) place =

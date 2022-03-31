@@ -25,7 +25,7 @@ import qualified Shared
 import qualified Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
-import Turn
+import qualified Turn
 import qualified Update
 
 class Invariant a where
@@ -52,7 +52,7 @@ instance Invariant (Board.T 'Core) where
   violation Board.T {playerTop, playerBottom} =
     violation playerTop ++ violation playerBottom
 
-instance Invariant Turn where
+instance Invariant Turn.T where
   violation turn =
     ["Turn must be >= 1 but found " ++ show i | i < 1]
     where
