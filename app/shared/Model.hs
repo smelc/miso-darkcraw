@@ -98,7 +98,6 @@ instance Show Game where
 
 instance Contains.Contains Game Turn.T where
   to = turn
-  with d t = d {turn = t}
 
 -- This implementation will be wrong once volatile cards are generated
 -- during a match. When this happen, the player's deck will have to be
@@ -249,7 +248,6 @@ data Deck = Deck
 
 instance Contains.Contains Deck Turn.T where
   to = turn
-  with d t = d {turn = t}
 
 -- | Whether a card has been picked or not in the 'LootView'
 data Picked

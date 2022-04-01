@@ -125,19 +125,26 @@ mkPlayable board event turn = Playable {..}
 
 instance Contains.Contains (Playable a) (Board.T 'Core) where
   to = board
+
+instance Contains.With (Playable a) (Board.T 'Core) where
   with p b = p {board = b}
 
 instance Contains.Contains (Playable a) a where
   to = event
+
+instance Contains.With (Playable a) a where
   with p e = p {event = e}
 
 instance
-  ( Contains.Contains (Playable a) (Board.T 'Core),
-    Contains.Contains (Playable a) a
-  ) =>
+  (Contains.Contains (Playable a) (Board.T 'Core), Contains.Contains (Playable a) a) =>
   Contains.Contains (Playable a) (Board.T 'Core, a)
   where
   to p = (Contains.to p, Contains.to p)
+
+instance
+  (Contains.With (Playable a) (Board.T 'Core), Contains.With (Playable a) a) =>
+  Contains.With (Playable a) (Board.T 'Core, a)
+  where
   with p (b, e) = p {board = b, event = e}
 
 targetToPlayerSpot :: Target -> Spots.Player

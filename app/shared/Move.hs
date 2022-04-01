@@ -38,7 +38,7 @@ import qualified Board
 import BoardInstances (boardStart)
 import Card
 import qualified Constants
-import Contains (Contains, with)
+import Contains (with)
 import qualified Contains
 import Control.Monad.Except (MonadError (throwError), runExcept)
 import Control.Monad.Identity (runIdentity)
@@ -169,21 +169,29 @@ mkSimKernel difficulty shared turn board = Kernel {..}
     playingPlayer = ()
     uiAvail = False
 
-instance Contains (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI) where
+instance Contains.Contains (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI) where
   to Kernel {shared, board, anims} = (shared, board, anims)
+
+instance Contains.With (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI) where
   with m (s, b, a) = m {shared = s, board = b, anims = a}
 
-instance Contains (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI, Game.Animation) where
+instance Contains.Contains (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI, Game.Animation) where
   to Kernel {shared, board, anims, anim} = (shared, board, anims, anim)
+
+instance Contains.With (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI, Game.Animation) where
   with m (s, b, a, an) = m {shared = s, board = b, anims = a, anim = an}
 
-instance Contains Model.Game (Kernel Spots.Player) where
+instance Contains.Contains Model.Game (Kernel Spots.Player) where
   to Model.Game {..} = Kernel {..}
+
+instance Contains.With Model.Game (Kernel Spots.Player) where
   with m Kernel {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail} =
     m {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail}
 
-instance Contains Model.Game (Kernel ()) where
+instance Contains.Contains Model.Game (Kernel ()) where
   to Model.Game {..} = Kernel {playingPlayer = (), ..}
+
+instance Contains.With Model.Game (Kernel ()) where
   with m Kernel {anim, anims, board, difficulty, shared, turn, uiAvail} =
     m {anim, anims, board, difficulty, shared, turn, uiAvail}
 
