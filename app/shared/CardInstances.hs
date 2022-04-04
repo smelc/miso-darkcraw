@@ -21,6 +21,7 @@ instance Startable Skill.State where
   start (Blow True) = Blow False -- Always turn OFF, meaning the only change
   -- to use it is when you initially place the card (A)
   start (Fear False) = Fear True -- Renew it
+  start (GreenAffinity False) = GreenAffinity True -- Renew it
   start (Slow _) = Slow False -- Turn it off
   start (Source (n, True)) = Source (n, False) -- Always turn OFF, as
   -- it is simultaneously being consumed in the Startable instance of
