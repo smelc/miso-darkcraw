@@ -90,6 +90,7 @@ import Data.Tuple (swap)
 import Debug.Trace
 import GHC.Generics (Generic)
 import qualified Mana
+import qualified Mechanics
 import Nat
 import qualified Random
 import qualified Shared
@@ -1067,9 +1068,7 @@ applyAssassinM board pSpot (cSpot, creature) =
   case reverse $ sortBy (\(_, c1) (_, c2) -> compare (eval c1) (eval c2)) targetFrontSpots of
     [] -> return board -- Cannot move the assassin
     ((bestSpot, _) : _) ->
-      case move (Move {from = (pSpot, cSpot), to = (pSpot, bestSpot)}) board of
-        Nothing -> error "move should have succeeded"
-        Just board' -> return board'
+      return $ Mechanics.move (Mechanics.mkEndoMove pSpot cSpot bestSpot) board
   where
     other :: Spots.Player =
       assert
@@ -1086,24 +1085,6 @@ applyAssassinM board pSpot (cSpot, creature) =
         & catMaybes
     liftMaybe = \case (_, Nothing) -> Nothing; (x, Just y) -> Just (x, y)
     eval Creature {attack, hp} = Damage.mean attack + hp
-
-data Move = Move
-  { from :: (Spots.Player, Spots.Card),
-    to :: (Spots.Player, Spots.Card)
-  }
-
--- | @move m board@ moves the creature at @move.from m@ to @move.to m@
--- Returns 'Nothing' if the move is impossible
-move :: Move -> Board.T 'Core -> Maybe (Board.T 'Core)
-move Move {from, to} board =
-  case (at from board, at to board) of
-    (Just c, Nothing) ->
-      Board.rmCreature (fst from) (snd from) board
-        & Board.setCreature (fst to) (snd to) c
-        & Just
-    _ -> Nothing
-  where
-    at (p, c) b = Board.toInPlaceCreature b p c
 
 applyBrainlessM ::
   MonadWriter (Board.T 'UI) m =>
@@ -1414,12 +1395,11 @@ attack board pSpot cSpot =
           -- Cannot attack: attack is 0 or fighter is in the back. XXX @smelc record an animation?
           return board
         Spots attackedSpots -> do
-          -- nothing to attack, contribute to the score!
           let attackedCreatures :: [(Creature 'Core, Spots.Card)] = spotsToEnemies attackedSpots
           if null attackedCreatures
             then do
               -- Creature can attack an enemy spot, but it is empty: contributed to the score
-              let place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
+              let place = Total.mkPlace board pSpot cSpot
               hit :: Nat <- deal $ Total.attack (Just place) hitter
               reportEffect pSpot cSpot $ mempty {Board.attackBump = True, Board.scoreChange = natToInt hit}
               return $ Board.increaseScore board pSpot hit
@@ -1462,34 +1442,44 @@ attackOneSpot ::
   (Creature 'Core, Spots.Card) ->
   m (Board.T 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
-  effect@Board.InPlaceEffect {death, extra} <- singleAttack place hitter hit
-  let board' = applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
+  (effect@Board.InPlaceEffect {death, extra}, flyingSpot) <-
+    singleAttack (place, hitter) (hitPlace, hit)
+  board <-
+    pure $
+      applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
+        & moveFlyerFun flyingSpot
   reportEffect pSpot cSpot $ mempty {Board.attackBump = True} -- make hitter bump
   reportEffect hitPspot hitSpot effect -- hittee
-  board' <-
+  for_ flyingSpot (\flyingSpot -> reportEffect hitPspot flyingSpot flyingToEffect) -- fly to spot effect
+  board <-
     if Board.isDead death
-      then applyFlailOfTheDamned board' hitter pSpot
-      else pure board'
+      then applyFlailOfTheDamned board hitter pSpot
+      else pure board
   let behind b =
         (if Spots.inFront hitSpot then Just (Spots.switchLine hitSpot) else Nothing)
           <&> (\s -> (Board.toInPlaceCreature b hitPspot s, s))
           & (\case Just (Just c, s) -> Just (c, s); _ -> Nothing)
-  case behind board' of
+  case behind board of
     Just behind | 0 < extra && Total.hasRampage hitter -> do
       -- Rampage applies
       let hitter' = hitter {Card.attack = Damage.const extra}
-      attackOneSpot board' (hitter', pSpot, cSpot) behind -- Note that,
+      attackOneSpot board (hitter', pSpot, cSpot) behind -- Note that,
       -- because we recurse, the rampage attack can trigger powerful!
     _ -> do
       -- Rampage doesn't apply, powerful may
-      return $ fPowerful board' extra
+      return $ fPowerful board extra
   where
     hitPspot = Spots.other pSpot
-    place = Total.Place {place = Board.toInPlace board pSpot, cardSpot = cSpot}
+    place = Total.mkPlace board pSpot cSpot
+    hitPlace = Total.mkPlace board (Spots.other pSpot) hitSpot
     fPowerful b extra
       | extra == 0 = b
       | Total.isPowerful hitter = Board.mapScore b pSpot ((+) extra)
       | otherwise = b
+    moveFlyerFun = \case
+      Nothing -> id
+      Just flyingSpot -> Mechanics.move (Mechanics.mkEndoMove hitPspot hitSpot flyingSpot)
+    flyingToEffect = mempty {Board.fade = Constants.FadeIn}
 
 applyInPlaceEffectOnBoard ::
   -- | The effect of the attacker on the hittee
@@ -1560,37 +1550,53 @@ applyFlailOfTheDamned board creature pSpot =
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
     noChange = board
 
+type AtPlace = (Total.Place, Creature 'Core)
+
 -- | The effect of an attack on the defender. Note that this function
 -- cannot return a 'StatChange'. It needs the full expressivity of 'InPlaceEffect'.
 singleAttack ::
   MonadState Shared.Model m =>
   p ~ 'Core =>
-  Total.Place ->
   -- | The attacker
-  Creature p ->
+  AtPlace ->
   -- | The defender
-  Creature p ->
-  m Board.InPlaceEffect
-singleAttack place attacker@Creature {skills} defender = do
-  hit :: Nat <- deal damage
-  let afterHit :: Int = (natToInt (Card.hp defender)) - (natToInt hit)
-  let extra :: Nat = if afterHit < 0 then Nat.intToNat (abs afterHit) else 0
-  let hps' :: Nat = Nat.intToClampedNat afterHit
-  let hpChangeEffect =
-        if hps' <= 0
-          then mempty {Board.death}
-          else mempty {Board.hitPointsChange = Nat.negate hit}
-  return $ (hpChangeEffect {Board.extra}) <> ace <> imprecise
-  where
-    damage = Total.attack (Just place) attacker
-    death =
-      if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
-        then Board.DeathByBreathIce
-        else Board.UsualDeath
-    ace = mkFadeOut Skill.Ace Tile.Arrow
-    imprecise = mkFadeOut Skill.Imprecise Tile.Explosion
-    mkFadeOut skill tile =
-      mempty {Board.fadeOut = if skill `elem` skills then [tile] else []}
+  AtPlace ->
+  m (Board.InPlaceEffect, Maybe Spots.Card)
+singleAttack
+  (place, attacker@Creature {skills})
+  (Total.Place {Total.place = dplace}, defender@Creature {skills = dskills}) = do
+    flyingSpot <-
+      if Skill.Flying `elem` dskills && not (Mechanics.isRanged attacker)
+        then Mechanics.flySpot dplace
+        else pure Nothing
+    hit :: Nat <- deal damage
+    case (flyingSpot) of
+      Just flyingSpot ->
+        -- Attackee flies away
+        return
+          ( mempty {Board.extra = hit, Board.fade = Constants.FadeOut, Board.fadeOut = [Tile.Wings]},
+            Just flyingSpot
+          )
+      Nothing -> do
+        -- Regular case (no flying involved)
+        let afterHit :: Int = (natToInt (Card.hp defender)) - (natToInt hit)
+        let extra :: Nat = if afterHit < 0 then Nat.intToNat (abs afterHit) else 0
+        let hps' :: Nat = Nat.intToClampedNat afterHit
+        let hpChangeEffect =
+              if hps' <= 0
+                then mempty {Board.death}
+                else mempty {Board.hitPointsChange = Nat.negate hit}
+        return $ ((hpChangeEffect {Board.extra}) <> ace <> imprecise, Nothing)
+    where
+      damage = Total.attack (Just place) attacker
+      death =
+        if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
+          then Board.DeathByBreathIce
+          else Board.UsualDeath
+      ace = mkFadeOut Skill.Ace Tile.Arrow
+      imprecise = mkFadeOut Skill.Imprecise Tile.Explosion
+      mkFadeOut skill tile =
+        mempty {Board.fadeOut = if skill `elem` skills then [tile] else []}
 
 -- | Apply a 'Damage'
 deal :: MonadState Shared.Model m => Damage -> m Nat

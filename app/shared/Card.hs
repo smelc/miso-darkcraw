@@ -109,6 +109,7 @@ data CreatureKind
   | Assassin
   | Bear
   | Beholder
+  | Bird
   | Captain
   | Church
   | Daemon
@@ -384,7 +385,7 @@ rawTeamDeck cards t =
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Sylvan -> 3 * Archer ++ 2 * Tree ++ 2 * Priest ++ 2 * Bear
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
-        ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet
+        ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet ++ 1 * Card.Bird
       where
         kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
           map cardToCreature cards

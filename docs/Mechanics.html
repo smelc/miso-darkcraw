@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Mechanics</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Mechanics</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>Spin-off <code>Game</code>, to avoid <code>Game</code> to be gigantic</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Move">Move</a> = <a href="#v:Move">Move</a> {<ul class="subs">
+<li>
+<a href="#v:from">from</a> :: (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</li>
+<li>
+<a href="#v:to">to</a> :: (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</li>
+</ul>}</li>
+<li class="src short">
+<a href="#v:mkEndoMove">mkEndoMove</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Mechanics.html#t:Move" title="Mechanics">Move</a>
+</li>
+<li class="src short">
+<a href="#v:flySpot">flySpot</a> :: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="Shared.html#t:Model" title="Shared">Model</a> m =&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; m (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a>)</li>
+<li class="src short">
+<a href="#v:isRanged">isRanged</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li class="src short">
+<a href="#v:move">move</a> :: <a href="Mechanics.html#t:Move" title="Mechanics">Move</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
+</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Move" class="def">Move</a> <a href="#t:Move" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Move" class="def">Move</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:from" class="def">from</a> :: (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:to" class="def">to</a> :: (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</dfn><div class="doc empty">&nbsp;</div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+</div>
+<div class="top">
+<p class="src"><a id="v:mkEndoMove" class="def">mkEndoMove</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Mechanics.html#t:Move" title="Mechanics">Move</a> <a href="#v:mkEndoMove" class="selflink">#</a></p>
+<div class="doc"><p>A move within one <code><a href="Spots.html#t:Player" title="Spots">Player</a></code></p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:flySpot" class="def">flySpot</a> :: <a href="file:///nix/store/x0hza2y02ad87fiykjbdxa6jblnv4w68-adjunctions-4.4-doc/share/doc/adjunctions-4.4/html/Control-Monad-Representable-State.html#t:MonadState" title="Control.Monad.Representable.State">MonadState</a> <a href="Shared.html#t:Model" title="Shared">Model</a> m =&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; m (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Spots.html#t:Card" title="Spots">Card</a>) <a href="#v:flySpot" class="selflink">#</a></p>
+<div class="doc"><p>Whether a creature with <code><a href="Skill.html#v:Flying" title="Skill">Flying</a></code> in the given place can fly to.</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:isRanged" class="def">isRanged</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:isRanged" class="selflink">#</a></p>
+<div class="doc"><p>FIXME @smelc use me for FillTheFrontline</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:move" class="def">move</a> :: <a href="Mechanics.html#t:Move" title="Mechanics">Move</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:move" class="selflink">#</a></p>
+<div class="doc"><p><code>move m board</code> moves the creature at <code>move.from m</code> to <code>move.to m</code>
+ Returns <code>board</code> unchanged if the move is impossible</p></div>
+</div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

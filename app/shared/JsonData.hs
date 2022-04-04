@@ -39,6 +39,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"veteran\",   \"team\":\"zknights\" }, \"title\":\"Veteran\", \"hp\":3, \"attack\":\"3\", \"tile\":\"ZVeteran\",       \"skills\":[\"Knight\", \"Charge\", \"Veteran\"], \"mana\":\"2\" },\n\
          \    { \"id\": { \"name\":\"king\",      \"team\":\"zknights\" }, \"title\":\"King\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKing\",          \"skills\":[\"King\"], \"mana\":\"2\" },\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"zknights\" }, \"title\":\"Knight\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"ZKnight\",        \"skills\":[\"Knight\", \"Charge\"], \"mana\":\"1\" },\n\
+         \    { \"id\": { \"name\":\"bird\",      \"team\":\"zknights\" }, \"title\":\"Bird\",    \"hp\":1, \"attack\":\"0-1\", \"tile\":\"BirdWhite\",    \"skills\":[\"Flying\"] },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"zknights\" }, \"title\":\"Priest\",  \"hp\":1, \"attack\":\"0\", \"tile\":\"ZPriest\",        \"skills\":[\"Source 2\"], \"mana\":\"1\" },\n\
          \    { \"id\": { \"name\":\"squire\",    \"team\":\"zknights\" }, \"title\":\"Squire\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"Squire\",         \"skills\":[\"Squire\"] },\n\
          \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":\"2\" },\n\
@@ -58,8 +59,8 @@ jsonData = "{\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"tile\":\"AxeOfRage\",        \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
-         \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"tile\":\"BowOfStrength\",    \"text\":\"Add 0-2 damage. Ace only.\",  \"teams\": [\"sylvan\"] },\n\
-         \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"tile\":\"CloakOfGaia\",      \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\",  \"teams\": [\"sylvan\"] },\n\
+         \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"tile\":\"BowOfStrength\",    \"text\":\"Add 0-2 damage. Ace only.\",  \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
+         \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"tile\":\"CloakOfGaia\",      \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
          \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
          \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"tile\":\"CrushingMace\",     \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
@@ -74,6 +75,7 @@ jsonData = "{\n\
          \    { \"tile\":\"AxeOfRage\",     \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":3  } },\n\
          \    { \"tile\":\"Bear\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":12 } },\n\
          \    { \"tile\":\"Beholder\",      \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":10 } },\n\
+         \    { \"tile\":\"BirdWhite\",     \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":11 } },\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\
          \    { \"tile\":\"BlackAppears1\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":6 } },\n\
          \    { \"tile\":\"BlackAppears2\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":6 } },\n\
@@ -121,6 +123,10 @@ jsonData = "{\n\
          \    { \"tile\":\"Sword1\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"Sword2\",        \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":1 } },\n\
          \    { \"tile\":\"Sword3\",        \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":1 } },\n\
+         \    { \"tile\":\"SylvanPriest\",  \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":12 } },\n\
+         \    { \"tile\":\"SylvanArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":12 } },\n\
+         \    { \"tile\":\"SylvanWorm\",    \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":12 } },\n\
+         \    { \"tile\":\"Tree\",          \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":12 } },\n\
          \    { \"tile\":\"Troll\",         \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":10 } },\n\
          \    { \"tile\":\"Trebuchet\",     \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":11 } },\n\
          \    { \"tile\":\"UndeadSkeleton\",\"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":3 } },\n\
@@ -137,15 +143,12 @@ jsonData = "{\n\
          \    { \"tile\":\"WhiteAppears2\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears3\", \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":5 } },\n\
          \    { \"tile\":\"WhiteAppears4\", \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":5 } },\n\
+         \    { \"tile\":\"Wings\",         \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":7 } },\n\
          \    { \"tile\":\"ZKnight\",       \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":11 } },\n\
          \    { \"tile\":\"ZCaptain\",      \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":11 } },\n\
          \    { \"tile\":\"ZVeteran\",      \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":11 } },\n\
          \    { \"tile\":\"Squire\",        \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":11 } },\n\
-         \    { \"tile\":\"ZKing\",         \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":11 } },\n\
-         \    { \"tile\":\"SylvanPriest\",  \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":12 } },\n\
-         \    { \"tile\":\"Tree\",          \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":12 } },\n\
-         \    { \"tile\":\"SylvanArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":12 } },\n\
-         \    { \"tile\":\"SylvanWorm\",    \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":12 } }\n\
+         \    { \"tile\":\"ZKing\",         \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":11 } }\n\
          \  ],\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Ace\",         \"title\":\"Ace\",        \"text\":\"Hits any enemy\"},\n\
@@ -159,6 +162,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Fame 1\",      \"title\":\"Fame 1\",     \"text\":\"Contribute 1 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fame 2\",      \"title\":\"Fame 2\",     \"text\":\"Contribute 2 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
+         \    { \"skill\":\"Flying\",      \"title\":\"Flying\",     \"text\":\"When attacked, moves to a random free spot\"},\n\
          \    { \"skill\":\"GreenAffinity\", \"title\":\"Gaia's Will\", \"text\":\"At end of turn, create forest around a spot\"},\n\
          \    { \"skill\":\"Growth\",       \"title\":\"Growth\",    \"text\":\"If in a forest, at beginning of turn, +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\

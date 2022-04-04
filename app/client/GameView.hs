@@ -248,10 +248,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
   where
     part = Board.toPart board pSpot
     t = Board.team part
-    loc =
-      GameInPlaceLoc
-        (Mana.labeler m)
-        (Total.Place {place = Board.inPlace part, cardSpot = cSpot})
+    loc = GameInPlaceLoc (Mana.labeler m) (Total.mkPlace board pSpot cSpot)
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = Board.toInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs lift =

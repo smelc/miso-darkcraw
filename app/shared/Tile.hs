@@ -37,6 +37,7 @@ data Tile
   | AxeOfRage
   | Bear
   | Beholder
+  | BirdWhite
   | BlackAppears0
   | BlackAppears1
   | BlackAppears2
@@ -105,6 +106,7 @@ data Tile
   | WhiteAppears2
   | WhiteAppears3
   | WhiteAppears4
+  | Wings
   | ZCaptain
   | ZKing
   | ZKnight

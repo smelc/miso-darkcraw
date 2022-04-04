@@ -282,6 +282,7 @@ instance ToClass Card.CreatureID where
           _ -> error $ msg team
       ZKnights ->
         case kind of
+          Bird -> FrontFighter
           Captain -> FrontFighter
           King -> Support
           Knight -> FrontFighter

@@ -27,6 +27,8 @@ data T blow drawCard fame fear green growth regen slow source stupid terror
     Fame fame
   | -- | Creature causes fear
     Fear fear
+  | -- | Creatures moves to random free spot upon being attacked
+    Flying
   | -- | Creates a forest at turn beginning
     GreenAffinity green
   | -- | +1 hp at turn beginning
@@ -122,6 +124,7 @@ lift skill =
     DrawCard {} -> DrawCard ()
     Fame (n, _) -> Fame n
     Fear {} -> Fear ()
+    Flying {} -> Flying
     GreenAffinity {} -> GreenAffinity ()
     Growth {} -> Growth ()
     Imprecise -> Imprecise
@@ -160,6 +163,7 @@ unlift skill =
     DrawCard {} -> DrawCard True
     Fame n -> Fame (n, True)
     Fear {} -> Fear True
+    Flying {} -> Flying
     GreenAffinity {} -> GreenAffinity True
     Growth {} -> Growth True
     Imprecise -> Imprecise
