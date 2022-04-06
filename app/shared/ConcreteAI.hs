@@ -264,6 +264,8 @@ instance ToClass Card.CreatureID where
         case kind of
           Archer -> Shooter
           Bear -> FrontFighter
+          Falcon -> FrontFighter
+          Falconer -> FrontFighter
           Priest -> Support
           Tree -> FrontFighter
           Worm -> FrontFighter

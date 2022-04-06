@@ -87,6 +87,8 @@ data Tile
   | Sword2
   | Sword3
   | SylvanArcher
+  | SylvanFalcon
+  | SylvanFalconer
   | SylvanPriest
   | SylvanWorm
   | Trebuchet

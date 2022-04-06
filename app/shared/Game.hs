@@ -507,7 +507,7 @@ tryPlayM p@Playable {board, turn, event} =
               -- Not enough mana
               return $ impossible NotEnoughMana
         (CardTarget pSpot cSpot, Just (CreatureCard _ creature), Just CardCommon {mana}) -> do
-          e <- playCreatureM board' pSpot cSpot creature & runExceptT
+          e <- playCreatureM shared board' pSpot cSpot creature & runExceptT
           e >=> (\board'' -> (decreaseMana mana board'', Nothing))
         (CardTarget pSpot cSpot, Just (ItemCard _ itemObj), Just CardCommon {mana}) -> do
           e <- playItemM board' pSpot cSpot (Card.item itemObj) & runExceptT
@@ -707,26 +707,63 @@ playNeutralM board _playingPlayer target n =
 playCreatureM ::
   MonadError Impossible m =>
   MonadWriter (Board.T 'UI) m =>
+  Shared.Model ->
   Board.T 'Core ->
   Spots.Player ->
   Spots.Card ->
   Creature 'Core ->
   m (Board.T 'Core)
-playCreatureM board pSpot cSpot creature =
-  case Map.member cSpot $ Board.toInPlace board pSpot of
-    True ->
-      -- This used to be an error, but now this can happen with
-      -- Infernal Haste + Flail of the Damned. Haste makes
-      -- the flail spawn an unexpected creature, which may make
-      -- an event computed by the AI fail.
-      throwError CannotPlaceCreature
-    _ -> do
-      reportEffect pSpot cSpot $ mempty {Board.fade = Constants.FadeIn} -- report creature addition effect
-      board <- pure $ Board.setCreature pSpot cSpot creature board -- set creature
-      board <- applyDiscipline board creature pSpot cSpot
-      board <- applySquire board creature pSpot cSpot
-      board <- applySylvan pSpot cSpot board
-      return board
+playCreatureM shared board pSpot cSpot creature@Creature {skills} = do
+  board <- playOneM board cSpot creature
+  board <- foldM (\b (spot, card) -> tryPlayOneM b spot card) board extras
+  return board
+  where
+    extras
+      | Skill.Falconer `elem` skills =
+          [(c, Shared.idToCreature shared falcon []) | c <- Spots.frontSpots \\ [cSpot]]
+            & map liftJust
+      | otherwise = []
+    liftJust = \case
+      (c, Just crea) ->
+        (c, Card.unlift crea)
+      (_, Nothing) ->
+        {- Should never happen because IDs in 'extra' are valid -} error "playCreatureM::liftJust failure"
+    falcon :: Card.CreatureID = CreatureID Card.Falcon Card.Sylvan
+    transientize (s :: Spots.Card) =
+      Board.mapCreature pSpot s (\(c :: Creature 'Core) -> c {transient = True})
+    -- Play one create on the player spot of 'playCreatureM'. Fails in
+    -- the error monad if impossible, so should be used for the main creature.
+    playOneM ::
+      MonadWriter (Board.T 'UI) m =>
+      MonadError Impossible m =>
+      Board.T 'Core ->
+      Spots.Card ->
+      Creature 'Core ->
+      m (Board.T 'Core)
+    playOneM b c creature =
+      case Map.member c $ Board.toInPlace b pSpot of
+        True ->
+          -- This used to be an error, but now this can happen with
+          -- Infernal Haste + Flail of the Damned. Haste makes
+          -- the flail spawn an unexpected creature, which may make
+          -- an event computed by the AI fail.
+          throwError CannotPlaceCreature
+        _ -> do
+          reportEffect pSpot c $ mempty {Board.fade = Constants.FadeIn} -- report creature addition effect
+          b <- pure $ Board.setCreature pSpot c creature b -- set creature
+          b <- applyDiscipline b creature pSpot c
+          b <- applySquire b creature pSpot c
+          b <- applySylvan pSpot c b
+          return b
+    -- Play one creature, return the initial board if unplayable. Adequate
+    -- for playing extra creatures. If the extra creature is successfully
+    -- plaed, it is marked transient.
+    tryPlayOneM (b :: Board.T 'Core) (s :: Spots.Card) (creature :: Creature 'Core) =
+      playOneM b s creature
+        & runExceptT
+        <&> eitherToMaybe
+        <&> (fmap (transientize s))
+        <&> fromMaybe b
 
 -- | Play an 'Item'. Doesn't deal with consuming mana (done by caller)
 playItemM ::

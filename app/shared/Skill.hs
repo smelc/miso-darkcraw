@@ -23,6 +23,9 @@ data T blow drawCard fame fear green growth regen slow source stupid terror
   | Charge
   | Discipline
   | DrawCard drawCard
+  | -- | Creates falcons upon arrival. No state, because it only triggers
+    -- when put on board.
+    Falconer
   | -- | Contributes to score at turn beginning
     Fame fame
   | -- | Creature causes fear
@@ -122,6 +125,7 @@ lift skill =
     Charge -> Charge
     Discipline -> Discipline
     DrawCard {} -> DrawCard ()
+    Falconer -> Falconer
     Fame (n, _) -> Fame n
     Fear {} -> Fear ()
     Flying {} -> Flying
@@ -161,6 +165,7 @@ unlift skill =
     Discipline -> Discipline
     Charge -> Charge
     DrawCard {} -> DrawCard True
+    Falconer -> Falconer
     Fame n -> Fame (n, True)
     Fear {} -> Fear True
     Flying {} -> Flying
