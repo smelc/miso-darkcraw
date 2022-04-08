@@ -50,7 +50,7 @@ import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe
+import Data.Maybe (catMaybes, fromMaybe)
 import GHC.Base (assert)
 import GHC.Generics (Generic)
 import Json (loadJson)
@@ -275,4 +275,9 @@ tileToFilepath Model {tiles} tile defaultSize =
     (Just TileUI {Tile.filepath}, _) -> filepath
 
 unsafeIdentToCard :: Model -> Card.ID -> Card 'UI
-unsafeIdentToCard smodel ci = identToCard smodel ci & fromJust
+unsafeIdentToCard smodel ci = identToCard smodel ci & unsafeFromJust
+  where
+    unsafeFromJust =
+      \case
+        (Just x) -> x
+        Nothing -> error $ "unsafeIdentToCard: unexpected Nothing on " ++ show ci

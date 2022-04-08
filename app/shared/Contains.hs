@@ -14,6 +14,8 @@ import Control.Monad.Except
 -- field of a record, and also from writing the automatic lifting
 -- @Contains a b => Contains a c => Contains (b, c)@. That would yield
 -- harder to understand code, for not much value.
+--
+-- I could also use lens terminology, this is close to @view@
 class Contains a b where
   to :: a -> b
 
@@ -23,6 +25,8 @@ class Contains a b where
 -- field of a record, and also from writing the automatic lifting
 -- @Contains a b => Contains a c => Contains (b, c)@. That would yield
 -- harder to understand code, for not much value.
+--
+-- I could also use lens terminology, this is a variant of @over@
 class With a b where
   with :: a -> b -> a
 

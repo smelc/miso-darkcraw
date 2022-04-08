@@ -187,6 +187,7 @@ instance Itemizable (Creature 'Core) where
 
 data Neutral
   = Health
+  | HuntingHorn
   | InfernalHaste
   | Life
   | Pandemonium
@@ -464,6 +465,7 @@ targetType id =
     IDC {} -> CardTargetType Hole
     IDI _ -> CardTargetType Occupied
     IDN Health -> CardTargetType Occupied
+    IDN HuntingHorn -> PlayerTargetType
     IDN Life -> CardTargetType Occupied
     IDN InfernalHaste -> PlayerTargetType
     IDN Pandemonium -> PlayerTargetType

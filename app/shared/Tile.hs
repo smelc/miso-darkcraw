@@ -74,6 +74,7 @@ data Tile
   | HumanKnight
   | HumanSpearman
   | HumanSwordsman
+  | HuntingHorn
   | Loupe
   | Ogre
   | Pandemonium

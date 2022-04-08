@@ -295,6 +295,7 @@ scoreHandCard = \case
   NeutralCard _ NeutralObject {neutral} ->
     case neutral of
       Health -> -1
+      HuntingHorn -> -1
       InfernalHaste -> -10
       Life -> -3
       Pandemonium -> -3 -- TODO @smelc pass the board and check number of in place creatures in opponent board

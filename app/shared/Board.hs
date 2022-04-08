@@ -518,6 +518,7 @@ toNeighbors board pSpot cSpot neighborhood =
     liftJust (f, Just s) = Just (f, s)
     liftJust _ = Nothing
 
+-- TODO @smelc change parameters order
 toPart :: T p -> Spots.Player -> PlayerPart p
 toPart T {playerTop} PlayerTop = playerTop
 toPart T {playerBottom} PlayerBot = playerBottom
@@ -525,6 +526,7 @@ toPart T {playerBottom} PlayerBot = playerBottom
 toScore :: Spots.Player -> T p -> ScoreType p
 toScore pSpot board = toPart board pSpot & score
 
+-- TODO @smelc change parameters order
 toStack :: T p -> Spots.Player -> StackType p
 toStack T {playerTop} PlayerTop = stack playerTop
 toStack T {playerBottom} PlayerBot = stack playerBottom

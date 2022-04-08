@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 
 -- | This module contains instances of classes regarding types defined
@@ -14,7 +15,6 @@ import Skill
 -- | Class for things that can be reset at the start of a turn
 class Startable a where
   start :: a -> a
-  start = id
 
 instance Startable Skill.State where
   start (DrawCard False) = DrawCard True -- Renew it
@@ -34,8 +34,8 @@ instance Startable Skill.State where
 
 instance Startable [Skill.State] where
   start skills =
-    filter ((/=) Skill.StrengthPot) skills -- Remove potion of strength effect
+    filter (\s -> s `notElem` [Skill.StrengthPot, Skill.FearTmp]) skills -- Remove temporary effects
       & map start
 
 instance Startable (Creature 'Core) where
-  start Creature {..} = Creature {skills = start skills, ..}
+  start c@Creature {skills} = c {skills = start skills}

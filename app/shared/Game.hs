@@ -164,6 +164,7 @@ whichPlayerTarget = \case
   IDC {} -> Playing
   IDI _ -> Playing
   IDN Health -> Playing
+  IDN HuntingHorn -> Playing
   IDN InfernalHaste -> Playing
   IDN Life -> Playing
   IDN Pandemonium -> Opponent
@@ -217,7 +218,7 @@ data Event
   deriving (Eq, Generic, Show)
 
 -- | The result of playing game events. If you add a field, extend
--- the 'Eq' instance below.
+-- the 'Eq' instance below. TODO @smelc find a better name.
 data Result e = Result
   { board :: Board.T 'Core,
     anims :: Board.T 'UI,
@@ -670,6 +671,11 @@ playNeutralM board _playingPlayer target n =
       reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
       board' <- addHitpoints pSpot cSpot increase
       return (board', Nothing)
+    (HuntingHorn, PlayerTarget pSpot) -> do
+      -- TODO @smelc return an Animation.Message value
+      let forests = Board.toPart board pSpot & Board.deco & Map.filter ((==) Board.Forest) & Map.keys
+          board' = Board.mapInPlace (addSkill Skill.FearTmp) pSpot forests board
+      return (board', Nothing)
     (Life, CardTarget pSpot cSpot) -> do
       let increase = 3
       reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
@@ -702,6 +708,7 @@ playNeutralM board _playingPlayer target n =
         Nothing -> return board
         Just c@Creature {hp} ->
           return $ Board.setCreature pSpot cSpot (c {hp = hp + hps}) board
+    addSkill sk c@Creature {skills} = c {skills = skills ++ [sk]}
 
 -- | Play a 'Creature'. Doesn't deal with consuming mana (done by caller)
 playCreatureM ::

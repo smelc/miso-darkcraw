@@ -35,7 +35,7 @@ balances =
     -- Level1
     (Human, Campaign.Level1, Evil, 43, 147, 2),
     (Human, Campaign.Level1, Undead, 40, 342, 2),
-    (Evil, Campaign.Level1, Sylvan, 70, 56, 2),
+    (Evil, Campaign.Level1, Sylvan, 116, 74, 2),
     (Evil, Campaign.Level1, Undead, 30, 96, 2)
   ]
 

@@ -90,6 +90,7 @@ instance FromJSON Skill where
           "DrawCard" -> return $ Skill.DrawCard ()
           "Falconer" -> return Skill.Falconer
           "Fear" -> return $ Skill.Fear ()
+          "FearTmp" -> return Skill.FearTmp
           "Flying" -> return Skill.Flying
           "GreenAffinity" -> return $ Skill.GreenAffinity ()
           "Growth" -> return $ Skill.Growth ()

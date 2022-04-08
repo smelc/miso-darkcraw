@@ -30,6 +30,8 @@ data T blow drawCard fame fear green growth regen slow source stupid terror
     Fame fame
   | -- | Creature causes fear
     Fear fear
+  | -- | Creatures causes fear until next turn
+    FearTmp
   | -- | Creatures moves to random free spot upon being attacked
     Flying
   | -- | Creates a forest at turn beginning
@@ -128,6 +130,7 @@ lift skill =
     Falconer -> Falconer
     Fame (n, _) -> Fame n
     Fear {} -> Fear ()
+    FearTmp -> FearTmp
     Flying {} -> Flying
     GreenAffinity {} -> GreenAffinity ()
     Growth {} -> Growth ()
@@ -168,6 +171,7 @@ unlift skill =
     Falconer -> Falconer
     Fame n -> Fame (n, True)
     Fear {} -> Fear True
+    FearTmp -> FearTmp
     Flying {} -> Flying
     GreenAffinity {} -> GreenAffinity True
     Growth {} -> Growth True

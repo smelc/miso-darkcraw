@@ -54,6 +54,7 @@ jsonData = "{\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          , \"teams\": [\"human\"]  },\n\
+         \    { \"name\":\"huntinghorn\",   \"title\":\"Hunting Horn\", \"tile\":\"HuntingHorn\",    \"text\":\"Creatures in forests cause Fear until next turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"]  },\n\
          \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          , \"teams\": [\"human\", \"sylvan\", \"zknights\"]  },\n\
          \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"tile\":\"Pandemonium\",  \"text\":\"Randomly shuffle enemy board\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] },\n\
          \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"    , \"teams\": [\"undead\"] },\n\
@@ -111,6 +112,7 @@ jsonData = "{\n\
          \    { \"tile\":\"HumanArcher\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":0 } },\n\
          \    { \"tile\":\"HumanGeneral\",  \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":0 } },\n\
          \    { \"tile\":\"HumanKnight\",   \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":0 } },\n\
+         \    { \"tile\":\"HuntingHorn\",   \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":3 } },\n\
          \    { \"tile\":\"FlailOfTheDamned\", \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":2 } },\n\
          \    { \"tile\":\"RedPotion\",     \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":0 } },\n\
          \    { \"tile\":\"GreenPotion\",   \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":0 } },\n\
@@ -167,6 +169,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Fame 1\",      \"title\":\"Fame 1\",     \"text\":\"Contribute 1 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fame 2\",      \"title\":\"Fame 2\",     \"text\":\"Contribute 2 to the score at beginning of turn\"},\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
+         \    { \"skill\":\"FearTmp\",     \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
          \    { \"skill\":\"Flying\",      \"title\":\"Flying\",     \"text\":\"When attacked by non-shooter, moves to a random free spot\"},\n\
          \    { \"skill\":\"GreenAffinity\", \"title\":\"Gaia's Will\", \"text\":\"At end of turn, create forest around a spot\"},\n\
          \    { \"skill\":\"Growth\",       \"title\":\"Growth\",    \"text\":\"If in a forest, at beginning of turn, +1 :heart: and +1 :crossed_swords:\"},\n\

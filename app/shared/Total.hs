@@ -113,15 +113,12 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
         & ((*) Constants.strengthPotAttackBonus)
 
 -- | Whether a creature causes fear
-causesFear ::
-  Creature 'Core ->
-  Bool
+causesFear :: Creature 'Core -> Bool
 -- We ignore the skill's Boolean, because it's for UI display only
-causesFear Creature {skills} = any (\case Skill.Fear _ -> True; _ -> False) skills
+causesFear Creature {skills} =
+  any (\case Skill.Fear _ -> True; Skill.FearTmp -> True; _ -> False) skills
 
-causesTerror ::
-  Creature 'Core ->
-  Bool
+causesTerror :: Creature 'Core -> Bool
 -- We ignore the skill's Boolean, because it's for UI display only
 causesTerror Creature {skills} = any (\case Skill.Terror _ -> True; _ -> False) skills
 
