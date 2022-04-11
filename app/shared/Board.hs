@@ -37,6 +37,7 @@ module Board
     alterDeco,
     lookupHand,
     lookupHandM,
+    Mappable (..),
     mapHand,
     PlayerPart (..),
     StackType (),
@@ -47,12 +48,8 @@ module Board
     addToHand,
     empty,
     increaseScore,
-    mapCreature,
     mapDiscarded,
-    setCreature,
-    setMaybeCreature,
     toDiscarded,
-    rmCreature,
     setInPlace,
     toInPlace,
     line,
@@ -71,7 +68,6 @@ module Board
     setMana,
     Board.ManaType,
     switchLine,
-    mapInPlace,
   )
 where
 
@@ -335,6 +331,37 @@ instance Semigroup (T 'UI) where
 instance Monoid (T 'UI) where
   mempty = T mempty mempty
 
+-- | Functions to update content within 'Board.T' values
+class Mappable p a where
+  -- | Maps over the data at the given 'Spots.Player' and 'Spots.Card'
+  adjust :: Spots.Player -> Spots.Card -> (a -> a) -> T p -> T p
+
+  -- | Maps over the data at the given 'Spots.Player' and 'Spots.Card'
+  adjustMany :: Spots.Player -> [Spots.Card] -> (a -> a) -> T p -> T p
+
+  -- | Sets the data at the given 'Spots.Player' and 'Spots.Card'
+  insert :: Spots.Player -> Spots.Card -> a -> T p -> T p
+
+  -- | Updates the data at the given 'Spots.Player' and 'Spots.Card'. Updates
+  -- if the function returns @Just _@ or removes the data if @f@ returns @Nothing@.
+  update :: Spots.Player -> Spots.Card -> (a -> Maybe a) -> T p -> T p
+
+instance Mappable 'Core (Creature 'Core) where
+  adjust pSpot cSpot f b =
+    let part@PlayerPart {inPlace} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {inPlace = Map.adjust f cSpot inPlace})
+  adjustMany pSpot cSpots f b =
+    Board.setPart b pSpot (part {inPlace = Map.union (Map.map f changed) untouched})
+    where
+      part@PlayerPart {inPlace} = Board.toPart b pSpot
+      (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) inPlace
+  insert pSpot cSpot x b =
+    let part@PlayerPart {inPlace} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {inPlace = Map.insert cSpot x inPlace})
+  update pSpot cSpot f b =
+    let part@PlayerPart {inPlace} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {inPlace = Map.update f cSpot inPlace})
+
 addToHand :: T p -> Spots.Player -> HandElemType p -> T p
 addToHand board pSpot handElem =
   setPart board pSpot $ part {inHand = hand ++ [handElem]}
@@ -355,14 +382,6 @@ increaseScore board pSpot change =
   where
     score = Board.toScore pSpot board
 
--- | Map over the 'creature' of the given player in the given board, at the given spot
--- Does nothing if there is no creature. TODO @smelc, rename to @adjustCreature@
-mapCreature :: p ~ 'Core => Spots.Player -> Spots.Card -> (Creature p -> Creature p) -> T p -> T p
-mapCreature pSpot cSpot f board =
-  setPart board pSpot $ part {inPlace = Map.adjust f cSpot m}
-  where
-    part@PlayerPart {inPlace = m} = toPart board pSpot
-
 -- | Map over the 'discarded' field of the given player in the given board
 mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> T p -> T p
 mapDiscarded pSpot f board =
@@ -381,46 +400,9 @@ mapMana pSpot f board =
   where
     part@PlayerPart {mana} = toPart board pSpot
 
--- | Map 'f' over creatures in the given 'Spots.Card' in the given 'Spots.Player'
-mapInPlace :: (Creature 'Core -> Creature 'Core) -> Spots.Player -> [Spots.Card] -> T 'Core -> T 'Core
-mapInPlace f pSpot cSpots board =
-  setPart board pSpot (part {inPlace = inPlace'})
-  where
-    part@PlayerPart {inPlace} = Board.toPart board pSpot
-    (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) inPlace
-    inPlace' = Map.union (Map.map f changed) untouched
-
 mapScore :: T p -> Spots.Player -> (ScoreType p -> ScoreType p) -> T p
 mapScore board pSpot f =
   Board.setScore board pSpot (f (Board.toScore pSpot board))
-
-rmCreature :: Spots.Player -> Spots.Card -> T 'Core -> T 'Core
-rmCreature pSpot cSpot board =
-  Board.setInPlace pSpot (Map.delete cSpot onTable) board
-  where
-    onTable = Board.toPart board pSpot & inPlace
-
--- | Puts a creature, replacing the existing one if any
-setCreature :: Spots.Player -> Spots.Card -> Creature 'Core -> T 'Core -> T 'Core
-setCreature pSpot cSpot creature board =
-  setPart board pSpot part'
-  where
-    part@PlayerPart {inPlace = existing} = toPart board pSpot
-    part' = part {inPlace = Map.insert cSpot creature existing}
-
--- | Replace or remove a creature.
--- TODO @smelc, rename me to @updateCreature@, change implementation to
--- call @Map.update@
-setMaybeCreature :: Spots.Player -> Spots.Card -> Maybe (Creature 'Core) -> T 'Core -> T 'Core
-setMaybeCreature pSpot cSpot creature board =
-  setPart board pSpot part'
-  where
-    part@PlayerPart {inPlace = existing} = toPart board pSpot
-    update :: Map.Map (Spots.Card) (Creature 'Core) -> Map.Map (Spots.Card) (Creature 'Core) =
-      case creature of
-        Nothing -> Map.delete cSpot
-        Just c -> Map.insert cSpot c
-    part' = part {inPlace = update existing}
 
 setInPlace :: Spots.Player -> InPlaceType p -> T p -> T p
 setInPlace pSpot inPlace board =
@@ -591,12 +573,8 @@ initial shared Teams {topTeam = (topTeam, topDeck), botTeam = (botTeam, botDeck)
 -- debugging for example.
 small :: Shared.Model -> Teams Team -> CreatureID -> [Item] -> Spots.Player -> Spots.Card -> T 'Core
 small shared teams cid items pSpot cSpot =
-  setCreature pSpot cSpot c (empty teams)
-  where
-    c =
-      Shared.idToCreature shared cid items
-        & fromJust
-        & Card.unlift
+  let c = Shared.idToCreature shared cid items & fromJust & Card.unlift
+   in insert pSpot cSpot c (empty teams)
 
 appliesTo :: Card.ID -> T 'Core -> Spots.Player -> Spots.Card -> Bool
 appliesTo id board pSpot cSpot =

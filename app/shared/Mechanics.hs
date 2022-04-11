@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- | Spin-off 'Game', to avoid 'Game' to be gigantic
 module Mechanics where
@@ -43,8 +44,8 @@ move Move {from, to} board =
   case (at from board, at to board) of
     (Just c, Nothing) ->
       board
-        & Board.rmCreature (fst from) (snd from)
-        & Board.setCreature (fst to) (snd to) c
+        & Board.update @_ @(Creature 'Core) (fst from) (snd from) (const Nothing)
+        & Board.insert (fst to) (snd to) c
     _ -> board
   where
     at (p, c) b = Board.toInPlaceCreature b p c

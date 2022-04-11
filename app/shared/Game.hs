@@ -13,6 +13,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
@@ -669,18 +670,16 @@ playNeutralM board _playingPlayer target n =
     (Health, CardTarget pSpot cSpot) -> do
       let increase = 1
       reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
-      board' <- addHitpoints pSpot cSpot increase
-      return (board', Nothing)
+      return (addHitpoints pSpot cSpot increase, Nothing)
     (HuntingHorn, PlayerTarget pSpot) -> do
       -- TODO @smelc return an Animation.Message value
       let forests = Board.toPart board pSpot & Board.deco & Map.filter ((==) Board.Forest) & Map.keys
-          board' = Board.mapInPlace (addSkill Skill.FearTmp) pSpot forests board
+          board' = Board.adjustMany @_ @(Creature 'Core) pSpot forests (addSkill Skill.FearTmp) board
       return (board', Nothing)
     (Life, CardTarget pSpot cSpot) -> do
       let increase = 3
       reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
-      board' <- addHitpoints pSpot cSpot increase
-      return (board', Nothing)
+      return (addHitpoints pSpot cSpot increase, Nothing)
     (Pandemonium, PlayerTarget pSpot) -> do
       -- Take existing creatures
       let creatures = Board.toInPlace board pSpot & Map.elems
@@ -699,15 +698,12 @@ playNeutralM board _playingPlayer target n =
         Nothing -> return (board, Nothing)
         Just c@Creature {skills} -> do
           reportEffect pSpot cSpot (mempty {Board.attackChange = Nat.natToInt Constants.strengthPotAttackBonus})
-          let board' = Board.setCreature pSpot cSpot (c {skills = skills ++ [Skill.StrengthPot]}) board
+          let board' = Board.insert pSpot cSpot (c {skills = skills ++ [Skill.StrengthPot]}) board
           return (board', Nothing)
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
   where
     addHitpoints pSpot cSpot hps =
-      case Board.toInPlaceCreature board pSpot cSpot of
-        Nothing -> return board
-        Just c@Creature {hp} ->
-          return $ Board.setCreature pSpot cSpot (c {hp = hp + hps}) board
+      Board.adjust @_ @(Creature 'Core) pSpot cSpot (\c@Creature {hp} -> c {hp = hp + hps}) board
     addSkill sk c@Creature {skills} = c {skills = skills ++ [sk]}
 
 -- | Play a 'Creature'. Doesn't deal with consuming mana (done by caller)
@@ -737,7 +733,7 @@ playCreatureM shared board pSpot cSpot creature@Creature {skills} = do
         {- Should never happen because IDs in 'extra' are valid -} error "playCreatureM::liftJust failure"
     falcon :: Card.CreatureID = CreatureID Card.Falcon Card.Sylvan
     transientize (s :: Spots.Card) =
-      Board.mapCreature pSpot s (\(c :: Creature 'Core) -> c {transient = True})
+      Board.adjust pSpot s (\(c :: Creature 'Core) -> c {transient = True})
     -- Play one create on the player spot of 'playCreatureM'. Fails in
     -- the error monad if impossible, so should be used for the main creature.
     playOneM ::
@@ -757,7 +753,7 @@ playCreatureM shared board pSpot cSpot creature@Creature {skills} = do
           throwError CannotPlaceCreature
         _ -> do
           reportEffect pSpot c $ mempty {Board.fade = Constants.FadeIn} -- report creature addition effect
-          b <- pure $ Board.setCreature pSpot c creature b -- set creature
+          b <- pure $ Board.insert pSpot c creature b -- set creature
           b <- applyDiscipline b creature pSpot c
           b <- applySquire b creature pSpot c
           b <- applySylvan pSpot c b
@@ -792,7 +788,7 @@ playItemM board pSpot cSpot item =
       reportEffect pSpot cSpot $ mempty {Board.fade = Constants.FadeIn}
       -- TODO @smelc record animation for item arrival
       let creature' = installItem item creature
-      return $ Board.setCreature pSpot cSpot creature' board
+      return $ Board.insert pSpot cSpot creature' board
 
 meetsRequirement :: Item -> Creature 'Core -> Bool
 meetsRequirement item Creature {skills} =
@@ -837,7 +833,7 @@ applyDiscipline board creature pSpot cSpot
   | not $ Total.isDisciplined creature = return board
   | otherwise = do
       traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) disciplinedNeighbors
-      return $ Board.mapInPlace (apply change) pSpot disciplinedNeighbors board
+      return $ Board.adjustMany @_ @(Creature 'Core) pSpot disciplinedNeighbors (apply change) board
   where
     change = StatChange {attackDiff = 1, hpDiff = 1}
     effect = changeToEffect change
@@ -916,7 +912,7 @@ applySquire board Creature {skills} pSpot cSpot =
     then return board -- No change
     else do
       reportEffect pSpot frontSpot effect
-      return $ Board.mapInPlace (apply change) pSpot [frontSpot] board
+      return $ Board.adjustMany @_ @(Creature 'Core) pSpot [frontSpot] (apply change) board
   where
     change :: StatChange = mempty {hpDiff = 1}
     effect = changeToEffect change
@@ -1006,7 +1002,7 @@ drawCardM board p src =
     consumeSrc b Nothing = b -- No change
     consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
       -- Set new skill
-      Board.setCreature pSpot cSpot (c {skills = setAt skilli skill' skills}) b
+      Board.insert pSpot cSpot (c {skills = setAt skilli skill' skills}) b
 
 transferCards ::
   Shared.Model ->
@@ -1196,7 +1192,7 @@ applyChurchM board pSpot = do
   where
     go creatureFun effect = do
       traverse_ (\cSpot -> reportEffect pSpot cSpot effect) (map fst others)
-      return $ Board.mapInPlace creatureFun pSpot (Set.toList affectedSpots) board
+      return $ Board.adjustMany @_ @(Creature 'Core) pSpot (Set.toList affectedSpots) creatureFun board
     creatures = Board.toInPlace board pSpot
     (churchs :: [(Spots.Card, Creature 'Core)], others :: [(Spots.Card, Creature 'Core)]) =
       creatures & Map.filter isChurch & Map.toList & partition (isChurch . snd)
@@ -1220,7 +1216,7 @@ applyCreateForestM board pSpot = do
     (priestSpot : _, (Just forestSpot, shared')) -> do
       put shared'
       board' <-
-        Board.mapCreature pSpot priestSpot consume board
+        Board.adjust @_ @(Creature 'Core) pSpot priestSpot consume board
           & Board.alterDeco pSpot forestSpot (const (Just Board.Forest))
           & applySylvan pSpot forestSpot
       applyCreateForestM board' pSpot
@@ -1259,7 +1255,7 @@ applySylvan pSpot cSpot board =
     Just c@Creature {attack, hp} -> do
       let c' = c {Card.attack = attack Damage.+^ 1, hp = hp + 1}
       reportEffect pSpot cSpot $ mempty {Board.attackChange = 1, Board.hitPointsChange = 1}
-      pure $ Board.setCreature pSpot cSpot c' board
+      pure $ Board.insert pSpot cSpot c' board
 
 applyFearNTerror ::
   -- | The input board
@@ -1363,7 +1359,7 @@ applyGrowthM board pSpot cSpot =
       let effect = mempty {Board.attackChange = 1, Board.hitPointsChange = 1}
           c' = c {Card.attack = attack +^ 1, hp = hp + 1, skills = consume skills}
       reportEffect pSpot cSpot effect
-      return $ Board.setCreature pSpot cSpot c' board
+      return $ Board.insert pSpot cSpot c' board
   where
     consume [] = []
     consume (Skill.Growth True : rest) = Skill.Growth False : rest
@@ -1381,7 +1377,7 @@ applyKingM ::
   m (Board.T 'Core)
 applyKingM board pSpot = do
   traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) knightSpots
-  return $ Board.mapInPlace (apply change) pSpot knightSpots board
+  return $ Board.adjustMany @_ @(Creature 'Core) pSpot knightSpots (apply change) board
   where
     inPlace = Board.toInPlace board pSpot
     nbKings = Map.filter (\Creature {skills} -> Skill.King `elem` skills) inPlace & Map.size
@@ -1542,7 +1538,7 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:
-    board' = Board.setMaybeCreature pSpot cSpot hittee' board
+    board' = Board.update pSpot cSpot (const hittee') board
 
 applyInPlaceEffect ::
   -- | The effect of the attacker on the hittee
@@ -1586,7 +1582,7 @@ applyFlailOfTheDamned board creature pSpot =
                   & fromJust
                   & Card.unlift
           let spawned' = spawned {transient = True}
-          let board' = Board.setCreature pSpot spawningSpot spawned' board
+          let board' = Board.insert pSpot spawningSpot spawned' board
           -- TODO @smelc record an animation highlighting the flail
           reportEffect pSpot spawningSpot $ mempty {Board.fade = Constants.FadeIn}
           return board'

@@ -118,6 +118,18 @@
 <li class="src short">
 <a href="#v:lookupHandM">lookupHandM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; m a</li>
 <li class="src short">
+<span class="keyword">class</span> <a href="#t:Mappable">Mappable</a> p a <span class="keyword">where</span><ul class="subs">
+<li>
+<a href="#v:adjust">adjust</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (a -&gt; a) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
+<li>
+<a href="#v:adjustMany">adjustMany</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; (a -&gt; a) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
+<li>
+<a href="#v:insert">insert</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; a -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
+<li>
+<a href="#v:update">update</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
+</ul>
+</li>
+<li class="src short">
 <a href="#v:mapHand">mapHand</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:PlayerPart">PlayerPart</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) = <a href="#v:PlayerPart">PlayerPart</a> {<ul class="subs">
@@ -157,20 +169,9 @@
 <li class="src short">
 <a href="#v:increaseScore">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:mapCreature">mapCreature</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> p -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
-<li class="src short">
 <a href="#v:mapDiscarded">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
-<a href="#v:setCreature">setCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
-</li>
-<li class="src short">
-<a href="#v:setMaybeCreature">setMaybeCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
-</li>
-<li class="src short">
 <a href="#v:toDiscarded">toDiscarded</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; DiscardedType p</li>
-<li class="src short">
-<a href="#v:rmCreature">rmCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
-</li>
 <li class="src short">
 <a href="#v:setInPlace">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
@@ -230,9 +231,6 @@
 </li>
 <li class="src short">
 <a href="#v:switchLine">switchLine</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a>
-</li>
-<li class="src short">
-<a href="#v:mapInPlace">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 </ul></details></div>
 <div id="interface">
@@ -784,6 +782,37 @@
 </div>
 <div class="top"><p class="src"><a id="v:lookupHand" class="def">lookupHand</a> :: [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> a <a href="#v:lookupHand" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:lookupHandM" class="def">lookupHandM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; m a <a href="#v:lookupHandM" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">class</span> <a id="t:Mappable" class="def">Mappable</a> p a <span class="keyword">where</span> <a href="#t:Mappable" class="selflink">#</a></p>
+<div class="doc"><p>Functions to update content within <code><a href="Board.html#t:T" title="Board">T</a></code> values</p></div>
+<div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a id="v:adjust" class="def">adjust</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (a -&gt; a) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:adjust" class="selflink">#</a></p>
+<div class="doc"><p>Maps over the data at the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> and <code><a href="Spots.html#t:Card" title="Spots">Card</a></code></p></div>
+<p class="src"><a id="v:adjustMany" class="def">adjustMany</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; (a -&gt; a) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:adjustMany" class="selflink">#</a></p>
+<div class="doc"><p>Maps over the data at the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> and <code><a href="Spots.html#t:Card" title="Spots">Card</a></code></p></div>
+<p class="src"><a id="v:insert" class="def">insert</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; a -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:insert" class="selflink">#</a></p>
+<div class="doc"><p>Sets the data at the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> and <code><a href="Spots.html#t:Card" title="Spots">Card</a></code></p></div>
+<p class="src"><a id="v:update" class="def">update</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:update" class="selflink">#</a></p>
+<div class="doc"><p>Updates the data at the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code> and <code><a href="Spots.html#t:Card" title="Spots">Card</a></code>. Updates
+ if the function returns <code>Just _</code> or removes the data if <code>f</code> returns <code>Nothing</code>.</p></div>
+</div>
+<div class="subs instances"><details id="i:Mappable" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Mappable:Mappable:1"></span> <a href="Board.html#t:Mappable" title="Board">Mappable</a> <a href="Card.html#v:Core" title="Card">Core</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</span> <a href="#t:Mappable" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:Mappable:Mappable:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:adjust">adjust</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:adjust" class="selflink">#</a></p>
+<p class="src"><a href="#v:adjustMany">adjustMany</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:adjustMany" class="selflink">#</a></p>
+<p class="src"><a href="#v:insert">insert</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:insert" class="selflink">#</a></p>
+<p class="src"><a href="#v:update">update</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:update" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
 <div class="top"><p class="src"><a id="v:mapHand" class="def">mapHand</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (<a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapHand" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:PlayerPart" class="def">PlayerPart</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <a href="#t:PlayerPart" class="selflink">#</a></p>
@@ -954,26 +983,10 @@
 <div class="top"><p class="src"><a id="v:empty" class="def">empty</a> :: Empty a b =&gt; a -&gt; b <a href="#v:empty" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:increaseScore" class="def">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:increaseScore" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:mapCreature" class="def">mapCreature</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="Card.html#t:Creature" title="Card">Creature</a> p -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapCreature" class="selflink">#</a></p>
-<div class="doc"><p>Map over the <code>creature</code> of the given player in the given board, at the given spot
- Does nothing if there is no creature. TODO <code>smelc, rename to </code>adjustCreature@</p></div>
-</div>
-<div class="top">
 <p class="src"><a id="v:mapDiscarded" class="def">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapDiscarded" class="selflink">#</a></p>
 <div class="doc"><p>Map over the <code><a href="Board.html#v:discarded" title="Board">discarded</a></code> field of the given player in the given board</p></div>
 </div>
-<div class="top">
-<p class="src"><a id="v:setCreature" class="def">setCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setCreature" class="selflink">#</a></p>
-<div class="doc"><p>Puts a creature, replacing the existing one if any</p></div>
-</div>
-<div class="top">
-<p class="src"><a id="v:setMaybeCreature" class="def">setMaybeCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:setMaybeCreature" class="selflink">#</a></p>
-<div class="doc"><p>Replace or remove a creature.
- TODO <code>smelc, rename me to </code>updateCreature<code>, change implementation to
- call </code>Map.update@</p></div>
-</div>
 <div class="top"><p class="src"><a id="v:toDiscarded" class="def">toDiscarded</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; DiscardedType p <a href="#v:toDiscarded" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:rmCreature" class="def">rmCreature</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:rmCreature" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:setInPlace" class="def">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setInPlace" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:toInPlace" class="def">toInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p <a href="#v:toInPlace" class="selflink">#</a></p></div>
 <div class="top">
@@ -1349,10 +1362,6 @@
 <p class="src"><a id="v:switchLine" class="def">switchLine</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> <a href="#v:switchLine" class="selflink">#</a></p>
 <div class="doc"><p>Given a frontline spot, the corresponding backline spot. Given
  a backline spot, the corresponding frontline spot.</p></div>
-</div>
-<div class="top">
-<p class="src"><a id="v:mapInPlace" class="def">mapInPlace</a> :: (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:mapInPlace" class="selflink">#</a></p>
-<div class="doc"><p>Map <code>f</code> over creatures in the given <code><a href="Spots.html#t:Card" title="Spots">Card</a></code> in the given <code><a href="Spots.html#t:Player" title="Spots">Player</a></code></p></div>
 </div>
 </div>
 </div>

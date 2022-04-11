@@ -102,11 +102,11 @@ testFear shared =
         & fromJust
         & Card.unlift
         & (\Creature {..} -> Creature {hp = 1, ..})
-    board' = Board.setCreature otherPSpot (Board.bottomSpotOfTopVisual Top) affectedByFear board
+    board' = Board.insert otherPSpot (Board.bottomSpotOfTopVisual Top) affectedByFear board
     applyFear b =
       Game.play shared $
         Game.mkPlayable b (Game.ApplyFearNTerror causingFearPSpot) Turn.initial
-    board'' = Board.setCreature otherPSpot (Board.bottomSpotOfTopVisual Bottom) affectedByFear board
+    board'' = Board.insert otherPSpot (Board.bottomSpotOfTopVisual Bottom) affectedByFear board
     toEither (Left errMsg) = Left errMsg
     toEither (Right (Game.Result {board = b})) = Right b
     hasConsumedFear Creature {skills} = any ((==) (Skill.Fear False)) skills
@@ -210,8 +210,8 @@ testFillTheFrontline shared =
     mkCreature' kind team = mkCreature shared kind team False
     board =
       Board.empty (Board.Teams team team)
-        & Board.setCreature pSpot Top (mkCreature' Archer team)
-        & Board.setCreature pSpot TopLeft (mkCreature' Spearman team)
+        & Board.insert pSpot Top (mkCreature' Archer team)
+        & Board.insert pSpot TopLeft (mkCreature' Spearman team)
     board' =
       Game.play shared $
         Game.mkPlayable board (Game.FillTheFrontline pSpot) Turn.initial
@@ -236,9 +236,9 @@ testBreathIce shared =
     (dummy1, dummy2) = (Archer, Skeleton)
     mkBoard specterSpot =
       Board.empty (Board.Teams team team)
-        & Board.setCreature pSpot specterSpot (mkCreature' Specter team)
-        & Board.setCreature otherpSpot Top (mkCreature' dummy1 team)
-        & Board.setCreature otherpSpot Bottom (mkCreature' dummy2 team)
+        & Board.insert pSpot specterSpot (mkCreature' Specter team)
+        & Board.insert otherpSpot Top (mkCreature' dummy1 team)
+        & Board.insert otherpSpot Bottom (mkCreature' dummy2 team)
     board' specterSpot =
       Game.play shared $
         Game.mkPlayable
@@ -313,8 +313,8 @@ testTransient shared =
     botCardSpot = Board.bottomSpotOfTopVisual Top
     board =
       Board.empty (Board.Teams Undead Human)
-        & Board.setCreature PlayerTop Bottom (mkCreature shared Skeleton Undead True)
-        & Board.setCreature PlayerBot botCardSpot (mkCreature shared Vampire Undead True)
+        & Board.insert PlayerTop Bottom (mkCreature shared Skeleton Undead True)
+        & Board.insert PlayerBot botCardSpot (mkCreature shared Vampire Undead True)
     board' =
       Game.play shared $
         Game.mkPlayable board (Game.Attack PlayerBot botCardSpot False False) Turn.initial
@@ -335,13 +335,13 @@ testCharge shared =
       attack board pSpot BottomLeft
         `shouldBe` (Card.attack $ mkCreature' Card.Knight)
     it "triggers when it should" $ do
-      attack (Board.setCreature pSpot Bottom knight board) pSpot BottomLeft
+      attack (Board.insert pSpot Bottom knight board) pSpot BottomLeft
         `shouldBe` (Card.attack $ mkCreature' Card.Knight) +^ Constants.chargeAmount
   where
     board =
       Board.empty (Board.Teams ZKnights Undead)
-        & Board.setCreature pSpot BottomLeft knight
-        & Board.setCreature pSpot BottomRight knight
+        & Board.insert pSpot BottomLeft knight
+        & Board.insert pSpot BottomRight knight
     pSpot = PlayerTop
     team = ZKnights
     mkCreature' k = mkCreature shared k team False
@@ -363,12 +363,12 @@ testSquire shared =
     (team, pSpot) = (ZKnights, PlayerTop)
     board =
       Board.empty (Board.Teams ZKnights Undead)
-        & Board.setCreature pSpot Bottom knight -- Knight alone
+        & Board.insert pSpot Bottom knight -- Knight alone
     board' =
       Board.empty (Board.Teams ZKnights Undead)
-        & Board.setCreature pSpot Bottom squire -- Squire in front line
-        & Board.setCreature pSpot Top knight -- Knight in back line
-    board'' = Board.setCreature pSpot Top squire board -- Add squire
+        & Board.insert pSpot Bottom squire -- Squire in front line
+        & Board.insert pSpot Top knight -- Knight in back line
+    board'' = Board.insert pSpot Top squire board -- Add squire
     mkCreature' k = mkCreature shared k team False
     knight :: Creature 'Core = mkCreature' Card.Knight
     squire :: Creature 'Core = mkCreature' Card.Squire
@@ -393,9 +393,9 @@ testVeteran shared =
     (team, pSpot, otherSpot) = (ZKnights, PlayerTop, Spots.other pSpot)
     board =
       Board.empty (Board.Teams team Undead)
-        & Board.setCreature pSpot Bottom (veteran {hp = 1}) -- Captain alone
-    board' = Board.setCreature otherSpot (Board.bottomSpotOfTopVisual Top) skeleton board
-    board'' = Board.setCreature otherSpot (Board.bottomSpotOfTopVisual Top) vampire board
+        & Board.insert pSpot Bottom (veteran {hp = 1}) -- Captain alone
+    board' = Board.insert otherSpot (Board.bottomSpotOfTopVisual Top) skeleton board
+    board'' = Board.insert otherSpot (Board.bottomSpotOfTopVisual Top) vampire board
     veteran :: Creature 'Core = mkCreature shared Card.Veteran team False
     skeleton :: Creature 'Core = mkCreature shared Card.Skeleton Undead False
     vampire :: Creature 'Core = mkCreature shared Card.Vampire Undead False
@@ -415,9 +415,9 @@ testZealot shared =
     (team, pSpot, otherSpot) = (ZKnights, PlayerTop, Spots.other pSpot)
     board =
       Board.empty (Board.Teams team Undead)
-        & Board.setCreature pSpot Bottom (captain {hp = 1}) -- Captain alone
-    board' = Board.setCreature otherSpot (Board.bottomSpotOfTopVisual Top) skeleton board
-    board'' = Board.setCreature otherSpot (Board.bottomSpotOfTopVisual Top) vampire board
+        & Board.insert pSpot Bottom (captain {hp = 1}) -- Captain alone
+    board' = Board.insert otherSpot (Board.bottomSpotOfTopVisual Top) skeleton board
+    board'' = Board.insert otherSpot (Board.bottomSpotOfTopVisual Top) vampire board
     captain :: Creature 'Core = mkCreature shared Card.Captain team False
     skeleton :: Creature 'Core = mkCreature shared Card.Skeleton Undead False
     vampire :: Creature 'Core = mkCreature shared Card.Vampire Undead False
@@ -500,7 +500,7 @@ testAce shared =
         & addEnemy Spots.Bottom
         & addEnemy Spots.TopLeft
         & addEnemy Spots.TopRight
-    addEnemy cSpot = Board.setCreature enemyPSpot cSpot enemy
+    addEnemy cSpot = Board.insert enemyPSpot cSpot enemy
     attack (count :: Int) sh b =
       if count <= 0
         then (sh, b)
@@ -524,7 +524,7 @@ testPowerful shared =
     enemy = mkCreature shared Card.Skeleton Undead False
     board :: Board.T 'Core =
       Board.small shared (Board.Teams team team) (creatureId daemon) [] pSpot cSpot
-        & Board.setCreature enemyPSpot cSpot enemy
+        & Board.insert enemyPSpot cSpot enemy
     attack b =
       Game.play shared (Game.mkPlayable b (Game.Attack pSpot cSpot False False) Turn.initial)
         <&> Game.board
@@ -542,8 +542,8 @@ testRampage shared =
     enemy = mkCreature shared Card.Skeleton Undead False
     board :: Board.T 'Core =
       Board.small shared (Board.Teams team team) (creatureId bear) [] pSpot cSpot
-        & Board.setCreature enemyPSpot cSpot enemy
-        & Board.setCreature enemyPSpot (Spots.switchLine cSpot) enemy
+        & Board.insert enemyPSpot cSpot enemy
+        & Board.insert enemyPSpot (Spots.switchLine cSpot) enemy
     attack b =
       Game.play shared (Game.mkPlayable b (Game.Attack pSpot cSpot False False) Turn.initial)
         <&> Game.board
@@ -570,7 +570,7 @@ testScore shared =
     (team, pSpot, ckind) = (Evil, PlayerTop, Card.Knight)
     fighter = mkCreature shared ckind team False
     board :: Board.T 'Core = Board.empty (Board.Teams team team)
-    addFighter cSpot = Board.setCreature pSpot cSpot fighter
+    addFighter cSpot = Board.insert pSpot cSpot fighter
     attack b cSpot =
       Game.play shared (Game.mkPlayable b (Game.Attack pSpot cSpot False False) Turn.initial)
         <&> Game.board
@@ -598,8 +598,8 @@ testSupport shared =
     (fighter, fighterPSpot) = (mkCreature shared Card.Spearman fTeam False, PlayerTop)
     (victim, victimPSpot) = (mkCreature shared Card.Skeleton vTeam False, Spots.other fighterPSpot)
     board :: Board.T 'Core = Board.empty (Board.Teams fTeam vTeam)
-    addFighter cSpot = Board.setCreature fighterPSpot cSpot fighter
-    addVictim cSpot = Board.setCreature victimPSpot cSpot victim
+    addFighter cSpot = Board.insert fighterPSpot cSpot fighter
+    addVictim cSpot = Board.insert victimPSpot cSpot victim
     attack cSpot b =
       Game.play shared (Game.mkPlayable b (Game.Attack fighterPSpot cSpot False False) Turn.initial)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
@@ -626,8 +626,8 @@ testAssassins shared =
     (victim, victimPSpot) = (mkCreature shared Card.Skeleton vTeam False, Spots.other fighterPSpot)
     board :: Board.T 'Core =
       Board.empty (Board.Teams fTeam vTeam)
-        & Board.setCreature fighterPSpot Spots.Bottom fighter
-    addVictim cSpot = Board.setCreature victimPSpot cSpot victim
+        & Board.insert fighterPSpot Spots.Bottom fighter
+    addVictim cSpot = Board.insert victimPSpot cSpot victim
     applyAssassin pSpot b =
       Game.play shared (Game.mkPlayable b (Game.ApplyAssassins pSpot) Turn.initial)
         & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)

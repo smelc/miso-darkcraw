@@ -366,8 +366,8 @@ testItemsAI shared =
     pSpot = PlayerTop
     board1 id1 id2 item =
       Board.empty teams
-        & Board.setCreature pSpot TopLeft id1
-        & Board.setCreature pSpot Bottom id2
+        & Board.insert pSpot TopLeft id1
+        & Board.insert pSpot Bottom id2
         & (\b -> Board.addToHand b pSpot (IDI item))
     teams = Board.Teams Undead Undead
     mkCreature' kind team = Logic.mkCreature shared kind team False
