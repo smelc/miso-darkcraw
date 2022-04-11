@@ -34,7 +34,6 @@ module Board
     initial,
     HandIndex (..),
     InHandType (),
-    alterDeco,
     lookupHand,
     lookupHandM,
     Mappable (..),
@@ -346,6 +345,7 @@ class Mappable p a where
   -- if the function returns @Just _@ or removes the data if @f@ returns @Nothing@.
   update :: Spots.Player -> Spots.Card -> (a -> Maybe a) -> T p -> T p
 
+-- | How to map over @Creature 'Core@ values
 instance Mappable 'Core (Creature 'Core) where
   adjust pSpot cSpot f b =
     let part@PlayerPart {inPlace} = Board.toPart b pSpot
@@ -362,18 +362,28 @@ instance Mappable 'Core (Creature 'Core) where
     let part@PlayerPart {inPlace} = Board.toPart b pSpot
      in Board.setPart b pSpot (part {inPlace = Map.update f cSpot inPlace})
 
+-- | How to map over @Deco@ values
+instance Mappable 'Core Deco where
+  adjust pSpot cSpot f b =
+    let part@PlayerPart {deco} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {deco = Map.adjust f cSpot deco})
+  adjustMany pSpot cSpots f b =
+    Board.setPart b pSpot (part {deco = Map.union (Map.map f changed) untouched})
+    where
+      part@PlayerPart {deco} = Board.toPart b pSpot
+      (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) deco
+  insert pSpot cSpot x b =
+    let part@PlayerPart {deco} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {deco = Map.insert cSpot x deco})
+  update pSpot cSpot f b =
+    let part@PlayerPart {deco} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {deco = Map.update f cSpot deco})
+
 addToHand :: T p -> Spots.Player -> HandElemType p -> T p
 addToHand board pSpot handElem =
   setPart board pSpot $ part {inHand = hand ++ [handElem]}
   where
     part@PlayerPart {inHand = hand} = toPart board pSpot
-
--- | Map over the 'deco' field of the given player in the given board
-alterDeco :: e ~ Maybe (DecoType p) => Spots.Player -> Spots.Card -> (e -> e) -> T p -> T p
-alterDeco pSpot cSpot f board =
-  setPart board pSpot $ part {deco = Map.alter f cSpot d}
-  where
-    part@PlayerPart {deco = d} = toPart board pSpot
 
 -- TODO @smelc replace by calls to 'mapScore'
 increaseScore :: p ~ 'Core => T p -> Spots.Player -> Nat -> T p

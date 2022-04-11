@@ -1217,7 +1217,7 @@ applyCreateForestM board pSpot = do
       put shared'
       board' <-
         Board.adjust @_ @(Creature 'Core) pSpot priestSpot consume board
-          & Board.alterDeco pSpot forestSpot (const (Just Board.Forest))
+          & Board.insert pSpot forestSpot Board.Forest
           & applySylvan pSpot forestSpot
       applyCreateForestM board' pSpot
   where
