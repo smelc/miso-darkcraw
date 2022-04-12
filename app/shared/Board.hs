@@ -345,39 +345,39 @@ class Mappable p a where
   -- if the function returns @Just _@ or removes the data if @f@ returns @Nothing@.
   update :: Spots.Player -> Spots.Card -> (a -> Maybe a) -> T p -> T p
 
--- | How to map over @Creature 'Core@ values
-instance Mappable 'Core (Creature 'Core) where
-  adjust pSpot cSpot f b =
-    let part@PlayerPart {inPlace} = Board.toPart b pSpot
-     in Board.setPart b pSpot (part {inPlace = Map.adjust f cSpot inPlace})
-  adjustMany pSpot cSpots f b =
-    Board.setPart b pSpot (part {inPlace = Map.union (Map.map f changed) untouched})
-    where
-      part@PlayerPart {inPlace} = Board.toPart b pSpot
-      (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) inPlace
-  insert pSpot cSpot x b =
-    let part@PlayerPart {inPlace} = Board.toPart b pSpot
-     in Board.setPart b pSpot (part {inPlace = Map.insert cSpot x inPlace})
-  update pSpot cSpot f b =
-    let part@PlayerPart {inPlace} = Board.toPart b pSpot
-     in Board.setPart b pSpot (part {inPlace = Map.update f cSpot inPlace})
+-- | Lenses for data that belongs to a player
+class PlayerIndexed a where
+  getp :: Spots.Player -> Board.T 'Core -> a
+  setp :: a -> Spots.Player -> Board.T 'Core -> Board.T 'Core
 
--- | How to map over @Deco@ values
-instance Mappable 'Core Deco where
+-- | Generic access to the creatures.
+instance PlayerIndexed (Map.Map Spots.Card (Creature 'Core)) where
+  getp pSpot b = Board.toInPlace b pSpot
+  setp inPlace pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {inPlace})
+
+-- | Generic access to the deco.
+instance PlayerIndexed (Map.Map Spots.Card Deco) where
+  getp pSpot b = Board.toPart b pSpot & Board.deco
+  setp deco pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {deco})
+
+-- | Lift lenses over maps to the 'Mappable' class. Used with @a@ being
+-- @Creature 'Core@ (to map over 'inPlace') and with @a@ being @Deco@
+-- (to map over 'deco').
+instance PlayerIndexed (Map.Map Spots.Card a) => Mappable 'Core a where
   adjust pSpot cSpot f b =
-    let part@PlayerPart {deco} = Board.toPart b pSpot
-     in Board.setPart b pSpot (part {deco = Map.adjust f cSpot deco})
+    let m = getp pSpot b
+     in setp (Map.adjust f cSpot m) pSpot b
   adjustMany pSpot cSpots f b =
-    Board.setPart b pSpot (part {deco = Map.union (Map.map f changed) untouched})
+    setp (Map.union (Map.map f changed) untouched) pSpot b
     where
-      part@PlayerPart {deco} = Board.toPart b pSpot
-      (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) deco
+      m = getp pSpot b
+      (changed, untouched) = Map.partitionWithKey (\k _ -> k `elem` cSpots) m
   insert pSpot cSpot x b =
-    let part@PlayerPart {deco} = Board.toPart b pSpot
-     in Board.setPart b pSpot (part {deco = Map.insert cSpot x deco})
+    let m = getp pSpot b
+     in setp (Map.insert cSpot x m) pSpot b
   update pSpot cSpot f b =
-    let part@PlayerPart {deco} = Board.toPart b pSpot
-     in Board.setPart b pSpot (part {deco = Map.update f cSpot deco})
+    let m = getp pSpot b
+     in setp (Map.update f cSpot m) pSpot b
 
 addToHand :: T p -> Spots.Player -> HandElemType p -> T p
 addToHand board pSpot handElem =
