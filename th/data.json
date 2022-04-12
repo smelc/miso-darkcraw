@@ -43,11 +43,11 @@
   "neutrals": [
     { "name":"infernalhaste", "title":"Haste",  "tile":"SkullRedEyes", "text":"All creatures attack now!", "teams": ["undead"] },
     { "name":"health",        "title":"Health", "tile":"RedPotion",    "text":"Gain +1 :heart:"          , "teams": ["human"]  },
-    { "name":"huntinghorn",   "title":"Hunting Horn", "tile":"HuntingHorn",    "text":"Creatures in forests cause Fear until next turn", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["sylvan"]  },
+    { "name":"huntinghorn",   "title":"Hunting Horn", "text":"Creatures in forests cause Fear until next turn", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["sylvan"]  },
     { "name":"life",          "title":"Life",   "tile":"GreenPotion",  "text":"Gain +3 :heart:"          , "teams": ["human", "sylvan", "zknights"]  },
-    { "name":"pandemonium",   "title":"Pandemonium", "tile":"Pandemonium",  "text":"Randomly shuffle enemy board", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["evil"] },
+    { "name":"pandemonium",   "title":"Pandemonium", "text":"Randomly shuffle enemy board", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["evil"] },
     { "name":"plague",        "title":"Plague", "tile":"HeartBroken",  "text":"All enemies lose 1 HP"    , "teams": ["undead"] },
-    { "name":"strengthpot",   "title":"Strength Potion", "tile":"StrengthPot", "text":"Gain +3:crossed_swords: during this turn", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["evil"] }
+    { "name":"strengthpot",   "title":"Strength Potion", "text":"Gain +3:crossed_swords: during this turn", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["evil"] }
   ],
   "items": [
     { "name":"axeofrage",        "title":"Axe of Rage",         "text":"Gives the powerful skill",   "teams": ["evil"] },

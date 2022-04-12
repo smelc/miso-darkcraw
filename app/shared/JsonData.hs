@@ -54,11 +54,11 @@ jsonData = "{\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          , \"teams\": [\"human\"]  },\n\
-         \    { \"name\":\"huntinghorn\",   \"title\":\"Hunting Horn\", \"tile\":\"HuntingHorn\",    \"text\":\"Creatures in forests cause Fear until next turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"]  },\n\
+         \    { \"name\":\"huntinghorn\",   \"title\":\"Hunting Horn\", \"text\":\"Creatures in forests cause Fear until next turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"]  },\n\
          \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          , \"teams\": [\"human\", \"sylvan\", \"zknights\"]  },\n\
-         \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"tile\":\"Pandemonium\",  \"text\":\"Randomly shuffle enemy board\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"text\":\"Randomly shuffle enemy board\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] },\n\
          \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"    , \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"tile\":\"StrengthPot\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] }\n\
+         \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] }\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
@@ -69,7 +69,7 @@ jsonData = "{\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
          \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"text\":\"Gives the sadism skill\", \"teams\": [\"evil\"] },\n\
-         \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\", \"zknights\"] }\n\
+         \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\", \"zknights\"], \"tile\":\"Sword2\" }\n\
          \  ],\n\
          \  \"tiles\": [\n\
          \    { \"tile\":\"Abomination\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":10 } },\n\

@@ -196,7 +196,7 @@ data NeutralObjectJSON = NeutralObjectJSON
     mana :: Nat,
     text :: String,
     textSzOffset :: Int,
-    tile :: Tile,
+    tile :: Maybe Tile,
     title :: String,
     titleSzOffset :: Int
   }
@@ -210,7 +210,7 @@ instance FromJSON NeutralObjectJSON where
       <*> v .:? "mana" .!= defaultManaCost
       <*> v .: "text"
       <*> v .:? "text_sz_offset" .!= 0
-      <*> v .: "tile"
+      <*> v .:? "tile"
       <*> v .: "title"
       <*> v .:? "title_sz_offset" .!= 0
 
@@ -280,6 +280,15 @@ parseJson json = do
       allCards = creatureCards ++ itemCards ++ neutralCards
   return (allCards, skills, tiles)
   where
+    tileFromJsonOrText :: Show a => a -> Maybe Tile -> Tile
+    tileFromJsonOrText name = \case
+      Nothing -> tileByText (map toLower (show name))
+      Just t -> t
+    tileByText :: String -> Tile
+    tileByText txt =
+      Prelude.filter (\tile -> (show tile & map toLower) == txt) Tile.all
+        & listToMaybe
+        & (\case Nothing -> error $ "Tile not found: " ++ show txt; Just x -> x)
     mkCreatureCard :: CreatureObjectJSON -> Card 'UI
     mkCreatureCard CreatureObjectJSON {..} =
       CreatureCard
@@ -291,19 +300,14 @@ parseJson json = do
         (CardCommon {mana = Mana.Const mana, text = Just t, ..})
         (ItemObject {..})
       where
-        tile =
-          case mt of
-            Nothing -> tileByText (map toLower (show item))
-            Just t -> t
-        tileByText txt =
-          Prelude.filter (\tile -> (show tile & map toLower) == txt) Tile.all
-            & listToMaybe
-            & (\case Nothing -> error $ "Tile not found: " ++ show txt; Just x -> x)
+        tile = tileFromJsonOrText item mt
     mkNeutralCard :: NeutralObjectJSON -> Card 'UI
-    mkNeutralCard NeutralObjectJSON {text = t, ..} =
+    mkNeutralCard NeutralObjectJSON {text = t, tile = mt, ..} =
       NeutralCard
         (CardCommon {mana = Mana.Const mana, text = Just t, ..})
         (NeutralObject {..})
+      where
+        tile = tileFromJsonOrText neutral mt
 
 loadJson :: Either String LoadedJson
 loadJson =
