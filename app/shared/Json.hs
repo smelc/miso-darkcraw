@@ -26,8 +26,10 @@ import Data.Aeson
 import Data.Aeson.Types (Parser)
 import qualified Data.Bifunctor
 import Data.ByteString.Lazy hiding (map)
+import Data.Char (toLower)
 import Data.Function ((&))
 import Data.List.Extra (lower)
+import Data.Maybe (listToMaybe)
 import Data.Text (Text, splitOn)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding
@@ -38,7 +40,7 @@ import Nat
 import Skill (Skill)
 import qualified Skill
 import Text.Read
-import Tile (Filepath, Tile, TileUI)
+import Tile (Filepath, Tile, TileUI, all)
 
 instance FromJSON Team where
   parseJSON = genericParseJSON toLowerConstructorOptions
@@ -221,7 +223,7 @@ data ItemObjectJSON = ItemObjectJSON
     teams :: [Team],
     text :: String,
     textSzOffset :: Int,
-    tile :: Tile,
+    tile :: Maybe Tile,
     title :: String,
     titleSzOffset :: Int
   }
@@ -235,7 +237,7 @@ instance FromJSON ItemObjectJSON where
       <*> v .:? "teams" .!= allTeams
       <*> v .: "text"
       <*> v .:? "text_sz_offset" .!= 0
-      <*> v .: "tile"
+      <*> v .:? "tile"
       <*> v .: "title"
       <*> v .:? "title_sz_offset" .!= 0
 
@@ -284,10 +286,19 @@ parseJson json = do
         (CardCommon {..})
         (Creature {items = [], moral = 0, transient = (), ..})
     mkItemCard :: ItemObjectJSON -> Card 'UI
-    mkItemCard ItemObjectJSON {text = t, ..} =
+    mkItemCard ItemObjectJSON {text = t, tile = mt, ..} =
       ItemCard
         (CardCommon {mana = Mana.Const mana, text = Just t, ..})
         (ItemObject {..})
+      where
+        tile =
+          case mt of
+            Nothing -> tileByText (map toLower (show item))
+            Just t -> t
+        tileByText txt =
+          Prelude.filter (\tile -> (show tile & map toLower) == txt) Tile.all
+            & listToMaybe
+            & (\case Nothing -> error $ "Tile not found: " ++ show txt; Just x -> x)
     mkNeutralCard :: NeutralObjectJSON -> Card 'UI
     mkNeutralCard NeutralObjectJSON {text = t, ..} =
       NeutralCard

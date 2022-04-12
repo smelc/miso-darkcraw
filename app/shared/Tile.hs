@@ -115,7 +115,11 @@ data Tile
   | ZKnight
   | ZPriest
   | ZVeteran
-  deriving (Eq, Generic, Ord, Show)
+  deriving (Bounded, Enum, Eq, Generic, Ord, Show)
+
+-- | All tiles
+all :: [Tile]
+all = [minBound ..]
 
 -- TODO @smelc rename me to UI
 data TileUI = TileUI

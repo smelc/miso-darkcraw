@@ -61,14 +61,14 @@ jsonData = "{\n\
          \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"tile\":\"StrengthPot\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] }\n\
          \  ],\n\
          \  \"items\": [\n\
-         \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"tile\":\"AxeOfRage\",        \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
-         \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"tile\":\"BowOfStrength\",    \"text\":\"Add 0-2 damage. Ace only.\",  \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
-         \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"tile\":\"CloakOfGaia\",      \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
-         \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"tile\":\"Crown\",            \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
-         \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"tile\":\"CrushingMace\",     \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
-         \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"tile\":\"FlailOfTheDamned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"tile\":\"SkBanner\",         \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"tile\":\"SpikyMace\",        \"text\":\"Gives the sadism skill\", \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"text\":\"Add 0-2 damage. Ace only.\",  \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
+         \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
+         \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
+         \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
+         \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
+         \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
+         \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"text\":\"Gives the sadism skill\", \"teams\": [\"evil\"] },\n\
          \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"tile\":\"Sword2\",           \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\", \"zknights\"] }\n\
          \  ],\n\
          \  \"tiles\": [\n\
