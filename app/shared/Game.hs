@@ -1482,8 +1482,8 @@ attackOneSpot ::
   (Creature 'Core, Spots.Card) ->
   m (Board.T 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
-  (effect@Board.InPlaceEffect {death, extra}, flyingSpot) <-
-    singleAttack (place, hitter) (hitPlace, hit)
+  (flyingSpot, effect@Board.InPlaceEffect {death, extra}) <-
+    singleAttack (place, hitter) (hitPlace, hit) & runWriterT
   board <-
     pure $
       applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
@@ -1595,13 +1595,13 @@ type AtPlace = (Total.Place, Creature 'Core)
 -- | The effect of an attack on the defender. Note that this function
 -- cannot return a 'StatChange'. It needs the full expressivity of 'InPlaceEffect'.
 singleAttack ::
+  MonadWriter Board.InPlaceEffect m =>
   MonadState Shared.Model m =>
-  p ~ 'Core =>
   -- | The attacker
   AtPlace ->
   -- | The defender
   AtPlace ->
-  m (Board.InPlaceEffect, Maybe Spots.Card)
+  m (Maybe Spots.Card)
 singleAttack
   (place, attacker@Creature {skills})
   (Total.Place {Total.place = dplace}, defender@Creature {skills = dskills}) = do
@@ -1610,33 +1610,32 @@ singleAttack
         then Mechanics.flySpot dplace
         else pure Nothing
     hit :: Nat <- deal damage
+    when (Skill.Ace `elem` skills) $ tell (fadeOut Tile.Arrow)
+    when (Skill.Imprecise `elem` skills) $ tell (fadeOut Tile.Explosion)
     case (flyingSpot) of
-      Just flyingSpot ->
+      Just flyingSpot -> do
         -- Attackee flies away
-        return
-          ( mempty {Board.extra = hit, Board.fade = Constants.FadeOut, Board.fadeOut = [Tile.Wings]},
-            Just flyingSpot
-          )
+        tell $ fadeOut Tile.Wings
+        tell $ mempty {Board.extra = hit, Board.fade = Constants.FadeOut}
+        return $ Just flyingSpot
       Nothing -> do
         -- Regular case (no flying involved)
         let afterHit :: Int = (natToInt (Card.hp defender)) - (natToInt hit)
-        let extra :: Nat = if afterHit < 0 then Nat.intToNat (abs afterHit) else 0
-        let hps' :: Nat = Nat.intToClampedNat afterHit
-        let hpChangeEffect =
-              if hps' <= 0
-                then mempty {Board.death}
-                else mempty {Board.hitPointsChange = Nat.negate hit}
-        return $ ((hpChangeEffect {Board.extra}) <> ace <> imprecise, Nothing)
+            extra = if afterHit < 0 then Nat.intToNat (abs afterHit) else 0
+            hps' :: Nat = Nat.intToClampedNat afterHit
+        tell $ mempty {Board.extra}
+        tell $
+          if hps' <= 0
+            then mempty {Board.death}
+            else mempty {Board.hitPointsChange = Nat.negate hit}
+        return Nothing
     where
       damage = Total.attack (Just place) attacker
       death =
         if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
           then Board.DeathByBreathIce
           else Board.UsualDeath
-      ace = mkFadeOut Skill.Ace Tile.Arrow
-      imprecise = mkFadeOut Skill.Imprecise Tile.Explosion
-      mkFadeOut skill tile =
-        mempty {Board.fadeOut = if skill `elem` skills then [tile] else []}
+      fadeOut tile = mempty {Board.fadeOut = [tile]}
 
 -- | Apply a 'Damage'
 deal :: MonadState Shared.Model m => Damage -> m Nat
