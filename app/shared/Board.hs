@@ -49,7 +49,6 @@ module Board
     setHand,
     addToHand,
     empty,
-    increaseScore,
     mapDiscarded,
     toDiscarded,
     setInPlace,
@@ -57,7 +56,6 @@ module Board
     line,
     StackKind (..),
     toScore,
-    mapScore,
     neighbors,
     Neighborhood (..),
     T (..),
@@ -382,7 +380,7 @@ instance PlayerIndexed (Map.Map Spots.Card a) => Mappable 'Core a where
 
 -- | Data whose only purpose is to be lifted as a type, for disambiguating
 -- classes instances.
-data Kind = Mana
+data Kind = Mana | Score
 
 -- | Class to generically get/map/set over the data of a player
 class PlayerKindIndexed (k :: Kind) p a where
@@ -391,25 +389,26 @@ class PlayerKindIndexed (k :: Kind) p a where
   setpk :: Spots.Player -> a -> Board.T p -> Board.T p
 
 -- | Instance of 'PlayerKindIndexed' to generically get/map/set over mana
-instance (Board.ManaType p ~ famMana) => PlayerKindIndexed 'Mana p famMana where
+instance (Board.ManaType p ~ fam) => PlayerKindIndexed 'Mana p fam where
   getpk pSpot b = Board.toPart b pSpot & Board.mana
   mappk f pSpot b =
     let part@PlayerPart {Board.mana = x} = Board.toPart b pSpot
      in Board.setPart b pSpot (part {Board.mana = f x})
-  setpk pSpot x b = Board.setPart b pSpot ((Board.toPart b pSpot) {Board.mana = x})
+  setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.mana = x}
+
+-- | Instance of 'PlayerKindIndexed' to generically get/map/set over Score
+instance (Board.ScoreType p ~ fam) => PlayerKindIndexed 'Score p fam where
+  getpk pSpot b = Board.toPart b pSpot & Board.score
+  mappk f pSpot b =
+    let part@PlayerPart {Board.score = x} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {Board.score = f x})
+  setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.score = x}
 
 addToHand :: T p -> Spots.Player -> HandElemType p -> T p
 addToHand board pSpot handElem =
   setPart board pSpot $ part {inHand = hand ++ [handElem]}
   where
     part@PlayerPart {inHand = hand} = toPart board pSpot
-
--- TODO @smelc replace by calls to 'mapScore'
-increaseScore :: p ~ 'Core => T p -> Spots.Player -> Nat -> T p
-increaseScore board pSpot change =
-  Board.setScore board pSpot (score + change)
-  where
-    score = Board.toScore pSpot board
 
 -- | Map over the 'discarded' field of the given player in the given board
 mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> T p -> T p
@@ -420,10 +419,6 @@ mapDiscarded pSpot f board =
 
 mapHand :: Spots.Player -> (InHandType p -> InHandType p) -> T p -> T p
 mapHand pSpot f b = setHand b pSpot (f (toHand b pSpot))
-
-mapScore :: T p -> Spots.Player -> (ScoreType p -> ScoreType p) -> T p
-mapScore board pSpot f =
-  Board.setScore board pSpot (f (Board.toScore pSpot board))
 
 setInPlace :: Spots.Player -> InPlaceType p -> T p -> T p
 setInPlace pSpot inPlace board =
@@ -444,13 +439,6 @@ setPart board PlayerBot part = board {playerBottom = part}
 setStack :: T p -> Spots.Player -> StackType p -> T p
 setStack board pSpot stack =
   setPart board pSpot $ part {stack = stack}
-  where
-    part = toPart board pSpot
-
--- TODO @smelc replace by mapScore
-setScore :: T p -> Spots.Player -> ScoreType p -> T p
-setScore board pSpot score =
-  setPart board pSpot $ part {score}
   where
     part = toPart board pSpot
 

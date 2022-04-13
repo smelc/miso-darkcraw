@@ -112,7 +112,12 @@
 <span class="keyword">type family</span> <a href="#t:InHandType">InHandType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
 </li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:Kind">Kind</a> = <a href="#v:Mana">Mana</a>
+<span class="keyword">data</span> <a href="#t:Kind">Kind</a><ul class="subs">
+<li>= <a href="#v:Mana">Mana</a>
+</li>
+<li>| <a href="#v:Score">Score</a>
+</li>
+</ul>
 </li>
 <li class="src short">
 <a href="#v:lookupHand">lookupHand</a> :: [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> a</li>
@@ -178,8 +183,6 @@
 <li class="src short">
 <a href="#v:empty">empty</a> :: Empty a b =&gt; a -&gt; b</li>
 <li class="src short">
-<a href="#v:increaseScore">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
-<li class="src short">
 <a href="#v:mapDiscarded">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <a href="#v:toDiscarded">toDiscarded</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; DiscardedType p</li>
@@ -201,8 +204,6 @@
 </li>
 <li class="src short">
 <a href="#v:toScore">toScore</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; ScoreType p</li>
-<li class="src short">
-<a href="#v:mapScore">mapScore</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (ScoreType p -&gt; ScoreType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <a href="#v:neighbors">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
@@ -789,10 +790,16 @@
  classes instances.</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
-<table><tr>
+<table>
+<tr>
 <td class="src"><a id="v:Mana" class="def">Mana</a></td>
 <td class="doc empty">&nbsp;</td>
-</tr></table>
+</tr>
+<tr>
+<td class="src"><a id="v:Score" class="def">Score</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="top"><p class="src"><a id="v:lookupHand" class="def">lookupHand</a> :: [a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Either.html#t:Either" title="Data.Either">Either</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> a <a href="#v:lookupHand" class="selflink">#</a></p></div>
@@ -843,15 +850,27 @@
 <div class="subs instances"><details id="i:PlayerKindIndexed" open="open"><summary>Instances</summary><table>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:PlayerKindIndexed:PlayerKindIndexed:1"></span> <a href="Board.html#t:ManaType" title="Board">ManaType</a> p ~ famMana =&gt; <a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a> <a href="Board.html#v:Mana" title="Board">Mana</a> p famMana</span> <a href="#t:PlayerKindIndexed" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:PlayerKindIndexed:PlayerKindIndexed:1"></span> <a href="Board.html#t:ManaType" title="Board">ManaType</a> p ~ fam =&gt; <a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a> <a href="Board.html#v:Mana" title="Board">Mana</a> p fam</span> <a href="#t:PlayerKindIndexed" class="selflink">#</a>
 </td>
 <td class="doc"><p>Instance of <code><a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a></code> to generically get<em>map</em>set over mana</p></td>
 </tr>
 <tr><td colspan="2"><details id="i:ic:PlayerKindIndexed:PlayerKindIndexed:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:getpk">getpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; famMana <a href="#v:getpk" class="selflink">#</a></p>
-<p class="src"><a href="#v:mappk">mappk</a> :: (famMana -&gt; famMana) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mappk" class="selflink">#</a></p>
-<p class="src"><a href="#v:setpk">setpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; famMana -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setpk" class="selflink">#</a></p>
+<p class="src"><a href="#v:getpk">getpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; fam <a href="#v:getpk" class="selflink">#</a></p>
+<p class="src"><a href="#v:mappk">mappk</a> :: (fam -&gt; fam) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mappk" class="selflink">#</a></p>
+<p class="src"><a href="#v:setpk">setpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; fam -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setpk" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:PlayerKindIndexed:PlayerKindIndexed:2"></span> ScoreType p ~ fam =&gt; <a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a> <a href="Board.html#v:Score" title="Board">Score</a> p fam</span> <a href="#t:PlayerKindIndexed" class="selflink">#</a>
+</td>
+<td class="doc"><p>Instance of <code><a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a></code> to generically get<em>map</em>set over Score</p></td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:PlayerKindIndexed:PlayerKindIndexed:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:getpk">getpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; fam <a href="#v:getpk" class="selflink">#</a></p>
+<p class="src"><a href="#v:mappk">mappk</a> :: (fam -&gt; fam) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mappk" class="selflink">#</a></p>
+<p class="src"><a href="#v:setpk">setpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; fam -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setpk" class="selflink">#</a></p>
 </div></details></td></tr>
 </table></details></div>
 </div>
@@ -1022,7 +1041,6 @@
 <div class="top"><p class="src"><a id="v:setHand" class="def">setHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InHandType" title="Board">InHandType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setHand" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:addToHand" class="def">addToHand</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; HandElemType p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:addToHand" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:empty" class="def">empty</a> :: Empty a b =&gt; a -&gt; b <a href="#v:empty" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:increaseScore" class="def">increaseScore</a> :: p ~ <a href="Card.html#v:Core" title="Card">Core</a> =&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:increaseScore" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:mapDiscarded" class="def">mapDiscarded</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (DiscardedType p -&gt; DiscardedType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapDiscarded" class="selflink">#</a></p>
 <div class="doc"><p>Map over the <code><a href="Board.html#v:discarded" title="Board">discarded</a></code> field of the given player in the given board</p></div>
@@ -1085,7 +1103,6 @@
 </table></details></div>
 </div>
 <div class="top"><p class="src"><a id="v:toScore" class="def">toScore</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; ScoreType p <a href="#v:toScore" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:mapScore" class="def">mapScore</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; (ScoreType p -&gt; ScoreType p) -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mapScore" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:neighbors" class="def">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:neighbors" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Neighborhood" class="def">Neighborhood</a> <a href="#t:Neighborhood" class="selflink">#</a></p>

@@ -1442,7 +1442,7 @@ attack board pSpot cSpot =
               let place = Total.mkPlace board pSpot cSpot
               hit :: Nat <- deal $ Total.attack (Just place) hitter
               reportEffect pSpot cSpot $ mempty {Board.attackBump = True, Board.scoreChange = natToInt hit}
-              return $ Board.increaseScore board pSpot hit
+              return $ Board.mappk @'Board.Score ((+) hit) pSpot board
             else do
               -- or something to attack; attack it
               foldM
@@ -1507,15 +1507,15 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
       -- because we recurse, the rampage attack can trigger powerful!
     _ -> do
       -- Rampage doesn't apply, powerful may
-      return $ fPowerful board extra
+      return $ fPowerful extra board
   where
     hitPspot = Spots.other pSpot
     place = Total.mkPlace board pSpot cSpot
     hitPlace = Total.mkPlace board (Spots.other pSpot) hitSpot
-    fPowerful b extra
-      | extra == 0 = b
-      | Total.isPowerful hitter = Board.mapScore b pSpot ((+) extra)
-      | otherwise = b
+    fPowerful extra
+      | extra == 0 = id
+      | Total.isPowerful hitter = Board.mappk @'Board.Score ((+) extra) pSpot
+      | otherwise = id
     moveFlyerFun = \case
       Nothing -> id
       Just flyingSpot -> Mechanics.move (Mechanics.mkEndoMove hitPspot hitSpot flyingSpot)
