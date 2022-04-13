@@ -7,6 +7,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 
@@ -481,7 +482,7 @@ testPandemonium shared =
             & (\(Game.Result {shared = s, board = c}) -> (s, c))
         prepare b =
           Board.addToHand b pSpot pandemonium -- So that card is here
-            & Board.mapMana pSpot ((+) 5) -- And mana is available to play it
+            & Board.mappk @'Board.Mana ((+) 5) pSpot -- And mana is available to play it
 
 testAce shared =
   describe "Ace" $ do

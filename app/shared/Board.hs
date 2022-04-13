@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
@@ -34,10 +35,12 @@ module Board
     initial,
     HandIndex (..),
     InHandType (),
+    Kind (..),
     lookupHand,
     lookupHandM,
     Mappable (..),
     mapHand,
+    PlayerKindIndexed (..),
     PlayerPart (..),
     StackType (),
     small,
@@ -54,7 +57,6 @@ module Board
     line,
     StackKind (..),
     toScore,
-    mapMana,
     mapScore,
     neighbors,
     Neighborhood (..),
@@ -64,7 +66,6 @@ module Board
     toPlayerCardSpots,
     isDead,
     toData,
-    setMana,
     Board.ManaType,
     switchLine,
   )
@@ -379,6 +380,24 @@ instance PlayerIndexed (Map.Map Spots.Card a) => Mappable 'Core a where
     let m = getp pSpot b
      in setp (Map.update f cSpot m) pSpot b
 
+-- | Data whose only purpose is to be lifted as a type, for disambiguating
+-- classes instances.
+data Kind = Mana
+
+-- | Class to generically get/map/set over the data of a player
+class PlayerKindIndexed (k :: Kind) p a where
+  getpk :: Spots.Player -> Board.T p -> a
+  mappk :: (a -> a) -> Spots.Player -> Board.T p -> Board.T p
+  setpk :: Spots.Player -> a -> Board.T p -> Board.T p
+
+-- | Instance of 'PlayerKindIndexed' to generically get/map/set over mana
+instance (Board.ManaType p ~ famMana) => PlayerKindIndexed 'Mana p famMana where
+  getpk pSpot b = Board.toPart b pSpot & Board.mana
+  mappk f pSpot b =
+    let part@PlayerPart {Board.mana = x} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {Board.mana = f x})
+  setpk pSpot x b = Board.setPart b pSpot ((Board.toPart b pSpot) {Board.mana = x})
+
 addToHand :: T p -> Spots.Player -> HandElemType p -> T p
 addToHand board pSpot handElem =
   setPart board pSpot $ part {inHand = hand ++ [handElem]}
@@ -402,14 +421,6 @@ mapDiscarded pSpot f board =
 mapHand :: Spots.Player -> (InHandType p -> InHandType p) -> T p -> T p
 mapHand pSpot f b = setHand b pSpot (f (toHand b pSpot))
 
--- | Changes the mana at the given 'Spots.Player', applying a function
--- on the existing mana.
-mapMana :: Spots.Player -> (Board.ManaType p -> Board.ManaType p) -> T p -> T p
-mapMana pSpot f board =
-  setPart board pSpot $ part {Board.mana = f mana}
-  where
-    part@PlayerPart {mana} = toPart board pSpot
-
 mapScore :: T p -> Spots.Player -> (ScoreType p -> ScoreType p) -> T p
 mapScore board pSpot f =
   Board.setScore board pSpot (f (Board.toScore pSpot board))
@@ -423,12 +434,6 @@ setInPlace pSpot inPlace board =
 setHand :: T p -> Spots.Player -> InHandType p -> T p
 setHand board pSpot hand =
   setPart board pSpot $ part {inHand = hand}
-  where
-    part = toPart board pSpot
-
-setMana :: Board.ManaType p -> Spots.Player -> T p -> T p
-setMana mana pSpot board =
-  setPart board pSpot $ part {Board.mana = mana}
   where
     part = toPart board pSpot
 

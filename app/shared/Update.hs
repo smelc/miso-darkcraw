@@ -521,8 +521,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
             Just (Command.Gimme cid) ->
               withBoard $ Board.addToHand board playingPlayer cid
             Just (Command.GimmeMana) ->
-              let mana = Board.toPart board playingPlayer & Board.mana
-               in withBoard $ Board.setMana (mana + 1) playingPlayer board
+              withBoard $ Board.mappk @'Board.Mana ((+) 1) playingPlayer board
             Just (Command.Growth pSpot) ->
               playEvent Game.ApplyGrowth pSpot
             Just (Command.HailToTheKing pSpot) ->

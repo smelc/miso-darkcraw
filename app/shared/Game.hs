@@ -526,7 +526,7 @@ tryPlayM p@Playable {board, turn, event} =
         board' = Board.setHand board pSpot hand'
         manaAvail :: Nat = Board.toPart board pSpot & Board.mana
         decreaseMana (manaCost :: Mana.Mana) (b :: Board.T 'Core) =
-          Board.setMana (manaAvail - (Mana.amount turn manaCost)) pSpot b
+          Board.setpk @'Board.Mana pSpot (manaAvail - (Mana.amount turn manaCost)) b
         -- Apply continuation 'f' on 'i' if a success, otherwise return
         (>=>) i f =
           case i of
@@ -1187,8 +1187,8 @@ applyChurchM board pSpot = do
     PlusOneHealth ->
       go (\c@Creature {hp} -> c {hp = hp + 1}) (mempty {Board.attackChange = 1})
     PlusOneMana -> do
-      tell (Board.setMana 1 pSpot mempty :: Board.T 'UI)
-      return $ Board.setMana (Board.toPart board pSpot & Board.mana) pSpot board
+      tell (Board.setpk @'Board.Mana pSpot 1 mempty)
+      return $ Board.mappk @'Board.Mana ((+) 1) pSpot board
   where
     go creatureFun effect = do
       traverse_ (\cSpot -> reportEffect pSpot cSpot effect) (map fst others)
