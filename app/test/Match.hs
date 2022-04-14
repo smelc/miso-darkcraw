@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- |
@@ -68,7 +69,7 @@ main shared = do
         ++ showScore board PlayerBot
       where
         sign (Just (board :: Board.T 'Core)) =
-          case compare (Board.toScore PlayerTop board) (Board.toScore PlayerBot board) of
+          case compare (Board.getpk @'Board.Score PlayerTop board) (Board.getpk @'Board.Score PlayerBot board) of
             LT -> "<"
             EQ -> "="
             GT -> ">"
@@ -77,7 +78,7 @@ main shared = do
         showScore (Just (board :: Board.T 'Core)) pSpot =
           show (Board.toPart board pSpot & Board.team)
             ++ " "
-            ++ show (Board.toScore pSpot board)
+            ++ show (Board.getpk @'Board.Score pSpot board)
 
 testStupidity :: Shared.Model -> SpecWith ()
 testStupidity shared =
@@ -101,7 +102,7 @@ testStupidity shared =
       expectedScore == score
         || trace (show expectedScore ++ "<>" ++ show score ++ " at turn " ++ show turn) False
       where
-        score = Board.toScore ogreSpot board
+        score = Board.getpk @'Board.Score ogreSpot board
         turni = Turn.toNat turn
         pSpot = Turn.toPlayerSpot turn
         stupidFreq = 4

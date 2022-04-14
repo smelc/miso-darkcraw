@@ -146,8 +146,8 @@ scoreViews m@Model.Game {anims, board} z =
          | topScore /= botScore
        ]
   where
-    topScore = Board.toScore PlayerTop board
-    botScore = Board.toScore PlayerBot board
+    topScore = Board.getpk @'Board.Score PlayerTop board
+    botScore = Board.getpk @'Board.Score PlayerBot board
     both pSpot = [pure $ scoreView m z pSpot, scorePluses anims z pSpot]
 
 scoreMarginTop :: Spots.Player -> Int
@@ -171,7 +171,7 @@ scoreView Model.Game {board} z pSpot =
           <> "margin-top" =: px (scoreMarginTop pSpot)
     ]
     [ div_ [] [Miso.text "Score"],
-      div_ [] [Miso.text $ ms $ show $ Board.toScore pSpot board]
+      div_ [] [Miso.text $ ms $ show $ Board.getpk @'Board.Score pSpot board]
     ]
 
 scorePluses :: Board.T 'UI -> Int -> Spots.Player -> Styled (View Action)

@@ -78,7 +78,7 @@ decoLine board pSpot
 
 scoreLine :: Board.T 'Core -> Spots.Player -> String
 scoreLine board pSpot =
-  replicate cardWidth ' ' ++ " Score: " ++ show (Board.toScore pSpot board)
+  replicate cardWidth ' ' ++ " Score: " ++ show (Board.getpk @'Board.Score pSpot board)
 
 stackLine :: Board.StackKind -> [Card.ID] -> LineNumber -> Maybe String
 stackLine Board.Discarded' _ 0 = Just "Discarded"

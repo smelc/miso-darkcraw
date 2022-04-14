@@ -516,7 +516,7 @@ testPowerful shared =
     it "is a skill of the Daemon" $ do
       Card.has daemon (Skill.Powerful :: Skill.State)
     it "works as expected" $ do
-      (attack board <&> Board.toScore pSpot) `shouldSatisfyRight` ((<) 0)
+      (attack board <&> Board.getpk @'Board.Score pSpot) `shouldSatisfyRight` ((<) 0)
   where
     (team, pSpot, enemyPSpot, cSpot, ckind) =
       (Evil, PlayerTop, Spots.other pSpot, Spots.Bottom, Card.Daemon)
@@ -561,10 +561,10 @@ testAxeOfRage shared =
 testScore shared =
   describe "Score" $ do
     it "is increased by fighter in front" $ do
-      (attack (addFighter Bottom board) Bottom <&> Board.toScore pSpot)
+      (attack (addFighter Bottom board) Bottom <&> Board.getpk @'Board.Score pSpot)
         `shouldSatisfyRight` (\x -> x > 0)
     it "is not increased by fighter in the back" $ do
-      (attack (addFighter Top board) Top <&> Board.toScore pSpot)
+      (attack (addFighter Top board) Top <&> Board.getpk @'Board.Score pSpot)
         `shouldSatisfyRight` ((==) 0)
   where
     (team, pSpot, ckind) = (Evil, PlayerTop, Card.Knight)

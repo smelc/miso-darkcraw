@@ -49,7 +49,6 @@ module Board
     toInPlace,
     line,
     StackKind (..),
-    toScore,
     neighbors,
     Neighborhood (..),
     T (..),
@@ -487,9 +486,6 @@ toNeighbors board pSpot cSpot neighborhood =
 toPart :: T p -> Spots.Player -> PlayerPart p
 toPart T {playerTop} PlayerTop = playerTop
 toPart T {playerBottom} PlayerBot = playerBottom
-
-toScore :: Spots.Player -> T p -> ScoreType p
-toScore pSpot board = toPart board pSpot & score
 
 -- TODO @smelc change parameters order
 toStack :: T p -> Spots.Player -> StackType p

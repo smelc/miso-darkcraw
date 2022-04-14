@@ -5,6 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- |
 -- This module tests the balance
@@ -247,7 +248,7 @@ play shareds level teams nbTurns =
             ++ " "
             ++ show (team pSpot)
             ++ "(score: "
-            ++ show (Board.toScore pSpot lastBoard)
+            ++ show (Board.getpk @'Board.Score pSpot lastBoard)
             ++ ", "
             ++ show (length cards)
             ++ " cards: "
