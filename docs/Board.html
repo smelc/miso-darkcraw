@@ -119,6 +119,8 @@
 </li>
 <li>| <a href="#v:Score">Score</a>
 </li>
+<li>| <a href="#v:Stack">Stack</a>
+</li>
 </ul>
 </li>
 <li class="src short">
@@ -172,10 +174,6 @@
 <li class="src short">
 <a href="#v:small">small</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
-<li class="src short">
-<a href="#v:toStack">toStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p</li>
-<li class="src short">
-<a href="#v:setStack">setStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
 <li class="src short">
 <a href="#v:empty">empty</a> :: Empty a b =&gt; a -&gt; b</li>
 <li class="src short">
@@ -796,6 +794,10 @@
 <td class="src"><a id="v:Score" class="def">Score</a></td>
 <td class="doc empty">&nbsp;</td>
 </tr>
+<tr>
+<td class="src"><a id="v:Stack" class="def">Stack</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
 </table>
 </div>
 </div>
@@ -887,6 +889,18 @@
 <td class="doc"><p>Instance of <code><a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a></code> to generically get<em>map</em>set over score</p></td>
 </tr>
 <tr><td colspan="2"><details id="i:ic:PlayerKindIndexed:PlayerKindIndexed:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:getpk">getpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; fam <a href="#v:getpk" class="selflink">#</a></p>
+<p class="src"><a href="#v:mappk">mappk</a> :: (fam -&gt; fam) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mappk" class="selflink">#</a></p>
+<p class="src"><a href="#v:setpk">setpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; fam -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setpk" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:PlayerKindIndexed:PlayerKindIndexed:5"></span> <a href="Board.html#t:StackType" title="Board">StackType</a> p ~ fam =&gt; <a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a> <a href="Board.html#v:Stack" title="Board">Stack</a> p fam</span> <a href="#t:PlayerKindIndexed" class="selflink">#</a>
+</td>
+<td class="doc"><p>Instance of <code><a href="Board.html#t:PlayerKindIndexed" title="Board">PlayerKindIndexed</a></code> to generically get<em>map</em>set over the stack</p></td>
+</tr>
+<tr><td colspan="2"><details id="i:ic:PlayerKindIndexed:PlayerKindIndexed:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
 <p class="src"><a href="#v:getpk">getpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; fam <a href="#v:getpk" class="selflink">#</a></p>
 <p class="src"><a href="#v:mappk">mappk</a> :: (fam -&gt; fam) -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:mappk" class="selflink">#</a></p>
@@ -1056,8 +1070,6 @@
 <div class="doc"><p>A board with a single creature in place. Hands are empty. Handy for
  debugging for example.</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:toStack" class="def">toStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p <a href="#v:toStack" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:setStack" class="def">setStack</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:StackType" title="Board">StackType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setStack" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:empty" class="def">empty</a> :: Empty a b =&gt; a -&gt; b <a href="#v:empty" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:setInPlace" class="def">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setInPlace" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:toInPlace" class="def">toInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p <a href="#v:toInPlace" class="selflink">#</a></p></div>

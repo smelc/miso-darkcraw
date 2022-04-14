@@ -56,7 +56,7 @@ testDrawCards shared =
   where
     cond board pSpot (_, board', _) =
       (len board' - len board)
-        == min (Constants.nbCardsToDraw + nbCardDrawSkills) (Board.toStack board pSpot & length)
+        == min (Constants.nbCardsToDraw + nbCardDrawSkills) (Board.getpk @'Board.Stack pSpot board & length)
       where
         len b = Board.getpk @'Board.Hand pSpot b & length
         nbCardDrawSkills =

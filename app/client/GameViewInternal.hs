@@ -326,7 +326,7 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
       Discarded' -> (Board.discarded, "Discarded", "left")
     plusValue = case stackType of
       Handed -> 0
-      Stacked -> Board.toStack anims pSpot
+      Stacked -> Board.getpk @'Board.Stack pSpot anims
       Discarded' -> Board.getpk @'Board.Discarded pSpot anims + nbDeaths
     deck :: [Card 'Core] =
       Board.toPart board pSpot & getter & map (Card.unlift . Shared.unsafeIdentToCard shared)

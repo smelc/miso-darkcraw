@@ -42,8 +42,6 @@ module Board
     PlayerPart (..),
     StackType (),
     small,
-    toStack,
-    setStack,
     empty,
     setInPlace,
     toInPlace,
@@ -373,7 +371,7 @@ instance PlayerIndexed (Map.Map Spots.Card a) => Mappable 'Core a where
 
 -- | Data whose only purpose is to be lifted as a type, for disambiguating
 -- classes instances.
-data Kind = Discarded | Hand | Mana | Score
+data Kind = Discarded | Hand | Mana | Score | Stack
 
 -- | Class to generically get/map/set over the data of a player
 class PlayerKindIndexed (k :: Kind) p a where
@@ -413,6 +411,14 @@ instance (Board.ScoreType p ~ fam) => PlayerKindIndexed 'Score p fam where
      in Board.setPart b pSpot (part {Board.score = f x})
   setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.score = x}
 
+-- | Instance of 'PlayerKindIndexed' to generically get/map/set over the stack
+instance (Board.StackType p ~ fam) => PlayerKindIndexed 'Stack p fam where
+  getpk pSpot b = Board.toPart b pSpot & Board.stack
+  mappk f pSpot b =
+    let part@PlayerPart {Board.stack = x} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {Board.stack = f x})
+  setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.stack = x}
+
 setInPlace :: Spots.Player -> InPlaceType p -> T p -> T p
 setInPlace pSpot inPlace board =
   setPart board pSpot $ part {inPlace = inPlace}
@@ -422,12 +428,6 @@ setInPlace pSpot inPlace board =
 setPart :: T p -> Spots.Player -> PlayerPart p -> T p
 setPart board PlayerTop part = board {playerTop = part}
 setPart board PlayerBot part = board {playerBottom = part}
-
-setStack :: T p -> Spots.Player -> StackType p -> T p
-setStack board pSpot stack =
-  setPart board pSpot $ part {stack = stack}
-  where
-    part = toPart board pSpot
 
 toHoleyInPlace :: T 'Core -> [(Spots.Player, Spots.Card, Maybe (Creature 'Core))]
 toHoleyInPlace board =
@@ -486,11 +486,6 @@ toNeighbors board pSpot cSpot neighborhood =
 toPart :: T p -> Spots.Player -> PlayerPart p
 toPart T {playerTop} PlayerTop = playerTop
 toPart T {playerBottom} PlayerBot = playerBottom
-
--- TODO @smelc change parameters order
-toStack :: T p -> Spots.Player -> StackType p
-toStack T {playerTop} PlayerTop = stack playerTop
-toStack T {playerBottom} PlayerBot = stack playerBottom
 
 toInPlaceCreature ::
   T 'Core ->

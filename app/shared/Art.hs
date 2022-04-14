@@ -47,7 +47,7 @@ stackLines board pSpot =
   map (\s -> replicate 4 ' ' ++ s) $ reverse $ go 0 []
   where
     discarded = Board.getpk @'Board.Discarded pSpot board
-    stack = Board.toStack board pSpot
+    stack = Board.getpk @'Board.Stack pSpot board
     hspace = replicate 8 ' '
     stackWidth = 16
     justify s | length s < stackWidth = s ++ replicate (stackWidth - length s) ' '

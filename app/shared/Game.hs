@@ -976,13 +976,13 @@ drawCardM board p src =
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [ident]
       tell (Board.mappk @'Board.Hand (++ [length hand]) pSpot mempty)
-      let board' =
-            Board.setStack board pSpot stack'
-              & Board.setpk @'Board.Hand pSpot hand'
-              & consumeSrc witness
-      return board'
+      return $
+        board
+          & Board.setpk @'Board.Stack pSpot stack'
+          & Board.setpk @'Board.Hand pSpot hand'
+          & consumeSrc witness
   where
-    (stack, stackLen) = (Board.toStack board pSpot, length stack)
+    (stack, stackLen) = (Board.getpk @'Board.Stack pSpot board, length stack)
     -- The spots to draw cards from
     pSpot = case src of Native -> p; CardDrawer custom _ -> custom
     srcKind ::
@@ -1038,13 +1038,13 @@ transferCardsM board pSpot =
     then pure board
     else do
       tell $ Board.mappk @'Board.Discarded (const $ -length discarded) pSpot mempty
-      tell $ Board.setStack mempty pSpot (length discarded)
+      tell $ Board.setpk @'Board.Stack pSpot (length discarded) mempty
       discarded' <- shuffleM discarded
       let part' = part {Board.discarded = [], Board.stack = stack ++ discarded'}
       return $ Board.setPart board pSpot part'
   where
     nbCardsToDraw = cardsToDraw board pSpot False & length
-    (stack, stackSize) = (Board.toStack board pSpot, length stack)
+    (stack, stackSize) = (Board.getpk @'Board.Stack pSpot board, length stack)
     needTransfer = nbCardsToDraw > stackSize
     discarded = Board.getpk @'Board.Discarded pSpot board
     part = Board.toPart board pSpot
@@ -1773,7 +1773,7 @@ cardsToDraw :: Board.T 'Core -> Spots.Player -> Bool -> [DrawSource]
 cardsToDraw board pSpot considerStack =
   map (const Native) [0 .. natives - 1] ++ map (CardDrawer pSpot) cardsDrawer
   where
-    stackLen = length $ Board.toStack board pSpot
+    stackLen = length $ Board.getpk @'Board.Stack pSpot board
     natives =
       let base = Constants.nbCardsToDraw
        in min base (if considerStack then stackLen else base)
