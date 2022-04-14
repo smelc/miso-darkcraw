@@ -94,7 +94,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
         <> "background-image" =: assetsUrl (Theme.board theme)
     handDivM = do
       cells <- boardToInHandCells zpp $ toHandDrawingInput model
-      stacks <- traverse (stackView model z playingPlayer Hand) [Board.Discarded, Board.Stacked]
+      stacks <- traverse (stackView model z playingPlayer Hand) [Board.Discarded', Board.Stacked]
       return $ div_ [style_ handStyle] $ cells ++ concat stacks
     handStyle =
       zpltwh z Relative 0 0 handPixelWidth handPixelHeight

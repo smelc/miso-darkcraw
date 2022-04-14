@@ -45,8 +45,6 @@ module Board
     toStack,
     setStack,
     empty,
-    mapDiscarded,
-    toDiscarded,
     setInPlace,
     toInPlace,
     line,
@@ -278,7 +276,7 @@ data StackKind
   | -- | Button to display the stack
     Stacked
   | -- | Button to display discarded cards
-    Discarded
+    Discarded'
   deriving (Bounded, Enum)
 
 lookupHandM ::
@@ -376,13 +374,21 @@ instance PlayerIndexed (Map.Map Spots.Card a) => Mappable 'Core a where
 
 -- | Data whose only purpose is to be lifted as a type, for disambiguating
 -- classes instances.
-data Kind = Hand | Mana | Score
+data Kind = Discarded | Hand | Mana | Score
 
 -- | Class to generically get/map/set over the data of a player
 class PlayerKindIndexed (k :: Kind) p a where
   getpk :: Spots.Player -> Board.T p -> a
   mappk :: (a -> a) -> Spots.Player -> Board.T p -> Board.T p
   setpk :: Spots.Player -> a -> Board.T p -> Board.T p
+
+-- | Instance of 'PlayerKindIndexed' to generically get/map/set over the discarded stack
+instance (Board.DiscardedType p ~ fam) => PlayerKindIndexed 'Discarded p fam where
+  getpk pSpot b = Board.toPart b pSpot & Board.discarded
+  mappk f pSpot b =
+    let part@PlayerPart {Board.discarded = x} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {Board.discarded = f x})
+  setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.discarded = x}
 
 -- | Instance of 'PlayerKindIndexed' to generically get/map/set over the hand
 instance (Board.InHandType p ~ fam) => PlayerKindIndexed 'Hand p fam where
@@ -407,13 +413,6 @@ instance (Board.ScoreType p ~ fam) => PlayerKindIndexed 'Score p fam where
     let part@PlayerPart {Board.score = x} = Board.toPart b pSpot
      in Board.setPart b pSpot (part {Board.score = f x})
   setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.score = x}
-
--- | Map over the 'discarded' field of the given player in the given board
-mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> T p -> T p
-mapDiscarded pSpot f board =
-  setPart board pSpot $ part {discarded = f d}
-  where
-    part@PlayerPart {discarded = d} = toPart board pSpot
 
 setInPlace :: Spots.Player -> InPlaceType p -> T p -> T p
 setInPlace pSpot inPlace board =
@@ -461,10 +460,6 @@ toPlayerHoleyInPlace board pSpot =
     | cSpot <- Spots.allCards,
       let maybeCreature = toInPlaceCreature board pSpot cSpot
   ]
-
-toDiscarded :: T p -> Spots.Player -> DiscardedType p
-toDiscarded T {playerTop} PlayerTop = discarded playerTop
-toDiscarded T {playerBottom} PlayerBot = discarded playerBottom
 
 toInPlace :: T p -> Spots.Player -> InPlaceType p
 toInPlace T {playerTop} PlayerTop = inPlace playerTop

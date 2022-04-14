@@ -46,7 +46,7 @@ stackLines :: Board.T 'Core -> Spots.Player -> [String]
 stackLines board pSpot =
   map (\s -> replicate 4 ' ' ++ s) $ reverse $ go 0 []
   where
-    discarded = Board.toDiscarded board pSpot
+    discarded = Board.getpk @'Board.Discarded pSpot board
     stack = Board.toStack board pSpot
     hspace = replicate 8 ' '
     stackWidth = 16
@@ -54,7 +54,7 @@ stackLines board pSpot =
     justify s | length s > stackWidth = take stackWidth s
     justify s = s
     go i acc =
-      case (stackLine Board.Discarded discarded i, stackLine Board.Stacked stack i) of
+      case (stackLine Board.Discarded' discarded i, stackLine Board.Stacked stack i) of
         (Nothing, Nothing) -> acc
         (d, st) ->
           let line =
@@ -81,7 +81,7 @@ scoreLine board pSpot =
   replicate cardWidth ' ' ++ " Score: " ++ show (Board.toScore pSpot board)
 
 stackLine :: Board.StackKind -> [Card.ID] -> LineNumber -> Maybe String
-stackLine Board.Discarded _ 0 = Just "Discarded"
+stackLine Board.Discarded' _ 0 = Just "Discarded"
 stackLine Board.Stacked _ 0 = Just "Stack"
 stackLine _ cards i | i > length cards = Nothing
 stackLine _ cards i = Just $ showID $ cards !! (i - 1)

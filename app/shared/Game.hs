@@ -1037,7 +1037,7 @@ transferCardsM board pSpot =
   if not needTransfer
     then pure board
     else do
-      tell $ Board.mapDiscarded pSpot (const $ -length discarded) mempty
+      tell $ Board.mappk @'Board.Discarded (const $ -length discarded) pSpot mempty
       tell $ Board.setStack mempty pSpot (length discarded)
       discarded' <- shuffleM discarded
       let part' = part {Board.discarded = [], Board.stack = stack ++ discarded'}
@@ -1046,7 +1046,7 @@ transferCardsM board pSpot =
     nbCardsToDraw = cardsToDraw board pSpot False & length
     (stack, stackSize) = (Board.toStack board pSpot, length stack)
     needTransfer = nbCardsToDraw > stackSize
-    discarded = Board.toDiscarded board pSpot
+    discarded = Board.getpk @'Board.Discarded pSpot board
     part = Board.toPart board pSpot
 
 -- | board id pSpot target holds iff player at 'pSpot' can play card 'id'
@@ -1281,7 +1281,7 @@ applyFearNTerrorM board affectingSpot = do
     board
       & Board.setInPlace affectedSpot affectedInPlace''
       & Board.setInPlace affectingSpot affectingInPlace'
-      & Board.mapDiscarded affectedSpot (++ killedToDiscard)
+      & Board.mappk @'Board.Discarded (++ killedToDiscard) affectedSpot
   where
     affectedSpot = Spots.other affectingSpot
     affectingInPlace = Board.toInPlace board affectingSpot
@@ -1532,10 +1532,10 @@ applyInPlaceEffectOnBoard ::
   -- | The updated board
   Board.T 'Core
 applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) =
-  case hittee' of
-    Just _ -> board'
-    Nothing | Card.transient hittee -> board' -- Dont' put hittee in discarded stack
-    Nothing -> Board.mapDiscarded pSpot (++ [IDC creatureId items]) board'
+  board' & case hittee' of
+    Just _ -> id
+    Nothing | Card.transient hittee -> id -- Dont' put transient hittee in discarded stack
+    Nothing -> Board.mappk @'Board.Discarded (++ [IDC creatureId items]) pSpot
   where
     hittee' = applyInPlaceEffect effect hittee
     -- Update the hittee in the board, putting Nothing or Just _:

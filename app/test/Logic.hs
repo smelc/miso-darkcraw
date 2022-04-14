@@ -84,7 +84,7 @@ testFear shared =
       (applyFear board' & toEither <&> (Board.inPlace . (flip Board.toPart otherPSpot)))
         `shouldSatisfyRight` Map.null
     it "fear kills go to discarded stack" $
-      (applyFear board' & toEither <&> (flip Board.toDiscarded otherPSpot))
+      (applyFear board' & toEither <&> (Board.getpk @'Board.Discarded otherPSpot))
         `shouldBe` (Right [IDC fearTarget []])
     it "fear does not trigger when expected" $
       (applyFear board'' & toEither <&> (Board.inPlace . (flip Board.toPart otherPSpot)))
@@ -321,7 +321,7 @@ testTransient shared =
     pred (Left errMsg) = traceShow errMsg False
     pred (Right (Game.Result {board = board''})) =
       Board.toInPlaceCreature board'' PlayerTop Bottom == Nothing -- Skeleton was killed
-        && (map (Board.toDiscarded board'') Spots.allPlayers & all null) -- Discarded stack is empty
+        && (map (flip (Board.getpk @'Board.Discarded) board'') Spots.allPlayers & all null) -- Discarded stack is empty
 
 testTeamDeck shared =
   describe "Card.rawTeamDeck" $ do
