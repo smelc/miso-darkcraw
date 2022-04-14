@@ -7,6 +7,7 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
@@ -99,7 +100,7 @@ play difficulty shared board pSpot =
   where
     _availMana = Board.toPart board pSpot & Board.mana
     hands :: [[Card.ID]] =
-      Board.toHand board pSpot
+      Board.getpk @'Board.Hand pSpot board
         & map (Shared.unsafeIdentToCard shared)
         -- TODO @smelc don't do this filtering once there are cards to gain mana
         -- & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
@@ -109,7 +110,7 @@ play difficulty shared board pSpot =
         & applyDifficulty difficulty (Shared.getStdGen shared)
     possibles :: [[Game.Place]] =
       map
-        (\hand -> playHand shared (Board.setHand board pSpot hand) pSpot)
+        (\hand -> playHand shared (Board.setpk @'Board.Hand pSpot hand board) pSpot)
         hands
     scores :: [(Nat, [Game.Place])] =
       possibles
@@ -165,7 +166,7 @@ aiPlayFirst ::
   Spots.Player ->
   Maybe (Spots.Player, Game.Target, Card.ID)
 aiPlayFirst shared board pSpot =
-  case Board.toHand board pSpot of
+  case Board.getpk @'Board.Hand pSpot board of
     [] -> Nothing
     id : _ -> do
       let scores' = scores id & sortByFst

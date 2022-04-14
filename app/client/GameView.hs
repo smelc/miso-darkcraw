@@ -102,7 +102,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
     dragTargetType =
       case interaction of
         DragInteraction (Dragging (Board.HandIndex i) _) ->
-          case Board.toHand board playingPlayer & flip Board.lookupHand i of
+          case Board.getpk @'Board.Hand playingPlayer board & flip Board.lookupHand i of
             Left err -> traceShow (Text.unpack err) Nothing
             Right id -> Just $ targetType id
         _ -> Nothing
@@ -375,10 +375,10 @@ toHandDrawingInput m@Model.Game {interaction = gInteraction, ..} =
         | (i, card) <-
             zip
               [0 ..]
-              ( Board.toHand board playingPlayer
+              ( Board.getpk @'Board.Hand playingPlayer board
                   & map (Card.unlift . Shared.unsafeIdentToCard shared)
               ),
-          let fadeIn = i `elem` Board.toHand anims playingPlayer
+          let fadeIn = i `elem` Board.getpk @'Board.Hand playingPlayer anims
       ]
     interaction = Just gInteraction
     labeler = Mana.labeler m

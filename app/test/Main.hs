@@ -6,6 +6,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
@@ -73,7 +74,7 @@ testAIRanged shared turn =
     (t, teams) = (Undead, Board.Teams Undead Undead)
     archer = IDC (CreatureID Archer t) []
     pSpot = Turn.toPlayerSpot turn
-    board = Board.addToHand (Board.empty teams) pSpot archer
+    board = Board.empty teams & Board.mappk @'Board.Hand (++ [archer]) pSpot
     events = AI.play Constants.Easy shared board pSpot turn
 
 testShared shared =
@@ -246,7 +247,7 @@ testAIPlace shared =
     prop "placeCards returns events whose spots differ on Creature-only hand" $
       \board (pSpot :: Spots.Player) (cidNItems :: [(CreatureID, [Item])]) ->
         -- Only use Creature cards. Items and neutrals obviously break this property
-        let board' = Board.setHand board pSpot (map (uncurry Card.IDC) cidNItems)
+        let board' = Board.setpk @'Board.Hand pSpot (map (uncurry Card.IDC) cidNItems) board
          in allDiff $ play board' pSpot
     prop "placeCards returns events whose card is valid" $
       \board pSpot -> play board pSpot `shouldSatisfy` (goodCards board pSpot)
@@ -274,13 +275,13 @@ testAIPlace shared =
         (_, False) -> traceShow ("Wrong hand index: " ++ show i ++ ", hand has " ++ show handSize ++ " members.") False
         _ -> goodCards board pSpot tl
       where
-        handSize = List.length $ Board.toHand board pSpot
+        handSize = List.length $ Board.getpk @'Board.Hand pSpot board
     goodCards (board :: Board.T 'Core) pSpot (Game.Place' _ _ id : tl) =
       if id `elem` hand
         then goodCards board pSpot tl
         else traceShow ("Wrong ID: " ++ show id ++ "It does not belong to the hand: " ++ show hand) False
       where
-        hand = Board.toHand board pSpot
+        hand = Board.getpk @'Board.Hand pSpot board
     playerIs _ [] = True
     playerIs expected (event : tl) = playerIs' expected event && playerIs expected tl
     playerIs' expected =
@@ -368,7 +369,7 @@ testItemsAI shared =
       Board.empty teams
         & Board.insert pSpot TopLeft id1
         & Board.insert pSpot Bottom id2
-        & (\b -> Board.addToHand b pSpot (IDI item))
+        & Board.mappk @'Board.Hand (++ [IDI item]) pSpot
     teams = Board.Teams Undead Undead
     mkCreature' kind team = Logic.mkCreature shared kind team False
     play board =
@@ -390,7 +391,7 @@ testAIImprecise shared =
   where
     pSpot = PlayerTop
     (team, teams) = (ZKnights, Board.Teams team team)
-    board = Board.empty teams & (\b -> Board.addToHand b pSpot trebuchet)
+    board = Board.empty teams & Board.mappk @'Board.Hand (++ [trebuchet]) pSpot
     trebuchet = Card.IDC (CreatureID Trebuchet team) []
     turn = Turn.initial
 
@@ -424,7 +425,7 @@ testMana shared =
           return ((Mana.<=) turn (Card.toCommon card & Card.mana) avail)
           where
             card :: Either Text Card.ID =
-              Board.lookupHand (Board.toHand board pSpot) i
+              Board.lookupHand (Board.getpk @'Board.Hand pSpot board) i
 
 testApplyDifficulty stdgen =
   describe "applyDifficulty" $ do

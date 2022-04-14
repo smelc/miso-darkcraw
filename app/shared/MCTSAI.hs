@@ -5,6 +5,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module MCTSAI (place, newPlaySim) where
 
@@ -303,8 +304,8 @@ newPlayFirst difficulty shared pSpot board =
             lift (x, Just y) = Just (x, y)
             lift (_x, Nothing) = Nothing
   where
-    hand = Board.toHand board pSpot
+    hand = Board.getpk @'Board.Hand pSpot board
     mana id = Shared.toCardCommon shared id <&> Card.mana
     availMana = Board.toPart board pSpot & Board.mana
     availTargets :: Card.ID -> [Game.Target] = HeuristicAI.targets board pSpot
-    withCards cards = Board.setHand board pSpot cards
+    withCards cards = Board.setpk @'Board.Hand pSpot cards board

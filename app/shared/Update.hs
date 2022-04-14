@@ -519,7 +519,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
             Just (Command.FillTheFrontline pSpot) ->
               playEvent Game.FillTheFrontline pSpot
             Just (Command.Gimme cid) ->
-              withBoard $ Board.addToHand board playingPlayer cid
+              withBoard $ Board.mappk @'Board.Hand (++ [cid]) playingPlayer board
             Just (Command.GimmeMana) ->
               withBoard $ Board.mappk @'Board.Mana ((+) 1) playingPlayer board
             Just (Command.Growth pSpot) ->

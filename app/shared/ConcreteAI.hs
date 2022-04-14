@@ -7,6 +7,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- | An AI that is tightly bound to the existing creatures and rules of the game.
 -- Like 'HeuristicAI', it doesn't run the game; so it is fast. This AI is not super
@@ -55,9 +56,7 @@ play difficulty shared board turn pSpot =
     --> reverse second
     --> reverse third & fst
   where
-    shuffleHand b =
-      let hand' = Random.shuffle shared (Board.toHand b pSpot) & fst
-       in Board.setHand b pSpot hand'
+    shuffleHand = Board.mappk @'Board.Hand (fst . Random.shuffle shared) pSpot
     first = [ConcreteAI.Creature FrontFighter, ConcreteAI.Creature Shooter, ConcreteAI.Creature Support]
     second = [ConcreteAI.Creature Support, ConcreteAI.Creature Shooter, ConcreteAI.Creature FrontOrBackFighter]
     third = [Item, Neutral]
@@ -98,7 +97,7 @@ playFirst ::
   Game.Playable What ->
   [(Game.Place, Board.T 'Core)]
 playFirst diff shared pSpot p@Game.Playable {board, event = what, turn} =
-  case (Board.toHand board pSpot, availMana) of
+  case (Board.getpk @'Board.Hand pSpot board, availMana) of
     ([], _) -> []
     (_, 0) -> []
     (card : rest, availMana) ->
@@ -125,7 +124,7 @@ playFirst diff shared pSpot p@Game.Playable {board, event = what, turn} =
   where
     availMana = Board.toPart board pSpot & Board.mana
     mana id = Shared.toCardCommon shared id <&> Card.mana
-    withHand cards b = Board.setHand b pSpot cards
+    withHand cards = Board.setpk @'Board.Hand pSpot cards
     continueWithHand rest = playFirst diff shared pSpot (p `with` (withHand rest board))
 
 -- | Given a state, run one event on this state

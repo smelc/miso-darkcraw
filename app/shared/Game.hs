@@ -522,8 +522,8 @@ tryPlayM p@Playable {board, turn, event} =
            in throwError $ Text.pack $ "Wrong (Target, card) combination: (" ++ pair ++ ")"
       where
         handi = Board.unHandIndex handhi
-        (hand, hand') = (Board.toHand board pSpot, deleteAt handi hand)
-        board' = Board.setHand board pSpot hand'
+        (hand, hand') = (Board.getpk @'Board.Hand pSpot board, deleteAt handi hand)
+        board' = Board.setpk @'Board.Hand pSpot hand' board
         manaAvail :: Nat = Board.toPart board pSpot & Board.mana
         decreaseMana (manaCost :: Mana.Mana) (b :: Board.T 'Core) =
           Board.setpk @'Board.Mana pSpot (manaAvail - (Mana.amount turn manaCost)) b
@@ -625,7 +625,7 @@ eventToAnim shared board =
             & catMaybes
     Game.NoPlayEvent -> pure NoAnimation
     Game.PEvent (Game.Place pSpot target (Board.HandIndex {unHandIndex = idx})) -> do
-      id <- Board.lookupHandM (Board.toHand board pSpot) idx
+      id <- Board.lookupHandM (Board.getpk @'Board.Hand pSpot board) idx
       return $ go pSpot target id
     Game.PEvent (Game.Place' pSpot target id) ->
       pure $ go pSpot target id
@@ -646,7 +646,7 @@ idToHandIndex :: Board.T 'Core -> Spots.Player -> Card.ID -> Maybe Board.HandInd
 idToHandIndex board pSpot id =
   find
     (\(_, m) -> m == id)
-    (Board.toHand board pSpot & zip [Board.HandIndex 0 ..])
+    (Board.getpk @'Board.Hand pSpot board & zip [Board.HandIndex 0 ..])
     <&> fst
 
 -- | Play a 'Neutral'. Doesn't deal with consuming mana (done by caller)
@@ -967,7 +967,7 @@ drawCardM board p src =
     (_, []) -> return board -- cannot draw: stack is empty
     (Left (_ :: Impossible), _) -> return board -- cannot draw: 'src' is invalid
     (Right witness, _) -> do
-      let hand = Board.toHand board pSpot
+      let hand = Board.getpk @'Board.Hand pSpot board
       shared <- get
       let stdgen = Shared.getStdGen shared
       let (idrawn, stdgen') = randomR (0, assert (stackLen >= 1) $ stackLen - 1) stdgen
@@ -975,11 +975,12 @@ drawCardM board p src =
       let ident :: Card.ID = stack !! idrawn
       let stack' = deleteAt idrawn stack
       let hand' = hand ++ [ident]
-      tell $ Board.addToHand mempty pSpot $ length hand
-      let board' = Board.setStack board pSpot stack'
-      let board'' = Board.setHand board' pSpot hand'
-      let board''' = consumeSrc board'' witness
-      return board'''
+      tell (Board.mappk @'Board.Hand (++ [length hand]) pSpot mempty)
+      let board' =
+            Board.setStack board pSpot stack'
+              & Board.setpk @'Board.Hand pSpot hand'
+              & consumeSrc witness
+      return board'
   where
     (stack, stackLen) = (Board.toStack board pSpot, length stack)
     -- The spots to draw cards from
@@ -999,8 +1000,8 @@ drawCardM board p src =
               case findIndex (\case Skill.DrawCard b -> b; _ -> False) skills of
                 Nothing -> throwError CannotDraw
                 Just i -> pure $ Just (cSpot', c, i, Skill.DrawCard False)
-    consumeSrc b Nothing = b -- No change
-    consumeSrc b (Just (cSpot, c@Creature {..}, skilli, skill')) =
+    consumeSrc Nothing b = b -- No change
+    consumeSrc (Just (cSpot, c@Creature {..}, skilli, skill')) b =
       -- Set new skill
       Board.insert pSpot cSpot (c {skills = setAt skilli skill' skills}) b
 

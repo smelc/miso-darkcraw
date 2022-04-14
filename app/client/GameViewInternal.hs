@@ -5,6 +5,7 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- |
 -- This module contains things used in GameView.hs
@@ -292,18 +293,18 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
       Enabled -> True
       Selected -> False
     verticalMargin GameViewInternal.Board _ = "top" =: px (scoreMarginTop PlayerTop)
-    verticalMargin Hand Button = "bottom" =: px (cps `div` 2)
-    verticalMargin Hand Plus = "bottom" =: px (-(cps `div` 2))
+    verticalMargin GameViewInternal.Hand Button = "bottom" =: px (cps `div` 2)
+    verticalMargin GameViewInternal.Hand Plus = "bottom" =: px (-(cps `div` 2))
     horizontalMargin :: StackPosition -> StackKind -> StackWidgetType -> MisoString
     horizontalMargin GameViewInternal.Board Handed Button = px (cps `div` 2)
     horizontalMargin GameViewInternal.Board _ Button = px (cps * 4)
     horizontalMargin GameViewInternal.Board Discarded Plus = px (cps * 8)
     horizontalMargin GameViewInternal.Board Stacked Plus = px (cps * 2)
     horizontalMargin GameViewInternal.Board Handed Plus = "0" -- unused value: Hand button never receives +
-    horizontalMargin Hand _ Button = px (cps * 4) -- unused case for Handed
-    horizontalMargin Hand Discarded Plus = px (cps * 8)
-    horizontalMargin Hand Stacked Plus = px (cps * 2)
-    horizontalMargin Hand Handed Plus = "0" -- unused value: Hand button never receives +
+    horizontalMargin GameViewInternal.Hand _ Button = px (cps * 4) -- unused case for Handed
+    horizontalMargin GameViewInternal.Hand Discarded Plus = px (cps * 8)
+    horizontalMargin GameViewInternal.Hand Stacked Plus = px (cps * 2)
+    horizontalMargin GameViewInternal.Hand Handed Plus = "0" -- unused value: Hand button never receives +
     buttonStyle =
       style_ $
         commonStyle
@@ -379,7 +380,7 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
       case handCard $ unHandIndex hi of
         Left errMsg -> trace (Text.unpack errMsg) False
         Right id -> Game.appliesTo board id playingPlayer pTarget
-    handCard i = Board.lookupHand (Board.toHand board playingPlayer) i
+    handCard i = Board.lookupHand (Board.getpk @'Board.Hand playingPlayer board) i
 
 fadeouts :: Shared.Model -> Int -> InPlaceEffect -> Styled (Maybe (View Action))
 fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do

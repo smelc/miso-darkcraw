@@ -55,11 +55,10 @@ testDrawCards shared =
              in Game.drawCards shared board pSpot srcs `shouldSatisfy` cond board pSpot
   where
     cond board pSpot (_, board', _) =
-      (len' - len)
+      (len board' - len board)
         == min (Constants.nbCardsToDraw + nbCardDrawSkills) (Board.toStack board pSpot & length)
       where
-        len = Board.toHand board pSpot & length
-        len' = Board.toHand board' pSpot & length
+        len b = Board.getpk @'Board.Hand pSpot b & length
         nbCardDrawSkills =
           Board.toPlayerHoleyInPlace board pSpot
             & map snd
@@ -439,7 +438,7 @@ testStrengthPot shared =
     (team, pSpot, cSpot, strength) = (Evil, PlayerTop, Bottom, IDN StrengthPot)
     board :: Board.T 'Core =
       Board.small shared (Board.Teams team team) (CreatureID ckind team) [] pSpot cSpot
-        & (\b -> Board.addToHand b pSpot strength)
+        & Board.mappk @'Board.Hand (++ [strength]) pSpot
     board' :: Board.T 'Core =
       Game.play
         shared
@@ -481,7 +480,7 @@ testPandemonium shared =
             & (\case Left errMsg -> error $ Text.unpack errMsg; Right c -> c)
             & (\(Game.Result {shared = s, board = c}) -> (s, c))
         prepare b =
-          Board.addToHand b pSpot pandemonium -- So that card is here
+          b & Board.mappk @'Board.Hand (++ [pandemonium]) pSpot
             & Board.mappk @'Board.Mana ((+) 5) pSpot -- And mana is available to play it
 
 testAce shared =

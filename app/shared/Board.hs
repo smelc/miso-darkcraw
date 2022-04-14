@@ -28,7 +28,6 @@ module Board
     setPart,
     toHoleyInPlace,
     toInPlaceCreature,
-    toHand,
     toPart,
     DeathCause (..),
     Deco (..),
@@ -39,15 +38,12 @@ module Board
     lookupHand,
     lookupHandM,
     Mappable (..),
-    mapHand,
     PlayerKindIndexed (..),
     PlayerPart (..),
     StackType (),
     small,
     toStack,
     setStack,
-    setHand,
-    addToHand,
     empty,
     mapDiscarded,
     toDiscarded,
@@ -380,13 +376,21 @@ instance PlayerIndexed (Map.Map Spots.Card a) => Mappable 'Core a where
 
 -- | Data whose only purpose is to be lifted as a type, for disambiguating
 -- classes instances.
-data Kind = Mana | Score
+data Kind = Hand | Mana | Score
 
 -- | Class to generically get/map/set over the data of a player
 class PlayerKindIndexed (k :: Kind) p a where
   getpk :: Spots.Player -> Board.T p -> a
   mappk :: (a -> a) -> Spots.Player -> Board.T p -> Board.T p
   setpk :: Spots.Player -> a -> Board.T p -> Board.T p
+
+-- | Instance of 'PlayerKindIndexed' to generically get/map/set over the hand
+instance (Board.InHandType p ~ fam) => PlayerKindIndexed 'Hand p fam where
+  getpk pSpot b = Board.toPart b pSpot & Board.inHand
+  mappk f pSpot b =
+    let part@PlayerPart {Board.inHand = x} = Board.toPart b pSpot
+     in Board.setPart b pSpot (part {Board.inHand = f x})
+  setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.inHand = x}
 
 -- | Instance of 'PlayerKindIndexed' to generically get/map/set over mana
 instance (Board.ManaType p ~ fam) => PlayerKindIndexed 'Mana p fam where
@@ -396,19 +400,13 @@ instance (Board.ManaType p ~ fam) => PlayerKindIndexed 'Mana p fam where
      in Board.setPart b pSpot (part {Board.mana = f x})
   setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.mana = x}
 
--- | Instance of 'PlayerKindIndexed' to generically get/map/set over Score
+-- | Instance of 'PlayerKindIndexed' to generically get/map/set over score
 instance (Board.ScoreType p ~ fam) => PlayerKindIndexed 'Score p fam where
   getpk pSpot b = Board.toPart b pSpot & Board.score
   mappk f pSpot b =
     let part@PlayerPart {Board.score = x} = Board.toPart b pSpot
      in Board.setPart b pSpot (part {Board.score = f x})
   setpk pSpot x b = Board.setPart b pSpot $ (Board.toPart b pSpot) {Board.score = x}
-
-addToHand :: T p -> Spots.Player -> HandElemType p -> T p
-addToHand board pSpot handElem =
-  setPart board pSpot $ part {inHand = hand ++ [handElem]}
-  where
-    part@PlayerPart {inHand = hand} = toPart board pSpot
 
 -- | Map over the 'discarded' field of the given player in the given board
 mapDiscarded :: Spots.Player -> (DiscardedType p -> DiscardedType p) -> T p -> T p
@@ -417,18 +415,9 @@ mapDiscarded pSpot f board =
   where
     part@PlayerPart {discarded = d} = toPart board pSpot
 
-mapHand :: Spots.Player -> (InHandType p -> InHandType p) -> T p -> T p
-mapHand pSpot f b = setHand b pSpot (f (toHand b pSpot))
-
 setInPlace :: Spots.Player -> InPlaceType p -> T p -> T p
 setInPlace pSpot inPlace board =
   setPart board pSpot $ part {inPlace = inPlace}
-  where
-    part = toPart board pSpot
-
-setHand :: T p -> Spots.Player -> InHandType p -> T p
-setHand board pSpot hand =
-  setPart board pSpot $ part {inHand = hand}
   where
     part = toPart board pSpot
 
@@ -476,10 +465,6 @@ toPlayerHoleyInPlace board pSpot =
 toDiscarded :: T p -> Spots.Player -> DiscardedType p
 toDiscarded T {playerTop} PlayerTop = discarded playerTop
 toDiscarded T {playerBottom} PlayerBot = discarded playerBottom
-
-toHand :: T p -> Spots.Player -> InHandType p
-toHand T {playerTop} PlayerTop = inHand playerTop
-toHand T {playerBottom} PlayerBot = inHand playerBottom
 
 toInPlace :: T p -> Spots.Player -> InPlaceType p
 toInPlace T {playerTop} PlayerTop = inPlace playerTop

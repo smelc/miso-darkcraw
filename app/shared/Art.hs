@@ -3,6 +3,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- |
@@ -66,9 +67,7 @@ stackLines board pSpot =
 
 handLine :: Board.T 'Core -> Spots.Player -> String
 handLine board pSpot =
-  "Hand: " ++ intercalate ", " (map showID hand)
-  where
-    hand = Board.toHand board pSpot
+  "Hand: " ++ intercalate ", " (map showID $ Board.getpk @'Board.Hand pSpot board)
 
 decoLine :: Board.T 'Core -> Spots.Player -> String
 decoLine board pSpot
