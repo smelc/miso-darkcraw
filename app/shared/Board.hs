@@ -351,24 +351,26 @@ class Mappable a p where
   update :: Spots.Player -> Spots.Card -> (a -> Maybe a) -> T p -> T p
 
 -- | Lenses for data that belongs to a player
-class PlayerIndexed a where
-  getp :: Spots.Player -> Board.T 'Core -> a
-  setp :: a -> Spots.Player -> Board.T 'Core -> Board.T 'Core
+class PlayerIndexed a p where
+  getp :: Spots.Player -> Board.T p -> a
+  setp :: a -> Spots.Player -> Board.T p -> Board.T p
 
 -- | Generic access to the creatures.
-instance PlayerIndexed (Map.Map Spots.Card (Creature 'Core)) where
+-- Cannot be generalized over the Board.T phase, because it would conflict
+-- with the other instance concerning 'Deco' right below.
+instance PlayerIndexed (Map.Map Spots.Card (Creature 'Core)) 'Core where
   getp pSpot b = Board.toInPlace b pSpot
   setp inPlace pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {inPlace})
 
 -- | Generic access to the deco.
-instance PlayerIndexed (Map.Map Spots.Card Deco) where
+instance PlayerIndexed (Map.Map Spots.Card Deco) 'Core where
   getp pSpot b = Board.toPart b pSpot & Board.deco
   setp deco pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {deco})
 
 -- | Lift lenses over maps to the 'Mappable' class. Used with @a@ being
 -- @Creature 'Core@ (to map over 'inPlace') and with @a@ being @Deco@
 -- (to map over 'deco').
-instance PlayerIndexed (Map.Map Spots.Card a) => Mappable a 'Core where
+instance PlayerIndexed (Map.Map Spots.Card a) p => Mappable a p where
   adjust pSpot cSpot f b =
     let m = getp pSpot b
      in setp (Map.adjust f cSpot m) pSpot b
