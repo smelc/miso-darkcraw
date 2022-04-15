@@ -168,6 +168,10 @@ instance Arbitrary Constants.Fade where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
+instance Arbitrary Board.DecoChange where
+  arbitrary = genericArbitraryU
+  shrink = genericShrink
+
 instance Arbitrary Board.InPlaceEffect where
   arbitrary = genericArbitraryU
   shrink = genericShrink

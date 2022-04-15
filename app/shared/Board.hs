@@ -20,6 +20,7 @@
 
 module Board
   ( Board.appliesTo,
+    DecoChange (..),
     Teams (..),
     InPlaceEffect (..),
     InPlaceEffects,
@@ -116,6 +117,23 @@ instance Semigroup DeathCause where
 instance Monoid DeathCause where
   mempty = NoDeath
 
+-- | A change in the value of the 'deco' map
+data DecoChange
+  = -- | No change
+    NoDecoChange
+  | -- | A new 'Deco' appears
+    Appears Deco
+  deriving (Eq, Generic, Show)
+
+instance Semigroup DecoChange where
+  NoDecoChange <> dc = dc
+  dc <> NoDecoChange = dc
+  Appears d1 <> Appears d2 | d1 == d2 = Appears d1
+  Appears _ <> Appears _ = NoDecoChange
+
+instance Monoid DecoChange where
+  mempty = NoDecoChange
+
 -- It is a bit unfortunate to have these types defined here
 -- as they are UI only. However we need them to define the InPlaceType family
 
@@ -125,6 +143,8 @@ instance Monoid DeathCause where
 data InPlaceEffect = InPlaceEffect
   { -- | Attack value changed
     attackChange :: Int,
+    -- | Whether a 'Deco' changes
+    decoChange :: DecoChange,
     -- | Did creature die? If yes, for what reason
     death :: DeathCause,
     -- | Creature attacked (value used solely for animations)
@@ -145,11 +165,12 @@ data InPlaceEffect = InPlaceEffect
   deriving (Eq, Generic, Show)
 
 instance Semigroup InPlaceEffect where
-  InPlaceEffect {attackChange = ac1, death = d1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fade = fi1, fadeOut = fo1, scoreChange = c1}
-    <> InPlaceEffect {attackChange = ac2, death = d2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fade = fi2, fadeOut = fo2, scoreChange = c2} =
+  InPlaceEffect {attackChange = ac1, death = d1, decoChange = dc1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fade = fi1, fadeOut = fo1, scoreChange = c1}
+    <> InPlaceEffect {attackChange = ac2, death = d2, decoChange = dc2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fade = fi2, fadeOut = fo2, scoreChange = c2} =
       InPlaceEffect
         { attackChange = ac1 + ac2,
           death = d1 <> d2,
+          decoChange = dc1 <> dc2,
           attackBump = ab1 || ab2,
           extra = e1 + e2,
           hitPointsChange = hp1 + hp2,
@@ -163,6 +184,7 @@ instance Monoid InPlaceEffect where
     InPlaceEffect
       { attackChange = 0,
         death = mempty,
+        decoChange = mempty,
         attackBump = False,
         extra = 0,
         hitPointsChange = 0,
@@ -276,20 +298,13 @@ data StackKind
     Discarded'
   deriving (Bounded, Enum)
 
-lookupHandM ::
-  MonadError Text m =>
-  [a] ->
-  Int ->
-  m a
+lookupHandM :: MonadError Text m => [a] -> Int -> m a
 lookupHandM hand i =
   case lookupHand hand i of
     Left msg -> throwError msg
     Right elem -> return elem
 
-lookupHand ::
-  [a] ->
-  Int ->
-  Either Text a
+lookupHand :: [a] -> Int -> Either Text a
 lookupHand hand i
   | i < 0 = Left $ Text.pack $ "Invalid hand index: " ++ show i
   | i >= handLength =
