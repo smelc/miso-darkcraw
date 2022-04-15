@@ -336,7 +336,7 @@ instance Monoid (T 'UI) where
   mempty = T mempty mempty
 
 -- | Functions to update content within 'Board.T' values
-class Mappable p a where
+class Mappable a p where
   -- | Maps over the data at the given 'Spots.Player' and 'Spots.Card'
   adjust :: Spots.Player -> Spots.Card -> (a -> a) -> T p -> T p
 
@@ -368,7 +368,7 @@ instance PlayerIndexed (Map.Map Spots.Card Deco) where
 -- | Lift lenses over maps to the 'Mappable' class. Used with @a@ being
 -- @Creature 'Core@ (to map over 'inPlace') and with @a@ being @Deco@
 -- (to map over 'deco').
-instance PlayerIndexed (Map.Map Spots.Card a) => Mappable 'Core a where
+instance PlayerIndexed (Map.Map Spots.Card a) => Mappable a 'Core where
   adjust pSpot cSpot f b =
     let m = getp pSpot b
      in setp (Map.adjust f cSpot m) pSpot b

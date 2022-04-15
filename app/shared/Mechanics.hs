@@ -44,7 +44,7 @@ move Move {from, to} board =
   case (at from board, at to board) of
     (Just c, Nothing) ->
       board
-        & Board.update @_ @(Creature 'Core) (fst from) (snd from) (const Nothing)
+        & Board.update @(Creature 'Core) (fst from) (snd from) (const Nothing)
         & Board.insert (fst to) (snd to) c
     _ -> board
   where

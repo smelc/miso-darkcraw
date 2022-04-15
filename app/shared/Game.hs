@@ -674,7 +674,7 @@ playNeutralM board _playingPlayer target n =
     (HuntingHorn, PlayerTarget pSpot) -> do
       -- TODO @smelc return an Animation.Message value
       let forests = Board.toPart board pSpot & Board.deco & Map.filter ((==) Board.Forest) & Map.keys
-          board' = Board.adjustMany @_ @(Creature 'Core) pSpot forests (addSkill Skill.FearTmp) board
+          board' = Board.adjustMany @(Creature 'Core) pSpot forests (addSkill Skill.FearTmp) board
       return (board', Nothing)
     (Life, CardTarget pSpot cSpot) -> do
       let increase = 3
@@ -703,7 +703,7 @@ playNeutralM board _playingPlayer target n =
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
   where
     addHitpoints pSpot cSpot hps =
-      Board.adjust @_ @(Creature 'Core) pSpot cSpot (\c@Creature {hp} -> c {hp = hp + hps}) board
+      Board.adjust @(Creature 'Core) pSpot cSpot (\c@Creature {hp} -> c {hp = hp + hps}) board
     addSkill sk c@Creature {skills} = c {skills = skills ++ [sk]}
 
 -- | Play a 'Creature'. Doesn't deal with consuming mana (done by caller)
@@ -833,7 +833,7 @@ applyDiscipline board creature pSpot cSpot
   | not $ Total.isDisciplined creature = return board
   | otherwise = do
       traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) disciplinedNeighbors
-      return $ Board.adjustMany @_ @(Creature 'Core) pSpot disciplinedNeighbors (apply change) board
+      return $ Board.adjustMany @(Creature 'Core) pSpot disciplinedNeighbors (apply change) board
   where
     change = StatChange {attackDiff = 1, hpDiff = 1}
     effect = changeToEffect change
@@ -912,7 +912,7 @@ applySquire board Creature {skills} pSpot cSpot =
     then return board -- No change
     else do
       reportEffect pSpot frontSpot effect
-      return $ Board.adjustMany @_ @(Creature 'Core) pSpot [frontSpot] (apply change) board
+      return $ Board.adjustMany @(Creature 'Core) pSpot [frontSpot] (apply change) board
   where
     change :: StatChange = mempty {hpDiff = 1}
     effect = changeToEffect change
@@ -1193,7 +1193,7 @@ applyChurchM board pSpot = do
   where
     go creatureFun effect = do
       traverse_ (\cSpot -> reportEffect pSpot cSpot effect) (map fst others)
-      return $ Board.adjustMany @_ @(Creature 'Core) pSpot (Set.toList affectedSpots) creatureFun board
+      return $ Board.adjustMany @(Creature 'Core) pSpot (Set.toList affectedSpots) creatureFun board
     creatures = Board.toInPlace board pSpot
     (churchs :: [(Spots.Card, Creature 'Core)], others :: [(Spots.Card, Creature 'Core)]) =
       creatures & Map.filter isChurch & Map.toList & partition (isChurch . snd)
@@ -1217,7 +1217,8 @@ applyCreateForestM board pSpot = do
     (priestSpot : _, (Just forestSpot, shared')) -> do
       put shared'
       board' <-
-        Board.adjust @_ @(Creature 'Core) pSpot priestSpot consume board
+        board
+          & Board.adjust @(Creature 'Core) pSpot priestSpot consume
           & Board.insert pSpot forestSpot Board.Forest
           & applySylvan pSpot forestSpot
       applyCreateForestM board' pSpot
@@ -1378,7 +1379,7 @@ applyKingM ::
   m (Board.T 'Core)
 applyKingM board pSpot = do
   traverse_ ((\dSpot -> reportEffect pSpot dSpot effect)) knightSpots
-  return $ Board.adjustMany @_ @(Creature 'Core) pSpot knightSpots (apply change) board
+  return $ Board.adjustMany @(Creature 'Core) pSpot knightSpots (apply change) board
   where
     inPlace = Board.toInPlace board pSpot
     nbKings = Map.filter (\Creature {skills} -> Skill.King `elem` skills) inPlace & Map.size
