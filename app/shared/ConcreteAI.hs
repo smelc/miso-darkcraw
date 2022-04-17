@@ -303,6 +303,8 @@ itemToPrefClass :: Item -> Maybe [Class]
 itemToPrefClass =
   \case
     AxeOfRage -> Just [FrontFighter]
+    BannerFeather -> Just [Support]
+    BowOfGaia -> Just [Shooter]
     BowOfStrength -> Just [Shooter]
     CloakOfGaia -> Just [FrontFighter, Shooter, Support]
     Crown -> Nothing

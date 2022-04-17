@@ -215,6 +215,8 @@ deriving instance Forall Show p => Show (NeutralObject p)
 
 data Item
   = AxeOfRage
+  | BannerFeather
+  | BowOfGaia
   | BowOfStrength
   | CloakOfGaia
   | Crown
@@ -237,6 +239,8 @@ data Requirement
 requirement :: Item -> Requirement
 requirement = \case
   AxeOfRage -> NoReq
+  BannerFeather -> NoReq
+  BowOfGaia -> NoReq
   BowOfStrength -> SomeReq Skill.Ace
   CloakOfGaia -> NoReq
   Crown -> NoReq

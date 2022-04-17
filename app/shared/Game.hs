@@ -808,15 +808,8 @@ installItem item c@Creature {hp, items} =
     -- adding attack, which are dealt with in 'Total'
     hpChange =
       case item of
-        AxeOfRage -> 0
-        BowOfStrength -> 0
-        CloakOfGaia -> 0
-        Crown -> 0
-        CrushingMace -> 0
-        FlailOfTheDamned -> 0
-        SkBanner -> 0
-        SpikyMace -> 0
         SwordOfMight -> 1
+        _ -> 0 -- _ pattern: dangerous I know
 
 applyDiscipline ::
   MonadWriter (Board.T 'UI) m =>
@@ -882,16 +875,15 @@ applyPlagueM ::
   Spots.Player ->
   m (Board.T 'Core)
 applyPlagueM board pSpot = do
-  -- Record animation
+  -- Record plague-specific animation
   traverse_ (\(cSpot, c) -> reportEffect pSpot cSpot $ plagueEffect c) $ Map.toList affecteds
-  -- Do core stuff
-  return $
-    Map.foldrWithKey
-      (\cSpot c b -> applyInPlaceEffectOnBoard (plagueEffect c) b (pSpot, cSpot, c))
-      board
-      affecteds
+  -- Apply plague on every affected spot, triggering generic core and UI effects
+  foldM
+    (\b (cSpot, c) -> applyInPlaceEffectOnBoard (plagueEffect c) b (pSpot, cSpot, c))
+    board
+    (Map.toList affecteds)
   where
-    affecteds = Board.toInPlace board pSpot
+    affecteds :: Map.Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
     baseEffect = mempty {Board.hitPointsChange = -1}
     plagueEffect Creature {hp} | hp <= 1 = baseEffect {Board.death = Board.UsualDeath}
     plagueEffect _ = baseEffect {Board.fadeOut = [Tile.HeartBroken]}
@@ -1480,16 +1472,17 @@ attackOneSpot ::
   MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   Board.T 'Core ->
+  -- | The attacker (the hitter)
   (Creature 'Core, Spots.Player, Spots.Card) ->
+  -- | The hittee
   (Creature 'Core, Spots.Card) ->
   m (Board.T 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
   (flyingSpot, effect@Board.InPlaceEffect {death, extra}) <-
     singleAttack (place, hitter) (hitPlace, hit) & runWriterT
   board <-
-    pure $
-      applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
-        & moveFlyerFun flyingSpot
+    applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
+      <&> moveFlyerFun flyingSpot
   reportEffect pSpot cSpot $ mempty {Board.attackBump = True} -- make hitter bump
   reportEffect hitPspot hitSpot effect -- hittee
   for_ flyingSpot (\flyingSpot -> reportEffect hitPspot flyingSpot flyingToEffect) -- fly to spot effect
@@ -1524,6 +1517,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
     flyingToEffect = mempty {Board.fade = Constants.FadeIn}
 
 applyInPlaceEffectOnBoard ::
+  MonadWriter (Board.T 'UI) m =>
   -- | The effect of the attacker on the hittee
   Board.InPlaceEffect ->
   -- | The input board
@@ -1531,16 +1525,26 @@ applyInPlaceEffectOnBoard ::
   -- | The creature being hit
   (Spots.Player, Spots.Card, Creature 'Core) ->
   -- | The updated board
-  Board.T 'Core
-applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) =
-  board' & case hittee' of
-    Just _ -> id
-    Nothing | Card.transient hittee -> id -- Dont' put transient hittee in discarded stack
-    Nothing -> Board.mappk @'Board.Discarded (++ [IDC creatureId items]) pSpot
+  m (Board.T 'Core)
+applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) = do
+  tell decoEffect
+  return $ board & updateHittee & updateDiscarded & updateDeco
   where
     hittee' = applyInPlaceEffect effect hittee
-    -- Update the hittee in the board, putting Nothing or Just _:
-    board' = Board.update pSpot cSpot (const hittee') board
+    updateHittee = Board.update pSpot cSpot (const hittee')
+    updateDiscarded =
+      case hittee' of
+        Just _ -> id
+        Nothing | Card.transient hittee -> id -- Dont' put transient hittee in discarded stack
+        Nothing -> Board.mappk @'Board.Discarded (++ [IDC creatureId items]) pSpot
+    decoChange = Board.decoChange effect
+    (updateDeco, decoEffect :: Board.T 'UI) =
+      case decoChange of
+        Board.NoDecoChange -> (id, mempty)
+        Board.Appears deco ->
+          ( Board.insert pSpot cSpot deco,
+            Board.insert pSpot cSpot Constants.FadeIn mempty
+          )
 
 applyInPlaceEffect ::
   -- | The effect of the attacker on the hittee
@@ -1605,7 +1609,7 @@ singleAttack ::
   AtPlace ->
   m (Maybe Spots.Card)
 singleAttack
-  (place, attacker@Creature {skills})
+  (place, attacker@Creature {items, skills})
   (Total.Place {Total.place = dplace}, defender@Creature {skills = dskills}) = do
     flyingSpot <-
       if Skill.Flying `elem` dskills && not (Mechanics.isRanged attacker)
@@ -1614,6 +1618,7 @@ singleAttack
     hit :: Nat <- deal damage
     when (Skill.Ace `elem` skills) $ tell (fadeOut Tile.Arrow)
     when (Skill.Imprecise `elem` skills) $ tell (fadeOut Tile.Explosion)
+    when (Card.BowOfGaia `elem` items) $ tell (mempty {Board.decoChange = Board.Appears Board.Forest})
     case (flyingSpot) of
       Just flyingSpot -> do
         -- Attackee flies away

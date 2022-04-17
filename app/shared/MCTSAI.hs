@@ -113,14 +113,13 @@ instance NewScore Item where
   nscore =
     \case
       AxeOfRage -> 1
-      BowOfStrength -> undefined
-      CloakOfGaia -> undefined
       Crown -> 1
       CrushingMace -> 1
       FlailOfTheDamned -> 1
       SkBanner -> 1
       SpikyMace -> 1
       SwordOfMight -> 1
+      _ -> undefined
 
 -- | The preferred position of something, line-wise
 data PrefPosition
@@ -170,14 +169,13 @@ instance Preference Item where
   preference =
     \case
       AxeOfRage -> Front
-      BowOfStrength -> undefined
-      CloakOfGaia -> undefined
       Crown -> NoPref
       CrushingMace -> Front
       FlailOfTheDamned -> NoPref
       SkBanner -> Back
       SpikyMace -> Front
       SwordOfMight -> NoPref
+      _ -> undefined
 
 -- | Generated events, after having chosen from the ones given by 'newPlay',
 -- by running the simulation.

@@ -118,8 +118,8 @@ rewards level team =
     (Level1, Human) -> map (mkIDC team) [Card.Ogre]
     -- Sylvan
     (Level0, Sylvan) ->
-      map (mkIDC Sylvan) [Card.Worm] ++ [Card.IDI Card.BowOfStrength] ++ [Card.IDN Card.HuntingHorn]
-    (Level1, Sylvan) -> []
+      map (mkIDC Sylvan) [Card.Worm] ++ [Card.IDI Card.BowOfGaia] ++ [Card.IDN Card.HuntingHorn]
+    (Level1, Sylvan) -> map Card.IDI [Card.BowOfGaia, Card.BowOfStrength]
     -- Undead
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
     (Level1, Undead) -> [Card.IDI Card.SkBanner]

@@ -253,8 +253,6 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
   where
     scoreCreatureItem :: Item -> Nat = \case
       AxeOfRage -> score attack
-      BowOfStrength -> undefined
-      CloakOfGaia -> undefined
       Crown ->
         levelUpBonus + positionBonus
         where
@@ -276,6 +274,7 @@ scoreCreatureItems board c@Creature {attack, hp, items} pSpot cSpot =
               & natLength
       SpikyMace -> preferStrongCreature -- TODO @smelc check opponent has many neighbors
       SwordOfMight -> preferStrongCreature -- TODO @smelc Favor front line or not ranged at least
+      _ -> undefined
     preferStrongCreature = score attack + hp
 
 -- | The score of something. The higher the better.
@@ -305,14 +304,13 @@ scoreHandCard = \case
   ItemCard _ ItemObject {item} ->
     case item of
       AxeOfRage -> -1
-      BowOfStrength -> undefined
-      CloakOfGaia -> undefined
       Crown -> -1
       CrushingMace -> -1
       FlailOfTheDamned -> -1
       SkBanner -> -1
       SpikyMace -> -1
       SwordOfMight -> -1
+      _ -> undefined
 
 -- | The score of a skill, smaller values are better. Negative values returned.
 scoreSkill :: Skill.State -> Int

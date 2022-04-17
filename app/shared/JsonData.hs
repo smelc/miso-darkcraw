@@ -62,6 +62,8 @@ jsonData = "{\n\
          \  ],\n\
          \  \"items\": [\n\
          \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"bannerfeather\",    \"title\":\"Feather Banner\",      \"text\":\"???\", \"teams\": [\"sylvan\"] },\n\
+         \    { \"name\":\"bowofgaia\",        \"title\":\"Bow of Gaia\",         \"text\":\"Creates a forest in hit spot\", \"teams\": [\"sylvan\"] },\n\
          \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"text\":\"Add 0-2 damage. Ace only.\",  \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
          \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
          \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
@@ -76,6 +78,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Arrow\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":3  } },\n\
          \    { \"tile\":\"Assassin\",      \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":10 } },\n\
          \    { \"tile\":\"AxeOfRage\",     \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":3  } },\n\
+         \    { \"tile\":\"BannerFeather\", \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":4 } },\n\
          \    { \"tile\":\"Bear\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":12 } },\n\
          \    { \"tile\":\"Beholder\",      \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":10 } },\n\
          \    { \"tile\":\"BirdWhite\",     \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":11 } },\n\
@@ -95,6 +98,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones5\",        \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":8 } },\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
          \    { \"tile\":\"BowOfStrength\", \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":3 } },\n\
+         \    { \"tile\":\"BowOfGaia\",     \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":4 } },\n\
          \    { \"tile\":\"CloakOfGaia\",   \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":3 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"CrushingMace\",  \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":2 } },\n\

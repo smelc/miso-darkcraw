@@ -35,6 +35,7 @@ data Tile
   | Arrow
   | Assassin
   | AxeOfRage
+  | BannerFeather
   | Bear
   | Beholder
   | BirdWhite
@@ -53,6 +54,7 @@ data Tile
   | Bones4
   | Bones5
   | Bones6
+  | BowOfGaia
   | BowOfStrength
   | CloakOfGaia
   | Crown

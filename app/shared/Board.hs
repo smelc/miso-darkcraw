@@ -355,15 +355,25 @@ class PlayerIndexed a p where
   getp :: Spots.Player -> Board.T p -> a
   setp :: a -> Spots.Player -> Board.T p -> Board.T p
 
--- | Generic access to the creatures.
--- Cannot be generalized over the Board.T phase, because it would conflict
--- with the other instance concerning 'Deco' right below.
+-- | Generic access to creatures in @'Core@ phase. XXX @smelc Can this be abstracted
+-- over the phase if the type family applies to the entire Map? To remove
+-- the 'UI instance below.
 instance PlayerIndexed (Map.Map Spots.Card (Creature 'Core)) 'Core where
   getp pSpot b = Board.toInPlace b pSpot
   setp inPlace pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {inPlace})
 
--- | Generic access to the deco.
+-- | Generic access to effects in @'UI@ phase
+instance PlayerIndexed (Map.Map Spots.Card InPlaceEffect) 'UI where
+  getp pSpot b = Board.toInPlace b pSpot
+  setp inPlace pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {inPlace})
+
+-- | Generic access to the deco in @'Core@ phase.
 instance PlayerIndexed (Map.Map Spots.Card Deco) 'Core where
+  getp pSpot b = Board.toPart b pSpot & Board.deco
+  setp deco pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {deco})
+
+-- | Generic access to the deco in @'UI@ phase.
+instance PlayerIndexed (Map.Map Spots.Card Constants.Fade) 'UI where
   getp pSpot b = Board.toPart b pSpot & Board.deco
   setp deco pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {deco})
 
