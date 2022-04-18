@@ -33,7 +33,8 @@ flySpot ::
   m (Maybe Spots.Card)
 flySpot place = Random.pickM $ (Spots.allCards \\ (Map.keys place))
 
--- | FIXME @smelc use me for FillTheFrontline
+-- | Some definition of ranged. Use for fill the frontline for example,
+-- and for not being blocked by an ally.
 isRanged :: Creature 'Core -> Bool
 isRanged Creature {skills} = (Skill.Ace `elem` skills) || (Skill.Ranged `elem` skills)
 

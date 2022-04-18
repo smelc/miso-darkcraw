@@ -1448,12 +1448,12 @@ attack board pSpot cSpot =
     attackeePSpot = Spots.other pSpot
     attackersInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
     attackeesInPlace :: Map Spots.Card (Creature 'Core) = Board.toInPlace board attackeePSpot
-    attacker :: Maybe (Creature 'Core) = attackersInPlace !? cSpot
+    attacker :: Maybe (Creature 'Core) = attackersInPlace Map.!? cSpot
     attackerSkills :: [Skill] = (Card.to attacker) & map Skill.lift
     allyBlocker :: Maybe (Creature 'Core) =
-      if any (`elem` attackerSkills) [Skill.Imprecise, Skill.LongReach, Skill.Support, Skill.Ranged]
+      if any (`elem` attackerSkills) [Skill.Ace, Skill.Imprecise, Skill.LongReach, Skill.Support, Skill.Ranged]
         then Nothing -- attacker bypasses ally blocker (if any)
-        else allyBlockerSpot cSpot >>= (attackersInPlace !?)
+        else allyBlockerSpot cSpot >>= (attackersInPlace Map.!?)
     -- Given attacked spots, restrict to the ones with enemies, and return the
     -- enemies along the spots.
     spotsToEnemies :: [Spots.Card] -> [(Creature 'Core, Spots.Card)]

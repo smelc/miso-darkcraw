@@ -24,19 +24,19 @@ balances =
     -- show roughly 50% win on each side. It doesn't seem to be the case now.
     (Human, Campaign.Level0, Human, 48, 15, 1),
     (Evil, Campaign.Level0, Evil, 45, 19, 0),
-    (Sylvan, Campaign.Level0, Sylvan, 43, 18, 3),
+    (Sylvan, Campaign.Level0, Sylvan, 41, 21, 2),
     (Undead, Campaign.Level0, Undead, 42, 18, 4),
     -- Matchups
-    (Human, Campaign.Level0, Evil, 14, 50, 0),
-    (Human, Campaign.Level0, Sylvan, 30, 33, 1),
+    (Human, Campaign.Level0, Evil, 7, 57, 0),
+    (Human, Campaign.Level0, Sylvan, 0, 64, 0),
     (Human, Campaign.Level0, Undead, 14, 48, 2),
     (Human, Campaign.Level0, ZKnights, 34, 30, 0),
-    (Evil, Campaign.Level0, Undead, 25, 36, 3),
+    (Evil, Campaign.Level0, Undead, 40, 22, 2),
     -- Level1
-    (Human, Campaign.Level1, Evil, 43, 147, 2),
+    (Human, Campaign.Level1, Evil, 24, 167, 1),
     (Human, Campaign.Level1, Undead, 42, 340, 2),
-    (Evil, Campaign.Level1, Sylvan, 116, 74, 2),
-    (Evil, Campaign.Level1, Undead, 28, 98, 2)
+    (Evil, Campaign.Level1, Sylvan, 11, 181, 0),
+    (Evil, Campaign.Level1, Undead, 57, 67, 4)
   ]
 
 -- | Returns the balance of the given matchup
