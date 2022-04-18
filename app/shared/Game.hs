@@ -851,14 +851,13 @@ applyFillTheFrontline board pSpot =
         & map
           ( \(cSpot, v) ->
               ( if Spots.inTheBack cSpot
-                  && applies v
+                  && Mechanics.isRanged v
                   && Board.switchLine cSpot `notElem` spots
                   then Board.switchLine cSpot
                   else cSpot,
                 v
               )
           )
-    applies Creature {skills} = Skill.Ranged `elem` skills
 
 applyPlague ::
   Board.T 'Core ->
