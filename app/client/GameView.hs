@@ -262,7 +262,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
-    beingHovered = interaction == HoverInPlaceInteraction (pSpot, cSpot)
+    beingHovered = interaction == HoverInteraction (Model.InPlace (pSpot, cSpot))
     attackEffect =
       (Board.toInPlace anims pSpot) Map.!? cSpot
         & fromMaybe mempty
@@ -442,11 +442,9 @@ boardToInHandCell
     where
       (beingHovered, beingDragged) =
         case interaction of
-          Just (HoverInteraction hoveredCard) ->
-            (hoveredCard == i, False)
-          Just (DragInteraction Dragging {draggedCard}) ->
-            (False, draggedCard == i)
-          Just (HoverInPlaceInteraction _) -> (False, False)
+          Just (DragInteraction Dragging {draggedCard}) -> (False, draggedCard == i)
+          Just (HoverInteraction (Model.InHand hoveredCard)) -> (hoveredCard == i, False)
+          Just (HoverInteraction (Model.InPlace _)) -> (False, False)
           Just NoInteraction -> (False, False)
           Just (ShowErrorInteraction _) -> (False, False)
           Nothing -> (False, False)

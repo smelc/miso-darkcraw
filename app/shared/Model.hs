@@ -29,12 +29,18 @@ import qualified Shared
 import qualified Spots
 import qualified Turn
 
+-- | What kind of things is hovered on/selected (== clicked on)
+data InteractionKind
+  = -- | Something from the hand is selected
+    InHand Board.HandIndex
+  | -- | Something on the board is selected
+    InPlace (Spots.Player, Spots.Card)
+  deriving (Show, Eq)
+
 -- | An interaction happening in the game page
 data Interaction a
-  = -- | Hovering over a card in hand
-    HoverInteraction Board.HandIndex
-  | -- | Hovering over a card in place
-    HoverInPlaceInteraction (Spots.Player, Spots.Card)
+  = -- | Hovering over a card in hand/in place
+    HoverInteraction InteractionKind
   | -- | Dragging a card
     DragInteraction (Dragging a)
   | NoInteraction
