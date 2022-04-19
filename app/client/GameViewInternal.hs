@@ -356,7 +356,7 @@ borderWidth :: Model.Game -> Game.Target -> Int
 borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
-    (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
+    (HoverInteraction hoveredCard, _) | cond hoveredCard -> 3
     (HoverInPlaceInteraction (pSpotHov, cSpotHov), Game.CardTarget pSpot cSpot)
       | pSpot /= pSpotHov && cSpot `elem` attackedSpots ->
           borderSize

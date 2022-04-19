@@ -254,7 +254,7 @@ updateGameModel m (Move.DnD a@(Move.DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute.
 -- Hovering in hand cards
 updateGameModel m (Move.InHandMouseEnter i) NoInteraction =
-  pure $ updateDefault m $ HoverInteraction $ Hovering i
+  pure $ updateDefault m $ HoverInteraction i
 updateGameModel m (Move.InHandMouseLeave _) _ =
   pure $ updateDefault m NoInteraction
 -- Hovering in place cards

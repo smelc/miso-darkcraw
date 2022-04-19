@@ -32,17 +32,13 @@ import qualified Turn
 -- | An interaction happening in the game page
 data Interaction a
   = -- | Hovering over a card in hand
-    HoverInteraction Hovering
+    HoverInteraction Board.HandIndex
   | -- | Hovering over a card in place
     HoverInPlaceInteraction (Spots.Player, Spots.Card)
   | -- | Dragging a card
     DragInteraction (Dragging a)
   | NoInteraction
   | ShowErrorInteraction Text.Text
-  deriving (Eq, Generic, Show)
-
-newtype Hovering = Hovering
-  {hoveredCard :: Board.HandIndex}
   deriving (Eq, Generic, Show)
 
 data Dragging a = Dragging

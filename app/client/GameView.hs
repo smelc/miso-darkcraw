@@ -442,7 +442,7 @@ boardToInHandCell
     where
       (beingHovered, beingDragged) =
         case interaction of
-          Just (HoverInteraction Hovering {hoveredCard}) ->
+          Just (HoverInteraction hoveredCard) ->
             (hoveredCard == i, False)
           Just (DragInteraction Dragging {draggedCard}) ->
             (False, draggedCard == i)
