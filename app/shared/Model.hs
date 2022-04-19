@@ -26,15 +26,15 @@ import qualified Game (Animation (..), Target)
 import Nat
 import ServerMessages
 import qualified Shared
-import Spots hiding (Card)
+import qualified Spots
 import qualified Turn
 
 -- | An interaction happening in the game page
 data Interaction a
   = -- | Hovering over a card in hand
     HoverInteraction Hovering
-  | -- | Hovering over a target
-    HoverInPlaceInteraction a
+  | -- | Hovering over a card in place
+    HoverInPlaceInteraction (Spots.Player, Spots.Card)
   | -- | Dragging a card
     DragInteraction (Dragging a)
   | NoInteraction
@@ -154,10 +154,10 @@ unsafeGameModel WelcomeModel {shared} =
     level = Campaign.Level0
     difficulty = Constants.Easy
     interaction = NoInteraction
-    playingPlayer = startingPlayerSpot
+    playingPlayer = Spots.startingPlayerSpot
     (_, board) = Board.initial shared teams'
     playingPlayerDeck =
-      Board.toData startingPlayerSpot teams'
+      Board.toData playingPlayer teams'
         & snd
         & map Card.cardToIdentifier
     uiAvail = True

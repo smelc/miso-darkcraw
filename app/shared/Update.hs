@@ -258,8 +258,8 @@ updateGameModel m (Move.InHandMouseEnter i) NoInteraction =
 updateGameModel m (Move.InHandMouseLeave _) _ =
   pure $ updateDefault m NoInteraction
 -- Hovering in place cards
-updateGameModel m (Move.InPlaceMouseEnter target) NoInteraction =
-  pure $ updateDefault m $ HoverInPlaceInteraction target
+updateGameModel m (Move.InPlaceMouseEnter spots) NoInteraction =
+  pure $ updateDefault m $ HoverInPlaceInteraction spots
 updateGameModel m (Move.InPlaceMouseLeave _) _ =
   pure $ updateDefault m NoInteraction
 -- Debug cmd

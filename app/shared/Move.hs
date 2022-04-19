@@ -103,10 +103,10 @@ data Move
     InHandMouseEnter Board.HandIndex
   | -- | Ending hovering card in hand
     InHandMouseLeave Board.HandIndex
-  | -- | Starting hovering a target
-    InPlaceMouseEnter Game.Target
-  | -- | Ending hovering a target
-    InPlaceMouseLeave Game.Target
+  | -- | Starting hovering a card in place
+    InPlaceMouseEnter (Spots.Player, Spots.Card)
+  | -- | Ending hovering a card in place
+    InPlaceMouseLeave (Spots.Player, Spots.Card)
   | -- | Execute a command (dev mode only)
     ExecuteCmd
   | -- | A schedulable event

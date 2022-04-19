@@ -357,7 +357,7 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction Hovering {hoveredCard}, _) | cond hoveredCard -> 3
-    (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.CardTarget pSpot cSpot)
+    (HoverInPlaceInteraction (pSpotHov, cSpotHov), Game.CardTarget pSpot cSpot)
       | pSpot /= pSpotHov && cSpot `elem` attackedSpots ->
           borderSize
       where
@@ -368,7 +368,7 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
             Just Game.Ace -> []
             Just Game.Imprecise -> []
             Just (Game.Spots spots) -> spots
-    (HoverInPlaceInteraction (Game.CardTarget pSpotHov cSpotHov), Game.PlayerTarget pSpot)
+    (HoverInPlaceInteraction (pSpotHov, cSpotHov), Game.PlayerTarget pSpot)
       | pSpot /= pSpotHov && imprecise ->
           borderSize
       where

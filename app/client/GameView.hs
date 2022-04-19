@@ -255,14 +255,14 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
       -- If dragging we don't need to handle in place hovering
       case (maybeCreature, dragTarget) of
         (Just _, Nothing) ->
-          [ onMouseEnter' "card" $ lift $ Move.InPlaceMouseEnter target,
-            onMouseLeave' "card" $ lift $ Move.InPlaceMouseLeave target
+          [ onMouseEnter' "card" $ lift $ Move.InPlaceMouseEnter (pSpot, cSpot),
+            onMouseLeave' "card" $ lift $ Move.InPlaceMouseLeave (pSpot, cSpot)
           ]
         _ -> []
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
-    beingHovered = interaction == HoverInPlaceInteraction target
+    beingHovered = interaction == HoverInPlaceInteraction (pSpot, cSpot)
     attackEffect =
       (Board.toInPlace anims pSpot) Map.!? cSpot
         & fromMaybe mempty
@@ -277,6 +277,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         (Just (CardTargetType Occupied), Just _) -> Just target
         _ -> Nothing
 
+-- TODO @smelc Honor the fadeout from @Board.T 'UI@
 decoViews :: Int -> Spots.Player -> Board.T 'Core -> [View Action]
 decoViews z pSpot board =
   [ img_
