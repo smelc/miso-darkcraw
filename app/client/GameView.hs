@@ -181,7 +181,7 @@ boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} dragTargetT
   where
     mainM =
       sequence
-        [ boardToInPlaceCell ctxt m dragTargetType pSpot cSpot
+        [ boardToInPlaceCell ctxt m actionizer dragTargetType pSpot cSpot
           | (pSpot, cSpot, _) <- Board.toHoleyInPlace board
         ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
@@ -190,10 +190,17 @@ boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} dragTargetT
     bump50 upOrDown = "transform: translateY(" ++ sign upOrDown ++ show cellPixelSize ++ "px);"
     bumpKeyFrames upOrDown =
       keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
+    actionizer =
+      InPlaceActionizer
+        { onMouseEnter = Move.InPlaceMouseEnter,
+          onMouseLeave = Move.InPlaceMouseLeave
+        }
+        <&> GameAction'
 
 boardToInPlaceCell ::
   InPlaceCellContext ->
   Model.Game ->
+  InPlaceActionizer (Spots.Player, Spots.Card) Action ->
   -- | The target to which the card being dragged applies (if any)
   Maybe TargetType ->
   -- | The part considered
@@ -201,7 +208,7 @@ boardToInPlaceCell ::
   -- | The spot of the card to show
   Spots.Card ->
   Styled (View Action)
-boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, interaction, shared} dragTargetType pSpot cSpot =
+boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, interaction, shared} InPlaceActionizer {..} dragTargetType pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
@@ -212,7 +219,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         class_ "card",
         cardBoxShadowStyle rgb (borderWidth m target) "ease-in-out"
       ]
-        ++ inPlaceEnterLeaveAttrs GameAction'
+        ++ inPlaceEnterLeaveAttrs
         ++ (dragTarget <&> dragDropEvents & concat)
     )
     <$> do
@@ -251,12 +258,12 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
     loc = GameInPlaceLoc (Mana.labeler m) (Total.mkPlace board pSpot cSpot)
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = Board.toInPlaceCreature board pSpot cSpot
-    inPlaceEnterLeaveAttrs lift =
+    inPlaceEnterLeaveAttrs =
       -- If dragging we don't need to handle in place hovering
       case (maybeCreature, dragTarget) of
         (Just _, Nothing) ->
-          [ onMouseEnter' "card" $ lift $ Move.InPlaceMouseEnter (pSpot, cSpot),
-            onMouseLeave' "card" $ lift $ Move.InPlaceMouseLeave (pSpot, cSpot)
+          [ onMouseEnter' "card" $ onMouseEnter (pSpot, cSpot),
+            onMouseLeave' "card" $ onMouseLeave (pSpot, cSpot)
           ]
         _ -> []
     target = Game.CardTarget pSpot cSpot
@@ -362,8 +369,11 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
       HandActionizer
         { onDragStart = Move.DnD . Move.DragStart,
           onDragEnd = Move.DnD Move.DragEnd,
-          onMouseEnter = Move.InHandMouseEnter,
-          onMouseLeave = Move.InHandMouseLeave
+          inPlaceActionizer =
+            InPlaceActionizer
+              { onMouseEnter = Move.InHandMouseEnter,
+                onMouseLeave = Move.InHandMouseLeave
+              }
         }
         <&> GameAction'
 
@@ -387,15 +397,23 @@ toHandDrawingInput m@Model.Game {interaction = gInteraction, ..} =
     part = Board.toPart board playingPlayer
     (mana, team) = (Board.mana part, Board.team part)
 
-data HandActionizer a = HandActionizer
-  { -- The event to raise when starting to drag a card
-    onDragStart :: Board.HandIndex -> a,
+-- | Events on in place cards: hovering
+data InPlaceActionizer a b = InPlaceActionizer
+  { -- The event to raise when hovering a card
+    onMouseEnter :: a -> b,
     -- The event to raise when stopping hovering a card
-    onDragEnd :: a,
-    -- The event to raise when hovering a card
-    onMouseEnter :: Board.HandIndex -> a,
+    onMouseLeave :: a -> b
+  }
+  deriving (Functor)
+
+-- | Events on cards in hand
+data HandActionizer a b = HandActionizer
+  { -- The event to raise when hovering a card
+    inPlaceActionizer :: InPlaceActionizer a b,
+    -- The event to raise when starting to drag a card
+    onDragStart :: a -> b,
     -- The event to raise when stopping hovering a card
-    onMouseLeave :: Board.HandIndex -> a
+    onDragEnd :: b
   }
   deriving (Functor)
 
@@ -423,18 +441,15 @@ data HandDrawingInput = HandDrawingInput
 
 boardToInHandCell ::
   HandDrawingInput ->
-  HandActionizer Action ->
+  HandActionizer Board.HandIndex Action ->
   -- The z-index when the card is on top of others
   Int ->
   -- The z-index, the card, the index in the hand
   (Int, Card 'Core, Board.HandIndex) ->
   Styled (View Action)
 boardToInHandCell
-  HandDrawingInput
-    { mana = availMana,
-      ..
-    }
-  HandActionizer {..}
+  HandDrawingInput {mana = availMana, ..}
+  HandActionizer {inPlaceActionizer = InPlaceActionizer {onMouseEnter, onMouseLeave}, ..}
   bigZ
   (z, card, i) = do
     card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared team card cdsty

@@ -55,7 +55,7 @@
 <li class="src short">
 <a href="#v:boardToInPlaceCells">boardToInPlaceCells</a> :: <a href="GameView.html#t:InPlaceCellContext" title="GameView">InPlaceCellContext</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:TargetType" title="Card">TargetType</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>]</li>
 <li class="src short">
-<a href="#v:boardToInPlaceCell">boardToInPlaceCell</a> :: <a href="GameView.html#t:InPlaceCellContext" title="GameView">InPlaceCellContext</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:TargetType" title="Card">TargetType</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
+<a href="#v:boardToInPlaceCell">boardToInPlaceCell</a> :: <a href="GameView.html#t:InPlaceCellContext" title="GameView">InPlaceCellContext</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>) <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:TargetType" title="Card">TargetType</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
 <li class="src short">
 <a href="#v:decoViews">decoViews</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>]</li>
 <li class="src short">
@@ -70,15 +70,20 @@
 <a href="#v:toHandDrawingInput">toHandDrawingInput</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="GameView.html#t:HandDrawingInput" title="GameView">HandDrawingInput</a>
 </li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:HandActionizer">HandActionizer</a> a = <a href="#v:HandActionizer">HandActionizer</a> {<ul class="subs">
+<span class="keyword">data</span> <a href="#t:InPlaceActionizer">InPlaceActionizer</a> a b = <a href="#v:InPlaceActionizer">InPlaceActionizer</a> {<ul class="subs">
 <li>
-<a href="#v:onDragStart">onDragStart</a> :: <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; a</li>
+<a href="#v:onMouseEnter">onMouseEnter</a> :: a -&gt; b</li>
 <li>
-<a href="#v:onDragEnd">onDragEnd</a> :: a</li>
+<a href="#v:onMouseLeave">onMouseLeave</a> :: a -&gt; b</li>
+</ul>}</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:HandActionizer">HandActionizer</a> a b = <a href="#v:HandActionizer">HandActionizer</a> {<ul class="subs">
 <li>
-<a href="#v:onMouseEnter">onMouseEnter</a> :: <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; a</li>
+<a href="#v:inPlaceActionizer">inPlaceActionizer</a> :: <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> a b</li>
 <li>
-<a href="#v:onMouseLeave">onMouseLeave</a> :: <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; a</li>
+<a href="#v:onDragStart">onDragStart</a> :: a -&gt; b</li>
+<li>
+<a href="#v:onDragEnd">onDragEnd</a> :: b</li>
 </ul>}</li>
 <li class="src short">
 <span class="keyword">type</span> <a href="#t:HandOffseter">HandOffseter</a> = (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</li>
@@ -111,7 +116,7 @@
 </li>
 </ul>}</li>
 <li class="src short">
-<a href="#v:boardToInHandCell">boardToInHandCell</a> :: <a href="GameView.html#t:HandDrawingInput" title="GameView">HandDrawingInput</a> -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>) -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
+<a href="#v:boardToInHandCell">boardToInHandCell</a> :: <a href="GameView.html#t:HandDrawingInput" title="GameView">HandDrawingInput</a> -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>) -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
 <li class="src short">
 <a href="#v:cardCellsBoardOffset">cardCellsBoardOffset</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</li>
 <li class="src short">
@@ -198,6 +203,11 @@
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
+<td class="src">-&gt; <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>) <a href="Update.html#t:Action" title="Update">Action</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
 <td class="src">-&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:TargetType" title="Card">TargetType</a>
 </td>
 <td class="doc"><p>The target to which the card being dragged applies (if any)</p></td>
@@ -253,7 +263,45 @@
 </div>
 <div class="top"><p class="src"><a id="v:toHandDrawingInput" class="def">toHandDrawingInput</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="GameView.html#t:HandDrawingInput" title="GameView">HandDrawingInput</a> <a href="#v:toHandDrawingInput" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:HandActionizer" class="def">HandActionizer</a> a <a href="#t:HandActionizer" class="selflink">#</a></p>
+<p class="src"><span class="keyword">data</span> <a id="t:InPlaceActionizer" class="def">InPlaceActionizer</a> a b <a href="#t:InPlaceActionizer" class="selflink">#</a></p>
+<div class="doc"><p>Events on in place cards: hovering</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:InPlaceActionizer" class="def">InPlaceActionizer</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:onMouseEnter" class="def">onMouseEnter</a> :: a -&gt; b</dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:onMouseLeave" class="def">onMouseLeave</a> :: a -&gt; b</dfn><div class="doc empty">&nbsp;</div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:InPlaceActionizer" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:InPlaceActionizer:Functor:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Functor.html#t:Functor" title="Data.Functor">Functor</a> (<a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> a)</span> <a href="#t:InPlaceActionizer" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:InPlaceActionizer:Functor:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="GameView.html">GameView</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:fmap">fmap</a> :: (a0 -&gt; b) -&gt; <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> a a0 -&gt; <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> a b <a href="#v:fmap" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--36-">(&lt;$)</a> :: a0 -&gt; <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> a b -&gt; <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> a a0 <a href="#v:-60--36-" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:HandActionizer" class="def">HandActionizer</a> a b <a href="#t:HandActionizer" class="selflink">#</a></p>
+<div class="doc"><p>Events on cards in hand</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
@@ -265,16 +313,13 @@
 <p class="caption">Fields</p>
 <ul>
 <li>
-<dfn class="src"><a id="v:onDragStart" class="def">onDragStart</a> :: <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; a</dfn><div class="doc empty">&nbsp;</div>
+<dfn class="src"><a id="v:inPlaceActionizer" class="def">inPlaceActionizer</a> :: <a href="GameView.html#t:InPlaceActionizer" title="GameView">InPlaceActionizer</a> a b</dfn><div class="doc empty">&nbsp;</div>
 </li>
 <li>
-<dfn class="src"><a id="v:onDragEnd" class="def">onDragEnd</a> :: a</dfn><div class="doc empty">&nbsp;</div>
+<dfn class="src"><a id="v:onDragStart" class="def">onDragStart</a> :: a -&gt; b</dfn><div class="doc empty">&nbsp;</div>
 </li>
 <li>
-<dfn class="src"><a id="v:onMouseEnter" class="def">onMouseEnter</a> :: <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; a</dfn><div class="doc empty">&nbsp;</div>
-</li>
-<li>
-<dfn class="src"><a id="v:onMouseLeave" class="def">onMouseLeave</a> :: <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; a</dfn><div class="doc empty">&nbsp;</div>
+<dfn class="src"><a id="v:onDragEnd" class="def">onDragEnd</a> :: b</dfn><div class="doc empty">&nbsp;</div>
 </li>
 </ul>
 </div></td></tr>
@@ -283,14 +328,14 @@
 <div class="subs instances"><details id="i:HandActionizer" open="open"><summary>Instances</summary><table>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:HandActionizer:Functor:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Functor.html#t:Functor" title="Data.Functor">Functor</a> <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a></span> <a href="#t:HandActionizer" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:HandActionizer:Functor:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Functor.html#t:Functor" title="Data.Functor">Functor</a> (<a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> a)</span> <a href="#t:HandActionizer" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr><td colspan="2"><details id="i:id:HandActionizer:Functor:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="GameView.html">GameView</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:fmap">fmap</a> :: (a -&gt; b) -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> a -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> b <a href="#v:fmap" class="selflink">#</a></p>
-<p class="src"><a href="#v:-60--36-">(&lt;$)</a> :: a -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> b -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> a <a href="#v:-60--36-" class="selflink">#</a></p>
+<p class="src"><a href="#v:fmap">fmap</a> :: (a0 -&gt; b) -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> a a0 -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> a b <a href="#v:fmap" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--36-">(&lt;$)</a> :: a0 -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> a b -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> a a0 <a href="#v:-60--36-" class="selflink">#</a></p>
 </div></details></td></tr>
 </table></details></div>
 </div>
@@ -339,7 +384,7 @@
 </table>
 </div>
 </div>
-<div class="top"><p class="src"><a id="v:boardToInHandCell" class="def">boardToInHandCell</a> :: <a href="GameView.html#t:HandDrawingInput" title="GameView">HandDrawingInput</a> -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>) -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:boardToInHandCell" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:boardToInHandCell" class="def">boardToInHandCell</a> :: <a href="GameView.html#t:HandDrawingInput" title="GameView">HandDrawingInput</a> -&gt; <a href="GameView.html#t:HandActionizer" title="GameView">HandActionizer</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> <a href="Update.html#t:Action" title="Update">Action</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>, <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>) -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:boardToInHandCell" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:cardCellsBoardOffset" class="def">cardCellsBoardOffset</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) <a href="#v:cardCellsBoardOffset" class="selflink">#</a></p>
 <div class="doc"><p>Offsets, in number of cells, from the board's origin</p></div>
