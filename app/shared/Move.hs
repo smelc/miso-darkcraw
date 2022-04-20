@@ -111,6 +111,7 @@ data Move
     ExecuteCmd
   | -- | A schedulable event
     Sched Sched
+  | Selection Model.InteractionKind
   | -- | Update the command to execute soon (dev mode only)
     UpdateCmd MisoString
   deriving (Show, Eq)

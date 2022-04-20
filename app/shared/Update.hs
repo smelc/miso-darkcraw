@@ -262,6 +262,9 @@ updateGameModel m (Move.InPlaceMouseEnter spots) NoInteraction =
   pure $ updateDefault m $ HoverInteraction (Model.InPlace spots)
 updateGameModel m (Move.InPlaceMouseLeave _) _ =
   pure $ updateDefault m NoInteraction
+-- Selecting cards.
+updateGameModel m (Move.Selection s) NoInteraction =
+  pure $ updateDefault m $ SelectionInteraction s
 -- Debug cmd
 updateGameModel m Move.ExecuteCmd _ =
   pure $

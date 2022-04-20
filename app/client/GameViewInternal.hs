@@ -357,25 +357,31 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
     (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
     (HoverInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> 3
-    (HoverInteraction (Model.InPlace (pSpotHov, cSpotHov)), Game.CardTarget pSpot cSpot)
-      | pSpot /= pSpotHov && cSpot `elem` attackedSpots ->
-          borderSize
-      where
-        attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
-        attackedSpots :: [Spots.Card] =
-          case attacker <&> flip Game.enemySpots cSpotHov of
-            Nothing -> []
-            Just Game.Ace -> []
-            Just Game.Imprecise -> []
-            Just (Game.Spots spots) -> spots
-    (HoverInteraction (Model.InPlace (pSpotHov, cSpotHov)), Game.PlayerTarget pSpot)
-      | pSpot /= pSpotHov && imprecise ->
-          borderSize
-      where
-        attacker :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpotHov cSpotHov
-        imprecise :: Bool = attacker `has` (Skill.Imprecise :: Skill.State)
+    (SelectionInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> 3
+    (HoverInteraction (Model.InPlace spot), _) -> inPlaceCase spot pTarget
+    (SelectionInteraction (Model.InPlace spot), _) -> inPlaceCase spot pTarget
     _ -> 0
   where
+    inPlaceCase (spot :: (Spots.Player, Spots.Card)) (y :: Game.Target) =
+      case (spot, y) of
+        ((pSpotHov, cSpotHov), Game.CardTarget pSpot cSpot)
+          | pSpot /= pSpotHov && cSpot `elem` attackedSpots ->
+              borderSize
+          where
+            attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
+            attackedSpots :: [Spots.Card] =
+              case attacker <&> flip Game.enemySpots cSpotHov of
+                Nothing -> []
+                Just Game.Ace -> []
+                Just Game.Imprecise -> []
+                Just (Game.Spots spots) -> spots
+        ((pSpotHov, cSpotHov), Game.PlayerTarget pSpot)
+          | pSpot /= pSpotHov && imprecise ->
+              borderSize
+          where
+            attacker :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpotHov cSpotHov
+            imprecise :: Bool = attacker `has` (Skill.Imprecise :: Skill.State)
+        _ -> 0
     cond hi =
       case handCard $ unHandIndex hi of
         Left errMsg -> trace (Text.unpack errMsg) False

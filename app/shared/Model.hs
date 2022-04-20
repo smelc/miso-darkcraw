@@ -44,6 +44,7 @@ data Interaction a
   | -- | Dragging a card
     DragInteraction (Dragging a)
   | NoInteraction
+  | SelectionInteraction InteractionKind
   | ShowErrorInteraction Text.Text
   deriving (Eq, Generic, Show)
 

@@ -193,7 +193,8 @@ boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} dragTargetT
     actionizer =
       InPlaceActionizer
         { onMouseEnter = Move.InPlaceMouseEnter,
-          onMouseLeave = Move.InPlaceMouseLeave
+          onMouseLeave = Move.InPlaceMouseLeave,
+          onSelection = Move.Selection . Model.InPlace
         }
         <&> GameAction'
 
@@ -263,7 +264,8 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
       case (maybeCreature, dragTarget) of
         (Just _, Nothing) ->
           [ onMouseEnter' "card" $ onMouseEnter (pSpot, cSpot),
-            onMouseLeave' "card" $ onMouseLeave (pSpot, cSpot)
+            onMouseLeave' "card" $ onMouseLeave (pSpot, cSpot),
+            onClick $ onSelection (pSpot, cSpot)
           ]
         _ -> []
     target = Game.CardTarget pSpot cSpot
@@ -277,7 +279,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
         | Board.attackBump attackEffect
       ]
-    rgb = borderRGB interaction target
+    rgb = targetBorderRGB interaction target
     dragTarget =
       case (dragTargetType, maybeCreature) of
         (Just (CardTargetType Hole), Nothing) -> Just target
@@ -328,7 +330,7 @@ boardToPlayerTarget z m@Model.Game {interaction} dragTargetType pSpot =
     posStyle x y = pltwh Absolute (x * cps) (y * cps) (w * cps) (h * cps)
     cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBot -> BottomRight
     target = Game.PlayerTarget pSpot
-    (rgb, bwidth) = (borderRGB interaction target, borderWidth m target)
+    (rgb, bwidth) = (targetBorderRGB interaction target, borderWidth m target)
     dragTarget =
       case dragTargetType of
         Just PlayerTargetType -> Just target
@@ -345,8 +347,9 @@ dragDropEvents target =
   where
     lift = GameAction' . Move.DnD
 
-borderRGB :: Eq a => Interaction a -> a -> (Int, Int, Int)
-borderRGB interaction target =
+-- | The border color of a target
+targetBorderRGB :: Eq a => Interaction a -> a -> (Int, Int, Int)
+targetBorderRGB interaction target =
   case interaction of
     DragInteraction Dragging {dragTarget} | dragTarget == Just target -> yellowRGB
     _ -> greenRGB
@@ -372,7 +375,8 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
           inPlaceActionizer =
             InPlaceActionizer
               { onMouseEnter = Move.InHandMouseEnter,
-                onMouseLeave = Move.InHandMouseLeave
+                onMouseLeave = Move.InHandMouseLeave,
+                onSelection = Move.Selection . Model.InHand
               }
         }
         <&> GameAction'
@@ -402,7 +406,9 @@ data InPlaceActionizer a b = InPlaceActionizer
   { -- The event to raise when hovering a card
     onMouseEnter :: a -> b,
     -- The event to raise when stopping hovering a card
-    onMouseLeave :: a -> b
+    onMouseLeave :: a -> b,
+    -- The event to raise when clicking on a card
+    onSelection :: a -> b
   }
   deriving (Functor)
 
@@ -449,20 +455,22 @@ boardToInHandCell ::
   Styled (View Action)
 boardToInHandCell
   HandDrawingInput {mana = availMana, ..}
-  HandActionizer {inPlaceActionizer = InPlaceActionizer {onMouseEnter, onMouseLeave}, ..}
+  HandActionizer {inPlaceActionizer = InPlaceActionizer {..}, ..}
   bigZ
   (z, card, i) = do
-    card <- cardView loc (if beingHovered || beingDragged then bigZ else z) shared team card cdsty
+    card <- cardView loc (if beingHovered || beingDragged || beingSelected then bigZ else z) shared team card cdsty
     return $ div_ attrs [card | not beingDragged]
     where
-      (beingHovered, beingDragged) =
+      (beingHovered, beingDragged, beingSelected) =
         case interaction of
-          Just (DragInteraction Dragging {draggedCard}) -> (False, draggedCard == i)
-          Just (HoverInteraction (Model.InHand hoveredCard)) -> (hoveredCard == i, False)
-          Just (HoverInteraction (Model.InPlace _)) -> (False, False)
-          Just NoInteraction -> (False, False)
-          Just (ShowErrorInteraction _) -> (False, False)
-          Nothing -> (False, False)
+          Just (DragInteraction Dragging {draggedCard}) -> (False, draggedCard == i, False)
+          Just (HoverInteraction (Model.InHand hoveredCard)) -> (hoveredCard == i, False, False)
+          Just (HoverInteraction (Model.InPlace _)) -> (False, False, False)
+          Just NoInteraction -> (False, False, False)
+          Just (SelectionInteraction (Model.InHand j)) -> (False, False, i == j)
+          Just (SelectionInteraction (Model.InPlace {})) -> (False, False, False)
+          Just (ShowErrorInteraction _) -> (False, False, False)
+          Nothing -> (False, False, False)
       loc = (if beingDragged then GameDragLoc else GameHandLoc) labeler
       rightmargin = cps * 2
       hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
@@ -489,10 +497,11 @@ boardToInHandCell
           Miso.onDragEnd onDragEnd,
           class_ "card",
           onMouseEnter' "card" $ onMouseEnter i,
-          onMouseLeave' "card" $ onMouseLeave i
+          onMouseLeave' "card" $ onMouseLeave i,
+          onClick $ onSelection i
         ]
           ++ [style_ $ "filter" =: "brightness(50%)" | not playable]
-      cdsty = mempty {hover = beingHovered, PCWViewInternal.fade = fade}
+      cdsty = mempty {hover = beingHovered, PCWViewInternal.fade = fade, selected = beingSelected}
       playable =
         case Shared.mlift shared card <&> Card.toCommon of
           Nothing -> traceShow ("[ERR] Common not found for card: " ++ show card) True

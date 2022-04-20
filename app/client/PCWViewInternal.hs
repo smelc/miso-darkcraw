@@ -112,15 +112,19 @@ data CardDrawStyle = CardDrawStyle
     hover :: Bool,
     -- | Whether to show a green overlay border. Used for cards picked
     -- from the rewards in 'LootView'.
-    overlay :: BorderOverlay
+    overlay :: BorderOverlay,
+    -- | Whether the card is selected
+    selected :: Bool
   }
 
 instance Semigroup CardDrawStyle where
-  CardDrawStyle fadeIn1 hover1 o1 <> CardDrawStyle fadeIn2 hover2 o2 =
-    CardDrawStyle (fadeIn1 <> fadeIn2) (hover1 || hover2) (o1 <> o2)
+  CardDrawStyle fadeIn1 hover1 o1 s1 <> CardDrawStyle fadeIn2 hover2 o2 s2 =
+    CardDrawStyle (fadeIn1 <> fadeIn2) (hover1 || hover2) (o1 <> o2) (s1 || s2)
 
 instance Monoid CardDrawStyle where
-  mempty = CardDrawStyle mempty False None
+  mempty =
+    let (fade :: Constants.Fade, hover, overlay, selected) = (mempty, False, None, False)
+     in CardDrawStyle {..}
 
 instance Miso.String.ToMisoString Nat where
   toMisoString = toMisoString . show
