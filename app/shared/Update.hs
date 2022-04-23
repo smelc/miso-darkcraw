@@ -588,17 +588,10 @@ updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, sce
     keyCodeToSceneAction _ = Nothing
 updateModel (Keyboard _) model = noEff model
 updateModel (GameAction' a) (GameModel' m@Model.Game {interaction}) =
-  if null actions
-    then noEff m''
-    else delayActions m'' (nextSchedToMiso actions)
-  where
-    -- 'Game.NoAnimation': clear animation if any
-    (m', actions) =
-      either
-        (\errMsg -> (withInteraction m (ShowErrorInteraction errMsg), Nothing)) -- Show message if error occurred
-        id -- return obtained model if no error
-        (runExcept $ updateGameModel (m {anim = Game.NoAnimation}) a interaction)
-    m'' = GameModel' m'
+  case runExcept (updateGameModel (m {anim = Game.NoAnimation}) a interaction) of
+    Right (m, Nothing) -> noEff (GameModel' m)
+    Right (m, nextSched) -> delayActions (GameModel' m) (nextSchedToMiso nextSched)
+    Left errMsg -> noEff (GameModel' (m {interaction = ShowErrorInteraction errMsg}))
 updateModel (LootAction' a) (LootModel' m) =
   noEff $ LootModel' $ updateLootModel a m
 updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
