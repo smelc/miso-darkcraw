@@ -21,7 +21,6 @@ import Cinema
 import qualified Command
 import qualified Constants
 import qualified Constants (Difficulty)
-import qualified Contains
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
@@ -144,9 +143,6 @@ nextSchedToMiso ns =
 playOne :: MonadError Text.Text m => Model.Game -> Game.Event -> m (Model.Game, NextSched)
 playOne m event = updateGameModel m (Move.Sched $ Move.Play event) NoInteraction
 
-updateDefault :: Model.Game -> Model.Interaction -> (Model.Game, Maybe a)
-updateDefault m i = (m `Contains.with` i, Nothing)
-
 -- | We MUST return 'Sched' as the second element (as opposed to
 -- 'Game.Event'). This is used for 'GameIncrTurn' for example.
 -- The second element must only contain delayed stuff, it's invalid
@@ -164,59 +160,55 @@ updateGameModel ::
   Interaction ->
   m (Model.Game, NextSched)
 -- This is the only definition that should care about GameShowErrorInteraction:
-updateGameModel m action (ShowErrorInteraction _) =
-  updateGameModel m action NoInteraction -- clear error message
-updateGameModel m (Move.Sched s) _ =
-  -- This is the only definition that should care about Move.Sched
-  Move.prodRunOneModel s m
--- Now onto "normal" stuff:
--- A GamePlayEvent to execute.
--- Hovering in hand cards
-updateGameModel m (Move.InHandMouseEnter i) i' =
-  pure $ updateDefault m $ Model.addHover (Model.InHand i) i'
-updateGameModel m (Move.InHandMouseLeave _) i =
-  pure $ updateDefault m $ Model.rmHover i
--- Hovering in place cards
-updateGameModel m (Move.InPlaceMouseEnter (p, c)) i =
-  pure $ updateDefault m $ Model.addHover (Model.InPlace (Game.CardTarget p c)) i
-updateGameModel m (Move.InPlaceMouseLeave _) i =
-  pure $ updateDefault m $ Model.rmHover i
--- Selecting cards.
-updateGameModel m (Move.Selection ik1) (SelectionInteraction ik2)
-  | ik1 == ik2 =
-      -- Toggle selection
-      pure $ updateDefault m NoInteraction
-updateGameModel m (Move.Selection ik1) i@(HoverSelectionInteraction _ ik2)
-  | ik1 == ik2 =
-      -- Toggle selection
-      pure $ updateDefault m $ Model.rmSelection i
-updateGameModel m@Model.Game {uiAvail} (Move.Selection _) _
-  | not uiAvail =
-      -- Clear selection, because UI is unavailable
-      pure $ updateDefault m NoInteraction
-updateGameModel
-  m@Model.Game {turn}
-  (Move.Selection (Model.InPlace target))
-  (SelectionInteraction (Model.InHand idx)) = do
-    -- Selection in place happens while card in hand is selected: trying to play the hand card
-    playOne m $ Game.PEvent $ Game.Place pSpot target idx
-    where
-      pSpot = Turn.toPlayerSpot turn
-updateGameModel m (Move.Selection x) i = do
-  pure $ updateDefault m $ Model.addSelection x i
-updateGameModel m Move.ExecuteCmd _ =
-  pure $
-    updateDefault m $
-      ShowErrorInteraction "GameExecuteCmd should be handled in updateModel, because it can change page"
-updateGameModel m@Model.Game {shared} (Move.UpdateCmd misoStr) i =
-  pure $
-    updateDefault
-      ((m {shared = Shared.withCmd shared (Just $ fromMisoString misoStr)}) :: Model.Game)
-      i
-
--- default
--- updateGameModel m _ i =
---   pure $ updateDefault m i
+updateGameModel m@Model.Game {shared, turn, uiAvail} action i =
+  case (action, i) of
+    (_, ShowErrorInteraction _) ->
+      updateGameModel m action NoInteraction -- clear error message
+    (Move.Sched s, _) ->
+      -- This is the only definition that should care about Move.Sched
+      Move.prodRunOneModel s m
+    -- Now onto "normal" stuff:
+    -- A GamePlayEvent to execute.
+    -- Hovering in hand cards
+    (Move.InHandMouseEnter idx, _) ->
+      pure $ go m $ Model.addHover (Model.InHand idx) i
+    (Move.InHandMouseLeave _, _) ->
+      pure $ go m $ Model.rmHover i
+    -- Hovering in place cards
+    (Move.InPlaceMouseEnter (p, c), _) ->
+      pure $ go m $ Model.addHover (Model.InPlace (Game.CardTarget p c)) i
+    (Move.InPlaceMouseLeave _, _) ->
+      pure $ go m $ Model.rmHover i
+    -- Selecting cards.
+    (Move.Selection ik1, SelectionInteraction ik2)
+      | ik1 == ik2 ->
+          -- Toggle selection
+          pure $ go m NoInteraction
+    (Move.Selection ik1, HoverSelectionInteraction _ ik2)
+      | ik1 == ik2 ->
+          -- Toggle selection
+          pure $ go m $ Model.rmSelection i
+    (Move.Selection _, _)
+      | not uiAvail ->
+          -- Clear selection, because UI is unavailable
+          pure $ go m NoInteraction
+    (Move.Selection (Model.InPlace target), (SelectionInteraction (Model.InHand idx))) ->
+      -- Selection in place happens while card in hand is selected: trying to play the hand card
+      playOne m $ Game.PEvent $ Game.Place pSpot target idx
+      where
+        pSpot = Turn.toPlayerSpot turn
+    (Move.Selection x, _) ->
+      pure $ go m $ Model.addSelection x i
+    (Move.ExecuteCmd, _) ->
+      pure $ go m $ ShowErrorInteraction errMsg
+      where
+        errMsg = "GameExecuteCmd should be handled in updateModel, because it can change page"
+    (Move.UpdateCmd misoStr, _) ->
+      pure $ go (m {shared = Shared.withCmd shared $ Just str}) i
+      where
+        str = fromMisoString misoStr
+  where
+    go m interaction = (m {interaction}, Nothing)
 
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel

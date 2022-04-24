@@ -160,12 +160,6 @@ instance Show Game where
     where
       f s x = "  " ++ s ++ " = " ++ show x
 
-instance Contains.Contains Game Interaction where
-  to = interaction
-
-instance Contains.With Game Interaction where
-  with m interaction = m {interaction}
-
 instance Contains.Contains Game Turn.T where
   to = turn
 
