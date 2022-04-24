@@ -118,9 +118,9 @@
 <li class="src short">
 <a href="#v:playOne">playOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 <li class="src short">
-<a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</li>
+<a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</li>
 <li class="src short">
-<a href="#v:updateGameModel">updateGameModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Move" title="Move">Move</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
+<a href="#v:updateGameModel">updateGameModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Move" title="Move">Move</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 <li class="src short">
 <a href="#v:updateLootModel">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a>
 </li>
@@ -517,7 +517,7 @@
  passed to <code><a href="Update.html#v:delayActions" title="Update">delayActions</a></code>.</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:playOne" class="def">playOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:playOne" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:updateDefault" class="def">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a) <a href="#v:updateDefault" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:updateDefault" class="def">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a) <a href="#v:updateDefault" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:updateGameModel" class="def">updateGameModel</a> <a href="#v:updateGameModel" class="selflink">#</a></p>
 <div class="subs arguments">
@@ -538,7 +538,7 @@
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
-<td class="src">-&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a>
+<td class="src">-&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a>
 </td>
 <td class="doc"><p>The existing interaction within <code>m</code>. TODO @smelc remove me.</p></td>
 </tr>

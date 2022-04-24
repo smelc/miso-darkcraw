@@ -334,7 +334,7 @@ dropEvents target =
   ]
 
 -- | The border color of a target
-targetBorderRGB :: Eq a => Interaction a -> Game.Target -> (Int, Int, Int)
+targetBorderRGB :: Interaction -> Game.Target -> (Int, Int, Int)
 targetBorderRGB interaction target =
   case interaction of
     Model.HoverInteraction (Model.InPlace t) | t == target -> yellowRGB
@@ -399,8 +399,8 @@ type HandOffseter = (Int, Int) -> (Int, Int)
 data HandDrawingInput = HandDrawingInput
   { -- | The hand, and whether the corresponding card is being faded in
     hand :: [(Card 'Core, Bool)],
-    -- | The current interaction, if any. FIXME @smelc do not hardcode Game.Target
-    interaction :: Maybe (Interaction Game.Target),
+    -- | The current interaction, if any.
+    interaction :: Maybe Interaction,
     -- | How to typeset mana
     labeler :: Mana.Mana -> String,
     -- | The mana of the team being drawn

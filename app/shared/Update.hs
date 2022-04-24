@@ -144,7 +144,7 @@ nextSchedToMiso ns =
 playOne :: MonadError Text.Text m => Model.Game -> Game.Event -> m (Model.Game, NextSched)
 playOne m event = updateGameModel m (Move.Sched $ Move.Play event) NoInteraction
 
-updateDefault :: Model.Game -> Model.Interaction (Game.Target) -> (Model.Game, Maybe a)
+updateDefault :: Model.Game -> Model.Interaction -> (Model.Game, Maybe a)
 updateDefault m i = (m `Contains.with` i, Nothing)
 
 -- | We MUST return 'Sched' as the second element (as opposed to
@@ -161,7 +161,7 @@ updateGameModel ::
   Model.Game ->
   Move ->
   -- | The existing interaction within @m@. TODO @smelc remove me.
-  Interaction Game.Target ->
+  Interaction ->
   m (Model.Game, NextSched)
 -- This is the only definition that should care about GameShowErrorInteraction:
 updateGameModel m action (ShowErrorInteraction _) =

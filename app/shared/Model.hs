@@ -39,9 +39,8 @@ data InteractionKind
     InPlace Game.Target
   deriving (Show, Eq)
 
--- | An interaction happening in the game page. TODO @smelc
--- Can I remove the type parameter?
-data Interaction a
+-- | An interaction happening in the game page.
+data Interaction
   = -- | Hovering over a card in hand/in place
     HoverInteraction InteractionKind
   | -- | Hovering over something while there is a selection. If there
@@ -54,7 +53,7 @@ data Interaction a
   deriving (Eq, Generic, Show)
 
 -- | The hovering interaction, if any
-toHover :: Interaction a -> Maybe InteractionKind
+toHover :: Interaction -> Maybe InteractionKind
 toHover = \case
   HoverInteraction ik -> Just ik
   HoverSelectionInteraction ik _ -> Just ik
@@ -63,7 +62,7 @@ toHover = \case
   ShowErrorInteraction _ -> Nothing
 
 -- | The selection interaction, if any
-toSelection :: Interaction a -> Maybe InteractionKind
+toSelection :: Interaction -> Maybe InteractionKind
 toSelection = \case
   HoverInteraction _ -> Nothing
   HoverSelectionInteraction _ ik -> Just ik
@@ -72,7 +71,7 @@ toSelection = \case
   ShowErrorInteraction _ -> Nothing
 
 -- | @addHover ik i@ adds the hover interaction @ik@ to @i@
-addHover :: InteractionKind -> Interaction a -> Interaction a
+addHover :: InteractionKind -> Interaction -> Interaction
 addHover ik i =
   case i of
     NoInteraction -> HoverInteraction ik
@@ -82,7 +81,7 @@ addHover ik i =
     ShowErrorInteraction {} -> HoverInteraction ik
 
 -- | @rmHover i@ removes the hover interaction from i
-rmHover :: Interaction a -> Interaction a
+rmHover :: Interaction -> Interaction
 rmHover =
   \case
     NoInteraction -> NoInteraction
@@ -92,7 +91,7 @@ rmHover =
     x@(ShowErrorInteraction {}) -> x
 
 -- | @addSelection s i@ adds the selection interaction @s@ to @i@
-addSelection :: InteractionKind -> Interaction a -> Interaction a
+addSelection :: InteractionKind -> Interaction -> Interaction
 addSelection ik i =
   case i of
     NoInteraction -> SelectionInteraction ik
@@ -102,7 +101,7 @@ addSelection ik i =
     ShowErrorInteraction {} -> SelectionInteraction ik
 
 -- | @rmSelection i@ removes the selection interaction from @i@
-rmSelection :: Interaction a -> Interaction a
+rmSelection :: Interaction -> Interaction
 rmSelection = \case
   NoInteraction -> NoInteraction
   x@(HoverInteraction _) -> x
@@ -133,7 +132,7 @@ data Game = Game
     -- | The game's difficulty
     difficulty :: Constants.Difficulty,
     -- | What user interaction is going on
-    interaction :: Interaction Game.Target,
+    interaction :: Interaction,
     -- | The list of games to play
     journey :: Campaign.Journey,
     -- | The current level
@@ -161,10 +160,10 @@ instance Show Game where
     where
       f s x = "  " ++ s ++ " = " ++ show x
 
-instance Contains.Contains Game (Interaction Game.Target) where
+instance Contains.Contains Game Interaction where
   to = interaction
 
-instance Contains.With Game (Interaction Game.Target) where
+instance Contains.With Game Interaction where
   with m interaction = m {interaction}
 
 instance Contains.Contains Game Turn.T where
