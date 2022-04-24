@@ -140,9 +140,6 @@ nextSchedToMiso ns =
   maybeToList $
     fmap (\(n, ga) -> (Nat.natToInt n & toSecs, GameAction' $ Move.Sched ga)) ns
 
-playOne :: MonadError Text.Text m => Model.Game -> Game.Event -> m (Model.Game, NextSched)
-playOne m event = updateGameModel m (Move.Sched $ Move.Play event) NoInteraction
-
 -- | We MUST return 'Sched' as the second element (as opposed to
 -- 'Game.Event'). This is used for 'GameIncrTurn' for example.
 -- The second element must only contain delayed stuff, it's invalid
@@ -155,20 +152,19 @@ updateGameModel ::
   MonadError Text.Text m =>
   -- | The existing model
   Model.Game ->
+  -- | The incoming UI action
   Move ->
-  -- | The existing interaction within @m@. TODO @smelc remove me.
-  Interaction ->
   m (Model.Game, NextSched)
--- This is the only definition that should care about GameShowErrorInteraction:
-updateGameModel m@Model.Game {shared, turn, uiAvail} action i =
+updateGameModel m@Model.Game {interaction = i, shared, turn, uiAvail} action =
   case (action, i) of
     (_, ShowErrorInteraction _) ->
-      updateGameModel m action NoInteraction -- clear error message
+      -- This is the only definition that should care about ShowErrorInteraction.
+      -- Clear error message, apply next action
+      updateGameModel m {interaction = NoInteraction} action
     (Move.Sched s, _) ->
       -- This is the only definition that should care about Move.Sched
       Move.prodRunOneModel s m
-    -- Now onto "normal" stuff:
-    -- A GamePlayEvent to execute.
+    -- Now onto "normal" stuff
     -- Hovering in hand cards
     (Move.InHandMouseEnter idx, _) ->
       pure $ go m $ Model.addHover (Model.InHand idx) i
@@ -209,6 +205,9 @@ updateGameModel m@Model.Game {shared, turn, uiAvail} action i =
         str = fromMisoString misoStr
   where
     go m interaction = (m {interaction}, Nothing)
+    playOne :: MonadError Text.Text m => Model.Game -> Game.Event -> m (Model.Game, NextSched)
+    playOne m event =
+      updateGameModel m {interaction = NoInteraction} (Move.Sched $ Move.Play event)
 
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel
@@ -518,8 +517,8 @@ updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, sce
     keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
     keyCodeToSceneAction _ = Nothing
 updateModel (Keyboard _) model = noEff model
-updateModel (GameAction' a) (GameModel' m@Model.Game {interaction}) =
-  case runExcept (updateGameModel (m {anim = Game.NoAnimation}) a interaction) of
+updateModel (GameAction' a) (GameModel' m) =
+  case runExcept (updateGameModel (m {anim = Game.NoAnimation}) a) of
     Right (m, Nothing) -> noEff (GameModel' m)
     Right (m, nextSched) -> delayActions (GameModel' m) (nextSchedToMiso nextSched)
     Left errMsg -> noEff (GameModel' (m {interaction = ShowErrorInteraction errMsg}))
