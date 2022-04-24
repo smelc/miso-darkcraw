@@ -19,6 +19,7 @@ import qualified Board
 import Card
 import qualified Configuration
 import Constants
+import Control.Monad (join)
 import Data.Function ((&))
 import Data.Functor
 import Data.List
@@ -44,7 +45,6 @@ import qualified Theme
 import qualified Total
 import qualified Turn
 import Update
-import ViewBlocks (dummyOn)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
@@ -69,7 +69,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
         Game.NoAnimation -> pure Nothing
         Game.Fadeout -> pure Nothing
         Game.Message {} -> pure Nothing
-    boardCardsM = boardToInPlaceCells (InPlaceCellContext {z = zpp, mkOffset}) model dragTargetType
+    boardCardsM = boardToInPlaceCells (InPlaceCellContext {z = zpp, mkOffset}) model selectedTargetType
     mkOffset pSpot cSpot = cardCellsBoardOffset pSpot cSpot & uncurry cardPositionStyle
     boardDivM = do
       let errs = errView model zpppp & maybeToList
@@ -99,13 +99,14 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
     handStyle =
       zpltwh z Relative 0 0 handPixelWidth handPixelHeight
         <> "background-image" =: assetsUrl (Theme.hand theme)
-    dragTargetType =
-      case interaction of
-        DragInteraction (Dragging (Board.HandIndex i) _) ->
-          case Board.getpk @'Board.Hand playingPlayer board & flip Board.lookupHand i of
-            Left err -> traceShow (Text.unpack err) Nothing
+    selectedTargetType :: Maybe Card.TargetType =
+      case Model.toSelection interaction of
+        Just (Model.InHand (Board.HandIndex idx)) ->
+          case Board.getpk @'Board.Hand playingPlayer board & flip Board.lookupHand idx of
+            Left err -> traceShow ("viewGameModel: " ++ Text.unpack err) Nothing
             Right id -> Just $ targetType id
-        _ -> Nothing
+        Just (Model.InPlace {}) -> Nothing
+        Nothing -> Nothing
 
 -- | mkTargetOffset returns the offset to display the application of
 -- a Neutral card to a creature in place.
@@ -169,19 +170,19 @@ data InPlaceCellContext = InPlaceCellContext
 boardToInPlaceCells ::
   InPlaceCellContext ->
   Model.Game ->
-  -- | The target to which the card being dragged applies (if any)
+  -- | The target to which the selected card (if any) applies (if any)
   Maybe TargetType ->
   Styled [View Action]
-boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} dragTargetType = do
+boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} selectedTargetType = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
-  let playerTargets = [boardToPlayerTarget (z + 1) m dragTargetType pSpot | pSpot <- Spots.allPlayers]
+  let playerTargets = [boardToPlayerTarget (z + 1) m selectedTargetType pSpot | pSpot <- Spots.allPlayers]
   return [div_ [] $ main ++ catMaybes playerTargets]
   where
     mainM =
       sequence
-        [ boardToInPlaceCell ctxt m actionizer dragTargetType pSpot cSpot
+        [ boardToInPlaceCell ctxt m actionizer selectedTargetType pSpot cSpot
           | (pSpot, cSpot, _) <- Board.toHoleyInPlace board
         ]
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
@@ -191,25 +192,26 @@ boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} dragTargetT
     bumpKeyFrames upOrDown =
       keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
     actionizer =
-      InPlaceActionizer
+      Actionizer
         { onMouseEnter = Move.InPlaceMouseEnter,
           onMouseLeave = Move.InPlaceMouseLeave,
-          onSelection = Move.Selection . Model.InPlace
+          onSelection = \(pSpot, cSpot) ->
+            Move.Selection $ Model.InPlace $ Game.CardTarget pSpot cSpot
         }
         <&> GameAction'
 
 boardToInPlaceCell ::
   InPlaceCellContext ->
   Model.Game ->
-  InPlaceActionizer (Spots.Player, Spots.Card) Action ->
-  -- | The target to which the card being dragged applies (if any)
+  Actionizer (Spots.Player, Spots.Card) Action ->
+  -- | The target to which the card being selected applies (if any)
   Maybe TargetType ->
   -- | The part considered
   Spots.Player ->
   -- | The spot of the card to show
   Spots.Card ->
   Styled (View Action)
-boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, interaction, shared} InPlaceActionizer {..} dragTargetType pSpot cSpot =
+boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, interaction, shared} Actionizer {..} selectedTargetType pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
@@ -221,7 +223,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         cardBoxShadowStyle rgb (borderWidth m target) "ease-in-out"
       ]
         ++ inPlaceEnterLeaveAttrs
-        ++ (dragTarget <&> dragDropEvents & concat)
+        ++ (selectionTarget <&> dropEvents & concat)
     )
     <$> do
       fades <- fadeouts shared (z + 1) attackEffect
@@ -237,21 +239,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
                     { hover = beingHovered,
                       PCWViewInternal.fade = Board.fade attackEffect
                     }
-            v <- cardView loc z shared t (CreatureCard mkCoreCardCommon creature) cdsty
-            -- "pointer-events: none" turns off handling of drag/drog
-            -- events. Without that, on full-fledged cards, children
-            -- would trigger GameDragLeave/GameDragEnter events (because the
-            -- parent 'v' declares them) which disturbs dropping
-            -- of neutral cards.
-            let attr =
-                  case dragTargetType of
-                    -- Not dragging, don't disable nested events: we want hover
-                    -- to be handled. Also, for consistency with hand, do
-                    -- not make text selectable
-                    Nothing -> noDrag
-                    -- Dragging: disable nested events (see above)
-                    Just _ -> style_ $ "pointer-events" =: "none"
-            pure $ Just $ div_ [attr] [v]
+            Just <$> cardView loc z shared t (CreatureCard mkCoreCardCommon creature) cdsty
       return $ maybeToList cards ++ maybeToList fades ++ heartw ++ heartg ++ attackg
   where
     part = Board.toPart board pSpot
@@ -260,8 +248,8 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
     maybeCreature = Board.toInPlaceCreature board pSpot cSpot
     inPlaceEnterLeaveAttrs =
-      -- If dragging we don't need to handle in place hovering
-      case (maybeCreature, dragTarget) of
+      -- If there's a selection we don't need to handle in place hovering
+      case (maybeCreature, selectionTarget) of
         (Just _, Nothing) ->
           [ onMouseEnter' "card" $ onMouseEnter (pSpot, cSpot),
             onMouseLeave' "card" $ onMouseLeave (pSpot, cSpot),
@@ -271,7 +259,8 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
     target = Game.CardTarget pSpot cSpot
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
-    beingHovered = interaction == HoverInteraction (Model.InPlace (pSpot, cSpot))
+    beingHovered =
+      Model.toHover interaction == Just (Model.InPlace (Game.CardTarget pSpot cSpot))
     attackEffect =
       (Board.toInPlace anims pSpot) Map.!? cSpot
         & fromMaybe mempty
@@ -280,8 +269,8 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         | Board.attackBump attackEffect
       ]
     rgb = targetBorderRGB interaction target
-    dragTarget =
-      case (dragTargetType, maybeCreature) of
+    selectionTarget =
+      case (selectedTargetType, maybeCreature) of
         (Just (CardTargetType Hole), Nothing) -> Just target
         (Just (CardTargetType Occupied), Just _) -> Just target
         _ -> Nothing
@@ -320,7 +309,7 @@ boardToPlayerTarget z m@Model.Game {interaction} dragTargetType pSpot =
           ( [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
               cardBoxShadowStyle rgb bwidth "ease-in-out"
             ]
-              ++ (dragDropEvents <$> dragTarget & concat)
+              ++ (dragTarget <&> dropEvents & concat)
           )
           []
   where
@@ -336,22 +325,20 @@ boardToPlayerTarget z m@Model.Game {interaction} dragTargetType pSpot =
         Just PlayerTargetType -> Just target
         _ -> Nothing
 
--- | The events for placeholders showing drag targets
-dragDropEvents :: Game.Target -> [Attribute Action]
-dragDropEvents target =
-  [ onDragEnter $ lift $ Move.DragEnter target,
-    onDragLeave $ lift $ Move.DragLeave target,
-    onDrop (AllowDrop True) $ lift Move.Drop,
-    dummyOn "dragover"
+-- | The events for placeholders showing drop targets
+dropEvents :: Game.Target -> [Attribute Action]
+dropEvents target =
+  [ onClick $ GameAction' $ (Move.Selection (Model.InPlace target))
+  -- TODO @smelc Replug once InHand/InPlace is merged in Move
+  -- Miso.onMouseEnter $ GameAction' $ (Move.InPlaceMouseEnter target)
   ]
-  where
-    lift = GameAction' . Move.DnD
 
 -- | The border color of a target
-targetBorderRGB :: Eq a => Interaction a -> a -> (Int, Int, Int)
+targetBorderRGB :: Eq a => Interaction a -> Game.Target -> (Int, Int, Int)
 targetBorderRGB interaction target =
   case interaction of
-    DragInteraction Dragging {dragTarget} | dragTarget == Just target -> yellowRGB
+    Model.HoverInteraction (Model.InPlace t) | t == target -> yellowRGB
+    Model.HoverSelectionInteraction (Model.InPlace t) _ | t == target -> yellowRGB
     _ -> greenRGB
 
 boardToInHandCells ::
@@ -369,15 +356,10 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
     safeLast l = if null l then Nothing else Just $ last l
     zicreatures' = map (\(a, (b, c)) -> (a, b, c)) zicreatures
     actionizer =
-      HandActionizer
-        { onDragStart = Move.DnD . Move.DragStart,
-          onDragEnd = Move.DnD Move.DragEnd,
-          inPlaceActionizer =
-            InPlaceActionizer
-              { onMouseEnter = Move.InHandMouseEnter,
-                onMouseLeave = Move.InHandMouseLeave,
-                onSelection = Move.Selection . Model.InHand
-              }
+      Actionizer
+        { onMouseEnter = Move.InHandMouseEnter,
+          onMouseLeave = Move.InHandMouseLeave,
+          onSelection = Move.Selection . Model.InHand
         }
         <&> GameAction'
 
@@ -401,25 +383,14 @@ toHandDrawingInput m@Model.Game {interaction = gInteraction, ..} =
     part = Board.toPart board playingPlayer
     (mana, team) = (Board.mana part, Board.team part)
 
--- | Events on in place cards: hovering
-data InPlaceActionizer a b = InPlaceActionizer
+-- | Events on cards
+data Actionizer a b = Actionizer
   { -- The event to raise when hovering a card
     onMouseEnter :: a -> b,
     -- The event to raise when stopping hovering a card
     onMouseLeave :: a -> b,
     -- The event to raise when clicking on a card
     onSelection :: a -> b
-  }
-  deriving (Functor)
-
--- | Events on cards in hand
-data HandActionizer a b = HandActionizer
-  { -- The event to raise when hovering a card
-    inPlaceActionizer :: InPlaceActionizer a b,
-    -- The event to raise when starting to drag a card
-    onDragStart :: a -> b,
-    -- The event to raise when stopping hovering a card
-    onDragEnd :: b
   }
   deriving (Functor)
 
@@ -447,7 +418,7 @@ data HandDrawingInput = HandDrawingInput
 
 boardToInHandCell ::
   HandDrawingInput ->
-  HandActionizer Board.HandIndex Action ->
+  Actionizer Board.HandIndex Action ->
   -- The z-index when the card is on top of others
   Int ->
   -- The z-index, the card, the index in the hand
@@ -455,23 +426,23 @@ boardToInHandCell ::
   Styled (View Action)
 boardToInHandCell
   HandDrawingInput {mana = availMana, ..}
-  HandActionizer {inPlaceActionizer = InPlaceActionizer {..}, ..}
+  Actionizer {..}
   bigZ
   (z, card, i) = do
-    card <- cardView loc (if beingHovered || beingDragged || beingSelected then bigZ else z) shared team card cdsty
-    return $ div_ attrs [card | not beingDragged]
+    card <- cardView loc (if beingHovered || beingSelected then bigZ else z) shared team card cdsty
+    return $ div_ attrs [card]
     where
-      (beingHovered, beingDragged, beingSelected) =
-        case interaction of
-          Just (DragInteraction Dragging {draggedCard}) -> (False, draggedCard == i, False)
-          Just (HoverInteraction (Model.InHand hoveredCard)) -> (hoveredCard == i, False, False)
-          Just (HoverInteraction (Model.InPlace _)) -> (False, False, False)
-          Just NoInteraction -> (False, False, False)
-          Just (SelectionInteraction (Model.InHand j)) -> (False, False, i == j)
-          Just (SelectionInteraction (Model.InPlace {})) -> (False, False, False)
-          Just (ShowErrorInteraction _) -> (False, False, False)
-          Nothing -> (False, False, False)
-      loc = (if beingDragged then GameDragLoc else GameHandLoc) labeler
+      beingHovered =
+        case interaction <&> Model.toHover & join of
+          Just (Model.InHand hoveredCard) -> hoveredCard == i
+          Just (Model.InPlace _) -> False
+          Nothing -> False
+      beingSelected =
+        case interaction <&> Model.toSelection & join of
+          Just (Model.InHand j) -> i == j
+          Just (Model.InPlace {}) -> False
+          Nothing -> False
+      loc = GameHandLoc labeler
       rightmargin = cps * 2
       hgap = (cardHCellGap * cps) `div` 2 -- The horizontal space between two cards
       i' = Board.unHandIndex i
@@ -492,9 +463,6 @@ boardToInHandCell
       fade = if (map snd hand !! Board.unHandIndex i) then Constants.FadeIn else Constants.DontFade
       attrs =
         [ style_ $ cardPositionStyle' x' y',
-          prop "draggable" True,
-          Miso.onDragStart $ onDragStart i,
-          Miso.onDragEnd onDragEnd,
           class_ "card",
           onMouseEnter' "card" $ onMouseEnter i,
           onMouseLeave' "card" $ onMouseLeave i,

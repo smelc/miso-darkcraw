@@ -63,7 +63,8 @@ data DisplayLocation
   = GameApplicationLoc ManaShower
   | GameInPlaceLoc ManaShower Total.Place
   | GameHandLoc ManaShower
-  | GameDragLoc ManaShower
+  | -- | TODO @smelc remove?
+    GameDragLoc ManaShower
   | DeckLoc ManaShower
   | LootLoc ManaShower
 
@@ -183,11 +184,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fade} =
     manaDiv =
       case drawMana of
         False -> []
-        True ->
-          pure $
-            div_
-              [style_ manaTextStyle, style_ manaColorStyle]
-              [Miso.text mana]
+        True -> [div_ [style_ manaTextStyle, style_ manaColorStyle] [Miso.text mana]]
     builder attrs =
       div_ (attrs ++ extraAttrs) $
         [div_ [style_ avatarPicStyle] [avatarPicCell]]
@@ -409,18 +406,23 @@ cardBackground ::
   Team ->
   CardDrawStyle ->
   View Action
-cardBackground z team CardDrawStyle {overlay, hover} =
+cardBackground z team CardDrawStyle {overlay, hover, selected} =
   div_
-    [style_ $ sty1 <> sty2]
+    [style_ $ posSty <> borderSty]
     $ [mkImgCellwh (Constants.cardBackground (ms . stringToLower $ show team))]
       ++ (maybeToList $ mkImgCellwh <$> overlayToFilename overlay)
   where
     mkImgCellwh filename = imgCellwh filename cardPixelWidth cardPixelHeight (Just Absolute)
-    sty1 = zpwh z Absolute cardPixelWidth cardPixelHeight
-    sty2 =
-      if hover
-        then "outline" =: (ms borderSize <> "px solid red")
-        else mempty
+    posSty = zpwh z Absolute cardPixelWidth cardPixelHeight
+    borderSty =
+      case color of Nothing -> mempty; Just c -> "outline" =: (ms borderSize <> "px solid " <> c)
+      where
+        color =
+          case (hover, selected) of
+            -- If both hovered and selected, selection has precedence
+            (_, True) -> Just Constants.yellowHTML
+            (True, _) -> Just Constants.redHTML
+            _ -> Nothing
     stringToLower str = [toLower c | c <- str]
     overlayToFilename :: BorderOverlay -> Maybe MisoString
     overlayToFilename = \case

@@ -112,32 +112,13 @@
 <li class="src short">
 <a href="#v:logUpdates">logUpdates</a> :: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Control-Monad.html#t:Monad" title="Control.Monad">Monad</a> m, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a, <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> a) =&gt; (<a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a) -&gt; <a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a</li>
 <li class="src short">
-<span class="keyword">class</span> <a href="#t:Interactable">Interactable</a> m t mseq | m -&gt; t, m -&gt; mseq <span class="keyword">where</span><ul class="subs">
-<li>
-<a href="#v:considerAction">considerAction</a> :: m -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> t -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
-</li>
-<li>
-<a href="#v:drop">drop</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; m -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; t -&gt; n mseq</li>
-<li>
-<a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: m -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a>
-</li>
-<li>
-<a href="#v:stopWrongDrop">stopWrongDrop</a> :: m -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
-</li>
-<li>
-<a href="#v:updateDefault">updateDefault</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; mseq</li>
-<li>
-<a href="#v:withInteraction">withInteraction</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; m</li>
-</ul>
-</li>
-<li class="src short">
-<a href="#v:act">act</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; <span class="keyword">forall</span> m t mseq. <a href="Update.html#t:Interactable" title="Update">Interactable</a> m t mseq =&gt; m -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> t -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; n mseq</li>
-<li class="src short">
 <a href="#v:singleton">singleton</a> :: a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> a</li>
 <li class="src short">
 <a href="#v:nextSchedToMiso">nextSchedToMiso</a> :: <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:Action" title="Update">Action</a>)]</li>
 <li class="src short">
 <a href="#v:playOne">playOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
+<li class="src short">
+<a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a)</li>
 <li class="src short">
 <a href="#v:updateGameModel">updateGameModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Move" title="Move">Move</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 <li class="src short">
@@ -529,43 +510,6 @@
 </table></details></div>
 </div>
 <div class="top"><p class="src"><a id="v:logUpdates" class="def">logUpdates</a> :: (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Control-Monad.html#t:Monad" title="Control.Monad">Monad</a> m, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a, <a href="file:///nix/store/72zhqqvj7hprnmg73g4nc8lb6b1p89kd-tree-diff-0.0.2.1-doc/share/doc/tree-diff-0.0.2.1/html/Data-TreeDiff-Class.html#t:ToExpr" title="Data.TreeDiff.Class">ToExpr</a> a) =&gt; (<a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a) -&gt; <a href="Update.html#t:Action" title="Update">Action</a> -&gt; a -&gt; m a <a href="#v:logUpdates" class="selflink">#</a></p></div>
-<div class="top">
-<p class="src"><span class="keyword">class</span> <a id="t:Interactable" class="def">Interactable</a> m t mseq | m -&gt; t, m -&gt; mseq <span class="keyword">where</span> <a href="#t:Interactable" class="selflink">#</a></p>
-<div class="doc"><p>Class defining the behavior of updating <code>m</code> w.r.t. <code><a href="Model.html#t:Interaction" title="Model">Interaction</a></code>
- and <code>DnDAction</code></p></div>
-<div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a id="v:considerAction" class="def">considerAction</a> :: m -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> t -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
-<p class="src"><a id="v:drop" class="def">drop</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; m -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; t -&gt; n mseq <a href="#v:drop" class="selflink">#</a></p>
-<div class="doc"><p>What to do when dropping card at given index, on the given <code>t</code> target
- The spot indicates the player whose card is being played</p></div>
-<p class="src"><a id="v:getPlayingPlayer" class="def">getPlayingPlayer</a> :: m -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
-<p class="src"><a id="v:stopWrongDrop" class="def">stopWrongDrop</a> :: m -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
-<div class="doc"><p>When to stop a dropping action</p></div>
-<p class="src"><a id="v:updateDefault" class="def">updateDefault</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; mseq <a href="#v:updateDefault" class="selflink">#</a></p>
-<div class="doc"><p>The default behavior</p></div>
-<p class="src"><a id="v:withInteraction" class="def">withInteraction</a> :: m -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; m <a href="#v:withInteraction" class="selflink">#</a></p>
-<div class="doc"><p>How to update the abstract state <code>m</code> with the given <code><a href="Model.html#t:Interaction" title="Model">Interaction</a></code></p></div>
-</div>
-<div class="subs instances"><details id="i:Interactable" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:ic:Interactable:Interactable:1"></span> <a href="Update.html#t:Interactable" title="Update">Interactable</a> <a href="Model.html#t:Game" title="Model">Game</a> <a href="Game.html#t:Target" title="Game">Target</a> (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</span> <a href="#t:Interactable" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:ic:Interactable:Interactable:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:considerAction">considerAction</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
-<p class="src"><a href="#v:drop">drop</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; n (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:drop" class="selflink">#</a></p>
-<p class="src"><a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
-<p class="src"><a href="#v:stopWrongDrop">stopWrongDrop</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
-<p class="src"><a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:updateDefault" class="selflink">#</a></p>
-<p class="src"><a href="#v:withInteraction">withInteraction</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:withInteraction" class="selflink">#</a></p>
-</div></details></td></tr>
-</table></details></div>
-</div>
-<div class="top"><p class="src"><a id="v:act" class="def">act</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; <span class="keyword">forall</span> m t mseq. <a href="Update.html#t:Interactable" title="Update">Interactable</a> m t mseq =&gt; m -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> t -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> t -&gt; n mseq <a href="#v:act" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:singleton" class="def">singleton</a> :: a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> a <a href="#v:singleton" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:nextSchedToMiso" class="def">nextSchedToMiso</a> :: <a href="Move.html#t:NextSched" title="Move">NextSched</a> -&gt; [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:Action" title="Update">Action</a>)] <a href="#v:nextSchedToMiso" class="selflink">#</a></p>
@@ -573,8 +517,37 @@
  passed to <code><a href="Update.html#v:delayActions" title="Update">delayActions</a></code>.</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:playOne" class="def">playOne</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Game.html#t:Event" title="Game">Event</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:playOne" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:updateDefault" class="def">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a) <a href="#v:updateDefault" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:updateGameModel" class="def">updateGameModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Move" title="Move">Move</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:updateGameModel" class="selflink">#</a></p>
+<p class="src"><a id="v:updateGameModel" class="def">updateGameModel</a> <a href="#v:updateGameModel" class="selflink">#</a></p>
+<div class="subs arguments">
+<p class="caption">Arguments</p>
+<table>
+<tr>
+<td class="src">:: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; <a href="Model.html#t:Game" title="Model">Game</a>
+</td>
+<td class="doc"><p>The existing model</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Move.html#t:Move" title="Move">Move</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a>
+</td>
+<td class="doc"><p>The existing interaction within <code>m</code>. TODO @smelc remove me.</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
 <div class="doc"><p>We MUST return <code>Sched</code> as the second element (as opposed to
  <code><a href="Game.html#t:Event" title="Game">Event</a></code>). This is used for <code>GameIncrTurn</code> for example.
  The second element must only contain delayed stuff, it's invalid

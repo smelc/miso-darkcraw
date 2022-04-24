@@ -262,3 +262,6 @@ yellowHTML = "#FFFF00"
 
 yellowRGB :: (Int, Int, Int)
 yellowRGB = (255, 255, 0)
+
+whiteHTML :: MisoString
+whiteHTML = "#FFFFFF"

@@ -18,7 +18,6 @@
 -- 'Update', to reduce the length of the latter.
 module Move
   ( Actor (..),
-    DnDAction (..),
     Kernel (board),
     mkSimKernel,
     Move (..),
@@ -81,25 +80,10 @@ data Sched
     Sequence (NonEmpty Sched)
   deriving (Show, Eq)
 
--- | Drag and drop actions
-data DnDAction a
-  = -- | Dragging card in hand ends. When a successful drop is done,
-    -- this event is fired right after 'Drop'. We rely on that. If Drop
-    -- was fired last, we would miss it. Be careful on untested browsers.
-    DragEnd
-  | -- | Dragging card in hand
-    DragStart Board.HandIndex
-  | -- | In 'GameView', this can play the 'GamePlayEvent' 'Place'
-    Drop
-  | DragEnter a
-  | DragLeave a
-  deriving (Show, Eq)
-
--- | Actions that are raised by 'GameView'
+-- | Actions that are raised by 'GameView'. TODO @smelc merge the @InHand@
+-- and @InPlace@ constructors.
 data Move
-  = -- | A drag an drop event
-    DnD (DnDAction Game.Target)
-  | -- | Starting hovering card in hand
+  = -- | Starting hovering card in hand
     InHandMouseEnter Board.HandIndex
   | -- | Ending hovering card in hand
     InHandMouseLeave Board.HandIndex

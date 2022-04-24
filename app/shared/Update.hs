@@ -21,6 +21,7 @@ import Cinema
 import qualified Command
 import qualified Constants
 import qualified Constants (Difficulty)
+import qualified Contains
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
@@ -130,83 +131,6 @@ logUpdates update action model = do
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
 
--- | Class defining the behavior of updating 'm' w.r.t. 'Interaction'
--- and 'DnDAction'
-class Interactable m t mseq | m -> t, m -> mseq where
-  considerAction :: m -> Move.DnDAction t -> Bool
-
-  -- | What to do when dropping card at given index, on the given 't' target
-  -- The spot indicates the player whose card is being played
-  drop ::
-    MonadError Text.Text n =>
-    m ->
-    Spots.Player ->
-    Board.HandIndex ->
-    t ->
-    n mseq
-
-  getPlayingPlayer :: m -> Spots.Player
-
-  -- | When to stop a dropping action
-  stopWrongDrop :: m -> Bool
-
-  -- | The default behavior
-  updateDefault :: m -> Interaction t -> mseq
-
-  -- | How to update the abstract state 'm' with the given 'Interaction'
-  withInteraction :: m -> Interaction t -> m
-
-act ::
-  MonadError Text.Text n =>
-  forall m t mseq.
-  Interactable m t mseq =>
-  m ->
-  Move.DnDAction t ->
-  Interaction t ->
-  n mseq
-act m a i =
-  case (considerAction m a, a, i) of
-    (False, _, _) -> pure $ updateDefault m NoInteraction
-    (_, Move.DragEnd, _) -> pure $ updateDefault m NoInteraction
-    (_, Move.DragStart j, _) ->
-      pure $ updateDefault m $ DragInteraction $ Dragging j Nothing
-    (_, Move.Drop, DragInteraction Dragging {draggedCard, dragTarget = Just dragTarget}) ->
-      Update.drop
-        m
-        pSpot
-        draggedCard
-        dragTarget
-      where
-        pSpot = getPlayingPlayer m
-    (_, Move.Drop, _) | stopWrongDrop m -> pure $ updateDefault m NoInteraction
-    -- DragEnter cannot create a DragInteraction if there's none yet, we don't
-    -- want to keep track of drag targets if a drag action did not start yet
-    (_, Move.DragEnter t, DragInteraction dragging) ->
-      pure $ updateDefault m $ DragInteraction $ dragging {dragTarget = Just t}
-    (_, Move.DragLeave _, DragInteraction dragging) ->
-      pure $ updateDefault m $ DragInteraction $ dragging {dragTarget = Nothing}
-    _ -> pure $ updateDefault m i
-
-instance Interactable Model.Game Game.Target (Model.Game, NextSched) where
-  considerAction m@Model.Game {uiAvail} a =
-    case a of
-      Move.DragEnd -> True
-      Move.DragStart _ | uiAvail && isPlayerTurn m -> True
-      Move.DragStart _ -> False
-      Move.Drop -> True
-      Move.DragEnter _ -> isPlayerTurn m
-      Move.DragLeave _ -> isPlayerTurn m
-
-  drop m pSpot idx target = playOne m $ Game.PEvent $ Game.Place pSpot target idx
-
-  getPlayingPlayer Model.Game {turn} = Turn.toPlayerSpot turn
-
-  stopWrongDrop m = isPlayerTurn m
-
-  updateDefault m i = (withInteraction m i, Nothing)
-
-  withInteraction g i = g {interaction = i}
-
 singleton :: a -> NonEmpty a
 singleton x = x NE.:| []
 
@@ -217,13 +141,11 @@ nextSchedToMiso ns =
   maybeToList $
     fmap (\(n, ga) -> (Nat.natToInt n & toSecs, GameAction' $ Move.Sched ga)) ns
 
-playOne ::
-  MonadError Text.Text m =>
-  Model.Game ->
-  Game.Event ->
-  m (Model.Game, NextSched)
-playOne m event =
-  updateGameModel m (Move.Sched $ Move.Play event) NoInteraction
+playOne :: MonadError Text.Text m => Model.Game -> Game.Event -> m (Model.Game, NextSched)
+playOne m event = updateGameModel m (Move.Sched $ Move.Play event) NoInteraction
+
+updateDefault :: Model.Game -> Model.Interaction (Game.Target) -> (Model.Game, Maybe a)
+updateDefault m i = (m `Contains.with` i, Nothing)
 
 -- | We MUST return 'Sched' as the second element (as opposed to
 -- 'Game.Event'). This is used for 'GameIncrTurn' for example.
@@ -235,8 +157,10 @@ playOne m event =
 -- right away by doing a recursive call (or use 'playOne')
 updateGameModel ::
   MonadError Text.Text m =>
+  -- | The existing model
   Model.Game ->
   Move ->
+  -- | The existing interaction within @m@. TODO @smelc remove me.
   Interaction Game.Target ->
   m (Model.Game, NextSched)
 -- This is the only definition that should care about GameShowErrorInteraction:
@@ -246,26 +170,40 @@ updateGameModel m (Move.Sched s) _ =
   -- This is the only definition that should care about Move.Sched
   Move.prodRunOneModel s m
 -- Now onto "normal" stuff:
-updateGameModel m (Move.DnD a@Move.DragEnd) i = act m a i
-updateGameModel m (Move.DnD a@(Move.DragStart _)) i = act m a i
-updateGameModel m (Move.DnD a@Move.Drop) i = act m a i
-updateGameModel m (Move.DnD a@(Move.DragEnter _)) i = act m a i
-updateGameModel m (Move.DnD a@(Move.DragLeave _)) i = act m a i
 -- A GamePlayEvent to execute.
 -- Hovering in hand cards
-updateGameModel m (Move.InHandMouseEnter i) NoInteraction =
-  pure $ updateDefault m $ HoverInteraction (Model.InHand i)
-updateGameModel m (Move.InHandMouseLeave _) _ =
-  pure $ updateDefault m NoInteraction
+updateGameModel m (Move.InHandMouseEnter i) i' =
+  pure $ updateDefault m $ Model.addHover (Model.InHand i) i'
+updateGameModel m (Move.InHandMouseLeave _) i =
+  pure $ updateDefault m $ Model.rmHover i
 -- Hovering in place cards
-updateGameModel m (Move.InPlaceMouseEnter spots) NoInteraction =
-  pure $ updateDefault m $ HoverInteraction (Model.InPlace spots)
-updateGameModel m (Move.InPlaceMouseLeave _) _ =
-  pure $ updateDefault m NoInteraction
+updateGameModel m (Move.InPlaceMouseEnter (p, c)) i =
+  pure $ updateDefault m $ Model.addHover (Model.InPlace (Game.CardTarget p c)) i
+updateGameModel m (Move.InPlaceMouseLeave _) i =
+  pure $ updateDefault m $ Model.rmHover i
 -- Selecting cards.
-updateGameModel m (Move.Selection s) NoInteraction =
-  pure $ updateDefault m $ SelectionInteraction s
--- Debug cmd
+updateGameModel m (Move.Selection ik1) (SelectionInteraction ik2)
+  | ik1 == ik2 =
+      -- Toggle selection
+      pure $ updateDefault m NoInteraction
+updateGameModel m (Move.Selection ik1) i@(HoverSelectionInteraction _ ik2)
+  | ik1 == ik2 =
+      -- Toggle selection
+      pure $ updateDefault m $ Model.rmSelection i
+updateGameModel m@Model.Game {uiAvail} (Move.Selection _) _
+  | not uiAvail =
+      -- Clear selection, because UI is unavailable
+      pure $ updateDefault m NoInteraction
+updateGameModel
+  m@Model.Game {turn}
+  (Move.Selection (Model.InPlace target))
+  (SelectionInteraction (Model.InHand idx)) = do
+    -- Selection in place happens while card in hand is selected: trying to play the hand card
+    playOne m $ Game.PEvent $ Game.Place pSpot target idx
+    where
+      pSpot = Turn.toPlayerSpot turn
+updateGameModel m (Move.Selection x) i = do
+  pure $ updateDefault m $ Model.addSelection x i
 updateGameModel m Move.ExecuteCmd _ =
   pure $
     updateDefault m $
@@ -275,9 +213,10 @@ updateGameModel m@Model.Game {shared} (Move.UpdateCmd misoStr) i =
     updateDefault
       ((m {shared = Shared.withCmd shared (Just $ fromMisoString misoStr)}) :: Model.Game)
       i
+
 -- default
-updateGameModel m _ i =
-  pure $ updateDefault m i
+-- updateGameModel m _ i =
+--   pure $ updateDefault m i
 
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel

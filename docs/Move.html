@@ -44,25 +44,12 @@
 </ul>
 </li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:DnDAction">DnDAction</a> a<ul class="subs">
-<li>= <a href="#v:DragEnd">DragEnd</a>
-</li>
-<li>| <a href="#v:DragStart">DragStart</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
-</li>
-<li>| <a href="#v:Drop">Drop</a>
-</li>
-<li>| <a href="#v:DragEnter">DragEnter</a> a</li>
-<li>| <a href="#v:DragLeave">DragLeave</a> a</li>
-</ul>
-</li>
-<li class="src short">
 <span class="keyword">data</span> <a href="#t:Kernel">Kernel</a> a</li>
 <li class="src short">
 <a href="#v:mkSimKernel">mkSimKernel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Turn.html#t:T" title="Turn">T</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> ()</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Move">Move</a><ul class="subs">
-<li>= <a href="#v:DnD">DnD</a> (<a href="Move.html#t:DnDAction" title="Move">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</li>
-<li>| <a href="#v:InHandMouseEnter">InHandMouseEnter</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+<li>= <a href="#v:InHandMouseEnter">InHandMouseEnter</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
 </li>
 <li>| <a href="#v:InHandMouseLeave">InHandMouseLeave</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
 </li>
@@ -122,66 +109,6 @@
 </tr>
 </table>
 </div>
-</div>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:DnDAction" class="def">DnDAction</a> a <a href="#t:DnDAction" class="selflink">#</a></p>
-<div class="doc"><p>Drag and drop actions</p></div>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src"><a id="v:DragEnd" class="def">DragEnd</a></td>
-<td class="doc"><p>Dragging card in hand ends. When a successful drop is done,
- this event is fired right after <code><a href="Move.html#v:Drop" title="Move">Drop</a></code>. We rely on that. If Drop
- was fired last, we would miss it. Be careful on untested browsers.</p></td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:DragStart" class="def">DragStart</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
-</td>
-<td class="doc"><p>Dragging card in hand</p></td>
-</tr>
-<tr>
-<td class="src"><a id="v:Drop" class="def">Drop</a></td>
-<td class="doc"><p>In <code>GameView</code>, this can play the <code>GamePlayEvent</code> <code>Place</code></p></td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:DragEnter" class="def">DragEnter</a> a</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:DragLeave" class="def">DragLeave</a> a</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:DnDAction" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DnDAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> a =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> (<a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a)</span> <a href="#t:DnDAction" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DnDAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DnDAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> (<a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a)</span> <a href="#t:DnDAction" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DnDAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Move.html">Move</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Move.html#t:DnDAction" title="Move">DnDAction</a> a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-</table></details></div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Kernel" class="def">Kernel</a> a <a href="#t:Kernel" class="selflink">#</a></p>
@@ -278,15 +205,11 @@
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Move" class="def">Move</a> <a href="#t:Move" class="selflink">#</a></p>
-<div class="doc"><p>Actions that are raised by <code>GameView</code></p></div>
+<div class="doc"><p>Actions that are raised by <code>GameView</code>. TODO <code>smelc merge the </code>InHand<code>
+ and </code>InPlace@ constructors.</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
-<tr>
-<td class="src">
-<a id="v:DnD" class="def">DnD</a> (<a href="Move.html#t:DnDAction" title="Move">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a>)</td>
-<td class="doc"><p>A drag an drop event</p></td>
-</tr>
 <tr>
 <td class="src">
 <a id="v:InHandMouseEnter" class="def">InHandMouseEnter</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
@@ -446,21 +369,6 @@
 <p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
 <p class="src"><a href="#v:show">show</a> :: <a href="Move.html#t:Sched" title="Move">Sched</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
 <p class="src"><a href="#v:showList">showList</a> :: [<a href="Move.html#t:Sched" title="Move">Sched</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Sched:Interactable:3"></span> <a href="Update.html#t:Interactable" title="Update">Interactable</a> <a href="Model.html#t:Game" title="Model">Game</a> <a href="Game.html#t:Target" title="Game">Target</a> (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</span> <a href="#t:Interactable" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Sched:Interactable:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:considerAction">considerAction</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:DnDAction" title="Move">DnDAction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:considerAction" class="selflink">#</a></p>
-<p class="src"><a href="#v:drop">drop</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> n =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:HandIndex" title="Board">HandIndex</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; n (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:drop" class="selflink">#</a></p>
-<p class="src"><a href="#v:getPlayingPlayer">getPlayingPlayer</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> <a href="#v:getPlayingPlayer" class="selflink">#</a></p>
-<p class="src"><a href="#v:stopWrongDrop">stopWrongDrop</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:stopWrongDrop" class="selflink">#</a></p>
-<p class="src"><a href="#v:updateDefault">updateDefault</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>) <a href="#v:updateDefault" class="selflink">#</a></p>
-<p class="src"><a href="#v:withInteraction">withInteraction</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Model.html#t:Interaction" title="Model">Interaction</a> <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a> <a href="#v:withInteraction" class="selflink">#</a></p>
 </div></details></td></tr>
 </table></details></div>
 </div>

@@ -343,8 +343,8 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
     plusFrames =
       textFrames
         animName
-        (plusFontSize, "#FF0000", False)
-        (plusFontSize', "#FFFFFF", True)
+        (plusFontSize, Constants.redHTML, False)
+        (plusFontSize', Constants.whiteHTML, True)
     plusBuilder x = div_ x [Miso.text $ ms ("+" :: MisoString) <> ms (show plusValue)]
 
 -- | Draw border around target if:
@@ -355,11 +355,11 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
 borderWidth :: Model.Game -> Game.Target -> Int
 borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
-    (DragInteraction Dragging {draggedCard}, _) | cond draggedCard -> 3
-    (HoverInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> 3
-    (SelectionInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> 3
-    (HoverInteraction (Model.InPlace spot), _) -> inPlaceCase spot pTarget
-    (SelectionInteraction (Model.InPlace spot), _) -> inPlaceCase spot pTarget
+    (HoverInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> borderSize
+    (SelectionInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> borderSize
+    (HoverSelectionInteraction (Model.InHand hoveredCard) _, _) | cond hoveredCard -> borderSize
+    (HoverInteraction (Model.InPlace (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
+    (SelectionInteraction (Model.InPlace (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
     _ -> 0
   where
     inPlaceCase (spot :: (Spots.Player, Spots.Card)) (y :: Game.Target) =
