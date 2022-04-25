@@ -49,17 +49,15 @@
 <a href="#v:mkSimKernel">mkSimKernel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Turn.html#t:T" title="Turn">T</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Move.html#t:Kernel" title="Move">Kernel</a> ()</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Move">Move</a><ul class="subs">
-<li>= <a href="#v:InHandMouseEnter">InHandMouseEnter</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+<li>= <a href="#v:MouseEnter">MouseEnter</a> <a href="Model.html#t:Box" title="Model">Box</a>
 </li>
-<li>| <a href="#v:InHandMouseLeave">InHandMouseLeave</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+<li>| <a href="#v:MouseLeave">MouseLeave</a> <a href="Model.html#t:Box" title="Model">Box</a>
 </li>
-<li>| <a href="#v:InPlaceMouseEnter">InPlaceMouseEnter</a> (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</li>
-<li>| <a href="#v:InPlaceMouseLeave">InPlaceMouseLeave</a> (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</li>
 <li>| <a href="#v:ExecuteCmd">ExecuteCmd</a>
 </li>
 <li>| <a href="#v:Sched">Sched</a> <a href="Move.html#t:Sched" title="Move">Sched</a>
 </li>
-<li>| <a href="#v:Selection">Selection</a> <a href="Model.html#t:InteractionKind" title="Model">InteractionKind</a>
+<li>| <a href="#v:Selection">Selection</a> <a href="Model.html#t:Box" title="Model">Box</a>
 </li>
 <li>| <a href="#v:UpdateCmd">UpdateCmd</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
 </li>
@@ -205,32 +203,21 @@
 </div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Move" class="def">Move</a> <a href="#t:Move" class="selflink">#</a></p>
-<div class="doc"><p>Actions that are raised by <code>GameView</code>. TODO <code>smelc merge the </code>InHand<code>
- and </code>InPlace@ constructors.</p></div>
+<div class="doc"><p>Actions that are raised by <code>GameView</code></p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
 <tr>
 <td class="src">
-<a id="v:InHandMouseEnter" class="def">InHandMouseEnter</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+<a id="v:MouseEnter" class="def">MouseEnter</a> <a href="Model.html#t:Box" title="Model">Box</a>
 </td>
-<td class="doc"><p>Starting hovering card in hand</p></td>
+<td class="doc"><p>Starting hovering a box</p></td>
 </tr>
 <tr>
 <td class="src">
-<a id="v:InHandMouseLeave" class="def">InHandMouseLeave</a> <a href="Board.html#t:HandIndex" title="Board">HandIndex</a>
+<a id="v:MouseLeave" class="def">MouseLeave</a> <a href="Model.html#t:Box" title="Model">Box</a>
 </td>
-<td class="doc"><p>Ending hovering card in hand</p></td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:InPlaceMouseEnter" class="def">InPlaceMouseEnter</a> (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</td>
-<td class="doc"><p>Starting hovering a card in place</p></td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:InPlaceMouseLeave" class="def">InPlaceMouseLeave</a> (<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>)</td>
-<td class="doc"><p>Ending hovering a card in place</p></td>
+<td class="doc"><p>Ending hovering a box</p></td>
 </tr>
 <tr>
 <td class="src"><a id="v:ExecuteCmd" class="def">ExecuteCmd</a></td>
@@ -244,7 +231,7 @@
 </tr>
 <tr>
 <td class="src">
-<a id="v:Selection" class="def">Selection</a> <a href="Model.html#t:InteractionKind" title="Model">InteractionKind</a>
+<a id="v:Selection" class="def">Selection</a> <a href="Model.html#t:Box" title="Model">Box</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>

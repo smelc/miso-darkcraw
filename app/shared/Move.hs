@@ -80,22 +80,17 @@ data Sched
     Sequence (NonEmpty Sched)
   deriving (Show, Eq)
 
--- | Actions that are raised by 'GameView'. TODO @smelc merge the @InHand@
--- and @InPlace@ constructors.
+-- | Actions that are raised by 'GameView'
 data Move
-  = -- | Starting hovering card in hand
-    InHandMouseEnter Board.HandIndex
-  | -- | Ending hovering card in hand
-    InHandMouseLeave Board.HandIndex
-  | -- | Starting hovering a card in place
-    InPlaceMouseEnter (Spots.Player, Spots.Card)
-  | -- | Ending hovering a card in place
-    InPlaceMouseLeave (Spots.Player, Spots.Card)
+  = -- | Starting hovering a box
+    MouseEnter Box
+  | -- | Ending hovering a box
+    MouseLeave Box
   | -- | Execute a command (dev mode only)
     ExecuteCmd
   | -- | A schedulable event
     Sched Sched
-  | Selection Model.InteractionKind
+  | Selection Model.Box
   | -- | Update the command to execute soon (dev mode only)
     UpdateCmd MisoString
   deriving (Show, Eq)

@@ -101,11 +101,11 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
         <> "background-image" =: assetsUrl (Theme.hand theme)
     selectedTargetType :: Maybe Card.TargetType =
       case Model.toSelection interaction of
-        Just (Model.InHand (Board.HandIndex idx)) ->
+        Just (Model.BoxHand (Board.HandIndex idx)) ->
           case Board.getpk @'Board.Hand playingPlayer board & flip Board.lookupHand idx of
             Left err -> traceShow ("viewGameModel: " ++ Text.unpack err) Nothing
             Right id -> Just $ targetType id
-        Just (Model.InPlace {}) -> Nothing
+        Just (Model.BoxTarget {}) -> Nothing
         Nothing -> Nothing
 
 -- | mkTargetOffset returns the offset to display the application of
@@ -193,12 +193,13 @@ boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} selectedTar
       keyframes (bumpAnim upOrDown) bumpInit [(50, bump50 upOrDown)] bumpInit
     actionizer =
       Actionizer
-        { onMouseEnter = Move.InPlaceMouseEnter,
-          onMouseLeave = Move.InPlaceMouseLeave,
-          onSelection = \(pSpot, cSpot) ->
-            Move.Selection $ Model.InPlace $ Game.CardTarget pSpot cSpot
+        { onMouseEnter = Move.MouseEnter . f,
+          onMouseLeave = Move.MouseLeave . f,
+          onSelection = Move.Selection . f
         }
         <&> GameAction'
+      where
+        f = Model.BoxTarget . uncurry Game.CardTarget
 
 boardToInPlaceCell ::
   InPlaceCellContext ->
@@ -260,7 +261,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
     bumpAnim upOrDown = ms $ "bump" ++ (if upOrDown then "Up" else "Down")
     upOrDown = case pSpot of PlayerTop -> False; PlayerBot -> True
     beingHovered =
-      Model.toHover interaction == Just (Model.InPlace (Game.CardTarget pSpot cSpot))
+      Model.toHover interaction == Just (Model.BoxTarget (Game.CardTarget pSpot cSpot))
     attackEffect =
       (Board.toInPlace anims pSpot) Map.!? cSpot
         & fromMaybe mempty
@@ -328,7 +329,7 @@ boardToPlayerTarget z m@Model.Game {interaction} dragTargetType pSpot =
 -- | The events for placeholders showing drop targets
 dropEvents :: Game.Target -> [Attribute Action]
 dropEvents target =
-  [ onClick $ GameAction' $ (Move.Selection (Model.InPlace target))
+  [ onClick $ GameAction' $ (Move.Selection (Model.BoxTarget target))
   -- TODO @smelc Replug once InHand/InPlace is merged in Move
   -- Miso.onMouseEnter $ GameAction' $ (Move.InPlaceMouseEnter target)
   ]
@@ -337,8 +338,8 @@ dropEvents target =
 targetBorderRGB :: Interaction -> Game.Target -> (Int, Int, Int)
 targetBorderRGB interaction target =
   case interaction of
-    Model.HoverInteraction (Model.InPlace t) | t == target -> yellowRGB
-    Model.HoverSelectionInteraction (Model.InPlace t) _ | t == target -> yellowRGB
+    Model.HoverInteraction (Model.BoxTarget t) | t == target -> yellowRGB
+    Model.HoverSelectionInteraction (Model.BoxTarget t) _ | t == target -> yellowRGB
     _ -> greenRGB
 
 boardToInHandCells ::
@@ -357,9 +358,9 @@ boardToInHandCells z hdi@HandDrawingInput {hand} =
     zicreatures' = map (\(a, (b, c)) -> (a, b, c)) zicreatures
     actionizer =
       Actionizer
-        { onMouseEnter = Move.InHandMouseEnter,
-          onMouseLeave = Move.InHandMouseLeave,
-          onSelection = Move.Selection . Model.InHand
+        { onMouseEnter = Move.MouseEnter . Model.BoxHand,
+          onMouseLeave = Move.MouseLeave . Model.BoxHand,
+          onSelection = Move.Selection . Model.BoxHand
         }
         <&> GameAction'
 
@@ -434,13 +435,13 @@ boardToInHandCell
     where
       beingHovered =
         case interaction <&> Model.toHover & join of
-          Just (Model.InHand hoveredCard) -> hoveredCard == i
-          Just (Model.InPlace _) -> False
+          Just (Model.BoxHand hoveredCard) -> hoveredCard == i
+          Just (Model.BoxTarget {}) -> False
           Nothing -> False
       beingSelected =
         case interaction <&> Model.toSelection & join of
-          Just (Model.InHand j) -> i == j
-          Just (Model.InPlace {}) -> False
+          Just (Model.BoxHand j) -> i == j
+          Just (Model.BoxTarget {}) -> False
           Nothing -> False
       loc = GameHandLoc labeler
       rightmargin = cps * 2

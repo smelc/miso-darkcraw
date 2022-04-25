@@ -31,38 +31,39 @@ import qualified Shared
 import qualified Spots
 import qualified Turn
 
--- | What kind of things is hovered on/selected (== clicked on)
-data InteractionKind
-  = -- | Something from the hand is selected
-    InHand Board.HandIndex
-  | -- | Something on the board is selected
-    InPlace Game.Target
+-- | Things that can be hovered or selected.
+data Box
+  = -- Card in hand
+    BoxHand Board.HandIndex
+  | -- | Player part/card
+    BoxTarget Game.Target
   deriving (Show, Eq)
 
--- | An interaction happening in the game page.
+-- | An interaction happening in the game page. TODO @smelc remove
+-- @Interaction@ suffix of constructors and move to new file?
 data Interaction
   = -- | Hovering over a card in hand/in place
-    HoverInteraction InteractionKind
+    HoverInteraction Box
   | -- | Hovering over something while there is a selection. If there
     -- is only hovering, then 'HoverInteraction' is used. If there is
     -- only a selection, then 'SelectionInteraction' is used.
-    HoverSelectionInteraction InteractionKind InteractionKind
+    HoverSelectionInteraction Box Box
   | NoInteraction
-  | SelectionInteraction InteractionKind
+  | SelectionInteraction Box
   | ShowErrorInteraction Text.Text
   deriving (Eq, Generic, Show)
 
 -- | The hovering interaction, if any
-toHover :: Interaction -> Maybe InteractionKind
+toHover :: Interaction -> Maybe Box
 toHover = \case
-  HoverInteraction ik -> Just ik
-  HoverSelectionInteraction ik _ -> Just ik
+  HoverInteraction b -> Just b
+  HoverSelectionInteraction b _ -> Just b
   NoInteraction -> Nothing
   SelectionInteraction _ -> Nothing
   ShowErrorInteraction _ -> Nothing
 
 -- | The selection interaction, if any
-toSelection :: Interaction -> Maybe InteractionKind
+toSelection :: Interaction -> Maybe Box
 toSelection = \case
   HoverInteraction _ -> Nothing
   HoverSelectionInteraction _ ik -> Just ik
@@ -71,14 +72,14 @@ toSelection = \case
   ShowErrorInteraction _ -> Nothing
 
 -- | @addHover ik i@ adds the hover interaction @ik@ to @i@
-addHover :: InteractionKind -> Interaction -> Interaction
-addHover ik i =
+addHover :: Box -> Interaction -> Interaction
+addHover b i =
   case i of
-    NoInteraction -> HoverInteraction ik
-    HoverInteraction _ -> HoverInteraction ik
-    HoverSelectionInteraction _ s -> HoverSelectionInteraction ik s
-    SelectionInteraction s -> HoverSelectionInteraction ik s
-    ShowErrorInteraction {} -> HoverInteraction ik
+    NoInteraction -> HoverInteraction b
+    HoverInteraction _ -> HoverInteraction b
+    HoverSelectionInteraction _ s -> HoverSelectionInteraction b s
+    SelectionInteraction s -> HoverSelectionInteraction b s
+    ShowErrorInteraction {} -> HoverInteraction b
 
 -- | @rmHover i@ removes the hover interaction from i
 rmHover :: Interaction -> Interaction
@@ -91,14 +92,14 @@ rmHover =
     x@(ShowErrorInteraction {}) -> x
 
 -- | @addSelection s i@ adds the selection interaction @s@ to @i@
-addSelection :: InteractionKind -> Interaction -> Interaction
-addSelection ik i =
+addSelection :: Box -> Interaction -> Interaction
+addSelection b i =
   case i of
-    NoInteraction -> SelectionInteraction ik
-    HoverInteraction hi -> HoverSelectionInteraction hi ik
-    HoverSelectionInteraction hi _ -> HoverSelectionInteraction hi ik
-    SelectionInteraction _ -> SelectionInteraction ik
-    ShowErrorInteraction {} -> SelectionInteraction ik
+    NoInteraction -> SelectionInteraction b
+    HoverInteraction hi -> HoverSelectionInteraction hi b
+    HoverSelectionInteraction hi _ -> HoverSelectionInteraction hi b
+    SelectionInteraction _ -> SelectionInteraction b
+    ShowErrorInteraction {} -> SelectionInteraction b
 
 -- | @rmSelection i@ removes the selection interaction from @i@
 rmSelection :: Interaction -> Interaction

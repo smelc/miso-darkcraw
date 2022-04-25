@@ -355,11 +355,11 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
 borderWidth :: Model.Game -> Game.Target -> Int
 borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
   case (interaction, pTarget) of
-    (HoverInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> borderSize
-    (SelectionInteraction (Model.InHand hoveredCard), _) | cond hoveredCard -> borderSize
-    (HoverSelectionInteraction (Model.InHand hoveredCard) _, _) | cond hoveredCard -> borderSize
-    (HoverInteraction (Model.InPlace (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
-    (SelectionInteraction (Model.InPlace (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
+    (HoverInteraction (Model.BoxHand hoveredCard), _) | cond hoveredCard -> borderSize
+    (SelectionInteraction (Model.BoxHand hoveredCard), _) | cond hoveredCard -> borderSize
+    (HoverSelectionInteraction (Model.BoxHand hoveredCard) _, _) | cond hoveredCard -> borderSize
+    (HoverInteraction (Model.BoxTarget (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
+    (SelectionInteraction (Model.BoxTarget (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
     _ -> 0
   where
     inPlaceCase (spot :: (Spots.Player, Spots.Card)) (y :: Game.Target) =
