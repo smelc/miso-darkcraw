@@ -827,7 +827,7 @@ applyLeader pSpot cSpot board =
       let scoreChange = leader skills
           effect = mempty {Board.scoreChange = natToInt scoreChange}
       reportEffect pSpot cSpot effect
-      -- TODO @smelc make 'applyInPlaceEffectOnBoard' use the score
+      -- TODO @smelc make 'applyEffectOnBoard' use the score
       -- and call it here.
       return $ Board.mappk @'Board.Score ((+) scoreChange) pSpot board
   where
@@ -896,11 +896,9 @@ applyPlagueM ::
   Spots.Player ->
   m (Board.T 'Core)
 applyPlagueM board pSpot = do
-  -- Record plague-specific animation
-  traverse_ (\(cSpot, c) -> reportEffect pSpot cSpot $ plagueEffect c) $ Map.toList affecteds
   -- Apply plague on every affected spot, triggering generic core and UI effects
   foldM
-    (\b (cSpot, c) -> applyInPlaceEffectOnBoard (plagueEffect c) b (pSpot, cSpot, c))
+    (\b (cSpot, c) -> applyEffectOnBoard (plagueEffect c) b (pSpot, cSpot, c))
     board
     (Map.toList affecteds)
   where
@@ -1502,10 +1500,9 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
   (flyingSpot, effect@Board.InPlaceEffect {death, extra}) <-
     singleAttack (place, hitter) (hitPlace, hit) & runWriterT
   board <-
-    applyInPlaceEffectOnBoard effect board (hitPspot, hitSpot, hit)
+    applyEffectOnBoard effect board (hitPspot, hitSpot, hit)
       <&> moveFlyerFun flyingSpot
   reportEffect pSpot cSpot $ mempty {Board.attackBump = True} -- make hitter bump
-  reportEffect hitPspot hitSpot effect -- hittee
   for_ flyingSpot (\flyingSpot -> reportEffect hitPspot flyingSpot flyingToEffect) -- fly to spot effect
   board <-
     if Board.isDead death
@@ -1537,7 +1534,9 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
       Just flyingSpot -> Mechanics.move (Mechanics.mkEndoMove hitPspot hitSpot flyingSpot)
     flyingToEffect = mempty {Board.fade = Constants.FadeIn}
 
-applyInPlaceEffectOnBoard ::
+-- | Apply the given effect, that applies to a creature being hit. Does
+-- both core changes (returned board) and UI changes (@MonadWriter@).
+applyEffectOnBoard ::
   MonadWriter (Board.T 'UI) m =>
   -- | The effect of the attacker on the hittee
   Board.InPlaceEffect ->
@@ -1547,11 +1546,12 @@ applyInPlaceEffectOnBoard ::
   (Spots.Player, Spots.Card, Creature 'Core) ->
   -- | The updated board
   m (Board.T 'Core)
-applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) = do
+applyEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) = do
   tell decoEffect
+  reportEffect pSpot cSpot effect
   return $ board & updateHittee & updateDiscarded & updateDeco
   where
-    hittee' = applyInPlaceEffect effect hittee
+    hittee' = applyEffect effect hittee
     updateHittee = Board.update pSpot cSpot (const hittee')
     updateDiscarded =
       case hittee' of
@@ -1567,14 +1567,14 @@ applyInPlaceEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureI
             Board.insert pSpot cSpot Constants.FadeIn mempty
           )
 
-applyInPlaceEffect ::
+applyEffect ::
   -- | The effect of the attacker on the hittee
   Board.InPlaceEffect ->
   -- | The creature being hit
   Creature 'Core ->
   -- | The creature being hit, after applying the effect; or None if dead
   Maybe (Creature 'Core)
-applyInPlaceEffect effect creature@Creature {..} =
+applyEffect effect creature@Creature {..} =
   case effect of
     Board.InPlaceEffect {death} | Board.isDead death -> Nothing
     Board.InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
