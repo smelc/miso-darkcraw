@@ -36,6 +36,7 @@ import qualified Data.Set as Set
 import Data.Text (Text)
 import Data.Tuple.Extra (both)
 import Debug.Trace (trace, traceShow)
+import qualified Effect
 import GHC.Base (assert)
 import Game (Target (..))
 import qualified Game hiding (Playable (..))
@@ -294,13 +295,13 @@ testAIPlace shared =
 testInPlaceEffectsMonoid =
   describe "InPlaceEffects is a well behaved Monoid" $ do
     prop "mempty <> effects == effect" $
-      \(effect :: Board.InPlaceEffects) ->
+      \(effect :: Effect.InPlaceEffects) ->
         mempty <> effect `shouldBe` effect
     prop "effects <> mempty == effect" $
-      \(effect :: Board.InPlaceEffects) ->
+      \(effect :: Effect.InPlaceEffects) ->
         effect <> mempty `shouldBe` effect
     prop "effects <> effects' == effects' <> effects (modulo fadeOut)" $
-      \(effect :: Board.InPlaceEffects, effect') ->
+      \(effect :: Effect.InPlaceEffects, effect') ->
         let (e1, e2) = rmCommonFadeout effect effect'
          in e1 <> e2 `shouldBe` e1 <> e2
   where
@@ -312,11 +313,11 @@ testInPlaceEffectsMonoid =
         )
         Spots.allCards
     nonEmptyFadeout Nothing = False
-    nonEmptyFadeout (Just effect) = not $ null $ Board.fadeOut effect
+    nonEmptyFadeout (Just effect) = not $ null $ Effect.fadeOut effect
     rmCommonFadeout e1 e2 | hasCommonFadeout e1 e2 = (rmFadeout e1, e2)
     rmCommonFadeout e1 e2 = (e1, e2)
     rmFadeout effects =
-      Map.map (\effect -> effect {Board.fadeOut = []}) effects
+      Map.map (\effect -> effect {Effect.fadeOut = []}) effects
 
 testPlayScoreMonotonic shared =
   describe "boardScore is monotonic w.r.t. Game.play" $

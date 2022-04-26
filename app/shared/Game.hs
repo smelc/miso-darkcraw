@@ -89,6 +89,7 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.Tuple (swap)
 import Debug.Trace
+import qualified Effect
 import GHC.Generics (Generic)
 import qualified Mana
 import qualified Mechanics
@@ -305,9 +306,9 @@ instance Semigroup StatChange where
 instance Monoid StatChange where
   mempty = StatChange {attackDiff = 0, hpDiff = 0}
 
-changeToEffect :: StatChange -> Board.InPlaceEffect
+changeToEffect :: StatChange -> Effect.InPlaceEffect
 changeToEffect StatChange {attackDiff, hpDiff} =
-  mempty {Board.attackChange = natToInt attackDiff, Board.hitPointsChange = natToInt hpDiff}
+  mempty {Effect.attackChange = natToInt attackDiff, Effect.hitPointsChange = natToInt hpDiff}
 
 apply :: StatChange -> Creature p -> Creature p
 apply StatChange {attackDiff, hpDiff} c@Creature {attack, hp} =
@@ -317,7 +318,7 @@ reportEffect ::
   MonadWriter (Board.T 'UI) m =>
   Spots.Player ->
   Spots.Card ->
-  Board.InPlaceEffect ->
+  Effect.InPlaceEffect ->
   m ()
 reportEffect pSpot cSpot effect =
   tell $ Board.T {playerTop = pTop, playerBottom = pBot}
@@ -669,16 +670,16 @@ playNeutralM board _playingPlayer target n =
             <&> (\cSpot -> Attack pSpot cSpot True False)
     (Health, CardTarget pSpot cSpot) -> do
       let increase = 1
-      reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
+      reportEffect pSpot cSpot (mempty {Effect.hitPointsChange = increase})
       return (addHitpoints pSpot cSpot increase, Nothing)
     (HuntingHorn, PlayerTarget pSpot) -> do
       -- TODO @smelc return an Animation.Message value
-      let forests = Board.toPart board pSpot & Board.deco & Map.filter ((==) Board.Forest) & Map.keys
+      let forests = Board.toPart board pSpot & Board.deco & Map.filter ((==) Effect.Forest) & Map.keys
           board' = Board.adjustMany @(Creature 'Core) pSpot forests (addSkill Skill.FearTmp) board
       return (board', Nothing)
     (Life, CardTarget pSpot cSpot) -> do
       let increase = 3
-      reportEffect pSpot cSpot (mempty {Board.hitPointsChange = increase})
+      reportEffect pSpot cSpot (mempty {Effect.hitPointsChange = increase})
       return (addHitpoints pSpot cSpot increase, Nothing)
     (Pandemonium, PlayerTarget pSpot) -> do
       -- Take existing creatures
@@ -688,7 +689,7 @@ playNeutralM board _playingPlayer target n =
       -- Put existing creatures on new spots
       let board' = Board.setInPlace pSpot (Map.fromList $ zip spots creatures) board
       -- Report fadeIn effects on each new spot
-      traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {Board.fade = Constants.FadeIn})) spots
+      traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {Effect.fade = Constants.FadeIn})) spots
       return (board', Nothing)
     (Plague, PlayerTarget pSpot) -> do
       board' <- applyPlagueM board pSpot
@@ -697,7 +698,7 @@ playNeutralM board _playingPlayer target n =
       case Board.toInPlaceCreature board pSpot cSpot of
         Nothing -> return (board, Nothing)
         Just c@Creature {skills} -> do
-          reportEffect pSpot cSpot (mempty {Board.attackChange = Nat.natToInt Constants.strengthPotAttackBonus})
+          reportEffect pSpot cSpot (mempty {Effect.attackChange = Nat.natToInt Constants.strengthPotAttackBonus})
           let board' = Board.insert pSpot cSpot (c {skills = skills ++ [Skill.StrengthPot]}) board
           return (board', Nothing)
     _ -> throwError $ Text.pack $ "Wrong (Target, Neutral) combination: (" ++ show target ++ ", " ++ show n ++ ")"
@@ -752,7 +753,7 @@ playCreatureM shared board pSpot cSpot creature@Creature {skills} = do
           -- an event computed by the AI fail.
           throwError CannotPlaceCreature
         _ -> do
-          reportEffect pSpot c $ mempty {Board.fade = Constants.FadeIn} -- report creature addition effect
+          reportEffect pSpot c $ mempty {Effect.fade = Constants.FadeIn} -- report creature addition effect
           b <- pure $ Board.insert pSpot c creature b -- set creature
           b <- applyDiscipline b creature pSpot c
           b <- applyLeader pSpot c b
@@ -786,7 +787,7 @@ playItemM board pSpot cSpot item =
       | not (meetsRequirement item creature) ->
           throwError CannotPlaceItem
     Just creature -> do
-      reportEffect pSpot cSpot $ mempty {Board.fade = Constants.FadeIn}
+      reportEffect pSpot cSpot $ mempty {Effect.fade = Constants.FadeIn}
       -- TODO @smelc record animation for item arrival
       let creature' = installItem item creature
       return $ Board.insert pSpot cSpot creature' board
@@ -825,7 +826,7 @@ applyLeader pSpot cSpot board =
     Nothing -> pure board
     Just Creature {skills} -> do
       let scoreChange = leader skills
-          effect = mempty {Board.scoreChange = natToInt scoreChange}
+          effect = mempty {Effect.scoreChange = natToInt scoreChange}
       reportEffect pSpot cSpot effect
       -- TODO @smelc make 'applyEffectOnBoard' use the score
       -- and call it here.
@@ -903,9 +904,9 @@ applyPlagueM board pSpot = do
     (Map.toList affecteds)
   where
     affecteds :: Map.Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
-    baseEffect = mempty {Board.hitPointsChange = -1}
-    plagueEffect Creature {hp} | hp <= 1 = baseEffect {Board.death = Board.UsualDeath}
-    plagueEffect _ = baseEffect {Board.fadeOut = [Tile.HeartBroken]}
+    baseEffect = mempty {Effect.hitPointsChange = -1}
+    plagueEffect Creature {hp} | hp <= 1 = baseEffect {Effect.death = Effect.UsualDeath}
+    plagueEffect _ = baseEffect {Effect.fadeOut = [Tile.HeartBroken]}
 
 applySquire ::
   MonadWriter (Board.T 'UI) m =>
@@ -1195,9 +1196,9 @@ applyChurchM board pSpot = do
   effect <- Random.oneof allChurchEffects
   case effect of
     PlusOneAttack ->
-      go (\c@Creature {attack} -> c {Card.attack = attack +^ 1}) (mempty {Board.attackChange = 1})
+      go (\c@Creature {attack} -> c {Card.attack = attack +^ 1}) (mempty {Effect.attackChange = 1})
     PlusOneHealth ->
-      go (\c@Creature {hp} -> c {hp = hp + 1}) (mempty {Board.attackChange = 1})
+      go (\c@Creature {hp} -> c {hp = hp + 1}) (mempty {Effect.attackChange = 1})
     PlusOneMana -> do
       tell (Board.setpk @'Board.Mana pSpot 1 mempty)
       return $ Board.mappk @'Board.Mana ((+) 1) pSpot board
@@ -1230,7 +1231,7 @@ applyCreateForestM board pSpot = do
       board' <-
         board
           & Board.adjust @(Creature 'Core) pSpot priestSpot consume
-          & Board.insert pSpot forestSpot Board.Forest
+          & Board.insert pSpot forestSpot Effect.Forest
           & applySylvan pSpot forestSpot
       applyCreateForestM board' pSpot
   where
@@ -1264,10 +1265,10 @@ applySylvan pSpot cSpot board =
   case Board.toInPlaceCreature board pSpot cSpot of
     Nothing -> pure board
     Just c | not (c `has` (Skill.Sylvan :: Skill.State)) -> pure board
-    Just _ | (Board.toPart board pSpot & Board.deco & Map.lookup cSpot) /= Just (Board.Forest) -> pure board
+    Just _ | (Board.toPart board pSpot & Board.deco & Map.lookup cSpot) /= Just (Effect.Forest) -> pure board
     Just c@Creature {attack, hp} -> do
       let c' = c {Card.attack = attack Damage.+^ 1, hp = hp + 1}
-      reportEffect pSpot cSpot $ mempty {Board.attackChange = 1, Board.hitPointsChange = 1}
+      reportEffect pSpot cSpot $ mempty {Effect.attackChange = 1, Effect.hitPointsChange = 1}
       pure $ Board.insert pSpot cSpot c' board
 
 applyFearNTerror ::
@@ -1287,8 +1288,8 @@ applyFearNTerrorM ::
   Spots.Player ->
   m (Board.T 'Core)
 applyFearNTerrorM board affectingSpot = do
-  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy Board.DeathByTerror) terrorAffected
-  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy Board.DeathByFear) fearAffected
+  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy Effect.DeathByTerror) terrorAffected
+  traverse_ (\spot -> reportEffect affectedSpot spot $ deathBy Effect.DeathByFear) fearAffected
   return $
     board
       & Board.setInPlace affectedSpot affectedInPlace''
@@ -1342,7 +1343,7 @@ applyFearNTerrorM board affectingSpot = do
       -- consume skills
       Map.mapWithKey consumeTerror affectingInPlace
         & Map.mapWithKey consumeFear
-    deathBy cause = mempty {Board.death = cause}
+    deathBy cause = mempty {Effect.death = cause}
     consumeFear cSpot c | cSpot `notElem` fearKillers = c
     consumeFear _ c@Creature {skills} = c {skills = consumeFearSkill skills}
     consumeFearSkill [] = []
@@ -1367,9 +1368,9 @@ applyGrowthM board pSpot cSpot =
   case Board.toInPlaceCreature board pSpot cSpot of
     Nothing -> return board
     Just (Creature {skills}) | (Skill.Growth True) `notElem` skills -> return board
-    Just _ | Map.lookup cSpot deco /= (Just Board.Forest) -> return board
+    Just _ | Map.lookup cSpot deco /= (Just Effect.Forest) -> return board
     Just c@(Creature {attack, skills, hp}) -> do
-      let effect = mempty {Board.attackChange = 1, Board.hitPointsChange = 1}
+      let effect = mempty {Effect.attackChange = 1, Effect.hitPointsChange = 1}
           c' = c {Card.attack = attack +^ 1, hp = hp + 1, skills = consume skills}
       reportEffect pSpot cSpot effect
       return $ Board.insert pSpot cSpot c' board
@@ -1438,8 +1439,8 @@ attack board pSpot cSpot =
             Nothing -> do
               -- Imprecise creature targets an empty spot, report attack
               -- and exposion.
-              reportEffect pSpot cSpot $ mempty {Board.attackBump = True}
-              reportEffect attackeePSpot attackedSpot $ mempty {Board.fadeOut = [Tile.Explosion]}
+              reportEffect pSpot cSpot $ mempty {Effect.attackBump = True}
+              reportEffect attackeePSpot attackedSpot $ mempty {Effect.fadeOut = [Tile.Explosion]}
               pure board -- No change
             Just attacked ->
               -- Imprecise creature attacks an occupied spot
@@ -1454,7 +1455,7 @@ attack board pSpot cSpot =
               -- Creature can attack an enemy spot, but it is empty: contributed to the score
               let place = Total.mkPlace board pSpot cSpot
               hit :: Nat <- deal $ Total.attack (Just place) hitter
-              reportEffect pSpot cSpot $ mempty {Board.attackBump = True, Board.scoreChange = natToInt hit}
+              reportEffect pSpot cSpot $ mempty {Effect.attackBump = True, Effect.scoreChange = natToInt hit}
               return $ Board.mappk @'Board.Score ((+) hit) pSpot board
             else do
               -- or something to attack; attack it
@@ -1497,15 +1498,15 @@ attackOneSpot ::
   (Creature 'Core, Spots.Card) ->
   m (Board.T 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
-  (flyingSpot, effect@Board.InPlaceEffect {death, extra}) <-
+  (flyingSpot, effect@Effect.InPlaceEffect {death, extra}) <-
     singleAttack (place, hitter) (hitPlace, hit) & runWriterT
   board <-
     applyEffectOnBoard effect board (hitPspot, hitSpot, hit)
       <&> moveFlyerFun flyingSpot
-  reportEffect pSpot cSpot $ mempty {Board.attackBump = True} -- make hitter bump
+  reportEffect pSpot cSpot $ mempty {Effect.attackBump = True} -- make hitter bump
   for_ flyingSpot (\flyingSpot -> reportEffect hitPspot flyingSpot flyingToEffect) -- fly to spot effect
   board <-
-    if Board.isDead death
+    if Effect.isDead death
       then applyFlailOfTheDamned board hitter pSpot
       else pure board
   let behind b =
@@ -1532,14 +1533,14 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
     moveFlyerFun = \case
       Nothing -> id
       Just flyingSpot -> Mechanics.move (Mechanics.mkEndoMove hitPspot hitSpot flyingSpot)
-    flyingToEffect = mempty {Board.fade = Constants.FadeIn}
+    flyingToEffect = mempty {Effect.fade = Constants.FadeIn}
 
 -- | Apply the given effect, that applies to a creature being hit. Does
 -- both core changes (returned board) and UI changes (@MonadWriter@).
 applyEffectOnBoard ::
   MonadWriter (Board.T 'UI) m =>
   -- | The effect of the attacker on the hittee
-  Board.InPlaceEffect ->
+  Effect.InPlaceEffect ->
   -- | The input board
   Board.T 'Core ->
   -- | The creature being hit
@@ -1558,26 +1559,26 @@ applyEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, item
         Just _ -> id
         Nothing | Card.transient hittee -> id -- Dont' put transient hittee in discarded stack
         Nothing -> Board.mappk @'Board.Discarded (++ [IDC creatureId items]) pSpot
-    decoChange = Board.decoChange effect
+    decoChange = Effect.decoChange effect
     (updateDeco, decoEffect :: Board.T 'UI) =
       case decoChange of
-        Board.NoDecoChange -> (id, mempty)
-        Board.Appears deco ->
+        Effect.NoDecoChange -> (id, mempty)
+        Effect.Appears deco ->
           ( Board.insert pSpot cSpot deco,
             Board.insert pSpot cSpot Constants.FadeIn mempty
           )
 
 applyEffect ::
   -- | The effect of the attacker on the hittee
-  Board.InPlaceEffect ->
+  Effect.InPlaceEffect ->
   -- | The creature being hit
   Creature 'Core ->
   -- | The creature being hit, after applying the effect; or None if dead
   Maybe (Creature 'Core)
 applyEffect effect creature@Creature {..} =
   case effect of
-    Board.InPlaceEffect {death} | Board.isDead death -> Nothing
-    Board.InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
+    Effect.InPlaceEffect {death} | Effect.isDead death -> Nothing
+    Effect.InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
 
 applyFlailOfTheDamned ::
   MonadWriter (Board.T 'UI) m =>
@@ -1611,7 +1612,7 @@ applyFlailOfTheDamned board creature pSpot =
           let spawned' = spawned {transient = True}
           let board' = Board.insert pSpot spawningSpot spawned' board
           -- TODO @smelc record an animation highlighting the flail
-          reportEffect pSpot spawningSpot $ mempty {Board.fade = Constants.FadeIn}
+          reportEffect pSpot spawningSpot $ mempty {Effect.fade = Constants.FadeIn}
           return board'
   where
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
@@ -1622,7 +1623,7 @@ type AtPlace = (Total.Place, Creature 'Core)
 -- | The effect of an attack on the defender. Note that this function
 -- cannot return a 'StatChange'. It needs the full expressivity of 'InPlaceEffect'.
 singleAttack ::
-  MonadWriter Board.InPlaceEffect m =>
+  MonadWriter Effect.InPlaceEffect m =>
   MonadState Shared.Model m =>
   -- | The attacker
   AtPlace ->
@@ -1639,31 +1640,31 @@ singleAttack
     hit :: Nat <- deal damage
     when (Skill.Ace `elem` skills) $ tell (fadeOut Tile.Arrow)
     when (Skill.Imprecise `elem` skills) $ tell (fadeOut Tile.Explosion)
-    when (Card.BowOfGaia `elem` items) $ tell (mempty {Board.decoChange = Board.Appears Board.Forest})
+    when (Card.BowOfGaia `elem` items) $ tell (mempty {Effect.decoChange = Effect.Appears Effect.Forest})
     case (flyingSpot) of
       Just flyingSpot -> do
         -- Attackee flies away
         tell $ fadeOut Tile.Wings
-        tell $ mempty {Board.extra = hit, Board.fade = Constants.FadeOut}
+        tell $ mempty {Effect.extra = hit, Effect.fade = Constants.FadeOut}
         return $ Just flyingSpot
       Nothing -> do
         -- Regular case (no flying involved)
         let afterHit :: Int = (natToInt (Card.hp defender)) - (natToInt hit)
             extra = if afterHit < 0 then Nat.intToNat (abs afterHit) else 0
             hps' :: Nat = Nat.intToClampedNat afterHit
-        tell $ mempty {Board.extra}
+        tell $ mempty {Effect.extra}
         tell $
           if hps' <= 0
-            then mempty {Board.death}
-            else mempty {Board.hitPointsChange = Nat.negate hit}
+            then mempty {Effect.death}
+            else mempty {Effect.hitPointsChange = Nat.negate hit}
         return Nothing
     where
       damage = Total.attack (Just place) attacker
       death =
         if any (\skill -> case skill of Skill.BreathIce -> True; _ -> False) skills
-          then Board.DeathByBreathIce
-          else Board.UsualDeath
-      fadeOut tile = mempty {Board.fadeOut = [tile]}
+          then Effect.DeathByBreathIce
+          else Effect.UsualDeath
+      fadeOut tile = mempty {Effect.fadeOut = [tile]}
 
 -- | Apply a 'Damage'
 deal :: MonadState Shared.Model m => Damage -> m Nat

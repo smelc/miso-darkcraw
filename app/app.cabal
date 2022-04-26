@@ -47,6 +47,7 @@ common common-all
     Contains
     Constants
     Damage
+    Effect
     Event
     Game
     HeuristicAI

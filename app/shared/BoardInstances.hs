@@ -17,6 +17,7 @@ import Constants
 import Data.Foldable
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
+import qualified Effect
 import Nat
 import qualified Skill
 import Spots
@@ -35,7 +36,7 @@ instance Startable (Board.PlayerPart 'Core) where
       -- the flag value, it's anyway simultaneously set to False.
       sumSources (_ : skills) = sumSources skills
       gaiaCloak cSpot Creature {items} =
-        case Map.lookup cSpot deco == Just Board.Forest of
+        case Map.lookup cSpot deco == Just Effect.Forest of
           True -> filter ((==) CloakOfGaia) items & natLength
           False -> 0
 

@@ -42,6 +42,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
+import qualified Effect
 import qualified Game
 import Miso hiding (at)
 import Miso.String hiding (length, map, null)
@@ -196,7 +197,7 @@ scorePluses board z pSpot = do
     scoreIncrease =
       Board.toInPlace board pSpot
         & Map.elems
-        & map (\InPlaceEffect {scoreChange} -> scoreChange)
+        & map (\Effect.InPlaceEffect {scoreChange} -> scoreChange)
         & sum
     leftMargin = ((Constants.boardToLeftCardCellsOffset + cardCellWidth) * cps) + cps `div` 2
 
@@ -332,7 +333,7 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
       Board.toPart board pSpot & getter & map (Card.unlift . Shared.unsafeIdentToCard shared)
     atColonSize = length deck
     pAnims = Board.toInPlace anims pSpot
-    nbDeaths = Map.foldr (\ae i -> i + (if (isDead . death) ae then 1 else 0)) 0 pAnims
+    nbDeaths = Map.foldr (\ae i -> i + (if (Effect.isDead . Effect.death) ae then 1 else 0)) 0 pAnims
     animName = "stackPlus"
     animData =
       (animationData animName "1s" "linear")
@@ -388,8 +389,8 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
         Right id -> Game.appliesTo board id playingPlayer pTarget
     handCard i = Board.lookupHand (Board.getpk @'Board.Hand playingPlayer board) i
 
-fadeouts :: Shared.Model -> Int -> InPlaceEffect -> Styled (Maybe (View Action))
-fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
+fadeouts :: Shared.Model -> Int -> Effect.InPlaceEffect -> Styled (Maybe (View Action))
+fadeouts shared z Effect.InPlaceEffect {death, fadeOut} = do
   death :: Maybe (View Action) <- case deadAsset of
     Nothing -> pure Nothing
     Just asset -> sequence $ Just $ f (builder asset)
@@ -410,11 +411,11 @@ fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
       ]
     deadAsset :: Maybe MisoString =
       case death of
-        DeathByBreathIce -> Just assetFilenameSnowflake
-        DeathByTerror -> Just assetFilenameShade
-        DeathByFear -> Just assetFilenameGhost
-        NoDeath -> Nothing
-        UsualDeath -> Just assetFilenameSkull
+        Effect.DeathByBreathIce -> Just assetFilenameSnowflake
+        Effect.DeathByTerror -> Just assetFilenameShade
+        Effect.DeathByFear -> Just assetFilenameGhost
+        Effect.NoDeath -> Nothing
+        Effect.UsualDeath -> Just assetFilenameSkull
     sty = pltwh Absolute left top imgw imgh
     (imgw, imgh) :: (Int, Int) = (cellPixelSize, imgw)
     left = (cardPixelWidth - imgw) `div` 2
@@ -429,7 +430,7 @@ fadeouts shared z Board.InPlaceEffect {death, fadeOut} = do
         { animDataFillMode = Just "forwards"
         }
 
-heartWobble :: Int -> InPlaceEffect -> Styled [View Action]
+heartWobble :: Int -> Effect.InPlaceEffect -> Styled [View Action]
 heartWobble z ae =
   sequence
     [ keyframed
@@ -440,7 +441,7 @@ heartWobble z ae =
         let animData = createAnimData delay
     ]
   where
-    hpc = hitPointsChange ae
+    hpc = Effect.hitPointsChange ae
     hpLoss = hpc < 0
     delay = 250 -- The delay between each wobbling heart, milliseconds
     delays =
@@ -458,8 +459,8 @@ heartWobble z ae =
 
 data StatChangeKind = HitPoint | Attack
 
-statChange :: Int -> StatChangeKind -> InPlaceEffect -> Styled [View Action]
-statChange z sck ae =
+statChange :: Int -> StatChangeKind -> Effect.InPlaceEffect -> Styled [View Action]
+statChange z sck Effect.InPlaceEffect {attackChange, Effect.hitPointsChange} =
   sequence
     [ keyframed
         (builder x)
@@ -471,8 +472,8 @@ statChange z sck ae =
   where
     (change, animName, assetName) =
       case sck of
-        Attack -> (attackChange ae, "swordGain", assetFilenameSword)
-        HitPoint -> (hitPointsChange ae, "heartGain", assetFilenameHeart)
+        Attack -> (attackChange, "swordGain", assetFilenameSword)
+        HitPoint -> (hitPointsChange, "heartGain", assetFilenameHeart)
     sty xshift = pltwh Absolute (left + xshift) top imgw imgh <> "z-index" =: ms z
     (imgw, imgh) :: (Int, Int) = (seize, imgw)
     (left, top) = (case sck of HitPoint -> cps `div` 3; Attack -> 2 * cps, 0)

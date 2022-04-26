@@ -27,6 +27,7 @@ import qualified Data.Map.Strict as Map
 import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace (traceShow)
+import qualified Effect
 import Event
 import qualified Game
 import GameViewInternal
@@ -238,7 +239,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
             let cdsty :: CardDrawStyle =
                   mempty
                     { hover = beingHovered,
-                      PCWViewInternal.fade = Board.fade attackEffect
+                      PCWViewInternal.fade = Effect.fade attackEffect
                     }
             Just <$> cardView loc z shared t (CreatureCard mkCoreCardCommon creature) cdsty
       return $ maybeToList cards ++ maybeToList fades ++ heartw ++ heartg ++ attackg
@@ -267,7 +268,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
         & fromMaybe mempty
     bounceStyle =
       [ ("animation", bumpAnim upOrDown <> " 0.5s ease-in-out")
-        | Board.attackBump attackEffect
+        | Effect.attackBump attackEffect
       ]
     rgb = targetBorderRGB interaction target
     selectionTarget =

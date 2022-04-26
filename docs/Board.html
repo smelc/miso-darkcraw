@@ -34,82 +34,15 @@
 <a href="#v:appliesTo">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:DecoChange">DecoChange</a><ul class="subs">
-<li>= <a href="#v:NoDecoChange">NoDecoChange</a>
-</li>
-<li>| <a href="#v:Appears">Appears</a> <a href="Board.html#t:Deco" title="Board">Deco</a>
-</li>
-</ul>
-</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:Teams">Teams</a> a = <a href="#v:Teams">Teams</a> {<ul class="subs">
-<li>
-<a href="#v:topTeam">topTeam</a> :: a</li>
-<li>
-<a href="#v:botTeam">botTeam</a> :: a</li>
-</ul>}</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:InPlaceEffect">InPlaceEffect</a> = <a href="#v:InPlaceEffect">InPlaceEffect</a> {<ul class="subs">
-<li>
-<a href="#v:attackChange">attackChange</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
-</li>
-<li>
-<a href="#v:decoChange">decoChange</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a>
-</li>
-<li>
-<a href="#v:death">death</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a>
-</li>
-<li>
-<a href="#v:attackBump">attackBump</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
-</li>
-<li>
-<a href="#v:hitPointsChange">hitPointsChange</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
-</li>
-<li>
-<a href="#v:extra">extra</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a>
-</li>
-<li>
-<a href="#v:fade">fade</a> :: <a href="Constants.html#t:Fade" title="Constants">Fade</a>
-</li>
-<li>
-<a href="#v:fadeOut">fadeOut</a> :: [<a href="Tile.html#t:Tile" title="Tile">Tile</a>]</li>
-<li>
-<a href="#v:scoreChange">scoreChange</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
-</li>
-</ul>}</li>
-<li class="src short">
-<span class="keyword">type</span> <a href="#t:InPlaceEffects">InPlaceEffects</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Spots.html#t:Card" title="Spots">Card</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a>
-</li>
-<li class="src short">
-<span class="keyword">type family</span> <a href="#t:InPlaceType">InPlaceType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
+<span class="keyword">type family</span> <a href="#t:ManaType">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
 </li>
 <li class="src short">
 <a href="#v:bottomSpotOfTopVisual">bottomSpotOfTopVisual</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a>
 </li>
 <li class="src short">
-<a href="#v:setPart">setPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
+<a href="#v:empty">empty</a> :: Empty a b =&gt; a -&gt; b</li>
 <li class="src short">
-<a href="#v:toHoleyInPlace">toHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))]</li>
-<li class="src short">
-<a href="#v:toInPlaceCreature">toInPlaceCreature</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
-<li class="src short">
-<a href="#v:toPart">toPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:DeathCause">DeathCause</a><ul class="subs">
-<li>= <a href="#v:DeathByFear">DeathByFear</a>
-</li>
-<li>| <a href="#v:DeathByBreathIce">DeathByBreathIce</a>
-</li>
-<li>| <a href="#v:DeathByTerror">DeathByTerror</a>
-</li>
-<li>| <a href="#v:NoDeath">NoDeath</a>
-</li>
-<li>| <a href="#v:UsualDeath">UsualDeath</a>
-</li>
-</ul>
-</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:Deco">Deco</a> = <a href="#v:Forest">Forest</a>
+<span class="keyword">type family</span> <a href="#t:InPlaceType">InPlaceType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
 </li>
 <li class="src short">
 <a href="#v:initial">initial</a> :: <a href="file:///nix/store/p7i381iav33f1dwbgdzm8v2vynxr1lz5-random-1.1-doc/share/doc/random-1.1/html/System-Random.html#t:RandomGen" title="System.Random">RandomGen</a> r =&gt; r -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; (r, <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
@@ -151,6 +84,18 @@
 </ul>
 </li>
 <li class="src short">
+<a href="#v:neighbors">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:Neighborhood">Neighborhood</a><ul class="subs">
+<li>= <a href="#v:Cardinal">Cardinal</a>
+</li>
+<li>| <a href="#v:Diagonal">Diagonal</a>
+</li>
+<li>| <a href="#v:All">All</a>
+</li>
+</ul>
+</li>
+<li class="src short">
 <span class="keyword">class</span> <a href="#t:PlayerKindIndexed">PlayerKindIndexed</a> (k :: <a href="Board.html#t:Kind" title="Board">Kind</a>) p a <span class="keyword">where</span><ul class="subs">
 <li>
 <a href="#v:getpk">getpk</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; a</li>
@@ -186,9 +131,12 @@
 <a href="#v:small">small</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> <a href="Card.html#t:Team" title="Card">Team</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 <li class="src short">
-<a href="#v:empty">empty</a> :: Empty a b =&gt; a -&gt; b</li>
-<li class="src short">
 <a href="#v:setInPlace">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
+<li class="src short">
+<a href="#v:setPart">setPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p</li>
+<li class="src short">
+<a href="#v:switchLine">switchLine</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a>
+</li>
 <li class="src short">
 <a href="#v:toInPlace">toInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p</li>
 <li class="src short">
@@ -204,17 +152,12 @@
 </ul>
 </li>
 <li class="src short">
-<a href="#v:neighbors">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:Neighborhood">Neighborhood</a><ul class="subs">
-<li>= <a href="#v:Cardinal">Cardinal</a>
-</li>
-<li>| <a href="#v:Diagonal">Diagonal</a>
-</li>
-<li>| <a href="#v:All">All</a>
-</li>
-</ul>
-</li>
+<span class="keyword">data</span> <a href="#t:Teams">Teams</a> a = <a href="#v:Teams">Teams</a> {<ul class="subs">
+<li>
+<a href="#v:topTeam">topTeam</a> :: a</li>
+<li>
+<a href="#v:botTeam">botTeam</a> :: a</li>
+</ul>}</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:T">T</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) = <a href="#v:T">T</a> {<ul class="subs">
 <li>
@@ -223,320 +166,37 @@
 <a href="#v:playerBottom">playerBottom</a> :: <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
 </ul>}</li>
 <li class="src short">
+<a href="#v:toHoleyInPlace">toHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))]</li>
+<li class="src short">
+<a href="#v:toInPlaceCreature">toInPlaceCreature</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
+<li class="src short">
+<a href="#v:toPart">toPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p</li>
+<li class="src short">
 <a href="#v:toPlayerHoleyInPlace">toPlayerHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))]</li>
 <li class="src short">
 <a href="#v:toNeighbors">toNeighbors</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)]</li>
 <li class="src short">
 <a href="#v:toPlayerCardSpots">toPlayerCardSpots</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Card.html#t:CardTargetKind" title="Card">CardTargetKind</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
-<a href="#v:isDead">isDead</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
-</li>
-<li class="src short">
 <a href="#v:toData">toData</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; a</li>
-<li class="src short">
-<span class="keyword">type family</span> <a href="#t:ManaType">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span>
-</li>
-<li class="src short">
-<a href="#v:switchLine">switchLine</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a>
-</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
 <div class="top"><p class="src"><a id="v:appliesTo" class="def">appliesTo</a> :: <a href="Card.html#t:ID" title="Card">ID</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:appliesTo" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:DecoChange" class="def">DecoChange</a> <a href="#t:DecoChange" class="selflink">#</a></p>
-<div class="doc"><p>A change in the value of the <code><a href="Board.html#v:deco" title="Board">deco</a></code> map</p></div>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src"><a id="v:NoDecoChange" class="def">NoDecoChange</a></td>
-<td class="doc"><p>No change</p></td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:Appears" class="def">Appears</a> <a href="Board.html#t:Deco" title="Board">Deco</a>
-</td>
-<td class="doc"><p>A new <code><a href="Board.html#t:Deco" title="Board">Deco</a></code> appears</p></td>
-</tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:DecoChange" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DecoChange:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a></span> <a href="#t:DecoChange" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DecoChange:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DecoChange:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a></span> <a href="#t:DecoChange" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DecoChange:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:DecoChange" title="Board">DecoChange</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DecoChange:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a></span> <a href="#t:DecoChange" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DecoChange:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
-<p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
-</div> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> x -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> <a href="#v:to" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DecoChange:Semigroup:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a></span> <a href="#t:DecoChange" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DecoChange:Semigroup:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> <a href="#v:-60--62-" class="selflink">#</a></p>
-<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> <a href="#v:sconcat" class="selflink">#</a></p>
-<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> <a href="#v:stimes" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DecoChange:Monoid:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a></span> <a href="#t:DecoChange" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DecoChange:Monoid:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:mempty">mempty</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> <a href="#v:mempty" class="selflink">#</a></p>
-<p class="src"><a href="#v:mappend">mappend</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> <a href="#v:mappend" class="selflink">#</a></p>
-<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="Board.html#t:DecoChange" title="Board">DecoChange</a>] -&gt; <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> <a href="#v:mconcat" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DecoChange:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a></span> <a href="#t:DecoChange" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DecoChange:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "DecoChange" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "NoDecoChange" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Appears" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-TypeLits.html#t:Symbol" title="GHC.TypeLits">Symbol</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="Board.html#t:Deco" title="Board">Deco</a>)))</div></details></td></tr>
-</table></details></div>
-</div>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:Teams" class="def">Teams</a> a <a href="#t:Teams" class="selflink">#</a></p>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src"><a id="v:Teams" class="def">Teams</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><div class="subs fields">
-<p class="caption">Fields</p>
-<ul>
-<li>
-<dfn class="src"><a id="v:topTeam" class="def">topTeam</a> :: a</dfn><div class="doc empty">&nbsp;</div>
-</li>
-<li>
-<dfn class="src"><a id="v:botTeam" class="def">botTeam</a> :: a</dfn><div class="doc empty">&nbsp;</div>
-</li>
-</ul>
-</div></td></tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:Teams" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Functor:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Functor.html#t:Functor" title="Data.Functor">Functor</a> <a href="Board.html#t:Teams" title="Board">Teams</a></span> <a href="#t:Teams" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Teams:Functor:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:fmap">fmap</a> :: (a -&gt; b) -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> b <a href="#v:fmap" class="selflink">#</a></p>
-<p class="src"><a href="#v:-60--36-">(&lt;$)</a> :: a -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> b -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a <a href="#v:-60--36-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a)</span> <a href="#t:Teams" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Teams:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:Teams" title="Board">Teams</a> a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a)</span> <a href="#t:Teams" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Teams:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
-<p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
-</div> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) x -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a <a href="#v:to" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Rep:4"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a)</span> <a href="#t:Teams" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Teams:Rep:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Teams" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Teams" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "topTeam") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> a) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "botTeam") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> a)))</div></details></td></tr>
-</table></details></div>
-</div>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:InPlaceEffect" class="def">InPlaceEffect</a> <a href="#t:InPlaceEffect" class="selflink">#</a></p>
-<div class="doc"><p>Initially this type was for displaying animations only. However
- Game.hs also uses for Core stuff internally (see applyInPlaceEffectOnBoard).
- Unfortunate :-( So be careful when changing related code.</p></div>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src"><a id="v:InPlaceEffect" class="def">InPlaceEffect</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><div class="subs fields">
-<p class="caption">Fields</p>
-<ul>
-<li>
-<dfn class="src"><a id="v:attackChange" class="def">attackChange</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a></dfn><div class="doc"><p>Attack value changed</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:decoChange" class="def">decoChange</a> :: <a href="Board.html#t:DecoChange" title="Board">DecoChange</a></dfn><div class="doc"><p>Whether a <code><a href="Board.html#t:Deco" title="Board">Deco</a></code> changes</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:death" class="def">death</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></dfn><div class="doc"><p>Did creature die? If yes, for what reason</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:attackBump" class="def">attackBump</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a></dfn><div class="doc"><p>Creature attacked (value used solely for animations)</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:hitPointsChange" class="def">hitPointsChange</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a></dfn><div class="doc"><p>Hits points changed</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:extra" class="def">extra</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a></dfn><div class="doc"><p>Hit points that were not dealt because the defender died. Contributes
- to the score with <code><a href="Skill.html#v:Powerful" title="Skill">Powerful</a></code>.</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:fade" class="def">fade</a> :: <a href="Constants.html#t:Fade" title="Constants">Fade</a></dfn><div class="doc"><p>Card fade-in or fade-out</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:fadeOut" class="def">fadeOut</a> :: [<a href="Tile.html#t:Tile" title="Tile">Tile</a>]</dfn><div class="doc"><p>Tiles to fade out atop the card spot, both when there's a creature
- and when there's not.</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:scoreChange" class="def">scoreChange</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a></dfn><div class="doc"><p>Score changed</p></div>
-</li>
-</ul>
-</div></td></tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:InPlaceEffect" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:InPlaceEffect:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a></span> <a href="#t:InPlaceEffect" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:InPlaceEffect:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:InPlaceEffect:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a></span> <a href="#t:InPlaceEffect" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:InPlaceEffect:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:InPlaceEffect:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a></span> <a href="#t:InPlaceEffect" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:InPlaceEffect:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
-<p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
-</div> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> x -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#v:to" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:InPlaceEffect:Semigroup:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a></span> <a href="#t:InPlaceEffect" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:InPlaceEffect:Semigroup:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#v:-60--62-" class="selflink">#</a></p>
-<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#v:sconcat" class="selflink">#</a></p>
-<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#v:stimes" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:InPlaceEffect:Monoid:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a></span> <a href="#t:InPlaceEffect" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:InPlaceEffect:Monoid:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:mempty">mempty</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#v:mempty" class="selflink">#</a></p>
-<p class="src"><a href="#v:mappend">mappend</a> :: <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#v:mappend" class="selflink">#</a></p>
-<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a>] -&gt; <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#v:mconcat" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:InPlaceEffect:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a></span> <a href="#t:InPlaceEffect" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:InPlaceEffect:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "InPlaceEffect" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "InPlaceEffect" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (((<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "attackChange") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "decoChange") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="Board.html#t:DecoChange" title="Board">DecoChange</a>)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "death") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "attackBump") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>))) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> ((<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "hitPointsChange") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "extra") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "fade") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="Constants.html#t:Fade" title="Constants">Fade</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "fadeOut") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> [<a href="Tile.html#t:Tile" title="Tile">Tile</a>]) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "scoreChange") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>))))))</div></details></td></tr>
-</table></details></div>
-</div>
-<div class="top"><p class="src"><span class="keyword">type</span> <a id="t:InPlaceEffects" class="def">InPlaceEffects</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Spots.html#t:Card" title="Spots">Card</a> <a href="Board.html#t:InPlaceEffect" title="Board">InPlaceEffect</a> <a href="#t:InPlaceEffects" class="selflink">#</a></p></div>
-<div class="top">
-<p class="src"><span class="keyword">type family</span> <a id="t:InPlaceType" class="def">InPlaceType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span> <a href="#t:InPlaceType" class="selflink">#</a></p>
+<p class="src"><span class="keyword">type family</span> <a id="t:ManaType" class="def">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span> <a href="#t:ManaType" class="selflink">#</a></p>
 <div class="subs equations">
 <p class="caption">Equations</p>
 <table>
 <tr>
 <td class="src">
-<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a> = CardsOnTable</td>
+<a href="Board.html#t:ManaType" title="Board">ManaType</a> <a href="Card.html#v:Core" title="Card">Core</a> = <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
 <td class="src">
-<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:UI" title="Card">UI</a> = <a href="Board.html#t:InPlaceEffects" title="Board">InPlaceEffects</a>
+<a href="Board.html#t:ManaType" title="Board">ManaType</a> <a href="Card.html#v:UI" title="Card">UI</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
@@ -553,208 +213,25 @@
 <p>TODO <code>smelc rename me to </code>bottomSpot@</p>
 </div>
 </div>
-<div class="top"><p class="src"><a id="v:setPart" class="def">setPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setPart" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toHoleyInPlace" class="def">toHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))] <a href="#v:toHoleyInPlace" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toInPlaceCreature" class="def">toInPlaceCreature</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) <a href="#v:toInPlaceCreature" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:toPart" class="def">toPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p <a href="#v:toPart" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:empty" class="def">empty</a> :: Empty a b =&gt; a -&gt; b <a href="#v:empty" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:DeathCause" class="def">DeathCause</a> <a href="#t:DeathCause" class="selflink">#</a></p>
-<div class="doc"><p>Animations recorded upon death. If you are looking for the same
- thing in the more general case of the creature not dying, loot at
- <code><a href="Board.html#v:fadeOut" title="Board">fadeOut</a></code>.</p></div>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
+<p class="src"><span class="keyword">type family</span> <a id="t:InPlaceType" class="def">InPlaceType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span> <a href="#t:InPlaceType" class="selflink">#</a></p>
+<div class="subs equations">
+<p class="caption">Equations</p>
 <table>
 <tr>
-<td class="src"><a id="v:DeathByFear" class="def">DeathByFear</a></td>
-<td class="doc"><p>Creature was killed by fear</p></td>
+<td class="src">
+<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:Core" title="Card">Core</a> = CardsOnTable</td>
+<td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
-<td class="src"><a id="v:DeathByBreathIce" class="def">DeathByBreathIce</a></td>
-<td class="doc"><p>Creature killed by <code>BreathIce</code> attack</p></td>
-</tr>
-<tr>
-<td class="src"><a id="v:DeathByTerror" class="def">DeathByTerror</a></td>
-<td class="doc"><p>Creature was killed by terror</p></td>
-</tr>
-<tr>
-<td class="src"><a id="v:NoDeath" class="def">NoDeath</a></td>
-<td class="doc"><p>Creature was not killed</p></td>
-</tr>
-<tr>
-<td class="src"><a id="v:UsualDeath" class="def">UsualDeath</a></td>
-<td class="doc"><p>Creature was killed for a reason we do not track precisely</p></td>
+<td class="src">
+<a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> <a href="Card.html#v:UI" title="Card">UI</a> = <a href="Effect.html#t:InPlaceEffects" title="Effect">InPlaceEffects</a>
+</td>
+<td class="doc empty">&nbsp;</td>
 </tr>
 </table>
 </div>
-<div class="subs instances"><details id="i:DeathCause" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DeathCause:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></span> <a href="#t:DeathCause" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DeathCause:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DeathCause:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></span> <a href="#t:DeathCause" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DeathCause:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:DeathCause" title="Board">DeathCause</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DeathCause:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></span> <a href="#t:DeathCause" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DeathCause:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
-<p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
-</div> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> x -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> <a href="#v:to" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DeathCause:Semigroup:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></span> <a href="#t:DeathCause" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DeathCause:Semigroup:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> <a href="#v:-60--62-" class="selflink">#</a></p>
-<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> <a href="#v:sconcat" class="selflink">#</a></p>
-<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> <a href="#v:stimes" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DeathCause:Monoid:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Monoid.html#t:Monoid" title="Data.Monoid">Monoid</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></span> <a href="#t:DeathCause" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DeathCause:Monoid:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:mempty">mempty</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> <a href="#v:mempty" class="selflink">#</a></p>
-<p class="src"><a href="#v:mappend">mappend</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> <a href="#v:mappend" class="selflink">#</a></p>
-<p class="src"><a href="#v:mconcat">mconcat</a> :: [<a href="Board.html#t:DeathCause" title="Board">DeathCause</a>] -&gt; <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> <a href="#v:mconcat" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:DeathCause:Rep:6"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a></span> <a href="#t:DeathCause" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:DeathCause:Rep:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "DeathCause" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) ((<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "DeathByFear" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "DeathByBreathIce" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "DeathByTerror" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "NoDeath" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "UsualDeath" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>))))</div></details></td></tr>
-</table></details></div>
-</div>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:Deco" class="def">Deco</a> <a href="#t:Deco" class="selflink">#</a></p>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table><tr>
-<td class="src"><a id="v:Forest" class="def">Forest</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr></table>
-</div>
-<div class="subs instances"><details id="i:Deco" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Deco:Bounded:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Bounded" title="Prelude">Bounded</a> <a href="Board.html#t:Deco" title="Board">Deco</a></span> <a href="#t:Deco" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Deco:Bounded:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:minBound">minBound</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:minBound" class="selflink">#</a></p>
-<p class="src"><a href="#v:maxBound">maxBound</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:maxBound" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Deco:Enum:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Enum" title="Prelude">Enum</a> <a href="Board.html#t:Deco" title="Board">Deco</a></span> <a href="#t:Deco" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Deco:Enum:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:succ">succ</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:succ" class="selflink">#</a></p>
-<p class="src"><a href="#v:pred">pred</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:pred" class="selflink">#</a></p>
-<p class="src"><a href="#v:toEnum">toEnum</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:toEnum" class="selflink">#</a></p>
-<p class="src"><a href="#v:fromEnum">fromEnum</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:fromEnum" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFrom">enumFrom</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; [<a href="Board.html#t:Deco" title="Board">Deco</a>] <a href="#v:enumFrom" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFromThen">enumFromThen</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; [<a href="Board.html#t:Deco" title="Board">Deco</a>] <a href="#v:enumFromThen" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFromTo">enumFromTo</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; [<a href="Board.html#t:Deco" title="Board">Deco</a>] <a href="#v:enumFromTo" class="selflink">#</a></p>
-<p class="src"><a href="#v:enumFromThenTo">enumFromThenTo</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; [<a href="Board.html#t:Deco" title="Board">Deco</a>] <a href="#v:enumFromThenTo" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Deco:Eq:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Board.html#t:Deco" title="Board">Deco</a></span> <a href="#t:Deco" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Deco:Eq:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Deco:Show:4"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Board.html#t:Deco" title="Board">Deco</a></span> <a href="#t:Deco" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Deco:Show:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:Deco" title="Board">Deco</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Deco:Generic:5"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Board.html#t:Deco" title="Board">Deco</a></span> <a href="#t:Deco" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Deco:Generic:5"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
-<p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Deco" title="Board">Deco</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
-</div> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Deco" title="Board">Deco</a> x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Deco" title="Board">Deco</a> x -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:to" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Deco:Semigroup:6"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Semigroup" title="Prelude">Semigroup</a> <a href="Board.html#t:Deco" title="Board">Deco</a></span> <a href="#t:Deco" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Deco:Semigroup:6"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-60--62-">(&lt;&gt;)</a> :: <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:-60--62-" class="selflink">#</a></p>
-<p class="src"><a href="#v:sconcat">sconcat</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-List-NonEmpty.html#t:NonEmpty" title="Data.List.NonEmpty">NonEmpty</a> <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:sconcat" class="selflink">#</a></p>
-<p class="src"><a href="#v:stimes">stimes</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Prelude.html#t:Integral" title="Prelude">Integral</a> b =&gt; b -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> -&gt; <a href="Board.html#t:Deco" title="Board">Deco</a> <a href="#v:stimes" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Deco:Rep:7"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Deco" title="Board">Deco</a></span> <a href="#t:Deco" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:Deco:Rep:7"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Deco" title="Board">Deco</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Deco" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Forest" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>))</div></details></td></tr>
-</table></details></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:initial" class="def">initial</a> <a href="#v:initial" class="selflink">#</a></p>
@@ -938,6 +415,75 @@
 <p class="src"><a href="#v:insert">insert</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; a -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:insert" class="selflink">#</a></p>
 <p class="src"><a href="#v:update">update</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; (a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> a) -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:update" class="selflink">#</a></p>
 </div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top"><p class="src"><a id="v:neighbors" class="def">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:neighbors" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Neighborhood" class="def">Neighborhood</a> <a href="#t:Neighborhood" class="selflink">#</a></p>
+<div class="doc"><p>The various kinds of neighbors</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Cardinal" class="def">Cardinal</a></td>
+<td class="doc"><p>Neighbors to the left and the right</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:Diagonal" class="def">Diagonal</a></td>
+<td class="doc"><p>Neighbors in diagonals</p></td>
+</tr>
+<tr>
+<td class="src"><a id="v:All" class="def">All</a></td>
+<td class="doc"><p>Cardinal + diagnoal neighbors</p></td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:Neighborhood" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Neighborhood:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Neighborhood:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Neighborhood:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> x -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Rep:4"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Neighborhood:Rep:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Neighborhood" "Spots" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Cardinal" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Diagonal" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "All" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>)))</div></details></td></tr>
 </table></details></div>
 </div>
 <div class="top">
@@ -1174,8 +720,13 @@
 <div class="doc"><p>A board with a single creature in place. Hands are empty. Handy for
  debugging for example.</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:empty" class="def">empty</a> :: Empty a b =&gt; a -&gt; b <a href="#v:empty" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:setInPlace" class="def">setInPlace</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setInPlace" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:setPart" class="def">setPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p -&gt; <a href="Board.html#t:T" title="Board">T</a> p <a href="#v:setPart" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:switchLine" class="def">switchLine</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> <a href="#v:switchLine" class="selflink">#</a></p>
+<div class="doc"><p>Given a frontline spot, the corresponding backline spot. Given
+ a backline spot, the corresponding frontline spot.</p></div>
+</div>
 <div class="top"><p class="src"><a id="v:toInPlace" class="def">toInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:InPlaceType" title="Board">InPlaceType</a> p <a href="#v:toInPlace" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:line" class="def">line</a> :: <a href="Spots.html#t:Line" title="Spots">Line</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:line" class="selflink">#</a></p>
@@ -1231,73 +782,74 @@
 </div></details></td></tr>
 </table></details></div>
 </div>
-<div class="top"><p class="src"><a id="v:neighbors" class="def">neighbors</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>] <a href="#v:neighbors" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:Neighborhood" class="def">Neighborhood</a> <a href="#t:Neighborhood" class="selflink">#</a></p>
-<div class="doc"><p>The various kinds of neighbors</p></div>
+<p class="src"><span class="keyword">data</span> <a id="t:Teams" class="def">Teams</a> a <a href="#t:Teams" class="selflink">#</a></p>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
 <tr>
-<td class="src"><a id="v:Cardinal" class="def">Cardinal</a></td>
-<td class="doc"><p>Neighbors to the left and the right</p></td>
+<td class="src"><a id="v:Teams" class="def">Teams</a></td>
+<td class="doc empty">&nbsp;</td>
 </tr>
-<tr>
-<td class="src"><a id="v:Diagonal" class="def">Diagonal</a></td>
-<td class="doc"><p>Neighbors in diagonals</p></td>
-</tr>
-<tr>
-<td class="src"><a id="v:All" class="def">All</a></td>
-<td class="doc"><p>Cardinal + diagnoal neighbors</p></td>
-</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:topTeam" class="def">topTeam</a> :: a</dfn><div class="doc empty">&nbsp;</div>
+</li>
+<li>
+<dfn class="src"><a id="v:botTeam" class="def">botTeam</a> :: a</dfn><div class="doc empty">&nbsp;</div>
+</li>
+</ul>
+</div></td></tr>
 </table>
 </div>
-<div class="subs instances"><details id="i:Neighborhood" open="open"><summary>Instances</summary><table>
+<div class="subs instances"><details id="i:Teams" open="open"><summary>Instances</summary><table>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Functor:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Functor.html#t:Functor" title="Data.Functor">Functor</a> <a href="Board.html#t:Teams" title="Board">Teams</a></span> <a href="#t:Teams" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Neighborhood:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:id:Teams:Functor:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:fmap">fmap</a> :: (a -&gt; b) -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> b <a href="#v:fmap" class="selflink">#</a></p>
+<p class="src"><a href="#v:-60--36-">(&lt;$)</a> :: a -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> b -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a <a href="#v:-60--36-" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a)</span> <a href="#t:Teams" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Neighborhood:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs methods">
+<tr><td colspan="2"><details id="i:id:Teams:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Board.html#t:Teams" title="Board">Teams</a> a] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a)</span> <a href="#t:Teams" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Neighborhood:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="subs associated-types">
+<tr><td colspan="2"><details id="i:id:Teams:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="subs associated-types">
 <p class="caption">Associated Types</p>
-<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
 </div> <div class="subs methods">
 <p class="caption">Methods</p>
-<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> x <a href="#v:from" class="selflink">#</a></p>
-<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> x -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> <a href="#v:to" class="selflink">#</a></p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) x -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a <a href="#v:to" class="selflink">#</a></p>
 </div></details></td></tr>
 <tr>
 <td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Neighborhood:Rep:4"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a></span> <a href="#t:Neighborhood" class="selflink">#</a>
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Teams:Rep:4"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a)</span> <a href="#t:Teams" class="selflink">#</a>
 </td>
 <td class="doc empty">&nbsp;</td>
 </tr>
-<tr><td colspan="2"><details id="i:id:Neighborhood:Rep:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Spots.html">Spots</a></p> <div class="src">
-<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Neighborhood" "Spots" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Cardinal" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Diagonal" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-43-:" title="GHC.Generics">:+:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "All" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:U1" title="GHC.Generics">U1</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a>)))</div></details></td></tr>
+<tr><td colspan="2"><details id="i:id:Teams:Rep:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Board.html">Board</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:Teams" title="Board">Teams</a> a) = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Teams" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Teams" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "topTeam") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> a) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "botTeam") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> a)))</div></details></td></tr>
 </table></details></div>
 </div>
 <div class="top">
@@ -1501,6 +1053,9 @@
 <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> (<a href="Board.html#t:T" title="Board">T</a> p) = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "T" "Board" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "T" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "playerTop") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p)) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t::-42-:" title="GHC.Generics">:*:</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Just" title="GHC.Maybe">Just</a> "playerBottom") <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p))))</div></details></td></tr>
 </table></details></div>
 </div>
+<div class="top"><p class="src"><a id="v:toHoleyInPlace" class="def">toHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; [(<a href="Spots.html#t:Player" title="Spots">Player</a>, <a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))] <a href="#v:toHoleyInPlace" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toInPlaceCreature" class="def">toInPlaceCreature</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>) <a href="#v:toInPlaceCreature" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:toPart" class="def">toPart</a> :: <a href="Board.html#t:T" title="Board">T</a> p -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:PlayerPart" title="Board">PlayerPart</a> p <a href="#v:toPart" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:toPlayerHoleyInPlace" class="def">toPlayerHoleyInPlace</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>))] <a href="#v:toPlayerHoleyInPlace" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><a id="v:toNeighbors" class="def">toNeighbors</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Board.html#t:Neighborhood" title="Board">Neighborhood</a> -&gt; [(<a href="Spots.html#t:Card" title="Spots">Card</a>, <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a>)] <a href="#v:toNeighbors" class="selflink">#</a></p>
@@ -1513,36 +1068,7 @@
  For creature cards for example it returns empty spots. For item cards
  it returns occupied spots.</p></div>
 </div>
-<div class="top">
-<p class="src"><a id="v:isDead" class="def">isDead</a> :: <a href="Board.html#t:DeathCause" title="Board">DeathCause</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:isDead" class="selflink">#</a></p>
-<div class="doc"><p>Whether this death cause represents a death</p></div>
-</div>
 <div class="top"><p class="src"><a id="v:toData" class="def">toData</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> a -&gt; a <a href="#v:toData" class="selflink">#</a></p></div>
-<div class="top">
-<p class="src"><span class="keyword">type family</span> <a id="t:ManaType" class="def">ManaType</a> (p :: <a href="Card.html#t:Phase" title="Card">Phase</a>) <span class="keyword">where ...</span> <a href="#t:ManaType" class="selflink">#</a></p>
-<div class="subs equations">
-<p class="caption">Equations</p>
-<table>
-<tr>
-<td class="src">
-<a href="Board.html#t:ManaType" title="Board">ManaType</a> <a href="Card.html#v:Core" title="Card">Core</a> = <a href="Nat.html#t:Nat" title="Nat">Nat</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src">
-<a href="Board.html#t:ManaType" title="Board">ManaType</a> <a href="Card.html#v:UI" title="Card">UI</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="top">
-<p class="src"><a id="v:switchLine" class="def">switchLine</a> :: <a href="Spots.html#t:Card" title="Spots">Card</a> -&gt; <a href="Spots.html#t:Card" title="Spots">Card</a> <a href="#v:switchLine" class="selflink">#</a></p>
-<div class="doc"><p>Given a frontline spot, the corresponding backline spot. Given
- a backline spot, the corresponding frontline spot.</p></div>
-</div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>

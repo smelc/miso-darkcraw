@@ -17,6 +17,7 @@ import qualified Constants (Difficulty, Fade)
 import Damage (Damage (..))
 import Data.Function ((&))
 import Data.Maybe
+import qualified Effect
 import GHC.Generics
 import qualified Game
 import Generic.Random
@@ -136,7 +137,7 @@ instance Arbitrary (Card 'Core) where
      in elements $ Shared.getCards shared & map Card.unlift
   shrink = genericShrink
 
-instance Arbitrary Board.Deco where
+instance Arbitrary Effect.Deco where
   arbitrary = elements $ [minBound ..]
   shrink = genericShrink
 
@@ -160,7 +161,7 @@ instance Arbitrary Turn.T where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary Board.DeathCause where
+instance Arbitrary Effect.DeathCause where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
@@ -168,11 +169,11 @@ instance Arbitrary Constants.Fade where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary Board.DecoChange where
+instance Arbitrary Effect.DecoChange where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary Board.InPlaceEffect where
+instance Arbitrary Effect.InPlaceEffect where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

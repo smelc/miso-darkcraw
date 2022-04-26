@@ -2,7 +2,7 @@
 #
 # Check that some modules are always imported qualified
 
-declare -r MODULES="Board SharedModel Tile Turn"
+declare -r MODULES="Board Effect SharedModel Tile Turn"
 
 # shellcheck disable=SC2155
 declare -r FILES=$(git ls-files "app/*.hs" | xargs)

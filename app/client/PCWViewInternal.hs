@@ -31,7 +31,6 @@ module PCWViewInternal
   )
 where
 
-import qualified Board
 import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
 import Constants
@@ -42,6 +41,7 @@ import Data.Functor ((<&>))
 import Data.List.Extra
 import qualified Data.Map.Strict as Map
 import Data.Maybe
+import qualified Effect
 import qualified Mana
 import Miso
 import Miso.String (MisoString, ToMisoString (..), ms)
@@ -207,9 +207,9 @@ noCardView ::
   -- | The z index
   Int ->
   Shared.Model ->
-  Board.InPlaceEffect ->
+  Effect.InPlaceEffect ->
   Styled (View Action)
-noCardView z shared Board.InPlaceEffect {fadeOut} = do
+noCardView z shared Effect.InPlaceEffect {fadeOut} = do
   views <- traverse (\tile -> ViewInternal.fade (builder tile) Nothing 1 FadeOut) fadeOut
   return $ div_ [] views
   where
