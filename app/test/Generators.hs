@@ -173,7 +173,7 @@ instance Arbitrary Effect.DecoChange where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 
-instance Arbitrary Effect.InPlaceEffect where
+instance Arbitrary Effect.T where
   arbitrary = genericArbitraryU
   shrink = genericShrink
 

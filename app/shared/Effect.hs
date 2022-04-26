@@ -71,13 +71,10 @@ data Deco
 instance Semigroup Deco where
   Forest <> Forest = Forest
 
--- It is a bit unfortunate to have these types defined here
--- as they are UI only. However we need them to define the InPlaceType family
-
 -- | Initially this type was for displaying animations only. However
--- Game.hs also uses for Core stuff internally (see applyInPlaceEffectOnBoard).
+-- 'Game' also uses for Core stuff internally (see applyInPlaceEffectOnBoard).
 -- Unfortunate :-( So be careful when changing related code.
-data InPlaceEffect = InPlaceEffect
+data T = T
   { -- | Attack value changed
     attackChange :: Int,
     -- | Whether a 'Deco' changes
@@ -101,10 +98,10 @@ data InPlaceEffect = InPlaceEffect
   }
   deriving (Eq, Generic, Show)
 
-instance Semigroup InPlaceEffect where
-  InPlaceEffect {attackChange = ac1, death = d1, decoChange = dc1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fade = fi1, fadeOut = fo1, scoreChange = c1}
-    <> InPlaceEffect {attackChange = ac2, death = d2, decoChange = dc2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fade = fi2, fadeOut = fo2, scoreChange = c2} =
-      InPlaceEffect
+instance Semigroup T where
+  T {attackChange = ac1, death = d1, decoChange = dc1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fade = fi1, fadeOut = fo1, scoreChange = c1}
+    <> T {attackChange = ac2, death = d2, decoChange = dc2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fade = fi2, fadeOut = fo2, scoreChange = c2} =
+      T
         { attackChange = ac1 + ac2,
           death = d1 <> d2,
           decoChange = dc1 <> dc2,
@@ -116,9 +113,9 @@ instance Semigroup InPlaceEffect where
           scoreChange = c1 + c2
         }
 
-instance Monoid InPlaceEffect where
+instance Monoid T where
   mempty =
-    InPlaceEffect
+    T
       { attackChange = 0,
         death = mempty,
         decoChange = mempty,
@@ -130,4 +127,4 @@ instance Monoid InPlaceEffect where
         scoreChange = 0
       }
 
-type InPlaceEffects = Map.Map Spots.Card InPlaceEffect
+type Ts = Map.Map Spots.Card T

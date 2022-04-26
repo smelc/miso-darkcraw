@@ -197,7 +197,7 @@ scorePluses board z pSpot = do
     scoreIncrease =
       Board.toInPlace board pSpot
         & Map.elems
-        & map (\Effect.InPlaceEffect {scoreChange} -> scoreChange)
+        & map (\Effect.T {scoreChange} -> scoreChange)
         & sum
     leftMargin = ((Constants.boardToLeftCardCellsOffset + cardCellWidth) * cps) + cps `div` 2
 
@@ -389,8 +389,8 @@ borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
         Right id -> Game.appliesTo board id playingPlayer pTarget
     handCard i = Board.lookupHand (Board.getpk @'Board.Hand playingPlayer board) i
 
-fadeouts :: Shared.Model -> Int -> Effect.InPlaceEffect -> Styled (Maybe (View Action))
-fadeouts shared z Effect.InPlaceEffect {death, fadeOut} = do
+fadeouts :: Shared.Model -> Int -> Effect.T -> Styled (Maybe (View Action))
+fadeouts shared z Effect.T {death, fadeOut} = do
   death :: Maybe (View Action) <- case deadAsset of
     Nothing -> pure Nothing
     Just asset -> sequence $ Just $ f (builder asset)
@@ -430,7 +430,7 @@ fadeouts shared z Effect.InPlaceEffect {death, fadeOut} = do
         { animDataFillMode = Just "forwards"
         }
 
-heartWobble :: Int -> Effect.InPlaceEffect -> Styled [View Action]
+heartWobble :: Int -> Effect.T -> Styled [View Action]
 heartWobble z ae =
   sequence
     [ keyframed
@@ -459,8 +459,8 @@ heartWobble z ae =
 
 data StatChangeKind = HitPoint | Attack
 
-statChange :: Int -> StatChangeKind -> Effect.InPlaceEffect -> Styled [View Action]
-statChange z sck Effect.InPlaceEffect {attackChange, Effect.hitPointsChange} =
+statChange :: Int -> StatChangeKind -> Effect.T -> Styled [View Action]
+statChange z sck Effect.T {attackChange, Effect.hitPointsChange} =
   sequence
     [ keyframed
         (builder x)

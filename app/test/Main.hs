@@ -295,13 +295,13 @@ testAIPlace shared =
 testInPlaceEffectsMonoid =
   describe "InPlaceEffects is a well behaved Monoid" $ do
     prop "mempty <> effects == effect" $
-      \(effect :: Effect.InPlaceEffects) ->
+      \(effect :: Effect.Ts) ->
         mempty <> effect `shouldBe` effect
     prop "effects <> mempty == effect" $
-      \(effect :: Effect.InPlaceEffects) ->
+      \(effect :: Effect.Ts) ->
         effect <> mempty `shouldBe` effect
     prop "effects <> effects' == effects' <> effects (modulo fadeOut)" $
-      \(effect :: Effect.InPlaceEffects, effect') ->
+      \(effect :: Effect.Ts, effect') ->
         let (e1, e2) = rmCommonFadeout effect effect'
          in e1 <> e2 `shouldBe` e1 <> e2
   where

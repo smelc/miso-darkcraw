@@ -207,9 +207,9 @@ noCardView ::
   -- | The z index
   Int ->
   Shared.Model ->
-  Effect.InPlaceEffect ->
+  Effect.T ->
   Styled (View Action)
-noCardView z shared Effect.InPlaceEffect {fadeOut} = do
+noCardView z shared Effect.T {fadeOut} = do
   views <- traverse (\tile -> ViewInternal.fade (builder tile) Nothing 1 FadeOut) fadeOut
   return $ div_ [] views
   where

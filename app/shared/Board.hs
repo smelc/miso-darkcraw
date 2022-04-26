@@ -85,7 +85,7 @@ type family DecoType (p :: Phase) where
 -- between the two cases.
 type family InPlaceType (p :: Phase) where
   InPlaceType 'Core = CardsOnTable
-  InPlaceType 'UI = Effect.InPlaceEffects
+  InPlaceType 'UI = Effect.Ts
 
 type family HandElemType (p :: Phase) where
   HandElemType 'Core = Card.ID
@@ -236,7 +236,7 @@ instance PlayerIndexed (Map.Map Spots.Card (Creature 'Core)) 'Core where
   setp inPlace pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {inPlace})
 
 -- | Generic access to effects in @'UI@ phase
-instance PlayerIndexed (Map.Map Spots.Card Effect.InPlaceEffect) 'UI where
+instance PlayerIndexed (Map.Map Spots.Card Effect.T) 'UI where
   getp pSpot b = Board.toInPlace b pSpot
   setp inPlace pSpot b = Board.setPart b pSpot ((Board.toPart b pSpot) {inPlace})
 

@@ -306,7 +306,7 @@ instance Semigroup StatChange where
 instance Monoid StatChange where
   mempty = StatChange {attackDiff = 0, hpDiff = 0}
 
-changeToEffect :: StatChange -> Effect.InPlaceEffect
+changeToEffect :: StatChange -> Effect.T
 changeToEffect StatChange {attackDiff, hpDiff} =
   mempty {Effect.attackChange = natToInt attackDiff, Effect.hitPointsChange = natToInt hpDiff}
 
@@ -318,7 +318,7 @@ reportEffect ::
   MonadWriter (Board.T 'UI) m =>
   Spots.Player ->
   Spots.Card ->
-  Effect.InPlaceEffect ->
+  Effect.T ->
   m ()
 reportEffect pSpot cSpot effect =
   tell $ Board.T {playerTop = pTop, playerBottom = pBot}
@@ -1498,7 +1498,7 @@ attackOneSpot ::
   (Creature 'Core, Spots.Card) ->
   m (Board.T 'Core)
 attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
-  (flyingSpot, effect@Effect.InPlaceEffect {death, extra}) <-
+  (flyingSpot, effect@Effect.T {death, extra}) <-
     singleAttack (place, hitter) (hitPlace, hit) & runWriterT
   board <-
     applyEffectOnBoard effect board (hitPspot, hitSpot, hit)
@@ -1540,7 +1540,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
 applyEffectOnBoard ::
   MonadWriter (Board.T 'UI) m =>
   -- | The effect of the attacker on the hittee
-  Effect.InPlaceEffect ->
+  Effect.T ->
   -- | The input board
   Board.T 'Core ->
   -- | The creature being hit
@@ -1570,15 +1570,15 @@ applyEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, item
 
 applyEffect ::
   -- | The effect of the attacker on the hittee
-  Effect.InPlaceEffect ->
+  Effect.T ->
   -- | The creature being hit
   Creature 'Core ->
   -- | The creature being hit, after applying the effect; or None if dead
   Maybe (Creature 'Core)
 applyEffect effect creature@Creature {..} =
   case effect of
-    Effect.InPlaceEffect {death} | Effect.isDead death -> Nothing
-    Effect.InPlaceEffect {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
+    Effect.T {death} | Effect.isDead death -> Nothing
+    Effect.T {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
 
 applyFlailOfTheDamned ::
   MonadWriter (Board.T 'UI) m =>
@@ -1623,7 +1623,7 @@ type AtPlace = (Total.Place, Creature 'Core)
 -- | The effect of an attack on the defender. Note that this function
 -- cannot return a 'StatChange'. It needs the full expressivity of 'InPlaceEffect'.
 singleAttack ::
-  MonadWriter Effect.InPlaceEffect m =>
+  MonadWriter Effect.T m =>
   MonadState Shared.Model m =>
   -- | The attacker
   AtPlace ->
