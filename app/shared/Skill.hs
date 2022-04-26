@@ -43,6 +43,8 @@ data T blow drawCard fame fear green growth regen slow source stupid terror
   | King
   | -- | Identifier of knight
     Knight
+  | -- | Contributes to score when arriving
+    Leader Nat
   | -- | Can attack 2 cells away
     LongReach
   | -- | Undealt damage contributes to score
@@ -137,6 +139,7 @@ lift skill =
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
+    Leader n -> Leader n
     LongReach -> LongReach
     Powerful -> Powerful
     Rampage -> Rampage
@@ -178,6 +181,7 @@ unlift skill =
     Imprecise -> Imprecise
     King -> King
     Knight -> Knight
+    Leader n -> Leader n
     LongReach {} -> LongReach
     Powerful -> Powerful
     Rampage -> Rampage

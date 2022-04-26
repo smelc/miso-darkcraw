@@ -15,7 +15,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"Support\"] },\n\
          \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
-         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"HumanGeneral\",   \"skills\":[\"Unique\"],  \"mana\":\"3\" },\n\
+         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"HumanGeneral\",   \"skills\":[\"Leader 2\", \"Unique\"],  \"mana\":\"3\" },\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":\"2\", \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"],    \"mana\":\"2\" },\n\
          \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":\"3\", \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"], \"mana\":\"3\" },\n\
          \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"UndeadSkeleton\", \"skills\":[\"Fear\"] },\n\
@@ -180,6 +180,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\
          \    { \"skill\":\"King\",        \"title\":\"King\",       \"text\":\"At every turn, every knight gains +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Knight\",      \"title\":\"Knight\",     \"text\":\"A knight anointed by the king\"},\n\
+         \    { \"skill\":\"Leader 2\",    \"title\":\"Leader 2\",   \"text\":\"Upon arrival, contribute 2 to the score\"},\n\
          \    { \"skill\":\"LongReach\",   \"title\":\"Long Reach\", \"text\":\"Hits 2 cells away\"},\n\
          \    { \"skill\":\"Powerful\",    \"title\":\"Powerful\",   \"text\":\"When killing an enemy, extraenous damage is contributed to the score\"},\n\
          \    { \"skill\":\"Ranged\",      \"title\":\"Ranged\",     \"text\":\"Hits any enemy in its column\"},\n\

@@ -755,6 +755,7 @@ playCreatureM shared board pSpot cSpot creature@Creature {skills} = do
           reportEffect pSpot c $ mempty {Board.fade = Constants.FadeIn} -- report creature addition effect
           b <- pure $ Board.insert pSpot c creature b -- set creature
           b <- applyDiscipline b creature pSpot c
+          b <- applyLeader pSpot c b
           b <- applySquire b creature pSpot c
           b <- applySylvan pSpot c b
           return b
@@ -810,6 +811,27 @@ installItem item c@Creature {hp, items} =
       case item of
         SwordOfMight -> 1
         _ -> 0 -- _ pattern: dangerous I know
+
+-- | Trigger the leader skill at the given place, if relevant. Returns the
+-- updated board.
+applyLeader ::
+  MonadWriter (Board.T 'UI) m =>
+  Spots.Player ->
+  Spots.Card ->
+  Board.T 'Core ->
+  m (Board.T 'Core)
+applyLeader pSpot cSpot board =
+  case Board.toInPlaceCreature board pSpot cSpot of
+    Nothing -> pure board
+    Just Creature {skills} -> do
+      let scoreChange = leader skills
+          effect = mempty {Board.scoreChange = natToInt scoreChange}
+      reportEffect pSpot cSpot effect
+      -- TODO @smelc make 'applyInPlaceEffectOnBoard' use the score
+      -- and call it here.
+      return $ Board.mappk @'Board.Score ((+) scoreChange) pSpot board
+  where
+    leader = foldr (\skill acc -> (case skill of Skill.Leader n -> n; _ -> 0) + acc) 0
 
 applyDiscipline ::
   MonadWriter (Board.T 'UI) m =>

@@ -116,8 +116,9 @@ instance FromJSON Skill where
           "Zealot" -> return Skill.Zealot
           s ->
             case Data.Text.splitOn " " s of
-              ["Source", n] -> ofNat Skill.Source n
               ["Fame", n] -> ofNat Skill.Fame n
+              ["Leader", n] -> ofNat Skill.Leader n
+              ["Source", n] -> ofNat Skill.Source n
               ["Regeneration", n] -> ofNat Skill.Regeneration n
               _ -> fail $ "Invalid Skill string: " ++ show s ++ " (did you forget to handle a new Skill in FromJSON Skill in Json.hs?)"
       ofNat mkS n = case readMaybe $ Text.unpack n of
