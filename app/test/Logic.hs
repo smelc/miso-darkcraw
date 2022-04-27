@@ -23,6 +23,7 @@ import qualified BoardInstances
 import Card
 import Constants
 import Control.Lens hiding (at, (+=))
+import Control.Monad.Writer
 import Damage (Damage, (+^), (-^))
 import qualified Data.Bifunctor as Bifunctor
 import qualified Data.Map.Strict as Map
@@ -159,9 +160,9 @@ testPlague shared =
         & (\x -> Board.setInPlace pSpot x board)
     setHp i c = c {hp = i}
     applyPlague f teams cids =
-      Game.applyPlague board pSpot & flip Board.toInPlace pSpot
+      Game.applyPlagueM board hitter pSpot & runWriter & fst & flip Board.toInPlace pSpot
       where
-        pSpot = PlayerTop
+        (pSpot, hitter) = (PlayerTop, Spots.other hitter)
         board = mkBoard teams pSpot cids & mapInPlace f pSpot
 
 testStatChange =

@@ -52,8 +52,7 @@
 <a href="#v:applyFillTheFrontline">applyFillTheFrontline</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
 </li>
 <li class="src short">
-<a href="#v:applyPlague">applyPlague</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
-</li>
+<a href="#v:applyPlagueM">applyPlagueM</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Writer-Class.html#t:MonadWriter" title="Control.Monad.Writer.Class">MonadWriter</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>) m =&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; m (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</li>
 <li class="src short">
 <a href="#v:attackOrder">attackOrder</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; [<a href="Spots.html#t:Card" title="Spots">Card</a>]</li>
 <li class="src short">
@@ -362,14 +361,23 @@
 </div>
 <div class="top"><p class="src"><a id="v:applyFillTheFrontline" class="def">applyFillTheFrontline</a> :: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> <a href="#v:applyFillTheFrontline" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:applyPlague" class="def">applyPlague</a> <a href="#v:applyPlague" class="selflink">#</a></p>
+<p class="src"><a id="v:applyPlagueM" class="def">applyPlagueM</a> <a href="#v:applyPlagueM" class="selflink">#</a></p>
 <div class="subs arguments">
 <p class="caption">Arguments</p>
 <table>
 <tr>
-<td class="src">:: <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
-</td>
+<td class="src">:: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Writer-Class.html#t:MonadWriter" title="Control.Monad.Writer.Class">MonadWriter</a> (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:UI" title="Card">UI</a>) m</td>
 <td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src">=&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
+</td>
+<td class="doc"><p>The input board</p></td>
+</tr>
+<tr>
+<td class="src">-&gt; <a href="Spots.html#t:Player" title="Spots">Player</a>
+</td>
+<td class="doc"><p>The part applying plague</p></td>
 </tr>
 <tr>
 <td class="src">-&gt; <a href="Spots.html#t:Player" title="Spots">Player</a>
@@ -377,8 +385,7 @@
 <td class="doc"><p>The part on which to apply plague</p></td>
 </tr>
 <tr>
-<td class="src">-&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>
-</td>
+<td class="src">-&gt; m (<a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a>)</td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 </table>

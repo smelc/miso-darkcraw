@@ -33,6 +33,7 @@ module Board
     Mappable (..),
     neighbors,
     Neighborhood (..),
+    PlayerIndexed (..),
     PlayerKindIndexed (..),
     PlayerPart (..),
     StackType (),

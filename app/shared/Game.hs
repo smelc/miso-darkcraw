@@ -23,7 +23,7 @@ module Game
     Game.appliesTo,
     applyFearNTerror,
     applyFillTheFrontline,
-    applyPlague,
+    applyPlagueM,
     attackOrder, -- exported for tests only
     cardsToDraw,
     drawCard,
@@ -656,11 +656,12 @@ playNeutralM ::
   MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
   Board.T 'Core ->
+  -- | The player performing the action
   Spots.Player ->
   Target ->
   Neutral ->
   m (Board.T 'Core, Maybe Event)
-playNeutralM board _playingPlayer target n =
+playNeutralM board hitter target n =
   case (n, target) of
     (InfernalHaste, PlayerTarget pSpot) ->
       return (board, event)
@@ -692,7 +693,7 @@ playNeutralM board _playingPlayer target n =
       traverse_ (\cSpot -> reportEffect pSpot cSpot (mempty {Effect.fade = Constants.FadeIn})) spots
       return (board', Nothing)
     (Plague, PlayerTarget pSpot) -> do
-      board' <- applyPlagueM board pSpot
+      board' <- applyPlagueM board hitter pSpot
       return (board', Nothing)
     (StrengthPot, CardTarget pSpot cSpot) ->
       case Board.toInPlaceCreature board pSpot cSpot of
@@ -828,8 +829,7 @@ applyLeader pSpot cSpot board =
       let scoreChange = leader skills
           effect = mempty {Effect.scoreChange = natToInt scoreChange}
       reportEffect pSpot cSpot effect
-      -- TODO @smelc make 'applyEffectOnBoard' use the score
-      -- and call it here.
+      -- Cannot call 'applyEffectOnBoard' because there is no hittee
       return $ Board.mappk @'Board.Score ((+) scoreChange) pSpot board
   where
     leader = foldr (\skill acc -> (case skill of Skill.Leader n -> n; _ -> 0) + acc) 0
@@ -882,24 +882,19 @@ applyFillTheFrontline board pSpot =
               )
           )
 
-applyPlague ::
-  Board.T 'Core ->
-  -- | The part on which to apply plague
-  Spots.Player ->
-  Board.T 'Core
-applyPlague board actingPlayer = applyPlagueM board actingPlayer & runWriter & fst
-
 applyPlagueM ::
   MonadWriter (Board.T 'UI) m =>
   -- | The input board
   Board.T 'Core ->
+  -- | The part applying plague
+  Spots.Player ->
   -- | The part on which to apply plague
   Spots.Player ->
   m (Board.T 'Core)
-applyPlagueM board pSpot = do
+applyPlagueM board hitter pSpot = do
   -- Apply plague on every affected spot, triggering generic core and UI effects
   foldM
-    (\b (cSpot, c) -> applyEffectOnBoard (plagueEffect c) b (pSpot, cSpot, c))
+    (\b (cSpot, c) -> applyEffectOnBoard (plagueEffect c) b hitter (pSpot, cSpot, c))
     board
     (Map.toList affecteds)
   where
@@ -1452,9 +1447,10 @@ attack board pSpot cSpot =
           let attackedCreatures :: [(Creature 'Core, Spots.Card)] = spotsToEnemies attackedSpots
           if null attackedCreatures
             then do
-              -- Creature can attack an enemy spot, but it is empty: contributed to the score
+              -- Creature can attack an enemy spot, but it is empty: contribute to the score
               let place = Total.mkPlace board pSpot cSpot
               hit :: Nat <- deal $ Total.attack (Just place) hitter
+              -- Cannot call 'applyEffectOnBoard', we have no hittee. Hence:
               reportEffect pSpot cSpot $ mempty {Effect.attackBump = True, Effect.scoreChange = natToInt hit}
               return $ Board.mappk @'Board.Score ((+) hit) pSpot board
             else do
@@ -1501,7 +1497,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
   (flyingSpot, effect@Effect.T {death, extra}) <-
     singleAttack (place, hitter) (hitPlace, hit) & runWriterT
   board <-
-    applyEffectOnBoard effect board (hitPspot, hitSpot, hit)
+    applyEffectOnBoard effect board pSpot (hitPspot, hitSpot, hit)
       <&> moveFlyerFun flyingSpot
   reportEffect pSpot cSpot $ mempty {Effect.attackBump = True} -- make hitter bump
   for_ flyingSpot (\flyingSpot -> reportEffect hitPspot flyingSpot flyingToEffect) -- fly to spot effect
@@ -1543,15 +1539,18 @@ applyEffectOnBoard ::
   Effect.T ->
   -- | The input board
   Board.T 'Core ->
+  -- | The spot of the player performing the action (the one whose score can increase)
+  Spots.Player ->
   -- | The creature being hit
   (Spots.Player, Spots.Card, Creature 'Core) ->
   -- | The updated board
   m (Board.T 'Core)
-applyEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, items}) = do
+applyEffectOnBoard effect board hitter (pSpot, cSpot, hittee@Creature {creatureId, items}) = do
   tell decoEffect
   reportEffect pSpot cSpot effect
-  return $ board & updateHittee & updateDiscarded & updateDeco
+  return $ board & updateHittee & updateDiscarded & updateDeco & updateScore
   where
+    Effect.T {Effect.decoChange, Effect.scoreChange} = effect
     hittee' = applyEffect effect hittee
     updateHittee = Board.update pSpot cSpot (const hittee')
     updateDiscarded =
@@ -1559,7 +1558,6 @@ applyEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, item
         Just _ -> id
         Nothing | Card.transient hittee -> id -- Dont' put transient hittee in discarded stack
         Nothing -> Board.mappk @'Board.Discarded (++ [IDC creatureId items]) pSpot
-    decoChange = Effect.decoChange effect
     (updateDeco, decoEffect :: Board.T 'UI) =
       case decoChange of
         Effect.NoDecoChange -> (id, mempty)
@@ -1567,6 +1565,10 @@ applyEffectOnBoard effect board (pSpot, cSpot, hittee@Creature {creatureId, item
           ( Board.insert pSpot cSpot deco,
             Board.insert pSpot cSpot Constants.FadeIn mempty
           )
+    updateScore :: Board.T 'Core -> Board.T 'Core =
+      case scoreChange of
+        0 -> id
+        _ -> Board.mappk @'Board.Score ((+) (Nat.intToNat scoreChange)) hitter
 
 applyEffect ::
   -- | The effect of the attacker on the hittee
