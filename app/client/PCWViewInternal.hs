@@ -234,9 +234,9 @@ scrollbarStyle =
 -- | The 'Place' argument is where the @Card 'Core@ is, if any.
 cardView' :: Int -> Shared.Model -> Maybe Total.Place -> Card 'Core -> [View Action]
 cardView' z shared part card =
-  -- Note that we don't have this function to take a Card UI, despite
+  -- Note that we don't want this function to take a Card UI value, despite
   -- translating 'card' to 'ui' here. The translation is solely for UI
-  -- only fields; we don't want to force callers to do it. That was the point
+  -- only fields; we don't want to force callers to do it.
   case (card, ui) of
     -- drawing of Creature cards
     (CreatureCard _ core@Creature {skills}, CreatureCard CardCommon {text, textSzOffset} Creature {hp, items}) ->
@@ -251,15 +251,20 @@ cardView' z shared part card =
             [style_ inStatsStyle]
             [ Miso.text $ ms hp,
               imgCell assetFilenameHeart,
-              div_ [style_ attackStyle] [Miso.text $ ms $ totalAttack],
+              div_ [style_ attackStyle] [Miso.text $ ms $ actualAttack],
               imgCell assetFilenameSword
             ]
-        (attack, totalAttack) = (Card.attack core, Total.attack part core)
+        (actualAttack, formalAttack) = (Total.attack part core, Card.attack core)
         attackStyle =
-          case compare attack totalAttack of
-            EQ -> mempty
-            LT -> "color" =: Constants.greenHTML <> "display" =: "inline-block"
-            GT -> "color" =: Constants.greenHTML <> "display" =: "inline-block"
+          ( case compare actualAttack formalAttack of
+              EQ -> Nothing
+              LT -> Just Constants.redHTML
+              GT -> Just Constants.greenHTML
+          )
+            & ( \case
+                  Nothing -> mempty
+                  Just color -> "color" =: color <> "display" =: "inline-block"
+              )
         textDiv text =
           div_
             [ style_ $
@@ -320,6 +325,7 @@ skillFontSize = cps `div` 2
 mkFontStyle :: Int -> Map.Map MisoString MisoString
 mkFontStyle fontSize = "font-size" =: px fontSize <> "font-family" =: "serif"
 
+-- | Data to typeset item and neutral cards
 data INViewInput = INViewInput
   { fontStyle :: Map.Map MisoString MisoString,
     leftMargin :: Int,
@@ -355,16 +361,19 @@ skillDiv shared skill =
   where
     Skill.Pack {text, title} = Skill.lift skill & Shared.liftSkill shared
     color =
-      case skill of
-        Skill.DrawCard False -> "color" =: greyHTML
-        Skill.Blow False -> "color" =: greyHTML
-        Skill.Blow True -> "color" =: greenHTML
-        Skill.Fear False -> "color" =: greyHTML
-        Skill.Terror False -> "color" =: greyHTML
-        Skill.GreenAffinity False -> "color" =: greyHTML
-        Skill.Growth False -> "color" =: greyHTML
-        _ | Skill.isStupid skill -> "color" =: redHTML
-        _ -> mempty
+      ( case skill of
+          Skill.DrawCard False -> Just greyHTML
+          Skill.Blow False -> Just greyHTML
+          Skill.Blow True -> Just greenHTML
+          Skill.Fear False -> Just greyHTML
+          Skill.Terror False -> Just greyHTML
+          Skill.GreenAffinity False -> Just greyHTML
+          Skill.Growth False -> Just greyHTML
+          Skill.Slow False -> Just greyHTML
+          _ | Skill.isStupid skill -> Just redHTML
+          _ -> Nothing
+      )
+        & (\case Nothing -> mempty; Just color -> "color" =: color)
     label =
       case skill of
         Skill.Stupid4 i -> title ++ " " ++ show (i + 1) ++ "/4"

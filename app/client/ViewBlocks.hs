@@ -8,7 +8,7 @@
 -- |
 module ViewBlocks (ButtonState (..), dummyOn, gui, GUI (..)) where
 
-import Constants (borderSize, greenHTML, yellowHTML)
+import qualified Constants
 import qualified Data.Map.Strict as Map
 import Miso
 import Miso.String
@@ -42,7 +42,7 @@ _captivatingGUI = GUI {..}
                 (animDataName animData)
                 "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
                 []
-                ("box-shadow: 0 0 0 " <> ms borderSize <> "px rgba(0,255,0,1);")
+                ("box-shadow: 0 0 0 " <> ms Constants.borderSize <> "px rgba(0,255,0,1);")
             )
             animData
         _ -> return $ f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
@@ -95,14 +95,15 @@ buttonStyle bState border =
     borderColor =
       case bState of
         Disabled -> disabledHTML
-        Enabled -> greenHTML
-        Selected -> yellowHTML
-    borderSize' = if border then borderSize else 0
+        Enabled -> Constants.greenHTML
+        Selected -> Constants.yellowHTML
+    borderSize' = if border then Constants.borderSize else 0
 
 textButtonStyle :: ButtonState -> Bool -> [Attribute a]
 textButtonStyle bState border =
   [buttonStyle bState border, style_ $ Map.fromList textRawStyle]
 
+-- | The state of a button
 data ButtonState
   = -- | Button is disabled
     Disabled
