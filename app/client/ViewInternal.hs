@@ -99,6 +99,7 @@ textStyle = Map.fromList textRawStyle
 
 data Position = Absolute | Relative
 
+-- TODO @smelc Use ToMisoString or alike instead?
 instance Show Position where
   show Absolute = "absolute"
   show Relative = "relative"

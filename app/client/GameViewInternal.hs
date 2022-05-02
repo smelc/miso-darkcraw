@@ -19,6 +19,7 @@ module GameViewInternal
     errView,
     fadeouts,
     heartWobble,
+    hintView,
     keyframes,
     manaView,
     messageView,
@@ -33,6 +34,7 @@ module GameViewInternal
 where
 
 import Board hiding (StackType)
+import qualified Campaign
 import Card
 import Constants
 import qualified Damage ()
@@ -137,6 +139,21 @@ animToFade = \case
   Game.Fadeout -> Constants.FadeOut
   Game.Message {} -> Constants.DontFade
 
+hintView :: Model.Game -> Int -> Maybe (View Action)
+hintView Model.Game {interaction, level} z =
+  case (level, Model.toSelection interaction) of
+    (Campaign.Level0, Nothing) -> Just $ mkDiv "Click on a card to select it"
+    (Campaign.Level0, Just _) -> Just $ mkDiv "Click on a green spot to play the selected card on this spot"
+    _ -> Nothing -- No help after first level
+  where
+    style =
+      "margin-top" =: px Constants.cps
+        <> "width" =: px Constants.boardPixelWidth
+        <> "font-style" =: "italic"
+        <> centerTextStyle ViewInternal.Absolute z
+    mkDiv txt =
+      div_ [style_ style] [div_ [] [Miso.text txt]]
+
 scoreViews :: Model.Game -> Int -> [Styled (View Action)]
 scoreViews m@Model.Game {anims, board} z =
   both PlayerTop
@@ -159,16 +176,7 @@ scoreView :: Model.Game -> Int -> Spots.Player -> View Action
 scoreView Model.Game {board} z pSpot =
   div_
     [ style_ $
-        Map.fromList textRawStyle
-          <> flexColumnStyle
-          <> "z-index" =: ms z
-          <> "position" =: "absolute"
-          -- Center horizontally
-          <> "margin-left" =: "50%"
-          <> "margin-right" =: "50%"
-          -- And tell the element to center horizontally, not to its left
-          <> "transform" =: "translate(-50%, 0%)"
-          -- Finally shift element down
+        centerTextStyle ViewInternal.Absolute z
           <> "margin-top" =: px (scoreMarginTop pSpot)
     ]
     [ div_ [] [Miso.text "Score"],
@@ -487,3 +495,16 @@ statChange z sck Effect.T {attackChange, Effect.hitPointsChange} =
     xshiftf x total = error $ "xshiftf " ++ show x ++ " " ++ show total ++ " is unsupported"
     animData =
       (animationData animName "1s" "linear") {animDataFillMode = Just "forwards"}
+
+-- | Style to display something centered w.r.t. the board
+centerTextStyle :: ViewInternal.Position -> Int -> Map.Map MisoString MisoString
+centerTextStyle pos z =
+  Map.fromList textRawStyle
+    <> flexColumnStyle
+    <> "z-index" =: ms z
+    <> "position" =: ms (show pos)
+    -- Center horizontally
+    <> "margin-left" =: "50%"
+    <> "margin-right" =: "50%"
+    -- And tell the element to center horizontally, not to its left
+    <> "transform" =: "translate(-50%, 0%)"
