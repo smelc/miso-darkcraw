@@ -8,10 +8,12 @@
 -- |
 module ViewBlocks (ButtonState (..), dummyOn, gui, GUI (..)) where
 
+import qualified Color
 import qualified Constants
 import qualified Data.Map.Strict as Map
 import Miso
 import Miso.String
+import qualified Nat
 import Update (Action (NoOp))
 import ViewInternal
 
@@ -42,7 +44,7 @@ _captivatingGUI = GUI {..}
                 (animDataName animData)
                 "box-shadow: 0 0 0 0 rgba(0,255,0,1);"
                 []
-                ("box-shadow: 0 0 0 " <> ms Constants.borderSize <> "px rgba(0,255,0,1);")
+                ("box-shadow: 0 0 0 " <> ms (Nat.natToInt Constants.borderSize) <> "px rgba(0,255,0,1);")
             )
             animData
         _ -> return $ f [buttonStyle bState True] -- XXX Call _simpleGUI's anyButton
@@ -69,9 +71,6 @@ _simpleGUI = GUI {..}
           (buttonStyle bState True : attrs)
           [stytextzhv z text 0 0]
 
-disabledHTML :: MisoString
-disabledHTML = "#AAAAAA"
-
 -- | Dummy 'onWithOptions' instance.
 -- See https://github.com/dmjio/miso/issues/478
 dummyOn ::
@@ -93,11 +92,11 @@ buttonStyle bState border =
       <> "border" =: "none"
   where
     borderColor =
-      case bState of
-        Disabled -> disabledHTML
-        Enabled -> Constants.greenHTML
-        Selected -> Constants.yellowHTML
-    borderSize' = if border then Constants.borderSize else 0
+      Color.html $ case bState of
+        Disabled -> Color.disabled
+        Enabled -> Color.green
+        Selected -> Color.yellow
+    borderSize' = if border then (Nat.natToInt Constants.borderSize) else 0
 
 textButtonStyle :: ButtonState -> Bool -> [Attribute a]
 textButtonStyle bState border =

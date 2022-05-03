@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Color</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Color</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>Module containing color constants. Module is meant to be used qualified.</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:T">T</a> = <a href="#v:T">T</a> {<ul class="subs">
+<li>
+<a href="#v:html">html</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
+</li>
+<li>
+<a href="#v:rgb">rgb</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</li>
+</ul>}</li>
+<li class="src short">
+<a href="#v:beige">beige</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:disabled">disabled</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:green">green</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:grey">grey</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:hover">hover</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:rgbToInt">rgbToInt</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>) -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</li>
+<li class="src short">
+<a href="#v:red">red</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:selection">selection</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:yellow">yellow</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+<li class="src short">
+<a href="#v:white">white</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:T" class="def">T</a> <a href="#t:T" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:T" class="def">T</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:html" class="def">html</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a></dfn><div class="doc"><p>The HTML representation like <code>#FF00FF</code></p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:rgb" class="def">rgb</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</dfn><div class="doc"><p>The RGB representation</p></div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+</div>
+<div class="top"><p class="src"><a id="v:beige" class="def">beige</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:beige" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:disabled" class="def">disabled</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:disabled" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:green" class="def">green</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:green" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:grey" class="def">grey</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:grey" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:hover" class="def">hover</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:hover" class="selflink">#</a></p>
+<div class="doc"><p>T to highlight something being hovered</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:rgbToInt" class="def">rgbToInt</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>) -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) <a href="#v:rgbToInt" class="selflink">#</a></p>
+<div class="doc"><p>Converts an <code><a href="Color.html#v:rgb" title="Color">rgb</a></code> value to using <code><a href="Nat.html#t:Nat" title="Nat">Nat</a></code></p></div>
+</div>
+<div class="top"><p class="src"><a id="v:red" class="def">red</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:red" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:selection" class="def">selection</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:selection" class="selflink">#</a></p>
+<div class="doc"><p>Color to highlight something selected</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:yellow" class="def">yellow</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:yellow" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:white" class="def">white</a> :: <a href="Color.html#t:T" title="Color">T</a> <a href="#v:white" class="selflink">#</a></p></div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>

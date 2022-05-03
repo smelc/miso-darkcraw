@@ -55,10 +55,6 @@
 <td class="module"><a href="Game.html#v:-36-sel:board:Result" title="Game">Game</a></td>
 </tr>
 <tr>
-<td class="src">$sel:color:Border</td>
-<td class="module"><a href="GameViewInternal.html#v:-36-sel:color:Border" title="GameViewInternal">GameViewInternal</a></td>
-</tr>
-<tr>
 <td class="src">$sel:creatureId:Creature</td>
 <td class="module"><a href="Card.html#v:-36-sel:creatureId:Creature" title="Card">Card</a></td>
 </tr>
@@ -271,8 +267,8 @@
 <td class="module"><a href="Model.html#v:-36-sel:uiAvail:Game" title="Model">Model</a></td>
 </tr>
 <tr>
-<td class="src">$sel:width:Border</td>
-<td class="module"><a href="GameViewInternal.html#v:-36-sel:width:Border" title="GameViewInternal">GameViewInternal</a></td>
+<td class="src">$sel:unBorder:Border</td>
+<td class="module"><a href="GameViewInternal.html#v:-36-sel:unBorder:Border" title="GameViewInternal">GameViewInternal</a></td>
 </tr>
 <tr>
 <td class="src">+^</td>
@@ -475,6 +471,10 @@
 <tr>
 <td class="src">allPlayers</td>
 <td class="module"><a href="Spots.html#v:allPlayers" title="Spots">Spots</a></td>
+</tr>
+<tr>
+<td class="src">allTargets</td>
+<td class="module"><a href="Game.html#v:allTargets" title="Game">Game</a></td>
 </tr>
 <tr>
 <td class="src">allTeams</td>
@@ -793,8 +793,8 @@
 <td class="module"><a href="Card.html#v:Beholder" title="Card">Card</a></td>
 </tr>
 <tr>
-<td class="src">beigeHTML</td>
-<td class="module"><a href="Constants.html#v:beigeHTML" title="Constants">Constants</a></td>
+<td class="src">beige</td>
+<td class="module"><a href="Color.html#v:beige" title="Color">Color</a></td>
 </tr>
 <tr>
 <td class="src">Bird</td>
@@ -949,12 +949,16 @@
 <td class="module"><a href="PCWViewInternal.html#t:BorderOverlay" title="PCWViewInternal">PCWViewInternal</a></td>
 </tr>
 <tr>
-<td class="src">borderSize</td>
-<td class="module"><a href="Constants.html#v:borderSize" title="Constants">Constants</a></td>
+<td class="src">Borders</td>
+<td class="module"><a href="GameViewInternal.html#t:Borders" title="GameViewInternal">GameViewInternal</a></td>
 </tr>
 <tr>
-<td class="src">borderWidth</td>
-<td class="module"><a href="GameViewInternal.html#v:borderWidth" title="GameViewInternal">GameViewInternal</a></td>
+<td class="src">borders</td>
+<td class="module"><a href="GameView.html#v:borders" title="GameView">GameView</a></td>
+</tr>
+<tr>
+<td class="src">borderSize</td>
+<td class="module"><a href="Constants.html#v:borderSize" title="Constants">Constants</a></td>
 </tr>
 <tr>
 <td class="src">botTeam</td>
@@ -1591,6 +1595,10 @@
 <td class="module"><a href="ViewBlocks.html#v:Disabled" title="ViewBlocks">ViewBlocks</a></td>
 </tr>
 <tr>
+<td class="src">disabled</td>
+<td class="module"><a href="Color.html#v:disabled" title="Color">Color</a></td>
+</tr>
+<tr>
 <td class="src">Discarded</td>
 <td class="module"><a href="Board.html#v:Discarded" title="Board">Board</a></td>
 </tr>
@@ -2087,24 +2095,20 @@
 <td class="module"><a href="PCWViewInternal.html#v:Green" title="PCWViewInternal">PCWViewInternal</a></td>
 </tr>
 <tr>
-<td class="src">GreenAffinity</td>
-<td class="module"><a href="Skill.html#v:GreenAffinity" title="Skill">Skill</a></td>
+<td class="src">green</td>
+<td class="module"><a href="Color.html#v:green" title="Color">Color</a></td>
 </tr>
 <tr>
-<td class="src">greenHTML</td>
-<td class="module"><a href="Constants.html#v:greenHTML" title="Constants">Constants</a></td>
+<td class="src">GreenAffinity</td>
+<td class="module"><a href="Skill.html#v:GreenAffinity" title="Skill">Skill</a></td>
 </tr>
 <tr>
 <td class="src">GreenPotion</td>
 <td class="module"><a href="Tile.html#v:GreenPotion" title="Tile">Tile</a></td>
 </tr>
 <tr>
-<td class="src">greenRGB</td>
-<td class="module"><a href="Constants.html#v:greenRGB" title="Constants">Constants</a></td>
-</tr>
-<tr>
-<td class="src">greyHTML</td>
-<td class="module"><a href="Constants.html#v:greyHTML" title="Constants">Constants</a></td>
+<td class="src">grey</td>
+<td class="module"><a href="Color.html#v:grey" title="Color">Color</a></td>
 </tr>
 <tr>
 <td class="src">groupCards</td>
@@ -2296,6 +2300,14 @@
 </tr>
 <tr>
 <td class="src">hover</td>
+<td>&nbsp;</td>
+</tr>
+<tr>
+<td class="alt">1 (Function)</td>
+<td class="module"><a href="Color.html#v:hover" title="Color">Color</a></td>
+</tr>
+<tr>
+<td class="alt">2 (Function)</td>
 <td class="module"><a href="PCWViewInternal.html#v:hover" title="PCWViewInternal">PCWViewInternal</a></td>
 </tr>
 <tr>
@@ -2305,6 +2317,10 @@
 <tr>
 <td class="src">HoverSelectionInteraction</td>
 <td class="module"><a href="Model.html#v:HoverSelectionInteraction" title="Model">Model</a></td>
+</tr>
+<tr>
+<td class="src">html</td>
+<td class="module"><a href="Color.html#v:html" title="Color">Color</a></td>
 </tr>
 <tr>
 <td class="src">Human</td>
@@ -3051,6 +3067,10 @@
 <td class="module"><a href="Nat.html#v:minusNatClamped" title="Nat">Nat</a></td>
 </tr>
 <tr>
+<td class="src">mkBorders</td>
+<td class="module"><a href="GameViewInternal.html#v:mkBorders" title="GameViewInternal">GameViewInternal</a></td>
+</tr>
+<tr>
 <td class="src">mkCoreCardCommon</td>
 <td class="module"><a href="Card.html#v:mkCoreCardCommon" title="Card">Card</a></td>
 </tr>
@@ -3713,8 +3733,8 @@
 <td class="module"><a href="Command.html#v:Reboot" title="Command">Command</a></td>
 </tr>
 <tr>
-<td class="src">redHTML</td>
-<td class="module"><a href="Constants.html#v:redHTML" title="Constants">Constants</a></td>
+<td class="src">red</td>
+<td class="module"><a href="Color.html#v:red" title="Color">Color</a></td>
 </tr>
 <tr>
 <td class="src">RedPotion</td>
@@ -3797,8 +3817,16 @@
 <td class="module"><a href="LootView.html#v:rewardsViewTopMargin" title="LootView">LootView</a></td>
 </tr>
 <tr>
+<td class="src">rgb</td>
+<td class="module"><a href="Color.html#v:rgb" title="Color">Color</a></td>
+</tr>
+<tr>
 <td class="src">rgba</td>
 <td class="module"><a href="ViewInternal.html#v:rgba" title="ViewInternal">ViewInternal</a></td>
+</tr>
+<tr>
+<td class="src">rgbToInt</td>
+<td class="module"><a href="Color.html#v:rgbToInt" title="Color">Color</a></td>
 </tr>
 <tr>
 <td class="src">right</td>
@@ -3919,6 +3947,10 @@
 <tr>
 <td class="src">Selection</td>
 <td class="module"><a href="Move.html#v:Selection" title="Move">Move</a></td>
+</tr>
+<tr>
+<td class="src">selection</td>
+<td class="module"><a href="Color.html#v:selection" title="Color">Color</a></td>
 </tr>
 <tr>
 <td class="src">SelectionInteraction</td>
@@ -4360,26 +4392,34 @@
 </tr>
 <tr>
 <td class="alt">1 (Type/Class)</td>
+<td class="module"><a href="Color.html#t:T" title="Color">Color</a></td>
+</tr>
+<tr>
+<td class="alt">2 (Data Constructor)</td>
+<td class="module"><a href="Color.html#v:T" title="Color">Color</a></td>
+</tr>
+<tr>
+<td class="alt">3 (Type/Class)</td>
 <td class="module"><a href="Skill.html#t:T" title="Skill">Skill</a></td>
 </tr>
 <tr>
-<td class="alt">2 (Type/Class)</td>
+<td class="alt">4 (Type/Class)</td>
 <td class="module"><a href="Effect.html#t:T" title="Effect">Effect</a></td>
 </tr>
 <tr>
-<td class="alt">3 (Data Constructor)</td>
+<td class="alt">5 (Data Constructor)</td>
 <td class="module"><a href="Effect.html#v:T" title="Effect">Effect</a></td>
 </tr>
 <tr>
-<td class="alt">4 (Type/Class)</td>
+<td class="alt">6 (Type/Class)</td>
 <td class="module"><a href="Turn.html#t:T" title="Turn">Turn</a></td>
 </tr>
 <tr>
-<td class="alt">5 (Type/Class)</td>
+<td class="alt">7 (Type/Class)</td>
 <td class="module"><a href="Board.html#t:T" title="Board">Board</a></td>
 </tr>
 <tr>
-<td class="alt">6 (Data Constructor)</td>
+<td class="alt">8 (Data Constructor)</td>
 <td class="module"><a href="Board.html#v:T" title="Board">Board</a></td>
 </tr>
 <tr>
@@ -5091,6 +5131,10 @@
 <td class="module"><a href="Game.html#v:whichPlayerTarget" title="Game">Game</a></td>
 </tr>
 <tr>
+<td class="src">white</td>
+<td class="module"><a href="Color.html#v:white" title="Color">Color</a></td>
+</tr>
+<tr>
 <td class="src">WhiteAppears0</td>
 <td class="module"><a href="Tile.html#v:WhiteAppears0" title="Tile">Tile</a></td>
 </tr>
@@ -5109,10 +5153,6 @@
 <tr>
 <td class="src">WhiteAppears4</td>
 <td class="module"><a href="Tile.html#v:WhiteAppears4" title="Tile">Tile</a></td>
-</tr>
-<tr>
-<td class="src">whiteHTML</td>
-<td class="module"><a href="Constants.html#v:whiteHTML" title="Constants">Constants</a></td>
 </tr>
 <tr>
 <td class="src">Win</td>
@@ -5163,12 +5203,8 @@
 <td class="module"><a href="PCWViewInternal.html#v:Yellow" title="PCWViewInternal">PCWViewInternal</a></td>
 </tr>
 <tr>
-<td class="src">yellowHTML</td>
-<td class="module"><a href="Constants.html#v:yellowHTML" title="Constants">Constants</a></td>
-</tr>
-<tr>
-<td class="src">yellowRGB</td>
-<td class="module"><a href="Constants.html#v:yellowRGB" title="Constants">Constants</a></td>
+<td class="src">yellow</td>
+<td class="module"><a href="Color.html#v:yellow" title="Color">Color</a></td>
 </tr>
 <tr>
 <td class="src">z</td>

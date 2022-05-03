@@ -169,12 +169,8 @@ updateGameModel m@Model.Game {interaction = i, shared, turn, uiAvail} action =
     (Move.MouseEnter box, _) -> pure $ go m $ Model.addHover box i
     (Move.MouseLeave _, _) -> pure $ go m $ Model.rmHover i
     -- Selecting
-    (Move.Selection ik1, SelectionInteraction ik2)
-      | ik1 == ik2 ->
-          -- Toggle selection
-          pure $ go m NoInteraction
-    (Move.Selection ik1, HoverSelectionInteraction _ ik2)
-      | ik1 == ik2 ->
+    (Move.Selection ik1, _)
+      | Just ik1 == Model.toSelection i ->
           -- Toggle selection
           pure $ go m $ Model.rmSelection i
     (Move.Selection _, _)
@@ -183,9 +179,10 @@ updateGameModel m@Model.Game {interaction = i, shared, turn, uiAvail} action =
           pure $ go m NoInteraction
     (Move.Selection (Model.BoxTarget target), (SelectionInteraction (Model.BoxHand idx))) ->
       -- Selection in place happens while card in hand is selected: trying to play the hand card
-      playOne m $ Game.PEvent $ Game.Place pSpot target idx
-      where
-        pSpot = Turn.toPlayerSpot turn
+      playHandCard target idx
+    (Move.Selection (Model.BoxTarget target), (HoverSelectionInteraction _ (Model.BoxHand idx))) ->
+      -- Selection in place happens while card in hand is selected: trying to play the hand card
+      playHandCard target idx
     (Move.Selection x, _) -> pure $ go m $ Model.addSelection x i
     (Move.ExecuteCmd, _) -> pure $ go m $ ShowErrorInteraction errMsg
       where
@@ -199,6 +196,11 @@ updateGameModel m@Model.Game {interaction = i, shared, turn, uiAvail} action =
     playOne :: MonadError Text.Text m => Model.Game -> Game.Event -> m (Model.Game, NextSched)
     playOne m event =
       updateGameModel m {interaction = NoInteraction} (Move.Sched $ Move.Play event)
+    -- @playHandCard target idx@ plays the hand card @idx@ on 'Game.Target' @target@
+    playHandCard target idx =
+      playOne m $ Game.PEvent $ Game.Place pSpot target idx
+      where
+        pSpot = Turn.toPlayerSpot turn
 
 -- | Update a 'LootModel' according to the input 'LootAction'
 updateLootModel :: LootAction -> LootModel -> LootModel

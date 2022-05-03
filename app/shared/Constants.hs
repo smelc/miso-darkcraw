@@ -78,7 +78,7 @@ blowAmount :: Nat
 blowAmount = 2
 
 -- | The size of borders around cards
-borderSize :: Int
+borderSize :: Nat
 borderSize = 3
 
 -- | The height of the hand in the build view, in pixels
@@ -241,27 +241,3 @@ lobbiesPixelHeight = 624
 -- of the mana column
 manaLeftPixelOffset :: Int
 manaLeftPixelOffset = (boardToLeftCardCellsOffset * cellPixelSize) `div` 2
-
-beigeHTML :: MisoString
-beigeHTML = "#F6E795"
-
-greenHTML :: MisoString
-greenHTML = "#00FF00"
-
-greyHTML :: MisoString
-greyHTML = "#555555"
-
-greenRGB :: (Int, Int, Int)
-greenRGB = (0, 255, 0)
-
-redHTML :: MisoString
-redHTML = "#FF0000"
-
-yellowHTML :: MisoString
-yellowHTML = "#FFFF00"
-
-yellowRGB :: (Int, Int, Int)
-yellowRGB = (255, 255, 0)
-
-whiteHTML :: MisoString
-whiteHTML = "#FFFFFF"

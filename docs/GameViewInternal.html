@@ -42,16 +42,11 @@
 <a href="#v:animToFade">animToFade</a> :: <a href="Game.html#t:Animation" title="Game">Animation</a> -&gt; <a href="Constants.html#t:Fade" title="Constants">Fade</a>
 </li>
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:Border">Border</a> = <a href="#v:Border">Border</a> {<ul class="subs">
-<li>
-<a href="#v:color">color</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
-</li>
-<li>
-<a href="#v:width">width</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a>
-</li>
-</ul>}</li>
+<span class="keyword">newtype</span> <a href="#t:Border">Border</a> = <a href="#v:Border">Border</a> {<ul class="subs"><li>
+<a href="#v:unBorder">unBorder</a> :: <a href="Color.html#t:T" title="Color">T</a>
+</li></ul>}</li>
 <li class="src short">
-<a href="#v:borderWidth">borderWidth</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+<span class="keyword">type</span> <a href="#t:Borders">Borders</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Model.html#t:Box" title="Model">Box</a> <a href="GameViewInternal.html#t:Border" title="GameViewInternal">Border</a>
 </li>
 <li class="src short">
 <a href="#v:errView">errView</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
@@ -68,6 +63,9 @@
 <a href="#v:manaView">manaView</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a</li>
 <li class="src short">
 <a href="#v:messageView">messageView</a> :: <a href="Game.html#t:Animation" title="Game">Animation</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a))</li>
+<li class="src short">
+<a href="#v:mkBorders">mkBorders</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="GameViewInternal.html#t:Borders" title="GameViewInternal">Borders</a>
+</li>
 <li class="src short">
 <a href="#v:noDrag">noDrag</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a</li>
 <li class="src short">
@@ -102,8 +100,9 @@
 <div class="doc"><p>What fading a <code><a href="Game.html#t:Animation" title="Game">Animation</a></code> triggers</p></div>
 </div>
 <div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:Border" class="def">Border</a> <a href="#t:Border" class="selflink">#</a></p>
-<div class="doc"><p>Data for drawing a border</p></div>
+<p class="src"><span class="keyword">newtype</span> <a id="t:Border" class="def">Border</a> <a href="#t:Border" class="selflink">#</a></p>
+<div class="doc"><p>Data for drawing a border. The only data is the color, since for
+ now all borders have the same width.</p></div>
 <div class="subs constructors">
 <p class="caption">Constructors</p>
 <table>
@@ -113,25 +112,16 @@
 </tr>
 <tr><td colspan="2"><div class="subs fields">
 <p class="caption">Fields</p>
-<ul>
-<li>
-<dfn class="src"><a id="v:color" class="def">color</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a></dfn><div class="doc"><p>A color valid for HTML</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:width" class="def">width</a> :: <a href="Nat.html#t:Nat" title="Nat">Nat</a></dfn><div class="doc"><p>A strictly positive nat</p></div>
-</li>
-</ul>
+<ul><li>
+<dfn class="src"><a id="v:unBorder" class="def">unBorder</a> :: <a href="Color.html#t:T" title="Color">T</a></dfn><div class="doc empty">&nbsp;</div>
+</li></ul>
 </div></td></tr>
 </table>
 </div>
 </div>
 <div class="top">
-<p class="src"><a id="v:borderWidth" class="def">borderWidth</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Game.html#t:Target" title="Game">Target</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:borderWidth" class="selflink">#</a></p>
-<div class="doc"><p>Draw border around target if:
- 1/ card in hand is being hovered or dragged -&gt; draw borders around
-    valid drag targets
- or 2/ card in place is being hovered -&gt; draw borders around cards
-       that can be attacked from this card</p></div>
+<p class="src"><span class="keyword">type</span> <a id="t:Borders" class="def">Borders</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Model.html#t:Box" title="Model">Box</a> <a href="GameViewInternal.html#t:Border" title="GameViewInternal">Border</a> <a href="#t:Borders" class="selflink">#</a></p>
+<div class="doc"><p>Borders of all boxes</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:errView" class="def">errView</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:errView" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:fadeouts" class="def">fadeouts</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Effect.html#t:T" title="Effect">T</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)) <a href="#v:fadeouts" class="selflink">#</a></p></div>
@@ -140,6 +130,7 @@
 <div class="top"><p class="src"><a id="v:keyframes" class="def">keyframes</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> -&gt; [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a>)] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a> <a href="#v:keyframes" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:manaView" class="def">manaView</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a <a href="#v:manaView" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:messageView" class="def">messageView</a> :: <a href="Game.html#t:Animation" title="Game">Animation</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a)) <a href="#v:messageView" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:mkBorders" class="def">mkBorders</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="GameViewInternal.html#t:Borders" title="GameViewInternal">Borders</a> <a href="#v:mkBorders" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:noDrag" class="def">noDrag</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:Attribute" title="Miso.Html">Attribute</a> a <a href="#v:noDrag" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:scoreViews" class="def">scoreViews</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; [<a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)] <a href="#v:scoreViews" class="selflink">#</a></p></div>
 <div class="top">

@@ -15,7 +15,8 @@
 -- |
 module GameViewInternal
   ( animToFade,
-    borderWidth,
+    Border (..),
+    Borders,
     errView,
     fadeouts,
     heartWobble,
@@ -23,6 +24,7 @@ module GameViewInternal
     keyframes,
     manaView,
     messageView,
+    mkBorders,
     noDrag,
     scoreViews,
     StackPosition (..),
@@ -36,6 +38,7 @@ where
 import Board hiding (StackType)
 import qualified Campaign
 import Card
+import qualified Color
 import Constants
 import qualified Damage ()
 import Data.Function ((&))
@@ -189,7 +192,7 @@ scorePluses board z pSpot = do
   return $
     div_
       [ style_ $
-          "color" =: greenHTML
+          "color" =: Color.html Color.green
             <> "font-weight" =: "bold"
             <> "z-index" =: ms z
             <> "position" =: "absolute"
@@ -352,50 +355,80 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
     plusFrames =
       textFrames
         animName
-        (plusFontSize, Constants.redHTML, False)
-        (plusFontSize', Constants.whiteHTML, True)
+        (plusFontSize, Color.html Color.red, False)
+        (plusFontSize', Color.html Color.white, True)
     plusBuilder x = div_ x [Miso.text $ ms ("+" :: MisoString) <> ms (show plusValue)]
 
--- | Draw border around target if:
--- 1/ card in hand is being hovered or dragged -> draw borders around
---    valid drag targets
--- or 2/ card in place is being hovered -> draw borders around cards
---       that can be attacked from this card
-borderWidth :: Model.Game -> Game.Target -> Int
-borderWidth Model.Game {board, interaction, playingPlayer} pTarget =
-  case (interaction, pTarget) of
-    (HoverInteraction (Model.BoxHand hoveredCard), _) | cond hoveredCard -> borderSize
-    (SelectionInteraction (Model.BoxHand hoveredCard), _) | cond hoveredCard -> borderSize
-    (HoverSelectionInteraction (Model.BoxHand hoveredCard) _, _) | cond hoveredCard -> borderSize
-    (HoverInteraction (Model.BoxTarget (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
-    (SelectionInteraction (Model.BoxTarget (Game.CardTarget x y)), _) -> inPlaceCase (x, y) pTarget
-    _ -> 0
+-- | Data for drawing a border. The only data is the color, since for
+-- now all borders have the same width.
+newtype Border = Border {unBorder :: Color.T}
+
+-- | Borders of all boxes
+type Borders = Map.Map Model.Box Border
+
+mkBorders :: Model.Game -> Borders
+mkBorders Model.Game {board, interaction, playingPlayer} =
+  -- Border from hovering have precedence over borders from selection
+  -- hence @fromHover@ being before @fromSelection@
+  selfHover <> selfSelection <> (Map.mapKeys Model.BoxTarget (fromHover <> fromSelection))
   where
-    inPlaceCase (spot :: (Spots.Player, Spots.Card)) (y :: Game.Target) =
-      case (spot, y) of
-        ((pSpotHov, cSpotHov), Game.CardTarget pSpot cSpot)
-          | pSpot /= pSpotHov && cSpot `elem` attackedSpots ->
-              borderSize
+    (attackColor, applicationColor) = (Color.red, Color.green)
+    selfHover =
+      Model.toHover interaction
+        & (\case Nothing -> mempty; Just box -> Map.singleton box (Border Color.hover))
+    fromHover =
+      case (Model.toHover interaction, Model.toSelection interaction) of
+        (Nothing, _) -> mempty
+        (Just (Model.BoxHand (Board.HandIndex idx)), _) ->
+          -- If hovering over a card in hand, draw borders around possible
+          -- applications of this card.
+          applicationsBorders idx
+        (Just (Model.BoxTarget (Game.CardTarget pSpot cSpot)), Nothing) ->
+          -- If hovering over a card in place, draw borders around
+          -- cards that can be attacked from this card. Only do this
+          -- if there is no selection going on. We don't want to mix both.
+          case attacker of
+            Nothing -> mempty
+            Just Creature {skills}
+              | Skill.Imprecise `elem` skills ->
+                  -- Attack has 'imprecise'. Draw enemy player part
+                  Map.singleton (Game.PlayerTarget (Spots.other pSpot)) (Border attackColor)
+            Just _attacker ->
+              Map.fromList
+                [ (Game.CardTarget (Spots.other pSpot) cSpot, Border attackColor)
+                  | cSpot <- attackedSpots
+                ]
           where
-            attacker = Board.toInPlaceCreature board pSpotHov cSpotHov
+            attacker = Board.toInPlaceCreature board pSpot cSpot
             attackedSpots :: [Spots.Card] =
-              case attacker <&> flip Game.enemySpots cSpotHov of
+              case attacker <&> flip Game.enemySpots cSpot of
                 Nothing -> []
                 Just Game.Ace -> []
                 Just Game.Imprecise -> []
                 Just (Game.Spots spots) -> spots
-        ((pSpotHov, cSpotHov), Game.PlayerTarget pSpot)
-          | pSpot /= pSpotHov && imprecise ->
-              borderSize
-          where
-            attacker :: Maybe (Creature 'Core) = Board.toInPlaceCreature board pSpotHov cSpotHov
-            imprecise :: Bool = attacker `has` (Skill.Imprecise :: Skill.State)
-        _ -> 0
-    cond hi =
-      case handCard $ unHandIndex hi of
-        Left errMsg -> trace (Text.unpack errMsg) False
-        Right id -> Game.appliesTo board id playingPlayer pTarget
-    handCard i = Board.lookupHand (Board.getpk @'Board.Hand playingPlayer board) i
+        _ -> mempty
+    selfSelection =
+      Model.toSelection interaction
+        & (\case Nothing -> mempty; Just box -> Map.singleton box (Border Color.selection))
+    fromSelection =
+      case (Model.toSelection interaction) of
+        Nothing -> mempty
+        Just (Model.BoxHand (Board.HandIndex idx)) ->
+          -- If a card in hand is selected, draw borders around possible
+          -- applications of this card.
+          applicationsBorders idx
+        _ -> mempty
+    -- Given a hand card at @idx@, the borders for the locations where it
+    -- can be played.
+    applicationsBorders idx =
+      case Board.lookupHand (Board.getpk @'Board.Hand playingPlayer board) idx of
+        Left _ -> mempty -- Should not happen
+        Right id ->
+          Map.fromList [(target, Border applicationColor) | target <- applications id]
+      where
+        -- Given a 'Card.ID', the targets where it can be played
+        applications id =
+          [target | target <- Game.allTargets, Game.appliesTo board id playingPlayer target]
 
 fadeouts :: Shared.Model -> Int -> Effect.T -> Styled (Maybe (View Action))
 fadeouts shared z Effect.T {death, fadeOut} = do

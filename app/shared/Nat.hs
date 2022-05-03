@@ -11,6 +11,7 @@ intToNat :: Int -> Nat
 intToNat n | (n < 0 || n > 65535) = error $ "intToNat: invalid value received: " ++ show n
 intToNat n = toEnum n
 
+-- TODO @smelc rename me to @toInt@ and use qualified
 natToInt :: Nat -> Int
 natToInt = fromEnum
 

@@ -42,6 +42,7 @@ common common-all
     Card
     CardInstances
     Cinema
+    Color
     Command
     ConcreteAI
     Contains

@@ -17,6 +17,7 @@ module GameView where
 
 import qualified Board
 import Card
+import qualified Color
 import qualified Configuration
 import Constants
 import Control.Monad (join)
@@ -70,7 +71,9 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
         Game.NoAnimation -> pure Nothing
         Game.Fadeout -> pure Nothing
         Game.Message {} -> pure Nothing
-    boardCardsM = boardToInPlaceCells (InPlaceCellContext {z = zpp, mkOffset}) model selectedTargetType
+    borders = GameViewInternal.mkBorders model
+    inPlaceCellContext = InPlaceCellContext {borders, z = zpp, mkOffset}
+    boardCardsM = boardToInPlaceCells inPlaceCellContext model selectedTargetType
     mkOffset pSpot cSpot = cardCellsBoardOffset pSpot cSpot & uncurry cardPositionStyle
     boardDivM = do
       let errs = errView model zpppp & maybeToList
@@ -163,7 +166,9 @@ cmdDiv shared =
 -- | Dumb container to reduce the number of arguments to some functions of
 -- this file.
 data InPlaceCellContext = InPlaceCellContext
-  { -- | The z-index
+  { -- | Borders for all boxes
+    borders :: GameViewInternal.Borders,
+    -- | The z-index
     z :: Int,
     -- | How to build the style for offsetting a card from the board's origin
     mkOffset :: Spots.Player -> Spots.Card -> Map.Map MisoString MisoString
@@ -175,12 +180,18 @@ boardToInPlaceCells ::
   -- | The target to which the selected card (if any) applies (if any)
   Maybe TargetType ->
   Styled [View Action]
-boardToInPlaceCells ctxt@InPlaceCellContext {z} m@Model.Game {board} selectedTargetType = do
+boardToInPlaceCells ctxt@InPlaceCellContext {borders, z} m@Model.Game {board} selectedTargetType = do
   emitTopLevelStyle $ bumpKeyFrames True
   emitTopLevelStyle $ bumpKeyFrames False
   main <- mainM
-  let playerTargets = [boardToPlayerTarget (z + 1) m selectedTargetType pSpot | pSpot <- Spots.allPlayers]
-  return [div_ [] $ main ++ catMaybes playerTargets]
+  let playerTargets =
+        catMaybes
+          [ case Map.lookup (Model.BoxTarget (Game.PlayerTarget pSpot)) borders of
+              Nothing -> Nothing
+              Just border -> Just $ boardToPlayerTarget (z + 1) border selectedTargetType pSpot
+            | pSpot <- Spots.allPlayers
+          ]
+  return [div_ [] $ main ++ playerTargets]
   where
     mainM =
       sequence
@@ -214,7 +225,7 @@ boardToInPlaceCell ::
   -- | The spot of the card to show
   Spots.Card ->
   Styled (View Action)
-boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, interaction, shared} Actionizer {..} selectedTargetType pSpot cSpot =
+boardToInPlaceCell InPlaceCellContext {borders, z, mkOffset} m@Model.Game {anims, board, interaction, shared} Actionizer {..} selectedTargetType pSpot cSpot =
   nodeHtmlKeyed
     "div"
     (Key $ ms key)
@@ -223,7 +234,7 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
             <> mkOffset pSpot cSpot -- Absolute positioning
             <> "z-index" =: ms z,
         class_ "card",
-        cardBoxShadowStyle rgb (borderWidth m target) "ease-in-out"
+        cardBoxShadowStyle rgb (Nat.natToInt borderWidth) "ease-in-out"
       ]
         ++ inPlaceEnterLeaveAttrs
         ++ (selectionTarget <&> dropEvents & concat)
@@ -246,6 +257,9 @@ boardToInPlaceCell InPlaceCellContext {z, mkOffset} m@Model.Game {anims, board, 
       return $ maybeToList cards ++ maybeToList fades ++ heartw ++ heartg ++ attackg
   where
     part = Board.toPart board pSpot
+    borderWidth =
+      Map.lookup (Model.BoxTarget target) borders
+        & (\case Nothing -> 0; Just _ -> Constants.borderSize)
     t = Board.team part
     loc = GameInPlaceLoc (Mana.labeler m) (Total.mkPlace board pSpot cSpot)
     key = intersperse "_" ["inPlace", show pSpot, show cSpot] & concat
@@ -297,32 +311,29 @@ decoViews z pSpot board =
 -- | Whether to show the player target at @pSpot@
 boardToPlayerTarget ::
   Int ->
-  Model.Game ->
+  GameViewInternal.Border ->
   Maybe TargetType ->
   Spots.Player ->
-  Maybe (View Action)
-boardToPlayerTarget z m@Model.Game {interaction} dragTargetType pSpot =
-  if bwidth <= 0
-    then Nothing
-    else
-      Just $
-        nodeHtmlKeyed
-          "div"
-          (Key $ ms key)
-          ( [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
-              cardBoxShadowStyle rgb bwidth "ease-in-out"
-            ]
-              ++ (dragTarget <&> dropEvents & concat)
-          )
-          []
+  View Action
+boardToPlayerTarget z gvborder dragTargetType pSpot =
+  nodeHtmlKeyed
+    "div"
+    (Key $ ms key)
+    ( [ style_ $ posStyle x y <> "z-index" =: ms z, -- Absolute positioning
+        cardBoxShadowStyle (nti $ Color.rgb border) (Nat.natToInt Constants.borderSize) "ease-in-out"
+      ]
+        ++ (dragTarget <&> dropEvents & concat)
+    )
+    []
   where
+    border :: Color.T = GameViewInternal.unBorder gvborder
+    nti (x, y, z) = (Nat.natToInt x, Nat.natToInt y, Nat.natToInt z)
     key = show pSpot ++ "-target"
     (x, y) = cardCellsBoardOffset pSpot cSpot
     (w, h) = (cardCellWidth * 3 + cardHCellGap * 2, cardCellHeight * 2 + cardVCellGap)
     posStyle x y = pltwh Absolute (x * cps) (y * cps) (w * cps) (h * cps)
     cSpot = case pSpot of PlayerTop -> TopLeft; PlayerBot -> BottomRight
     target = Game.PlayerTarget pSpot
-    (rgb, bwidth) = (targetBorderRGB interaction target, borderWidth m target)
     dragTarget =
       case dragTargetType of
         Just PlayerTargetType -> Just target
@@ -331,18 +342,23 @@ boardToPlayerTarget z m@Model.Game {interaction} dragTargetType pSpot =
 -- | The events for placeholders showing drop targets
 dropEvents :: Game.Target -> [Attribute Action]
 dropEvents target =
-  [ onClick $ GameAction' $ (Move.Selection (Model.BoxTarget target))
-  -- TODO @smelc Replug once InHand/InPlace is merged in Move
-  -- Miso.onMouseEnter $ GameAction' $ (Move.InPlaceMouseEnter target)
+  [ onClick $ GameAction' $ (Move.Selection box),
+    Miso.onMouseEnter $ GameAction' $ (Move.MouseEnter box),
+    Miso.onMouseLeave $ GameAction' $ (Move.MouseLeave box)
   ]
+  where
+    box = Model.BoxTarget target
 
 -- | The border color of a target
 targetBorderRGB :: Interaction -> Game.Target -> (Int, Int, Int)
 targetBorderRGB interaction target =
-  case interaction of
-    Model.HoverInteraction (Model.BoxTarget t) | t == target -> yellowRGB
-    Model.HoverSelectionInteraction (Model.BoxTarget t) _ | t == target -> yellowRGB
-    _ -> greenRGB
+  ( case interaction of
+      Model.HoverInteraction (Model.BoxTarget t) | t == target -> Color.yellow
+      Model.HoverSelectionInteraction (Model.BoxTarget t) _ | t == target -> Color.yellow
+      _ -> Color.green
+  )
+    & Color.rgb
+    & Color.rgbToInt
 
 boardToInHandCells ::
   -- | The z index

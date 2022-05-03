@@ -19,6 +19,7 @@
 
 module Game
   ( allEnemySpots,
+    allTargets,
     Animation (..),
     Game.appliesTo,
     applyFearNTerror,
@@ -112,7 +113,13 @@ data Target
   | -- | Creature card placed at given spot
     -- or Neutral card applies to a given in place card of a player
     CardTarget Spots.Player Spots.Card
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic, Show, Ord)
+
+-- | All possible targets
+allTargets :: [Game.Target]
+allTargets =
+  [PlayerTarget pSpot | pSpot <- Spots.allPlayers]
+    ++ [CardTarget pSpot cSpot | pSpot <- Spots.allPlayers, cSpot <- Spots.allCards]
 
 -- | The input type to most @play*@ functions
 data Playable e = Playable

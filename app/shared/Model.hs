@@ -37,7 +37,7 @@ data Box
     BoxHand Board.HandIndex
   | -- | Player part/card
     BoxTarget Game.Target
-  deriving (Show, Eq)
+  deriving (Eq, Show, Ord)
 
 -- | An interaction happening in the game page. TODO @smelc remove
 -- @Interaction@ suffix of constructors and move to new file?

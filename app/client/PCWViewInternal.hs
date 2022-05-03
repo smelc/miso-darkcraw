@@ -33,6 +33,7 @@ where
 
 import Card
 import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
+import qualified Color
 import Constants
 import Damage (Damage)
 import Data.Char (toLower)
@@ -133,8 +134,9 @@ instance Miso.String.ToMisoString Nat where
 instance Miso.String.ToMisoString Damage where
   toMisoString = toMisoString . show
 
+-- TODO @smelc return style_ [] if @width == 0@?
 cardBoxShadowStyle ::
-  -- | The (r, g, b) of the border
+  -- | The (r, g, b) of the border. FIXME @smelc change to Nat, Nat, Nat
   (Int, Int, Int) ->
   -- | The width of the border
   Int ->
@@ -258,8 +260,8 @@ cardView' z shared part card =
         attackStyle =
           ( case compare actualAttack formalAttack of
               EQ -> Nothing
-              LT -> Just Constants.redHTML
-              GT -> Just Constants.greenHTML
+              LT -> Just $ Color.html Color.red
+              GT -> Just $ Color.html Color.green
           )
             & ( \case
                   Nothing -> mempty
@@ -362,17 +364,18 @@ skillDiv shared skill =
     Skill.Pack {text, title} = Skill.lift skill & Shared.liftSkill shared
     color =
       ( case skill of
-          Skill.DrawCard False -> Just greyHTML
-          Skill.Blow False -> Just greyHTML
-          Skill.Blow True -> Just greenHTML
-          Skill.Fear False -> Just greyHTML
-          Skill.Terror False -> Just greyHTML
-          Skill.GreenAffinity False -> Just greyHTML
-          Skill.Growth False -> Just greyHTML
-          Skill.Slow False -> Just greyHTML
-          _ | Skill.isStupid skill -> Just redHTML
+          Skill.DrawCard False -> Just Color.grey
+          Skill.Blow False -> Just Color.grey
+          Skill.Blow True -> Just Color.green
+          Skill.Fear False -> Just Color.grey
+          Skill.Terror False -> Just Color.grey
+          Skill.GreenAffinity False -> Just Color.grey
+          Skill.Growth False -> Just Color.grey
+          Skill.Slow False -> Just Color.grey
+          _ | Skill.isStupid skill -> Just Color.red
           _ -> Nothing
       )
+        <&> Color.html
         & (\case Nothing -> mempty; Just color -> "color" =: color)
     label =
       case skill of
@@ -429,8 +432,8 @@ cardBackground z team CardDrawStyle {overlay, hover, selected} =
         color =
           case (hover, selected) of
             -- If both hovered and selected, selection has precedence
-            (_, True) -> Just Constants.yellowHTML
-            (True, _) -> Just Constants.redHTML
+            (_, True) -> Just $ Color.html Color.selection
+            (True, _) -> Just $ Color.html Color.hover
             _ -> Nothing
     stringToLower str = [toLower c | c <- str]
     overlayToFilename :: BorderOverlay -> Maybe MisoString
@@ -539,7 +542,7 @@ viewEntry mode Context {..} element (Actor mname state@ActorState {direction, te
           <> "left" =: px ((x * cps) + cps `div` 2)
           <> "top" =: px ((y - 1) * cps)
           <> "transform" =: "translate(-50%, -50%)" -- Center element
-          <> "background-color" =: beigeHTML
+          <> "background-color" =: Color.html Color.beige
           <> "border-radius" =: px 2 -- rounded corners
           <> "z-index" =: ms zppPP -- on top of everything
           <> "width" =: "fit-content" -- make box exactly the size of the text

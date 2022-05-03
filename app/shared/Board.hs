@@ -161,7 +161,7 @@ instance Monoid (PlayerPart 'UI) where
 
 -- FIXME @smelc make me a Nat
 newtype HandIndex = HandIndex {unHandIndex :: Int}
-  deriving (Eq, Show, Generic, Enum)
+  deriving (Eq, Show, Generic, Enum, Ord)
 
 data StackKind
   = -- | Button to display the hand (only used for the enemy, in Debug mode)
