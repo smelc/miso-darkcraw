@@ -4,6 +4,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -16,7 +17,7 @@
 module GameViewInternal
   ( animToFade,
     Border (..),
-    Borders,
+    Borders (..),
     errView,
     fadeouts,
     heartWobble,
@@ -44,7 +45,7 @@ import qualified Damage ()
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
-import Data.Maybe (maybeToList)
+import Data.Maybe (fromMaybe, maybeToList)
 import qualified Data.Text as Text
 import Debug.Trace (trace)
 import qualified Effect
@@ -142,20 +143,25 @@ animToFade = \case
   Game.Fadeout -> Constants.FadeOut
   Game.Message {} -> Constants.DontFade
 
-hintView :: Model.Game -> Int -> Maybe (View Action)
-hintView Model.Game {interaction, level} z =
-  case (level, Model.toSelection interaction) of
-    (Campaign.Level0, Nothing) -> Just $ mkDiv "Click on a card to select it"
-    (Campaign.Level0, Just _) -> Just $ mkDiv "Click on a green spot to play the selected card on this spot"
+hintView :: Int -> Model.Game -> Borders -> Maybe (View Action)
+hintView z Model.Game {interaction, level} Borders {applications} =
+  case (level, Model.toHover interaction, Model.toSelection interaction, applications) of
+    (Campaign.Level0, _, Nothing, _) -> Just $ mkDiv "Click on a card to select it" Nothing
+    (Campaign.Level0, Just (Model.BoxHand _), _, []) ->
+      Just $ mkDiv "Hovered card cannot be applied" (Just Color.red)
+    (Campaign.Level0, Nothing, Just (Model.BoxHand _), []) ->
+      Just $ mkDiv "Selected card cannot be applied, select another one" (Just Color.red)
+    (Campaign.Level0, _, Just (Model.BoxHand _), _ : _) ->
+      Just $ mkDiv "Click on a green spot to play the selected card on this spot" Nothing
     _ -> Nothing -- No help after first level
   where
-    style =
+    style color =
       "margin-top" =: px Constants.cps
         <> "width" =: px Constants.boardPixelWidth
         <> "font-style" =: "italic"
-        <> centerTextStyle ViewInternal.Absolute z
-    mkDiv txt =
-      div_ [style_ style] [div_ [] [Miso.text txt]]
+        <> centerTextStyle ViewInternal.Absolute z color
+    mkDiv txt color =
+      div_ [style_ $ style color] [div_ [] [Miso.text txt]]
 
 scoreViews :: Model.Game -> Int -> [Styled (View Action)]
 scoreViews m@Model.Game {anims, board} z =
@@ -179,7 +185,7 @@ scoreView :: Model.Game -> Int -> Spots.Player -> View Action
 scoreView Model.Game {board} z pSpot =
   div_
     [ style_ $
-        centerTextStyle ViewInternal.Absolute z
+        centerTextStyle ViewInternal.Absolute z Nothing
           <> "margin-top" =: px (scoreMarginTop pSpot)
     ]
     [ div_ [] [Miso.text "Score"],
@@ -364,24 +370,50 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
 newtype Border = Border {unBorder :: Color.T}
 
 -- | Borders of all boxes
-type Borders = Map.Map Model.Box Border
+data Borders = Borders
+  { -- | Boxes where something can be applied
+    applications :: [Box],
+    -- | Box coming from hovering
+    borders :: Map.Map Box Border
+  }
+
+appLessBorders :: Map.Map Box Border -> Borders
+appLessBorders = Borders []
+
+appOnlyBorders :: Map.Map Box Border -> Borders
+appOnlyBorders apps = Borders (Map.keys apps) apps
+
+instance Semigroup Borders where
+  Borders a1 b1 <> Borders a2 b2 = Borders (a1 <> a2) (b1 <> b2)
+
+instance Monoid Borders where
+  mempty = Borders [] mempty
 
 mkBorders :: Model.Game -> Borders
 mkBorders Model.Game {board, interaction, playingPlayer} =
   -- Border from hovering have precedence over borders from selection
   -- hence @fromHover@ being before @fromSelection@
-  selfHover <> selfSelection <> (Map.mapKeys Model.BoxTarget (fromHover <> fromSelection))
+  appLessBorders selfHover <> appLessBorders selfSelection <> fromInteraction
   where
+    -- (Map.mapKeys Model.BoxTarget fromInteraction)
     (attackColor, applicationColor) = (Color.red, Color.green)
     selfHover =
       Model.toHover interaction
         & (\case Nothing -> mempty; Just box -> Map.singleton box (Border Color.hover))
-    fromHover =
+    fromInteraction =
       case (Model.toHover interaction, Model.toSelection interaction) of
-        (Nothing, _) -> mempty
+        (Nothing, Nothing) -> mempty
         (Just (Model.BoxHand (Board.HandIndex idx)), _) ->
           -- If hovering over a card in hand, draw borders around possible
-          -- applications of this card.
+          -- applications of the card being hovered.
+          applicationsBorders idx
+        (Nothing, Just (Model.BoxHand (Board.HandIndex idx))) ->
+          -- If a card in hand is selected, and nothing is being hovered,
+          -- draw borders around possible applications of the selected card.
+          applicationsBorders idx
+        (Just (Model.BoxTarget _), Just (Model.BoxHand (Board.HandIndex idx))) ->
+          -- A hand card is selected and we are hovering over a target,
+          -- draw the possible targets.
           applicationsBorders idx
         (Just (Model.BoxTarget (Game.CardTarget pSpot cSpot)), Nothing) ->
           -- If hovering over a card in place, draw borders around
@@ -392,12 +424,16 @@ mkBorders Model.Game {board, interaction, playingPlayer} =
             Just Creature {skills}
               | Skill.Imprecise `elem` skills ->
                   -- Attack has 'imprecise'. Draw enemy player part
-                  Map.singleton (Game.PlayerTarget (Spots.other pSpot)) (Border attackColor)
+                  appLessBorders $
+                    Map.singleton
+                      (Model.BoxTarget (Game.PlayerTarget (Spots.other pSpot)))
+                      (Border attackColor)
             Just _attacker ->
-              Map.fromList
-                [ (Game.CardTarget (Spots.other pSpot) cSpot, Border attackColor)
-                  | cSpot <- attackedSpots
-                ]
+              appLessBorders $
+                Map.fromList
+                  [ (Model.BoxTarget (Game.CardTarget (Spots.other pSpot) cSpot), Border attackColor)
+                    | cSpot <- attackedSpots
+                  ]
           where
             attacker = Board.toInPlaceCreature board pSpot cSpot
             attackedSpots :: [Spots.Card] =
@@ -410,21 +446,15 @@ mkBorders Model.Game {board, interaction, playingPlayer} =
     selfSelection =
       Model.toSelection interaction
         & (\case Nothing -> mempty; Just box -> Map.singleton box (Border Color.selection))
-    fromSelection =
-      case (Model.toSelection interaction) of
-        Nothing -> mempty
-        Just (Model.BoxHand (Board.HandIndex idx)) ->
-          -- If a card in hand is selected, draw borders around possible
-          -- applications of this card.
-          applicationsBorders idx
-        _ -> mempty
     -- Given a hand card at @idx@, the borders for the locations where it
     -- can be played.
     applicationsBorders idx =
-      case Board.lookupHand (Board.getpk @'Board.Hand playingPlayer board) idx of
-        Left _ -> mempty -- Should not happen
-        Right id ->
-          Map.fromList [(target, Border applicationColor) | target <- applications id]
+      appOnlyBorders $
+        Map.mapKeys Model.BoxTarget $
+          case Board.lookupHand (Board.getpk @'Board.Hand playingPlayer board) idx of
+            Left _ -> mempty -- Should not happen
+            Right id ->
+              Map.fromList [(target, Border applicationColor) | target <- applications id]
       where
         -- Given a 'Card.ID', the targets where it can be played
         applications id =
@@ -530,10 +560,10 @@ statChange z sck Effect.T {attackChange, Effect.hitPointsChange} =
       (animationData animName "1s" "linear") {animDataFillMode = Just "forwards"}
 
 -- | Style to display something centered w.r.t. the board
-centerTextStyle :: ViewInternal.Position -> Int -> Map.Map MisoString MisoString
-centerTextStyle pos z =
-  Map.fromList textRawStyle
-    <> flexColumnStyle
+centerTextStyle :: ViewInternal.Position -> Int -> Maybe Color.T -> Map.Map MisoString MisoString
+centerTextStyle pos z color =
+  flexColumnStyle
+    <> "color" =: ms (fromMaybe Color.white color & Color.html)
     <> "z-index" =: ms z
     <> "position" =: ms (show pos)
     -- Center horizontally

@@ -88,6 +88,7 @@ animDataToStyle AnimationData {..} =
         Nothing -> map
         Just value -> Map.insert key value map
 
+-- FIXME @smelc use Color.white instead
 textMainColor :: MisoString
 textMainColor = "#FFFFFF" -- white
 

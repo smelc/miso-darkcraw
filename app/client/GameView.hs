@@ -97,7 +97,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl (Theme.board theme)
     handDivM = do
-      let hint = hintView model zpp & maybeToList
+      let hint = hintView zpp model borders & maybeToList
       cells <- boardToInHandCells zpp $ toHandDrawingInput model
       stacks <- traverse (stackView model z playingPlayer Hand) [Board.Discarded', Board.Stacked]
       return $ div_ [style_ handStyle] $ hint ++ cells ++ concat stacks
@@ -186,7 +186,7 @@ boardToInPlaceCells ctxt@InPlaceCellContext {borders, z} m@Model.Game {board} se
   main <- mainM
   let playerTargets =
         catMaybes
-          [ case Map.lookup (Model.BoxTarget (Game.PlayerTarget pSpot)) borders of
+          [ case Map.lookup (Model.BoxTarget (Game.PlayerTarget pSpot)) (GameViewInternal.borders borders) of
               Nothing -> Nothing
               Just border -> Just $ boardToPlayerTarget (z + 1) border selectedTargetType pSpot
             | pSpot <- Spots.allPlayers
@@ -258,7 +258,7 @@ boardToInPlaceCell InPlaceCellContext {borders, z, mkOffset} m@Model.Game {anims
   where
     part = Board.toPart board pSpot
     borderWidth =
-      Map.lookup (Model.BoxTarget target) borders
+      Map.lookup (Model.BoxTarget target) (GameViewInternal.borders borders)
         & (\case Nothing -> 0; Just _ -> Constants.borderSize)
     t = Board.team part
     loc = GameInPlaceLoc (Mana.labeler m) (Total.mkPlace board pSpot cSpot)
