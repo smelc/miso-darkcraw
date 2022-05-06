@@ -147,10 +147,20 @@ hintView :: Int -> Model.Game -> Borders -> Maybe (View Action)
 hintView z Model.Game {interaction, level} Borders {applications} =
   case (level, Model.toHover interaction, Model.toSelection interaction, applications) of
     (Campaign.Level0, _, Nothing, _) -> Just $ mkDiv "Click on a card to select it" Nothing
+    (Campaign.Level0, Just (Model.BoxHand hbox), Just (Model.BoxHand sbox), [])
+      | hbox == sbox ->
+          -- Hovering over selected card, prefer term "Selected"
+          Just $ mkDiv "Selected card cannot be played" (Just Color.red)
     (Campaign.Level0, Just (Model.BoxHand _), _, []) ->
-      Just $ mkDiv "Hovered card cannot be applied" (Just Color.red)
+      Just $ mkDiv "Hovered card cannot be played" (Just Color.red)
+    (Campaign.Level0, Just (Model.BoxHand hbox), Just (Model.BoxHand sbox), _ : _)
+      | hbox /= sbox ->
+          Just $ mkDiv "Click on the hovered card to play it on a green spot" Nothing
+    (Campaign.Level0, Just hbox@(Model.BoxTarget _), Just (Model.BoxHand _), _)
+      | hbox `elem` applications ->
+          Just $ mkDiv "Click to play the selected card" Nothing
     (Campaign.Level0, Nothing, Just (Model.BoxHand _), []) ->
-      Just $ mkDiv "Selected card cannot be applied, select another one" (Just Color.red)
+      Just $ mkDiv "Selected card cannot be played, select another one" (Just Color.red)
     (Campaign.Level0, _, Just (Model.BoxHand _), _ : _) ->
       Just $ mkDiv "Click on a green spot to play the selected card on this spot" Nothing
     _ -> Nothing -- No help after first level
