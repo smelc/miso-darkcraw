@@ -237,6 +237,11 @@ class ToClass a where
 instance ToClass Card.CreatureID where
   toClass id@Card.CreatureID {team, creatureKind = kind} =
     case team of
+      Beastmen ->
+        case kind of
+          Defender -> FrontFighter
+          Minotaur -> FrontFighter
+          _ -> error $ msg team
       Evil ->
         case kind of
           Abomination -> FrontFighter

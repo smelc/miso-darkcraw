@@ -342,7 +342,7 @@ testRewards =
     it "initialisation" $ do
       Campaign.augment [] Campaign.Level0 Human == [[]]
     -- TODO @smelc, test Evil, Sylvan too
-    prop "one card is received at every reward (except Evil, Sylvan, ZKnights)" $ do
+    prop "one card is received at every reward (Beastmen, except Evil, Sylvan, ZKnights)" $ do
       \(level, team) ->
         acceptable team
           ==> Campaign.augment [] level team
@@ -354,6 +354,7 @@ testRewards =
           ==> Campaign.loot Nothing outcome level team `shouldSatisfy` (not . null)
   where
     -- FIXME @smelc, write a custom generator
+    acceptable Beastmen = False
     acceptable Evil = False
     acceptable Sylvan = False
     acceptable ZKnights = False

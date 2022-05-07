@@ -72,16 +72,21 @@ instance Semigroup Deco where
   Forest <> Forest = Forest
 
 -- | Initially this type was for displaying animations only. However
--- 'Game' also uses for Core stuff internally (see applyInPlaceEffectOnBoard).
+-- 'Game' also uses for Core stuff internally (see 'Game.applyEffectOnBoard').
 -- Unfortunate :-( So be careful when changing related code.
+--
+-- This type mostly deals with the defender, even though there is the
+-- 'attackBump' field (could this field be removed?)
 data T = T
   { -- | Attack value changed
     attackChange :: Int,
+    -- | Defender used the 'Skill.Block' skll
+    block :: Bool,
     -- | Whether a 'Deco' changes
     decoChange :: DecoChange,
     -- | Did creature die? If yes, for what reason
     death :: DeathCause,
-    -- | Creature attacked (value used solely for animations)
+    -- | Creature attacked
     attackBump :: Bool,
     -- | Hits points changed
     hitPointsChange :: Int,
@@ -99,10 +104,11 @@ data T = T
   deriving (Eq, Generic, Show)
 
 instance Semigroup T where
-  T {attackChange = ac1, death = d1, decoChange = dc1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fade = fi1, fadeOut = fo1, scoreChange = c1}
-    <> T {attackChange = ac2, death = d2, decoChange = dc2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fade = fi2, fadeOut = fo2, scoreChange = c2} =
+  T {attackChange = ac1, block = b1, death = d1, decoChange = dc1, attackBump = ab1, extra = e1, hitPointsChange = hp1, fade = fi1, fadeOut = fo1, scoreChange = c1}
+    <> T {attackChange = ac2, block = b2, death = d2, decoChange = dc2, attackBump = ab2, extra = e2, hitPointsChange = hp2, fade = fi2, fadeOut = fo2, scoreChange = c2} =
       T
         { attackChange = ac1 + ac2,
+          block = b1 || b2,
           death = d1 <> d2,
           decoChange = dc1 <> dc2,
           attackBump = ab1 || ab2,
@@ -117,6 +123,7 @@ instance Monoid T where
   mempty =
     T
       { attackChange = 0,
+        block = False,
         death = mempty,
         decoChange = mempty,
         attackBump = False,

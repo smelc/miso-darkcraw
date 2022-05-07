@@ -11,6 +11,8 @@ import Data.Text
 jsonData :: Text
 jsonData = "{\n\
          \  \"creatures\": [\n\
+         \    { \"id\": { \"name\":\"defender\",  \"team\":\"beastmen\" },  \"title\":\"Defender\",    \"hp\":2, \"attack\":\"1-1\", \"tile\":\"BeastmenDefender\", \"mana\":\"2\", \"skills\":[\"Block\"] },\n\
+         \    { \"id\": { \"name\":\"minotaur\",  \"team\":\"beastmen\" },  \"title\":\"Minotaur\",    \"hp\":4, \"attack\":\"3-1\", \"tile\":\"BeastmenMinotaur\", \"mana\":\"4\", \"skills\":[\"Frenzy\"] },\n\
          \    { \"id\": { \"name\":\"church\",    \"team\":\"human\" },  \"title\":\"Church\",    \"hp\":5, \"attack\":\"0\", \"tile\":\"HumanChurch\",    \"mana\":\"3\", \"text\": \"At each turn, one of: +1 :heart: to all, +1 :crossed_swords: to all, or +1 :droplet:\", \"text_sz_offset\":-2  },\n\
          \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"Support\"] },\n\
          \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
@@ -80,6 +82,8 @@ jsonData = "{\n\
          \    { \"tile\":\"AxeOfRage\",     \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":3  } },\n\
          \    { \"tile\":\"BannerFeather\", \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":4 } },\n\
          \    { \"tile\":\"Bear\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":12 } },\n\
+         \    { \"tile\":\"BeastmenDefender\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":13 } },\n\
+         \    { \"tile\":\"BeastmenMinotaur\", \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":13 } },\n\
          \    { \"tile\":\"Beholder\",      \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":10 } },\n\
          \    { \"tile\":\"BirdWhite\",     \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":11 } },\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\
@@ -124,6 +128,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Loupe\",         \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":1 } },\n\
          \    { \"tile\":\"Ogre\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":0 } },\n\
          \    { \"tile\":\"Pandemonium\",   \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":2 } },\n\
+         \    { \"tile\":\"Shield\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":4 } },\n\
          \    { \"tile\":\"SkBanner\",      \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":2 } },\n\
          \    { \"tile\":\"SkullRedEyes\",  \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":2 } },\n\
          \    { \"tile\":\"SpikyMace\",     \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":2 } },\n\
@@ -163,6 +168,7 @@ jsonData = "{\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Ace\",         \"title\":\"Ace\",        \"text\":\"Hits any enemy\"},\n\
          \    { \"skill\":\"Assassin\",    \"title\":\"Assassin\",   \"text\":\"At beginning of turn, move in contact with most potent ennemy (if possible)\"},\n\
+         \    { \"skill\":\"Block\",       \"title\":\"Block\",      \"text\":\"Ignores first attack\"},\n\
          \    { \"skill\":\"Blow\",        \"title\":\"Blow\",       \"text\":\"+2 :crossed_swords: during first turn\"},\n\
          \    { \"skill\":\"Brainless\",   \"title\":\"Brainless\",  \"text\":\"Moves to a random empty spot at beginning of turn. Immune to fear and terror.\"},\n\
          \    { \"skill\":\"BreathIce\",   \"title\":\"Ice Breath\", \"text\":\"Attacks enemy in front as well as enemy behind\"},\n\
@@ -175,6 +181,7 @@ jsonData = "{\n\
          \    { \"skill\":\"Fear\",        \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
          \    { \"skill\":\"FearTmp\",     \"title\":\"Fear\",       \"text\":\"Nearby opponent with 1 :heart: dies at beginning of its turn. Immune to fear.\"},\n\
          \    { \"skill\":\"Flying\",      \"title\":\"Flying\",     \"text\":\"When attacked by non-shooter, moves to a random free spot\"},\n\
+         \    { \"skill\":\"Frenzy\",      \"title\":\"Frenzy\",     \"text\":\"Gain +1 :heart: and +1 :crossed_swords: when killing an enemy\"},\n\
          \    { \"skill\":\"GreenAffinity\", \"title\":\"Gaia's Will\", \"text\":\"At end of turn, create forest around a spot\"},\n\
          \    { \"skill\":\"Growth\",       \"title\":\"Growth\",    \"text\":\"If in a forest, at beginning of turn, +1 :heart: and +1 :crossed_swords:\"},\n\
          \    { \"skill\":\"Imprecise\",   \"title\":\"Imprecise\",  \"text\":\"Attacks one enemy spot, at random\"},\n\

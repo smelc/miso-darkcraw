@@ -12,10 +12,12 @@ import Nat
 -- | The type of skills. Highly polymorphic, because we use
 -- two different instances. Callers should only use
 -- the concrete instances 'Skill' and 'State'.
-data T blow drawCard fame fear green growth regen slow source stupid terror
+data T block blow drawCard fame fear green growth regen slow source stupid terror
   = Ace
   | -- | At turn start, moves against ponent ennemy
     Assassin
+  | -- | Ignores first attack. Boolean indidcates whether skill is available.
+    Block block
   | Blow blow
   | -- | Moves to random empty spot at turn start
     Brainless
@@ -34,6 +36,8 @@ data T blow drawCard fame fear green growth regen slow source stupid terror
     FearTmp
   | -- | Creatures moves to random free spot upon being attacked
     Flying
+  | -- | +1/+1 upon a kill
+    Frenzy
   | -- | Creates a forest at turn beginning
     GreenAffinity green
   | -- | +1 hp at turn beginning
@@ -78,6 +82,7 @@ data T blow drawCard fame fear green growth regen slow source stupid terror
 
 type Skill =
   T
+    () -- block
     () -- blow
     () -- drawCard
     Nat -- fame
@@ -92,6 +97,7 @@ type Skill =
 
 type State =
   T
+    Bool -- block, whether the skill is available (True) or used already (False)
     Bool -- blow, whether the skill is available (True) or used already (False)
     Bool -- drawCard
     (Nat, Bool) -- fame, creature contribute to score at beginning of turn. Boolean
@@ -123,6 +129,7 @@ lift skill =
   case skill of
     Ace -> Ace
     Assassin -> Assassin
+    Block {} -> Block ()
     Blow {} -> Blow ()
     Brainless -> Brainless
     BreathIce -> BreathIce
@@ -134,6 +141,7 @@ lift skill =
     Fear {} -> Fear ()
     FearTmp -> FearTmp
     Flying {} -> Flying
+    Frenzy -> Frenzy
     GreenAffinity {} -> GreenAffinity ()
     Growth {} -> Growth ()
     Imprecise -> Imprecise
@@ -165,6 +173,7 @@ unlift skill =
   case skill of
     Ace -> Ace
     Assassin -> Assassin
+    Block {} -> Block True
     Blow {} -> Blow True
     Brainless -> Brainless
     BreathIce -> BreathIce
@@ -176,6 +185,7 @@ unlift skill =
     Fear {} -> Fear True
     FearTmp -> FearTmp
     Flying {} -> Flying
+    Frenzy -> Frenzy
     GreenAffinity {} -> GreenAffinity True
     Growth {} -> Growth True
     Imprecise -> Imprecise

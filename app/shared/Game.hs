@@ -1555,9 +1555,10 @@ applyEffectOnBoard ::
 applyEffectOnBoard effect board hitter (pSpot, cSpot, hittee@Creature {creatureId, items}) = do
   tell decoEffect
   reportEffect pSpot cSpot effect
+  when block $ reportEffect pSpot cSpot (mempty {Effect.fadeOut = [Tile.Shield]})
   return $ board & updateHittee & updateDiscarded & updateDeco & updateScore
   where
-    Effect.T {Effect.decoChange, Effect.scoreChange} = effect
+    Effect.T {Effect.block, Effect.decoChange, Effect.scoreChange} = effect
     hittee' = applyEffect effect hittee
     updateHittee = Board.update pSpot cSpot (const hittee')
     updateDiscarded =
@@ -1582,12 +1583,29 @@ applyEffect ::
   Effect.T ->
   -- | The creature being hit
   Creature 'Core ->
-  -- | The creature being hit, after applying the effect; or None if dead
+  -- | The creature being hit, after applying the effect. Or 'Nothing' if dead.
   Maybe (Creature 'Core)
-applyEffect effect creature@Creature {..} =
-  case effect of
-    Effect.T {death} | Effect.isDead death -> Nothing
-    Effect.T {hitPointsChange = i} -> Just $ creature {hp = intToClampedNat (natToInt hp + i)}
+applyEffect Effect.T {block, death, hitPointsChange} creature@Creature {..} =
+  if Effect.isDead death
+    then Nothing
+    else hitPointsChangeFun creature & blockChangeFun & Just
+  where
+    hitPointsChangeFun =
+      case hitPointsChange of
+        0 -> id
+        i -> \c@Creature {hp} -> c {hp = intToClampedNat (natToInt hp + i)}
+    blockChangeFun (c@Creature {skills} :: Creature 'Core) =
+      if block
+        then
+          let (rm, novel) = (Skill.Block True :: Skill.State, Skill.Block False)
+           in c {skills = swapFirst rm novel skills}
+        else c
+    -- Replaces the first occurence of @e@ by @e'@ in the given list
+    swapFirst e e' =
+      \case
+        [] -> []
+        x : rest | x == e -> e' : rest
+        x : rest -> x : swapFirst e e' rest
 
 applyFlailOfTheDamned ::
   MonadWriter (Board.T 'UI) m =>
@@ -1630,7 +1648,7 @@ applyFlailOfTheDamned board creature pSpot =
 type AtPlace = (Total.Place, Creature 'Core)
 
 -- | The effect of an attack on the defender. Note that this function
--- cannot return a 'StatChange'. It needs the full expressivity of 'InPlaceEffect'.
+-- cannot return a 'StatChange'. It needs the full expressivity of 'Effect.T'.
 singleAttack ::
   MonadWriter Effect.T m =>
   MonadState Shared.Model m =>
@@ -1642,6 +1660,7 @@ singleAttack ::
 singleAttack
   (place, attacker@Creature {items, skills})
   (Total.Place {Total.place = dplace}, defender@Creature {skills = dskills}) = do
+    let block = defender `has` (Skill.Block True :: Skill.State)
     flyingSpot <-
       if Skill.Flying `elem` dskills && not (Mechanics.isRanged attacker)
         then Mechanics.flySpot dplace
@@ -1650,13 +1669,16 @@ singleAttack
     when (Skill.Ace `elem` skills) $ tell (fadeOut Tile.Arrow)
     when (Skill.Imprecise `elem` skills) $ tell (fadeOut Tile.Explosion)
     when (Card.BowOfGaia `elem` items) $ tell (mempty {Effect.decoChange = Effect.Appears Effect.Forest})
-    case (flyingSpot) of
-      Just flyingSpot -> do
+    case (block, flyingSpot) of
+      (True, _) -> do
+        tell $ mempty {Effect.block = True}
+        return Nothing
+      (False, Just flyingSpot) -> do
         -- Attackee flies away
         tell $ fadeOut Tile.Wings
         tell $ mempty {Effect.extra = hit, Effect.fade = Constants.FadeOut}
         return $ Just flyingSpot
-      Nothing -> do
+      (False, Nothing) -> do
         -- Regular case (no flying involved)
         let afterHit :: Int = (natToInt (Card.hp defender)) - (natToInt hit)
             extra = if afterHit < 0 then Nat.intToNat (abs afterHit) else 0

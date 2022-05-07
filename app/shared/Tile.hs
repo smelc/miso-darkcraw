@@ -37,6 +37,8 @@ data Tile
   | AxeOfRage
   | BannerFeather
   | Bear
+  | BeastmenDefender
+  | BeastmenMinotaur
   | Beholder
   | BirdWhite
   | BlackAppears0
@@ -81,6 +83,7 @@ data Tile
   | Ogre
   | Pandemonium
   | RedPotion
+  | Shield
   | SkBanner
   | SkullRedEyes
   | SpikyMace

@@ -61,7 +61,9 @@ mkJourney team =
         Human -> [(Undead, Theme.Forest), (Evil, Theme.Forest), (ZKnights, Theme.Forest)]
         Sylvan -> [(Evil, Theme.Forest), (Undead, Theme.Forest), (ZKnights, Theme.Forest)]
         Undead -> [(Human, Theme.Forest), (Evil, Theme.Forest), (ZKnights, Theme.Forest)]
-        ZKnights -> opponents Human -- We don't really care, it's not a playable team
+        -- Now onto teams for which we don't really care, because they are not playable
+        Beastmen -> opponents Human
+        ZKnights -> opponents Human
 
 -- | An incomplete journey, but fine for playing one game at the given level,
 -- against the given team.
@@ -124,6 +126,7 @@ rewards level team =
     (Level0, Undead) -> map (mkIDC team) [Card.Necromancer, Card.Specter]
     (Level1, Undead) -> [Card.IDI Card.SkBanner]
     -- Unplayable teams
+    (_, Beastmen) -> [] -- Not a playable team, it's fine
     (_, ZKnights) -> [] -- Not a playable team, it's fine
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []

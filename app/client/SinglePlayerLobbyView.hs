@@ -141,6 +141,7 @@ teamButton smodel z chosen team = do
     tile team =
       path team $
         case team of
+          Beastmen -> Minotaur
           Evil -> Knight
           Human -> General
           Sylvan -> Archer

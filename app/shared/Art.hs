@@ -93,12 +93,10 @@ showID (IDI i) = show i
 showID (IDN n) = show n
 
 showTeamShort :: Team -> String
-showTeamShort = \case
-  Evil -> "E"
-  Human -> "H"
-  Sylvan -> "S"
-  Undead -> "UD"
-  ZKnights -> "Z"
+showTeamShort t =
+  case t of
+    Undead -> "UD"
+    _ -> show t & take 1
 
 cardsLines :: Board.T 'Core -> Spots.Player -> [Spots.Card] -> [String]
 cardsLines board pSpot cSpots =

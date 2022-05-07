@@ -32,7 +32,7 @@ import qualified Skill
 import Tile (Tile)
 
 -- If you add a member, augment the tests in 'Balance.hs'
-data Team = Evil | Human | Sylvan | Undead | ZKnights
+data Team = Beastmen | Evil | Human | Sylvan | Undead | ZKnights
   deriving (Bounded, Enum, Eq, Generic, Show, Ord)
 
 ppTeam :: Team -> String
@@ -113,6 +113,7 @@ data CreatureKind
   | Captain
   | Church
   | Daemon
+  | Defender
   | Falcon
   | Falconer
   | General
@@ -120,6 +121,7 @@ data CreatureKind
   | King
   | Knight
   | Necromancer
+  | Minotaur
   | Mummy
   | Ogre
   | Priest
@@ -388,6 +390,7 @@ rawTeamDeck cards t =
     -- Initial creatures:
     creatures =
       case t of
+        Beastmen -> 2 * Defender ++ 1 * Minotaur
         Evil -> 2 * Knight ++ 2 * Spearman ++ 1 * Daemon ++ 1 * Beholder ++ 1 * Abomination ++ 1 * Priest ++ 1 * Assassin
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Sylvan -> 3 * Archer ++ 2 * Tree ++ 2 * Priest ++ 2 * Bear ++ 1 * Falconer
@@ -405,6 +408,7 @@ rawTeamDeck cards t =
     -- Initial neutrals
     neutrals =
       case t of
+        Beastmen -> []
         Evil -> 1 * Pandemonium ++ 1 * StrengthPot
         Human -> 1 * Health ++ 1 * Life
         Sylvan -> 1 * Life
@@ -422,6 +426,7 @@ rawTeamDeck cards t =
     -- Initial items
     items =
       case t of
+        Beastmen -> []
         Evil -> 1 * SpikyMace
         Human -> 1 * SwordOfMight
         Sylvan -> 1 * CloakOfGaia
