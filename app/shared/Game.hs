@@ -889,6 +889,28 @@ applyFillTheFrontline board pSpot =
               )
           )
 
+applyFrenzy ::
+  MonadWriter (Board.T 'UI) m =>
+  MonadState Shared.Model m =>
+  -- The hitter
+  Creature 'Core ->
+  -- The hitter's position
+  Spots.Player ->
+  -- The hitter's position
+  Spots.Card ->
+  -- The input board
+  Board.T 'Core ->
+  m (Board.T 'Core)
+applyFrenzy hitter pSpot cSpot board =
+  if hitter `doesNotHave` (Skill.Frenzy :: Skill.State)
+    then pure board
+    else do
+      reportEffect pSpot cSpot effect
+      return $ Board.adjust @(Creature 'Core) pSpot cSpot (apply change) board
+  where
+    change = StatChange {attackDiff = 1, hpDiff = 1}
+    effect = changeToEffect change
+
 applyPlagueM ::
   MonadWriter (Board.T 'UI) m =>
   -- | The input board
@@ -1510,7 +1532,10 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
   for_ flyingSpot (\flyingSpot -> reportEffect hitPspot flyingSpot flyingToEffect) -- fly to spot effect
   board <-
     if Effect.isDead death
-      then applyFlailOfTheDamned board hitter pSpot
+      then do
+        board <- applyFlailOfTheDamned hitter pSpot board
+        board <- applyFrenzy hitter pSpot cSpot board
+        return board
       else pure board
   let behind b =
         (if Spots.inFront hitSpot then Just (Spots.switchLine hitSpot) else Nothing)
@@ -1610,14 +1635,14 @@ applyEffect Effect.T {block, death, hitPointsChange} creature@Creature {..} =
 applyFlailOfTheDamned ::
   MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
-  -- The input board
-  Board.T 'Core ->
   -- The hitter
   Creature 'Core ->
   -- The hitter's position
   Spots.Player ->
+  -- The input board
+  Board.T 'Core ->
   m (Board.T 'Core)
-applyFlailOfTheDamned board creature pSpot =
+applyFlailOfTheDamned creature pSpot board =
   if not hasFlailOfTheDamned
     then return noChange
     else do

@@ -492,6 +492,8 @@ targetType id =
 -- a strongly typed entity system.
 class Has a b where
   has :: a -> b -> Bool
+  doesNotHave :: a -> b -> Bool
+  doesNotHave a b = not $ has a b
 
 instance Has (Creature 'Core) Skill.State where
   has Creature {skills} skill = skill `elem` skills
