@@ -22,6 +22,7 @@ balances =
   [ -- Level0
     -- Endomatches: if starting team doesn't have an advantage this data should
     -- show roughly 50% win on each side. It doesn't seem to be the case now.
+    (Beastmen, Campaign.Level0, Beastmen, 57, 2, 5),
     (Human, Campaign.Level0, Human, 47, 13, 4),
     (Evil, Campaign.Level0, Evil, 43, 20, 1),
     (Sylvan, Campaign.Level0, Sylvan, 40, 23, 1),

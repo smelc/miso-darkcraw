@@ -1663,8 +1663,8 @@ applyFlailOfTheDamned creature pSpot board =
                   & Card.unlift
           let spawned' = spawned {transient = True}
           let board' = Board.insert pSpot spawningSpot spawned' board
-          -- TODO @smelc record an animation highlighting the flail
-          reportEffect pSpot spawningSpot $ mempty {Effect.fade = Constants.FadeIn}
+              effect = mempty {Effect.fade = Constants.FadeIn, Effect.fadeOut = [Tile.FlailOfTheDamned]}
+          reportEffect pSpot spawningSpot effect
           return board'
   where
     hasFlailOfTheDamned = Card.items creature & elem FlailOfTheDamned
@@ -1684,10 +1684,10 @@ singleAttack ::
   m (Maybe Spots.Card)
 singleAttack
   (place, attacker@Creature {items, skills})
-  (Total.Place {Total.place = dplace}, defender@Creature {skills = dskills}) = do
+  (Total.Place {Total.place = dplace}, defender) = do
     let block = defender `has` (Skill.Block True :: Skill.State)
     flyingSpot <-
-      if Skill.Flying `elem` dskills && not (Mechanics.isRanged attacker)
+      if defender `has` (Skill.Flying :: Skill.State) && not (Mechanics.isRanged attacker)
         then Mechanics.flySpot dplace
         else pure Nothing
     hit :: Nat <- deal damage

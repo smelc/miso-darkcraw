@@ -34,8 +34,10 @@ instance Startable Skill.State where
 
 instance Startable [Skill.State] where
   start skills =
-    filter (\s -> s `notElem` [Skill.StrengthPot, Skill.FearTmp]) skills -- Remove temporary effects
-      & map start
+    -- Remove temporary effects and effects that do not regen
+    map start skills & filter (\s -> s `notElem` toRm)
+    where
+      toRm = [Skill.Block False, Skill.FearTmp, Skill.Slow False, Skill.StrengthPot]
 
 instance Startable (Creature 'Core) where
   start c@Creature {skills} = c {skills = start skills}

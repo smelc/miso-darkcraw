@@ -365,6 +365,7 @@ skillDiv shared skill =
     color =
       ( case skill of
           Skill.DrawCard False -> Just Color.grey
+          Skill.Block False -> Just Color.grey
           Skill.Blow False -> Just Color.grey
           Skill.Blow True -> Just Color.green
           Skill.Fear False -> Just Color.grey

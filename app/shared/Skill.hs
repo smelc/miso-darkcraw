@@ -59,7 +59,7 @@ data T block blow drawCard fame fear green growth regen slow source stupid terro
     Regeneration regen
   | -- | Upon a kill, killed neighbors get -1 attack
     Sadism
-  | -- | -1 attack the first turn
+  | -- | -1 attack the first turn. Active if Boolean is @True@
     Slow slow
   | -- | Strength potion in action
     StrengthPot

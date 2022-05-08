@@ -55,6 +55,7 @@ main shared update =
       check Evil Campaign.Level1 Sylvan
       check Evil Campaign.Level1 Undead
     it "Endomatches balance is as expected" $ do
+      check Beastmen Campaign.Level0 Beastmen
       check Human Campaign.Level0 Human
       check Evil Campaign.Level0 Evil
       check Sylvan Campaign.Level0 Sylvan
