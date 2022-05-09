@@ -28,6 +28,7 @@ balances =
     (Sylvan, Campaign.Level0, Sylvan, 40, 23, 1),
     (Undead, Campaign.Level0, Undead, 42, 18, 4),
     -- Matchups
+    (Human, Campaign.Level0, Beastmen, 61, 3, 0),
     (Human, Campaign.Level0, Evil, 18, 45, 1),
     (Human, Campaign.Level0, Sylvan, 6, 57, 1),
     (Human, Campaign.Level0, Undead, 27, 36, 1),

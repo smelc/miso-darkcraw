@@ -1,7 +1,6 @@
 #!/usr/bin/env stack
 -- stack --resolver lts-14.11 script
 
---
 -- This script is used to automatically display the composition of the three
 -- assets that make the game's main view (see 'GameView'). It is useful
 -- when creating these assets with tiled, to have a quick feedback loop.

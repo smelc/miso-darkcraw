@@ -44,6 +44,7 @@ main shared update =
       length balances `shouldBe` Set.size (Set.fromList balances)
     it "The teams' balance is as expected" $ do
       -- Level0
+      check Human Campaign.Level0 Beastmen
       check Human Campaign.Level0 Evil
       check Human Campaign.Level0 Sylvan
       check Human Campaign.Level0 Undead
