@@ -202,8 +202,6 @@ allNeutrals = [minBound ..]
 
 data NeutralObject (p :: Phase) = NeutralObject
   { neutral :: Neutral,
-    -- | The teams to which this neutral card applies
-    teams :: TeamsType p,
     title :: TextType p,
     titleSzOffset :: OffsetType p
   }
@@ -257,14 +255,13 @@ allItems = [minBound ..]
 
 data ItemObject (p :: Phase) = ItemObject
   { item :: Item,
-    teams :: TeamsType p,
     title :: TextType p,
     titleSzOffset :: OffsetType p
   }
   deriving (Generic)
 
 mkCoreItemObject :: Item -> ItemObject 'Core
-mkCoreItemObject item = ItemObject item () () ()
+mkCoreItemObject item = ItemObject item () ()
 
 deriving instance Forall Eq p => Eq (ItemObject p)
 
@@ -324,11 +321,11 @@ instance Unlift Creature where
 
 instance Unlift ItemObject where
   unlift ItemObject {..} =
-    ItemObject {teams = (), item, title = (), titleSzOffset = ()}
+    ItemObject {item, title = (), titleSzOffset = ()}
 
 instance Unlift NeutralObject where
   unlift NeutralObject {..} =
-    NeutralObject {neutral, teams = (), title = (), titleSzOffset = ()}
+    NeutralObject {neutral, title = (), titleSzOffset = ()}
 
 instance Unlift Card where
   unlift :: Card 'UI -> Card 'Core
@@ -415,10 +412,8 @@ rawTeamDeck cards t =
         Undead -> 2 * InfernalHaste ++ 1 * Plague
         ZKnights -> 1 * Life
       where
-        teams NeutralObject {teams} = teams
         kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
           mapMaybe cardToNeutralObject cards
-            & filter (\nobj -> t `Prelude.elem` teams nobj)
             & map unlift
             & map (\nobj -> (neutral nobj, nobj))
             & Map.fromList

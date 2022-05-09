@@ -87,7 +87,7 @@ instance Arbitrary Neutral where
 instance Arbitrary (NeutralObject 'Core) where
   arbitrary = mkNeutralObject <$> arbitrary
     where
-      mkNeutralObject x = NeutralObject x () () ()
+      mkNeutralObject x = NeutralObject x () ()
   shrink = genericShrink
 
 instance Arbitrary Card.ID where

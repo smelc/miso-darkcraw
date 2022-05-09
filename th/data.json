@@ -43,26 +43,26 @@
     { "id": { "name":"worm",      "team":"sylvan" }, "title":"Tree",   "hp":6, "attack":"6",     "tile":"SylvanWorm",    "skills":["Sylvan", "Powerful", "Rampage"], "mana":"remaining_turns" }
   ],
   "neutrals": [
-    { "name":"infernalhaste", "title":"Haste",  "tile":"SkullRedEyes", "text":"All creatures attack now!", "teams": ["undead"] },
-    { "name":"health",        "title":"Health", "tile":"RedPotion",    "text":"Gain +1 :heart:"          , "teams": ["human"]  },
-    { "name":"huntinghorn",   "title":"Hunting Horn", "text":"Creatures in forests cause Fear until next turn", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["sylvan"]  },
-    { "name":"life",          "title":"Life",   "tile":"GreenPotion",  "text":"Gain +3 :heart:"          , "teams": ["human", "sylvan", "zknights"]  },
-    { "name":"pandemonium",   "title":"Pandemonium", "text":"Randomly shuffle enemy board", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["evil"] },
-    { "name":"plague",        "title":"Plague", "tile":"HeartBroken",  "text":"All enemies lose 1 HP"    , "teams": ["undead"] },
-    { "name":"strengthpot",   "title":"Strength Potion", "text":"Gain +3:crossed_swords: during this turn", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["evil"] }
+    { "name":"infernalhaste", "title":"Haste",  "tile":"SkullRedEyes", "text":"All creatures attack now!"},
+    { "name":"health",        "title":"Health", "tile":"RedPotion",    "text":"Gain +1 :heart:"          },
+    { "name":"huntinghorn",   "title":"Hunting Horn", "text":"Creatures in forests cause Fear until next turn", "text_sz_offset":-2, "title_sz_offset":-2},
+    { "name":"life",          "title":"Life",   "tile":"GreenPotion",  "text":"Gain +3 :heart:"          },
+    { "name":"pandemonium",   "title":"Pandemonium", "text":"Randomly shuffle enemy board", "text_sz_offset":-2, "title_sz_offset":-2},
+    { "name":"plague",        "title":"Plague", "tile":"HeartBroken",  "text":"All enemies lose 1 HP"    },
+    { "name":"strengthpot",   "title":"Strength Potion", "text":"Gain +3:crossed_swords: during this turn", "text_sz_offset":-2, "title_sz_offset":-2 }
   ],
   "items": [
-    { "name":"axeofrage",        "title":"Axe of Rage",         "text":"Gives the powerful skill",   "teams": ["evil"] },
+    { "name":"axeofrage",        "title":"Axe of Rage",         "text":"Gives the powerful skill" },
     { "name":"bannerfeather",    "title":"Feather Banner",      "text":"???", "teams": ["sylvan"] },
-    { "name":"bowofgaia",        "title":"Bow of Gaia",         "text":"Creates a forest in hit spot", "teams": ["sylvan"] },
-    { "name":"bowofstrength",    "title":"Bow of Strength",     "text":"Add 0-2 damage. Ace only.",  "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["sylvan"] },
-    { "name":"cloakofgaia",      "title":"Cloak of Gaia",       "text":"If in a forest, gain 1 extra mana at beginning of turn", "text_sz_offset":-2, "title_sz_offset":-2, "teams": ["sylvan"] },
-    { "name":"crown",            "title":"Crown",               "text":"Gives the discipline skill", "teams": ["human"] },
-    { "name":"crushingmace",     "title":"Crushing Mace",       "text":"Add 0-2 damage", "teams": ["zknights"] },
-    { "name":"flailofthedamned", "title":"Flail of the Damned", "text":"Each kill creates a skeleton", "title_sz_offset":-2, "text_sz_offset":-2, "teams": ["undead"] },
-    { "name":"skbanner",         "title":"Bones Banner",        "text":"All allies skeletons have +1:crossed_swords:", "title_sz_offset":-2, "teams": ["undead"] },
-    { "name":"spikymace",        "title":"Spiky Mace",          "text":"Gives the sadism skill", "teams": ["evil"] },
-    { "name":"swordofmight",     "title":"Sword of Might",      "text":"+1 :heart:  +1:crossed_swords:", "teams": ["human", "undead", "zknights"], "tile":"Sword2" }
+    { "name":"bowofgaia",        "title":"Bow of Gaia",         "text":"Creates a forest in hit spot" },
+    { "name":"bowofstrength",    "title":"Bow of Strength",     "text":"Add 0-2 damage. Ace only.",  "text_sz_offset":-2, "title_sz_offset":-2 },
+    { "name":"cloakofgaia",      "title":"Cloak of Gaia",       "text":"If in a forest, gain 1 extra mana at beginning of turn", "text_sz_offset":-2, "title_sz_offset":-2 },
+    { "name":"crown",            "title":"Crown",               "text":"Gives the discipline skill" },
+    { "name":"crushingmace",     "title":"Crushing Mace",       "text":"Add 0-2 damage" },
+    { "name":"flailofthedamned", "title":"Flail of the Damned", "text":"Each kill creates a skeleton", "title_sz_offset":-2, "text_sz_offset":-2 },
+    { "name":"skbanner",         "title":"Bones Banner",        "text":"All allies skeletons have +1:crossed_swords:", "title_sz_offset":-2 },
+    { "name":"spikymace",        "title":"Spiky Mace",          "text":"Gives the sadism skill" },
+    { "name":"swordofmight",     "title":"Sword of Might",      "text":"+1 :heart:  +1:crossed_swords:", "tile":"Sword2" }
   ],
   "tiles": [
     { "tile":"Abomination",   "filepath": { "root": "24x24", "x":2, "y":10 } },

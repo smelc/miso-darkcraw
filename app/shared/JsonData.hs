@@ -54,26 +54,26 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"worm\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":6, \"attack\":\"6\",     \"tile\":\"SylvanWorm\",    \"skills\":[\"Sylvan\", \"Powerful\", \"Rampage\"], \"mana\":\"remaining_turns\" }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
-         \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          , \"teams\": [\"human\"]  },\n\
-         \    { \"name\":\"huntinghorn\",   \"title\":\"Hunting Horn\", \"text\":\"Creatures in forests cause Fear until next turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"]  },\n\
-         \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          , \"teams\": [\"human\", \"sylvan\", \"zknights\"]  },\n\
-         \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"text\":\"Randomly shuffle enemy board\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] },\n\
-         \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"    , \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"evil\"] }\n\
+         \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\"},\n\
+         \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          },\n\
+         \    { \"name\":\"huntinghorn\",   \"title\":\"Hunting Horn\", \"text\":\"Creatures in forests cause Fear until next turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2},\n\
+         \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          },\n\
+         \    { \"name\":\"pandemonium\",   \"title\":\"Pandemonium\", \"text\":\"Randomly shuffle enemy board\", \"text_sz_offset\":-2, \"title_sz_offset\":-2},\n\
+         \    { \"name\":\"plague\",        \"title\":\"Plague\", \"tile\":\"HeartBroken\",  \"text\":\"All enemies lose 1 HP\"    },\n\
+         \    { \"name\":\"strengthpot\",   \"title\":\"Strength Potion\", \"text\":\"Gain +3:crossed_swords: during this turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2 }\n\
          \  ],\n\
          \  \"items\": [\n\
-         \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"text\":\"Gives the powerful skill\",   \"teams\": [\"evil\"] },\n\
+         \    { \"name\":\"axeofrage\",        \"title\":\"Axe of Rage\",         \"text\":\"Gives the powerful skill\" },\n\
          \    { \"name\":\"bannerfeather\",    \"title\":\"Feather Banner\",      \"text\":\"???\", \"teams\": [\"sylvan\"] },\n\
-         \    { \"name\":\"bowofgaia\",        \"title\":\"Bow of Gaia\",         \"text\":\"Creates a forest in hit spot\", \"teams\": [\"sylvan\"] },\n\
-         \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"text\":\"Add 0-2 damage. Ace only.\",  \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
-         \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2, \"teams\": [\"sylvan\"] },\n\
-         \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"text\":\"Gives the discipline skill\", \"teams\": [\"human\"] },\n\
-         \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"text\":\"Add 0-2 damage\", \"teams\": [\"zknights\"] },\n\
-         \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2, \"teams\": [\"undead\"] },\n\
-         \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"text\":\"Gives the sadism skill\", \"teams\": [\"evil\"] },\n\
-         \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"text\":\"+1 :heart:  +1:crossed_swords:\", \"teams\": [\"human\", \"undead\", \"zknights\"], \"tile\":\"Sword2\" }\n\
+         \    { \"name\":\"bowofgaia\",        \"title\":\"Bow of Gaia\",         \"text\":\"Creates a forest in hit spot\" },\n\
+         \    { \"name\":\"bowofstrength\",    \"title\":\"Bow of Strength\",     \"text\":\"Add 0-2 damage. Ace only.\",  \"text_sz_offset\":-2, \"title_sz_offset\":-2 },\n\
+         \    { \"name\":\"cloakofgaia\",      \"title\":\"Cloak of Gaia\",       \"text\":\"If in a forest, gain 1 extra mana at beginning of turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2 },\n\
+         \    { \"name\":\"crown\",            \"title\":\"Crown\",               \"text\":\"Gives the discipline skill\" },\n\
+         \    { \"name\":\"crushingmace\",     \"title\":\"Crushing Mace\",       \"text\":\"Add 0-2 damage\" },\n\
+         \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2 },\n\
+         \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2 },\n\
+         \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"text\":\"Gives the sadism skill\" },\n\
+         \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"text\":\"+1 :heart:  +1:crossed_swords:\", \"tile\":\"Sword2\" }\n\
          \  ],\n\
          \  \"tiles\": [\n\
          \    { \"tile\":\"Abomination\",   \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":10 } },\n\

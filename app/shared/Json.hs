@@ -195,7 +195,6 @@ instance FromJSON Neutral where
 
 data NeutralObjectJSON = NeutralObjectJSON
   { neutral :: Neutral,
-    teams :: [Team],
     mana :: Nat,
     text :: String,
     textSzOffset :: Int,
@@ -209,7 +208,6 @@ instance FromJSON NeutralObjectJSON where
   parseJSON = withObject "Neutral" $ \v ->
     NeutralObjectJSON
       <$> v .: "name"
-      <*> v .: "teams"
       <*> v .:? "mana" .!= defaultManaCost
       <*> v .: "text"
       <*> v .:? "text_sz_offset" .!= 0
@@ -223,7 +221,6 @@ instance FromJSON Item where
 data ItemObjectJSON = ItemObjectJSON
   { item :: Item,
     mana :: Nat,
-    teams :: [Team],
     text :: String,
     textSzOffset :: Int,
     tile :: Maybe Tile,
@@ -237,7 +234,6 @@ instance FromJSON ItemObjectJSON where
     ItemObjectJSON
       <$> v .: "name"
       <*> v .:? "mana" .!= defaultManaCost
-      <*> v .:? "teams" .!= allTeams
       <*> v .: "text"
       <*> v .:? "text_sz_offset" .!= 0
       <*> v .:? "tile"
