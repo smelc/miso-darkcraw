@@ -62,6 +62,7 @@ common common-all
     Movie
     Nat
     Random
+    Roads
     ServerMessages
     Shared
     Skill

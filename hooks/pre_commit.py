@@ -13,6 +13,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from typing import List, Optional
 
 _BUILD_TEST = False  # Whether to build and run tests in the precommit hook.
@@ -126,6 +127,16 @@ def _check_ormolu_version() -> int:
         return 1
     else:
         return 0  # success case
+
+
+def _check_roads_dot_hs() -> int:
+    """ Checks that ./scripts/Roads.hs tiled/world.tmx /tmp/foo.hs
+        create a foo.hs file that is similar to app/client/Roads.hs """
+    with tempfile.NamedTemporaryFile() as tmpfile:
+        tmpfile = tmpfile.name
+        _run_cmd(None, ["./scripts/Roads.hs", "tiled/world.tmx", tmpfile], check=True)
+        rc = _run_cmd(None, ["diff", "app/client/Roads.hs", tmpfile])
+        return rc
 
 
 def _build() -> int:
@@ -248,6 +259,7 @@ def main() -> int:
             print("Not calling nix-build/cabal test either")
 
     return_code = max(return_code, _check_jsondata_dot_hs())
+    return_code = max(return_code, _check_roads_dot_hs())
 
     return return_code
 
