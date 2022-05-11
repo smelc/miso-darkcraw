@@ -92,8 +92,8 @@ mapButFirst :: (a -> a) -> [a] -> [a]
 mapButFirst f =
   \case
     [] -> []
-    [x] -> [f x]
-    x : y : rest -> x : f y : map f rest
+    [x] -> [x]
+    x : rest -> x : map f rest
 
 main :: IO ()
 main = do
