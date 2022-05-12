@@ -28,21 +28,27 @@ import qualified Data.Set as Set
 import Data.Text (intersperse)
 import qualified Data.Text as T
 import Data.Text.IO
+import Debug.Trace (traceShowId)
 import System.Environment
 import System.Process
 
 data Content = Empty | Road
   deriving (Show)
 
--- >>> prepare "<data encoding='csv>\nfoo1\nfoo2\n</data>"
+-- >>> prepare "<data encoding='csv'>\nfoo1\nfoo2\n</data>"
 -- ["foo1", "foo2"]
 prepare :: T.Text -> [T.Text]
-prepare s = T.lines s & map (T.drop 1) & init
+prepare s = T.lines s & filter f & map traceShowId & map (T.drop 1) & init
+  where
+    f l =
+      if T.null l
+        then False
+        else T.take 1 l /= "<"
 
 -- >>> parseLine "0,0,1,2,0,"
 -- [Empty, Empty, Road, Road, Empty]
 parseLine :: T.Text -> [Content]
-parseLine s = T.splitOn "," s & map (\case "0" -> Empty; _ -> Road)
+parseLine s = T.splitOn "," s & filter (not . T.null) & traceShowId & map (\case "0" -> Empty; _ -> Road)
 
 type Line = [(Int, Int)] -- (x, y)
 
@@ -104,11 +110,9 @@ main = do
   let content :: [[Content]] =
         prepare csv
           & map parseLine
-          & reverse -- Reverse for y==0 to be the last line
-      lines :: [Line] = zipWith toCoords [0 ..] content
+      lines :: [Line] = zipWith toCoords [length content - 1, length content - 2 ..] content
       linesText :: [T.Text] =
         map coordsToHaskell lines
-          & reverse -- Reverse for y==0 to be at the bottom
           & mapButFirst ("    " <>)
           & mapButLast (<> ",")
   Data.Text.IO.writeFile dest (T.unlines moduleStart <> "  [ " <> T.unlines (linesText ++ moduleEnd))
