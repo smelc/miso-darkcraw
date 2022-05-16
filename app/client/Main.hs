@@ -28,7 +28,7 @@ import qualified Shared
 import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (getStdGen)
-import Update (Action (..), initialWelcomeModel, updateModel)
+import Update (Action (..), updateModel)
 import View (viewModel)
 
 #ifndef __GHCJS__
@@ -68,7 +68,7 @@ main = do
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
   let shared = Shared.create cards skills tiles stdGen
-  let model = WelcomeModel' $ initialWelcomeModel shared -- initial model
+  let model = Model.World' $ Model.World shared -- WelcomeModel' $ initialWelcomeModel shared -- initial model
   runApp $
     if Configuration.isDev
       then startApp $ debugApp NoOp App {..}

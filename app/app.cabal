@@ -112,6 +112,7 @@ executable app
     ViewBlocks
     ViewInternal
     WelcomeView
+    WorldView
   if !impl(ghcjs)
     build-depends:
        jsaddle,

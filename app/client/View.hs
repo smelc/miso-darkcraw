@@ -14,6 +14,7 @@ import SinglePlayerLobbyView (viewSinglePlayerLobbyModel)
 import Update (Action)
 import ViewInternal (flexColumnStyle, renderStyledView)
 import WelcomeView (viewWelcomeModel)
+import WorldView (viewWorldModel)
 
 viewModel :: Model -> View Action
 viewModel m = center $ go m
@@ -24,6 +25,7 @@ viewModel m = center $ go m
     go (SinglePlayerLobbyModel' model) = renderStyledView $ viewSinglePlayerLobbyModel model
     go (LootModel' model) = renderStyledView $ LootView.view model
     go (WelcomeModel' model) = renderStyledView $ viewWelcomeModel model
+    go (World' model) = renderStyledView $ viewWorldModel model
 
 center :: View a -> View a
 center v = div_ [style_ flexColumnStyle] [v]

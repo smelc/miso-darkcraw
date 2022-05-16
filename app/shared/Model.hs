@@ -233,6 +233,13 @@ isPlayerTurn :: Game -> Bool
 isPlayerTurn Game {playingPlayer, turn} =
   Turn.toPlayerSpot turn == playingPlayer
 
+-- | The model of the world page
+data World = World
+  { -- | Part of the model shared among all pages
+    shared :: Shared.Model
+  }
+  deriving (Eq, Generic, Show)
+
 data PlayingMode
   = NoPlayingMode
   | MultiPlayer
@@ -340,7 +347,9 @@ data LootModel = LootModel
   }
   deriving (Eq, Generic, Show)
 
--- | The top level model
+-- | The top level model. TODO @smelc introduce a "View" typeclass
+-- and use "Model = forall a. View a => Model a"? But I would lose
+-- pattern matching, hum?
 data Model
   = DeckModel' Model.Deck
   | GameModel' Model.Game
@@ -348,4 +357,5 @@ data Model
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel
   | WelcomeModel' WelcomeModel
   | MultiPlayerLobbyModel' MultiPlayerLobbyModel
+  | World' World
   deriving (Eq, Generic, Show)
