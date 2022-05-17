@@ -29,7 +29,7 @@ import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (getStdGen)
 import Update (Action (..), updateModel)
-import View (viewModel)
+import View (view)
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
@@ -82,7 +82,7 @@ main = do
             _ -> traceShow a res
     updateProd a m = updateModel a m
     update = if Configuration.isDev then updateLog else updateProd
-    view = viewModel -- view function
+    view = View.view -- view function
     events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
     subs = [keyboardSub Keyboard]
     mountPoint = Nothing -- mount point for application (Nothing defaults to 'body')

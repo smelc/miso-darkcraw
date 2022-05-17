@@ -27,7 +27,7 @@ import Debug.Trace (traceShow)
 import qualified Mana
 import Miso
 import Miso.String hiding (drop, filter, findIndex, length, map, partition, split, take, zip)
-import Model (LootModel (..), Picked (..))
+import qualified Model
 import Nat
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
 import qualified PCWViewInternal
@@ -37,8 +37,8 @@ import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
 -- | Top-level rendering function
-view :: LootModel -> Styled (View Action)
-view LootModel {..} = do
+view :: Model.Loot -> Styled (View Action)
+view Model.Loot {..} = do
   next <- nextView zpppp remainingToPick
   rewards <- rewardsView ctxt zpppp rewards
   deck <-
@@ -78,11 +78,11 @@ view LootModel {..} = do
         _ -> ms $ "Rewards: pick " ++ show nbRewards
     picked :: [(Nat, ID)] =
       zip [(0 :: Nat) ..] rewards
-        & filter (\(_idx, (_id, picked)) -> case picked of Picked -> True; NotPicked -> False)
+        & filter (\(_idx, (_id, picked)) -> case picked of Model.Picked -> True; Model.NotPicked -> False)
         & map (\(idx, (id, _)) -> (idx, id))
     cardinalPicked =
       map snd rewards
-        & filter (\case Picked -> True; NotPicked -> False)
+        & filter (\case Model.Picked -> True; Model.NotPicked -> False)
         & natLength
     remainingToPick = nbRewards - cardinalPicked
     deckLegend =
@@ -165,7 +165,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
         [legendStyle i]
         [div_ [legendTextStyle] [Miso.text $ "Click to " <> verb]]
       where
-        verb = case picked of Picked -> "unpick"; NotPicked -> "pick"
+        verb = case picked of Model.Picked -> "unpick"; Model.NotPicked -> "pick"
     legendStyle i =
       style_ $
         zpltwh

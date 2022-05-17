@@ -19,7 +19,8 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Vector as V
 import Miso
 import Miso.String (fromMisoString, ms)
-import Model (SceneModel (..), TimedFrames, WelcomeModel (..))
+import Model (SceneModel (..), TimedFrames)
+import qualified Model
 import PCWViewInternal (DisplayMode (..), viewFrame)
 import qualified Shared
 import qualified Tile
@@ -28,8 +29,8 @@ import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
 
 -- | Constructs a virtual DOM from a welcome model
-viewWelcomeModel :: WelcomeModel -> Styled (View Action)
-viewWelcomeModel WelcomeModel {..} = do
+viewWelcomeModel :: Model.Welcome -> Styled (View Action)
+viewWelcomeModel Model.Welcome {..} = do
   multiPlayerDiv <-
     createButtonDivM multiPlayerMargin MultiPlayerDestination "Multiplayer"
   singlePlayerDiv <-

@@ -95,7 +95,7 @@ data Action
   | -- | Actions internal to 'LootView'
     LootAction' LootAction
   | -- | Go to 'LootView'
-    LootGo LootModel
+    LootGo Model.Loot
   | NoOp
   | MultiPlayerLobbyAction' MultiPlayerLobbyAction
   | SayHelloWorld
@@ -203,8 +203,8 @@ updateGameModel m@Model.Game {interaction = i, shared, turn, uiAvail} action =
         pSpot = Turn.toPlayerSpot turn
 
 -- | Update a 'LootModel' according to the input 'LootAction'
-updateLootModel :: LootAction -> LootModel -> LootModel
-updateLootModel action lm@LootModel {rewards = pairs} =
+updateLootModel :: LootAction -> Model.Loot -> Model.Loot
+updateLootModel action lm@Model.Loot {rewards = pairs} =
   lm {rewards}
   where
     rewards =
@@ -394,25 +394,25 @@ updateModel SayHelloWorld m =
   m <# do consoleLog "miso-darkcraw says hello" >> pure (SceneAction' StepScene)
 -- Actions that change the page
 -- Leave 'DeckView'
-updateModel DeckBack (DeckModel' Model.Deck {..}) =
+updateModel DeckBack (Model.Deck' Model.Deck {..}) =
   noEff deckBack
 -- Leave 'GameView', go to 'DeckView'
-updateModel (DeckGo deck) m@(GameModel' Model.Game {..}) =
-  noEff $ DeckModel' $ Model.Deck deck m playingPlayer t turn shared
+updateModel (DeckGo deck) m@(Model.Game' Model.Game {..}) =
+  noEff $ Model.Deck' $ Model.Deck deck m playingPlayer t turn shared
   where
     t = Board.toPart board playingPlayer & Board.team
 -- Go to 'LootView'
 updateModel (LootGo model) _ =
-  noEff $ LootModel' model
+  noEff $ Model.Loot' model
 -- Schedule leaving 'GameView', to go to 'LootView'
-updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
+updateModel _ m@(Model.Game' gm@Model.Game {board, level, playingPlayer, turn})
   | (Turn.next turn & Turn.toNat) > Constants.nbTurns =
       case Campaign.succ level of
         Nothing -> noEff m -- TODO, go to global victory view
         Just _ ->
           delayActions m' [(toSecs 1, LootGo $ Model.endGame gm outcome)]
           where
-            m' = GameModel' gm {anim = Game.Fadeout}
+            m' = Model.Game' gm {anim = Game.Fadeout}
             part = Board.toPart board playingPlayer
             (score, enemy) =
               (Board.score part, Board.toPart board (Spots.other playingPlayer) & Board.score)
@@ -422,16 +422,16 @@ updateModel _ m@(GameModel' gm@Model.Game {board, level, playingPlayer, turn})
                 EQ -> Campaign.Draw
                 GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
-updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shared, turn, playingPlayer})
+updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, shared, turn, playingPlayer})
   | Shared.cmd shared & isJust =
       let cmdStr = Shared.cmd shared
        in case cmdStr <&> Mana.read & join of
             Nothing ->
               let errMsg = "Unrecognized command: " ++ show cmdStr
-               in noEff $ GameModel' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
+               in noEff $ Model.Game' $ gm {interaction = ShowErrorInteraction $ Text.pack errMsg}
             Just (Command.AIPlay pSpot) ->
               case Game.playAll shared $ Game.Playable board events t of
-                Left errMsg -> noEff $ GameModel' $ gm {interaction = ShowErrorInteraction errMsg}
+                Left errMsg -> noEff $ Model.Game' $ gm {interaction = ShowErrorInteraction errMsg}
                 Right (Game.Result {board = board'}) -> withBoard board'
               where
                 t = Turn.setSpot pSpot turn
@@ -441,7 +441,7 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
             Just (Command.CreateForest pSpot) ->
               playEvent Game.ApplyCreateForest pSpot
             Just (Command.EndGame outcome) ->
-              noEff $ LootModel' $ Model.endGame gm outcome
+              noEff $ Model.Loot' $ Model.endGame gm outcome
             Just (Command.FillTheFrontline pSpot) ->
               playEvent Game.FillTheFrontline pSpot
             Just (Command.Gimme cid) ->
@@ -465,16 +465,16 @@ updateModel (GameAction' Move.ExecuteCmd) (GameModel' gm@Model.Game {board, shar
                     & splitAt Constants.initialHandSize
                 part = (Board.empty team) {Board.inHand, Board.stack}
   where
-    withBoard board' = noEff $ GameModel' $ gm {board = board'}
+    withBoard board' = noEff $ Model.Game' $ gm {board = board'}
     playEvent eventMaker pSpot =
       updateModel
         (GameAction' $ Move.Sched $ Move.Play $ eventMaker pSpot)
-        (GameModel' gm)
+        (Model.Game' gm)
 -- Actions that leave 'SinglePlayerView'
 updateModel
   SinglePlayerBack
   (SinglePlayerLobbyModel' SinglePlayerLobbyModel {..}) =
-    noEff $ WelcomeModel' $ initialWelcomeModel singlePlayerLobbyShared
+    noEff $ Model.Welcome' $ initialWelcomeModel singlePlayerLobbyShared
 updateModel
   SinglePlayerGo
   ( SinglePlayerLobbyModel'
@@ -483,26 +483,26 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ GameModel' $ level0GameModel Constants.Hard shared (Campaign.mkJourney team) (Board.Teams Undead team)
+    noEff $ Model.Game' $ level0GameModel Constants.Hard shared (Campaign.mkJourney team) (Board.Teams Undead team)
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
-  (WelcomeModel' WelcomeModel {shared}) =
+  (Model.Welcome' Model.Welcome {shared}) =
     noEff $ SinglePlayerLobbyModel' $ SinglePlayerLobbyModel Nothing shared
-updateModel (WelcomeGo MultiPlayerDestination) (WelcomeModel' _) =
+updateModel (WelcomeGo MultiPlayerDestination) (Model.Welcome' _) =
   effectSub (MultiPlayerLobbyModel' (CollectingUserName "")) $
     websocketSub (URL "ws://127.0.0.1:9160") (Protocols []) handleWebSocket
   where
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
 -- Actions that do not change the page delegate to more specialized versions
-updateModel (SceneAction' action) (WelcomeModel' wm@WelcomeModel {sceneModel}) = do
+updateModel (SceneAction' action) (Model.Welcome' wm@Model.Welcome {sceneModel}) = do
   newSceneModel <- updateSceneModel action sceneModel
-  return (WelcomeModel' wm {sceneModel = newSceneModel})
+  return (Model.Welcome' wm {sceneModel = newSceneModel})
 updateModel (SceneAction' _) model = noEff model
-updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, sceneModel}) = do
+updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
   newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
-  return $ WelcomeModel' wm {keysDown = newKeysDown, sceneModel = newSceneModel}
+  return $ Model.Welcome' wm {keysDown = newKeysDown, sceneModel = newSceneModel}
   where
     sceneAction :: Maybe SceneAction
     sceneAction = asum (map keyCodeToSceneAction (toList (Set.difference newKeysDown keysDown)))
@@ -510,13 +510,13 @@ updateModel (Keyboard newKeysDown) (WelcomeModel' wm@WelcomeModel {keysDown, sce
     keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
     keyCodeToSceneAction _ = Nothing
 updateModel (Keyboard _) model = noEff model
-updateModel (GameAction' a) (GameModel' m) =
+updateModel (GameAction' a) (Model.Game' m) =
   case runExcept (updateGameModel (m {anim = Game.NoAnimation}) a) of
-    Right (m, Nothing) -> noEff (GameModel' m)
-    Right (m, nextSched) -> delayActions (GameModel' m) (nextSchedToMiso nextSched)
-    Left errMsg -> noEff (GameModel' (m {interaction = ShowErrorInteraction errMsg}))
-updateModel (LootAction' a) (LootModel' m) =
-  noEff $ LootModel' $ updateLootModel a m
+    Right (m, Nothing) -> noEff (Model.Game' m)
+    Right (m, nextSched) -> delayActions (Model.Game' m) (nextSchedToMiso nextSched)
+    Left errMsg -> noEff (Model.Game' (m {interaction = ShowErrorInteraction errMsg}))
+updateModel (LootAction' a) (Model.Loot' m) =
+  noEff $ Model.Loot' $ updateLootModel a m
 updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
   noEff $ SinglePlayerLobbyModel' $ updateSinglePlayerLobbyModel a m
 updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
@@ -600,9 +600,9 @@ unsafeInitialGameModel difficulty shared teams board =
     anim = Game.NoAnimation
     uiAvail = True
 
-initialWelcomeModel :: Shared.Model -> WelcomeModel
+initialWelcomeModel :: Shared.Model -> Model.Welcome
 initialWelcomeModel shared =
-  WelcomeModel
+  Model.Welcome
     { sceneModel = toSceneModel Movie.welcomeMovie,
       keysDown = mempty,
       ..

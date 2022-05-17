@@ -2,7 +2,7 @@
 -- The module dispatching the most general view to the different
 -- specializations.
 -- |
-module View where
+module View (view) where
 
 import DeckView (viewDeck)
 import GameView (viewGameModel)
@@ -16,16 +16,16 @@ import ViewInternal (flexColumnStyle, renderStyledView)
 import WelcomeView (viewWelcomeModel)
 import WorldView (viewWorldModel)
 
-viewModel :: Model -> View Action
-viewModel m = center $ go m
+view :: Model -> View Action
+view m = center $ go m
   where
-    go (DeckModel' model) = renderStyledView $ viewDeck model
-    go (GameModel' model) = renderStyledView $ viewGameModel model
+    go (Model.Deck' model) = renderStyledView $ viewDeck model
+    go (Model.Game' model) = renderStyledView $ viewGameModel model
     go (MultiPlayerLobbyModel' model) = viewMultiPlayerLobbyModel model
     go (SinglePlayerLobbyModel' model) = renderStyledView $ viewSinglePlayerLobbyModel model
-    go (LootModel' model) = renderStyledView $ LootView.view model
-    go (WelcomeModel' model) = renderStyledView $ viewWelcomeModel model
-    go (World' model) = renderStyledView $ viewWorldModel model
+    go (Model.Loot' model) = renderStyledView $ LootView.view model
+    go (Model.Welcome' model) = renderStyledView $ viewWelcomeModel model
+    go (Model.World' model) = renderStyledView $ viewWorldModel model
 
 center :: View a -> View a
 center v = div_ [style_ flexColumnStyle] [v]

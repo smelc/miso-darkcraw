@@ -78,7 +78,7 @@
 </li>
 <li>| <a href="#v:LootAction-39-">LootAction'</a> <a href="Update.html#t:LootAction" title="Update">LootAction</a>
 </li>
-<li>| <a href="#v:LootGo">LootGo</a> <a href="Model.html#t:LootModel" title="Model">LootModel</a>
+<li>| <a href="#v:LootGo">LootGo</a> <a href="Model.html#t:Loot" title="Model">Loot</a>
 </li>
 <li>| <a href="#v:NoOp">NoOp</a>
 </li>
@@ -118,7 +118,7 @@
 <li class="src short">
 <a href="#v:updateGameModel">updateGameModel</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/mtl-2.2.2/Control-Monad-Error-Class.html#t:MonadError" title="Control.Monad.Error.Class">MonadError</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/text-1.2.3.1/Data-Text.html#t:Text" title="Data.Text">Text</a> m =&gt; <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="Move.html#t:Move" title="Move">Move</a> -&gt; m (<a href="Model.html#t:Game" title="Model">Game</a>, <a href="Move.html#t:NextSched" title="Move">NextSched</a>)</li>
 <li class="src short">
-<a href="#v:updateLootModel">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a>
+<a href="#v:updateLootModel">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a>
 </li>
 <li class="src short">
 <a href="#v:updateSinglePlayerLobbyModel">updateSinglePlayerLobbyModel</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a>
@@ -153,7 +153,7 @@
 <a href="#v:unsafeInitialGameModel">unsafeInitialGameModel</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:Teams" title="Board">Teams</a> (<a href="Card.html#t:Team" title="Card">Team</a>, [<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:Core" title="Card">Core</a>]) -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Model.html#t:Game" title="Model">Game</a>
 </li>
 <li class="src short">
-<a href="#v:initialWelcomeModel">initialWelcomeModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a>
+<a href="#v:initialWelcomeModel">initialWelcomeModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:Welcome" title="Model">Welcome</a>
 </li>
 </ul></details></div>
 <div id="interface">
@@ -381,7 +381,7 @@
 </tr>
 <tr>
 <td class="src">
-<a id="v:LootGo" class="def">LootGo</a> <a href="Model.html#t:LootModel" title="Model">LootModel</a>
+<a id="v:LootGo" class="def">LootGo</a> <a href="Model.html#t:Loot" title="Model">Loot</a>
 </td>
 <td class="doc"><p>Go to <code>LootView</code></p></td>
 </tr>
@@ -547,8 +547,8 @@
  right away by doing a recursive call (or use <code>playOne</code>)</p></div>
 </div>
 <div class="top">
-<p class="src"><a id="v:updateLootModel" class="def">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a> -&gt; <a href="Model.html#t:LootModel" title="Model">LootModel</a> <a href="#v:updateLootModel" class="selflink">#</a></p>
-<div class="doc"><p>Update a <code><a href="Model.html#t:LootModel" title="Model">LootModel</a></code> according to the input <code><a href="Update.html#t:LootAction" title="Update">LootAction</a></code></p></div>
+<p class="src"><a id="v:updateLootModel" class="def">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a> <a href="#v:updateLootModel" class="selflink">#</a></p>
+<div class="doc"><p>Update a <code>LootModel</code> according to the input <code><a href="Update.html#t:LootAction" title="Update">LootAction</a></code></p></div>
 </div>
 <div class="top"><p class="src"><a id="v:updateSinglePlayerLobbyModel" class="def">updateSinglePlayerLobbyModel</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> <a href="#v:updateSinglePlayerLobbyModel" class="selflink">#</a></p></div>
 <div class="top">
@@ -656,7 +656,7 @@
 </div>
 <div class="doc"><p>An initial model, with a custom board. <em>! Not for production </em>!\</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:initialWelcomeModel" class="def">initialWelcomeModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:WelcomeModel" title="Model">WelcomeModel</a> <a href="#v:initialWelcomeModel" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:initialWelcomeModel" class="def">initialWelcomeModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:Welcome" title="Model">Welcome</a> <a href="#v:initialWelcomeModel" class="selflink">#</a></p></div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>

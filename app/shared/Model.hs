@@ -174,11 +174,11 @@ gameToDeck Game {..} =
     Board.PlayerPart {..} = Board.toPart board playingPlayer
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
-endGame :: Game -> Campaign.Outcome -> LootModel
+endGame :: Game -> Campaign.Outcome -> Model.Loot
 endGame Game {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, shared} outcome =
   case Campaign.succ level of
     Nothing -> error "You've finished the game!" -- Not really a nice end for now
-    Just next -> LootModel {..}
+    Just next -> Model.Loot {..}
   where
     nbRewards = 1 -- Change this?
     rewards =
@@ -189,9 +189,9 @@ endGame Game {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, sha
 
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'LootView'.
-unsafeLootModel :: WelcomeModel -> Model
-unsafeLootModel WelcomeModel {shared} =
-  LootModel' $ LootModel {..}
+unsafeLootModel :: Model.Welcome -> Model
+unsafeLootModel Model.Welcome {shared} =
+  Loot' $ Model.Loot {..}
   where
     nbRewards = 1
     team = Human
@@ -205,9 +205,9 @@ unsafeLootModel WelcomeModel {shared} =
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'GameView'. Similar to a function
 -- in 'Update' (but we don't want to grow 'Update' if we can avoid).
-unsafeGameModel :: WelcomeModel -> Model
-unsafeGameModel WelcomeModel {shared} =
-  GameModel' $ Game {..}
+unsafeGameModel :: Model.Welcome -> Model
+unsafeGameModel Model.Welcome {shared} =
+  Game' $ Game {..}
   where
     anim = Game.NoAnimation
     anims = mempty
@@ -257,7 +257,7 @@ data SceneModel
   deriving (Eq, Generic, Show)
 
 -- | The model of the welcome page
-data WelcomeModel = WelcomeModel
+data Welcome = Welcome
   { -- The state of the scene
     sceneModel :: SceneModel,
     -- | Part of the model shared among all pages
@@ -330,7 +330,7 @@ data Picked
   deriving (Eq, Generic, Ord, Show)
 
 -- FIXME @smelc rename me to Loot
-data LootModel = LootModel
+data Loot = Loot
   { -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
     -- | The next level
@@ -351,11 +351,11 @@ data LootModel = LootModel
 -- and use "Model = forall a. View a => Model a"? But I would lose
 -- pattern matching, hum?
 data Model
-  = DeckModel' Model.Deck
-  | GameModel' Model.Game
-  | LootModel' LootModel
+  = Deck' Model.Deck
+  | Game' Model.Game
+  | Loot' Model.Loot
   | SinglePlayerLobbyModel' SinglePlayerLobbyModel
-  | WelcomeModel' WelcomeModel
+  | Welcome' Model.Welcome
   | MultiPlayerLobbyModel' MultiPlayerLobbyModel
-  | World' World
+  | World' Model.World
   deriving (Eq, Generic, Show)
