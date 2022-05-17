@@ -5,7 +5,7 @@
 
 set -eux
 
-declare -r SCHPLAF_ADDRESS="https://schplaf.org/hgames/darkcraw/assets"
+declare -r SCHPLAF_ADDRESS="https://schplaf.org/smelc3/darkcraw/assets"
 
 declare -r LOCAL_DIR="app/assets"
 declare -r FILES="blue_slot.png card-bg-beastmen.png card-bg-evil.png card-bg-human.png card-bg-sylvan.png card-bg-undead.png card-blue-fat-border.png card-green-fat-border.png card-yellow-fat-border.png dark-forest.png dark-forest-hand.png deck.png errbox.png forest.png forest-hand.png moss-dungeon-board.png moss-dungeon-hand.png moss-dungeon-turn.png loot-bot-forest.png loot-top-sand.png red_slot.png round-trees-forest-spell.png singleplayer.png torchs.png turn.png turn-dark-forest.png welcome.png world.png"

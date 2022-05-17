@@ -182,11 +182,9 @@ supportDiv =
               text ". To show your support, star it ⭐, or leave a comment on the released version:"
             ],
           a_
-            [ href_ itchUrl,
+            [ href_ Constants.itchURL,
               style_ $ "margin-top" =: px 12 <> "margin-bottom" =: px 12
             ]
-            [text itchUrl]
+            [text Constants.itchURL]
         ]
     ]
-  where
-    itchUrl = "https://hgames.itch.io/pixel-card-wars"

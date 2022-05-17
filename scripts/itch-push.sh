@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Script to publish the game to https://hgames.itch.io/pixel-card-wars
+# Script to publish the game to https://smelc3.itch.io/pixel-card-wars
 
 rm -Rf "$TMP_PATH"  # Erase previous run if any
 
@@ -37,7 +37,7 @@ git rev-parse HEAD > "$TMP_PATH/VERSION" || { echo "Cannot record version"; exit
 (cd "$TMP_PATH" && zip -r "${ARCHIVE_NAME}" .) || { echo "Cannot zip"; exit 1; }
 
 # Send to itch
-butler push "$ARCHIVE_PATH" hgames/pixel-card-wars:html || { echo "butler failed"; exit 1; }
+butler push "$ARCHIVE_PATH" smelc3/pixel-card-wars:html || { echo "butler failed"; exit 1; }
 
 # Cleanup
 rm -Rf "$TMP_PATH"

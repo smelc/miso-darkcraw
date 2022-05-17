@@ -9,8 +9,8 @@
 
 A card game done with Haskell [miso](https://github.com/dmjio/miso).
 
-* You can see the last release on [itch.io](https://hgames.itch.io/pixel-card-wars).
-* You can see the dev version [here](https://schplaf.org/hgames/darkcraw).
+* You can see the last release on [itch.io](https://smelc3.itch.io/pixel-card-wars).
+* You can see the dev version [here](https://schplaf.org/smelc3/darkcraw).
 
 # Developers
 

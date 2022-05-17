@@ -186,7 +186,7 @@ defaultManaCost = 1
 
 -- | The URL of the game on itch.io
 itchURL :: MisoString
-itchURL = "https://hgames.itch.io/pixel-card-wars"
+itchURL = "https://smelc3.itch.io/pixel-card-wars"
 
 -- | The vertical spacing between the two teams, in cells
 teamsVCellGap :: Int

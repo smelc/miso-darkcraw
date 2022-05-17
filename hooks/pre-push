@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Script to publish the game to schplaf.org/hgames/darkcraw
+# Script to publish the game to schplaf.org/smelc3/darkcraw
 
 set -eux
 
