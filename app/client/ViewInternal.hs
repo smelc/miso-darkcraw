@@ -335,14 +335,7 @@ pltwh pos left top width height =
 
 -- | A style specifying the z-index, the position, the left margin,
 -- | the top margin, the width, and the height. All sizes are in pixels
-zpltwh ::
-  Int ->
-  Position ->
-  Int ->
-  Int ->
-  Int ->
-  Int ->
-  Map.Map MisoString MisoString
+zpltwh :: Int -> Position -> Int -> Int -> Int -> Int -> Map.Map MisoString MisoString
 zpltwh z pos left top width height =
   Map.fromList
     [ ("z-index", ms z),
@@ -355,12 +348,7 @@ zpltwh z pos left top width height =
 
 -- | A style specifying the z-index, the position, the right margin,
 -- | the bottom margin. All sizes are in pixels
-zprb ::
-  Int ->
-  Position ->
-  Int ->
-  Int ->
-  Map.Map MisoString MisoString
+zprb :: Int -> Position -> Int -> Int -> Map.Map MisoString MisoString
 zprb z pos right bot =
   "z-index" =: ms z
     <> "position" =: ms (show pos)
@@ -369,14 +357,7 @@ zprb z pos right bot =
 
 -- | A style specifying the z-index, the position, the right margin,
 -- | the bottom margin, the width, and the height. All sizes are in pixels
-zprbwh ::
-  Int ->
-  Position ->
-  Int ->
-  Int ->
-  Int ->
-  Int ->
-  Map.Map MisoString MisoString
+zprbwh :: Int -> Position -> Int -> Int -> Int -> Int -> Map.Map MisoString MisoString
 zprbwh z pos right bottom width height =
   "z-index" =: ms z
     <> "position" =: ms (show pos)
