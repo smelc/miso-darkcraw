@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RecordWildCards #-}
 
 -- |
@@ -8,6 +9,7 @@
 module Tile where
 
 import GHC.Generics (Generic)
+import Nat
 
 data Filepath = Filepath
   { root :: String,
@@ -139,3 +141,7 @@ data Size
     Sixteen
   | -- | Tiles that are 24x24
     TwentyFour
+
+-- | The pixel size of a 'Size' value
+sizeToNat :: Size -> Nat
+sizeToNat = \case Sixteen -> 16; TwentyFour -> 24

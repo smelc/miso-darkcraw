@@ -30,6 +30,7 @@ import System.IO (hPutStrLn, stderr)
 import System.Random (getStdGen)
 import Update (Action (..), updateModel)
 import View (view)
+import qualified WorldView
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
@@ -68,7 +69,8 @@ main = do
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
   let shared = Shared.create cards skills tiles stdGen
-  let model = Model.World' $ Model.World shared -- WelcomeModel' $ initialWelcomeModel shared -- initial model
+  -- WelcomeModel' $ initialWelcomeModel shared -- initial model
+  let model = Model.World' $ WorldView.mkModel shared
   runApp $
     if Configuration.isDev
       then startApp $ debugApp NoOp App {..}
@@ -84,6 +86,6 @@ main = do
     update = if Configuration.isDev then updateLog else updateProd
     view = View.view -- view function
     events = Map.fromList [("mouseleave", True)] <> defaultEvents -- delegated events
-    subs = [keyboardSub Keyboard]
+    subs = [arrowsSub KeyboardArrows, keyboardSub Keyboard, wasdSub KeyboardArrows]
     mountPoint = Nothing -- mount point for application (Nothing defaults to 'body')
     logLevel = Off

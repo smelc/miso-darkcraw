@@ -35,6 +35,7 @@ import qualified Data.Text.Lazy as LazyText
 import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
+import qualified Direction
 import GHC.Base (assert)
 import qualified Game
 import qualified Mana
@@ -104,6 +105,8 @@ data Action
     SinglePlayerGo
   | SceneAction' SceneAction
   | Keyboard (Set Int)
+  | -- | Arrows have been pressed
+    KeyboardArrows Arrows
   | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
     WelcomeGo WelcomeDestination
   deriving (Show, Eq)
@@ -495,6 +498,10 @@ updateModel (SceneAction' action) (Model.Welcome' wm@Model.Welcome {sceneModel})
   newSceneModel <- updateSceneModel action sceneModel
   return (Model.Welcome' wm {sceneModel = newSceneModel})
 updateModel (SceneAction' _) model = noEff model
+updateModel (KeyboardArrows arrows) m@(Model.World' w@Model.World {position}) = do
+  case Direction.ofArrows arrows >>= flip Direction.move position of
+    Nothing -> pure m
+    Just position -> return (Model.World' (w {position}))
 updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
   newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
   return $ Model.Welcome' wm {keysDown = newKeysDown, sceneModel = newSceneModel}

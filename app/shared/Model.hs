@@ -23,6 +23,7 @@ import qualified Data.Map.Strict as Map
 import Data.Set (Set)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
+import qualified Direction
 import GHC.Generics
 import qualified Game (Animation (..), Target)
 import Nat
@@ -235,8 +236,14 @@ isPlayerTurn Game {playingPlayer, turn} =
 
 -- | The model of the world page
 data World = World
-  { -- | Part of the model shared among all pages
-    shared :: Shared.Model
+  { -- | The absolute position of the character, in number of cells
+    position :: Direction.Coord,
+    -- | Part of the model shared among all pages
+    shared :: Shared.Model,
+    -- | The size of the view, in number of cells (width, height)
+    size :: (Nat, Nat),
+    -- | Coordinate of the most top left visible cell, in number of cells
+    topLeft :: Direction.Coord
   }
   deriving (Eq, Generic, Show)
 

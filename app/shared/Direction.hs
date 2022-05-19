@@ -13,6 +13,14 @@ import Nat (Nat)
 newtype Coord = Coord (Nat, Nat)
   deriving (Eq, Generic, Show)
 
+-- | Maps over the content of a 'Coord'
+mapCoord :: (Nat -> Nat) -> Coord -> Coord
+mapCoord f (Coord (x, y)) = Coord (f x, f y)
+
+-- | Substracts two coords
+minus :: Coord -> Coord -> Coord
+minus (Coord (x1, y1)) (Coord (x2, y2)) = Coord (x1 - x2, y1 - y2)
+
 -- | Direction of arrows
 data T = DirDown | DirLeft | DirRight | DirUp
 

@@ -34,10 +34,41 @@
 <div class="doc"><p>Module displaying the world map, which is the first view
  in legendary edition as well as the view between levels.</p></div>
 </div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<a href="#v:viewWorldModel">viewWorldModel</a> :: <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>)</li>
+<li class="src short">
+<a href="#v:cellsHeight">cellsHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+<li class="src short">
+<a href="#v:cellsWidth">cellsWidth</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+<li class="src short">
+<a href="#v:mkModel">mkModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:World" title="Model">World</a>
+</li>
+<li class="src short">
+<a href="#v:both">both</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bifunctor.html#t:Bifunctor" title="Data.Bifunctor">Bifunctor</a> p =&gt; (a -&gt; d) -&gt; p a a -&gt; p d d</li>
+<li class="src short">
+<a href="#v:shift">shift</a> :: <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="Model.html#t:World" title="Model">World</a>
+</li>
+</ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
 <div class="top"><p class="src"><a id="v:viewWorldModel" class="def">viewWorldModel</a> :: <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="ViewInternal.html#t:Styled" title="ViewInternal">Styled</a> (<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> <a href="Update.html#t:Action" title="Update">Action</a>) <a href="#v:viewWorldModel" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:worldViewPixelHeight" class="def">worldViewPixelHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:worldViewPixelHeight" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:cellsHeight" class="def">cellsHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:cellsHeight" class="selflink">#</a></p>
+<div class="doc"><p>The height of the view, in number of cells</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:cellsWidth" class="def">cellsWidth</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:cellsWidth" class="selflink">#</a></p>
+<div class="doc"><p>The width of the view, in number of cells</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:mkModel" class="def">mkModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> <a href="#v:mkModel" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:both" class="def">both</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bifunctor.html#t:Bifunctor" title="Data.Bifunctor">Bifunctor</a> p =&gt; (a -&gt; d) -&gt; p a a -&gt; p d d <a href="#v:both" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:shift" class="def">shift</a> :: <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> <a href="#v:shift" class="selflink">#</a></p>
+<div class="doc"><p>Shifts the world's position by the given direction, if possible</p></div>
+</div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
