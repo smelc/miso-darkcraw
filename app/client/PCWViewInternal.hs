@@ -32,7 +32,8 @@ module PCWViewInternal
 where
 
 import Card
-import Cinema (Actor (..), ActorKind (..), ActorState (..), Direction, Element (), Frame (..), defaultDirection, spriteToKind)
+import Cinema (Actor (..), ActorKind (..), ActorState (..), Element (), Frame (..), defaultDirection, spriteToKind)
+import qualified Cinema
 import qualified Color
 import Constants
 import Damage (Damage)
@@ -470,7 +471,7 @@ cardPositionStyle' xPixelsOffset yPixelsOffset =
 -- Now come functions that are about building the view of a Scene
 data Context = Context
   { z :: Int,
-    paths :: Map.Map CreatureID (Direction -> MisoString),
+    paths :: Map.Map CreatureID (Cinema.Direction -> MisoString),
     shared :: Shared.Model
   }
 
