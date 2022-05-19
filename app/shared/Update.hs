@@ -26,8 +26,6 @@ import Control.Lens
 import Control.Monad.Except
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
-import Data.List.NonEmpty (NonEmpty)
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Map as Map
 import Data.Maybe (isJust, maybeToList)
 import Data.Set (Set)
@@ -129,9 +127,6 @@ logUpdates update action model = do
       | model == model' = "no diff"
       | otherwise = prettyDiff (ediff model model')
     prettyDiff edits = displayS (renderPretty 0.4 80 (ansiWlEditExprCompact edits)) ""
-
-singleton :: a -> NonEmpty a
-singleton x = x NE.:| []
 
 -- | Transforms a 'NextSched' into a value suitable for being
 -- passed to 'delayActions'.

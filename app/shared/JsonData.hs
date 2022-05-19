@@ -126,6 +126,7 @@ jsonData = "{\n\
          \    { \"tile\":\"GreenPotion\",   \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":0 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":0, \"y\":1 } },\n\
          \    { \"tile\":\"Loupe\",         \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":1 } },\n\
+         \    { \"tile\":\"Man\",           \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":9 } },\n\
          \    { \"tile\":\"Ogre\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":0 } },\n\
          \    { \"tile\":\"Pandemonium\",   \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":2 } },\n\
          \    { \"tile\":\"Shield\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":4 } },\n\

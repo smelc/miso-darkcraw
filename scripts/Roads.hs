@@ -28,7 +28,6 @@ import qualified Data.Set as Set
 import Data.Text (intersperse)
 import qualified Data.Text as T
 import Data.Text.IO
-import Debug.Trace (traceShowId)
 import System.Environment
 import System.Process
 
@@ -38,17 +37,16 @@ data Content = Empty | Road
 -- >>> prepare "<data encoding='csv'>\nfoo1\nfoo2\n</data>"
 -- ["foo1", "foo2"]
 prepare :: T.Text -> [T.Text]
-prepare s = T.lines s & filter f & map traceShowId & map (T.drop 1) & init
+prepare s = T.lines s & filter f & map (T.drop 1) & init
   where
-    f l =
-      if T.null l
-        then False
-        else T.take 1 l /= "<"
+    f l
+      | T.null l = False
+      | otherwise = T.take 1 l /= "<"
 
 -- >>> parseLine "0,0,1,2,0,"
 -- [Empty, Empty, Road, Road, Empty]
 parseLine :: T.Text -> [Content]
-parseLine s = T.splitOn "," s & filter (not . T.null) & traceShowId & map (\case "0" -> Empty; _ -> Road)
+parseLine s = T.splitOn "," s & filter (not . T.null) & map (\case "0" -> Empty; _ -> Road)
 
 type Line = [(Int, Int)] -- (x, y)
 

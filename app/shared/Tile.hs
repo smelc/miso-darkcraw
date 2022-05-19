@@ -80,6 +80,7 @@ data Tile
   | HumanSwordsman
   | HuntingHorn
   | Loupe
+  | Man
   | Ogre
   | Pandemonium
   | RedPotion

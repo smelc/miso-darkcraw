@@ -48,6 +48,7 @@ common common-all
     Contains
     Constants
     Damage
+    Direction
     Effect
     Event
     Game

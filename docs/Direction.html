@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Direction</title>
+<link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean">
+<link rel="stylesheet" type="text/css" href="quick-jump.css">
+<script src="haddock-bundle.min.js" async="async" type="text/javascript"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+</head>
+<body>
+<div id="package-header">
+<ul class="links" id="page-menu">
+<li><a href="index.html">Contents</a></li>
+<li><a href="doc-index.html">Index</a></li>
+</ul>
+<p class="caption">app</p>
+</div>
+<div id="content">
+<div id="module-header">
+<table class="info">
+<tr>
+<th>Safe Haskell</th>
+<td>None</td>
+</tr>
+<tr>
+<th>Language</th>
+<td>Haskell2010</td>
+</tr>
+</table>
+<p class="caption">Direction</p>
+</div>
+<div id="description">
+<p class="caption">Description</p>
+<div class="doc"><p>Handling of arrows and WASD in <code>WorldView</code>. Module is meant to be  used
+ qualified.</p></div>
+</div>
+<div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<span class="keyword">newtype</span> <a href="#t:Coord">Coord</a> = <a href="#v:Coord">Coord</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</li>
+<li class="src short">
+<span class="keyword">data</span> <a href="#t:T">T</a><ul class="subs">
+<li>= <a href="#v:DirDown">DirDown</a>
+</li>
+<li>| <a href="#v:DirLeft">DirLeft</a>
+</li>
+<li>| <a href="#v:DirRight">DirRight</a>
+</li>
+<li>| <a href="#v:DirUp">DirUp</a>
+</li>
+</ul>
+</li>
+<li class="src short">
+<a href="#v:move">move</a> :: <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a>
+</li>
+<li class="src short">
+<a href="#v:ofArrows">ofArrows</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Subscription-Keyboard.html#t:Arrows" title="Miso.Subscription.Keyboard">Arrows</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Direction.html#t:T" title="Direction">T</a>
+</li>
+</ul></details></div>
+<div id="interface">
+<h1>Documentation</h1>
+<div class="top">
+<p class="src"><span class="keyword">newtype</span> <a id="t:Coord" class="def">Coord</a> <a href="#t:Coord" class="selflink">#</a></p>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table><tr>
+<td class="src">
+<a id="v:Coord" class="def">Coord</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</td>
+<td class="doc empty">&nbsp;</td>
+</tr></table>
+</div>
+<div class="subs instances"><details id="i:Coord" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Coord:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a></span> <a href="#t:Coord" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Coord:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Direction.html">Direction</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
+<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Coord:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a></span> <a href="#t:Coord" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Coord:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Direction.html">Direction</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Direction.html#t:Coord" title="Direction">Coord</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Coord:Generic:3"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Generic" title="GHC.Generics">Generic</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a></span> <a href="#t:Coord" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Coord:Generic:3"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Direction.html">Direction</a></p> <div class="subs associated-types">
+<p class="caption">Associated Types</p>
+<p class="src"><span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Kind.html#t:Type" title="Data.Kind">Type</a> <a href="#t:Rep" class="selflink">#</a></p>
+</div> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:from">from</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> x <a href="#v:from" class="selflink">#</a></p>
+<p class="src"><a href="#v:to">to</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> x -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="#v:to" class="selflink">#</a></p>
+</div></details></td></tr>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:Coord:Rep:4"></span> <span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a></span> <a href="#t:Coord" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:Coord:Rep:4"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Direction.html">Direction</a></p> <div class="src">
+<span class="keyword">type</span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rep" title="GHC.Generics">Rep</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> = <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:D1" title="GHC.Generics">D1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaData" title="GHC.Generics">MetaData</a> "Coord" "Direction" "main" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:True" title="Data.Bool">True</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:C1" title="GHC.Generics">C1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaCons" title="GHC.Generics">MetaCons</a> "Coord" <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:PrefixI" title="GHC.Generics">PrefixI</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#v:False" title="Data.Bool">False</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:S1" title="GHC.Generics">S1</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:MetaSel" title="GHC.Generics">MetaSel</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#v:Nothing" title="GHC.Maybe">Nothing</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-TypeLits.html#t:Symbol" title="GHC.TypeLits">Symbol</a>) <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceUnpackedness" title="GHC.Generics">NoSourceUnpackedness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:NoSourceStrictness" title="GHC.Generics">NoSourceStrictness</a> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#v:DecidedLazy" title="GHC.Generics">DecidedLazy</a>) (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Generics.html#t:Rec0" title="GHC.Generics">Rec0</a> (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>))))</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:T" class="def">T</a> <a href="#t:T" class="selflink">#</a></p>
+<div class="doc"><p>Direction of arrows</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:DirDown" class="def">DirDown</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:DirLeft" class="def">DirLeft</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:DirRight" class="def">DirRight</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr>
+<td class="src"><a id="v:DirUp" class="def">DirUp</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+</table>
+</div>
+<div class="subs instances"><details id="i:T" open="open"><summary>Instances</summary><table>
+<tr>
+<td class="src clearfix">
+<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:T:Show:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Direction.html#t:T" title="Direction">T</a></span> <a href="#t:T" class="selflink">#</a>
+</td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><details id="i:id:T:Show:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Direction.html">Direction</a></p> <div class="subs methods">
+<p class="caption">Methods</p>
+<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
+<p class="src"><a href="#v:show">show</a> :: <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
+<p class="src"><a href="#v:showList">showList</a> :: [<a href="Direction.html#t:T" title="Direction">T</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
+</div></details></td></tr>
+</table></details></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:move" class="def">move</a> :: <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="#v:move" class="selflink">#</a></p>
+<div class="doc"><p>Shifts a coordinate by a direction, returning the new coordinate</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:ofArrows" class="def">ofArrows</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Subscription-Keyboard.html#t:Arrows" title="Miso.Subscription.Keyboard">Arrows</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Direction.html#t:T" title="Direction">T</a> <a href="#v:ofArrows" class="selflink">#</a></p>
+<div class="doc"><p>From miso <code><a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Subscription-Keyboard.html#t:Arrows" title="Miso.Subscription.Keyboard">Arrows</a></code> to our direction type <code><a href="Direction.html#t:T" title="Direction">T</a></code></p></div>
+</div>
+</div>
+</div>
+<div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
+</body>
+</html>
