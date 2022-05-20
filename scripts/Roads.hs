@@ -54,7 +54,7 @@ type Line = [(Int, Int)] -- (x, y)
 -- coordinates. @y@ is the -- y coordinate of @content@
 toCoords :: Int -> [Content] -> Line
 toCoords y content =
-  go (zip [0 ..] content)
+  go (zip [1 ..] content)
   where
     go = \case
       [] -> []
@@ -108,7 +108,7 @@ main = do
   let content :: [[Content]] =
         prepare csv
           & map parseLine
-      lines :: [Line] = zipWith toCoords [length content - 1, length content - 2 ..] content
+      lines :: [Line] = zipWith toCoords [1 ..] content
       linesText :: [T.Text] =
         map coordsToHaskell lines
           & mapButFirst ("    " <>)
