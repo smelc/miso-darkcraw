@@ -14,6 +14,8 @@ import Miso
 import qualified Miso.String as MisoString
 import qualified Model
 import qualified Nat
+import qualified Network
+import qualified Roads
 import qualified Shared
 import qualified Tile
 import qualified Update
@@ -71,6 +73,7 @@ mkModel shared =
   where
     position = Direction.Coord (24, 47) -- Initial position of character
     topLeft = Direction.Coord (13, 22)
+    topology = Network.mkTopology $ concat Roads.points
     size = both Nat.intToNat (cellsWidth, cellsHeight)
 
 both :: Bifunctor.Bifunctor p => (a -> d) -> p a a -> p d d

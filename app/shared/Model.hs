@@ -19,6 +19,7 @@ import qualified Contains
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Generics.Labels ()
+import Data.List
 import qualified Data.Map.Strict as Map
 import Data.Set (Set)
 import qualified Data.Text as Text
@@ -27,6 +28,7 @@ import qualified Direction
 import GHC.Generics
 import qualified Game (Animation (..), Target)
 import Nat
+import qualified Network
 import ServerMessages
 import qualified Shared
 import qualified Spots
@@ -234,7 +236,8 @@ isPlayerTurn :: Game -> Bool
 isPlayerTurn Game {playingPlayer, turn} =
   Turn.toPlayerSpot turn == playingPlayer
 
--- | The model of the world page
+-- | The model of the world page. If you had a field, consider
+-- extending the Show and Eq instances below.
 data World = World
   { -- | The absolute position of the character, in number of cells
     position :: Direction.Coord,
@@ -243,9 +246,22 @@ data World = World
     -- | The size of the view, in number of cells (width, height)
     size :: (Nat, Nat),
     -- | Coordinate of the most top left visible cell, in number of cells
-    topLeft :: Direction.Coord
+    topLeft :: Direction.Coord,
+    topology :: Network.Topology
   }
-  deriving (Eq, Generic, Show)
+
+instance Eq World where
+  (==)
+    (World {position = pos1, size = sz1, topLeft = tl1})
+    (World {position = pos2, size = sz2, topLeft = tl2}) =
+      pos1 == pos2 && sz1 == sz2 && tl1 == tl2
+
+instance Show World where
+  show World {position, size, topLeft} =
+    concat $
+      intersperse
+        " "
+        ["position:", show position, " size:", show size, "topLeft:", show topLeft]
 
 data PlayingMode
   = NoPlayingMode

@@ -62,6 +62,7 @@ common common-all
     Move
     Movie
     Nat
+    Network
     Random
     ServerMessages
     Shared
