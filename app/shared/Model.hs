@@ -1,7 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -236,9 +238,11 @@ isPlayerTurn :: Game -> Bool
 isPlayerTurn Game {playingPlayer, turn} =
   Turn.toPlayerSpot turn == playingPlayer
 
--- | The model of the world page. If you had a field, consider
+-- | The model of the world page. If you add a field, consider
 -- extending the Show and Eq instances below.
-data World = World
+data World = forall a.
+  Network.Network a =>
+  World
   { -- | The absolute position of the character, in number of cells
     position :: Direction.Coord,
     -- | Part of the model shared among all pages
@@ -247,7 +251,7 @@ data World = World
     size :: (Nat, Nat),
     -- | Coordinate of the most top left visible cell, in number of cells
     topLeft :: Direction.Coord,
-    topology :: Network.Topology
+    topology :: a
   }
 
 instance Eq World where
