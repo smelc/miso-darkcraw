@@ -37,7 +37,7 @@ data Content = Empty | Road
 -- >>> prepare "<data encoding='csv'>\nfoo1\nfoo2\n</data>"
 -- ["foo1", "foo2"]
 prepare :: T.Text -> [T.Text]
-prepare s = T.lines s & filter f & map (T.drop 1) & init
+prepare s = T.lines s & filter f
   where
     f l
       | T.null l = False
@@ -54,7 +54,7 @@ type Line = [(Int, Int)] -- (x, y)
 -- coordinates. @y@ is the -- y coordinate of @content@
 toCoords :: Int -> [Content] -> Line
 toCoords y content =
-  go (zip [1 ..] content)
+  go (zip [0 ..] content)
   where
     go = \case
       [] -> []
@@ -108,7 +108,7 @@ main = do
   let content :: [[Content]] =
         prepare csv
           & map parseLine
-      lines :: [Line] = zipWith toCoords [1 ..] content
+      lines :: [Line] = zipWith toCoords [0 ..] content
       linesText :: [T.Text] =
         map coordsToHaskell lines
           & mapButFirst ("    " <>)

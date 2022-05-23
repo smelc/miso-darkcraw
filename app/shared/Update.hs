@@ -46,6 +46,7 @@ import Move (Move, NextSched)
 import qualified Move
 import Movie (welcomeMovie)
 import Nat
+import qualified Network
 import ServerMessages
 import qualified Shared
 import qualified Spots hiding (Card)
@@ -498,10 +499,13 @@ updateModel (SceneAction' action) (Model.Welcome' wm@Model.Welcome {sceneModel})
   newSceneModel <- updateSceneModel action sceneModel
   return (Model.Welcome' wm {sceneModel = newSceneModel})
 updateModel (SceneAction' _) model = noEff model
-updateModel (KeyboardArrows arrows) m@(Model.World' w@Model.World {position}) = do
+updateModel (KeyboardArrows arrows) m@(Model.World' w@Model.World {position, topology}) = do
   case Direction.ofArrows arrows >>= flip Direction.move position of
     Nothing -> pure m
-    Just position -> return (Model.World' (w {position}))
+    Just position'
+      | position' `elem` Network.neighbors topology position ->
+          return (Model.World' (w {position = position'}))
+    Just _ -> pure m
 updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
   newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
   return $ Model.Welcome' wm {keysDown = newKeysDown, sceneModel = newSceneModel}
