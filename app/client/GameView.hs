@@ -54,7 +54,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
   boardDiv <- boardDivM
   handDiv <- handDivM
   let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
-  let builder attrs = div_ attrs divs
+      builder attrs = div_ attrs divs
   ViewInternal.fade builder Nothing 2 $ animToFade anim
   where
     (z, zpp, zpppp) = (0, z + 1, zpp + 1)

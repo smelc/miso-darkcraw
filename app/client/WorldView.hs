@@ -6,6 +6,7 @@
 -- in legendary edition as well as the view between levels.
 module WorldView where
 
+import qualified Configuration
 import qualified Constants
 import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
@@ -25,12 +26,11 @@ import qualified ViewInternal
 viewWorldModel :: Model.World -> Styled (View Update.Action)
 viewWorldModel Model.World {position, shared, topLeft} = do
   let man = manView zpp
-  return $
-    div_
-      [style_ bgStyle]
-      [man]
+      builder attrs = div_ (attrs ++ [style_ bgStyle]) [man]
+  ViewInternal.fade builder Nothing 2 fade
   where
     (z, zpp) = (0, z + 1)
+    fade = if Configuration.isDev then Constants.DontFade else Constants.FadeIn
     bgStyle =
       ViewInternal.zpltwh z Relative 0 0 pxWidth pxHeight
         <> "background-image" =: Constants.assetsUrl "world.png"
