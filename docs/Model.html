@@ -141,6 +141,9 @@
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:World">World</a> = <a href="Network.html#t:Network" title="Network">Network</a> a =&gt; <a href="#v:World">World</a> {<ul class="subs">
 <li>
+<a href="#v:moved">moved</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li>
 <a href="#v:position">position</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a>
 </li>
 <li>
@@ -148,6 +151,9 @@
 </li>
 <li>
 <a href="#v:size">size</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</li>
+<li>
+<a href="#v:team">team</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>
+</li>
 <li>
 <a href="#v:topLeft">topLeft</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a>
 </li>
@@ -812,6 +818,9 @@
 <p class="caption">Fields</p>
 <ul>
 <li>
+<dfn class="src"><a id="v:moved" class="def">moved</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a></dfn><div class="doc"><p>Whether a move was done already</p></div>
+</li>
+<li>
 <dfn class="src"><a id="v:position" class="def">position</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a></dfn><div class="doc"><p>The absolute position of the character, in number of cells</p></div>
 </li>
 <li>
@@ -819,6 +828,9 @@
 </li>
 <li>
 <dfn class="src"><a id="v:size" class="def">size</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</dfn><div class="doc"><p>The size of the view, in number of cells (width, height)</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:team" class="def">team</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a></dfn><div class="doc"><p>The team chosen, if any</p></div>
 </li>
 <li>
 <dfn class="src"><a id="v:topLeft" class="def">topLeft</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a></dfn><div class="doc"><p>Coordinate of the most top left visible cell, in number of cells</p></div>

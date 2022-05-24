@@ -26,7 +26,12 @@ import qualified ViewInternal
 viewWorldModel :: Model.World -> Styled (View Update.Action)
 viewWorldModel Model.World {position, shared, topLeft} = do
   let man = manView zpp
-      builder attrs = div_ (attrs ++ [style_ bgStyle]) [man]
+      builder attrs =
+        div_
+          []
+          [ div_ (attrs ++ [style_ bgStyle]) [man],
+            legendDiv
+          ]
   ViewInternal.fade builder Nothing 2 fade
   where
     (z, zpp) = (0, z + 1)
@@ -39,25 +44,40 @@ viewWorldModel Model.World {position, shared, topLeft} = do
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
     manView z =
       div_
-        [ style_ $
-            ViewInternal.zpltwh
-              z
-              ViewInternal.Absolute
-              (Nat.natToInt manX)
-              (Nat.natToInt manY)
-              manTilePx
-              manTilePx
-        ]
+        [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute manX manY manTilePx manTilePx]
         [ViewInternal.imgCellwh manFilepath Constants.cps Constants.cps Nothing]
-      where
-        Direction.Coord (manX, manY) =
-          position `Direction.minus` topLeft
-            & Direction.mapCoord (\x -> x * (Nat.intToNat Constants.cps))
+    (manX, manY) =
+      position `Direction.minus` topLeft
+        & Direction.mapCoord (\x -> x * (Nat.intToNat Constants.cps))
+        & Direction.unCoord
+        & both Nat.natToInt
     (manTileSize, manTilePx) = (Tile.TwentyFour, Tile.sizeToNat manTileSize & Nat.natToInt)
     manFilepath =
       Shared.tileToFilepath shared Tile.Man manTileSize
         & Tile.filepathToString
         & MisoString.ms
+
+-- | The div showing the legend for the character
+legendDiv :: View a
+legendDiv =
+  div_
+    [ style_ $
+        "width" =: px Constants.lobbiesPixelWidth
+          <> "height" =: px (Constants.cps * 2)
+          <> "outline" =: "1px solid red"
+          <> "margin-top" =: px 1
+          <> "border-radius" =: px 6
+    ]
+    [ div_
+        [ style_ ViewInternal.flexColumnStyle,
+          style_ $
+            "width" =: px (Constants.lobbiesPixelWidth - Constants.cps * 2)
+              <> "margin-left" =: px Constants.cps
+        ]
+        [ div_ [] [text "The character above, that's you!"],
+          div_ [style_ $ "margin-top" =: px 4] [text "Move using the pad or the arrow keys."]
+        ]
+    ]
 
 -- | The height of the view, in number of cells
 cellsHeight :: Int
@@ -71,7 +91,9 @@ mkModel :: Shared.Model -> Model.World
 mkModel shared =
   Model.World {..}
   where
+    moved = False
     position = Direction.Coord (24, 47) -- Initial position of character
+    team = Nothing
     topLeft = Direction.Coord (13, 22)
     topology = Network.mkTopology $ concat Roads.points
     size = both Nat.intToNat (cellsWidth, cellsHeight)

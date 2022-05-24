@@ -243,12 +243,16 @@ isPlayerTurn Game {playingPlayer, turn} =
 data World = forall a.
   Network.Network a =>
   World
-  { -- | The absolute position of the character, in number of cells
+  { -- | Whether a move was done already
+    moved :: Bool,
+    -- | The absolute position of the character, in number of cells
     position :: Direction.Coord,
     -- | Part of the model shared among all pages
     shared :: Shared.Model,
     -- | The size of the view, in number of cells (width, height)
     size :: (Nat, Nat),
+    -- | The team chosen, if any
+    team :: Maybe Team,
     -- | Coordinate of the most top left visible cell, in number of cells
     topLeft :: Direction.Coord,
     topology :: a

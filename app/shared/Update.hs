@@ -504,7 +504,7 @@ updateModel (KeyboardArrows arrows) m@(Model.World' w@Model.World {position, top
     Nothing -> pure m
     Just position'
       | position' `elem` Network.neighbors topology position ->
-          return (Model.World' (w {position = position'}))
+          return (Model.World' (w {moved = True, position = position'}))
     Just _ -> pure m
 updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
   newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction

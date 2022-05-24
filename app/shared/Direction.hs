@@ -14,6 +14,10 @@ import Nat (Nat)
 newtype Coord = Coord (Nat, Nat)
   deriving (Eq, Generic, Ord, Show)
 
+-- | Removes the 'Coord' constructor
+unCoord :: Coord -> (Nat, Nat)
+unCoord (Coord (x, y)) = (x, y)
+
 -- | Maps over the content of a 'Coord'
 mapCoord :: (Nat -> Nat) -> Coord -> Coord
 mapCoord f (Coord (x, y)) = Coord (f x, f y)
