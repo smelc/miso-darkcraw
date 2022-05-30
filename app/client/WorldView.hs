@@ -91,6 +91,7 @@ mkModel :: Shared.Model -> Model.World
 mkModel shared =
   Model.World {..}
   where
+    encounters = mempty
     moved = False
     position = Direction.Coord (24, 47) -- Initial position of character
     team = Nothing

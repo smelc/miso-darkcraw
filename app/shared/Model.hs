@@ -238,12 +238,23 @@ isPlayerTurn :: Game -> Bool
 isPlayerTurn Game {playingPlayer, turn} =
   Turn.toPlayerSpot turn == playingPlayer
 
+-- | Possible encounters on the world map
+data Encounter
+  = -- | Fighting
+    Fight Team
+  | -- | Picking up an item
+    Pickup Item
+  | -- | Choosing your team at the start of the game
+    Select Team
+
 -- | The model of the world page. If you add a field, consider
 -- extending the Show and Eq instances below.
 data World = forall a.
   Network.Network a =>
   World
-  { -- | Whether a move was done already
+  { -- | Possible encounters
+    encounters :: Map.Map Direction.Coord Encounter,
+    -- | Whether a move was done already
     moved :: Bool,
     -- | The absolute position of the character, in number of cells
     position :: Direction.Coord,

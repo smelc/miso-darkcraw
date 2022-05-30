@@ -12,7 +12,13 @@ import Miso.Subscription (Arrows (..))
 import Nat (Nat)
 
 newtype Coord = Coord (Nat, Nat)
-  deriving (Eq, Generic, Ord, Show)
+  deriving (Eq, Generic, Show)
+
+instance Ord Coord where
+  (<=) (Coord (x1, y1)) (Coord (x2, y2)) = x1 Prelude.<= x2 && y1 Prelude.<= y2
+
+(+) :: Direction.Coord -> Direction.Coord -> Direction.Coord
+(+) (Coord (x1, y1)) (Coord (x2, y2)) = Coord (x1 Prelude.+ x2, y1 Prelude.+ y2)
 
 -- | Removes the 'Coord' constructor
 unCoord :: Coord -> (Nat, Nat)
@@ -41,9 +47,9 @@ instance Show T where
 move :: T -> Coord -> Maybe Coord
 move dir (Coord (x, y)) =
   Coord <$> case dir of
-    DirDown -> Just (x, y + 1)
+    DirDown -> Just (x, y Prelude.+ 1)
     DirLeft | x > 0 -> Just (x - 1, y)
-    DirRight -> Just (x + 1, y)
+    DirRight -> Just (x Prelude.+ 1, y)
     DirUp | y > 0 -> Just (x, y - 1)
     _ -> Nothing
 
