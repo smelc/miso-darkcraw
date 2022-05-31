@@ -1,20 +1,24 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -- | Module displaying the world map, which is the first view
 -- in legendary edition as well as the view between levels.
 module WorldView where
 
+import Card (Team (..))
 import qualified Configuration
 import qualified Constants
 import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
+import Data.List.Extra
+import qualified Data.Map.Strict as Map
 import qualified Direction
 import Miso
 import qualified Miso.String as MisoString
 import qualified Model
-import qualified Nat
+import Nat
 import qualified Network
 import qualified Roads
 import qualified Shared
@@ -91,10 +95,10 @@ mkModel :: Shared.Model -> Model.World
 mkModel shared =
   Model.World {..}
   where
-    encounters = mempty
+    encounters = mkEncounters (team == Nothing) topLeft (Direction.Coord size)
     moved = False
     position = Direction.Coord (24, 47) -- Initial position of character
-    team = Nothing
+    team :: Maybe Team = Nothing
     topLeft = Direction.Coord (13, 22)
     topology = Network.mkTopology $ concat Roads.points
     size = both Nat.intToNat (cellsWidth, cellsHeight)
@@ -113,3 +117,31 @@ shift dir m@Model.World {position, size = (width, height), topLeft = Direction.C
       | y < tly -> m -- Too up
       | y >= tly + height -> m -- Too low
       | otherwise -> m {Model.position = pos'}
+
+-- | The position of fights, hardcoded yes
+fightSpots :: Map.Map Team [Direction.Coord]
+fightSpots =
+  Map.map (map Direction.Coord) $
+    Map.fromList $
+      [(Undead, [(24, 35)])]
+
+-- | The position where to choose the team
+chooseTeamSpots :: Map.Map Team Direction.Coord
+chooseTeamSpots =
+  [ (Human, (22, 43)),
+    (Sylvan, (24, 43)),
+    (Evil, (26, 43)),
+    (Undead, (28, 43))
+  ]
+    & map (Bifunctor.second Direction.Coord)
+    & Map.fromList
+
+mkEncounters :: Bool -> Direction.Coord -> Direction.Coord -> Map.Map Direction.Coord Model.Encounter
+mkEncounters includeChoices topLeft size =
+  Map.fromList [(c, Model.Fight t) | (t, cs) <- pairs, c <- cs]
+    <> (if includeChoices then Map.map Model.Select (Map.fromList choices) else mempty)
+  where
+    visible c = c >= topLeft && c < topLeft Direction.+ size
+    pairs :: [(Team, [Direction.Coord])] =
+      fightSpots & Map.map (filter visible) & Map.filter notNull & Map.toList
+    choices = [(c, t) | (t, c) <- Map.toList chooseTeamSpots]

@@ -53,6 +53,14 @@
 <li class="src short">
 <a href="#v:shift">shift</a> :: <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="Model.html#t:World" title="Model">World</a>
 </li>
+<li class="src short">
+<a href="#v:fightSpots">fightSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Direction.html#t:Coord" title="Direction">Coord</a>]</li>
+<li class="src short">
+<a href="#v:chooseTeamSpots">chooseTeamSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a>
+</li>
+<li class="src short">
+<a href="#v:mkEncounters">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Model.html#t:Encounter" title="Model">Encounter</a>
+</li>
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
@@ -75,6 +83,15 @@
 <p class="src"><a id="v:shift" class="def">shift</a> :: <a href="Direction.html#t:T" title="Direction">T</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> <a href="#v:shift" class="selflink">#</a></p>
 <div class="doc"><p>Shifts the world's position by the given direction, if possible</p></div>
 </div>
+<div class="top">
+<p class="src"><a id="v:fightSpots" class="def">fightSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Direction.html#t:Coord" title="Direction">Coord</a>] <a href="#v:fightSpots" class="selflink">#</a></p>
+<div class="doc"><p>The position of fights, hardcoded yes</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:chooseTeamSpots" class="def">chooseTeamSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="#v:chooseTeamSpots" class="selflink">#</a></p>
+<div class="doc"><p>The position where to choose the team</p></div>
+</div>
+<div class="top"><p class="src"><a id="v:mkEncounters" class="def">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Model.html#t:Encounter" title="Model">Encounter</a> <a href="#v:mkEncounters" class="selflink">#</a></p></div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>
