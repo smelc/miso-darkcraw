@@ -12,10 +12,10 @@ import Miso.Subscription (Arrows (..))
 import Nat (Nat)
 
 newtype Coord = Coord (Nat, Nat)
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Generic, Ord, Show)
 
-instance Ord Coord where
-  (<=) (Coord (x1, y1)) (Coord (x2, y2)) = x1 Prelude.<= x2 && y1 Prelude.<= y2
+topLeftOf :: Coord -> Coord -> Bool
+topLeftOf (Coord (x1, y1)) (Coord (x2, y2)) = x1 Prelude.<= x2 && y1 Prelude.<= y2
 
 (+) :: Direction.Coord -> Direction.Coord -> Direction.Coord
 (+) (Coord (x1, y1)) (Coord (x2, y2)) = Coord (x1 Prelude.+ x2, y1 Prelude.+ y2)
