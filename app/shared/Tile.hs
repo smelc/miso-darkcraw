@@ -60,6 +60,7 @@ data Tile
   | Bones6
   | BowOfGaia
   | BowOfStrength
+  | Chest
   | CloakOfGaia
   | Crown
   | CrushingMace

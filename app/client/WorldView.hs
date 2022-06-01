@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -28,12 +29,12 @@ import ViewInternal (Position (..), Styled, px)
 import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
-viewWorldModel Model.World {position, shared, topLeft} = do
-  let man = manView zpp
+viewWorldModel Model.World {encounters, position, shared, topLeft} = do
+  let man = tileView zpp manX manY Tile.Man
       builder attrs =
         div_
           []
-          [ div_ (attrs ++ [style_ bgStyle]) [man],
+          [ div_ (attrs ++ [style_ bgStyle]) ([man] ++ events),
             legendDiv
           ]
   ViewInternal.fade builder Nothing 2 fade
@@ -46,20 +47,24 @@ viewWorldModel Model.World {position, shared, topLeft} = do
         <> "background-position-x" =: px (-(Constants.cps * 13))
         <> "background-position-y" =: px pxHeight
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
-    manView z =
+    tileView z x y tile =
       div_
-        [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute manX manY manTilePx manTilePx]
-        [ViewInternal.imgCellwh manFilepath Constants.cps Constants.cps Nothing]
-    (manX, manY) =
-      position `Direction.minus` topLeft
+        [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute x y Constants.cps Constants.cps]
+        [ViewInternal.imgCellwh (filepath tile Tile.TwentyFour) Constants.cps Constants.cps Nothing]
+    (manX, manY) = coordToPx position
+    coordToPx c =
+      c `Direction.minus` topLeft
         & Direction.mapCoord (\x -> x * (Nat.intToNat Constants.cps))
         & Direction.unCoord
         & both Nat.natToInt
-    (manTileSize, manTilePx) = (Tile.TwentyFour, Tile.sizeToNat manTileSize & Nat.natToInt)
-    manFilepath =
-      Shared.tileToFilepath shared Tile.Man manTileSize
+    filepath tile size =
+      Shared.tileToFilepath shared tile size
         & Tile.filepathToString
         & MisoString.ms
+    events =
+      map
+        (\((x, y), encounter) -> tileView zpp x y (encounterToTile encounter))
+        (encounters & Map.toList & map (Bifunctor.first coordToPx))
 
 -- | The div showing the legend for the character
 legendDiv :: View a
@@ -145,3 +150,15 @@ mkEncounters includeChoices topLeft size =
     pairs :: [(Team, [Direction.Coord])] =
       fightSpots & Map.map (filter visible) & Map.filter notNull & Map.toList
     choices = [(c, t) | (t, c) <- Map.toList chooseTeamSpots]
+
+encounterToTile :: Model.Encounter -> Tile.Tile
+encounterToTile =
+  \case
+    Model.Fight Beastmen -> Tile.BeastmenDefender
+    Model.Fight Evil -> Tile.Beholder
+    Model.Fight Human -> Tile.HumanGeneral
+    Model.Fight Sylvan -> Tile.SylvanArcher
+    Model.Fight Undead -> Tile.UndeadSkeleton
+    Model.Fight ZKnights -> Tile.ZKnight
+    Model.Pickup _item -> Tile.Chest
+    Model.Select t -> encounterToTile (Model.Fight t)

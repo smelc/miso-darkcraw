@@ -103,6 +103,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Bones6\",        \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":8 } },\n\
          \    { \"tile\":\"BowOfStrength\", \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":3 } },\n\
          \    { \"tile\":\"BowOfGaia\",     \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":4 } },\n\
+         \    { \"tile\":\"Chest\",         \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":7 } },\n\
          \    { \"tile\":\"CloakOfGaia\",   \"filepath\": { \"root\": \"16x16\", \"x\":4, \"y\":3 } },\n\
          \    { \"tile\":\"Crown\",         \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"CrushingMace\",  \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":2 } },\n\
