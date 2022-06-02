@@ -40,6 +40,10 @@
 <li class="src short">
 <a href="#v:legendDiv">legendDiv</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a</li>
 <li class="src short">
+<a href="#v:absCoordToPx">absCoordToPx</a> :: <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</li>
+<li class="src short">
+<a href="#v:relCoordToPx">relCoordToPx</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>)</li>
+<li class="src short">
 <a href="#v:cellsHeight">cellsHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
 </li>
 <li class="src short">
@@ -59,6 +63,11 @@
 <a href="#v:chooseTeamSpots">chooseTeamSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a>
 </li>
 <li class="src short">
+<a href="#v:borderRadius">borderRadius</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
+</li>
+<li class="src short">
+<a href="#v:chooseTeamHint">chooseTeamHint</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a]</li>
+<li class="src short">
 <a href="#v:mkEncounters">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Model.html#t:Encounter" title="Model">Encounter</a>
 </li>
 <li class="src short">
@@ -71,6 +80,14 @@
 <div class="top">
 <p class="src"><a id="v:legendDiv" class="def">legendDiv</a> :: <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a <a href="#v:legendDiv" class="selflink">#</a></p>
 <div class="doc"><p>The div showing the legend for the character</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:absCoordToPx" class="def">absCoordToPx</a> :: <a href="Model.html#t:World" title="Model">World</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) <a href="#v:absCoordToPx" class="selflink">#</a></p>
+<div class="doc"><p>Converts an absolute coordinate like <code>(25,43)</code> to relative pixels</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:relCoordToPx" class="def">relCoordToPx</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>) <a href="#v:relCoordToPx" class="selflink">#</a></p>
+<div class="doc"><p>Converts a relative coordinate like <code>(5,4)</code> to relative pixels</p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:cellsHeight" class="def">cellsHeight</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:cellsHeight" class="selflink">#</a></p>
@@ -94,6 +111,8 @@
 <p class="src"><a id="v:chooseTeamSpots" class="def">chooseTeamSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="#v:chooseTeamSpots" class="selflink">#</a></p>
 <div class="doc"><p>The position where to choose the team</p></div>
 </div>
+<div class="top"><p class="src"><a id="v:borderRadius" class="def">borderRadius</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:borderRadius" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:chooseTeamHint" class="def">chooseTeamHint</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a] <a href="#v:chooseTeamHint" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:mkEncounters" class="def">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Model.html#t:Encounter" title="Model">Encounter</a> <a href="#v:mkEncounters" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:encounterToTile" class="def">encounterToTile</a> :: <a href="Model.html#t:Encounter" title="Model">Encounter</a> -&gt; <a href="Tile.html#t:Tile" title="Tile">Tile</a> <a href="#v:encounterToTile" class="selflink">#</a></p></div>
 </div>

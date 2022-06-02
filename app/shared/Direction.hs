@@ -29,8 +29,8 @@ mapCoord :: (Nat -> Nat) -> Coord -> Coord
 mapCoord f (Coord (x, y)) = Coord (f x, f y)
 
 -- | Substracts two coords
-minus :: Coord -> Coord -> Coord
-minus (Coord (x1, y1)) (Coord (x2, y2)) = Coord (x1 - x2, y1 - y2)
+(-) :: Coord -> Coord -> Coord
+(-) (Coord (x1, y1)) (Coord (x2, y2)) = Coord (x1 Prelude.- x2, y1 Prelude.- y2)
 
 -- | Direction of arrows
 data T = DirDown | DirLeft | DirRight | DirUp
@@ -48,9 +48,9 @@ move :: T -> Coord -> Maybe Coord
 move dir (Coord (x, y)) =
   Coord <$> case dir of
     DirDown -> Just (x, y Prelude.+ 1)
-    DirLeft | x > 0 -> Just (x - 1, y)
+    DirLeft | x > 0 -> Just (x Prelude.- 1, y)
     DirRight -> Just (x Prelude.+ 1, y)
-    DirUp | y > 0 -> Just (x, y - 1)
+    DirUp | y > 0 -> Just (x, y Prelude.- 1)
     _ -> Nothing
 
 -- | From miso 'Arrows' to our direction type 'T'

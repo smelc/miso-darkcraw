@@ -9,6 +9,7 @@
 module WorldView where
 
 import Card (Team (..))
+import qualified Color
 import qualified Configuration
 import qualified Constants
 import qualified Data.Bifunctor as Bifunctor
@@ -29,12 +30,12 @@ import ViewInternal (Position (..), Styled, px)
 import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
-viewWorldModel Model.World {encounters, position, shared, topLeft} = do
+viewWorldModel world@Model.World {encounters, position, shared} = do
   let man = tileView zpp manX manY Tile.Man
       builder attrs =
         div_
           []
-          [ div_ (attrs ++ [style_ bgStyle]) ([man] ++ events),
+          [ div_ (attrs ++ [style_ bgStyle]) ([man] ++ events ++ chooseTeamHint zpp world),
             legendDiv
           ]
   ViewInternal.fade builder Nothing 2 fade
@@ -51,12 +52,7 @@ viewWorldModel Model.World {encounters, position, shared, topLeft} = do
       div_
         [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute x y Constants.cps Constants.cps]
         [ViewInternal.imgCellwh (filepath tile Tile.TwentyFour) Constants.cps Constants.cps Nothing]
-    (manX, manY) = coordToPx position
-    coordToPx c =
-      c `Direction.minus` topLeft
-        & Direction.mapCoord (\x -> x * (Nat.intToNat Constants.cps))
-        & Direction.unCoord
-        & both Nat.natToInt
+    (manX, manY) = absCoordToPx world position
     filepath tile size =
       Shared.tileToFilepath shared tile size
         & Tile.filepathToString
@@ -64,7 +60,7 @@ viewWorldModel Model.World {encounters, position, shared, topLeft} = do
     events =
       map
         (\((x, y), encounter) -> tileView zpp x y (encounterToTile encounter))
-        (encounters & Map.toList & map (Bifunctor.first coordToPx))
+        (encounters & Map.toList & map (Bifunctor.first (absCoordToPx world)))
 
 -- | The div showing the legend for the character
 legendDiv :: View a
@@ -75,7 +71,7 @@ legendDiv =
           <> "height" =: px (Constants.cps * 2)
           <> "outline" =: "1px solid red"
           <> "margin-top" =: px 1
-          <> "border-radius" =: px 6
+          <> "border-radius" =: px borderRadius
     ]
     [ div_
         [ style_ ViewInternal.flexColumnStyle,
@@ -83,10 +79,18 @@ legendDiv =
             "width" =: px (Constants.lobbiesPixelWidth - Constants.cps * 2)
               <> "margin-left" =: px Constants.cps
         ]
-        [ div_ [] [text "The character above, that's you!"],
+        [ div_ [] [text "The character above with a green cape, that's you!"],
           div_ [style_ $ "margin-top" =: px 4] [text "Move using the pad or the arrow keys."]
         ]
     ]
+
+-- | Converts an absolute coordinate like @(25,43)@ to relative pixels
+absCoordToPx :: Model.World -> Direction.Coord -> (Int, Int)
+absCoordToPx Model.World {topLeft} c = c Direction.- topLeft & relCoordToPx
+
+-- | Converts a relative coordinate like @(5,4)@ to relative pixels
+relCoordToPx :: Direction.Coord -> (Int, Int)
+relCoordToPx c = c & Direction.unCoord & both (\n -> Nat.natToInt n * Constants.cps)
 
 -- | The height of the view, in number of cells
 cellsHeight :: Int
@@ -140,6 +144,47 @@ chooseTeamSpots =
   ]
     & map (Bifunctor.second Direction.Coord)
     & Map.fromList
+
+borderRadius :: Int
+borderRadius = 6
+
+chooseTeamHint :: Int -> Model.World -> [View a]
+chooseTeamHint z Model.World {team, topLeft, size = (width, _)} =
+  case team of
+    Nothing ->
+      pure $
+        div_
+          [ style_ $
+              "z-index" =: MisoString.ms z
+                <> "position" =: "absolute"
+                <> "top" =: px top
+                <> "right" =: px right
+                <> "outline" =: "1px solid white"
+                <> "border-radius" =: px borderRadius
+          ]
+          [ div_
+              [style_ $ "color" =: Color.html Color.white]
+              [ div_
+                  [style_ ViewInternal.flexLineStyle]
+                  [ div_ [] [text "Choose your team by going to one of these"],
+                    div_ [] [text "→"]
+                  ]
+              ]
+          ]
+      where
+        (right, top) =
+          teamSpot Direction.- topLeft
+            & (\(Direction.Coord (x, y)) -> Direction.Coord ((width - x), y))
+            & relCoordToPx
+            & Bifunctor.first (+ Constants.cps `div` 4)
+        teamSpot =
+          chooseTeamSpots
+            & Map.elems
+            & sortOn (fst . Direction.unCoord)
+            & head
+    Just _ ->
+      -- Team has been chosen already, do not show hint
+      []
 
 mkEncounters :: Bool -> Direction.Coord -> Direction.Coord -> Map.Map Direction.Coord Model.Encounter
 mkEncounters includeChoices topLeft size =
