@@ -30,8 +30,8 @@ import ViewInternal (Position (..), Styled, px)
 import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
-viewWorldModel world@Model.World {encounters, position, shared} = do
-  let man = tileView zpp manX manY Tile.Man
+viewWorldModel world@Model.World {encounters, position, shared, team} = do
+  let man = tileView zpp manX manY manTile
       builder attrs =
         div_
           []
@@ -53,14 +53,28 @@ viewWorldModel world@Model.World {encounters, position, shared} = do
         [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute x y Constants.cps Constants.cps]
         [ViewInternal.imgCellwh (filepath tile Tile.TwentyFour) Constants.cps Constants.cps Nothing]
     (manX, manY) = absCoordToPx world position
+    manTile =
+      case team of
+        Nothing -> Tile.Man
+        Just t -> encounterToTile (Model.Select t)
     filepath tile size =
       Shared.tileToFilepath shared tile size
         & Tile.filepathToString
         & MisoString.ms
+    encounterFilter =
+      case team of
+        Nothing ->
+          -- Show selection spots if team not chosen yet
+          const True
+        Just _ ->
+          -- Don't show selection spots if team chosen already
+          \case Model.Select _ -> False; _ -> True
     events =
-      map
-        (\((x, y), encounter) -> tileView zpp x y (encounterToTile encounter))
-        (encounters & Map.toList & map (Bifunctor.first (absCoordToPx world)))
+      encounters
+        & Map.filter encounterFilter
+        & Map.toList
+        & map (Bifunctor.first (absCoordToPx world))
+        & map (\((x, y), encounter) -> tileView zpp x y (encounterToTile encounter))
 
 -- | The div showing the legend for the character
 legendDiv :: View a

@@ -378,6 +378,28 @@ updateSceneModel (JumpToFrameForDebugging i) sceneModel =
   where
     indexWithinBounds frames = i >= 0 && i < length frames
 
+updateWorldModel :: Action -> Model.World -> Effect Action Model.World
+updateWorldModel a w@Model.World {encounters, position, team, topology} =
+  case a of
+    KeyboardArrows arrows -> do
+      case Direction.ofArrows arrows >>= flip Direction.move position of
+        Nothing -> pure w
+        Just position'
+          | position' `elem` neighbors ->
+              case (team, Map.lookup position' encounters) of
+                (_, Nothing) ->
+                  -- Regular move
+                  return w {moved = True, position = position'}
+                (Nothing, Just (Select t)) ->
+                  -- Move and select team
+                  return w {moved = True, position = position', team = Just t}
+                _ ->
+                  return w {moved = True, position = position'}
+        Just _ -> pure w
+    _ -> pure w
+  where
+    neighbors = Network.neighbors topology position
+
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
 -- | and is the only one to handle page changes. A page change event
@@ -499,13 +521,9 @@ updateModel (SceneAction' action) (Model.Welcome' wm@Model.Welcome {sceneModel})
   newSceneModel <- updateSceneModel action sceneModel
   return (Model.Welcome' wm {sceneModel = newSceneModel})
 updateModel (SceneAction' _) model = noEff model
-updateModel (KeyboardArrows arrows) m@(Model.World' w@Model.World {position, topology}) = do
-  case Direction.ofArrows arrows >>= flip Direction.move position of
-    Nothing -> pure m
-    Just position'
-      | position' `elem` Network.neighbors topology position ->
-          return (Model.World' (w {moved = True, position = position'}))
-    Just _ -> pure m
+updateModel a (Model.World' w) = do
+  w' <- updateWorldModel a w
+  return $ Model.World' w'
 updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
   newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
   return $ Model.Welcome' wm {keysDown = newKeysDown, sceneModel = newSceneModel}
