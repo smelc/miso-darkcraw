@@ -146,7 +146,9 @@ fightSpots :: Map.Map Team [Direction.Coord]
 fightSpots =
   Map.map (map Direction.Coord) $
     Map.fromList $
-      [(Undead, [(24, 35)])]
+      [ (Undead, [(24, 35)]),
+        (Sylvan, [(30, 38)])
+      ]
 
 -- | The position where to choose the team
 chooseTeamSpots :: Map.Map Team Direction.Coord
@@ -217,7 +219,7 @@ encounterToTile =
     Model.Fight Evil -> Tile.Beholder
     Model.Fight Human -> Tile.HumanGeneral
     Model.Fight Sylvan -> Tile.SylvanArcher
-    Model.Fight Undead -> Tile.UndeadSkeleton
+    Model.Fight Undead -> Tile.UndeadWarrior
     Model.Fight ZKnights -> Tile.ZKnight
     Model.Pickup _item -> Tile.Chest
     Model.Select t -> encounterToTile (Model.Fight t)
