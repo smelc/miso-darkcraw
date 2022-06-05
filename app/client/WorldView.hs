@@ -49,7 +49,9 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
         <> "background-position-y" =: px pxHeight
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
     tileView z x y tile =
-      div_
+      nodeHtmlKeyed
+        "div"
+        (Key $ "worldview-" <> MisoString.ms x <> "-" <> MisoString.ms y)
         [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute x y Constants.cps Constants.cps]
         [ViewInternal.imgCellwh (filepath tile Tile.TwentyFour) Constants.cps Constants.cps Nothing]
     (manX, manY) = absCoordToPx world position
