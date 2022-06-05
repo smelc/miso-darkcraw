@@ -121,7 +121,9 @@ mkModel shared =
   Model.World {..}
   where
     encounters = mkEncounters (team == Nothing) topLeft (Direction.Coord size)
+    fade = Constants.DontFade
     moved = False
+    past = mempty
     position = Direction.Coord (24, 47) -- Initial position of character
     team :: Maybe Team = Nothing
     topLeft = Direction.Coord (13, 22)

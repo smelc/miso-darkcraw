@@ -93,9 +93,10 @@ main shared = do
               `shouldSatisfy` (\Match.Result {models} -> all isValid' models)
   where
     mkJourney teams =
-      Campaign.unsafeJourney
-        Campaign.Level0
-        (Board.toData (Spots.other Spots.startingPlayerSpot) teams)
+      Just $
+        Campaign.unsafeJourney
+          Campaign.Level0
+          (Board.toData (Spots.other Spots.startingPlayerSpot) teams)
     difficulty = Constants.Easy
     isValid :: [String] -> Bool
     isValid [] = True

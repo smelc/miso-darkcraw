@@ -36,7 +36,6 @@ import Data.TreeDiff
 import qualified Data.Vector as V
 import Debug.Trace
 import qualified Direction
-import GHC.Base (assert)
 import qualified Game
 import qualified Mana
 import Miso
@@ -110,6 +109,8 @@ data Action
     KeyboardArrows Arrows
   | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
     WelcomeGo WelcomeDestination
+  | -- | Leave 'WorldView', enter 'GameView'
+    WorldToGame Team
   deriving (Show, Eq)
 
 data SceneAction
@@ -378,27 +379,34 @@ updateSceneModel (JumpToFrameForDebugging i) sceneModel =
   where
     indexWithinBounds frames = i >= 0 && i < length frames
 
-updateWorldModel :: Action -> Model.World -> Effect Action Model.World
+updateWorldModel :: Action -> Model.World -> Effect Action Model.Model
 updateWorldModel a w@Model.World {encounters, position, team, topology} =
   case a of
     KeyboardArrows arrows -> do
       case Direction.ofArrows arrows >>= flip Direction.move position of
-        Nothing -> pure w
+        Nothing -> pure $ lift w
         Just position'
           | position' `elem` neighbors ->
               case (team, Map.lookup position' encounters) of
                 (_, Nothing) ->
                   -- Regular move
-                  return w {moved = True, position = position'}
+                  return $ lift $ w {moved = True, position = position'}
                 (Nothing, Just (Select t)) ->
                   -- Move and select team
-                  return w {moved = True, position = position', team = Just t}
+                  return $ lift $ w {moved = True, position = position', team = Just t}
+                (Just _, Just (Fight t)) ->
+                  delayActions
+                    (lift $ w {fade = Constants.FadeOut})
+                    [(toSecs 1, WorldToGame t)]
                 _ ->
-                  return w {moved = True, position = position'}
-        Just _ -> pure w
-    _ -> pure w
+                  -- Default
+                  return $ lift $ w {moved = True, position = position'}
+        Just _ -> pure $ lift w
+    WorldToGame _ -> undefined -- TODO @smelc return a GameView
+    _ -> pure $ lift w
   where
     neighbors = Network.neighbors topology position
+    lift = Model.World'
 
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
@@ -504,7 +512,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ Model.Game' $ level0GameModel Constants.Hard shared (Campaign.mkJourney team) (Board.Teams Undead team)
+    noEff $ Model.Game' $ level0GameModel Constants.Hard shared (Just (Campaign.mkJourney team)) (Board.Teams Undead team)
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -516,14 +524,13 @@ updateModel (WelcomeGo MultiPlayerDestination) (Model.Welcome' _) =
   where
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
--- Actions that do not change the page delegate to more specialized versions
-updateModel (SceneAction' action) (Model.Welcome' wm@Model.Welcome {sceneModel}) = do
-  newSceneModel <- updateSceneModel action sceneModel
-  return (Model.Welcome' wm {sceneModel = newSceneModel})
-updateModel (SceneAction' _) model = noEff model
-updateModel a (Model.World' w) = do
-  w' <- updateWorldModel a w
-  return $ Model.World' w'
+-- Action regarding Model.World and WorldView
+updateModel (WorldToGame _) (Model.World' {}) =
+  undefined
+updateModel a (m@(Model.World' (w@Model.World {fade}))) =
+  case fade of
+    Constants.FadeOut -> return m -- Page change pending
+    _ -> updateWorldModel a w -- Delegate
 updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
   newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
   return $ Model.Welcome' wm {keysDown = newKeysDown, sceneModel = newSceneModel}
@@ -533,6 +540,11 @@ updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, s
     keyCodeToSceneAction :: Int -> Maybe SceneAction
     keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
     keyCodeToSceneAction _ = Nothing
+-- Actions that do not change the page delegate to more specialized versions
+updateModel (SceneAction' action) (Model.Welcome' wm@Model.Welcome {sceneModel}) = do
+  newSceneModel <- updateSceneModel action sceneModel
+  return (Model.Welcome' wm {sceneModel = newSceneModel})
+updateModel (SceneAction' _) model = noEff model
 updateModel (Keyboard _) model = noEff model
 updateModel (KeyboardArrows _) model = noEff model
 updateModel (GameAction' a) (Model.Game' m) =
@@ -558,7 +570,7 @@ updateModel a m =
 level0GameModel ::
   Constants.Difficulty ->
   Shared.Model ->
-  Campaign.Journey ->
+  Maybe (Campaign.Journey) ->
   Board.Teams Team ->
   Model.Game
 level0GameModel difficulty shared journey teams =
@@ -575,12 +587,12 @@ levelNGameModel ::
   Constants.Difficulty ->
   Shared.Model ->
   Campaign.Level ->
-  Campaign.Journey ->
+  Maybe Campaign.Journey ->
   -- | The decks
   (Board.Teams (Team, [Card 'Core])) ->
   Model.Game
-levelNGameModel difficulty shared level journey@(Campaign.Journey j) teams =
-  assert correctOpponent Model.Game {..}
+levelNGameModel difficulty shared level journey teams =
+  Model.Game {..}
   where
     (_, board) = Board.initial shared teams
     interaction = NoInteraction
@@ -593,9 +605,6 @@ levelNGameModel difficulty shared level journey@(Campaign.Journey j) teams =
     anims = mempty
     anim = Game.NoAnimation
     uiAvail = True
-    correctOpponent =
-      (Just (fst $ Board.toData (Spots.other playingPlayer) teams))
-        == (Map.lookup level j <&> fst)
 
 -- | An initial model, with a custom board. /!\ Not for production /!\
 unsafeInitialGameModel ::
@@ -611,9 +620,10 @@ unsafeInitialGameModel difficulty shared teams board =
   where
     interaction = NoInteraction
     journey =
-      Campaign.unsafeJourney
-        level
-        (Board.toData (Spots.other Spots.startingPlayerSpot) teams & fst)
+      Just $
+        Campaign.unsafeJourney
+          level
+          (Board.toData (Spots.other Spots.startingPlayerSpot) teams & fst)
     level = Campaign.Level0
     playingPlayer = Spots.startingPlayerSpot
     playingPlayerDeck =

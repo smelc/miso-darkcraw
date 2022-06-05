@@ -16,7 +16,7 @@ import qualified Board
 import Campaign
 import Card
 import Cinema (TimedFrame)
-import qualified Constants (Difficulty (..))
+import qualified Constants (Difficulty (..), Fade)
 import qualified Contains
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -139,8 +139,9 @@ data Game = Game
     difficulty :: Constants.Difficulty,
     -- | What user interaction is going on
     interaction :: Interaction,
-    -- | The list of games to play
-    journey :: Campaign.Journey,
+    -- | The list of games to play in Vanilla edition, @Nothing@ in
+    -- legendary edition.
+    journey :: Maybe (Campaign.Journey),
     -- | The current level
     level :: Campaign.Level,
     -- | Where the player plays
@@ -216,7 +217,7 @@ unsafeGameModel Model.Welcome {shared} =
   where
     anim = Game.NoAnimation
     anims = mempty
-    journey = Campaign.mkJourney team
+    journey = Just (Campaign.mkJourney team)
     team = Human
     teams = Board.Teams Undead team
     teams' = teams <&> (\t -> (t, Shared.getInitialDeck shared t))
@@ -254,8 +255,12 @@ data World = forall a.
   World
   { -- | Possible encounters
     encounters :: Map.Map Direction.Coord Encounter,
+    -- | The fading (if any)
+    fade :: Constants.Fade,
     -- | Whether a move was done already
     moved :: Bool,
+    -- | Encounters done already
+    past :: Map.Map Direction.Coord Encounter,
     -- | The absolute position of the character, in number of cells
     position :: Direction.Coord,
     -- | Part of the model shared among all pages

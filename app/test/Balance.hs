@@ -224,7 +224,7 @@ play shareds level teams nbTurns =
     go (shared : rest) =
       -- I tried setting AI to Hard once and it didn't change the outcome significantly,
       -- except that it was wayyyyy slower.
-      let result = Match.play (Update.levelNGameModel Constants.Easy shared level journey teams) nbTurns
+      let result = Match.play (Update.levelNGameModel Constants.Easy shared level (Just journey) teams) nbTurns
        in result : go rest
     go [] = []
     journey =

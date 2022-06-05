@@ -49,7 +49,7 @@ main shared = do
         [1 .. 48]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = level0GameModel Constants.Easy (Shared.withSeed shared seed) journey (Board.Teams t1 t2)
+        model seed = level0GameModel Constants.Easy (Shared.withSeed shared seed) (Just journey) (Board.Teams t1 t2)
         journey = Campaign.unsafeJourney Campaign.Level0 t1
     isError (Error msg) = traceShow msg True
     isError Draw = False
