@@ -534,6 +534,7 @@ updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, s
     keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
     keyCodeToSceneAction _ = Nothing
 updateModel (Keyboard _) model = noEff model
+updateModel (KeyboardArrows _) model = noEff model
 updateModel (GameAction' a) (Model.Game' m) =
   case runExcept (updateGameModel (m {anim = Game.NoAnimation}) a) of
     Right (m, Nothing) -> noEff (Model.Game' m)
