@@ -8,7 +8,7 @@
 -- in legendary edition as well as the view between levels.
 module WorldView where
 
-import Card (Team (..))
+import Card (Team (..), ppTeam)
 import qualified Color
 import qualified Configuration
 import qualified Constants
@@ -36,7 +36,7 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
         div_
           []
           [ div_ (attrs ++ [style_ bgStyle]) ([man] ++ events ++ chooseTeamHint zpp world),
-            legendDiv
+            legendDiv world
           ]
   ViewInternal.fade builder Nothing 2 fade
   where
@@ -79,8 +79,8 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
         & map (\((x, y), encounter) -> tileView zpp x y (encounterToTile encounter))
 
 -- | The div showing the legend for the character
-legendDiv :: View a
-legendDiv =
+legendDiv :: Model.World -> View a
+legendDiv Model.World {team} =
   div_
     [ style_ $
         "width" =: px Constants.lobbiesPixelWidth
@@ -95,7 +95,13 @@ legendDiv =
             "width" =: px (Constants.lobbiesPixelWidth - Constants.cps * 2)
               <> "margin-left" =: px Constants.cps
         ]
-        [ div_ [] [text "The character above with a green cape, that's you!"],
+        [ ( case team of
+              Nothing -> div_ [] [text "The character above with a green cape, that's you!"]
+              Just team ->
+                div_
+                  []
+                  [text "You've chosen the ", i_ [] [text $ MisoString.ms $ Card.ppTeam team], text " team 🎉"]
+          ),
           div_ [style_ $ "margin-top" =: px 4] [text "Move using the pad or the arrow keys."]
         ]
     ]
