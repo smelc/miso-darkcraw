@@ -15,6 +15,7 @@ import           Network.WebSockets
 #endif
 
 import Card
+import Configuration (Configuration (..), Edition (..))
 import qualified Configuration
 import Control.Monad (forM_)
 import qualified Data.Map.Strict as Map
@@ -28,7 +29,7 @@ import qualified Shared
 import System.Exit
 import System.IO (hPutStrLn, stderr)
 import System.Random (getStdGen)
-import Update (Action (..), updateModel)
+import Update (Action (..), initialWelcomeModel, updateModel)
 import View (view)
 import qualified WorldView
 
@@ -69,8 +70,16 @@ main = do
   stdGen <- getStdGen
   forM_ allTeams (logTeam cards)
   let shared = Shared.create cards skills tiles stdGen
-  -- WelcomeModel' $ initialWelcomeModel shared -- initial model
-  let model = Model.World' $ WorldView.mkModel shared
+  let model =
+        case Configuration.get of
+          Dev -> world
+          Itch Legendary _ -> world
+          Itch Vanilla _ -> welcome
+          Schplaf Legendary _ -> world
+          Schplaf Vanilla _ -> welcome
+        where
+          welcome = Model.Welcome' $ initialWelcomeModel shared
+          world = Model.World' $ WorldView.mkModel shared
   runApp $
     if Configuration.isDev
       then startApp $ debugApp NoOp App {..}
