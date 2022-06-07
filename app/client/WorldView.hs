@@ -151,26 +151,6 @@ shift dir m@Model.World {position, size = (width, height), topLeft = Direction.C
       | y >= tly + height -> m -- Too low
       | otherwise -> m {Model.position = pos'}
 
--- | The position of fights, hardcoded yes
-fightSpots :: Map.Map Team [Direction.Coord]
-fightSpots =
-  Map.map (map Direction.Coord) $
-    Map.fromList $
-      [ (Undead, [(24, 35)]),
-        (Sylvan, [(30, 38)])
-      ]
-
--- | The position where to choose the team
-chooseTeamSpots :: Map.Map Team Direction.Coord
-chooseTeamSpots =
-  [ (Human, (22, 43)),
-    (Sylvan, (24, 43)),
-    (Evil, (26, 43)),
-    (Undead, (28, 43))
-  ]
-    & map (Bifunctor.second Direction.Coord)
-    & Map.fromList
-
 borderRadius :: Int
 borderRadius = 6
 
@@ -204,7 +184,7 @@ chooseTeamHint z Model.World {team, topLeft, size = (width, _)} =
             & relCoordToPx
             & Bifunctor.first (+ Constants.cps `div` 4)
         teamSpot =
-          chooseTeamSpots
+          Network.chooseTeamSpots
             & Map.elems
             & sortOn (fst . Direction.unCoord)
             & head
@@ -219,8 +199,8 @@ mkEncounters includeChoices topLeft size =
   where
     visible c = c >= topLeft && c < topLeft Direction.+ size
     pairs :: [(Team, [Direction.Coord])] =
-      fightSpots & Map.map (filter visible) & Map.filter notNull & Map.toList
-    choices = [(c, t) | (t, c) <- Map.toList chooseTeamSpots]
+      Network.fightSpots & Map.map (filter visible) & Map.filter notNull & Map.toList
+    choices = [(c, t) | (t, c) <- Map.toList Network.chooseTeamSpots]
 
 encounterToTile :: Model.Encounter -> Tile.Tile
 encounterToTile =

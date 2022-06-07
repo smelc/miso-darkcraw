@@ -1,11 +1,18 @@
 -- | Module providing the API using the data from 'Roads'
+-- Also contains some hardcoded data, which - contrary to 'Roads' -
+-- is not generated.
 module Network
-  ( Network (..),
+  ( chooseTeamSpots,
+    fightSpots,
+    Network (..),
     mkTopology,
     Topology,
   )
 where
 
+import Card (Team (..))
+import qualified Data.Bifunctor as Bifunctor
+import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import qualified Direction
 import Nat
@@ -28,4 +35,24 @@ mkTopology points = Topology $ Map.fromList l
       [ (k, kNeighbors)
         | k <- coords,
           let kNeighbors = filter (Direction.isAdjacent k) coords
+      ]
+
+-- | The position where to choose the team
+chooseTeamSpots :: Map.Map Team Direction.Coord
+chooseTeamSpots =
+  [ (Human, (22, 43)),
+    (Sylvan, (24, 43)),
+    (Evil, (26, 43)),
+    (Undead, (28, 43))
+  ]
+    & map (Bifunctor.second Direction.Coord)
+    & Map.fromList
+
+-- | The position of fights, hardcoded yes
+fightSpots :: Map.Map Team [Direction.Coord]
+fightSpots =
+  Map.map (map Direction.Coord) $
+    Map.fromList $
+      [ (Undead, [(24, 35)]),
+        (Sylvan, [(30, 38)])
       ]

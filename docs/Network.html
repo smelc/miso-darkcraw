@@ -31,9 +31,16 @@
 </div>
 <div id="description">
 <p class="caption">Description</p>
-<div class="doc"><p>Module providing the API using the data from <code>Roads</code></p></div>
+<div class="doc"><p>Module providing the API using the data from <code>Roads</code>
+ Also contains some hardcoded data, which - contrary to <code>Roads</code> -
+ is not generated.</p></div>
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
+<li class="src short">
+<a href="#v:chooseTeamSpots">chooseTeamSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a>
+</li>
+<li class="src short">
+<a href="#v:fightSpots">fightSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Direction.html#t:Coord" title="Direction">Coord</a>]</li>
 <li class="src short">
 <span class="keyword">class</span> <a href="#t:Network">Network</a> b <span class="keyword">where</span><ul class="subs"><li>
 <a href="#v:neighbors">neighbors</a> :: b -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; [<a href="Direction.html#t:Coord" title="Direction">Coord</a>]</li></ul>
@@ -47,6 +54,14 @@
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
+<div class="top">
+<p class="src"><a id="v:chooseTeamSpots" class="def">chooseTeamSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="#v:chooseTeamSpots" class="selflink">#</a></p>
+<div class="doc"><p>The position where to choose the team</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:fightSpots" class="def">fightSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Direction.html#t:Coord" title="Direction">Coord</a>] <a href="#v:fightSpots" class="selflink">#</a></p>
+<div class="doc"><p>The position of fights, hardcoded yes</p></div>
+</div>
 <div class="top">
 <p class="src"><span class="keyword">class</span> <a id="t:Network" class="def">Network</a> b <span class="keyword">where</span> <a href="#t:Network" class="selflink">#</a></p>
 <div class="doc"><p>The high-level API to query data from <code>Roads</code></p></div>
