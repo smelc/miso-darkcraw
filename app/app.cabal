@@ -64,6 +64,7 @@ common common-all
     Nat
     Network
     Random
+    Roads
     ServerMessages
     Shared
     Skill
@@ -108,7 +109,6 @@ executable app
     LootView
     MultiPlayerLobbyView
     PCWViewInternal
-    Roads
     SinglePlayerLobbyView
     View
     ViewBlocks

@@ -58,7 +58,7 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
     manTile =
       case team of
         Nothing -> Tile.Man
-        Just t -> encounterToTile (Model.Select t)
+        Just t -> encounterToTile (Network.Select t)
     filepath tile size =
       Shared.tileToFilepath shared tile size
         & Tile.filepathToString
@@ -70,7 +70,7 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
           const True
         Just _ ->
           -- Don't show selection spots if team chosen already
-          \case Model.Select _ -> False; _ -> True
+          \case Network.Select _ -> False; _ -> True
     events =
       encounters
         & Map.filter encounterFilter
@@ -192,24 +192,24 @@ chooseTeamHint z Model.World {team, topLeft, size = (width, _)} =
       -- Team has been chosen already, do not show hint
       []
 
-mkEncounters :: Bool -> Direction.Coord -> Direction.Coord -> Map.Map Direction.Coord Model.Encounter
+mkEncounters :: Bool -> Direction.Coord -> Direction.Coord -> Map.Map Direction.Coord Network.Encounter
 mkEncounters includeChoices topLeft size =
-  Map.fromList [(c, Model.Fight t) | (t, cs) <- pairs, c <- cs]
-    <> (if includeChoices then Map.map Model.Select (Map.fromList choices) else mempty)
+  Map.fromList [(c, Network.Fight t) | (t, cs) <- pairs, c <- cs]
+    <> (if includeChoices then Map.map Network.Select (Map.fromList choices) else mempty)
   where
     visible c = c >= topLeft && c < topLeft Direction.+ size
     pairs :: [(Team, [Direction.Coord])] =
       Network.fightSpots & Map.map (filter visible) & Map.filter notNull & Map.toList
     choices = [(c, t) | (t, c) <- Map.toList Network.chooseTeamSpots]
 
-encounterToTile :: Model.Encounter -> Tile.Tile
+encounterToTile :: Network.Encounter -> Tile.Tile
 encounterToTile =
   \case
-    Model.Fight Beastmen -> Tile.BeastmenDefender
-    Model.Fight Evil -> Tile.Beholder
-    Model.Fight Human -> Tile.HumanGeneral
-    Model.Fight Sylvan -> Tile.SylvanArcher
-    Model.Fight Undead -> Tile.UndeadWarrior
-    Model.Fight ZKnights -> Tile.ZKnight
-    Model.Pickup _item -> Tile.Chest
-    Model.Select t -> encounterToTile (Model.Fight t)
+    Network.Fight Beastmen -> Tile.BeastmenDefender
+    Network.Fight Evil -> Tile.Beholder
+    Network.Fight Human -> Tile.HumanGeneral
+    Network.Fight Sylvan -> Tile.SylvanArcher
+    Network.Fight Undead -> Tile.UndeadWarrior
+    Network.Fight ZKnights -> Tile.ZKnight
+    Network.Pickup _item -> Tile.Chest
+    Network.Select t -> encounterToTile (Network.Fight t)

@@ -131,11 +131,11 @@ def _check_ormolu_version() -> int:
 
 def _check_roads_dot_hs() -> int:
     """ Checks that ./scripts/Roads.hs tiled/world.tmx /tmp/foo.hs
-        create a foo.hs file that is similar to app/client/Roads.hs """
+        create a foo.hs file that is similar to app/shared/Roads.hs """
     with tempfile.NamedTemporaryFile() as tmpfile:
         tmpfile = tmpfile.name
         _run_cmd(None, ["./scripts/Roads.hs", "tiled/world.tmx", tmpfile], check=True)
-        rc = _run_cmd(None, ["diff", "app/client/Roads.hs", tmpfile])
+        rc = _run_cmd(None, ["diff", "app/shared/Roads.hs", tmpfile])
         return rc
 
 

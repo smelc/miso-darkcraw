@@ -3,6 +3,7 @@
 -- is not generated.
 module Network
   ( chooseTeamSpots,
+    Encounter (..),
     fightSpots,
     Network (..),
     mkTopology,
@@ -10,12 +11,21 @@ module Network
   )
 where
 
-import Card (Team (..))
+import Card (Item, Team (..))
 import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
 import qualified Direction
 import Nat
+
+-- | Possible encounters on the world map
+data Encounter
+  = -- | Fighting
+    Fight Team
+  | -- | Picking up an item
+    Pickup Item
+  | -- | Choosing your team at the start of the game
+    Select Team
 
 -- | The high-level API to query data from 'Roads'
 class Network b where

@@ -391,10 +391,10 @@ updateWorldModel a w@Model.World {encounters, position, team, topology} =
                 (_, Nothing) ->
                   -- Regular move
                   return $ lift $ w {moved = True, position = position'}
-                (Nothing, Just (Select t)) ->
+                (Nothing, Just (Network.Select t)) ->
                   -- Move and select team
                   return $ lift $ w {moved = True, position = position', team = Just t}
-                (Just _, Just (Fight t)) ->
+                (Just _, Just (Network.Fight t)) ->
                   delayActions
                     (lift $ w {fade = Constants.FadeOut})
                     [(toSecs 1, WorldToGame t)]
