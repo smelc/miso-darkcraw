@@ -58,11 +58,19 @@ chooseTeamSpots =
     & map (Bifunctor.second Direction.Coord)
     & Map.fromList
 
+-- | The spot where the game ends. It must be reachable from all values
+-- of 'chooseTeamSpots'
+_endSpot :: (Nat, Nat)
+_endSpot = (24, 18)
+
 -- | The position of fights, hardcoded yes
 fightSpots :: Map.Map Team [Direction.Coord]
 fightSpots =
   Map.map (map Direction.Coord) $
     Map.fromList $
-      [ (Undead, [(24, 35)]),
-        (Sylvan, [(30, 38)])
+      [ (Beastmen, [(20, 28)]),
+        (Evil, [(18, 24)]),
+        (Sylvan, [(30, 38)]),
+        (Undead, [(24, 35)]),
+        (ZKnights, [(30, 25)])
       ]
