@@ -50,6 +50,7 @@ import qualified Match
 import qualified Model
 import Movie
 import Nat
+import qualified Network
 import Pretty
 import SceneEquivalence
 import qualified Shared
@@ -397,6 +398,12 @@ testAIImprecise shared =
     trebuchet = Card.IDC (CreatureID Trebuchet team) []
     turn = Turn.initial
 
+testNetworkChooseTeamSpots =
+  describe "Network" $ do
+    it "all spots in chooseTeamSpots differ" $
+      (Map.size Network.chooseTeamSpots)
+        `shouldBe` (Map.elems Network.chooseTeamSpots & Set.fromList & Set.size)
+
 testMana shared =
   describe "AI" $ do
     prop "only play cards for which enough mana is available" $
@@ -475,6 +482,7 @@ main = hspec $ do
   testItemsAI shared
   testShowCommands
   testAIImprecise shared
+  testNetworkChooseTeamSpots
   -- PBT tests
   testMana shared
   testNeighbors
