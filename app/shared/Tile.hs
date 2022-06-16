@@ -18,6 +18,8 @@ data Filepath = Filepath
   }
   deriving (Eq, Generic, Ord, Show)
 
+-- FIXME @smelc write instance MisoString.toMisoString Filepath
+
 -- | The default 24x24 asset shown when an asset is not found.
 -- | This makes 'creatureToFilepath' total.
 default24Filepath :: Filepath

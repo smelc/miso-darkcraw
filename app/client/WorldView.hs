@@ -31,7 +31,7 @@ import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
 viewWorldModel world@Model.World {encounters, position, shared, team} = do
-  let man = tileView zpp manX manY manTile
+  let man = tileView shared zpp manX manY manTile
       builder attrs =
         div_
           []
@@ -48,21 +48,11 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
         <> "background-position-x" =: px (-(Constants.cps * 13))
         <> "background-position-y" =: px pxHeight
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
-    tileView z x y tile =
-      nodeHtmlKeyed
-        "div"
-        (Key $ "worldview-" <> MisoString.ms x <> "-" <> MisoString.ms y)
-        [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute x y Constants.cps Constants.cps]
-        [ViewInternal.imgCellwh (filepath tile Tile.TwentyFour) Constants.cps Constants.cps Nothing]
     (manX, manY) = absCoordToPx world position
     manTile =
       case team of
         Nothing -> Tile.Man
         Just t -> encounterToTile (Network.Select t)
-    filepath tile size =
-      Shared.tileToFilepath shared tile size
-        & Tile.filepathToString
-        & MisoString.ms
     encounterFilter =
       case team of
         Nothing ->
@@ -76,7 +66,42 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
         & Map.filter encounterFilter
         & Map.toList
         & map (Bifunctor.first (absCoordToPx world))
-        & map (\((x, y), encounter) -> tileView zpp x y (encounterToTile encounter))
+        & map (\((x, y), encounter) -> encounterView shared zpp x y encounter)
+        & concat
+
+-- | @encounterView shared z x y e@ returns the views for the encounter 'e'.
+-- 'x' and 'y' are relative (to the enclosing container) pixel values. They
+-- are not cell coordinates.
+encounterView :: Shared.Model -> Int -> Int -> Int -> Network.Encounter -> [View action]
+encounterView shared z x y e =
+  case e of
+    Network.Fight _opponent -> default_
+    Network.Reward nb ->
+      zip3 [x, 4 ..] [y, 4 ..] [z + Nat.natToInt nb, -1 .. z]
+        & map (\(x, y, z) -> tileView shared z x y tile)
+    Network.Select _ -> default_
+  where
+    tile = encounterToTile e
+    default_ = [tileView shared z x y tile]
+
+filepath :: Shared.Model -> Tile.Tile -> Tile.Size -> MisoString.MisoString
+filepath shared tile size =
+  Shared.tileToFilepath shared tile size
+    & Tile.filepathToString
+    & MisoString.ms
+
+tileView :: Shared.Model -> Int -> Int -> Int -> Tile.Tile -> View action
+tileView shared z x y tile =
+  nodeHtmlKeyed
+    "div"
+    (Key $ "worldview-" <> MisoString.ms x <> "-" <> MisoString.ms y)
+    [style_ $ ViewInternal.zpltwh z ViewInternal.Absolute x y Constants.cps Constants.cps]
+    [ ViewInternal.imgCellwh
+        (filepath shared tile Tile.TwentyFour)
+        Constants.cps
+        Constants.cps
+        Nothing
+    ]
 
 -- | The div showing the legend for the character
 legendDiv :: Model.World -> View a
@@ -194,12 +219,15 @@ chooseTeamHint z Model.World {team, topLeft, size = (width, _)} =
 
 mkEncounters :: Bool -> Direction.Coord -> Direction.Coord -> Map.Map Direction.Coord Network.Encounter
 mkEncounters includeChoices topLeft size =
-  Map.fromList [(c, Network.Fight t) | (t, cs) <- pairs, c <- cs]
+  Map.fromList [(c, Network.Fight t) | (t, cs) <- fights, c <- cs]
+    <> Map.fromList [(c, Network.Reward n) | (c, n) <- Map.toList rewards]
     <> (if includeChoices then Map.map Network.Select (Map.fromList choices) else mempty)
   where
     visible c = c >= topLeft && c < topLeft Direction.+ size
-    pairs :: [(Team, [Direction.Coord])] =
+    fights :: [(Team, [Direction.Coord])] =
       Network.fightSpots & Map.map (filter visible) & Map.filter notNull & Map.toList
+    rewards :: Map.Map Direction.Coord Nat =
+      Network.lootSpots & Map.filterWithKey (\k _ -> visible k)
     choices = [(c, t) | (t, c) <- Map.toList Network.chooseTeamSpots]
 
 encounterToTile :: Network.Encounter -> Tile.Tile
@@ -211,5 +239,5 @@ encounterToTile =
     Network.Fight Sylvan -> Tile.SylvanArcher
     Network.Fight Undead -> Tile.UndeadWarrior
     Network.Fight ZKnights -> Tile.ZKnight
-    Network.Pickup _item -> Tile.Chest
+    Network.Reward {} -> Tile.Chest
     Network.Select t -> encounterToTile (Network.Fight t)

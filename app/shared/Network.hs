@@ -5,13 +5,16 @@ module Network
   ( chooseTeamSpots,
     Encounter (..),
     fightSpots,
+    lootSpots,
     Network (..),
     mkTopology,
+    rewards,
     Topology,
   )
 where
 
-import Card (Item, Team (..))
+import Card (Team (..))
+import qualified Card
 import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
 import qualified Data.Map.Strict as Map
@@ -21,11 +24,11 @@ import Nat
 -- | Possible encounters on the world map
 data Encounter
   = -- | Fighting
-    Fight Team
-  | -- | Picking up an item
-    Pickup Item
+    Fight Card.Team
+  | -- | Picking up rewards. The Nat indicates the number of rewards.
+    Reward Nat
   | -- | Choosing your team at the start of the game
-    Select Team
+    Select Card.Team
 
 -- | The high-level API to query data from 'Roads'
 class Network b where
@@ -47,8 +50,51 @@ mkTopology points = Topology $ Map.fromList l
           let kNeighbors = filter (Direction.isAdjacent k) coords
       ]
 
+-- | Map from coordinates to the number of loots at this position
+lootSpots :: Map.Map Direction.Coord Nat
+lootSpots =
+  Map.fromList $
+    map (Bifunctor.first Direction.Coord) $
+      [ ((24, 34), 1),
+        ((30, 37), 1),
+        ((19, 28), 2),
+        ((18, 23), 2),
+        ((18, 23), 2),
+        ((30, 24), 1)
+      ]
+
+rewards :: Map.Map Card.Team [Card.ID]
+rewards =
+  Map.fromList $
+    [ ( Evil,
+        [Card.IDI Card.AxeOfRage]
+      ),
+      ( Human,
+        [ mkIDC Human Card.Knight,
+          Card.IDI Card.Crown,
+          Card.IDN Card.Life,
+          mkIDC Human Card.Ogre
+        ]
+      ),
+      ( Sylvan,
+        [ Card.IDI Card.BowOfGaia,
+          Card.IDN Card.HuntingHorn,
+          Card.IDI Card.BowOfGaia,
+          mkIDC Sylvan Card.Worm
+        ]
+      ),
+      ( Undead,
+        [ mkIDC Undead Card.Necromancer,
+          Card.IDI Card.SkBanner,
+          mkIDC Undead Card.Specter
+        ]
+      )
+    ]
+  where
+    mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
+
 -- | The position where to choose the team
-chooseTeamSpots :: Map.Map Team Direction.Coord
+chooseTeamSpots :: Map.Map Card.Team Direction.Coord
 chooseTeamSpots =
   [ (Human, (22, 43)),
     (Sylvan, (24, 43)),
@@ -64,7 +110,7 @@ _endSpot :: (Nat, Nat)
 _endSpot = (24, 18)
 
 -- | The position of fights, hardcoded yes
-fightSpots :: Map.Map Team [Direction.Coord]
+fightSpots :: Map.Map Card.Team [Direction.Coord]
 fightSpots =
   Map.map (map Direction.Coord) $
     Map.fromList $

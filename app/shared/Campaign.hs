@@ -108,7 +108,8 @@ nbRewards level =
     Nothing -> 0
     Just predLevel -> 1 + nbRewards predLevel
 
--- | The possible rewards when finishing a level
+-- | The possible rewards when finishing a level.
+-- FIXME @smelc delete me, superseded by Network.rewards
 rewards :: Level -> Team -> [Card.ID]
 rewards level team =
   case (level, team) of

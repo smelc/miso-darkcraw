@@ -43,7 +43,7 @@
 <span class="keyword">data</span> <a href="#t:Encounter">Encounter</a><ul class="subs">
 <li>= <a href="#v:Fight">Fight</a> <a href="Card.html#t:Team" title="Card">Team</a>
 </li>
-<li>| <a href="#v:Pickup">Pickup</a> <a href="Card.html#t:Item" title="Card">Item</a>
+<li>| <a href="#v:Reward">Reward</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </li>
 <li>| <a href="#v:Select">Select</a> <a href="Card.html#t:Team" title="Card">Team</a>
 </li>
@@ -52,12 +52,17 @@
 <li class="src short">
 <a href="#v:fightSpots">fightSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Direction.html#t:Coord" title="Direction">Coord</a>]</li>
 <li class="src short">
+<a href="#v:lootSpots">lootSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+<li class="src short">
 <span class="keyword">class</span> <a href="#t:Network">Network</a> b <span class="keyword">where</span><ul class="subs"><li>
 <a href="#v:neighbors">neighbors</a> :: b -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; [<a href="Direction.html#t:Coord" title="Direction">Coord</a>]</li></ul>
 </li>
 <li class="src short">
 <a href="#v:mkTopology">mkTopology</a> :: [(<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)] -&gt; <a href="Network.html#t:Topology" title="Network">Topology</a>
 </li>
+<li class="src short">
+<a href="#v:rewards">rewards</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Card.html#t:ID" title="Card">ID</a>]</li>
 <li class="src short">
 <span class="keyword">data</span> <a href="#t:Topology">Topology</a>
 </li>
@@ -82,9 +87,9 @@
 </tr>
 <tr>
 <td class="src">
-<a id="v:Pickup" class="def">Pickup</a> <a href="Card.html#t:Item" title="Card">Item</a>
+<a id="v:Reward" class="def">Reward</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </td>
-<td class="doc"><p>Picking up an item</p></td>
+<td class="doc"><p>Picking up rewards. The Nat indicates the number of rewards.</p></td>
 </tr>
 <tr>
 <td class="src">
@@ -98,6 +103,10 @@
 <div class="top">
 <p class="src"><a id="v:fightSpots" class="def">fightSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Direction.html#t:Coord" title="Direction">Coord</a>] <a href="#v:fightSpots" class="selflink">#</a></p>
 <div class="doc"><p>The position of fights, hardcoded yes</p></div>
+</div>
+<div class="top">
+<p class="src"><a id="v:lootSpots" class="def">lootSpots</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:lootSpots" class="selflink">#</a></p>
+<div class="doc"><p>Map from coordinates to the number of loots at this position</p></div>
 </div>
 <div class="top">
 <p class="src"><span class="keyword">class</span> <a id="t:Network" class="def">Network</a> b <span class="keyword">where</span> <a href="#t:Network" class="selflink">#</a></p>
@@ -123,6 +132,7 @@
 <p class="src"><a id="v:mkTopology" class="def">mkTopology</a> :: [(<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)] -&gt; <a href="Network.html#t:Topology" title="Network">Topology</a> <a href="#v:mkTopology" class="selflink">#</a></p>
 <div class="doc"><p>How to obtain the API from data in <code>Roads</code></p></div>
 </div>
+<div class="top"><p class="src"><a id="v:rewards" class="def">rewards</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Card.html#t:Team" title="Card">Team</a> [<a href="Card.html#t:ID" title="Card">ID</a>] <a href="#v:rewards" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:Topology" class="def">Topology</a> <a href="#t:Topology" class="selflink">#</a></p>
 <div class="subs instances"><details id="i:Topology" open="open"><summary>Instances</summary><table>
