@@ -398,11 +398,17 @@ testAIImprecise shared =
     trebuchet = Card.IDC (CreatureID Trebuchet team) []
     turn = Turn.initial
 
-testNetworkChooseTeamSpots =
+testNetwork =
   describe "Network" $ do
     it "all spots in chooseTeamSpots differ" $
       (Map.size Network.chooseTeamSpots)
         `shouldBe` (Map.elems Network.chooseTeamSpots & Set.fromList & Set.size)
+    it "spots in chooseTeamSpots and fighting spots are disjoint" $
+      ( Set.intersection
+          (Set.fromList $ Map.elems Network.chooseTeamSpots)
+          (Map.elems Network.fightSpots & concat & Set.fromList)
+      )
+        `shouldSatisfy` Set.null
 
 testMana shared =
   describe "AI" $ do
@@ -482,7 +488,7 @@ main = hspec $ do
   testItemsAI shared
   testShowCommands
   testAIImprecise shared
-  testNetworkChooseTeamSpots
+  testNetwork
   -- PBT tests
   testMana shared
   testNeighbors
