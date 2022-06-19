@@ -23,6 +23,7 @@ import Data.Functor ((<&>))
 import Data.Generics.Labels ()
 import Data.List
 import qualified Data.Map.Strict as Map
+import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Text as Text
 import qualified Data.Vector as V
@@ -148,6 +149,8 @@ data Game = Game
     playingPlayer :: Spots.Player,
     -- | The deck of 'playingPlayer'
     playingPlayerDeck :: [Card.ID],
+    -- | The rewards of the entire campaign
+    rewards :: [Card.ID],
     -- | The current turn
     turn :: Turn.T,
     -- | Whether interactions are possible right now
@@ -181,16 +184,13 @@ gameToDeck Game {..} =
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 endGame :: Game -> Campaign.Outcome -> Model.Loot
-endGame Game {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, shared} outcome =
+endGame Game {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, rewards, shared} _outcome =
   case Campaign.succ level of
     Nothing -> error "You've finished the game!" -- Not really a nice end for now
-    Just next -> Model.Loot {..}
+    Just next -> Model.Loot {rewards = loot, ..}
   where
     nbRewards = 1 -- Change this?
-    rewards =
-      zip
-        (Campaign.loot (Just $ Shared.getStdGen shared) outcome level team)
-        (repeat NotPicked)
+    loot = zip rewards (repeat NotPicked)
     team = Board.toPart board pSpot & Board.team
 
 -- | Function for debugging only. Used to
@@ -201,8 +201,7 @@ unsafeLootModel Model.Welcome {shared} =
   where
     nbRewards = 1
     team = Human
-    rewards = zip (getRewards team Campaign.Level0) $ repeat NotPicked
-    getRewards team level = Campaign.loot (Just $ Shared.getStdGen shared) Campaign.Win level team
+    rewards = zip (Map.lookup team Network.rewards & fromMaybe []) $ repeat NotPicked
     next = Campaign.Level1
     deck =
       Shared.getInitialDeck shared team
@@ -218,6 +217,7 @@ unsafeGameModel Model.Welcome {shared} =
     anim = Game.NoAnimation
     anims = mempty
     journey = Just (Campaign.mkJourney team)
+    rewards = Map.lookup team Network.rewards & fromMaybe []
     team = Human
     teams = Board.Teams Undead team
     teams' = teams <&> (\t -> (t, Shared.getInitialDeck shared t))

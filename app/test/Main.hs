@@ -348,11 +348,6 @@ testRewards =
         acceptable team
           ==> Campaign.augment [] level team
           `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
-    -- TODO @smelc, test Evil, Sylvan too
-    prop "There is always at least one reward (except Evil, Sylvan, ZKnights)" $ do
-      \(outcome, level, team) ->
-        acceptable team
-          ==> Campaign.loot Nothing outcome level team `shouldSatisfy` (not . null)
   where
     -- FIXME @smelc, write a custom generator
     acceptable Beastmen = False

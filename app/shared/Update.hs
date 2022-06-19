@@ -27,7 +27,7 @@ import Control.Monad.Except
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
 import qualified Data.Map as Map
-import Data.Maybe (isJust, maybeToList)
+import Data.Maybe (fromMaybe, isJust, maybeToList)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -579,7 +579,10 @@ level0GameModel difficulty shared journey teams =
     shared
     Campaign.Level0
     journey
+    (Map.lookup team Network.rewards & fromMaybe [])
     $ (teams <&> (\t -> (t, Shared.getInitialDeck shared t)))
+  where
+    team = Board.toData Spots.startingPlayerSpot teams
 
 -- | A model that takes the decks as parameters, for use after the initial
 -- start of the game
@@ -588,10 +591,12 @@ levelNGameModel ::
   Shared.Model ->
   Campaign.Level ->
   Maybe Campaign.Journey ->
+  -- | The rewards
+  [Card.ID] ->
   -- | The decks
   (Board.Teams (Team, [Card 'Core])) ->
   Model.Game
-levelNGameModel difficulty shared level journey teams =
+levelNGameModel difficulty shared level journey rewards teams =
   Model.Game {..}
   where
     (_, board) = Board.initial shared teams
@@ -626,10 +631,12 @@ unsafeInitialGameModel difficulty shared teams board =
           (Board.toData (Spots.other Spots.startingPlayerSpot) teams & fst)
     level = Campaign.Level0
     playingPlayer = Spots.startingPlayerSpot
+    team = Board.toData playingPlayer teams & fst
     playingPlayerDeck =
       Board.toData playingPlayer teams
         & snd
         & map Card.cardToIdentifier
+    rewards = Map.lookup team Network.rewards & fromMaybe []
     turn = Turn.initial
     anims = mempty
     anim = Game.NoAnimation

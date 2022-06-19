@@ -13,7 +13,6 @@ module Campaign
     augment,
     fixed,
     mkJourney,
-    loot,
     nbRewards,
     succ,
     unsafeJourney,
@@ -28,8 +27,6 @@ import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import GHC.Generics
 import Nat
-import System.Random (Random (..), StdGen, random)
-import System.Random.Shuffle (shuffle')
 import Theme (Theme)
 import qualified Theme
 import Prelude hiding (pred, succ)
@@ -110,6 +107,7 @@ nbRewards level =
 
 -- | The possible rewards when finishing a level.
 -- FIXME @smelc delete me, superseded by Network.rewards
+-- Can be deleted when rewardsUpTo can, i.e. when 'Balance' is updated
 rewards :: Level -> Team -> [Card.ID]
 rewards level team =
   case (level, team) of
@@ -131,30 +129,6 @@ rewards level team =
     (_, ZKnights) -> [] -- Not a playable team, it's fine
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
-
--- | The possible rewards when finishing the given 'Level' with the given 'Outcome'
-loot :: Maybe StdGen -> Outcome -> Level -> Team -> [Card.ID]
-loot stdgen outcome level team =
-  shuffle unshuffled
-  where
-    shuffle l =
-      case (stdgen, l) of
-        (Nothing, _) -> l
-        (_, []) -> [] -- shuffle' doesn't support []
-        (Just stdgen, _) -> shuffle' l (length l) stdgen
-    win = rewards level team
-    loss =
-      case pred level of
-        Nothing -> rewards level team & shuffle & (\l -> if length l > 1 then drop 1 l else l)
-        Just levelb -> rewards levelb team
-    unshuffled =
-      case outcome of
-        Win -> win
-        Draw ->
-          case stdgen of
-            Nothing -> win
-            Just stdgen -> if random stdgen & fst then win else loss
-        Loss -> loss
 
 -- | All possible rewards that can have been obtained from the start,
 -- when playing the given level
