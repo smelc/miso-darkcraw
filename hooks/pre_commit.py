@@ -32,10 +32,9 @@ def _git_diff(staged_or_modified: bool, extension: str) -> List[str]:
     if staged_or_modified:
         git_cmd += ["--cached"]
     git_cmd += ["--name-only", "--diff-filter=ACMR", "*." + extension]
-    git_diff_result = subprocess.run(git_cmd,
-                                     check=True,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
+    git_diff_result = subprocess.run(
+        git_cmd, check=True, stdout=subprocess.PIPE, universal_newlines=True
+    )
     # The comprehension filters empty lines
     return [x for x in git_diff_result.stdout.split("\n") if x]
 
@@ -58,20 +57,20 @@ def _call_tool(files: List[str], staged_or_modified: bool, cmd: list) -> int:
         # adding (in git) the file after having formatted would stage
         # those modifications
         git_cmd = ["git", "diff", "--name-only"]
-        modified_files_result = subprocess.run(git_cmd,
-                                               check=True,
-                                               stdout=subprocess.PIPE,
-                                               universal_newlines=True)
+        modified_files_result = subprocess.run(
+            git_cmd, check=True, stdout=subprocess.PIPE, universal_newlines=True
+        )
         trimmed_files = [
-            x for x in files
-            if x not in modified_files_result.stdout.split("\n")
+            x for x in files if x not in modified_files_result.stdout.split("\n")
         ]
         excluded = [x for x in files if x not in trimmed_files]
         if excluded:
-            print("Some files are not considered because"
-                  " they have unstaged modifications."
-                  "\nModifying them and readding them would stage unwanted"
-                  " modifications\nConcerned files:")
+            print(
+                "Some files are not considered because"
+                " they have unstaged modifications."
+                "\nModifying them and readding them would stage unwanted"
+                " modifications\nConcerned files:"
+            )
             for exclude in excluded:
                 print("  " + exclude)
         files = trimmed_files
@@ -95,7 +94,7 @@ def _call_tool(files: List[str], staged_or_modified: bool, cmd: list) -> int:
     return return_code
 
 
-def _run_cmd(cmd: List[str], cwd: Optional[str] = None, check: bool=False) -> int:
+def _run_cmd(cmd: List[str], cwd: Optional[str] = None, check: bool = False) -> int:
     """
     Args:
         cmd: The command to execute
@@ -110,20 +109,19 @@ def _run_cmd(cmd: List[str], cwd: Optional[str] = None, check: bool=False) -> in
 
 
 def _check_jsondata_dot_hs() -> int:
-    """ Checks that ./th/main.py --check returns 0, i.e. that
-        app/shared/JsonData.hs is up-to-date w.r.t to th/data.json """
+    """Checks that ./th/main.py --check returns 0, i.e. that
+    app/shared/JsonData.hs is up-to-date w.r.t to th/data.json"""
     return _run_cmd(["./th/main.py", "--check"])
 
 
 def _check_ormolu_version() -> int:
-    """ Check that ormolu's version is the expected one. Returns a return
-        code. """
+    """Check that ormolu's version is the expected one. Returns a return
+    code."""
     expected_version = "0.4.0.0"
     cmd = ["ormolu", "--version"]
-    ormolu_output = subprocess.run(cmd,
-                                   check=True,
-                                   stdout=subprocess.PIPE,
-                                   universal_newlines=True).stdout
+    ormolu_output = subprocess.run(
+        cmd, check=True, stdout=subprocess.PIPE, universal_newlines=True
+    ).stdout
     ormolu_output = ormolu_output.split(" ")
     version = ormolu_output[1] if len(ormolu_output) >= 2 else None
     if version is None:
@@ -137,8 +135,8 @@ def _check_ormolu_version() -> int:
 
 
 def _check_roads_dot_hs() -> int:
-    """ Checks that ./scripts/Roads.hs tiled/world.tmx /tmp/foo.hs
-        create a foo.hs file that is similar to app/shared/Roads.hs """
+    """Checks that ./scripts/Roads.hs tiled/world.tmx /tmp/foo.hs
+    create a foo.hs file that is similar to app/shared/Roads.hs"""
     with tempfile.NamedTemporaryFile() as tmpfile:
         tmpfile = tmpfile.name
         _run_cmd(["./scripts/Roads.hs", "tiled/world.tmx", tmpfile], check=True)
@@ -169,10 +167,9 @@ def _doc_should_be_rebuilt(staged_or_modified: bool, hs_files: List[str]) -> boo
     if staged_or_modified:
         git_cmd += ["--staged"]
     git_cmd += hs_files
-    git_diff_result = subprocess.run(git_cmd,
-                                     check=True,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
+    git_diff_result = subprocess.run(
+        git_cmd, check=True, stdout=subprocess.PIPE, universal_newlines=True
+    )
     # The comprehension filters empty lines
     lines = [x for x in git_diff_result.stdout.split("\n") if x]
     lines = lines[4:]  # Omit first 4 lines, the ones looking like:
@@ -180,7 +177,9 @@ def _doc_should_be_rebuilt(staged_or_modified: bool, hs_files: List[str]) -> boo
     # index ed11c68..425b9b2 100644
     # --- a/app/client/LootView.hs
     # +++ b/app/client/LootView.hs
-    lines = [x[1:] for x in lines if x[0] in ['-', '+']]  # Keep only lines starting with - or +,
+    lines = [
+        x[1:] for x in lines if x[0] in ["-", "+"]
+    ]  # Keep only lines starting with - or +,
     # i.e. omit lines starting with @@. Note that we know lines are not empty
     # by the filtering done above, so [0] is valid.
 
@@ -205,10 +204,16 @@ def _doc(staged_or_modified: bool, hs_files: List[str]) -> int:
     """
     assert hs_files
     if not _doc_should_be_rebuilt(staged_or_modified, hs_files):
-        print("No Haskell line containing '--' has been changed: not rebuilding Haddock 🐎")
+        print(
+            "No Haskell line containing '--' has been changed: not rebuilding Haddock 🐎"
+        )
         return 0  # Nothing to do
 
-    cmd = ["nix-shell", "--run", "cabal --project-file=cabal-haddock.config haddock app"]
+    cmd = [
+        "nix-shell",
+        "--run",
+        "cabal --project-file=cabal-haddock.config haddock app",
+    ]
     rc = _run_cmd(cmd, cwd="app")
     if rc != 0:
         # A failure, it's fine, we just don't update the doc
@@ -220,7 +225,9 @@ def _doc(staged_or_modified: bool, hs_files: List[str]) -> int:
         os.makedirs(dest)
     # png and css produced by haddock are not writable O_o, hence to
     # avoid chown calls upon overwriting the doc, we only iterate over *.html
-    for html_file in glob.glob("app/dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/x/app/doc/html/app/app/*.html"):
+    for html_file in glob.glob(
+        "app/dist-newstyle/build/x86_64-linux/ghc-8.6.5/app-0.1.0.0/x/app/doc/html/app/app/*.html"
+    ):
         shutil.copy(html_file, dest)
         filename = os.path.basename(html_file)
         cmd = ["xmllint", "--format", "--html", filename, "-o", f"{filename}.tmp"]
@@ -242,7 +249,7 @@ def _test() -> int:
 
 
 def main() -> int:
-    """ The main """
+    """The main"""
     staged = "--unstaged" not in sys.argv
     adjective = "staged" if staged else "modified"
 
@@ -252,8 +259,9 @@ def main() -> int:
     if relevant_hs_files:
         return_code = _check_ormolu_version()
         if return_code == 0:  # ormolu version is the expected one
-            ormolu_rc = _call_tool(relevant_hs_files, staged,
-                                   ["ormolu", "-m", "inplace"])
+            ormolu_rc = _call_tool(
+                relevant_hs_files, staged, ["ormolu", "-m", "inplace"]
+            )
             return_code = max(return_code, ormolu_rc)
         if _BUILD_TEST:
             return_code = max(return_code, _build())
@@ -261,7 +269,9 @@ def main() -> int:
         if return_code == 0:
             return_code = max(return_code, _doc(staged, relevant_hs_files))
     else:
-        print(f"No {adjective} *.hs relevant file found, nothing to format, and no doc to generate either")
+        print(
+            f"No {adjective} *.hs relevant file found, nothing to format, and no doc to generate either"
+        )
         if _BUILD_TEST:
             print("Not calling nix-build/cabal test either")
 

@@ -20,7 +20,7 @@ from typing import Optional, Tuple
 
 
 def _check_cwd() -> int:
-    """ returns a return code """
+    """returns a return code"""
     cwd_string = os.getcwd()
     cwd = cwd_string.split("/")
     if not cwd:
@@ -34,8 +34,10 @@ def _check_cwd() -> int:
         os.chdir("/".join(cwd[:-1]))
         print(f"Changed cwd from {cwd_string} to {os.getcwd()}")
     else:
-        print(f"Unhandled cwd: {cwd}. Please execute me from the git root",
-              file=sys.stderr)
+        print(
+            f"Unhandled cwd: {cwd}. Please execute me from the git root",
+            file=sys.stderr,
+        )
         return 1
     return 0
 
@@ -52,7 +54,7 @@ def _show_help():
 
 
 def _get_splice() -> Optional[str]:
-    """ returns the content if found """
+    """returns the content if found"""
     for f in ["th/Main.hs", "th/data.json"]:
         if not os.path.isfile(f):
             print(f"{f} not found", file=sys.stderr)
@@ -71,17 +73,15 @@ def _get_splice() -> Optional[str]:
 
     ghc_cmd += ["Main.hs", "-ddump-splices"]
     ghc_cmd_string = " ".join(ghc_cmd)
-    res = subprocess.run(ghc_cmd, check=False, cwd="th",
-                         capture_output=True, text=True)
+    res = subprocess.run(ghc_cmd, check=False, cwd="th", capture_output=True, text=True)
     if res.returncode != 0:
         if res.stderr:
-            print(res.stderr, file=sys.stderr, end='')
+            print(res.stderr, file=sys.stderr, end="")
         print(f"{ghc_cmd_string} failed.", file=sys.stderr)
         return None
     raw_output = res.stdout
 
-    if (m := re.search(r'("\{\\n\\.*")#\)', raw_output,
-                       flags = re.DOTALL | re.MULTILINE)):
+    if m := re.search(r'("\{\\n\\.*")#\)', raw_output, flags=re.DOTALL | re.MULTILINE):
         return m.group(1)
 
     print(f"Splice not found in output. Run {ghc_cmd_string} to see the output.")
@@ -89,11 +89,12 @@ def _get_splice() -> Optional[str]:
 
 
 def _use_splice(check_or_install: bool, splice: str) -> int:
-    """ returns a return code
-        If True, check_or_install means check
-        If False, check_or_install means install
+    """returns a return code
+    If True, check_or_install means check
+    If False, check_or_install means install
     """
-    whole_module = """{- ORMOLU_DISABLE -}
+    whole_module = (
+        """{- ORMOLU_DISABLE -}
 
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -105,27 +106,31 @@ import Data.Text
 
 jsonData :: Text
 jsonData = %s
-""" % splice  # Final newline required, otherwise ormolu inserts it
-# (despite ORMOLU_DISABLE)
+"""
+        % splice
+    )  # Final newline required, otherwise ormolu inserts it
+    # (despite ORMOLU_DISABLE)
 
     filepath = "app/shared/JsonData.hs"
 
     if check_or_install:
-        with open(filepath, 'r') as handle:
+        with open(filepath, "r") as handle:
             content = handle.read()
             if content != whole_module:
-                print(f"{filepath} content isn't up-to-date\nRun ./th/main.py --install to fix it.",
-                      file=sys.stderr)
+                print(
+                    f"{filepath} content isn't up-to-date\nRun ./th/main.py --install to fix it.",
+                    file=sys.stderr,
+                )
                 return 1
     else:
-        with open(filepath, 'w') as handle:
+        with open(filepath, "w") as handle:
             handle.write(whole_module)
 
     return 0
 
 
 def main() -> int:
-    """ The main """
+    """The main"""
     if (return_code := _check_cwd()) != 0:
         return return_code
 
@@ -144,8 +149,9 @@ def main() -> int:
         install = True
 
     if check and install:
-        print("--check and --install are exclusive. Remove one of them.",
-              file=sys.stderr)
+        print(
+            "--check and --install are exclusive. Remove one of them.", file=sys.stderr
+        )
         return 1
 
     content = _get_splice()
