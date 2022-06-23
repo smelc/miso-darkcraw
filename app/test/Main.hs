@@ -338,24 +338,6 @@ testPlayScoreMonotonic shared =
     monotonic _ Nothing = True -- Nothing to test
     monotonic i (Just j) = j <= i -- Better score is smaller score
 
-testRewards =
-  describe "Rewards work as expected" $ do
-    it "initialisation" $ do
-      Campaign.augment [] Campaign.Level0 Human == [[]]
-    -- TODO @smelc, test Evil, Sylvan too
-    prop "one card is received at every reward (Beastmen, except Evil, Sylvan, ZKnights)" $ do
-      \(level, team) ->
-        acceptable team
-          ==> Campaign.augment [] level team
-          `shouldAllSatisfy` (\deck -> natLength deck == Campaign.nbRewards level)
-  where
-    -- FIXME @smelc, write a custom generator
-    acceptable Beastmen = False
-    acceptable Evil = False
-    acceptable Sylvan = False
-    acceptable ZKnights = False
-    acceptable _ = True
-
 testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
@@ -487,7 +469,6 @@ main = hspec $ do
   -- PBT tests
   testMana shared
   testNeighbors
-  testRewards
   testShared shared
   testAIPlace shared
   testInPlaceEffectsMonoid

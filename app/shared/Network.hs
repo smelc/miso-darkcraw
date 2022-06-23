@@ -5,6 +5,7 @@ module Network
   ( chooseTeamSpots,
     Encounter (..),
     fightSpots,
+    journeys,
     lootSpots,
     Network (..),
     mkTopology,
@@ -17,6 +18,7 @@ import Card (Team (..))
 import qualified Card
 import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
+import Data.List (intersperse)
 import qualified Data.Map.Strict as Map
 import qualified Direction
 import Nat
@@ -92,6 +94,35 @@ rewards =
     ]
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
+
+-- | Journeys of playable teams, for testing. This data could be generated
+-- automatically, this is tracked in https://github.com/smelc/miso-darkcraw/issues/13
+journeys :: Map.Map Card.Team [[Network.Encounter]]
+journeys =
+  Map.fromList
+    [ (Evil, map addRewards [leftInit ++ leftPath, leftInit ++ rightPath]),
+      (Human, map addRewards [leftInit ++ leftPath, leftInit ++ rightPath]),
+      (Sylvan, map addRewards [leftInit ++ leftPath, leftInit ++ rightPath]),
+      (Undead, map addRewards [rightInit ++ leftPath, leftInit ++ rightPath])
+    ]
+  where
+    addRewards = intersperse (Network.Reward 1)
+    leftInit =
+      [ Network.Fight Undead,
+        Network.Fight Beastmen,
+        Network.Fight Evil
+      ]
+    leftPath =
+      [ Network.Fight Beastmen,
+        Network.Fight Evil
+      ]
+    rightInit =
+      [ Network.Fight Sylvan,
+        Network.Fight Sylvan,
+        Network.Fight ZKnights
+      ]
+    rightPath =
+      [Network.Fight ZKnights]
 
 -- | The position where to choose the team
 chooseTeamSpots :: Map.Map Card.Team Direction.Coord
