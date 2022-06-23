@@ -8,12 +8,25 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+    - name: Install Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+        cache-dependency-path: 'dev-requirements.txt'
+    - name: Install Python dependencies
+      run: pip install -r dev-requirements.txt
     - name: Install linters
       run: |
-        sudo apt install jsonlint python3-pip shellcheck
-        # pip install -r $GITHUB_WORKSPACE/hooks/requirements.txt
+        sudo apt install jsonlint shellcheck
     - name: jsonlint-php th/data.json
       run: jsonlint-php $GITHUB_WORKSPACE/th/data.json
+    - name: format python files
+      run: |
+        black --check $(git ls-files "*.py")
+    - name: typecheck python files
+      run: |
+        pyright $(git ls-files "*.py")
     - name: shellcheck
       run: |
         shellcheck --version
