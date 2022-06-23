@@ -24,8 +24,8 @@ def _git_diff(staged_or_modified: bool, extension: str) -> List[str]:
     """
     Args:
         extension: the extension of files considered, such as "py" or "ml"
-        staged_or_modified (bool) Whether to consider staged files (True)
-                                  or modified ones (False)
+        staged_or_modified: Whether to consider staged files (True)
+                            or modified ones (False)
     Returns: A list of relevant versioned files that are staged or modified
     """
     git_cmd = ["git", "diff"]
@@ -40,15 +40,15 @@ def _git_diff(staged_or_modified: bool, extension: str) -> List[str]:
     return [x for x in git_diff_result.stdout.split("\n") if x]
 
 
-def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
+def _call_tool(files: List[str], staged_or_modified: bool, cmd: list) -> int:
     """
     Args:
-        files (list(str)): The files on which to call a tool (which is expected
-                           to modify these files)
-        staged_or_modified (bool) Whether staged files are considered (True)
-                                  or modified ones (False)
-        cmd (list(str)): The command to call the considered tool. The path to a
-                         given file is appended to it before executing it.
+        files: The files on which to call a tool (which is expected
+               to modify these files)
+        staged_or_modified: Whether staged files are considered (True)
+                            or modified ones (False)
+        cmd: The command to call the considered tool. The path to a
+             given file is appended to it before executing it.
     Returns:
         The maximum of return codes of calls to the considered tool on `files`
     """
@@ -95,8 +95,15 @@ def _call_tool(files, staged_or_modified: bool, cmd: list) -> int:
     return return_code
 
 
-def _run_cmd(cwd: Optional[str], cmd: List[str], check: bool=False) -> int:
-    """ Executes a command and returns it return code """
+def _run_cmd(cmd: List[str], cwd: Optional[str] = None, check: bool=False) -> int:
+    """
+    Args:
+        cmd: The command to execute
+        cwd: The working directory where to execute the command
+        check: whether to fail with an Exception if the command fails
+    Returns:
+        The command's return code
+    """
     prefix = f"{cwd}> " if cwd else ""
     print(f'{prefix}{" ".join(cmd)}')
     return subprocess.run(cmd, check=check, cwd=cwd).returncode
@@ -105,7 +112,7 @@ def _run_cmd(cwd: Optional[str], cmd: List[str], check: bool=False) -> int:
 def _check_jsondata_dot_hs() -> int:
     """ Checks that ./th/main.py --check returns 0, i.e. that
         app/shared/JsonData.hs is up-to-date w.r.t to th/data.json """
-    return _run_cmd(None, ["./th/main.py", "--check"])
+    return _run_cmd(["./th/main.py", "--check"])
 
 
 def _check_ormolu_version() -> int:
@@ -134,8 +141,8 @@ def _check_roads_dot_hs() -> int:
         create a foo.hs file that is similar to app/shared/Roads.hs """
     with tempfile.NamedTemporaryFile() as tmpfile:
         tmpfile = tmpfile.name
-        _run_cmd(None, ["./scripts/Roads.hs", "tiled/world.tmx", tmpfile], check=True)
-        rc = _run_cmd(None, ["diff", "app/shared/Roads.hs", tmpfile])
+        _run_cmd(["./scripts/Roads.hs", "tiled/world.tmx", tmpfile], check=True)
+        rc = _run_cmd(["diff", "app/shared/Roads.hs", tmpfile])
         return rc
 
 
@@ -145,7 +152,7 @@ def _build() -> int:
     Returns: The return code of the build command
     """
     cmd = ["nix-build", "-A", "release"]
-    return _run_cmd("app", cmd)
+    return _run_cmd(cmd, cwd="app")
 
 
 def _doc_should_be_rebuilt(staged_or_modified: bool, hs_files: List[str]) -> bool:
@@ -202,7 +209,7 @@ def _doc(staged_or_modified: bool, hs_files: List[str]) -> int:
         return 0  # Nothing to do
 
     cmd = ["nix-shell", "--run", "cabal --project-file=cabal-haddock.config haddock app"]
-    rc = _run_cmd("app", cmd)
+    rc = _run_cmd(cmd, cwd="app")
     if rc != 0:
         # A failure, it's fine, we just don't update the doc
         cmd_str = " ".join(cmd)
@@ -217,10 +224,10 @@ def _doc(staged_or_modified: bool, hs_files: List[str]) -> int:
         shutil.copy(html_file, dest)
         filename = os.path.basename(html_file)
         cmd = ["xmllint", "--format", "--html", filename, "-o", f"{filename}.tmp"]
-        _run_cmd(dest, cmd, check=True)
+        _run_cmd(cmd, cwd=dest, check=True)
         shutil.move(f"{dest}/{filename}.tmp", f"{dest}/{filename}")
         cmd = ["git", "add", filename]
-        _run_cmd(dest, cmd, check=True)
+        _run_cmd(cmd, cwd=dest, check=True)
 
     return 0
 
@@ -231,7 +238,7 @@ def _test() -> int:
     Returns: The return code of building and executing the tests
     """
     cmd = ["nix-shell", "--run", "cabal test"]
-    return _run_cmd("app", cmd)
+    return _run_cmd(cmd, cwd="app")
 
 
 def main() -> int:
