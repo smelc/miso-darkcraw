@@ -1,3 +1,4 @@
+.direnv
 .mypy_cache
 .venv
 .bin/ormolu
