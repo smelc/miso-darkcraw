@@ -13,5 +13,5 @@ import Test.Hspec
 
 main :: IO ()
 main = do
-  _ <- hspec $ Balance.main (Shared.unsafeGet) True
+  _ <- hspec $ Balance.main (Shared.unsafeGet) -- True TODO @smelc replug automatic updating
   return ()

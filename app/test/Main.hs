@@ -478,7 +478,7 @@ main = hspec $ do
   Invariants.main shared
   Logic.main shared
   Match.main shared
-  Balance.main shared False
+  Balance.main shared
   -- Onto tests of scenes
   testScenesInvariant "welcomeMovie" welcomeMovie
   testParallelSceneComposition

@@ -108,21 +108,13 @@ journeys =
   where
     addRewards = intersperse (Network.Reward 1)
     leftInit =
-      [ Network.Fight Undead,
-        Network.Fight Beastmen,
-        Network.Fight Evil
-      ]
+      [Network.Fight Undead]
     leftPath =
       [ Network.Fight Beastmen,
         Network.Fight Evil
       ]
-    rightInit =
-      [ Network.Fight Sylvan,
-        Network.Fight Sylvan,
-        Network.Fight ZKnights
-      ]
-    rightPath =
-      [Network.Fight ZKnights]
+    rightInit = [Network.Fight Sylvan]
+    rightPath = [Network.Fight ZKnights]
 
 -- | The position where to choose the team
 chooseTeamSpots :: Map.Map Card.Team Direction.Coord
