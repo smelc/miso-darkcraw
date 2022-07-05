@@ -10,7 +10,6 @@ module Campaign
     Level (..),
     Outcome (..),
     anywhere,
-    augment,
     fixed,
     mkJourney,
     nbRewards,
@@ -22,9 +21,7 @@ where
 import Card (Team (..))
 import qualified Card
 import qualified Data.Bifunctor as Bifunctor
-import Data.Function ((&))
 import qualified Data.Map as Map
-import Data.Maybe (fromMaybe)
 import GHC.Generics
 import Nat
 import Theme (Theme)
@@ -129,33 +126,6 @@ rewards level team =
     (_, ZKnights) -> [] -- Not a playable team, it's fine
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
-
--- | All possible rewards that can have been obtained from the start,
--- when playing the given level
-rewardsUpTo :: Level -> Team -> [[Card.ID]]
-rewardsUpTo level team =
-  fromMaybe [] $ go rewardsSeq
-  where
-    rewardsSeq = preds level & map (`rewards` team)
-    go :: [[Card.ID]] -> Maybe [[Card.ID]]
-    go [] = Nothing
-    go (rewardsAtLevel : nextRewards) =
-      case go nextRewards of
-        Nothing ->
-          Just [[rewardAtLevel] | rewardAtLevel <- rewardsAtLevel]
-        Just nextRewards ->
-          Just
-            [ rewardAtLevel : next
-              | rewardAtLevel <- rewardsAtLevel,
-                next <- nextRewards
-            ]
-
--- | Given the current deck, all decks that are possible at the given level
-augment :: [Card.ID] -> Level -> Team -> [[Card.ID]]
-augment deck team level =
-  case rewardsUpTo team level of
-    [] -> [deck]
-    _ -> [rewards ++ deck | rewards <- rewardsUpTo team level]
 
 -- | Teams that can be fought against at any 'Level'. See 'fixed' for
 -- other possible fights.
