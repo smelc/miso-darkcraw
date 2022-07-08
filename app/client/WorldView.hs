@@ -24,6 +24,7 @@ import Nat
 import qualified Network
 import qualified Roads
 import qualified Shared
+import qualified Theme
 import qualified Tile
 import qualified Update
 import ViewInternal (Position (..), Styled, px)
@@ -75,7 +76,7 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
 encounterView :: Shared.Model -> Int -> Int -> Int -> Network.Encounter -> [View action]
 encounterView shared z x y e =
   case e of
-    Network.Fight _opponent -> default_
+    Network.Fight _opponent _theme -> default_
     Network.Reward nb ->
       zip3 [x, 4 ..] [y, 4 ..] [z + Nat.natToInt nb, -1 .. z]
         & map (\(x, y, z) -> tileView shared z x y tile)
@@ -219,13 +220,13 @@ chooseTeamHint z Model.World {team, topLeft, size = (width, _)} =
 
 mkEncounters :: Bool -> Direction.Coord -> Direction.Coord -> Map.Map Direction.Coord Network.Encounter
 mkEncounters includeChoices topLeft size =
-  Map.fromList [(c, Network.Fight t) | (t, cs) <- fights, c <- cs]
+  Map.fromList [(c, Network.Fight t th) | (t, cs) <- fights, (c, th) <- cs]
     <> Map.fromList [(c, Network.Reward n) | (c, n) <- Map.toList rewards]
     <> (if includeChoices then Map.map Network.Select (Map.fromList choices) else mempty)
   where
     visible c = c >= topLeft && c < topLeft Direction.+ size
-    fights :: [(Team, [Direction.Coord])] =
-      Network.fightSpots & Map.map (filter visible) & Map.filter notNull & Map.toList
+    fights :: [(Team, [(Direction.Coord, Theme.Kind)])] =
+      Network.fightSpots & Map.map (filter (\(c, _) -> visible c)) & Map.filter notNull & Map.toList
     rewards :: Map.Map Direction.Coord Nat =
       Network.lootSpots & Map.filterWithKey (\k _ -> visible k)
     choices = [(c, t) | (t, c) <- Map.toList Network.chooseTeamSpots]
@@ -233,11 +234,15 @@ mkEncounters includeChoices topLeft size =
 encounterToTile :: Network.Encounter -> Tile.Tile
 encounterToTile =
   \case
-    Network.Fight Beastmen -> Tile.BeastmenDefender
-    Network.Fight Evil -> Tile.Beholder
-    Network.Fight Human -> Tile.HumanGeneral
-    Network.Fight Sylvan -> Tile.SylvanArcher
-    Network.Fight Undead -> Tile.UndeadWarrior
-    Network.Fight ZKnights -> Tile.ZKnight
+    Network.Fight t _ -> teamToTile t
     Network.Reward {} -> Tile.Chest
-    Network.Select t -> encounterToTile (Network.Fight t)
+    Network.Select t -> teamToTile t
+  where
+    teamToTile =
+      \case
+        Beastmen -> Tile.BeastmenDefender
+        Evil -> Tile.Beholder
+        Human -> Tile.HumanGeneral
+        Sylvan -> Tile.SylvanArcher
+        Undead -> Tile.UndeadWarrior
+        ZKnights -> Tile.ZKnight

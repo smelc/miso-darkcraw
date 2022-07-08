@@ -10,7 +10,10 @@
 A card game done with Haskell [miso](https://github.com/dmjio/miso).
 
 * You can see the last release on [itch.io](https://smelc3.itch.io/pixel-card-wars).
+  It is an old version of the game that works partially.
 * You can see the dev version [here](https://schplaf.org/smelc3/darkcraw).
+  It is a work in progress. For example sometimes the starting view may not
+  be connected to the rest of the game or buttons may not be plugged.
 
 # Developers
 

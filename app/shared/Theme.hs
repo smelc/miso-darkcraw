@@ -18,7 +18,7 @@ data Kind
   = DarkForest
   | Forest
   | MossDungeon
-  deriving (Enum, Bounded, Show)
+  deriving (Enum, Eq, Bounded, Show)
 
 -- | The names of assets of this theme. Only filenames: no paths.
 data Theme = Theme

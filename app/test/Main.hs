@@ -383,7 +383,7 @@ testNetwork =
     it "spots in chooseTeamSpots and fighting spots are disjoint" $
       ( Set.intersection
           (Set.fromList $ Map.elems Network.chooseTeamSpots)
-          (Map.elems Network.fightSpots & concat & Set.fromList)
+          (Map.elems Network.fightSpots & concat & map fst & Set.fromList)
       )
         `shouldSatisfy` Set.null
 

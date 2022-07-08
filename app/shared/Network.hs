@@ -22,11 +22,12 @@ import Data.List (intersperse)
 import qualified Data.Map.Strict as Map
 import qualified Direction
 import Nat
+import qualified Theme
 
 -- | Possible encounters on the world map
 data Encounter
   = -- | Fighting
-    Fight Card.Team
+    Fight Card.Team Theme.Kind
   | -- | Picking up rewards. The Nat indicates the number of rewards.
     Reward Nat
   | -- | Choosing your team at the start of the game
@@ -100,13 +101,15 @@ rewards =
 journeys :: Map.Map Card.Team [[Network.Encounter]]
 journeys =
   Map.fromList
-    [ (Evil, map addRewards [leftInit ++ leftPath, leftInit ++ rightPath]),
-      (Human, map addRewards [leftInit ++ leftPath, leftInit ++ rightPath]),
-      (Sylvan, map addRewards [leftInit ++ leftPath, leftInit ++ rightPath]),
-      (Undead, map addRewards [rightInit ++ leftPath, leftInit ++ rightPath])
+    [ (Evil, [leftInit ++ leftPath, leftInit ++ rightPath]),
+      (Human, [leftInit ++ leftPath, leftInit ++ rightPath]),
+      (Sylvan, [leftInit ++ leftPath, leftInit ++ rightPath]),
+      (Undead, [rightInit ++ leftPath, leftInit ++ rightPath])
     ]
+    & Map.map (map f)
   where
     addRewards = intersperse (Network.Reward 1)
+    f y = map (\x -> x Theme.Forest) y & addRewards
     leftInit =
       [Network.Fight Undead]
     leftPath =
@@ -133,13 +136,13 @@ _endSpot :: (Nat, Nat)
 _endSpot = (24, 18)
 
 -- | The position of fights, hardcoded yes
-fightSpots :: Map.Map Card.Team [Direction.Coord]
+fightSpots :: Map.Map Card.Team [(Direction.Coord, Theme.Kind)]
 fightSpots =
-  Map.map (map Direction.Coord) $
+  Map.map (map (Bifunctor.first Direction.Coord)) $
     Map.fromList $
-      [ (Beastmen, [(20, 28)]),
-        (Evil, [(18, 24)]),
-        (Sylvan, [(30, 38)]),
-        (Undead, [(24, 35)]),
-        (ZKnights, [(30, 25)])
+      [ (Beastmen, [((20, 28), Theme.DarkForest)]),
+        (Evil, [((18, 24), Theme.Forest)]),
+        (Sylvan, [((30, 38), Theme.Forest)]),
+        (Undead, [((24, 35), Theme.DarkForest)]),
+        (ZKnights, [((30, 25), Theme.Forest)])
       ]

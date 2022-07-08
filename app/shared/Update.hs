@@ -51,6 +51,7 @@ import qualified Shared
 import qualified Spots hiding (Card)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
+import qualified Theme
 import qualified Turn
 
 data MultiPlayerLobbyAction
@@ -110,7 +111,7 @@ data Action
   | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
     WelcomeGo WelcomeDestination
   | -- | Leave 'WorldView', enter 'GameView'
-    WorldToGame Team
+    WorldToGame Team Theme.Kind
   deriving (Show, Eq)
 
 data SceneAction
@@ -394,15 +395,15 @@ updateWorldModel a w@Model.World {encounters, position, team, topology} =
                 (Nothing, Just (Network.Select t)) ->
                   -- Move and select team
                   return $ lift $ w {moved = True, position = position', team = Just t}
-                (Just _, Just (Network.Fight t)) ->
+                (Just _, Just (Network.Fight t theme)) ->
                   delayActions
                     (lift $ w {fade = Constants.FadeOut})
-                    [(toSecs 1, WorldToGame t)]
+                    [(toSecs 1, WorldToGame t theme)]
                 _ ->
                   -- Default
                   return $ lift $ w {moved = True, position = position'}
         Just _ -> pure $ lift w
-    WorldToGame _ -> undefined -- TODO @smelc return a GameView
+    WorldToGame _ _ -> undefined -- TODO @smelc return a GameView
     _ -> pure $ lift w
   where
     neighbors = Network.neighbors topology position
@@ -525,7 +526,7 @@ updateModel (WelcomeGo MultiPlayerDestination) (Model.Welcome' _) =
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
 -- Action regarding Model.World and WorldView
-updateModel (WorldToGame _) (Model.World' {}) =
+updateModel (WorldToGame _ _) (Model.World' {}) =
   undefined
 updateModel a (m@(Model.World' (w@Model.World {fade}))) =
   case fade of
