@@ -435,22 +435,19 @@ updateModel (DeckGo deck) m@(Model.Game' Model.Game {..}) =
 updateModel (LootGo model) _ =
   noEff $ Model.Loot' model
 -- Schedule leaving 'GameView', to go to 'LootView'
-updateModel _ m@(Model.Game' gm@Model.Game {board, level, playingPlayer, turn})
+updateModel _ _m@(Model.Game' gm@Model.Game {board, playingPlayer, turn})
   | (Turn.next turn & Turn.toNat) > Constants.nbTurns =
-      case Campaign.succ level of
-        Nothing -> noEff m -- TODO, go to global victory view
-        Just _ ->
-          delayActions m' [(toSecs 1, LootGo $ Model.endGame gm outcome)]
-          where
-            m' = Model.Game' gm {anim = Game.Fadeout}
-            part = Board.toPart board playingPlayer
-            (score, enemy) =
-              (Board.score part, Board.toPart board (Spots.other playingPlayer) & Board.score)
-            outcome :: Campaign.Outcome =
-              case compare score enemy of
-                LT -> Campaign.Loss
-                EQ -> Campaign.Draw
-                GT -> Campaign.Win
+      delayActions m' [(toSecs 1, LootGo $ Model.gameToLoot gm outcome)]
+  where
+    m' = Model.Game' gm {anim = Game.Fadeout}
+    part = Board.toPart board playingPlayer
+    (score, enemy) =
+      (Board.score part, Board.toPart board (Spots.other playingPlayer) & Board.score)
+    outcome :: Campaign.Outcome =
+      case compare score enemy of
+        LT -> Campaign.Loss
+        EQ -> Campaign.Draw
+        GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
 updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, shared, turn, playingPlayer})
   | Shared.cmd shared & isJust =
@@ -471,7 +468,7 @@ updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, sha
             Just (Command.CreateForest pSpot) ->
               playEvent Game.ApplyCreateForest pSpot
             Just (Command.EndGame outcome) ->
-              noEff $ Model.Loot' $ Model.endGame gm outcome
+              noEff $ Model.Loot' $ Model.gameToLoot gm outcome
             Just (Command.FillTheFrontline pSpot) ->
               playEvent Game.FillTheFrontline pSpot
             Just (Command.Gimme cid) ->
@@ -578,7 +575,6 @@ level0GameModel difficulty shared journey teams =
   levelNGameModel
     difficulty
     shared
-    Campaign.Level0
     journey
     (Map.lookup team Network.rewards & fromMaybe [])
     $ (teams <&> (\t -> (t, Shared.getInitialDeck shared t)))
@@ -590,14 +586,13 @@ level0GameModel difficulty shared journey teams =
 levelNGameModel ::
   Constants.Difficulty ->
   Shared.Model ->
-  Campaign.Level ->
   Maybe Campaign.Journey ->
   -- | The rewards
   [Card.ID] ->
   -- | The decks
   (Board.Teams (Team, [Card 'Core])) ->
   Model.Game
-levelNGameModel difficulty shared level journey rewards teams =
+levelNGameModel difficulty shared journey rewards teams =
   Model.Game {..}
   where
     (_, board) = Board.initial shared teams

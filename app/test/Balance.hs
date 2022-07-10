@@ -13,7 +13,6 @@
 module Balance where
 
 import qualified Board
-import qualified Campaign
 import Card
 import qualified Constants
 import Data.Function ((&))
@@ -130,7 +129,7 @@ play shareds teams nbTurns =
     go (shared : rest) =
       -- I tried setting AI to Hard once and it didn't change the outcome significantly,
       -- except that it was wayyyyy slower.
-      let result = Match.play (Update.levelNGameModel Constants.Easy shared Campaign.Level0 Nothing [] teams) nbTurns
+      let result = Match.play (Update.levelNGameModel Constants.Easy shared Nothing [] teams) nbTurns
        in result : go rest
     go [] = []
     count :: Stat -> [Match.MatchResult] -> Stat

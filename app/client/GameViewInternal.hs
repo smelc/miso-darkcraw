@@ -37,7 +37,6 @@ module GameViewInternal
 where
 
 import Board hiding (StackType)
-import qualified Campaign
 import Card
 import qualified Color
 import Constants
@@ -144,24 +143,24 @@ animToFade = \case
   Game.Message {} -> Constants.DontFade
 
 hintView :: Int -> Model.Game -> Borders -> Maybe (View Action)
-hintView z Model.Game {interaction, level} Borders {applications} =
-  case (level, Model.toHover interaction, Model.toSelection interaction, applications) of
-    (Campaign.Level0, _, Nothing, _) -> Just $ mkDiv "Click on a card to select it" Nothing
-    (Campaign.Level0, Just (Model.BoxHand hbox), Just (Model.BoxHand sbox), [])
+hintView z Model.Game {interaction} Borders {applications} =
+  case (Model.toHover interaction, Model.toSelection interaction, applications) of
+    (_, Nothing, _) -> Just $ mkDiv "Click on a card to select it" Nothing
+    (Just (Model.BoxHand hbox), Just (Model.BoxHand sbox), [])
       | hbox == sbox ->
           -- Hovering over selected card, prefer term "Selected"
           Just $ mkDiv "Selected card cannot be played" (Just Color.red)
-    (Campaign.Level0, Just (Model.BoxHand _), _, []) ->
+    (Just (Model.BoxHand _), _, []) ->
       Just $ mkDiv "Hovered card cannot be played" (Just Color.red)
-    (Campaign.Level0, Just (Model.BoxHand hbox), Just (Model.BoxHand sbox), _ : _)
+    (Just (Model.BoxHand hbox), Just (Model.BoxHand sbox), _ : _)
       | hbox /= sbox ->
           Just $ mkDiv "Click on the hovered card to play it on a green spot" Nothing
-    (Campaign.Level0, Just hbox@(Model.BoxTarget _), Just (Model.BoxHand _), _)
+    (Just hbox@(Model.BoxTarget _), Just (Model.BoxHand _), _)
       | hbox `elem` applications ->
           Just $ mkDiv "Click to play the selected card" Nothing
-    (Campaign.Level0, Nothing, Just (Model.BoxHand _), []) ->
+    (Nothing, Just (Model.BoxHand _), []) ->
       Just $ mkDiv "Selected card cannot be played, select another one" (Just Color.red)
-    (Campaign.Level0, _, Just (Model.BoxHand _), _ : _) ->
+    (_, Just (Model.BoxHand _), _ : _) ->
       Just $ mkDiv "Click on a green spot to play the selected card on this spot" Nothing
     _ -> Nothing -- No help after first level
   where

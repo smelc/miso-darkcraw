@@ -143,8 +143,6 @@ data Game = Game
     -- | The list of games to play in Vanilla edition, @Nothing@ in
     -- legendary edition.
     journey :: Maybe (Campaign.Journey),
-    -- | The current level
-    level :: Campaign.Level,
     -- | Where the player plays
     playingPlayer :: Spots.Player,
     -- | The deck of 'playingPlayer'
@@ -183,11 +181,9 @@ gameToDeck Game {..} =
     Board.PlayerPart {..} = Board.toPart board playingPlayer
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
-endGame :: Game -> Campaign.Outcome -> Model.Loot
-endGame Game {board, level, playingPlayer = pSpot, playingPlayerDeck = deck, rewards, shared} _outcome =
-  case Campaign.succ level of
-    Nothing -> error "You've finished the game!" -- Not really a nice end for now
-    Just next -> Model.Loot {rewards = loot, ..}
+gameToLoot :: Model.Game -> Campaign.Outcome -> Model.Loot
+gameToLoot Game {board, playingPlayer = pSpot, playingPlayerDeck = deck, rewards, shared} _outcome =
+  Model.Loot {rewards = loot, ..}
   where
     nbRewards = 1 -- Change this?
     loot = zip rewards (repeat NotPicked)
@@ -202,7 +198,6 @@ unsafeLootModel Model.Welcome {shared} =
     nbRewards = 1
     team = Human
     rewards = zip (Map.lookup team Network.rewards & fromMaybe []) $ repeat NotPicked
-    next = Campaign.Level1
     deck =
       Shared.getInitialDeck shared team
         & map Card.cardToIdentifier
@@ -222,7 +217,6 @@ unsafeGameModel Model.Welcome {shared} =
     teams = Board.Teams Undead team
     teams' = teams <&> (\t -> (t, Shared.getInitialDeck shared t))
     turn = Turn.initial
-    level = Campaign.Level0
     difficulty = Constants.Easy
     interaction = NoInteraction
     playingPlayer = Spots.startingPlayerSpot
@@ -371,8 +365,6 @@ data Picked
 data Loot = Loot
   { -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
-    -- | The next level
-    next :: Level,
     -- | The deck of the playing player
     deck :: [Card.ID],
     -- | To which team the deck being shown belongs
