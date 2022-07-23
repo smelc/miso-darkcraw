@@ -46,6 +46,7 @@ import qualified Move
 import Movie (welcomeMovie)
 import Nat
 import qualified Network
+import qualified Random
 import ServerMessages
 import qualified Shared
 import qualified Spots hiding (Card)
@@ -396,6 +397,7 @@ updateWorldModel a w@Model.World {encounters, position, team, topology} =
                   -- Move and select team
                   return $ lift $ w {moved = True, position = position', team = Just t}
                 (Just _, Just (Network.Fight t theme)) ->
+                  -- Move, request fadeout, schedule send of WorldToGame event
                   delayActions
                     (lift $ w {fade = Constants.FadeOut})
                     [(toSecs 1, WorldToGame t theme)]
@@ -510,7 +512,12 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ Model.Game' $ level0GameModel Constants.Hard shared (Just (Campaign.mkJourney team)) (Board.Teams Undead team)
+    noEff $ Model.Game' $ Model.mkInitialGame shared'' Constants.Hard (Just (Campaign.mkJourney team)) (Board.Teams (enemyTeam, enemyDeck) (team, teamDeck))
+    where
+      enemyTeam = Undead
+      getInitialDeck shared team = Shared.getInitialDeck shared team & Random.shuffle shared
+      (enemyDeck, shared') = getInitialDeck shared enemyTeam
+      (teamDeck, shared'') = getInitialDeck shared' team
 -- Actions that leave 'WelcomeView'
 updateModel
   (WelcomeGo SinglePlayerDestination)
@@ -563,49 +570,6 @@ updateModel a m =
         <> pShowNoColor m
         <> "\nand the action being:\n"
         <> pShowNoColor a
-
--- | The initial model, appropriately shuffled with 'Shared.Model' rng
-level0GameModel ::
-  Constants.Difficulty ->
-  Shared.Model ->
-  Maybe (Campaign.Journey) ->
-  Board.Teams Team ->
-  Model.Game
-level0GameModel difficulty shared journey teams =
-  levelNGameModel
-    difficulty
-    shared
-    journey
-    (Map.lookup team Network.rewards & fromMaybe [])
-    $ (teams <&> (\t -> (t, Shared.getInitialDeck shared t)))
-  where
-    team = Board.toData Spots.startingPlayerSpot teams
-
--- | A model that takes the decks as parameters, for use after the initial
--- start of the game
-levelNGameModel ::
-  Constants.Difficulty ->
-  Shared.Model ->
-  Maybe Campaign.Journey ->
-  -- | The rewards
-  [Card.ID] ->
-  -- | The decks
-  (Board.Teams (Team, [Card 'Core])) ->
-  Model.Game
-levelNGameModel difficulty shared journey rewards teams =
-  Model.Game {..}
-  where
-    (_, board) = Board.initial shared teams
-    interaction = NoInteraction
-    playingPlayer = Spots.startingPlayerSpot
-    playingPlayerDeck =
-      Board.toData playingPlayer teams
-        & snd
-        & map Card.cardToIdentifier
-    turn = Turn.initial
-    anims = mempty
-    anim = Game.NoAnimation
-    uiAvail = True
 
 -- | An initial model, with a custom board. /!\ Not for production /!\
 unsafeInitialGameModel ::

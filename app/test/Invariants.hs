@@ -9,7 +9,6 @@
 module Invariants where
 
 import qualified Board
-import qualified Campaign
 import Card
 import qualified Constants
 import Data.Function ((&))
@@ -22,11 +21,9 @@ import qualified Match
 import qualified Model hiding (Deck (..))
 import Pretty
 import qualified Shared
-import qualified Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import qualified Turn
-import qualified Update
 
 class Invariant a where
   -- | Violations of the invariant if any, otherwise []
@@ -75,28 +72,29 @@ main shared = do
     prop "holds initially" $
       \(Pretty teams, seed) ->
         let shared' = Shared.withSeed shared seed
-            Model.Game {board} = Update.level0GameModel difficulty shared' (mkJourney teams) teams
+            Model.Game {board} = mkGame shared' teams
          in board `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty teams, seed) ->
         let shared' = Shared.withSeed shared seed
-         in Match.play (Update.level0GameModel difficulty shared' (mkJourney teams) teams) 32
+         in Match.play (mkGame shared' teams) 32
               `shouldSatisfy` isValidResult
   describe "GameModel invariant" $ do
     prop "holds initially" $
-      \(difficulty, teams) ->
-        Update.level0GameModel difficulty shared (mkJourney teams) teams `shouldSatisfy` isValid'
+      \teams ->
+        mkGame shared teams `shouldSatisfy` isValid'
     prop "is preserved by playing matches" $
       \(Pretty teams, seed) ->
         let shared' = Shared.withSeed shared seed
-         in Match.play (Update.level0GameModel difficulty shared' (mkJourney teams) teams) 32
+         in Match.play (mkGame shared' teams) 32
               `shouldSatisfy` (\Match.Result {models} -> all isValid' models)
   where
-    mkJourney teams =
-      Just $
-        Campaign.unsafeJourney
-          Campaign.Level0
-          (Board.toData (Spots.other Spots.startingPlayerSpot) teams)
+    mkGame shared (t1, t2) =
+      Model.mkInitialGame
+        shared
+        difficulty
+        Nothing
+        (Board.Teams (t1, Shared.getInitialDeck shared t1) (t2, Shared.getInitialDeck shared t2))
     difficulty = Constants.Easy
     isValid :: [String] -> Bool
     isValid [] = True

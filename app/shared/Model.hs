@@ -160,6 +160,31 @@ data Game = Game
   }
   deriving (Eq, Generic)
 
+-- | An instance of 'Model.Game' that is ready for starting a game
+mkInitialGame ::
+  Shared.Model ->
+  Constants.Difficulty ->
+  Maybe Journey ->
+  -- | The teams
+  Board.Teams (Team, [Card 'Core]) ->
+  Model.Game
+mkInitialGame shared difficulty journey teams =
+  Model.Game {..}
+  where
+    (_, board) = Board.initial shared teams
+    interaction = NoInteraction
+    playingPlayer = Spots.startingPlayerSpot
+    rewards = (Map.lookup team Network.rewards & fromMaybe [])
+    team = Board.toData Spots.startingPlayerSpot teams & fst
+    playingPlayerDeck =
+      Board.toData playingPlayer teams
+        & snd
+        & map Card.cardToIdentifier
+    turn = Turn.initial
+    anims = mempty
+    anim = Game.NoAnimation
+    uiAvail = True
+
 instance Show Game where
   show Game {..} =
     "{ gameShared = omitted\n"

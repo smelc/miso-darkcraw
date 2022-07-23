@@ -22,13 +22,12 @@ import Data.Maybe
 import qualified Data.Text as Text
 import Debug.Trace
 import qualified Match
-import qualified Model (Game (..))
+import qualified Model (Game (..), mkInitialGame)
 import Nat
 import qualified Network
 import qualified Shared
 import Spots hiding (Card)
 import Test.Hspec
-import qualified Update
 import qualified Weight
 
 main :: Shared.Model -> SpecWith ()
@@ -129,7 +128,7 @@ play shareds teams nbTurns =
     go (shared : rest) =
       -- I tried setting AI to Hard once and it didn't change the outcome significantly,
       -- except that it was wayyyyy slower.
-      let result = Match.play (Update.levelNGameModel Constants.Easy shared Nothing [] teams) nbTurns
+      let result = Match.play (Model.mkInitialGame shared Constants.Easy Nothing teams) nbTurns
        in result : go rest
     go [] = []
     count :: Stat -> [Match.MatchResult] -> Stat
