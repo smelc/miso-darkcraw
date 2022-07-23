@@ -141,6 +141,16 @@
 <a href="#v:isPlayerTurn">isPlayerTurn</a> :: <a href="Model.html#t:Game" title="Model">Game</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li class="src short">
+<span class="keyword">data</span> <a href="#t:Player">Player</a> a = <a href="#v:Player">Player</a> {<ul class="subs">
+<li>
+<a href="#v:pDeck">pDeck</a> :: [<a href="Card.html#t:ID" title="Card">ID</a>]</li>
+<li>
+<a href="#v:pSpot">pSpot</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a>
+</li>
+<li>
+<a href="#v:pTeam">pTeam</a> :: a</li>
+</ul>}</li>
+<li class="src short">
 <span class="keyword">data</span> <a href="#t:World">World</a> = <a href="Network.html#t:Network" title="Network">Network</a> a =&gt; <a href="#v:World">World</a> {<ul class="subs">
 <li>
 <a href="#v:encounters">encounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Network.html#t:Encounter" title="Network">Encounter</a>
@@ -155,6 +165,8 @@
 <a href="#v:past">past</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Network.html#t:Encounter" title="Network">Encounter</a>
 </li>
 <li>
+<a href="#v:player">player</a> :: <a href="Model.html#t:Player" title="Model">Player</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>)</li>
+<li>
 <a href="#v:position">position</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a>
 </li>
 <li>
@@ -162,9 +174,6 @@
 </li>
 <li>
 <a href="#v:size">size</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</li>
-<li>
-<a href="#v:team">team</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>
-</li>
 <li>
 <a href="#v:topLeft">topLeft</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a>
 </li>
@@ -844,6 +853,34 @@
  | nor the turn of the other player if in multiplayer.</p></div>
 </div>
 <div class="top">
+<p class="src"><span class="keyword">data</span> <a id="t:Player" class="def">Player</a> a <a href="#t:Player" class="selflink">#</a></p>
+<div class="doc"><p>Data of the playing player</p></div>
+<div class="subs constructors">
+<p class="caption">Constructors</p>
+<table>
+<tr>
+<td class="src"><a id="v:Player" class="def">Player</a></td>
+<td class="doc empty">&nbsp;</td>
+</tr>
+<tr><td colspan="2"><div class="subs fields">
+<p class="caption">Fields</p>
+<ul>
+<li>
+<dfn class="src"><a id="v:pDeck" class="def">pDeck</a> :: [<a href="Card.html#t:ID" title="Card">ID</a>]</dfn><div class="doc"><p>The deck</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:pSpot" class="def">pSpot</a> :: <a href="Spots.html#t:Player" title="Spots">Player</a></dfn><div class="doc"><p>Where the player plays</p></div>
+</li>
+<li>
+<dfn class="src"><a id="v:pTeam" class="def">pTeam</a> :: a</dfn><div class="doc"><p>The player's team. Either instantiated by <code>Maybe Team</code> before the team
+ has been picked in <code><a href="Model.html#t:World" title="Model">World</a></code>. Then instantiated by <code>Team</code>.</p></div>
+</li>
+</ul>
+</div></td></tr>
+</table>
+</div>
+</div>
+<div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:World" class="def">World</a> <a href="#t:World" class="selflink">#</a></p>
 <div class="doc"><p>The model of the world page. If you add a field, consider
  extending the Show and Eq instances below.</p></div>
@@ -872,6 +909,9 @@
 <dfn class="src"><a id="v:past" class="def">past</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Network.html#t:Encounter" title="Network">Encounter</a></dfn><div class="doc"><p>Encounters done already</p></div>
 </li>
 <li>
+<dfn class="src"><a id="v:player" class="def">player</a> :: <a href="Model.html#t:Player" title="Model">Player</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>)</dfn><div class="doc"><p>Data of the playing player</p></div>
+</li>
+<li>
 <dfn class="src"><a id="v:position" class="def">position</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a></dfn><div class="doc"><p>The absolute position of the character, in number of cells</p></div>
 </li>
 <li>
@@ -879,9 +919,6 @@
 </li>
 <li>
 <dfn class="src"><a id="v:size" class="def">size</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</dfn><div class="doc"><p>The size of the view, in number of cells (width, height)</p></div>
-</li>
-<li>
-<dfn class="src"><a id="v:team" class="def">team</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a></dfn><div class="doc"><p>The team chosen, if any</p></div>
 </li>
 <li>
 <dfn class="src"><a id="v:topLeft" class="def">topLeft</a> :: <a href="Direction.html#t:Coord" title="Direction">Coord</a></dfn><div class="doc"><p>Coordinate of the most top left visible cell, in number of cells</p></div>

@@ -382,20 +382,24 @@ updateSceneModel (JumpToFrameForDebugging i) sceneModel =
     indexWithinBounds frames = i >= 0 && i < length frames
 
 updateWorldModel :: Action -> Model.World -> Effect Action Model.Model
-updateWorldModel a w@Model.World {encounters, position, team, topology} =
+updateWorldModel a w@Model.World {encounters, position, player, shared, topology} =
   case a of
     KeyboardArrows arrows -> do
       case Direction.ofArrows arrows >>= flip Direction.move position of
         Nothing -> pure $ lift w
         Just position'
           | position' `elem` neighbors ->
-              case (team, Map.lookup position' encounters) of
+              case (Model.pTeam player, Map.lookup position' encounters) of
                 (_, Nothing) ->
                   -- Regular move
                   return $ lift $ w {moved = True, position = position'}
                 (Nothing, Just (Network.Select t)) ->
                   -- Move and select team
-                  return $ lift $ w {moved = True, position = position', team = Just t}
+                  return $ lift $ w {moved = True, position = position', player = player'}
+                  where
+                    -- Deck initialization
+                    pDeck = Shared.getInitialDeck shared t & (map Card.cardToIdentifier)
+                    player' = player {pDeck, pTeam = Just t}
                 (Just _, Just (Network.Fight t theme)) ->
                   -- Move, request fadeout, schedule send of WorldToGame event
                   delayActions

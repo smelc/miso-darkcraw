@@ -325,7 +325,7 @@ instance MakeHandlers 'Prod (Kernel Spots.Player) where
           k'@Kernel {turn = turn'} = incrTurnBase k
           pSpot = Turn.toPlayerSpot turn'
           isAI :: Bool = pSpot /= playingPlayer
-          actor :: Actor = if isAI then Move.AI else Player
+          actor :: Actor = if isAI then Move.AI else Move.Player
 
 instance MakeHandlers 'Sim (Kernel ()) where
   make = Handlers {disableUI = id, enableUI = id, incrTurn}
@@ -382,7 +382,7 @@ startTurn :: MonadError Text.Text m => a ~ Kernel b => Actor -> Spots.Player -> 
 startTurn a pSpot m@Kernel {board = b, turn} =
   ( case a of
       Move.AI -> startAITurn m' pSpot
-      Player -> pure $ startPlayerTurn m' pSpot
+      Move.Player -> pure $ startPlayerTurn m' pSpot
   )
     <&> Bifunctor.first postStart
   where

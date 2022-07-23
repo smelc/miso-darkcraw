@@ -24,6 +24,7 @@ import Nat
 import qualified Network
 import qualified Roads
 import qualified Shared
+import qualified Spots
 import qualified Theme
 import qualified Tile
 import qualified Update
@@ -31,7 +32,7 @@ import ViewInternal (Position (..), Styled, px)
 import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
-viewWorldModel world@Model.World {encounters, position, shared, team} = do
+viewWorldModel world@Model.World {encounters, position, shared, player} = do
   let man = tileView shared zpp manX manY manTile
       builder attrs =
         div_
@@ -50,12 +51,13 @@ viewWorldModel world@Model.World {encounters, position, shared, team} = do
         <> "background-position-y" =: px pxHeight
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
     (manX, manY) = absCoordToPx world position
+    Model.Player {pTeam} = player
     manTile =
-      case team of
+      case pTeam of
         Nothing -> Tile.Man
         Just t -> encounterToTile (Network.Select t)
     encounterFilter =
-      case team of
+      case pTeam of
         Nothing ->
           -- Show selection spots if team not chosen yet
           const True
@@ -106,7 +108,7 @@ tileView shared z x y tile =
 
 -- | The div showing the legend for the character
 legendDiv :: Model.World -> View a
-legendDiv Model.World {team} =
+legendDiv Model.World {player} =
   div_
     [ style_ $
         "width" =: px Constants.lobbiesPixelWidth
@@ -121,7 +123,7 @@ legendDiv Model.World {team} =
             "width" =: px (Constants.lobbiesPixelWidth - Constants.cps * 2)
               <> "margin-left" =: px Constants.cps
         ]
-        [ ( case team of
+        [ ( case Model.pTeam player of
               Nothing -> div_ [] [text "The character above with a green cape, that's you!"]
               Just team ->
                 div_
@@ -152,12 +154,14 @@ mkModel :: Shared.Model -> Model.World
 mkModel shared =
   Model.World {..}
   where
-    encounters = mkEncounters (team == Nothing) topLeft (Direction.Coord size)
+    encounters = mkEncounters (pTeam == Nothing) topLeft (Direction.Coord size)
     fade = Constants.DontFade
     moved = False
     past = mempty
+    pDeck = [] -- Placeholder
+    pTeam :: Maybe Team = Nothing
+    player = Model.Player {pDeck, pSpot = Spots.startingPlayerSpot, ..}
     position = Direction.Coord (24, 47) -- Initial position of character
-    team :: Maybe Team = Nothing
     topLeft = Direction.Coord (13, 22)
     topology = Network.mkTopology $ concat Roads.points
     size = both Nat.intToNat (cellsWidth, cellsHeight)
@@ -181,8 +185,8 @@ borderRadius :: Int
 borderRadius = 6
 
 chooseTeamHint :: Int -> Model.World -> [View a]
-chooseTeamHint z Model.World {team, topLeft, size = (width, _)} =
-  case team of
+chooseTeamHint z Model.World {player, topLeft, size = (width, _)} =
+  case Model.pTeam player of
     Nothing ->
       pure $
         div_

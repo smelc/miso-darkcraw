@@ -258,6 +258,17 @@ isPlayerTurn :: Game -> Bool
 isPlayerTurn Game {playingPlayer, turn} =
   Turn.toPlayerSpot turn == playingPlayer
 
+-- | Data of the playing player
+data Player a = Player {
+    -- | The deck
+    pDeck :: [Card.ID],
+    -- | Where the player plays
+    pSpot :: Spots.Player,
+    -- | The player's team. Either instantiated by @Maybe Team@ before the team
+    -- has been picked in 'World'. Then instantiated by @Team@.
+    pTeam :: a
+  }
+
 -- | The model of the world page. If you add a field, consider
 -- extending the Show and Eq instances below.
 data World = forall a.
@@ -271,14 +282,14 @@ data World = forall a.
     moved :: Bool,
     -- | Encounters done already
     past :: Map.Map Direction.Coord Network.Encounter,
+    -- | Data of the playing player
+    player :: Player (Maybe Team),
     -- | The absolute position of the character, in number of cells
     position :: Direction.Coord,
     -- | Part of the model shared among all pages
     shared :: Shared.Model,
     -- | The size of the view, in number of cells (width, height)
     size :: (Nat, Nat),
-    -- | The team chosen, if any
-    team :: Maybe Team,
     -- | Coordinate of the most top left visible cell, in number of cells
     topLeft :: Direction.Coord,
     topology :: a
