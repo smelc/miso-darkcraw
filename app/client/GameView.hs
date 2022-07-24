@@ -50,7 +50,7 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: Model.Game -> Styled (View Action)
-viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer} = do
+viewGameModel model@Model.Game {anim, board, shared, interaction, player} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
   let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
@@ -58,6 +58,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, playingPlayer}
   ViewInternal.fade builder Nothing 2 $ animToFade anim
   where
     (z, zpp, zpppp) = (0, z + 1, zpp + 1)
+    Model.Player {pSpot = playingPlayer} = player
     enemySpot = Spots.other playingPlayer
     application :: Styled (Maybe (View Action)) =
       case anim of
@@ -400,6 +401,7 @@ toHandDrawingInput m@Model.Game {interaction = gInteraction, ..} =
     offseter = id
     part = Board.toPart board playingPlayer
     (mana, team) = (Board.mana part, Board.team part)
+    Model.Player {pSpot = playingPlayer} = player
 
 -- | Events on cards
 data Actionizer a b = Actionizer

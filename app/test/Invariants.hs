@@ -60,8 +60,8 @@ instance Invariant a => Invariant (Maybe a) where
   violation (Just a) = violation a
 
 instance Invariant Model.Game where
-  violation Model.Game {playingPlayer, turn, uiAvail}
-    | uiAvail && (Turn.toPlayerSpot turn /= playingPlayer) =
+  violation Model.Game {player, turn, uiAvail}
+    | uiAvail && (Turn.toPlayerSpot turn /= Model.pSpot player) =
         ["It's the AI turn (" ++ show (Turn.toPlayerSpot turn) ++ ") yet the UI is available"]
   -- All GameModel invariants have been checked, delegate to smaller pieces:
   violation Model.Game {board, turn} = violation board ++ violation turn

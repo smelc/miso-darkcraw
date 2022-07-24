@@ -162,11 +162,15 @@ instance Contains.With (Kernel a) (Shared.Model, Board.T 'Core, Board.T 'UI, Gam
   with m (s, b, a, an) = m {shared = s, board = b, anims = a, anim = an}
 
 instance Contains.Contains Model.Game (Kernel Spots.Player) where
-  to Model.Game {..} = Kernel {..}
+  to Model.Game {..} = Kernel {playingPlayer = Model.pSpot player, ..}
 
 instance Contains.With Model.Game (Kernel Spots.Player) where
-  with m Kernel {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail} =
-    m {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail}
+  with
+    m@(Model.Game {player})
+    Kernel {anim, anims, board, difficulty, playingPlayer, shared, turn, uiAvail} =
+      m {anim, anims, board, difficulty, player = player', shared, turn, uiAvail}
+      where
+        player' = player {pSpot = playingPlayer}
 
 instance Contains.Contains Model.Game (Kernel ()) where
   to Model.Game {..} = Kernel {playingPlayer = (), ..}

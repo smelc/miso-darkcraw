@@ -436,16 +436,18 @@ updateModel DeckBack (Model.Deck' Model.Deck {..}) =
 updateModel (DeckGo deck) m@(Model.Game' Model.Game {..}) =
   noEff $ Model.Deck' $ Model.Deck deck m playingPlayer t turn shared
   where
+    Model.Player {pSpot = playingPlayer} = player
     t = Board.toPart board playingPlayer & Board.team
 -- Go to 'LootView'
 updateModel (LootGo model) _ =
   noEff $ Model.Loot' model
 -- Schedule leaving 'GameView', to go to 'LootView'
-updateModel _ _m@(Model.Game' gm@Model.Game {board, playingPlayer, turn})
+updateModel _ _m@(Model.Game' gm@Model.Game {board, player, turn})
   | (Turn.next turn & Turn.toNat) > Constants.nbTurns =
       delayActions m' [(toSecs 1, LootGo $ Model.gameToLoot gm outcome)]
   where
     m' = Model.Game' gm {anim = Game.Fadeout}
+    Model.Player {pSpot = playingPlayer} = player
     part = Board.toPart board playingPlayer
     (score, enemy) =
       (Board.score part, Board.toPart board (Spots.other playingPlayer) & Board.score)
@@ -455,7 +457,7 @@ updateModel _ _m@(Model.Game' gm@Model.Game {board, playingPlayer, turn})
         EQ -> Campaign.Draw
         GT -> Campaign.Win
 -- Leave 'GameView' (maybe)
-updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, shared, turn, playingPlayer})
+updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, shared, turn, player})
   | Shared.cmd shared & isJust =
       let cmdStr = Shared.cmd shared
        in case cmdStr <&> Mana.read & join of
@@ -499,6 +501,7 @@ updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, sha
                 part = (Board.empty team) {Board.inHand, Board.stack}
   where
     withBoard board' = noEff $ Model.Game' $ gm {board = board'}
+    Model.Player {pSpot = playingPlayer} = player
     playEvent eventMaker pSpot =
       updateModel
         (GameAction' $ Move.Sched $ Move.Play $ eventMaker pSpot)
@@ -594,12 +597,10 @@ unsafeInitialGameModel difficulty shared teams board =
           level
           (Board.toData (Spots.other Spots.startingPlayerSpot) teams & fst)
     level = Campaign.Level0
+    player = Model.Player {pDeck, pTeam = team, pSpot = playingPlayer}
     playingPlayer = Spots.startingPlayerSpot
     team = Board.toData playingPlayer teams & fst
-    playingPlayerDeck =
-      Board.toData playingPlayer teams
-        & snd
-        & map Card.cardToIdentifier
+    pDeck = Board.toData playingPlayer teams & snd & map Card.cardToIdentifier
     rewards = Map.lookup team Network.rewards & fromMaybe []
     turn = Turn.initial
     anims = mempty

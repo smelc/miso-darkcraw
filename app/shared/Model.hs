@@ -143,10 +143,8 @@ data Game = Game
     -- | The list of games to play in Vanilla edition, @Nothing@ in
     -- legendary edition.
     journey :: Maybe (Campaign.Journey),
-    -- | Where the player plays
-    playingPlayer :: Spots.Player,
-    -- | The deck of 'playingPlayer'
-    playingPlayerDeck :: [Card.ID],
+    -- | Data of the playing player
+    player :: Player Team,
     -- | The rewards of the entire campaign
     rewards :: [Card.ID],
     -- | The current turn
@@ -173,13 +171,11 @@ mkInitialGame shared difficulty journey teams =
   where
     (_, board) = Board.initial shared teams
     interaction = NoInteraction
+    player = Model.Player {pSpot = playingPlayer, pDeck, pTeam = team}
     playingPlayer = Spots.startingPlayerSpot
     rewards = (Map.lookup team Network.rewards & fromMaybe [])
     team = Board.toData Spots.startingPlayerSpot teams & fst
-    playingPlayerDeck =
-      Board.toData playingPlayer teams
-        & snd
-        & map Card.cardToIdentifier
+    pDeck = Board.toData playingPlayer teams & snd & map Card.cardToIdentifier
     turn = Turn.initial
     anims = mempty
     anim = Game.NoAnimation
@@ -188,7 +184,7 @@ mkInitialGame shared difficulty journey teams =
 instance Show Game where
   show Game {..} =
     "{ gameShared = omitted\n"
-      ++ unlines [Art.toASCII board, f "interaction" interaction, f "journey" journey, f "playingPlayer" playingPlayer, f "turn" turn, f "anims" anims]
+      ++ unlines [Art.toASCII board, f "interaction" interaction, f "journey" journey, f "playingPlayer" player, f "turn" turn, f "anims" anims]
       ++ "\n}"
     where
       f s x = "  " ++ s ++ " = " ++ show x
@@ -203,13 +199,15 @@ gameToDeck :: Game -> [Card.ID]
 gameToDeck Game {..} =
   inPlace' ++ inHand ++ stack ++ discarded
   where
-    Board.PlayerPart {..} = Board.toPart board playingPlayer
+    Model.Player {pSpot} = player
+    Board.PlayerPart {..} = Board.toPart board pSpot
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 gameToLoot :: Model.Game -> Campaign.Outcome -> Model.Loot
-gameToLoot Game {board, playingPlayer = pSpot, playingPlayerDeck = deck, rewards, shared} _outcome =
-  Model.Loot {rewards = loot, ..}
+gameToLoot Game {board, player, rewards, shared} _outcome =
+  Model.Loot {deck = pDeck, rewards = loot, ..}
   where
+    Model.Player {pDeck, pSpot} = player
     nbRewards = 1 -- Change this?
     loot = zip rewards (repeat NotPicked)
     team = Board.toPart board pSpot & Board.team
@@ -246,21 +244,19 @@ unsafeGameModel Model.Welcome {shared} =
     interaction = NoInteraction
     playingPlayer = Spots.startingPlayerSpot
     (_, board) = Board.initial shared teams'
-    playingPlayerDeck =
-      Board.toData playingPlayer teams'
-        & snd
-        & map Card.cardToIdentifier
+    player = Model.Player {pDeck, pSpot = playingPlayer, pTeam = team}
+    pDeck = Board.toData playingPlayer teams' & snd & map Card.cardToIdentifier
     uiAvail = True
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn
 -- | nor the turn of the other player if in multiplayer.
 isPlayerTurn :: Game -> Bool
-isPlayerTurn Game {playingPlayer, turn} =
-  Turn.toPlayerSpot turn == playingPlayer
+isPlayerTurn Game {player, turn} =
+  Turn.toPlayerSpot turn == (Model.pSpot player)
 
 -- | Data of the playing player
-data Player a = Player {
-    -- | The deck
+data Player a = Player
+  { -- | The deck
     pDeck :: [Card.ID],
     -- | Where the player plays
     pSpot :: Spots.Player,
@@ -268,6 +264,7 @@ data Player a = Player {
     -- has been picked in 'World'. Then instantiated by @Team@.
     pTeam :: a
   }
+  deriving (Eq, Generic, Show)
 
 -- | The model of the world page. If you add a field, consider
 -- extending the Show and Eq instances below.
@@ -397,7 +394,7 @@ data Picked
     NotPicked
   deriving (Eq, Generic, Ord, Show)
 
--- FIXME @smelc rename me to Loot
+-- Replace @deck@ and @team@ by a @Player Team@ value
 data Loot = Loot
   { -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,

@@ -228,7 +228,7 @@ scorePluses board z pSpot = do
     leftMargin = ((Constants.boardToLeftCardCellsOffset + cardCellWidth) * cps) + cps `div` 2
 
 manaView :: Model.Game -> Int -> View a
-manaView Model.Game {board, playingPlayer} z =
+manaView Model.Game {board, player} z =
   div_ [style_ flexColumnStyle, style_ positioning] (manaText : imgs)
   where
     manaText = div_ [style_ textStyle] [Miso.text "Mana"]
@@ -243,6 +243,7 @@ manaView Model.Game {board, playingPlayer} z =
         <> "position" =: ms (show Absolute)
         <> "bottom" =: px ((i * seize) + (seize `div` 2))
         <> "width" =: px seize
+    Model.Player {pSpot = playingPlayer} = player
     nbMana = Board.toPart board playingPlayer & Board.mana & natToInt
     imgs = if nbMana == 0 then [] else map mkImage [1 .. nbMana]
     mkImage i =
@@ -399,11 +400,12 @@ instance Monoid Borders where
   mempty = Borders [] mempty
 
 mkBorders :: Model.Game -> Borders
-mkBorders Model.Game {board, interaction, playingPlayer} =
+mkBorders Model.Game {board, interaction, player} =
   -- Border from hovering have precedence over borders from selection
   -- hence @fromHover@ being before @fromSelection@
   appLessBorders selfHover <> appLessBorders selfSelection <> fromInteraction
   where
+    Model.Player {pSpot = playingPlayer} = player
     -- (Map.mapKeys Model.BoxTarget fromInteraction)
     (attackColor, applicationColor) = (Color.red, Color.green)
     selfHover =
