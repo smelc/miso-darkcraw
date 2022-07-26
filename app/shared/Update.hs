@@ -24,6 +24,7 @@ import qualified Constants (Difficulty)
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
+import qualified Data.Bifunctor as Bifunctor
 import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
 import qualified Data.Map as Map
@@ -111,7 +112,8 @@ data Action
     KeyboardArrows Arrows
   | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
     WelcomeGo WelcomeDestination
-  | -- | Leave 'WorldView', enter 'GameView'
+  | -- | Leave 'WorldView', enter 'GameView'. The first team is the team to fight.
+    -- The theme is the one to use for this fight.
     WorldToGame Team Theme.Kind
   deriving (Show, Eq)
 
@@ -409,8 +411,27 @@ updateWorldModel a w@Model.World {encounters, position, player, shared, topology
                   -- Default
                   return $ lift $ w {moved = True, position = position'}
         Just _ -> pure $ lift w
-    WorldToGame _ _ -> undefined -- TODO @smelc return a GameView
-    _ -> pure $ lift w
+    WorldToGame opponent _themek ->
+      pure $
+        Model.Game' $
+          Model.mkInitialGame
+            shared
+            Constants.Hard
+            Nothing
+            (mkTeams opponent & mapSnd (fst . Random.shuffle shared))
+      where
+        mapSnd f (Board.Teams top bot) =
+          Board.Teams (Bifunctor.second f top) (Bifunctor.second f bot)
+        playerTeam =
+          case Model.pTeam player of
+            Nothing -> error "First encounter must happen after team has been chosen!"
+            Just t -> t
+        mkTeams opponent =
+          -- TODO @smelc Use history field to build another deck than the initial one
+          Board.Teams
+            (opponent, Shared.getInitialDeck shared opponent)
+            (playerTeam, map (Card.unlift . Shared.unsafeIdentToCard shared) (Model.pDeck player))
+    _ -> pure $ lift w -- Unrecognized
   where
     neighbors = Network.neighbors topology position
     lift = Model.World'
@@ -537,12 +558,11 @@ updateModel (WelcomeGo MultiPlayerDestination) (Model.Welcome' _) =
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
 -- Action regarding Model.World and WorldView
-updateModel (WorldToGame _ _) (Model.World' {}) =
-  undefined
 updateModel a (m@(Model.World' (w@Model.World {fade}))) =
-  case fade of
-    Constants.FadeOut -> return m -- Page change pending
-    _ -> updateWorldModel a w -- Delegate
+  case (a, fade) of
+    (WorldToGame {}, _) -> updateWorldModel a w -- Delegate, bypass FadeOut case
+    (_, Constants.FadeOut) -> return m -- Page change pending
+    _ -> updateWorldModel a w -- Default: delegate
 updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
   newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
   return $ Model.Welcome' wm {keysDown = newKeysDown, sceneModel = newSceneModel}

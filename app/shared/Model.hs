@@ -116,21 +116,10 @@ rmSelection = \case
   SelectionInteraction _ -> NoInteraction
   x@(ShowErrorInteraction {}) -> x
 
-data Dragging a = Dragging
-  { draggedCard :: Board.HandIndex,
-    dragTarget :: Maybe a
-  }
-  deriving (Eq, Show, Generic)
-
-data HandFiddle
-  = -- | Card in hand being hovered
-    HandHovering Board.HandIndex
-  | -- | Card in hand being dragged
-    HandDragging Board.HandIndex
-  deriving (Eq, Show, Generic)
-
 -- | The model of the gaming page. If you add a field, think about
--- extending the 'Show' instance below.
+-- extending the 'Show' instance below. TODO @smelc add 'past' field
+-- that keeps track of encounters done so far, like 'World' (add it
+-- to 'Player' maybe?)
 data Game = Game
   { -- | Part of the model shared among all pages
     shared :: Shared.Model,
