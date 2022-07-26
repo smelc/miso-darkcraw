@@ -32,18 +32,22 @@ import ViewInternal (Position (..), Styled, px)
 import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
-viewWorldModel world@Model.World {encounters, position, shared, player} = do
+viewWorldModel world@Model.World {encounters, fade, position, shared, player} = do
   let man = tileView shared zpp manX manY manTile
       builder attrs =
         div_
-          []
-          [ div_ (attrs ++ [style_ bgStyle]) ([man] ++ events ++ chooseTeamHint zpp world),
+          attrs
+          [ div_ ([style_ bgStyle]) ([man] ++ events ++ chooseTeamHint zpp world),
             legendDiv world
           ]
-  ViewInternal.fade builder Nothing 2 fade
+  ViewInternal.fade builder Nothing 2 fadeSty
   where
     (z, zpp) = (0, z + 1)
-    fade = if Configuration.isDev then Constants.DontFade else Constants.FadeIn
+    fadeSty =
+      case (fade, Configuration.isDev) of
+        (Constants.DontFade, True) -> Constants.DontFade
+        (Constants.DontFade, False) -> Constants.FadeIn
+        (fromModel, _) -> fromModel
     bgStyle =
       ViewInternal.zpltwh z Relative 0 0 pxWidth pxHeight
         <> "background-image" =: Constants.assetsUrl "world.png"
@@ -130,7 +134,7 @@ legendDiv Model.World {player} =
                   []
                   [text "You've chosen the ", i_ [] [text $ MisoString.ms $ Card.ppTeam team], text " team 🎉"]
           ),
-          div_ [style_ $ "margin-top" =: px 4] [text "Move using the pad or the arrow keys."]
+          div_ [style_ $ "margin-top" =: px 4] [text "Move using the arrow keys or WASD."]
         ]
     ]
 
