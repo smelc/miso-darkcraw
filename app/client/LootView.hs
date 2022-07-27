@@ -65,6 +65,7 @@ view Model.Loot {..} = do
     bgStyle z =
       zpltwh z Relative 0 0 Constants.lobbiesPixelWidth Constants.boardPixelHeight
         <> "background-image" =: Constants.assetsUrl "loot-bot-forest.png"
+    Model.Player {pDeck = deck, pTeam = team} = player
     ctxt = Context {..}
     rewardsLegend =
       div_

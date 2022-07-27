@@ -193,13 +193,11 @@ gameToDeck Game {..} =
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 gameToLoot :: Model.Game -> Campaign.Outcome -> Model.Loot
-gameToLoot Game {board, player, rewards, shared} _outcome =
-  Model.Loot {deck = pDeck, rewards = loot, ..}
+gameToLoot Game {player, rewards, shared} _outcome =
+  Model.Loot {rewards = loot, ..}
   where
-    Model.Player {pDeck, pSpot} = player
-    nbRewards = 1 -- Change this?
+    nbRewards = 1 -- KISS
     loot = zip rewards (repeat NotPicked)
-    team = Board.toPart board pSpot & Board.team
 
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'LootView'.
@@ -208,6 +206,7 @@ unsafeLootModel Model.Welcome {shared} =
   Loot' $ Model.Loot {..}
   where
     nbRewards = 1
+    player = Model.Player {pDeck = deck, pSpot = Spots.startingPlayerSpot, pTeam = team}
     team = Human
     rewards = zip (Map.lookup team Network.rewards & fromMaybe []) $ repeat NotPicked
     deck =
@@ -387,10 +386,8 @@ data Picked
 data Loot = Loot
   { -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
-    -- | The deck of the playing player
-    deck :: [Card.ID],
-    -- | To which team the deck being shown belongs
-    team :: Team,
+    -- | Data of the playing player
+    player :: Player Team,
     -- | Part of the model shared among all pages
     shared :: Shared.Model,
     -- | The possible rewards, and whether they have been picked already
