@@ -90,10 +90,9 @@ main shared = do
               `shouldSatisfy` (\Match.Result {models} -> all isValid' models)
   where
     mkGame shared (t1, t2) =
-      Model.mkInitialGame
+      Match.mkTestGame
         shared
         difficulty
-        Nothing
         (Board.Teams (t1, Shared.getInitialDeck shared t1) (t2, Shared.getInitialDeck shared t2))
     difficulty = Constants.Easy
     isValid :: [String] -> Bool

@@ -113,8 +113,9 @@ data Action
   | -- Leave 'WelcomeView', go to 'MultiPlayerView' or 'SinglePlayerView'
     WelcomeGo WelcomeDestination
   | -- | Leave 'WorldView', enter 'GameView'. The first team is the team to fight.
-    -- The theme is the one to use for this fight.
-    WorldToGame Team Theme.Kind
+    -- The theme is the one to use for this fight. The third argument is the location
+    -- where the fight happens
+    WorldToGame Team Theme.Kind (Direction.Coord, Network.Encounter)
   deriving (Show, Eq)
 
 data SceneAction
@@ -402,28 +403,31 @@ updateWorldModel a w@Model.World {encounters, position, player, shared, topology
                     -- Deck initialization
                     pDeck = Shared.getInitialDeck shared t & (map Card.cardToIdentifier)
                     player' = player {pDeck, pTeam = Just t}
-                (Just _, Just (Network.Fight t theme)) ->
+                (Just _, Just encounter@(Network.Fight t theme)) ->
                   -- Move, request fadeout, schedule send of WorldToGame event
                   delayActions
                     (lift $ w {fade = Constants.FadeOut})
-                    [(toSecs 1, WorldToGame t theme)]
+                    [(toSecs 1, WorldToGame t theme (position', encounter))]
                 _ ->
                   -- Default
                   return $ lift $ w {moved = True, position = position'}
         Just _ -> pure $ lift w
-    WorldToGame opponent _themek ->
+    WorldToGame opponent _themek encounter ->
       pure $
         Model.Game' $
           Model.mkInitialGame
             shared
             Constants.Hard
+            past
+            encounter
             Nothing
             (mkTeams opponent & mapSnd (fst . Random.shuffle shared))
       where
+        Model.Player {past, pTeam} = player
         mapSnd f (Board.Teams top bot) =
           Board.Teams (Bifunctor.second f top) (Bifunctor.second f bot)
         playerTeam =
-          case Model.pTeam player of
+          case pTeam of
             Nothing -> error "First encounter must happen after team has been chosen!"
             Just t -> t
         mkTeams opponent =
@@ -540,7 +544,7 @@ updateModel
           singlePlayerLobbyShared = shared
         }
     ) =
-    noEff $ Model.Game' $ Model.mkInitialGame shared'' Constants.Hard (Just (Campaign.mkJourney team)) (Board.Teams (enemyTeam, enemyDeck) (team, teamDeck))
+    noEff $ Model.Game' $ Model.mkInitialGame shared'' Constants.Hard mempty undefined (Just (Campaign.mkJourney team)) (Board.Teams (enemyTeam, enemyDeck) (team, teamDeck))
     where
       enemyTeam = Undead
       getInitialDeck shared team = Shared.getInitialDeck shared team & Random.shuffle shared
@@ -610,6 +614,7 @@ unsafeInitialGameModel ::
 unsafeInitialGameModel difficulty shared teams board =
   Model.Game {..}
   where
+    encounter = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
     interaction = NoInteraction
     journey =
       Just $
@@ -617,10 +622,11 @@ unsafeInitialGameModel difficulty shared teams board =
           level
           (Board.toData (Spots.other Spots.startingPlayerSpot) teams & fst)
     level = Campaign.Level0
-    player = Model.Player {pDeck, pTeam = team, pSpot = playingPlayer}
+    opponent = Board.toData (Spots.other playingPlayer) teams & fst
+    past = mempty
+    player = Model.Player {past, pDeck, pTeam = team, pSpot = playingPlayer}
     playingPlayer = Spots.startingPlayerSpot
-    team = Board.toData playingPlayer teams & fst
-    pDeck = Board.toData playingPlayer teams & snd & map Card.cardToIdentifier
+    (team, pDeck) = Board.toData playingPlayer teams & Bifunctor.bimap id (map Card.cardToIdentifier)
     rewards = Map.lookup team Network.rewards & fromMaybe []
     turn = Turn.initial
     anims = mempty

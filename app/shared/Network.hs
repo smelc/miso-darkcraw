@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 -- | Module providing the API using the data from 'Roads'
 -- Also contains some hardcoded data, which - contrary to 'Roads' -
 -- is not generated.
@@ -21,6 +23,7 @@ import Data.Function ((&))
 import Data.List (intersperse)
 import qualified Data.Map.Strict as Map
 import qualified Direction
+import GHC.Generics
 import Nat
 import qualified Theme
 
@@ -32,6 +35,7 @@ data Encounter
     Reward Nat
   | -- | Choosing your team at the start of the game
     Select Card.Team
+  deriving (Eq, Generic, Show)
 
 -- | The high-level API to query data from 'Roads'
 class Network b where

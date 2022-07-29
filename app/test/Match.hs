@@ -9,10 +9,17 @@
 -- |
 -- This module simulates playing an entire game
 -- |
-module Match (main, MatchResult (..), play, Result (..), testStupidity) where
+module Match
+  ( main,
+    MatchResult (..),
+    mkTestGame,
+    play,
+    Result (..),
+    testStupidity,
+  )
+where
 
 import qualified Board
-import qualified Campaign
 import Card
 import qualified Constants (Difficulty (..))
 import qualified Contains
@@ -24,15 +31,18 @@ import Data.Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Debug.Trace (trace, traceShow)
+import qualified Direction
 import Generators ()
 import Model
 import qualified Move
 import Nat
+import qualified Network
 import qualified Shared
 import Spots
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck ((==>))
+import qualified Theme
 import qualified Turn
 import Update
 
@@ -49,8 +59,8 @@ main shared = do
         [1 .. 48]
         & not . any (isError . matchResult . traceResult)
       where
-        model seed = Model.mkInitialGame (Shared.withSeed shared seed) Constants.Easy (Just journey) (Board.Teams t1' t2')
-        journey = Campaign.unsafeJourney Campaign.Level0 t1
+        model seed =
+          mkTestGame (Shared.withSeed shared seed) Constants.Easy (Board.Teams t1' t2')
         (t1', t2') = ((t1, Shared.getInitialDeck shared t1), (t2, Shared.getInitialDeck shared t2))
     isError (Error msg) = traceShow msg True
     isError Draw = False
@@ -80,6 +90,19 @@ main shared = do
           show (Board.toPart board pSpot & Board.team)
             ++ " "
             ++ show (Board.getpk @'Board.Score pSpot board)
+
+-- | An instance of 'Model.Game' that is OK for testing.
+mkTestGame ::
+  Shared.Model ->
+  Constants.Difficulty ->
+  -- | The teams
+  Board.Teams (Team, [Card.Card 'Core]) ->
+  Model.Game
+mkTestGame shared difficulty teams =
+  Model.mkInitialGame shared difficulty mempty encounter Nothing teams
+  where
+    (opponent, _) = Board.toData (Spots.other Spots.startingPlayerSpot) teams
+    encounter = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
 
 testStupidity :: Shared.Model -> SpecWith ()
 testStupidity shared =

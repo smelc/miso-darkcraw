@@ -35,6 +35,7 @@ import qualified Network
 import ServerMessages
 import qualified Shared
 import qualified Spots
+import qualified Theme
 import qualified Turn
 
 -- | Things that can be hovered or selected.
@@ -117,9 +118,7 @@ rmSelection = \case
   x@(ShowErrorInteraction {}) -> x
 
 -- | The model of the gaming page. If you add a field, think about
--- extending the 'Show' instance below. TODO @smelc add 'past' field
--- that keeps track of encounters done so far, like 'World' (add it
--- to 'Player' maybe?)
+-- extending the 'Show' instance below.
 data Game = Game
   { -- | Part of the model shared among all pages
     shared :: Shared.Model,
@@ -127,6 +126,8 @@ data Game = Game
     board :: Board.T 'Core,
     -- | The game's difficulty
     difficulty :: Constants.Difficulty,
+    -- | The encounter where this game is on the world map
+    encounter :: (Direction.Coord, Network.Encounter),
     -- | What user interaction is going on
     interaction :: Interaction,
     -- | The list of games to play in Vanilla edition, @Nothing@ in
@@ -151,16 +152,20 @@ data Game = Game
 mkInitialGame ::
   Shared.Model ->
   Constants.Difficulty ->
+  -- | Encounters done already
+  Map.Map Direction.Coord Network.Encounter ->
+  -- | The location of the current encounter
+  (Direction.Coord, Network.Encounter) ->
   Maybe Journey ->
   -- | The teams
   Board.Teams (Team, [Card 'Core]) ->
   Model.Game
-mkInitialGame shared difficulty journey teams =
+mkInitialGame shared difficulty past encounter journey teams =
   Model.Game {..}
   where
     (_, board) = Board.initial shared teams
     interaction = NoInteraction
-    player = Model.Player {pSpot = playingPlayer, pDeck, pTeam = team}
+    player = Model.Player {past, pSpot = playingPlayer, pDeck, pTeam = team}
     playingPlayer = Spots.startingPlayerSpot
     rewards = (Map.lookup team Network.rewards & fromMaybe [])
     team = Board.toData Spots.startingPlayerSpot teams & fst
@@ -173,7 +178,7 @@ mkInitialGame shared difficulty journey teams =
 instance Show Game where
   show Game {..} =
     "{ gameShared = omitted\n"
-      ++ unlines [Art.toASCII board, f "interaction" interaction, f "journey" journey, f "playingPlayer" player, f "turn" turn, f "anims" anims]
+      ++ unlines [Art.toASCII board, f "encounter" encounter, f "interaction" interaction, f "journey" journey, f "playingPlayer" player, f "turn" turn, f "anims" anims]
       ++ "\n}"
     where
       f s x = "  " ++ s ++ " = " ++ show x
@@ -193,11 +198,14 @@ gameToDeck Game {..} =
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 gameToLoot :: Model.Game -> Campaign.Outcome -> Model.Loot
-gameToLoot Game {player, rewards, shared} _outcome =
-  Model.Loot {rewards = loot, ..}
+gameToLoot Game {encounter, player, rewards, shared} _outcome =
+  Model.Loot {player = player', rewards = loot, ..}
   where
     nbRewards = 1 -- KISS
     loot = zip rewards (repeat NotPicked)
+    Model.Player {past} = player
+    past' = uncurry Map.insert encounter past
+    player' = player {past = past'}
 
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'LootView'.
@@ -206,8 +214,8 @@ unsafeLootModel Model.Welcome {shared} =
   Loot' $ Model.Loot {..}
   where
     nbRewards = 1
-    player = Model.Player {pDeck = deck, pSpot = Spots.startingPlayerSpot, pTeam = team}
-    team = Human
+    player = Model.Player {past, pDeck = deck, pSpot = Spots.startingPlayerSpot, pTeam = team}
+    (past, team) = (mempty, Human)
     rewards = zip (Map.lookup team Network.rewards & fromMaybe []) $ repeat NotPicked
     deck =
       Shared.getInitialDeck shared team
@@ -223,16 +231,18 @@ unsafeGameModel Model.Welcome {shared} =
     anim = Game.NoAnimation
     anims = mempty
     journey = Just (Campaign.mkJourney team)
+    encounter = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
+    past = mempty
     rewards = Map.lookup team Network.rewards & fromMaybe []
-    team = Human
-    teams = Board.Teams Undead team
+    (team, opponent) = (Human, Undead)
+    teams = Board.Teams opponent team
     teams' = teams <&> (\t -> (t, Shared.getInitialDeck shared t))
     turn = Turn.initial
     difficulty = Constants.Easy
     interaction = NoInteraction
     playingPlayer = Spots.startingPlayerSpot
     (_, board) = Board.initial shared teams'
-    player = Model.Player {pDeck, pSpot = playingPlayer, pTeam = team}
+    player = Model.Player {past, pDeck, pSpot = playingPlayer, pTeam = team}
     pDeck = Board.toData playingPlayer teams' & snd & map Card.cardToIdentifier
     uiAvail = True
 
@@ -244,7 +254,9 @@ isPlayerTurn Game {player, turn} =
 
 -- | Data of the playing player
 data Player a = Player
-  { -- | The deck
+  { -- | Encounters done already
+    past :: Map.Map Direction.Coord Network.Encounter,
+    -- | The deck
     pDeck :: [Card.ID],
     -- | Where the player plays
     pSpot :: Spots.Player,
@@ -265,8 +277,6 @@ data World = forall a.
     fade :: Constants.Fade,
     -- | Whether a move was done already
     moved :: Bool,
-    -- | Encounters done already
-    past :: Map.Map Direction.Coord Network.Encounter,
     -- | Data of the playing player
     player :: Player (Maybe Team),
     -- | The absolute position of the character, in number of cells
@@ -382,7 +392,6 @@ data Picked
     NotPicked
   deriving (Eq, Generic, Ord, Show)
 
--- Replace @deck@ and @team@ by a @Player Team@ value
 data Loot = Loot
   { -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
