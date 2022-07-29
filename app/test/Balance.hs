@@ -43,6 +43,7 @@ main shared =
         Network.rewards
           & Map.lookup team
           & fromJust
+          & map (\(Network.Rewards _ cards) -> head cards) -- Take first reward every time
           & map (Shared.unsafeIdentToCard shared)
           & map Card.unlift
       )
@@ -72,7 +73,7 @@ main shared =
               where
                 (nextDeck, nextRewards) =
                   case rewards of
-                    (reward : rewards) -> (reward : deck, rewards)
+                    (reward : rewards) -> (reward : deck, rewards) -- Add first reward to obtain next deck
                     [] -> (deck, [])
     checkOne (team, teamDeck) opponent idx expected =
       case actual == expected of

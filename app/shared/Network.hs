@@ -12,6 +12,7 @@ module Network
     Network (..),
     mkTopology,
     rewards,
+    Rewards (..),
     Topology,
   )
 where
@@ -70,30 +71,31 @@ lootSpots =
         ((30, 24), 1)
       ]
 
-rewards :: Map.Map Card.Team [Card.ID]
+-- | Rewards after a game. First 'Nat' is the number of rewards to pick.
+-- Second list is all available rewards.
+data Rewards = Rewards Nat [Card.ID]
+  deriving (Eq, Generic)
+
+rewards :: Map.Map Card.Team [Rewards]
 rewards =
   Map.fromList $
     [ ( Evil,
-        [Card.IDI Card.AxeOfRage]
+        [Rewards 1 [Card.IDI Card.AxeOfRage]]
       ),
       ( Human,
-        [ mkIDC Human Card.Knight,
-          Card.IDI Card.Crown,
-          Card.IDN Card.Life,
-          mkIDC Human Card.Ogre
+        [ Rewards 1 [mkIDC Human Card.Knight, Card.IDI Card.Crown, Card.IDN Card.Life],
+          Rewards 1 [mkIDC Human Card.Ogre]
         ]
       ),
       ( Sylvan,
-        [ Card.IDI Card.BowOfGaia,
-          Card.IDN Card.HuntingHorn,
-          Card.IDI Card.BowOfGaia,
-          mkIDC Sylvan Card.Worm
+        [ Rewards 1 [Card.IDI Card.BowOfGaia],
+          Rewards 1 [Card.IDN Card.HuntingHorn, Card.IDI Card.BowOfGaia],
+          Rewards 1 [mkIDC Sylvan Card.Worm]
         ]
       ),
       ( Undead,
-        [ mkIDC Undead Card.Necromancer,
-          Card.IDI Card.SkBanner,
-          mkIDC Undead Card.Specter
+        [ Rewards 1 [mkIDC Undead Card.Necromancer, Card.IDI Card.SkBanner],
+          Rewards 1 [mkIDC Undead Card.Specter]
         ]
       )
     ]

@@ -136,7 +136,7 @@ data Game = Game
     -- | Data of the playing player
     player :: Player Team,
     -- | The rewards of the entire campaign
-    rewards :: [Card.ID],
+    rewards :: [Network.Rewards],
     -- | The current turn
     turn :: Turn.T,
     -- | Whether interactions are possible right now
@@ -201,8 +201,10 @@ gameToLoot :: Model.Game -> Campaign.Outcome -> Model.Loot
 gameToLoot Game {encounter, player, rewards, shared} _outcome =
   Model.Loot {player = player', rewards = loot, ..}
   where
-    nbRewards = 1 -- KISS
-    loot = zip rewards (repeat NotPicked)
+    (nbRewards, loot) =
+      case rewards of
+        [] -> (0, [])
+        Network.Rewards x rs : _ -> (x, zip rs (repeat Model.NotPicked))
     Model.Player {past} = player
     past' = uncurry Map.insert encounter past
     player' = player {past = past'}
@@ -216,7 +218,8 @@ unsafeLootModel Model.Welcome {shared} =
     nbRewards = 1
     player = Model.Player {past, pDeck = deck, pSpot = Spots.startingPlayerSpot, pTeam = team}
     (past, team) = (mempty, Human)
-    rewards = zip (Map.lookup team Network.rewards & fromMaybe []) $ repeat NotPicked
+    rewards = [(Card.IDI Card.BowOfGaia, Model.NotPicked)]
+    -- zip ( & fromMaybe []) $ repeat NotPicked
     deck =
       Shared.getInitialDeck shared team
         & map Card.cardToIdentifier
