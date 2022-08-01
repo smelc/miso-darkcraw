@@ -166,9 +166,12 @@ mkModel shared =
     pTeam :: Maybe Team = Nothing
     player = Model.Player {pDeck, pSpot = Spots.startingPlayerSpot, ..}
     position = Direction.Coord (24, 47) -- Initial position of character
+    size = modelSize
     topLeft = Direction.Coord (13, 22)
     topology = Network.mkTopology $ concat Roads.points
-    size = both Nat.intToNat (cellsWidth, cellsHeight)
+
+modelSize :: (Nat, Nat)
+modelSize = both Nat.intToNat (cellsWidth, cellsHeight)
 
 both :: Bifunctor.Bifunctor p => (a -> d) -> p a a -> p d d
 both f = Bifunctor.bimap f f

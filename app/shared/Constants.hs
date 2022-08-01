@@ -100,7 +100,7 @@ data Difficulty
   | Hard
   deriving (Bounded, Enum, Eq, Generic, Show)
 
--- | Fade or not fade. Not truly a constant. I know.
+-- | Fade or not fade.
 data Fade
   = -- | Fadein (transparent->visible)
     FadeIn

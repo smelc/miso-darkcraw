@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE ExistentialQuantification #-}
@@ -267,7 +268,7 @@ data Player a = Player
     -- has been picked in 'World'. Then instantiated by @Team@.
     pTeam :: a
   }
-  deriving (Eq, Generic, Show)
+  deriving (Eq, Functor, Generic, Show)
 
 -- | The model of the world page. If you add a field, consider
 -- extending the Show and Eq instances below.

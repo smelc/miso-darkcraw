@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -- | Module providing the API using the data from 'Roads'
 -- Also contains some hardcoded data, which - contrary to 'Roads' -
@@ -8,6 +9,7 @@ module Network
     Encounter (..),
     fightSpots,
     journeys,
+    lootNextToFight,
     lootSpots,
     Network (..),
     mkTopology,
@@ -23,6 +25,7 @@ import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
 import Data.List (intersperse)
 import qualified Data.Map.Strict as Map
+import Data.Maybe
 import qualified Direction
 import GHC.Generics
 import Nat
@@ -71,10 +74,15 @@ lootSpots =
         ((30, 24), 1)
       ]
 
+lootNextToFight :: Direction.Coord -> Maybe Direction.Coord
+lootNextToFight fight =
+  [y | y <- Map.keys lootSpots, y `Direction.isAdjacent` fight]
+    & listToMaybe
+
 -- | Rewards after a game. First 'Nat' is the number of rewards to pick.
 -- Second list is all available rewards.
 data Rewards = Rewards Nat [Card.ID]
-  deriving (Eq, Generic)
+  deriving (Eq, Generic, Show)
 
 rewards :: Map.Map Card.Team [Rewards]
 rewards =
