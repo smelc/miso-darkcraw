@@ -1,6 +1,9 @@
 #!/usr/bin/env stack
 -- stack --resolver lts-14.11 script
-
+--   --package text
+--
+-- Search packages by crawling https://www.stackage.org/lts-14.11
+--
 -- This script is used to automatically generate the list of roads
 -- from tiled/world.tmx
 --
@@ -11,7 +14,7 @@
 --
 -- Example call (from the git root):
 --
--- ./scripts/Roads.hs tiled/world.tmx app/client/Roads.hs
+-- ./scripts/Roads.hs tiled/world.tmx app/shared/Roads.hs
 --
 -- To develop this file with hls support:
 --

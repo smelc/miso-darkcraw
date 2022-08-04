@@ -1,6 +1,13 @@
 #!/usr/bin/env stack
 -- stack --resolver lts-14.11 script
-
+--   --package gloss
+--   --package vector
+--
+-- Search packages by crawling https://www.stackage.org/lts-14.11
+--
+-- Be sure to install required system dependencies:
+-- https://github.com/haskell-opengl/OpenGLRaw/issues/34#issuecomment-598427810
+--
 -- This script is used to automatically display the composition of the three
 -- assets that make the game's main view (see 'GameView'). It is useful
 -- when creating these assets with tiled, to have a quick feedback loop.

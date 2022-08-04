@@ -22,7 +22,7 @@ Or:
 ```shell
 # To avoid building ghcjs, enable caching (from miso's README) (do it only once)
 nix-env -iA cachix -f https://cachix.org/api/v1/install
-cachix use miso-haskell
+cachix use miso-haskell # can fail because not root, follow given instructions
 # Then enter the nix shell:
 nix-shell -A release.env default.nix
 cabal --project-file=cabal.config build all

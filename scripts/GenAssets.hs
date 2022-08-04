@@ -1,5 +1,8 @@
 #!/usr/bin/env stack
 -- stack --resolver lts-14.11 script
+--   --package JuicyPixels
+--
+-- Search packages by crawling https://www.stackage.org/lts-14.11
 
 {-# LANGUAGE BlockArguments #-}
 
