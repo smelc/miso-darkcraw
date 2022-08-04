@@ -17,7 +17,8 @@ import qualified Board
 import Campaign
 import Card
 import Cinema (TimedFrame)
-import qualified Constants (Difficulty (..), Fade)
+import qualified Configuration
+import qualified Constants
 import qualified Contains
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -33,6 +34,7 @@ import GHC.Generics
 import qualified Game (Animation (..), Target)
 import Nat
 import qualified Network
+import qualified Roads
 import ServerMessages
 import qualified Shared
 import qualified Spots
@@ -175,6 +177,25 @@ mkInitialGame shared difficulty past encounter journey teams =
     anims = mempty
     anim = Game.NoAnimation
     uiAvail = True
+
+-- | A smart constructor for 'Model.World'
+mkWorld ::
+  Shared.Model ->
+  Map.Map Direction.Coord Network.Encounter ->
+  Bool ->
+  Model.Player (Maybe Team) ->
+  (Nat, Nat) ->
+  Direction.Coord ->
+  Model.World
+mkWorld shared encounters moved player size position =
+  World {..}
+  where
+    fade = if Configuration.isDev then Constants.DontFade else Constants.FadeIn
+    topology = Network.mkTopology $ concat Roads.points
+    topLeft = mkTopLeft position
+
+mkTopLeft :: Direction.Coord -> Direction.Coord
+mkTopLeft (Direction.Coord (x, y)) = (Direction.Coord (x - 11, y - 25))
 
 instance Show Game where
   show Game {..} =

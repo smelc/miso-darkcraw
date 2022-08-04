@@ -22,7 +22,6 @@ import qualified Miso.String as MisoString
 import qualified Model
 import Nat
 import qualified Network
-import qualified Roads
 import qualified Shared
 import qualified Spots
 import qualified Theme
@@ -156,10 +155,9 @@ cellsWidth = Constants.lobbiesCellWidth
 
 mkModel :: Shared.Model -> Model.World
 mkModel shared =
-  Model.World {..}
+  Model.mkWorld shared encounters moved player size position
   where
     encounters = mkEncounters (pTeam == Nothing) topLeft (Direction.Coord size)
-    fade = Constants.DontFade
     moved = False
     past = mempty
     pDeck = [] -- Placeholder
@@ -167,8 +165,7 @@ mkModel shared =
     player = Model.Player {pDeck, pSpot = Spots.startingPlayerSpot, ..}
     position = Direction.Coord (24, 47) -- Initial position of character
     size = modelSize
-    topLeft = Direction.Coord (13, 22)
-    topology = Network.mkTopology $ concat Roads.points
+    topLeft = Model.mkTopLeft position
 
 modelSize :: (Nat, Nat)
 modelSize = both Nat.intToNat (cellsWidth, cellsHeight)
