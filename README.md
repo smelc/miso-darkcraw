@@ -24,7 +24,7 @@ for Haskell/[miso](https://github.com/dmjio/miso/) instructions.
 
 Install the pre-commit hook as follows:
 
-`ln -sr hooks/pre-commit.py .git/hooks/pre-commit`
+`ln -sr hooks/pre_commit.py .git/hooks/pre-commit`
 
 If you have the rights to do a release, install the pre-push hook as follows:
 

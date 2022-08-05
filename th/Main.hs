@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack --resolver lts-16.20 runghc
+-- stack --resolver lts-14.27 runghc
 
 --
 -- One can execute ./Main.hs thanks to the shebang line

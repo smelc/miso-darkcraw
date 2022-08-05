@@ -66,10 +66,13 @@ def _get_splice() -> Optional[str]:
         print(" ".join(touch_cmd) + " failed", file=sys.stderr)
         return None
 
-    if subprocess.run(["which", "ghc"], check=False, cwd="th").returncode == 0:
-        ghc_cmd = ["ghc"]  # Use available ghc
-    else:
-        ghc_cmd = ["stack", "exec", "ghc", "--"]  # Try stack
+    # Required first time ever, so that file-embed (dependency of Main.hs) is installed
+    subprocess.run(["stack", "build"], cwd="th")
+
+    # if subprocess.run(["which", "ghc"], check=False, cwd="th").returncode == 0:
+    #     ghc_cmd = ["ghc"]  # Use available ghc
+    # else:
+    ghc_cmd = ["stack", "exec", "ghc", "--"]  # Try stack
 
     ghc_cmd += ["Main.hs", "-ddump-splices"]
     ghc_cmd_string = " ".join(ghc_cmd)
