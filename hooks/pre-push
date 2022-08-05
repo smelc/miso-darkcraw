@@ -7,7 +7,7 @@ set -eux
 [[ "$USER" == "churlin" ]] || { echo "You should be churlin to do that"; exit 1; }
 
 function restore_config() {
-  git checkout "app/client/Configuration.hs"
+  git checkout "app/shared/Configuration.hs"
 }
 
 ./scripts/change-config.sh "Schplaf Legendary \"$(git rev-parse --short=7 HEAD)\"" || { echo "change-config.sh failed"; exit 1; }

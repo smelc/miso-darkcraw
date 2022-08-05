@@ -129,8 +129,9 @@ data Game = Game
     board :: Board.T 'Core,
     -- | The game's difficulty
     difficulty :: Constants.Difficulty,
-    -- | The encounter where this game is on the world map
-    encounter :: (Direction.Coord, Network.Encounter),
+    -- | The encounter where this game is on the world map. The position
+    -- of the encounter is within 'player'.
+    encounter :: Network.Encounter,
     -- | What user interaction is going on
     interaction :: Interaction,
     -- | The list of games to play in Vanilla edition, @Nothing@ in
@@ -157,18 +158,18 @@ mkInitialGame ::
   Constants.Difficulty ->
   -- | Encounters done already
   Map.Map Direction.Coord Network.Encounter ->
-  -- | The location of the current encounter
+  -- | The location of the current encounter and the encounter itself
   (Direction.Coord, Network.Encounter) ->
   Maybe Journey ->
   -- | The teams
   Board.Teams (Team, [Card 'Core]) ->
   Model.Game
-mkInitialGame shared difficulty past encounter journey teams =
+mkInitialGame shared difficulty past (position, encounter) journey teams =
   Model.Game {..}
   where
     (_, board) = Board.initial shared teams
     interaction = NoInteraction
-    player = Model.Player {past, pSpot = playingPlayer, pDeck, pTeam = team}
+    player = Model.Player {past, position, pSpot = playingPlayer, pDeck, pTeam = team}
     playingPlayer = Spots.startingPlayerSpot
     rewards = (Map.lookup team Network.rewards & fromMaybe [])
     team = Board.toData Spots.startingPlayerSpot teams & fst
@@ -227,8 +228,8 @@ gameToLoot Game {encounter, player, rewards, shared} _outcome =
       case rewards of
         [] -> (0, [])
         Network.Rewards x rs : _ -> (x, zip rs (repeat Model.NotPicked))
-    Model.Player {past} = player
-    past' = uncurry Map.insert encounter past
+    Model.Player {past, position} = player
+    past' = uncurry Map.insert (position, encounter) past
     player' = player {past = past'}
 
 -- | Function for debugging only. Used to
@@ -238,8 +239,8 @@ unsafeLootModel Model.Welcome {shared} =
   Loot' $ Model.Loot {..}
   where
     nbRewards = 1
-    player = Model.Player {past, pDeck = deck, pSpot = Spots.startingPlayerSpot, pTeam = team}
-    (past, team) = (mempty, Human)
+    player = Model.Player {past, pDeck = deck, position, pSpot = Spots.startingPlayerSpot, pTeam = team}
+    (past, position, team) = (mempty, Direction.Coord (0, 0), Human)
     rewards = [(Card.IDI Card.BowOfGaia, Model.NotPicked)]
     -- zip ( & fromMaybe []) $ repeat NotPicked
     deck =
@@ -256,7 +257,7 @@ unsafeGameModel Model.Welcome {shared} =
     anim = Game.NoAnimation
     anims = mempty
     journey = Just (Campaign.mkJourney team)
-    encounter = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
+    (position, encounter) = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
     past = mempty
     rewards = Map.lookup team Network.rewards & fromMaybe []
     (team, opponent) = (Human, Undead)
@@ -267,7 +268,7 @@ unsafeGameModel Model.Welcome {shared} =
     interaction = NoInteraction
     playingPlayer = Spots.startingPlayerSpot
     (_, board) = Board.initial shared teams'
-    player = Model.Player {past, pDeck, pSpot = playingPlayer, pTeam = team}
+    player = Model.Player {pSpot = playingPlayer, pTeam = team, ..}
     pDeck = Board.toData playingPlayer teams' & snd & map Card.cardToIdentifier
     uiAvail = True
 
@@ -283,6 +284,8 @@ data Player a = Player
     past :: Map.Map Direction.Coord Network.Encounter,
     -- | The deck
     pDeck :: [Card.ID],
+    -- | The absolute position of the character, in number of cells
+    position :: Direction.Coord,
     -- | Where the player plays
     pSpot :: Spots.Player,
     -- | The player's team. Either instantiated by @Maybe Team@ before the team
@@ -290,6 +293,9 @@ data Player a = Player
     pTeam :: a
   }
   deriving (Eq, Functor, Generic, Show)
+
+instance Contains.With (Player a) Direction.Coord where
+  with p position = p {position}
 
 -- | The model of the world page. If you add a field, consider
 -- extending the Show and Eq instances below.
@@ -304,8 +310,6 @@ data World = forall a.
     moved :: Bool,
     -- | Data of the playing player
     player :: Player (Maybe Team),
-    -- | The absolute position of the character, in number of cells
-    position :: Direction.Coord,
     -- | Part of the model shared among all pages
     shared :: Shared.Model,
     -- | The size of the view, in number of cells (width, height)
@@ -317,16 +321,19 @@ data World = forall a.
 
 instance Eq World where
   (==)
-    (World {position = pos1, size = sz1, topLeft = tl1})
-    (World {position = pos2, size = sz2, topLeft = tl2}) =
-      pos1 == pos2 && sz1 == sz2 && tl1 == tl2
+    (World {player = player1, size = sz1, topLeft = tl1})
+    (World {player = player2, size = sz2, topLeft = tl2}) =
+      (position player1) == (position player2) && sz1 == sz2 && tl1 == tl2
 
 instance Show World where
-  show World {position, size, topLeft} =
+  show World {player, size, topLeft} =
     concat $
       intersperse
         " "
-        ["position:", show position, " size:", show size, "topLeft:", show topLeft]
+        ["position:", show (position player), " size:", show size, "topLeft:", show topLeft]
+
+instance Contains.With World Direction.Coord where
+  with w@World {player = p} c = w {player = p `Contains.with` c}
 
 data PlayingMode
   = NoPlayingMode

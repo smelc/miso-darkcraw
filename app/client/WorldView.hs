@@ -12,6 +12,7 @@ import Card (Team (..), ppTeam)
 import qualified Color
 import qualified Configuration
 import qualified Constants
+import qualified Contains
 import qualified Data.Bifunctor as Bifunctor
 import Data.Function ((&))
 import Data.List.Extra
@@ -31,7 +32,7 @@ import ViewInternal (Position (..), Styled, px)
 import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
-viewWorldModel world@Model.World {encounters, fade, position, shared, player} = do
+viewWorldModel world@Model.World {encounters, fade, shared, player} = do
   let man = tileView shared zpp manX manY manTile
       builder attrs =
         div_
@@ -54,7 +55,7 @@ viewWorldModel world@Model.World {encounters, fade, position, shared, player} = 
         <> "background-position-y" =: px pxHeight
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
     (manX, manY) = absCoordToPx world position
-    Model.Player {pTeam} = player
+    Model.Player {position, pTeam} = player
     manTile =
       case pTeam of
         Nothing -> Tile.Man
@@ -175,15 +176,15 @@ both f = Bifunctor.bimap f f
 
 -- | Shifts the world's position by the given direction, if possible
 shift :: Direction.T -> Model.World -> Model.World
-shift dir m@Model.World {position, size = (width, height), topLeft = Direction.Coord (tlx, tly)} =
-  case Direction.move dir position of
+shift dir m@Model.World {player, size = (width, height), topLeft = Direction.Coord (tlx, tly)} =
+  case Direction.move dir (Model.position player) of
     Nothing -> m
     Just pos'@(Direction.Coord (x, y))
       | x < tlx -> m -- Too much to the left
       | x >= tlx + width -> m -- Too much to the right
       | y < tly -> m -- Too up
       | y >= tly + height -> m -- Too low
-      | otherwise -> m {Model.position = pos'}
+      | otherwise -> m `Contains.with` pos'
 
 borderRadius :: Int
 borderRadius = 6

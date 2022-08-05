@@ -45,6 +45,7 @@ common common-all
     Color
     Command
     ConcreteAI
+    Configuration
     Contains
     Constants
     Damage
@@ -101,7 +102,6 @@ executable app
     client,
     shared
   other-modules:
-    Configuration
     Debugging
     DeckView
     GameView

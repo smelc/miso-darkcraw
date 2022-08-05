@@ -21,6 +21,7 @@ import Cinema
 import qualified Command
 import qualified Constants
 import qualified Constants (Difficulty)
+import qualified Contains
 import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
@@ -385,7 +386,7 @@ updateSceneModel (JumpToFrameForDebugging i) sceneModel =
     indexWithinBounds frames = i >= 0 && i < length frames
 
 updateWorldModel :: Action -> Model.World -> Effect Action Model.Model
-updateWorldModel a w@Model.World {encounters, position, player, shared, topology} =
+updateWorldModel a w@Model.World {encounters, player, shared, topology} =
   case a of
     KeyboardArrows arrows -> do
       case Direction.ofArrows arrows >>= flip Direction.move position of
@@ -395,14 +396,14 @@ updateWorldModel a w@Model.World {encounters, position, player, shared, topology
               case (Model.pTeam player, Map.lookup position' encounters) of
                 (_, Nothing) ->
                   -- Regular move
-                  return $ lift $ w {moved = True, position = position'}
+                  return $ lift $ w {moved = True} `Contains.with` position'
                 (Nothing, Just (Network.Select t)) ->
                   -- Move and select team
-                  return $ lift $ w {moved = True, position = position', player = player'}
+                  return $ lift $ w {moved = True, player = player'}
                   where
                     -- Deck initialization
                     pDeck = Shared.getInitialDeck shared t & (map Card.cardToIdentifier)
-                    player' = player {pDeck, pTeam = Just t}
+                    player' = player {pDeck, position = position', pTeam = Just t}
                 (Just _, Just encounter@(Network.Fight t theme)) ->
                   -- Move, request fadeout, schedule send of WorldToGame event
                   delayActions
@@ -410,7 +411,7 @@ updateWorldModel a w@Model.World {encounters, position, player, shared, topology
                     [(toSecs 1, WorldToGame t theme (position', encounter))]
                 _ ->
                   -- Default
-                  return $ lift $ w {moved = True, position = position'}
+                  return $ lift $ w {moved = True} `Contains.with` position'
         Just _ -> pure $ lift w
     WorldToGame opponent _themek encounter ->
       pure $
@@ -439,6 +440,7 @@ updateWorldModel a w@Model.World {encounters, position, player, shared, topology
   where
     neighbors = Network.neighbors topology position
     lift = Model.World'
+    position = Model.position player
 
 -- | Updates model, optionally introduces side effects
 -- | This function delegates to the various specialized functions
@@ -614,7 +616,7 @@ unsafeInitialGameModel ::
 unsafeInitialGameModel difficulty shared teams board =
   Model.Game {..}
   where
-    encounter = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
+    (position, encounter) = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
     interaction = NoInteraction
     journey =
       Just $
@@ -624,7 +626,7 @@ unsafeInitialGameModel difficulty shared teams board =
     level = Campaign.Level0
     opponent = Board.toData (Spots.other playingPlayer) teams & fst
     past = mempty
-    player = Model.Player {past, pDeck, pTeam = team, pSpot = playingPlayer}
+    player = Model.Player {pTeam = team, pSpot = playingPlayer, ..}
     playingPlayer = Spots.startingPlayerSpot
     (team, pDeck) = Board.toData playingPlayer teams & Bifunctor.bimap id (map Card.cardToIdentifier)
     rewards = Map.lookup team Network.rewards & fromMaybe []

@@ -16,7 +16,7 @@ function remove_last_line() {
   mv "$tmp_file" "$1"
 }
 
-declare -r CONFIG_FILE="app/client/Configuration.hs"
+declare -r CONFIG_FILE="app/shared/Configuration.hs"
 remove_last_line "$CONFIG_FILE" || { echo "Could not remove last line of $CONFIG_FILE"; exit 1; }
 
 echo "get = $1" >> "$CONFIG_FILE"
