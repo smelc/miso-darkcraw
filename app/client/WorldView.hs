@@ -154,11 +154,12 @@ cellsHeight = Constants.lobbiesPixelHeight `div` Constants.cps
 cellsWidth :: Int
 cellsWidth = Constants.lobbiesCellWidth
 
-mkModel :: Shared.Model -> Model.World
-mkModel shared =
-  Model.mkWorld shared encounters moved player size position
+-- | The initial model, for when the game starts
+mkInitialModel :: Shared.Model -> Model.World
+mkInitialModel shared =
+  Model.mkWorld shared encounters moved player size
   where
-    encounters = mkEncounters (pTeam == Nothing) topLeft (Direction.Coord size)
+    encounters = mkEncounters (pTeam == Nothing) topLeft
     moved = False
     past = mempty
     pDeck = [] -- Placeholder
@@ -227,13 +228,13 @@ chooseTeamHint z Model.World {player, topLeft, size = (width, _)} =
       -- Team has been chosen already, do not show hint
       []
 
-mkEncounters :: Bool -> Direction.Coord -> Direction.Coord -> Map.Map Direction.Coord Network.Encounter
-mkEncounters includeChoices topLeft size =
+mkEncounters :: Bool -> Direction.Coord -> Map.Map Direction.Coord Network.Encounter
+mkEncounters includeChoices topLeft =
   Map.fromList [(c, Network.Fight t th) | (t, cs) <- fights, (c, th) <- cs]
     <> Map.fromList [(c, Network.Reward n) | (c, n) <- Map.toList rewards]
     <> (if includeChoices then Map.map Network.Select (Map.fromList choices) else mempty)
   where
-    visible c = c >= topLeft && c < topLeft Direction.+ size
+    visible c = c >= topLeft && c < topLeft Direction.+ (Direction.Coord modelSize)
     fights :: [(Team, [(Direction.Coord, Theme.Kind)])] =
       Network.fightSpots & Map.map (filter (\(c, _) -> visible c)) & Map.filter notNull & Map.toList
     rewards :: Map.Map Direction.Coord Nat =

@@ -186,14 +186,14 @@ mkWorld ::
   Bool ->
   Model.Player (Maybe Team) ->
   (Nat, Nat) ->
-  Direction.Coord ->
   Model.World
-mkWorld shared encounters moved player size position =
-  World {..}
+mkWorld shared encounters moved player size =
+  World {encounters = Map.withoutKeys encounters (Map.keysSet past), ..}
   where
     fade = if Configuration.isDev then Constants.DontFade else Constants.FadeIn
+    Model.Player {past} = player
     topology = Network.mkTopology $ concat Roads.points
-    topLeft = mkTopLeft position
+    topLeft = mkTopLeft (Model.position player)
 
 mkTopLeft :: Direction.Coord -> Direction.Coord
 mkTopLeft (Direction.Coord (x, y)) = (Direction.Coord (x - 11, y - 25))
@@ -221,16 +221,21 @@ gameToDeck Game {..} =
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
 gameToLoot :: Model.Game -> Campaign.Outcome -> Model.Loot
-gameToLoot Game {encounter, player, rewards, shared} _outcome =
+gameToLoot Game {encounter = gameEncounter, player, rewards, shared} _outcome =
   Model.Loot {player = player', rewards = loot, ..}
   where
+    lootPosition =
+      case Network.lootNextToFight position of
+        Nothing -> error $ "No loot next to fight: " ++ show position
+        Just x -> x
+    fade = Constants.FadeIn
     (nbRewards, loot) =
       case rewards of
         [] -> (0, [])
         Network.Rewards x rs : _ -> (x, zip rs (repeat Model.NotPicked))
     Model.Player {past, position} = player
-    past' = uncurry Map.insert (position, encounter) past
-    player' = player {past = past'}
+    past' = uncurry Map.insert (position, gameEncounter) past
+    player' = player {past = past', position = lootPosition}
 
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'LootView'.
@@ -238,7 +243,7 @@ unsafeLootModel :: Model.Welcome -> Model
 unsafeLootModel Model.Welcome {shared} =
   Loot' $ Model.Loot {..}
   where
-    nbRewards = 1
+    (fade, nbRewards) = (Constants.DontFade, 1)
     player = Model.Player {past, pDeck = deck, position, pSpot = Spots.startingPlayerSpot, pTeam = team}
     (past, position, team) = (mempty, Direction.Coord (0, 0), Human)
     rewards = [(Card.IDI Card.BowOfGaia, Model.NotPicked)]
@@ -425,7 +430,8 @@ data Picked
   deriving (Eq, Generic, Ord, Show)
 
 data Loot = Loot
-  { -- | The number of rewards to be picked from 'rewards'
+  { fade :: Constants.Fade,
+    -- | The number of rewards to be picked from 'rewards'
     nbRewards :: Nat,
     -- | Data of the playing player
     player :: Player Team,

@@ -57,7 +57,7 @@
 <a href="#v:cellsWidth">cellsWidth</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>
 </li>
 <li class="src short">
-<a href="#v:mkModel">mkModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:World" title="Model">World</a>
+<a href="#v:mkInitialModel">mkInitialModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:World" title="Model">World</a>
 </li>
 <li class="src short">
 <a href="#v:modelSize">modelSize</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>)</li>
@@ -72,7 +72,7 @@
 <li class="src short">
 <a href="#v:chooseTeamHint">chooseTeamHint</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a]</li>
 <li class="src short">
-<a href="#v:mkEncounters">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Network.html#t:Encounter" title="Network">Encounter</a>
+<a href="#v:mkEncounters">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Network.html#t:Encounter" title="Network">Encounter</a>
 </li>
 <li class="src short">
 <a href="#v:encounterToTile">encounterToTile</a> :: <a href="Network.html#t:Encounter" title="Network">Encounter</a> -&gt; <a href="Tile.html#t:Tile" title="Tile">Tile</a>
@@ -109,7 +109,10 @@
 <p class="src"><a id="v:cellsWidth" class="def">cellsWidth</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:cellsWidth" class="selflink">#</a></p>
 <div class="doc"><p>The width of the view, in number of cells</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:mkModel" class="def">mkModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> <a href="#v:mkModel" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:mkInitialModel" class="def">mkInitialModel</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> <a href="#v:mkInitialModel" class="selflink">#</a></p>
+<div class="doc"><p>The initial model, for when the game starts</p></div>
+</div>
 <div class="top"><p class="src"><a id="v:modelSize" class="def">modelSize</a> :: (<a href="Nat.html#t:Nat" title="Nat">Nat</a>, <a href="Nat.html#t:Nat" title="Nat">Nat</a>) <a href="#v:modelSize" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:both" class="def">both</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bifunctor.html#t:Bifunctor" title="Data.Bifunctor">Bifunctor</a> p =&gt; (a -&gt; d) -&gt; p a a -&gt; p d d <a href="#v:both" class="selflink">#</a></p></div>
 <div class="top">
@@ -118,7 +121,7 @@
 </div>
 <div class="top"><p class="src"><a id="v:borderRadius" class="def">borderRadius</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> <a href="#v:borderRadius" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:chooseTeamHint" class="def">chooseTeamHint</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Model.html#t:World" title="Model">World</a> -&gt; [<a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Html.html#t:View" title="Miso.Html">View</a> a] <a href="#v:chooseTeamHint" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:mkEncounters" class="def">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Network.html#t:Encounter" title="Network">Encounter</a> <a href="#v:mkEncounters" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:mkEncounters" class="def">mkEncounters</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> -&gt; <a href="Direction.html#t:Coord" title="Direction">Coord</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/containers-0.6.0.1/Data-Map-Strict.html#t:Map" title="Data.Map.Strict">Map</a> <a href="Direction.html#t:Coord" title="Direction">Coord</a> <a href="Network.html#t:Encounter" title="Network">Encounter</a> <a href="#v:mkEncounters" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:encounterToTile" class="def">encounterToTile</a> :: <a href="Network.html#t:Encounter" title="Network">Encounter</a> -&gt; <a href="Tile.html#t:Tile" title="Tile">Tile</a> <a href="#v:encounterToTile" class="selflink">#</a></p></div>
 </div>
 </div>

@@ -99,6 +99,8 @@ data Action
     LootAction' LootAction
   | -- | Go to 'LootView'
     LootGo Model.Loot
+  | -- | Leave 'LootView', go to 'WorldView'
+    LootFrom Model.World
   | NoOp
   | MultiPlayerLobbyAction' MultiPlayerLobbyAction
   | SayHelloWorld
@@ -564,6 +566,8 @@ updateModel (WelcomeGo MultiPlayerDestination) (Model.Welcome' _) =
     handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
     handleWebSocket problem = traceShow problem NoOp
 -- Action regarding Model.World and WorldView
+updateModel (LootFrom model) _ =
+  noEff $ Model.World' model
 updateModel a (m@(Model.World' (w@Model.World {fade}))) =
   case (a, fade) of
     (WorldToGame {}, _) -> updateWorldModel a w -- Delegate, bypass FadeOut case

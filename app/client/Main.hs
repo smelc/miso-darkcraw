@@ -79,7 +79,7 @@ main = do
           Schplaf Vanilla _ -> welcome
         where
           welcome = Model.Welcome' $ initialWelcomeModel shared
-          world = Model.World' $ WorldView.mkModel shared
+          world = Model.World' $ WorldView.mkInitialModel shared
   runApp $
     if Configuration.isDev
       then startApp $ debugApp NoOp App {..}

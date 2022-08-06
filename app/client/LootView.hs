@@ -26,20 +26,22 @@ import Data.Maybe
 import Debug.Trace (traceShow)
 import qualified Mana
 import Miso
-import Miso.String hiding (drop, filter, findIndex, length, map, partition, split, take, zip)
+import Miso.String hiding (concat, drop, filter, findIndex, length, map, partition, split, take, zip)
 import qualified Model
 import Nat
+import qualified Network
 import PCWViewInternal (DisplayLocation (..), cardPositionStyle')
 import qualified PCWViewInternal
 import qualified Shared
-import Update (Action (LootAction'), LootAction (Pick, Unpick))
+import Update (Action (LootAction', LootFrom), LootAction (Pick, Unpick))
 import ViewBlocks (ButtonState (..), gui, textButton)
 import ViewInternal
+import qualified WorldView
 
 -- | Top-level rendering function
 view :: Model.Loot -> Styled (View Action)
-view Model.Loot {..} = do
-  next <- nextView zpppp remainingToPick
+view m@Model.Loot {..} = do
+  next <- nextView m zpppp remainingToPick
   rewards <- rewardsView ctxt zpppp rewards
   deck <-
     deckView
@@ -214,8 +216,8 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
         xCellsOffset = Constants.cardCellWidth + 1 -- card width + horizontal margin
         x = (natToInt i `mod` deckCardsPerRow) * xCellsOffset
 
-nextView :: Int -> Nat -> Styled (View action)
-nextView z remainingToPick = do
+nextView :: Model.Loot -> Int -> Nat -> Styled (View Action)
+nextView Model.Loot {nbRewards, player, shared} z remainingToPick = do
   button <- textButton gui z state [style_ textStyle] "Next →"
   let sty =
         "z-index" =: ms z
@@ -225,9 +227,14 @@ nextView z remainingToPick = do
           <> "transform" =: "translate(-50%, 0%)"
           -- Finally shift element down
           <> "margin-top" =: px ((rewardsViewTopMargin + rewardsViewHeight) + (Constants.cps `div` 2))
-  return $ div_ [style_ sty] [button]
+  return $ div_ [style_ sty, onClick $ Update.LootFrom next] [button]
   where
+    encounters = WorldView.mkEncounters False (Model.mkTopLeft position)
+    Model.Player {past, position} = player
     state = if remainingToPick == 0 then Enabled else Disabled
+    past' = Map.insert position (Network.Reward nbRewards) past
+    player' :: Model.Player (Maybe Team) = (Just <$> player) {Model.past = past'}
+    next = Model.mkWorld shared encounters True player' WorldView.modelSize
 
 deckViewTopMargin :: Int
 deckViewTopMargin = Constants.cps * 14
