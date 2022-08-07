@@ -32,7 +32,7 @@ import ViewInternal (Position (..), Styled, px)
 import qualified ViewInternal
 
 viewWorldModel :: Model.World -> Styled (View Update.Action)
-viewWorldModel world@Model.World {encounters, fade, shared, player} = do
+viewWorldModel world@Model.World {encounters, fade, shared, player, topLeft} = do
   let man = tileView shared zpp manX manY manTile
       builder attrs =
         div_
@@ -52,7 +52,7 @@ viewWorldModel world@Model.World {encounters, fade, shared, player} = do
       ViewInternal.zpltwh z Relative 0 0 pxWidth pxHeight
         <> "background-image" =: Constants.assetsUrl "world.png"
         <> "background-position-x" =: px (-(Constants.cps * 13))
-        <> "background-position-y" =: px pxHeight
+        <> "background-position-y" =: px (Nat.natToInt (backgroundPositionY (snd (Direction.unCoord topLeft))))
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
     (manX, manY) = absCoordToPx world position
     Model.Player {position, pTeam} = player
@@ -75,6 +75,15 @@ viewWorldModel world@Model.World {encounters, fade, shared, player} = do
         & map (Bifunctor.first (absCoordToPx world))
         & map (\((x, y), encounter) -> encounterView shared zpp x y encounter)
         & concat
+
+-- | Given the y (in number of cells) of the top left cell, the corresponding
+-- background-position-y css attribute for displaying the world map appropriately
+backgroundPositionY :: Nat -> Nat
+backgroundPositionY =
+  \case
+    22 -> 624 -- Found experimentally
+    0 -> (624 + (22 * (Nat.intToNat Constants.cps))) -- Deduced from first case
+    i -> backgroundPositionY 0 - (i * (Nat.intToNat Constants.cps)) -- Most general case
 
 -- | @encounterView shared z x y e@ returns the views for the encounter 'e'.
 -- 'x' and 'y' are relative (to the enclosing container) pixel values. They

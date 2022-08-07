@@ -241,3 +241,7 @@ lobbiesPixelHeight = 624
 -- of the mana column
 manaLeftPixelOffset :: Int
 manaLeftPixelOffset = (boardToLeftCardCellsOffset * cellPixelSize) `div` 2
+
+-- | The width and height of the world map, in pixels
+worldMapPixels :: (Nat, Nat)
+worldMapPixels = (1152, 1152)
