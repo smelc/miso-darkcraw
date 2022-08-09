@@ -51,8 +51,9 @@ viewWorldModel world@Model.World {encounters, fade, shared, player, topLeft} = d
     bgStyle =
       ViewInternal.zpltwh z Relative 0 0 pxWidth pxHeight
         <> "background-image" =: Constants.assetsUrl "world.png"
-        <> "background-position-x" =: px (-(Constants.cps * 13))
-        <> "background-position-y" =: px (Nat.natToInt (backgroundPositionY (snd (Direction.unCoord topLeft))))
+        <> "background-position-x" =: px (-(Nat.natToInt topLeftX * Constants.cps))
+        <> "background-position-y" =: px (Nat.natToInt (backgroundPositionY topLeftY))
+    (topLeftX, topLeftY) = Direction.unCoord topLeft
     (pxHeight, pxWidth) = (cellsHeight * Constants.cps, cellsWidth * Constants.cps)
     (manX, manY) = absCoordToPx world position
     Model.Player {position, pTeam} = player

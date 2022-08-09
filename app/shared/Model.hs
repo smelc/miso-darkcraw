@@ -196,7 +196,12 @@ mkWorld shared encounters moved player size =
     topLeft = mkTopLeft (Model.position player)
 
 mkTopLeft :: Direction.Coord -> Direction.Coord
-mkTopLeft (Direction.Coord (x, y)) = (Direction.Coord (x - 11, y - 25))
+mkTopLeft (Direction.Coord (x, y)) =
+  ( Direction.Coord
+      ( x - (Nat.intToNat (Constants.lobbiesCellWidth `div` 2)),
+        y - 25
+      )
+  )
 
 instance Show Game where
   show Game {..} =
