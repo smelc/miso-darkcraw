@@ -392,7 +392,7 @@ toHandDrawingInput m@Model.Game {interaction = gInteraction, ..} =
             zip
               [0 ..]
               ( Board.getpk @'Board.Hand playingPlayer board
-                  & map (Card.unlift . Shared.unsafeIdentToCard shared)
+                  & map (Card.unlift . Shared.unsafeKeyToCard shared)
               ),
           let fadeIn = i `elem` Board.getpk @'Board.Hand playingPlayer anims
       ]

@@ -101,7 +101,7 @@ play difficulty shared board pSpot =
     _availMana = Board.toPart board pSpot & Board.mana
     hands :: [[Card.ID]] =
       Board.getpk @'Board.Hand pSpot board
-        & map (Shared.unsafeIdentToCard shared)
+        & map (Shared.unsafeKeyToCard shared)
         -- TODO @smelc don't do this filtering once there are cards to gain mana
         -- & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
         & map Card.unlift

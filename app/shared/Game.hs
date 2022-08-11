@@ -505,7 +505,7 @@ tryPlayM p@Playable {board, turn, event} =
     PEvent (Place pSpot target (handhi :: Board.HandIndex)) -> do
       shared <- get
       ident <- Board.lookupHandM hand handi
-      let uiCard = Shared.identToCard shared ident
+      let uiCard = Shared.keyToCard shared ident
       let card = unlift <$> uiCard
       case (target, card, uiCard <&> Card.toCommon) of
         (_, Nothing, _) ->
@@ -646,7 +646,7 @@ eventToAnim shared board =
         IDC {} -> NoAnimation
         IDI {} -> NoAnimation -- We should rather highlight the new item in Board.T 'UI
         id@(IDN _) ->
-          Game.Application pSpot target (Shared.unsafeIdentToCard shared id & Card.unlift)
+          Game.Application pSpot target (Shared.unsafeKeyToCard shared id & Card.unlift)
 
 -- | The index of the card with this 'Card.ID', in the hand of the
 -- player at the given spot

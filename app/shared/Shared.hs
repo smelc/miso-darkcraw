@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -14,30 +15,30 @@
 -- and dangerous cyclewise in the long run. Hence I introduced this module.
 -- |
 module Shared
-  ( creatureToFilepath,
-    identToCard,
+  ( cardToFilepath,
+    create,
+    creatureToFilepath,
+    getInitialDeck,
     idToCreature,
+    keyToCard,
+    keyToCardCommon,
     Lift (..),
     Mlift (..),
     Model (cmd),
     tileToFilepath,
-    unsafeGet,
-    unsafeIdentToCard,
     liftSkill,
-    create,
     Shared.getStdGen,
     getCards,
     withCmd,
     withStdGen,
     getCardIdentifiers,
-    cardToFilepath,
     withSeed,
     Shared.allCommands,
-    toCardCommon,
     unsafeToCardCommon,
     identToItem,
     identToNeutral,
-    getInitialDeck,
+    unsafeGet,
+    unsafeKeyToCard,
   )
 where
 
@@ -123,9 +124,7 @@ cardToFilepath shared = \case
 -- | Maps a creature to the filepath of its tile.
 creatureToFilepath :: Model -> Creature 'UI -> Maybe Filepath
 creatureToFilepath shared Creature {creatureId} =
-  cardToFilepath shared <$> ui
-  where
-    ui = identToCard shared (IDC creatureId [])
+  keyToCard shared creatureId <&> cardToFilepath shared
 
 allCommands :: Model -> [Command]
 allCommands shared = Command.allCommands cids
@@ -162,17 +161,45 @@ withStdGen shared stdgen = shared {stdGen = stdgen}
 unsafeGet :: Model
 unsafeGet = createWithSeed 42
 
-identToCard :: Model -> Card.ID -> Maybe (Card 'UI)
-identToCard s@Model {cards} (IDC cid items) =
-  case cards Map.!? IDC cid [] of
-    Nothing -> Nothing
-    Just (CreatureCard cc c@Creature {items = is}) ->
-      -- and then we fill the result with the expected items:
-      assert (null is) $
-        let itemsUI = map (lift s . mkCoreItemObject) items
-         in Just $ CreatureCard cc (c {items = itemsUI})
-    Just _ -> error "Unexpected card. Expected CreatureCard."
-identToCard Model {cards} id = cards Map.!? id
+-- | A value from which a card can be obtained
+class Show a => CardKey a where
+  toID :: a -> Card.ID
+
+instance CardKey (Card 'Core) where
+  toID = Card.cardToIdentifier
+
+instance CardKey (Card 'UI) where
+  toID = Card.cardToIdentifier
+
+instance CardKey Card.ID where
+  toID = id
+
+instance CardKey CreatureID where
+  toID id = Card.IDC id [] -- Default to no items
+
+instance CardKey (CreatureID, [Item]) where
+  toID (id, items) = Card.IDC id items
+
+instance CardKey Item where
+  toID = Card.IDI
+
+instance CardKey Neutral where
+  toID = Card.IDN
+
+-- | The @'UI@ version of a key
+keyToCard :: CardKey a => Model -> a -> Maybe (Card 'UI)
+keyToCard s@Model {cards} a =
+  case toID a of
+    IDC cid items ->
+      case cards Map.!? IDC cid [] of
+        Nothing -> Nothing
+        Just (CreatureCard cc c@Creature {items = is}) ->
+          -- and then we fill the result with the expected items:
+          assert (null is) $
+            let itemsUI = map (lift s . mkCoreItemObject) items
+             in Just $ CreatureCard cc (c {items = itemsUI})
+        Just _ -> error "Unexpected card. Expected CreatureCard."
+    id -> cards Map.!? id
 
 identToItem :: Model -> Item -> ItemObject 'UI
 identToItem Model {cards} i =
@@ -185,7 +212,7 @@ identToItem Model {cards} i =
 
 idToCreature :: Model -> CreatureID -> [Item] -> Maybe (Creature 'UI)
 idToCreature shared cid items =
-  case identToCard shared $ IDC cid items of
+  case keyToCard shared $ IDC cid items of
     Nothing -> Nothing
     Just (CreatureCard _ c) -> Just c
     Just _ -> error "Unexpected card. Expected CreatureCard."
@@ -198,19 +225,12 @@ identToNeutral Model {cards} n =
     -- To avoid this case, I could split the cards in Model
     Just w -> error $ "Neutral " ++ show n ++ " not mapped to NeutralCard, found " ++ show w ++ " instead."
 
-toCardCommon :: Model -> Card.ID -> Maybe (CardCommon 'UI)
-toCardCommon shared id =
-  identToCard shared id <&> dispatch
-  where
-    dispatch =
-      \case
-        CreatureCard common _ -> common
-        NeutralCard common _ -> common
-        ItemCard common _ -> common
+keyToCardCommon :: CardKey a => Model -> a -> Maybe (CardCommon 'UI)
+keyToCardCommon shared id = keyToCard shared id <&> Card.toCommon
 
-unsafeToCardCommon :: Model -> Card.ID -> CardCommon 'UI
+unsafeToCardCommon :: CardKey a => Model -> a -> CardCommon 'UI
 unsafeToCardCommon shared id =
-  case toCardCommon shared id of
+  case keyToCardCommon shared id of
     Nothing -> error $ "unsafeToCardCommon: Card.ID not found: " ++ show id
     Just res -> res
 
@@ -225,7 +245,7 @@ instance Mlift Card where
       (Just common, NeutralCard _ n) -> go NeutralCard common n
       (Just common, ItemCard _ i) -> go ItemCard common i
     where
-      common = toCardCommon shared $ Card.cardToIdentifier card
+      common = keyToCardCommon shared $ Card.cardToIdentifier card
       go constructor common liftable = pure $ constructor common $ lift shared liftable
 
 class Lift p where
@@ -274,10 +294,8 @@ tileToFilepath Model {tiles} tile defaultSize =
     (Nothing, Tile.TwentyFour) -> Tile.default24Filepath
     (Just TileUI {Tile.filepath}, _) -> filepath
 
-unsafeIdentToCard :: Model -> Card.ID -> Card 'UI
-unsafeIdentToCard smodel ci = identToCard smodel ci & unsafeFromJust
-  where
-    unsafeFromJust =
-      \case
-        (Just x) -> x
-        Nothing -> error $ "unsafeIdentToCard: unexpected Nothing on " ++ show ci
+unsafeKeyToCard :: Show a => CardKey a => Model -> a -> Card 'UI
+unsafeKeyToCard smodel a =
+  case keyToCard smodel a of
+    (Just x) -> x
+    Nothing -> error $ "unsafeKeyToCard: unexpected Nothing on " ++ show a

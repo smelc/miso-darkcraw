@@ -155,7 +155,7 @@ rewardsView Context {remainingToPick, shared, LootView.team} z cards = do
               _ -> traceShow ("Unexpected number of rewards cards: " ++ show nbCards) 5
           )
     cards' :: [(Card 'Core, Model.Picked)] =
-      map (Data.Bifunctor.first $ Shared.identToCard shared) cards
+      map (Data.Bifunctor.first $ Shared.keyToCard shared) cards
         & mapMaybe liftNothing
         & map (Data.Bifunctor.first unlift)
       where
@@ -303,7 +303,7 @@ deckView Context {shared, LootView.team} _z cards = do
   where
     z = 64
     cards' :: [DeckCard (Card 'Core)] =
-      map (fmap $ Shared.identToCard shared) cards
+      map (fmap $ Shared.keyToCard shared) cards
         & mapMaybe sequence -- Pull Maybe out of DeckCard.card
         & map (fmap unlift)
     -- First nat is the index in the whole list of cards. Last nat

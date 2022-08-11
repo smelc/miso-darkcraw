@@ -412,7 +412,7 @@ testMana shared =
         go pSpot Board.HandIndex {unHandIndex = i} = do
           id :: Card.ID <- card
           card :: Card 'UI <-
-            Shared.identToCard shared id
+            Shared.keyToCard shared id
               & (\case Nothing -> Left "card not found"; Just x -> Right x)
           return ((Mana.<=) turn (Card.toCommon card & Card.mana) avail)
           where

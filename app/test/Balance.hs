@@ -44,7 +44,7 @@ main shared =
           & Map.lookup team
           & fromJust
           & map (\(Network.Rewards _ cards) -> head cards) -- Take first reward every time
-          & map (Shared.unsafeIdentToCard shared)
+          & map (Shared.unsafeKeyToCard shared)
           & map Card.unlift
       )
     -- it "Endomatches balance is as expected" $ do

@@ -437,7 +437,7 @@ updateWorldModel a w@Model.World {encounters, player, shared, topology} =
           -- TODO @smelc Use history field to build another deck than the initial one
           Board.Teams
             (opponent, Shared.getInitialDeck shared opponent)
-            (playerTeam, map (Card.unlift . Shared.unsafeIdentToCard shared) (Model.pDeck player))
+            (playerTeam, map (Card.unlift . Shared.unsafeKeyToCard shared) (Model.pDeck player))
     _ -> pure $ lift w -- Unrecognized
   where
     neighbors = Network.neighbors topology position

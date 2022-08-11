@@ -123,7 +123,7 @@ playFirst diff shared pSpot p@Game.Playable {board, event = what, turn} =
         (_, _, _) -> continueWithHand rest
   where
     availMana = Board.toPart board pSpot & Board.mana
-    mana id = Shared.toCardCommon shared id <&> Card.mana
+    mana id = Shared.keyToCardCommon shared id <&> Card.mana
     withHand cards = Board.setpk @'Board.Hand pSpot cards
     continueWithHand rest = playFirst diff shared pSpot (p `with` (withHand rest board))
 

@@ -357,7 +357,7 @@ stackView Model.Game {anims, board, shared, uiAvail} z pSpot stackPos stackType 
       Stacked -> Board.getpk @'Board.Stack pSpot anims
       Discarded' -> Board.getpk @'Board.Discarded pSpot anims + nbDeaths
     deck :: [Card 'Core] =
-      Board.toPart board pSpot & getter & map (Card.unlift . Shared.unsafeIdentToCard shared)
+      Board.toPart board pSpot & getter & map (Card.unlift . Shared.unsafeKeyToCard shared)
     atColonSize = length deck
     pAnims = Board.toInPlace anims pSpot
     nbDeaths = Map.foldr (\ae i -> i + (if (Effect.isDead . Effect.death) ae then 1 else 0)) 0 pAnims

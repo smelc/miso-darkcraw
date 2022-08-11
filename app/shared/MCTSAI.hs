@@ -303,7 +303,7 @@ newPlayFirst difficulty shared pSpot board =
             lift (_x, Nothing) = Nothing
   where
     hand = Board.getpk @'Board.Hand pSpot board
-    mana id = Shared.toCardCommon shared id <&> Card.mana
+    mana id = Shared.keyToCardCommon shared id <&> Card.mana
     availMana = Board.toPart board pSpot & Board.mana
     availTargets :: Card.ID -> [Game.Target] = HeuristicAI.targets board pSpot
     withCards cards = Board.setpk @'Board.Hand pSpot cards board
