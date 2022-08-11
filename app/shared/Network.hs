@@ -1,4 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | Module providing the API using the data from 'Roads'
@@ -6,6 +8,7 @@
 -- is not generated.
 module Network
   ( chooseTeamSpots,
+    deckForEncounter,
     Encounter (..),
     fightSpots,
     journeys,
@@ -29,6 +32,7 @@ import Data.Maybe
 import qualified Direction
 import GHC.Generics
 import Nat
+import qualified Shared
 import qualified Theme
 
 -- | Possible encounters on the world map
@@ -96,9 +100,9 @@ rewards =
         ]
       ),
       ( Sylvan,
-        [ Rewards 1 [Card.IDI Card.BowOfGaia],
-          Rewards 1 [Card.IDN Card.HuntingHorn, Card.IDI Card.BowOfGaia],
-          Rewards 1 [mkIDC Sylvan Card.Worm]
+        [ Rewards 1 [mkSIDC Card.Ranger, mkSIDC Card.Guardian, Card.IDI Card.BowOfGaia],
+          Rewards 1 [mkSIDC Card.Ranger, Card.IDN Card.HuntingHorn, Card.IDI Card.BowOfGaia, mkSIDC Card.Guardian],
+          Rewards 1 [mkSIDC Card.Worm, mkSIDC Card.Bear]
         ]
       ),
       ( Undead,
@@ -109,6 +113,26 @@ rewards =
     ]
   where
     mkIDC team kind = Card.IDC (Card.CreatureID kind team) []
+    mkSIDC = mkIDC Sylvan
+
+deckForEncounter :: Shared.Model -> Team -> Nat -> [Card.ID]
+deckForEncounter shared team nb =
+  if nb == 0
+    then Card.teamDeck (Shared.getCards shared) team & map Card.cardToIdentifier
+    else
+      let indexes = [nb .. 1]
+          mkc x = Card.IDC (Card.CreatureID x Human) []
+          additions = concat [addition mkc team nb | nb <- indexes]
+       in deckForEncounter shared team 0 ++ additions
+  where
+    addition mkc team (_nb :: Nat) =
+      case team of
+        Beastmen -> []
+        Evil -> []
+        Human -> [mkc Card.Knight]
+        Sylvan -> [mkc Card.Ranger]
+        Undead -> [mkc Card.Necromancer]
+        ZKnights -> []
 
 -- | Journeys of playable teams, for testing. This data could be generated
 -- automatically, this is tracked in https://github.com/smelc/miso-darkcraw/issues/13

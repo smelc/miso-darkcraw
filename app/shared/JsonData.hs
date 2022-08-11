@@ -45,13 +45,16 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"zknights\" }, \"title\":\"Priest\",  \"hp\":1, \"attack\":\"0\", \"tile\":\"ZPriest\",        \"skills\":[\"Source 2\"] },\n\
          \    { \"id\": { \"name\":\"squire\",    \"team\":\"zknights\" }, \"title\":\"Squire\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"Squire\",         \"skills\":[\"Squire\"] },\n\
          \    { \"id\": { \"name\":\"trebuchet\", \"team\":\"zknights\" }, \"title\":\"Trebuchet\", \"hp\":3, \"attack\":\"2-4\", \"tile\":\"Trebuchet\",  \"skills\":[\"Imprecise\"], \"mana\":\"2\" },\n\
-         \    { \"id\": { \"name\":\"archer\",    \"team\":\"sylvan\" }, \"title\":\"Archer\",    \"hp\":2, \"attack\":\"1-1\",  \"tile\":\"SylvanArcher\",\"skills\":[\"Ace\", \"Sylvan\"] },\n\
-         \    { \"id\": { \"name\":\"bear\",      \"team\":\"sylvan\" },   \"title\":\"Bear\",    \"hp\":3, \"attack\":\"3-1\", \"tile\":\"Bear\",         \"skills\":[\"Sylvan\", \"Rampage\", \"Slow\"], \"mana\":\"2\" },\n\
+         \    { \"id\": { \"name\":\"archer\",    \"team\":\"sylvan\" }, \"title\":\"Archer\",    \"hp\":2, \"attack\":\"1\",  \"tile\":\"SylvanArcher\",\"skills\":[\"Ace\", \"Sylvan\"] },\n\
+         \    { \"id\": { \"name\":\"bear\",      \"team\":\"sylvan\" },   \"title\":\"Bear\",    \"hp\":3, \"attack\":\"3-1\", \"tile\":\"Bear\",         \"skills\":[\"Sylvan\", \"Rampage\", \"Slow\"], \"mana\":\"4\" },\n\
          \    { \"id\": { \"name\":\"falcon\",    \"team\":\"sylvan\" }, \"title\":\"Falcon\",    \"hp\":1, \"attack\":\"1\",  \"tile\":\"SylvanFalcon\",  \"skills\":[\"Flying\"] },\n\
-         \    { \"id\": { \"name\":\"falconer\",  \"team\":\"sylvan\" }, \"title\":\"Falconer\", \"hp\":2, \"attack\":\"2-1\", \"tile\":\"SylvanFalconer\",\"skills\":[\"Falconer\", \"Sylvan\"] },\n\
+         \    { \"id\": { \"name\":\"falconer\",  \"team\":\"sylvan\" }, \"title\":\"Falconer\",  \"hp\":2, \"attack\":\"2-1\",\"tile\":\"SylvanFalconer\",\"skills\":[\"Falconer\", \"Sylvan\"] },\n\
+         \    { \"id\": { \"name\":\"guardian\",  \"team\":\"sylvan\" }, \"title\":\"Guardian\",  \"hp\":6, \"attack\":\"0\",  \"tile\":\"SylvanGuardian\",\"skills\":[] },\n\
          \    { \"id\": { \"name\":\"priest\",    \"team\":\"sylvan\" }, \"title\":\"Priest\", \"hp\":1, \"attack\":\"0\",     \"tile\":\"SylvanPriest\",  \"skills\":[\"GreenAffinity\"] },\n\
-         \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"2-1\",   \"tile\":\"Tree\",          \"skills\":[\"Growth\", \"Slow\"], \"mana\":\"2\" },\n\
-         \    { \"id\": { \"name\":\"worm\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":6, \"attack\":\"6\",     \"tile\":\"SylvanWorm\",    \"skills\":[\"Sylvan\", \"Powerful\", \"Rampage\"], \"mana\":\"remaining_turns\" }\n\
+         \    { \"id\": { \"name\":\"ranger\",    \"team\":\"sylvan\" }, \"title\":\"Ranger\",    \"hp\":2, \"attack\":\"1-1\",  \"tile\":\"SylvanRanger\",\"skills\":[\"Ace\", \"Sylvan\"] },\n\
+         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"sylvan\" }, \"title\":\"Spearwoman\",  \"hp\":2, \"attack\":\"1\",  \"tile\":\"SylvanSpearwoman\",\"skills\":[\"Support\"] },\n\
+         \    { \"id\": { \"name\":\"tree\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":5, \"attack\":\"2-1\",   \"tile\":\"Tree\",          \"skills\":[\"Growth\", \"Slow\"], \"mana\":\"4\" },\n\
+         \    { \"id\": { \"name\":\"worm\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":4, \"attack\":\"4-1\",     \"tile\":\"SylvanWorm\",    \"skills\":[\"Sylvan\", \"Powerful\", \"Rampage\"], \"mana\":\"remaining_turns\" }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
          \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\"},\n\
@@ -140,8 +143,11 @@ jsonData = "{\n\
          \    { \"tile\":\"Sword3\",        \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":1 } },\n\
          \    { \"tile\":\"SylvanArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":12 } },\n\
          \    { \"tile\":\"SylvanFalcon\",  \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":12 } },\n\
+         \    { \"tile\":\"SylvanGuardian\", \"filepath\": { \"root\": \"24x24\", \"x\":9, \"y\":12 } },\n\
          \    { \"tile\":\"SylvanPriest\",  \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":12 } },\n\
          \    { \"tile\":\"SylvanFalconer\", \"filepath\": { \"root\": \"24x24\", \"x\":10, \"y\":12 } },\n\
+         \    { \"tile\":\"SylvanRanger\",  \"filepath\": { \"root\": \"24x24\", \"x\":11, \"y\":13 } },\n\
+         \    { \"tile\":\"SylvanSpearwoman\", \"filepath\": { \"root\": \"24x24\", \"x\":11, \"y\":12 } },\n\
          \    { \"tile\":\"SylvanWorm\",    \"filepath\": { \"root\": \"24x24\", \"x\":8, \"y\":12 } },\n\
          \    { \"tile\":\"Tree\",          \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":12 } },\n\
          \    { \"tile\":\"Troll\",         \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":10 } },\n\

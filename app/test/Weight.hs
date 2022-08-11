@@ -30,7 +30,7 @@ balances =
             (Evil, 4, 60, 0)
           ],
           [ (Undead, 27, 36, 1),
-            (Sylvan, 5, 59, 0),
+            (Sylvan, 3, 60, 1),
             (ZKnights, 33, 29, 2)
           ]
         ]

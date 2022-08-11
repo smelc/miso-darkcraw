@@ -101,7 +101,10 @@ data Tile
   | SylvanArcher
   | SylvanFalcon
   | SylvanFalconer
+  | SylvanGuardian
   | SylvanPriest
+  | SylvanSpearwoman
+  | SylvanRanger
   | SylvanWorm
   | Trebuchet
   | Tree

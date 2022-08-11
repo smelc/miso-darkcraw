@@ -270,7 +270,10 @@ instance ToClass Card.CreatureID where
           Bear -> FrontFighter
           Falcon -> FrontFighter
           Falconer -> FrontFighter
+          Guardian -> FrontFighter
           Priest -> Support
+          Ranger -> Shooter
+          Spearman -> FrontOrBackFighter
           Tree -> FrontFighter
           Worm -> FrontFighter
           _ -> error $ msg team

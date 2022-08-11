@@ -118,6 +118,7 @@ data CreatureKind
   | Falconer
   | General
   | Ghost
+  | Guardian
   | King
   | Knight
   | Necromancer
@@ -125,6 +126,7 @@ data CreatureKind
   | Mummy
   | Ogre
   | Priest
+  | Ranger
   | Skeleton
   | Shade
   | Spearman
@@ -390,7 +392,7 @@ rawTeamDeck cards t =
         Beastmen -> 2 * Defender ++ 1 * Minotaur
         Evil -> 2 * Knight ++ 2 * Spearman ++ 1 * Daemon ++ 1 * Beholder ++ 1 * Abomination ++ 1 * Priest ++ 1 * Assassin
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
-        Sylvan -> 3 * Archer ++ 2 * Tree ++ 2 * Priest ++ 2 * Bear ++ 1 * Falconer
+        Sylvan -> 3 * Archer ++ 2 * Spearman ++ 2 * Priest ++ 1 * Tree ++ 1 * Falconer
         Undead -> 2 * Skeleton ++ 2 * Archer ++ 3 * Mummy ++ 1 * Vampire
         ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet ++ 1 * Card.Bird
       where
