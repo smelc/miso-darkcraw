@@ -160,7 +160,7 @@ play shareds teams nbTurns =
           where
             cards = Board.toData pSpot teams & snd
             cardsFreq =
-              map cardToIdentifier cards
+              map Card.toIdentifier cards
                 & group
                 & map (\repeats -> (head repeats, length repeats))
             idToStr (IDC (CreatureID {creatureKind}) []) = take 2 $ show creatureKind

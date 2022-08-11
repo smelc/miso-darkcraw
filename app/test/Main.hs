@@ -432,7 +432,7 @@ main = hspec $ do
   let eitherCardsNTiles = loadJson
   let cards :: [Card 'UI] = case eitherCardsNTiles of Left errMsg -> error errMsg; Right (x, _, _) -> x
   let allDecks = getAllDecks cards
-  let allCreatures = mapMaybe cardToCreature $ concat allDecks
+  let allCreatures = mapMaybe Card.toCreature $ concat allDecks
   describe "initial state is correct" $ do
     it "cards can be loaded from json" $
       isRight eitherCardsNTiles -- Should be the first test, others depend on it

@@ -106,7 +106,7 @@ play difficulty shared board pSpot =
         -- & filter (\card -> (Card.toCommon card & Card.mana) <= availMana)
         & map Card.unlift
         & sortOn scoreHandCard
-        & map cardToIdentifier
+        & map Card.toIdentifier
         & applyDifficulty difficulty (Shared.getStdGen shared)
     possibles :: [[Game.Place]] =
       map

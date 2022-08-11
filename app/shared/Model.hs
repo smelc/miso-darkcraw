@@ -173,7 +173,7 @@ mkInitialGame shared difficulty past (position, encounter) journey teams =
     playingPlayer = Spots.startingPlayerSpot
     rewards = (Map.lookup team Network.rewards & fromMaybe [])
     team = Board.toData Spots.startingPlayerSpot teams & fst
-    pDeck = Board.toData playingPlayer teams & snd & map Card.cardToIdentifier
+    pDeck = Board.toData playingPlayer teams & snd & map Card.toIdentifier
     turn = Turn.initial
     anims = mempty
     anim = Game.NoAnimation
@@ -255,7 +255,7 @@ unsafeLootModel Model.Welcome {shared} =
     -- zip ( & fromMaybe []) $ repeat NotPicked
     deck =
       Shared.getInitialDeck shared team
-        & map Card.cardToIdentifier
+        & map Card.toIdentifier
 
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'GameView'. Similar to a function
@@ -279,7 +279,7 @@ unsafeGameModel Model.Welcome {shared} =
     playingPlayer = Spots.startingPlayerSpot
     (_, board) = Board.initial shared teams'
     player = Model.Player {pSpot = playingPlayer, pTeam = team, ..}
-    pDeck = Board.toData playingPlayer teams' & snd & map Card.cardToIdentifier
+    pDeck = Board.toData playingPlayer teams' & snd & map Card.toIdentifier
     uiAvail = True
 
 -- | Whether it's the turn of the playing player, i.e. neither the AI turn

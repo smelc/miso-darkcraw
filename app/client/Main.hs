@@ -57,7 +57,7 @@ loadJson' =
 
 logTeam :: [Card 'UI] -> Team -> IO ()
 logTeam cards t = do
-  let deck = mapMaybe cardToCreature $ teamDeck cards t
+  let deck = mapMaybe Card.toCreature $ teamDeck cards t
   print t
   print $ "nb cards: " ++ show (Prelude.length deck)
   print $ "attack: " ++ show (mconcat (Prelude.map attack deck))

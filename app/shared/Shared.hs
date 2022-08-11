@@ -101,7 +101,7 @@ create c sks tls stdGen =
   Model {..}
   where
     groupBy f l = map (\e -> (f e, e)) l & Map.fromList
-    cards = groupBy cardToIdentifier c
+    cards = groupBy Card.toIdentifier c
     skills = groupBy Skill.skill sks
     tiles = groupBy Tile.tile tls
     cmd = Nothing
@@ -166,10 +166,10 @@ class Show a => CardKey a where
   toID :: a -> Card.ID
 
 instance CardKey (Card 'Core) where
-  toID = Card.cardToIdentifier
+  toID = Card.toIdentifier
 
 instance CardKey (Card 'UI) where
-  toID = Card.cardToIdentifier
+  toID = Card.toIdentifier
 
 instance CardKey Card.ID where
   toID = id
@@ -245,7 +245,7 @@ instance Mlift Card where
       (Just common, NeutralCard _ n) -> go NeutralCard common n
       (Just common, ItemCard _ i) -> go ItemCard common i
     where
-      common = keyToCardCommon shared $ Card.cardToIdentifier card
+      common = keyToCardCommon shared $ Card.toIdentifier card
       go constructor common liftable = pure $ constructor common $ lift shared liftable
 
 class Lift p where

@@ -404,7 +404,7 @@ updateWorldModel a w@Model.World {encounters, player, shared, topology} =
                   return $ lift $ w {moved = True, player = player'}
                   where
                     -- Deck initialization
-                    pDeck = Shared.getInitialDeck shared t & (map Card.cardToIdentifier)
+                    pDeck = Shared.getInitialDeck shared t & (map Card.toIdentifier)
                     player' = player {pDeck, position = position', pTeam = Just t}
                 (Just _, Just encounter@(Network.Fight t theme)) ->
                   -- Move, request fadeout, schedule send of WorldToGame event
@@ -525,7 +525,7 @@ updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, sha
               where
                 (inHand, stack) =
                   Shared.getInitialDeck shared team
-                    & map Card.cardToIdentifier
+                    & map Card.toIdentifier
                     & splitAt Constants.initialHandSize
                 part = (Board.empty team) {Board.inHand, Board.stack}
   where
@@ -632,7 +632,7 @@ unsafeInitialGameModel difficulty shared teams board =
     past = mempty
     player = Model.Player {pTeam = team, pSpot = playingPlayer, ..}
     playingPlayer = Spots.startingPlayerSpot
-    (team, pDeck) = Board.toData playingPlayer teams & Bifunctor.bimap id (map Card.cardToIdentifier)
+    (team, pDeck) = Board.toData playingPlayer teams & Bifunctor.bimap id (map Card.toIdentifier)
     rewards = Map.lookup team Network.rewards & fromMaybe []
     turn = Turn.initial
     anims = mempty

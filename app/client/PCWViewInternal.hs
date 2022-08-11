@@ -170,7 +170,7 @@ cardView loc z shared team card cdsty@CardDrawStyle {fade} =
   where
     avatarPicStyle =
       zplt (z + 1) Absolute ((cardPixelWidth - picSize id) `div` 2) picTopMargin
-    id = Card.cardToIdentifier card
+    id = Card.toIdentifier card
     manaTextStyle =
       zplt (z + 1) Absolute (cps `div` 4) (cps `div` 6)
         <> mkFontStyle skillFontSize
@@ -348,7 +348,7 @@ itemNeutralView z card INViewInput {fontStyle, text, title} =
         "top" =: px cps
           <> "left" =: px 4 -- So that text doesn't overlap card border
           <> "width" =: px (cardPixelWidth - (4 * 2))
-          <> "height" =: px (cardPixelHeight - picTopMargin - (picSize $ Card.cardToIdentifier card))
+          <> "height" =: px (cardPixelHeight - picTopMargin - (picSize $ Card.toIdentifier card))
           <> "overflow-y" =: "auto"
           <> scrollbarStyle
     ]

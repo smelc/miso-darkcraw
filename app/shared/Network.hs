@@ -118,7 +118,7 @@ rewards =
 deckForEncounter :: Shared.Model -> Team -> Nat -> [Card.ID]
 deckForEncounter shared team nb =
   if nb == 0
-    then Card.teamDeck (Shared.getCards shared) team & map Card.cardToIdentifier
+    then Card.teamDeck (Shared.getCards shared) team & map Card.toIdentifier
     else
       let indexes = [nb .. 1]
           mkc x = Card.IDC (Card.CreatureID x Human) []

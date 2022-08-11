@@ -337,20 +337,20 @@ instance Unlift Card where
       NeutralCard _ n -> NeutralCard mkCoreCardCommon $ unlift n
       ItemCard _ i -> ItemCard mkCoreCardCommon $ unlift i
 
-cardToCreature :: Card p -> Maybe (Creature p)
-cardToCreature (CreatureCard _ creature) = Just creature
-cardToCreature (NeutralCard {}) = Nothing
-cardToCreature (ItemCard {}) = Nothing
+toCreature :: Card p -> Maybe (Creature p)
+toCreature (CreatureCard _ creature) = Just creature
+toCreature (NeutralCard {}) = Nothing
+toCreature (ItemCard {}) = Nothing
 
-cardToItemObject :: Card p -> Maybe (ItemObject p)
-cardToItemObject (NeutralCard {}) = Nothing
-cardToItemObject (CreatureCard {}) = Nothing
-cardToItemObject (ItemCard _ i) = Just i
+toItemObject :: Card p -> Maybe (ItemObject p)
+toItemObject (NeutralCard {}) = Nothing
+toItemObject (CreatureCard {}) = Nothing
+toItemObject (ItemCard _ i) = Just i
 
-cardToNeutralObject :: Card p -> Maybe (NeutralObject p)
-cardToNeutralObject (NeutralCard _ n) = Just n
-cardToNeutralObject (CreatureCard {}) = Nothing
-cardToNeutralObject (ItemCard {}) = Nothing
+toNeutralObject :: Card p -> Maybe (NeutralObject p)
+toNeutralObject (NeutralCard _ n) = Just n
+toNeutralObject (CreatureCard {}) = Nothing
+toNeutralObject (ItemCard {}) = Nothing
 
 -- | The minimal identifier of a card. See 'Shared.Model' to obtain
 -- | a full-fledged card from that.
@@ -360,8 +360,8 @@ data ID
   | IDN Neutral
   deriving (Eq, Generic, Ord, Show)
 
-cardToIdentifier :: Itemizable (Creature p) => Card p -> ID
-cardToIdentifier =
+toIdentifier :: Itemizable (Creature p) => Card p -> ID
+toIdentifier =
   \case
     CreatureCard _ c@Creature {creatureId} -> IDC creatureId $ getItems c
     ItemCard _ ItemObject {item} -> IDI item
@@ -372,7 +372,7 @@ identToId (IDC cid _) = Just cid
 identToId _ = Nothing
 
 groupCards :: Itemizable (Creature p) => [Card p] -> Map.Map ID [Card p]
-groupCards xs = Map.fromListWith (++) [(cardToIdentifier x, [x]) | x <- xs]
+groupCards xs = Map.fromListWith (++) [(Card.toIdentifier x, [x]) | x <- xs]
 
 rawTeamDeck ::
   -- | The cards as loaded from disk
@@ -397,7 +397,7 @@ rawTeamDeck cards t =
         ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet ++ 1 * Card.Bird
       where
         kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
-          map cardToCreature cards
+          map Card.toCreature cards
             & catMaybes
             & filter (\c -> (creatureId c & team) == t)
             & map unlift
@@ -415,7 +415,7 @@ rawTeamDeck cards t =
         ZKnights -> 1 * Life
       where
         kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
-          mapMaybe cardToNeutralObject cards
+          mapMaybe Card.toNeutralObject cards
             & map unlift
             & map (\nobj -> (neutral nobj, nobj))
             & Map.fromList
@@ -431,7 +431,7 @@ rawTeamDeck cards t =
         ZKnights -> 1 * CrushingMace ++ 1 * SwordOfMight
       where
         itemToItemObj :: Map.Map Item (ItemObject 'Core) =
-          mapMaybe cardToItemObject cards
+          mapMaybe Card.toItemObject cards
             & map (\iobj@ItemObject {item} -> (item, Card.unlift iobj))
             & Map.fromList
         (*) i k = replicate i $ itemToItemObj !? k
