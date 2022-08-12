@@ -507,3 +507,28 @@ instance To (Creature 'Core) [Skill.State] where
 instance (Monoid b, To a b) => To (Maybe a) b where
   to Nothing = mempty
   to (Just a) = to a
+
+-- | A value from which a card can be obtained
+class Key a where
+  toID :: a -> Card.ID
+
+instance Card.Key (Card 'Core) where
+  toID = Card.toIdentifier
+
+instance Card.Key (Card 'UI) where
+  toID = Card.toIdentifier
+
+instance Card.Key Card.ID where
+  toID = id
+
+instance Card.Key CreatureID where
+  toID id = Card.IDC id [] -- Default to no items
+
+instance Card.Key (CreatureID, [Item]) where
+  toID (id, items) = Card.IDC id items
+
+instance Card.Key Item where
+  toID = Card.IDI
+
+instance Key Neutral where
+  toID = Card.IDN

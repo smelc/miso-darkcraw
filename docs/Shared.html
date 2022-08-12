@@ -55,9 +55,9 @@
 <li class="src short">
 <a href="#v:idToCreature">idToCreature</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
 <li class="src short">
-<a href="#v:keyToCard">keyToCard</a> :: CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
+<a href="#v:keyToCard">keyToCard</a> :: <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
 <li class="src short">
-<a href="#v:keyToCardCommon">keyToCardCommon</a> :: CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
+<a href="#v:keyToCardCommon">keyToCardCommon</a> :: <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>)</li>
 <li class="src short">
 <span class="keyword">class</span> <a href="#t:Lift">Lift</a> p <span class="keyword">where</span><ul class="subs"><li>
 <a href="#v:lift">lift</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; p <a href="Card.html#v:Core" title="Card">Core</a> -&gt; p <a href="Card.html#v:UI" title="Card">UI</a>
@@ -95,7 +95,7 @@
 <li class="src short">
 <a href="#v:allCommands">allCommands</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; [<a href="Command.html#t:Command" title="Command">Command</a>]</li>
 <li class="src short">
-<a href="#v:unsafeToCardCommon">unsafeToCardCommon</a> :: CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>
+<a href="#v:unsafeToCardCommon">unsafeToCardCommon</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>
 </li>
 <li class="src short">
 <a href="#v:identToItem">identToItem</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Card.html#t:Item" title="Card">Item</a> -&gt; <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a>
@@ -107,7 +107,7 @@
 <a href="#v:unsafeGet">unsafeGet</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a>
 </li>
 <li class="src short">
-<a href="#v:unsafeKeyToCard">unsafeKeyToCard</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>
+<a href="#v:unsafeKeyToCard">unsafeKeyToCard</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>
 </li>
 </ul></details></div>
 <div id="interface">
@@ -124,10 +124,10 @@
 </div>
 <div class="top"><p class="src"><a id="v:idToCreature" class="def">idToCreature</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Card.html#t:CreatureID" title="Card">CreatureID</a> -&gt; [<a href="Card.html#t:Item" title="Card">Item</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:idToCreature" class="selflink">#</a></p></div>
 <div class="top">
-<p class="src"><a id="v:keyToCard" class="def">keyToCard</a> :: CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:keyToCard" class="selflink">#</a></p>
+<p class="src"><a id="v:keyToCard" class="def">keyToCard</a> :: <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:keyToCard" class="selflink">#</a></p>
 <div class="doc"><p>The <code>'UI</code> version of a key</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:keyToCardCommon" class="def">keyToCardCommon</a> :: CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:keyToCardCommon" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:keyToCardCommon" class="def">keyToCardCommon</a> :: <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> (<a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a>) <a href="#v:keyToCardCommon" class="selflink">#</a></p></div>
 <div class="top">
 <p class="src"><span class="keyword">class</span> <a id="t:Lift" class="def">Lift</a> p <span class="keyword">where</span> <a href="#t:Lift" class="selflink">#</a></p>
 <div class="subs methods">
@@ -303,7 +303,7 @@
 <div class="top"><p class="src"><a id="v:getCardIdentifiers" class="def">getCardIdentifiers</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; [<a href="Card.html#t:ID" title="Card">ID</a>] <a href="#v:getCardIdentifiers" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:withSeed" class="def">withSeed</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> <a href="#v:withSeed" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:allCommands" class="def">allCommands</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; [<a href="Command.html#t:Command" title="Command">Command</a>] <a href="#v:allCommands" class="selflink">#</a></p></div>
-<div class="top"><p class="src"><a id="v:unsafeToCardCommon" class="def">unsafeToCardCommon</a> :: CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:unsafeToCardCommon" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:unsafeToCardCommon" class="def">unsafeToCardCommon</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:CardCommon" title="Card">CardCommon</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:unsafeToCardCommon" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:identToItem" class="def">identToItem</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Card.html#t:Item" title="Card">Item</a> -&gt; <a href="Card.html#t:ItemObject" title="Card">ItemObject</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:identToItem" class="selflink">#</a></p></div>
 <div class="top"><p class="src"><a id="v:identToNeutral" class="def">identToNeutral</a> :: <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Card.html#t:Neutral" title="Card">Neutral</a> -&gt; <a href="Card.html#t:NeutralObject" title="Card">NeutralObject</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:identToNeutral" class="selflink">#</a></p></div>
 <div class="top">
@@ -311,7 +311,7 @@
 <div class="doc"><p>An instance of <code><a href="Shared.html#t:Model" title="Shared">Model</a></code> that is fine for debugging. Don't use
  it in production!</p></div>
 </div>
-<div class="top"><p class="src"><a id="v:unsafeKeyToCard" class="def">unsafeKeyToCard</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; CardKey a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:unsafeKeyToCard" class="selflink">#</a></p></div>
+<div class="top"><p class="src"><a id="v:unsafeKeyToCard" class="def">unsafeKeyToCard</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> a =&gt; <a href="Card.html#t:Key" title="Card">Key</a> a =&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; a -&gt; <a href="Card.html#t:Card" title="Card">Card</a> <a href="Card.html#v:UI" title="Card">UI</a> <a href="#v:unsafeKeyToCard" class="selflink">#</a></p></div>
 <h1>Orphan instances</h1>
 <div id="section.orphans"><table>
 <tr>

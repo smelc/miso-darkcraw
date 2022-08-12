@@ -161,33 +161,8 @@ withStdGen shared stdgen = shared {stdGen = stdgen}
 unsafeGet :: Model
 unsafeGet = createWithSeed 42
 
--- | A value from which a card can be obtained
-class Show a => CardKey a where
-  toID :: a -> Card.ID
-
-instance CardKey (Card 'Core) where
-  toID = Card.toIdentifier
-
-instance CardKey (Card 'UI) where
-  toID = Card.toIdentifier
-
-instance CardKey Card.ID where
-  toID = id
-
-instance CardKey CreatureID where
-  toID id = Card.IDC id [] -- Default to no items
-
-instance CardKey (CreatureID, [Item]) where
-  toID (id, items) = Card.IDC id items
-
-instance CardKey Item where
-  toID = Card.IDI
-
-instance CardKey Neutral where
-  toID = Card.IDN
-
 -- | The @'UI@ version of a key
-keyToCard :: CardKey a => Model -> a -> Maybe (Card 'UI)
+keyToCard :: Card.Key a => Model -> a -> Maybe (Card 'UI)
 keyToCard s@Model {cards} a =
   case toID a of
     IDC cid items ->
@@ -225,10 +200,10 @@ identToNeutral Model {cards} n =
     -- To avoid this case, I could split the cards in Model
     Just w -> error $ "Neutral " ++ show n ++ " not mapped to NeutralCard, found " ++ show w ++ " instead."
 
-keyToCardCommon :: CardKey a => Model -> a -> Maybe (CardCommon 'UI)
+keyToCardCommon :: Card.Key a => Model -> a -> Maybe (CardCommon 'UI)
 keyToCardCommon shared id = keyToCard shared id <&> Card.toCommon
 
-unsafeToCardCommon :: CardKey a => Model -> a -> CardCommon 'UI
+unsafeToCardCommon :: Show a => Card.Key a => Model -> a -> CardCommon 'UI
 unsafeToCardCommon shared id =
   case keyToCardCommon shared id of
     Nothing -> error $ "unsafeToCardCommon: Card.ID not found: " ++ show id
@@ -294,7 +269,7 @@ tileToFilepath Model {tiles} tile defaultSize =
     (Nothing, Tile.TwentyFour) -> Tile.default24Filepath
     (Just TileUI {Tile.filepath}, _) -> filepath
 
-unsafeKeyToCard :: Show a => CardKey a => Model -> a -> Card 'UI
+unsafeKeyToCard :: Show a => Card.Key a => Model -> a -> Card 'UI
 unsafeKeyToCard smodel a =
   case keyToCard smodel a of
     (Just x) -> x
