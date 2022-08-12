@@ -193,28 +193,6 @@ aiPlayFirst shared board pSpot =
         go searched ((score, elem) : tail) | score == searched = elem : go searched tail
         go _ _ = [] -- Because list is sorted, if first score doesn't match, then stop
 
-targets ::
-  Board.T 'Core ->
-  -- | The player placing a card
-  Spots.Player ->
-  -- | The card being played
-  Card.ID ->
-  -- | All spots where the card can be put
-  [Game.Target]
-targets board playingPlayer id =
-  case (Card.targetType id, Game.whichPlayerTarget id) of
-    (CardTargetType ctk, Game.Playing) ->
-      cardTargets playingPlayer ctk
-    (CardTargetType ctk, Game.Opponent) ->
-      cardTargets (Spots.other playingPlayer) ctk
-    (PlayerTargetType, Game.Playing) ->
-      [Game.PlayerTarget playingPlayer]
-    (PlayerTargetType, Game.Opponent) ->
-      [Game.PlayerTarget $ Spots.other playingPlayer]
-  where
-    cardTargets pSpot ctk =
-      Board.toPlayerCardSpots board pSpot ctk & map (Game.CardTarget pSpot)
-
 -- | The score of the card at the given position
 scorePlace ::
   Board.T 'Core ->

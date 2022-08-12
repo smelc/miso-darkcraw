@@ -31,9 +31,9 @@
 </div>
 <div id="description">
 <p class="caption">Description</p>
-<div class="doc"><p>This module defines how the AI plays. It is actually just a dispatching
- module that delegates either to <code>MCTSAI</code>, <code>HeuristicAI</code>, or <code>ConcreteAI</code>.
- <code>applyDifficulty</code>, <code>boardScore</code>, and <code>playHand</code> are exported for tests</p></div>
+<div class="doc"><p>An AI that is tightly bound to the existing creatures and rules of the game.
+ It doesn't run the game; so it is fast. This AI is not super
+ smart but makes the game feel good playing, because it plays "logically".</p></div>
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn"><li class="src short">
 <a href="#v:play">play</a> :: <a href="Constants.html#t:Difficulty" title="Constants">Difficulty</a> -&gt; <a href="Shared.html#t:Model" title="Shared">Model</a> -&gt; <a href="Board.html#t:T" title="Board">T</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Spots.html#t:Player" title="Spots">Player</a> -&gt; <a href="Turn.html#t:T" title="Turn">T</a> -&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</li></ul></details></div>
@@ -67,7 +67,7 @@
 <tr>
 <td class="src">-&gt; <a href="Turn.html#t:T" title="Turn">T</a>
 </td>
-<td class="doc"><p>The current turn</p></td>
+<td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
 <td class="src">-&gt; [<a href="Game.html#t:Place" title="Game">Place</a>]</td>

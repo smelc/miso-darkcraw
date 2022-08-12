@@ -41,7 +41,6 @@ import GHC.Base (assert)
 import Game (Target (..))
 import qualified Game hiding (Playable (..))
 import Generators
-import qualified HeuristicAI
 import qualified Invariants
 import Json
 import qualified Logic (main, mkCreature)
@@ -320,24 +319,6 @@ testInPlaceEffectsMonoid =
     rmFadeout effects =
       Map.map (\effect -> effect {Effect.fadeOut = []}) effects
 
-testPlayScoreMonotonic shared =
-  describe "boardScore is monotonic w.r.t. Game.play" $
-    xit "forall b :: Board, let b' = Game.play b (AI.aiPlay b); score b' is better than score b" $
-      property $
-        \(board, pSpot, turn) ->
-          let score = flip HeuristicAI.boardPlayerScore pSpot
-              initialScore = score board
-              events = AI.play Constants.Easy shared board pSpot turn
-              nextScore =
-                Game.playAll shared (Game.mkPlayable board (map Game.PEvent events) turn)
-                  & takeBoard <&> score
-           in monotonic initialScore nextScore
-  where
-    takeBoard (Left _) = Nothing
-    takeBoard (Right (Game.Result {board = b})) = Just b
-    monotonic _ Nothing = True -- Nothing to test
-    monotonic i (Just j) = j <= i -- Better score is smaller score
-
 testItemsAI shared =
   describe "AI" $ do
     it "Sword of Might is put on most potent in place creature" $
@@ -419,14 +400,6 @@ testMana shared =
             card :: Either Text Card.ID =
               Board.lookupHand (Board.getpk @'Board.Hand pSpot board) i
 
-testApplyDifficulty stdgen =
-  describe "applyDifficulty" $ do
-    prop "Returned lists are permutations of the input list" $
-      \(difficulty, SmallList (l :: [Int])) ->
-        let perms = permutations l
-         in HeuristicAI.applyDifficulty difficulty stdgen l
-              `shouldAllSatisfy` (`elem` perms)
-
 main :: IO ()
 main = hspec $ do
   let eitherCardsNTiles = loadJson
@@ -472,8 +445,6 @@ main = hspec $ do
   testShared shared
   testAIPlace shared
   testInPlaceEffectsMonoid
-  testApplyDifficulty $ Shared.getStdGen shared
-  testPlayScoreMonotonic shared
   -- Onto other files
   Invariants.main shared
   Logic.main shared

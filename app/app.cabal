@@ -44,7 +44,6 @@ common common-all
     Cinema
     Color
     Command
-    ConcreteAI
     Configuration
     Contains
     Constants
@@ -53,11 +52,9 @@ common common-all
     Effect
     Event
     Game
-    HeuristicAI
     Json
     JsonData
     Mana
-    MCTSAI
     Mechanics
     Model
     Move
