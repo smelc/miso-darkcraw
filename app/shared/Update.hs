@@ -26,12 +26,10 @@ import Control.Concurrent (threadDelay)
 import Control.Lens
 import Control.Monad.Except
 import qualified Data.Bifunctor as Bifunctor
-import Data.Foldable (asum, toList)
 import Data.List.Index (setAt)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe, isJust, maybeToList)
 import Data.Set (Set)
-import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Lazy as LazyText
 import Data.TreeDiff
@@ -41,7 +39,7 @@ import qualified Direction
 import qualified Game
 import qualified Mana
 import Miso
-import Miso.String (MisoString, fromMisoString)
+import Miso.String (fromMisoString)
 import Model
 import Move (Move, NextSched)
 import qualified Move
@@ -49,27 +47,12 @@ import Movie (welcomeMovie)
 import Nat
 import qualified Network
 import qualified Random
-import ServerMessages
 import qualified Shared
 import qualified Spots hiding (Card)
 import Text.Pretty.Simple
 import Text.PrettyPrint.ANSI.Leijen hiding ((<$>))
 import qualified Theme
 import qualified Turn
-
-data MultiPlayerLobbyAction
-  = LobbyUpdateUsername MisoString
-  | LobbySubmitUsername
-  | LobbyInviteUser UserName
-  | CancelInvitationClicked
-  | AcceptInvitationClicked
-  | RejectInvitationClicked
-  | LobbyServerMessage OutMessage
-  deriving (Show, Eq)
-
-data SinglePlayerLobbyAction
-  = LobbySelectTeam (Maybe Team)
-  deriving (Show, Eq)
 
 -- | Actions internal to 'LootView'
 data LootAction
@@ -102,13 +85,7 @@ data Action
   | -- | Leave 'LootView', go to 'WorldView'
     LootFrom Model.World
   | NoOp
-  | MultiPlayerLobbyAction' MultiPlayerLobbyAction
   | SayHelloWorld
-  | SinglePlayerLobbyAction' SinglePlayerLobbyAction
-  | -- Leave 'SinglePlayerView', back to 'WelcomeView'
-    SinglePlayerBack
-  | -- Leave 'SinglePlayerView', start game
-    SinglePlayerGo
   | SceneAction' SceneAction
   | Keyboard (Set Int)
   | -- | Arrows have been pressed
@@ -223,104 +200,6 @@ updateLootModel action lm@Model.Loot {rewards = pairs} =
       setAt (natToInt n) (card, value) pairs
       where
         card = pairs !! (natToInt n) & fst
-
-updateSinglePlayerLobbyModel ::
-  SinglePlayerLobbyAction ->
-  SinglePlayerLobbyModel ->
-  SinglePlayerLobbyModel
-updateSinglePlayerLobbyModel (LobbySelectTeam t) m =
-  m {singlePlayerLobbyTeam = t}
-
--- | Updates a 'MultiPlayerLobbyModel'
-updateMultiPlayerLobbyModel :: MultiPlayerLobbyAction -> MultiPlayerLobbyModel -> Effect Action MultiPlayerLobbyModel
-updateMultiPlayerLobbyModel
-  (LobbyUpdateUsername userName)
-  (CollectingUserName _) =
-    noEff $ CollectingUserName (fromMisoString userName)
-updateMultiPlayerLobbyModel
-  LobbySubmitUsername
-  (CollectingUserName userName) =
-    WaitingForNameSubmission userName <# do
-      Miso.send (CreateUser userName)
-      return NoOp
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage UserCreated)
-  (WaitingForNameSubmission userName) =
-    noEff $ DisplayingUserList Nothing userName []
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage (NewUserList users))
-  (DisplayingUserList merror userName _) =
-    noEff $ DisplayingUserList merror userName users
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage (NewUserList users))
-  (InvitingUser me _ user state) =
-    noEff $ InvitingUser me users user state
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage (NewUserList users))
-  (Invited me _ user state) =
-    noEff $ Invited me users user state
-updateMultiPlayerLobbyModel
-  (LobbyInviteUser user)
-  (DisplayingUserList _ me users) =
-    InvitingUser me users user WaitingForUserInvitationAck <# do
-      Miso.send (InviteUser user)
-      return NoOp
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage UserBusy)
-  (InvitingUser me users user WaitingForUserInvitationAck) =
-    noEff $ DisplayingUserList (Just (UserBusyError user)) me users
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage InvitationSent)
-  (InvitingUser me users user WaitingForUserInvitationAck) =
-    noEff $ InvitingUser me users user WaitingForRSVP
-updateMultiPlayerLobbyModel
-  CancelInvitationClicked
-  (InvitingUser me users user WaitingForRSVP) =
-    InvitingUser me users user WaitingForInvitationDropAck <# do
-      Miso.send DropInvitation
-      return NoOp
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage InvitationDropAck)
-  (InvitingUser me users _ WaitingForInvitationDropAck) =
-    noEff $ DisplayingUserList Nothing me users
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage InvitationRejected)
-  (InvitingUser me users user WaitingForRSVP) =
-    noEff $ DisplayingUserList (Just (InvitationRejectedError user)) me users
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage InvitationAccepted)
-  (InvitingUser me _ user WaitingForRSVP) =
-    noEff $ GameStarted me user
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage (IncomingInvitation user))
-  (DisplayingUserList _ me users) =
-    noEff $ Invited me users user CollectingUserRSVP
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage IncomingInvitationCancelled)
-  (Invited me users user _) =
-    noEff $ DisplayingUserList (Just (InvitationCancelledError user)) me users
-updateMultiPlayerLobbyModel
-  RejectInvitationClicked
-  (Invited me users user CollectingUserRSVP) =
-    Invited me users user WaitingForRejectionAck <# do
-      Miso.send RejectInvitation
-      return NoOp
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage IncomingInvitationRejectionAck)
-  (Invited me users _ WaitingForRejectionAck) =
-    noEff $ DisplayingUserList Nothing me users
-updateMultiPlayerLobbyModel
-  AcceptInvitationClicked
-  (Invited me users user CollectingUserRSVP) =
-    Invited me users user WaitingForAcceptanceAck <# do
-      Miso.send AcceptInvitation
-      return NoOp
-updateMultiPlayerLobbyModel
-  (LobbyServerMessage IncomingInvitationAcceptanceAck)
-  (Invited me _ user WaitingForAcceptanceAck) =
-    noEff $ GameStarted me user
-updateMultiPlayerLobbyModel _ m =
-  noEff m
 
 -- | Function courtesy of @dmjio! Input type should be 'Int'. 'Nat' might
 -- be too small (see 'tenthToSecs').
@@ -535,36 +414,6 @@ updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, sha
       updateModel
         (GameAction' $ Move.Sched $ Move.Play $ eventMaker pSpot)
         (Model.Game' gm)
--- Actions that leave 'SinglePlayerView'
-updateModel
-  SinglePlayerBack
-  (SinglePlayerLobbyModel' SinglePlayerLobbyModel {..}) =
-    noEff $ Model.Welcome' $ initialWelcomeModel singlePlayerLobbyShared
-updateModel
-  SinglePlayerGo
-  ( SinglePlayerLobbyModel'
-      SinglePlayerLobbyModel
-        { singlePlayerLobbyTeam = Just team,
-          singlePlayerLobbyShared = shared
-        }
-    ) =
-    noEff $ Model.Game' $ Model.mkInitialGame shared'' Constants.Hard mempty undefined (Just (Campaign.mkJourney team)) (Board.Teams (enemyTeam, enemyDeck) (team, teamDeck))
-    where
-      enemyTeam = Undead
-      getInitialDeck shared team = Shared.getInitialDeck shared team & Random.shuffle shared
-      (enemyDeck, shared') = getInitialDeck shared enemyTeam
-      (teamDeck, shared'') = getInitialDeck shared' team
--- Actions that leave 'WelcomeView'
-updateModel
-  (WelcomeGo SinglePlayerDestination)
-  (Model.Welcome' Model.Welcome {shared}) =
-    noEff $ SinglePlayerLobbyModel' $ SinglePlayerLobbyModel Nothing shared
-updateModel (WelcomeGo MultiPlayerDestination) (Model.Welcome' _) =
-  effectSub (MultiPlayerLobbyModel' (CollectingUserName "")) $
-    websocketSub (URL "ws://127.0.0.1:9160") (Protocols []) handleWebSocket
-  where
-    handleWebSocket (WebSocketMessage action) = MultiPlayerLobbyAction' (LobbyServerMessage action)
-    handleWebSocket problem = traceShow problem NoOp
 -- Action regarding Model.World and WorldView
 updateModel (LootFrom model) _ =
   noEff $ Model.World' model
@@ -573,19 +422,6 @@ updateModel a (m@(Model.World' (w@Model.World {fade}))) =
     (WorldToGame {}, _) -> updateWorldModel a w -- Delegate, bypass FadeOut case
     (_, Constants.FadeOut) -> return m -- Page change pending
     _ -> updateWorldModel a w -- Default: delegate
-updateModel (Keyboard newKeysDown) (Model.Welcome' wm@Model.Welcome {keysDown, sceneModel}) = do
-  newSceneModel <- maybe (return sceneModel) (`updateSceneModel` sceneModel) sceneAction
-  return $ Model.Welcome' wm {keysDown = newKeysDown, sceneModel = newSceneModel}
-  where
-    sceneAction :: Maybe SceneAction
-    sceneAction = asum (map keyCodeToSceneAction (toList (Set.difference newKeysDown keysDown)))
-    keyCodeToSceneAction :: Int -> Maybe SceneAction
-    keyCodeToSceneAction 80 = Just PauseOrResumeSceneForDebugging -- P key
-    keyCodeToSceneAction _ = Nothing
--- Actions that do not change the page delegate to more specialized versions
-updateModel (SceneAction' action) (Model.Welcome' wm@Model.Welcome {sceneModel}) = do
-  newSceneModel <- updateSceneModel action sceneModel
-  return (Model.Welcome' wm {sceneModel = newSceneModel})
 updateModel (SceneAction' _) model = noEff model
 updateModel (Keyboard _) model = noEff model
 updateModel (KeyboardArrows _) model = noEff model
@@ -596,10 +432,6 @@ updateModel (GameAction' a) (Model.Game' m) =
     Left errMsg -> noEff (Model.Game' (m {interaction = ShowErrorInteraction errMsg}))
 updateModel (LootAction' a) (Model.Loot' m) =
   noEff $ Model.Loot' $ updateLootModel a m
-updateModel (SinglePlayerLobbyAction' a) (SinglePlayerLobbyModel' m) =
-  noEff $ SinglePlayerLobbyModel' $ updateSinglePlayerLobbyModel a m
-updateModel (MultiPlayerLobbyAction' a) (MultiPlayerLobbyModel' m) =
-  MultiPlayerLobbyModel' `fmap` updateMultiPlayerLobbyModel a m
 updateModel a m =
   error $
     LazyText.unpack $

@@ -104,13 +104,10 @@ executable app
     GameView
     GameViewInternal
     LootView
-    MultiPlayerLobbyView
     PCWViewInternal
-    SinglePlayerLobbyView
     View
     ViewBlocks
     ViewInternal
-    WelcomeView
     WorldView
   if !impl(ghcjs)
     build-depends:

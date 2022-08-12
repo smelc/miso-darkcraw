@@ -455,8 +455,5 @@ data Model
   = Deck' Model.Deck
   | Game' Model.Game
   | Loot' Model.Loot
-  | SinglePlayerLobbyModel' SinglePlayerLobbyModel
-  | Welcome' Model.Welcome
-  | MultiPlayerLobbyModel' MultiPlayerLobbyModel
   | World' Model.World
   deriving (Eq, Generic, Show)

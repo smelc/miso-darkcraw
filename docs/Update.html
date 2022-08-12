@@ -31,26 +31,6 @@
 </div>
 <div id="synopsis"><details id="syn"><summary>Synopsis</summary><ul class="details-toggle" data-details-id="syn">
 <li class="src short">
-<span class="keyword">data</span> <a href="#t:MultiPlayerLobbyAction">MultiPlayerLobbyAction</a><ul class="subs">
-<li>= <a href="#v:LobbyUpdateUsername">LobbyUpdateUsername</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
-</li>
-<li>| <a href="#v:LobbySubmitUsername">LobbySubmitUsername</a>
-</li>
-<li>| <a href="#v:LobbyInviteUser">LobbyInviteUser</a> <a href="ServerMessages.html#t:UserName" title="ServerMessages">UserName</a>
-</li>
-<li>| <a href="#v:CancelInvitationClicked">CancelInvitationClicked</a>
-</li>
-<li>| <a href="#v:AcceptInvitationClicked">AcceptInvitationClicked</a>
-</li>
-<li>| <a href="#v:RejectInvitationClicked">RejectInvitationClicked</a>
-</li>
-<li>| <a href="#v:LobbyServerMessage">LobbyServerMessage</a> <a href="ServerMessages.html#t:OutMessage" title="ServerMessages">OutMessage</a>
-</li>
-</ul>
-</li>
-<li class="src short">
-<span class="keyword">data</span> <a href="#t:SinglePlayerLobbyAction">SinglePlayerLobbyAction</a> = <a href="#v:LobbySelectTeam">LobbySelectTeam</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>)</li>
-<li class="src short">
 <span class="keyword">data</span> <a href="#t:LootAction">LootAction</a><ul class="subs">
 <li>= <a href="#v:Pick">Pick</a> <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </li>
@@ -84,15 +64,7 @@
 </li>
 <li>| <a href="#v:NoOp">NoOp</a>
 </li>
-<li>| <a href="#v:MultiPlayerLobbyAction-39-">MultiPlayerLobbyAction'</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a>
-</li>
 <li>| <a href="#v:SayHelloWorld">SayHelloWorld</a>
-</li>
-<li>| <a href="#v:SinglePlayerLobbyAction-39-">SinglePlayerLobbyAction'</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a>
-</li>
-<li>| <a href="#v:SinglePlayerBack">SinglePlayerBack</a>
-</li>
-<li>| <a href="#v:SinglePlayerGo">SinglePlayerGo</a>
 </li>
 <li>| <a href="#v:SceneAction-39-">SceneAction'</a> <a href="Update.html#t:SceneAction" title="Update">SceneAction</a>
 </li>
@@ -124,12 +96,6 @@
 <a href="#v:updateLootModel">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a>
 </li>
 <li class="src short">
-<a href="#v:updateSinglePlayerLobbyModel">updateSinglePlayerLobbyModel</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a>
-</li>
-<li class="src short">
-<a href="#v:updateMultiPlayerLobbyModel">updateMultiPlayerLobbyModel</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a>
-</li>
-<li class="src short">
 <a href="#v:delayActions">delayActions</a> :: m -&gt; [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:Action" title="Update">Action</a>)] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> m</li>
 <li class="src short">
 <a href="#v:toSceneModel">toSceneModel</a> :: <a href="Cinema.html#t:Scene" title="Cinema">Scene</a> () -&gt; <a href="Model.html#t:SceneModel" title="Model">SceneModel</a>
@@ -158,109 +124,6 @@
 </ul></details></div>
 <div id="interface">
 <h1>Documentation</h1>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:MultiPlayerLobbyAction" class="def">MultiPlayerLobbyAction</a> <a href="#t:MultiPlayerLobbyAction" class="selflink">#</a></p>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table>
-<tr>
-<td class="src">
-<a id="v:LobbyUpdateUsername" class="def">LobbyUpdateUsername</a> <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-String.html#t:MisoString" title="Miso.String">MisoString</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src"><a id="v:LobbySubmitUsername" class="def">LobbySubmitUsername</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:LobbyInviteUser" class="def">LobbyInviteUser</a> <a href="ServerMessages.html#t:UserName" title="ServerMessages">UserName</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src"><a id="v:CancelInvitationClicked" class="def">CancelInvitationClicked</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src"><a id="v:AcceptInvitationClicked" class="def">AcceptInvitationClicked</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src"><a id="v:RejectInvitationClicked" class="def">RejectInvitationClicked</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:LobbyServerMessage" class="def">LobbyServerMessage</a> <a href="ServerMessages.html#t:OutMessage" title="ServerMessages">OutMessage</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-</table>
-</div>
-<div class="subs instances"><details id="i:MultiPlayerLobbyAction" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:MultiPlayerLobbyAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a></span> <a href="#t:MultiPlayerLobbyAction" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:MultiPlayerLobbyAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:MultiPlayerLobbyAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a></span> <a href="#t:MultiPlayerLobbyAction" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:MultiPlayerLobbyAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-</table></details></div>
-</div>
-<div class="top">
-<p class="src"><span class="keyword">data</span> <a id="t:SinglePlayerLobbyAction" class="def">SinglePlayerLobbyAction</a> <a href="#t:SinglePlayerLobbyAction" class="selflink">#</a></p>
-<div class="subs constructors">
-<p class="caption">Constructors</p>
-<table><tr>
-<td class="src">
-<a id="v:LobbySelectTeam" class="def">LobbySelectTeam</a> (<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Card.html#t:Team" title="Card">Team</a>)</td>
-<td class="doc empty">&nbsp;</td>
-</tr></table>
-</div>
-<div class="subs instances"><details id="i:SinglePlayerLobbyAction" open="open"><summary>Instances</summary><table>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SinglePlayerLobbyAction:Eq:1"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Eq.html#t:Eq" title="Data.Eq">Eq</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a></span> <a href="#t:SinglePlayerLobbyAction" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:SinglePlayerLobbyAction:Eq:1"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:-61--61-">(==)</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-61--61-" class="selflink">#</a></p>
-<p class="src"><a href="#v:-47--61-">(/=)</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:-47--61-" class="selflink">#</a></p>
-</div></details></td></tr>
-<tr>
-<td class="src clearfix">
-<span class="inst-left"><span class="instance details-toggle-control details-toggle" data-details-id="i:id:SinglePlayerLobbyAction:Show:2"></span> <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:Show" title="Text.Show">Show</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a></span> <a href="#t:SinglePlayerLobbyAction" class="selflink">#</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr><td colspan="2"><details id="i:id:SinglePlayerLobbyAction:Show:2"><summary class="hide-when-js-enabled">Instance details</summary><p>Defined in <a href="Update.html">Update</a></p> <div class="subs methods">
-<p class="caption">Methods</p>
-<p class="src"><a href="#v:showsPrec">showsPrec</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a> -&gt; <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showsPrec" class="selflink">#</a></p>
-<p class="src"><a href="#v:show">show</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-String.html#t:String" title="Data.String">String</a> <a href="#v:show" class="selflink">#</a></p>
-<p class="src"><a href="#v:showList">showList</a> :: [<a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a>] -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Text-Show.html#t:ShowS" title="Text.Show">ShowS</a> <a href="#v:showList" class="selflink">#</a></p>
-</div></details></td></tr>
-</table></details></div>
-</div>
 <div class="top">
 <p class="src"><span class="keyword">data</span> <a id="t:LootAction" class="def">LootAction</a> <a href="#t:LootAction" class="selflink">#</a></p>
 <div class="doc"><p>Actions internal to <code>LootView</code></p></div>
@@ -396,27 +259,7 @@
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
-<td class="src">
-<a id="v:MultiPlayerLobbyAction-39-" class="def">MultiPlayerLobbyAction'</a> <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
 <td class="src"><a id="v:SayHelloWorld" class="def">SayHelloWorld</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src">
-<a id="v:SinglePlayerLobbyAction-39-" class="def">SinglePlayerLobbyAction'</a> <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a>
-</td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src"><a id="v:SinglePlayerBack" class="def">SinglePlayerBack</a></td>
-<td class="doc empty">&nbsp;</td>
-</tr>
-<tr>
-<td class="src"><a id="v:SinglePlayerGo" class="def">SinglePlayerGo</a></td>
 <td class="doc empty">&nbsp;</td>
 </tr>
 <tr>
@@ -567,11 +410,6 @@
 <div class="top">
 <p class="src"><a id="v:updateLootModel" class="def">updateLootModel</a> :: <a href="Update.html#t:LootAction" title="Update">LootAction</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a> -&gt; <a href="Model.html#t:Loot" title="Model">Loot</a> <a href="#v:updateLootModel" class="selflink">#</a></p>
 <div class="doc"><p>Update a <code>LootModel</code> according to the input <code><a href="Update.html#t:LootAction" title="Update">LootAction</a></code></p></div>
-</div>
-<div class="top"><p class="src"><a id="v:updateSinglePlayerLobbyModel" class="def">updateSinglePlayerLobbyModel</a> :: <a href="Update.html#t:SinglePlayerLobbyAction" title="Update">SinglePlayerLobbyAction</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> -&gt; <a href="Model.html#t:SinglePlayerLobbyModel" title="Model">SinglePlayerLobbyModel</a> <a href="#v:updateSinglePlayerLobbyModel" class="selflink">#</a></p></div>
-<div class="top">
-<p class="src"><a id="v:updateMultiPlayerLobbyModel" class="def">updateMultiPlayerLobbyModel</a> :: <a href="Update.html#t:MultiPlayerLobbyAction" title="Update">MultiPlayerLobbyAction</a> -&gt; <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> <a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a> <a href="#v:updateMultiPlayerLobbyModel" class="selflink">#</a></p>
-<div class="doc"><p>Updates a <code><a href="Model.html#t:MultiPlayerLobbyModel" title="Model">MultiPlayerLobbyModel</a></code></p></div>
 </div>
 <div class="top">
 <p class="src"><a id="v:delayActions" class="def">delayActions</a> :: m -&gt; [(<a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Int.html#t:Int" title="Data.Int">Int</a>, <a href="Update.html#t:Action" title="Update">Action</a>)] -&gt; <a href="file:///nix/store/shzy82c6879hg0qd3pdg9vb122jzwygz-miso-1.7.1.0-doc/share/doc/miso-1.7.1.0/html/Miso-Effect.html#t:Effect" title="Miso.Effect">Effect</a> <a href="Update.html#t:Action" title="Update">Action</a> m <a href="#v:delayActions" class="selflink">#</a></p>
