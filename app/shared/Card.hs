@@ -342,16 +342,6 @@ toCreature (CreatureCard _ creature) = Just creature
 toCreature (NeutralCard {}) = Nothing
 toCreature (ItemCard {}) = Nothing
 
-toItemObject :: Card p -> Maybe (ItemObject p)
-toItemObject (NeutralCard {}) = Nothing
-toItemObject (CreatureCard {}) = Nothing
-toItemObject (ItemCard _ i) = Just i
-
-toNeutralObject :: Card p -> Maybe (NeutralObject p)
-toNeutralObject (NeutralCard _ n) = Just n
-toNeutralObject (CreatureCard {}) = Nothing
-toNeutralObject (ItemCard {}) = Nothing
-
 -- | The minimal identifier of a card. See 'Shared.Model' to obtain
 -- | a full-fledged card from that.
 data ID
@@ -397,8 +387,7 @@ rawTeamDeck cards t =
         ZKnights -> 1 * King ++ 3 * Knight ++ 1 * Captain ++ 1 * Veteran ++ 1 * Priest ++ 2 * Card.Squire ++ 2 * Card.Trebuchet ++ 1 * Card.Bird
       where
         kindToCreature :: Map.Map CreatureKind (Creature 'Core) =
-          map Card.toCreature cards
-            & catMaybes
+          cards & mapMaybe Card.toCreature
             & filter (\c -> (creatureId c & team) == t)
             & map unlift
             & map ((creatureKind . creatureId) &&& id)
@@ -415,8 +404,8 @@ rawTeamDeck cards t =
         ZKnights -> 1 * Life
       where
         kindToNeutral :: Map.Map Neutral (NeutralObject 'Core) =
-          mapMaybe Card.toNeutralObject cards
-            & map unlift
+          cards
+            & mapMaybe (\case (NeutralCard _ n) -> Just (unlift n); _ -> Nothing)
             & map (\nobj -> (neutral nobj, nobj))
             & Map.fromList
         (*) i k = replicate i $ kindToNeutral !? k
@@ -431,8 +420,12 @@ rawTeamDeck cards t =
         ZKnights -> 1 * CrushingMace ++ 1 * SwordOfMight
       where
         itemToItemObj :: Map.Map Item (ItemObject 'Core) =
-          mapMaybe Card.toItemObject cards
-            & map (\iobj@ItemObject {item} -> (item, Card.unlift iobj))
+          cards
+            & mapMaybe
+              ( \case
+                  (ItemCard _ iobj@ItemObject {item}) -> Just (item, Card.unlift iobj)
+                  _ -> Nothing
+              )
             & Map.fromList
         (*) i k = replicate i $ itemToItemObj !? k
     (!?) m k =
