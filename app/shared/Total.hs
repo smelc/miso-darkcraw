@@ -112,6 +112,11 @@ attack place (c@Creature {Card.attack, creatureId = id, skills, items}) =
         & natLength
         & ((*) Constants.strengthPotAttackBonus)
 
+-- | The amount of @Skill.Bleed@ that a creature has
+bleed :: Creature 'Core -> Nat
+bleed Creature {skills} =
+  foldr (\s acc -> (case s of Skill.Bleed n -> n; _ -> 0) + acc) 0 skills
+
 -- | Whether a creature causes fear
 causesFear :: Creature 'Core -> Bool
 -- We ignore the skill's Boolean, because it's for UI display only
@@ -141,3 +146,7 @@ isDisciplined Creature {items, skills} =
 
 isPowerful :: Creature 'Core -> Bool
 isPowerful Creature {items, skills} = hasPowerful skills items
+
+-- | The amount of bleed that a creature causes or @0@ if it doesn't cause bleeding
+bleedCaused :: Creature 'Core -> Nat
+bleedCaused Creature {items} = items & filter ((==) Card.SwordOfBlood) & Nat.natLength

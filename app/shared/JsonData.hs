@@ -76,6 +76,7 @@ jsonData = "{\n\
          \    { \"name\":\"flailofthedamned\", \"title\":\"Flail of the Damned\", \"text\":\"Each kill creates a skeleton\", \"title_sz_offset\":-2, \"text_sz_offset\":-2 },\n\
          \    { \"name\":\"skbanner\",         \"title\":\"Bones Banner\",        \"text\":\"All allies skeletons have +1:crossed_swords:\", \"title_sz_offset\":-2 },\n\
          \    { \"name\":\"spikymace\",        \"title\":\"Spiky Mace\",          \"text\":\"Gives the sadism skill\" },\n\
+         \    { \"name\":\"swordofblood\",     \"title\":\"Sword of Blood\",      \"text\":\"Inflicts Bleed 1\", \"tile\":\"SwordOfBlood\" },\n\
          \    { \"name\":\"swordofmight\",     \"title\":\"Sword of Might\",      \"text\":\"+1 :heart:  +1:crossed_swords:\", \"tile\":\"Sword2\" }\n\
          \  ],\n\
          \  \"tiles\": [\n\
@@ -97,6 +98,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Blood1\",        \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":7 } },\n\
          \    { \"tile\":\"Blood2\",        \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":7 } },\n\
          \    { \"tile\":\"Blood3\",        \"filepath\": { \"root\": \"24x24\", \"x\":3, \"y\":7 } },\n\
+         \    { \"tile\":\"BloodDrop\",     \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":4 } },\n\
          \    { \"tile\":\"Bones0\",        \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":8 } },\n\
          \    { \"tile\":\"Bones1\",        \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":8 } },\n\
          \    { \"tile\":\"Bones2\",        \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":8 } },\n\
@@ -141,6 +143,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Sword1\",        \"filepath\": { \"root\": \"16x16\", \"x\":1, \"y\":0 } },\n\
          \    { \"tile\":\"Sword2\",        \"filepath\": { \"root\": \"16x16\", \"x\":3, \"y\":1 } },\n\
          \    { \"tile\":\"Sword3\",        \"filepath\": { \"root\": \"16x16\", \"x\":5, \"y\":1 } },\n\
+         \    { \"tile\":\"SwordOfBlood\",  \"filepath\": { \"root\": \"16x16\", \"x\":2, \"y\":4 } },\n\
          \    { \"tile\":\"SylvanArcher\",  \"filepath\": { \"root\": \"24x24\", \"x\":7, \"y\":12 } },\n\
          \    { \"tile\":\"SylvanFalcon\",  \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":12 } },\n\
          \    { \"tile\":\"SylvanGuardian\", \"filepath\": { \"root\": \"24x24\", \"x\":9, \"y\":12 } },\n\
@@ -176,6 +179,7 @@ jsonData = "{\n\
          \  \"skills\": [\n\
          \    { \"skill\":\"Ace\",         \"title\":\"Ace\",        \"text\":\"Hits any enemy\"},\n\
          \    { \"skill\":\"Assassin\",    \"title\":\"Assassin\",   \"text\":\"At beginning of turn, move in contact with most potent ennemy (if possible)\"},\n\
+         \    { \"skill\":\"Bleed\",       \"title\":\"Bleed\",      \"text\":\"Lose hitpoints at turn beginning\"},\n\
          \    { \"skill\":\"Block\",       \"title\":\"Block\",      \"text\":\"Ignores first attack\"},\n\
          \    { \"skill\":\"Blow\",        \"title\":\"Blow\",       \"text\":\"+2 :crossed_swords: during first turn\"},\n\
          \    { \"skill\":\"Brainless\",   \"title\":\"Brainless\",  \"text\":\"Moves to a random empty spot at beginning of turn. Immune to fear and terror.\"},\n\

@@ -196,9 +196,13 @@ data Place
 toSpot :: Place -> Spots.Player
 toSpot = \case Place pSpot _ _ -> pSpot; Place' pSpot _ _ -> pSpot
 
+-- | If you add an event that triggers automatically, you should likely
+-- extend 'Move.mkEvents'
 data Event
   = -- | Apply assassins of the creatures at the given 'Spots.Player'
     ApplyAssassins Spots.Player
+  | -- | Apply bleed on the creatures at the given 'Spots.Player'
+    ApplyBleed Spots.Player
   | -- | Apply brainless of the creatures at the given 'Spots.Player'
     ApplyBrainless Spots.Player
   | -- | Apply church of the creatures at the given 'Spots.Player'
@@ -477,6 +481,9 @@ tryPlayM p@Playable {board, turn, event} =
     ApplyAssassins pSpot -> do
       board' <- Game.applyAssassinsM board pSpot
       return $ pure $ (board', Nothing)
+    ApplyBleed pSpot -> do
+      board' <- Game.applyBleedM board pSpot
+      return $ pure $ (board', Nothing)
     ApplyBrainless pSpot -> do
       board' <- Game.applyBrainlessM board pSpot
       return $ pure $ (board', Nothing)
@@ -567,6 +574,8 @@ eventToAnim shared board =
           if Map.size assassins == 1
             then "The assassin closes in on its target"
             else "Assassins close in on their targets"
+    Game.ApplyBleed _pSpot ->
+      pure $ Message [Text "Great is the weapon that cuts on its own"] duration
     Game.ApplyBrainless pSpot ->
       pure $ Message [Text msg] duration
       where
@@ -1163,6 +1172,44 @@ applyAssassinM board pSpot (cSpot, creature) =
     liftMaybe = \case (_, Nothing) -> Nothing; (x, Just y) -> Just (x, y)
     eval Creature {attack, hp} = Damage.mean attack + hp
 
+applyBleedM ::
+  MonadWriter (Board.T 'UI) m =>
+  MonadState Shared.Model m =>
+  -- | The input board
+  Board.T 'Core ->
+  -- | The part where blood takes effect
+  Spots.Player ->
+  m (Board.T 'Core)
+applyBleedM board pSpot =
+  foldM (\b pair -> applyBleedM' b pSpot pair) board bleeders
+  where
+    inPlace :: Map.Map Spots.Card (Creature 'Core) = Board.toInPlace board pSpot
+    hasBleed Creature {skills} = any (\case Skill.Bleed _ -> True; _ -> False) skills
+    bleeders :: [(Spots.Card, Creature 'Core)] =
+      Map.filter hasBleed inPlace & Map.toList
+
+applyBleedM' ::
+  MonadWriter (Board.T 'UI) m =>
+  -- | The input board
+  Board.T 'Core ->
+  -- | The part where blood takes effect
+  Spots.Player ->
+  -- | The concerned creature that bleeds. It is at @board[pSpot]@.
+  (Spots.Card, Creature 'Core) ->
+  m (Board.T 'Core)
+applyBleedM' board pSpot (cSpot, c@Creature {hp}) = do
+  reportEffect pSpot cSpot effect
+  return $ Board.update @(Creature 'Core) pSpot cSpot (applyEffect effect) board
+  where
+    bleedAmount = Total.bleed c
+    dead :: Bool = hp < bleedAmount
+    effect :: Effect.T =
+      mempty
+        { Effect.hitPointsChange = -(Nat.natToInt bleedAmount),
+          Effect.death = if dead then Effect.DeathByBleed else Effect.NoDeath,
+          Effect.fadeOut = [Tile.BloodDrop]
+        }
+
 applyBrainlessM ::
   MonadWriter (Board.T 'UI) m =>
   MonadState Shared.Model m =>
@@ -1454,7 +1501,7 @@ attack board pSpot cSpot =
           case occupiedSlots of
             Nothing -> return board -- Nothing to attack. XXX @smelc record question mark animation
             Just (attackedSpot, attacked) -> do
-              attackOneSpot board (hitter, pSpot, cSpot) (attacked, attackedSpot)
+              attackOneSpot board (hitter, pSpot, cSpot) (attacked, attackeePSpot, attackedSpot)
         Imprecise -> do
           -- Attacker has the Imprecise skill. Attack a spot at random.
           -- Never contribute to score.
@@ -1468,7 +1515,7 @@ attack board pSpot cSpot =
               pure board -- No change
             Just attacked ->
               -- Imprecise creature attacks an occupied spot
-              attackOneSpot board (hitter, pSpot, cSpot) (attacked, attackedSpot)
+              attackOneSpot board (hitter, pSpot, cSpot) (attacked, attackeePSpot, attackedSpot)
         Spots [] -> do
           -- Cannot attack: attack is 0 or fighter is in the back. XXX @smelc record an animation?
           return board
@@ -1485,7 +1532,9 @@ attack board pSpot cSpot =
             else do
               -- or something to attack; attack it
               foldM
-                (\b attackee -> attackOneSpot b (hitter, pSpot, cSpot) attackee)
+                ( \b attackee ->
+                    attackOneSpot b (hitter, pSpot, cSpot) (sneak attackeePSpot attackee)
+                )
                 board
                 attackedCreatures
   where
@@ -1510,6 +1559,10 @@ attack board pSpot cSpot =
         & (if Skill.BreathIce `elem` attackerSkills then id else take 1)
         & map swap
 
+-- | A helper
+sneak :: b -> (a, c) -> (a, b, c)
+sneak b (a, c) = (a, b, c)
+
 -- | @attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot)@
 -- returns the board after having @hitter@ (at @(pSpot, cSpot)@) attacked
 -- @hit@ at @hitSpot@.
@@ -1520,13 +1573,14 @@ attackOneSpot ::
   -- | The attacker (the hitter)
   (Creature 'Core, Spots.Player, Spots.Card) ->
   -- | The hittee
-  (Creature 'Core, Spots.Card) ->
+  (Creature 'Core, Spots.Player, Spots.Card) ->
   m (Board.T 'Core)
-attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
+attackOneSpot board (hitter, pSpot, cSpot) (hit, hitPSpot, hitSpot) = do
   (flyingSpot, effect@Effect.T {death, extra}) <-
     singleAttack (place, hitter) (hitPlace, hit) & runWriterT
   board <-
     applyEffectOnBoard effect board pSpot (hitPspot, hitSpot, hit)
+      <&> updateBleedFun -- Bleed applies to flying creatures, because it's first here
       <&> moveFlyerFun flyingSpot
   reportEffect pSpot cSpot $ mempty {Effect.attackBump = True} -- make hitter bump
   for_ flyingSpot (\flyingSpot -> reportEffect hitPspot flyingSpot flyingToEffect) -- fly to spot effect
@@ -1545,7 +1599,7 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
     Just behind | 0 < extra && Total.hasRampage hitter -> do
       -- Rampage applies
       let hitter' = hitter {Card.attack = Damage.const extra}
-      attackOneSpot board (hitter', pSpot, cSpot) behind -- Note that,
+      attackOneSpot board (hitter', pSpot, cSpot) (sneak hitPSpot behind) -- Note that,
       -- because we recurse, the rampage attack can trigger powerful!
     _ -> do
       -- Rampage doesn't apply, powerful may
@@ -1558,6 +1612,19 @@ attackOneSpot board (hitter, pSpot, cSpot) (hit, hitSpot) = do
       | extra == 0 = id
       | Total.isPowerful hitter = Board.mappk @'Board.Score ((+) extra) pSpot
       | otherwise = id
+    updateBleedFun =
+      case Total.bleedCaused hitter of
+        0 -> id
+        i -> Board.adjust @(Creature 'Core) hitPSpot hitSpot (addToBleed i)
+    addToBleed i c@Creature {skills}
+      | i == 0 = c
+      | otherwise = c {skills = addBleedToSkills skills}
+      where
+        addBleedToSkills =
+          \case
+            [] -> [Skill.Bleed i] -- There was no bleed so far
+            (Skill.Bleed j : rest) -> Skill.Bleed (i + j) : rest -- There was some bleeding already
+            x : rest -> x : addBleedToSkills rest
     moveFlyerFun = \case
       Nothing -> id
       Just flyingSpot -> Mechanics.move (Mechanics.mkEndoMove hitPspot hitSpot flyingSpot)
@@ -1673,7 +1740,9 @@ applyFlailOfTheDamned creature pSpot board =
 type AtPlace = (Total.Place, Creature 'Core)
 
 -- | The effect of an attack on the defender. Note that this function
--- cannot return a 'StatChange'. It needs the full expressivity of 'Effect.T'.
+-- cannot return a 'StatChange'. It needs the full expressivity of 'Effect.T'
+-- which is returned via @MonadWriter@. The returned spot indicates the
+-- place where the defender flies to.
 singleAttack ::
   MonadWriter Effect.T m =>
   MonadState Shared.Model m =>
@@ -1735,15 +1804,6 @@ allyBlockerSpot TopLeft = Just BottomLeft
 allyBlockerSpot Top = Just Bottom
 allyBlockerSpot TopRight = Just BottomRight
 allyBlockerSpot _ = Nothing
-
--- | The other spot in the column in the spot's part
--- otherYSpot :: Spots.Card -> Spots.Card
--- otherYSpot TopLeft = BottomLeft
--- otherYSpot Top = Bottom
--- otherYSpot TopRight = BottomRight
--- otherYSpot BottomLeft = TopLeft
--- otherYSpot Bottom = Top
--- otherYSpot BottomRight = TopRight
 
 -- | Spots that can be attacked from a spot. Spot as argument is
 -- in one player part while spots returned are in the other player part.

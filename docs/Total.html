@@ -62,6 +62,9 @@
 <a href="#v:attack">attack</a> :: <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/GHC-Maybe.html#t:Maybe" title="GHC.Maybe">Maybe</a> <a href="Total.html#t:Place" title="Total">Place</a> -&gt; <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Damage.html#t:Damage" title="Damage">Damage</a>
 </li>
 <li class="src short">
+<a href="#v:bleed">bleed</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
+</li>
+<li class="src short">
 <a href="#v:causesFear">causesFear</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
 </li>
 <li class="src short">
@@ -81,6 +84,9 @@
 </li>
 <li class="src short">
 <a href="#v:isPowerful">isPowerful</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a>
+</li>
+<li class="src short">
+<a href="#v:bleedCaused">bleedCaused</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a>
 </li>
 </ul></details></div>
 <div id="interface">
@@ -132,6 +138,10 @@
  The <code><a href="Total.html#t:Place" title="Total">Place</a></code> indicates where the given creature is.</p></div>
 </div>
 <div class="top">
+<p class="src"><a id="v:bleed" class="def">bleed</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:bleed" class="selflink">#</a></p>
+<div class="doc"><p>The amount of <code>Skill.Bleed</code> that a creature has</p></div>
+</div>
+<div class="top">
 <p class="src"><a id="v:causesFear" class="def">causesFear</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:causesFear" class="selflink">#</a></p>
 <div class="doc"><p>Whether a creature causes fear</p></div>
 </div>
@@ -147,6 +157,10 @@
 <div class="doc"><p>Whether a creature has discipline</p></div>
 </div>
 <div class="top"><p class="src"><a id="v:isPowerful" class="def">isPowerful</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="file:///nix/store/xhmlg19v5kpnn0zz08zi6yxvcj0k0wmq-ghc-8.6.5-doc/share/doc/ghc/html/libraries/base-4.12.0.0/Data-Bool.html#t:Bool" title="Data.Bool">Bool</a> <a href="#v:isPowerful" class="selflink">#</a></p></div>
+<div class="top">
+<p class="src"><a id="v:bleedCaused" class="def">bleedCaused</a> :: <a href="Card.html#t:Creature" title="Card">Creature</a> <a href="Card.html#v:Core" title="Card">Core</a> -&gt; <a href="Nat.html#t:Nat" title="Nat">Nat</a> <a href="#v:bleedCaused" class="selflink">#</a></p>
+<div class="doc"><p>The amount of bleed that a creature causes or <code>0</code> if it doesn't cause bleeding</p></div>
+</div>
 </div>
 </div>
 <div id="footer"><p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.22.0</p></div>

@@ -369,4 +369,5 @@ itemToPrefClass =
     FlailOfTheDamned -> Just [FrontFighter]
     SkBanner -> Just [Support, Shooter]
     SpikyMace -> Just [FrontFighter]
+    SwordOfBlood -> Just [FrontFighter]
     SwordOfMight -> Just [FrontFighter]

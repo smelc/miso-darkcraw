@@ -84,6 +84,7 @@ instance FromJSON Skill where
         \case
           "Ace" -> return Skill.Ace
           "Assassin" -> return Skill.Assassin
+          "Bleed" -> return $ Skill.Bleed ()
           "Block" -> return $ Skill.Block ()
           "Blow" -> return $ Skill.Blow ()
           "Brainless" -> return Skill.Brainless

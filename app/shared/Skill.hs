@@ -12,10 +12,12 @@ import Nat
 -- | The type of skills. Highly polymorphic, because we use
 -- two different instances. Callers should only use
 -- the concrete instances 'Skill' and 'State'.
-data T block blow drawCard fame fear green growth regen slow source stupid terror
+data T bleed block blow drawCard fame fear green growth regen slow source stupid terror
   = Ace
   | -- | At turn start, moves against ponent ennemy
     Assassin
+  | -- | Lose hitpoints at turn start
+    Bleed bleed
   | -- | Ignores first attack. Boolean indidcates whether skill is available.
     Block block
   | Blow blow
@@ -82,6 +84,7 @@ data T block blow drawCard fame fear green growth regen slow source stupid terro
 
 type Skill =
   T
+    () -- bleed
     () -- block
     () -- blow
     () -- drawCard
@@ -97,6 +100,7 @@ type Skill =
 
 type State =
   T
+    Nat -- bleed amount
     Bool -- block, whether the skill is available (True) or used already (False)
     Bool -- blow, whether the skill is available (True) or used already (False)
     Bool -- drawCard
@@ -129,6 +133,7 @@ lift skill =
   case skill of
     Ace -> Ace
     Assassin -> Assassin
+    Bleed _n -> Bleed ()
     Block {} -> Block ()
     Blow {} -> Blow ()
     Brainless -> Brainless
@@ -173,6 +178,7 @@ unlift skill =
   case skill of
     Ace -> Ace
     Assassin -> Assassin
+    Bleed () -> Bleed 0
     Block {} -> Block True
     Blow {} -> Blow True
     Brainless -> Brainless

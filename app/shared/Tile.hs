@@ -53,6 +53,7 @@ data Tile
   | Blood1
   | Blood2
   | Blood3
+  | BloodDrop
   | Bones0
   | Bones1
   | Bones2
@@ -106,6 +107,7 @@ data Tile
   | SylvanSpearwoman
   | SylvanRanger
   | SylvanWorm
+  | SwordOfBlood
   | Trebuchet
   | Tree
   | Troll

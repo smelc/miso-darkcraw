@@ -493,6 +493,7 @@ fadeouts shared z Effect.T {death, fadeOut} = do
       ]
     deadAsset :: Maybe MisoString =
       case death of
+        Effect.DeathByBleed -> Nothing -- Handled with Effect.fadeOut
         Effect.DeathByBreathIce -> Just assetFilenameSnowflake
         Effect.DeathByTerror -> Just assetFilenameShade
         Effect.DeathByFear -> Just assetFilenameGhost

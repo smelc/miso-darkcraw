@@ -12,10 +12,12 @@ import qualified Spots
 import qualified Tile
 
 -- | Animations recorded upon death. If you are looking for the same
--- thing in the more general case of the creature not dying, loot at
--- 'fadeOut'.
+-- thing in the more general case of the creature not dying, look at
+-- 'fadeOut'. TODO @smelc remove me, superseded by @fadeOut@ in @T@.
 data DeathCause
-  = -- | Creature was killed by fear
+  = -- | Creature was killed by bleeding
+    DeathByBleed
+  | -- | Creature was killed by fear
     DeathByFear
   | -- | Creature killed by 'BreathIce' attack
     DeathByBreathIce
@@ -39,6 +41,8 @@ instance Semigroup DeathCause where
   _ <> DeathByFear = DeathByFear
   DeathByBreathIce <> _ = DeathByBreathIce
   _ <> DeathByBreathIce = DeathByBreathIce
+  DeathByBleed <> _ = DeathByBleed
+  _ <> DeathByBleed = DeathByBleed
   UsualDeath <> _ = UsualDeath
   NoDeath <> d = d
 

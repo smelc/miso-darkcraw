@@ -107,7 +107,7 @@ rewards =
       ),
       ( Undead,
         [ Rewards 1 [mkIDC Undead Card.Necromancer, Card.IDI Card.SkBanner],
-          Rewards 1 [mkIDC Undead Card.Specter]
+          Rewards 1 [mkIDC Undead Card.Specter, Card.IDI Card.SwordOfBlood]
         ]
       )
     ]

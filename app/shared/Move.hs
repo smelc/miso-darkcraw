@@ -350,6 +350,7 @@ data EventsKind
 preTurnEvents :: Spots.Player -> [Game.Event]
 preTurnEvents pSpot =
   [ Game.ApplyFearNTerror $ Spots.other pSpot,
+    Game.ApplyBleed pSpot,
     Game.ApplyAssassins pSpot,
     Game.ApplyBrainless pSpot,
     Game.FillTheFrontline pSpot,

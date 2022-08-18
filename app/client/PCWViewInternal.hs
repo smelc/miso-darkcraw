@@ -381,6 +381,7 @@ skillDiv shared skill =
         & (\case Nothing -> mempty; Just color -> "color" =: color)
     label =
       case skill of
+        Skill.Bleed i -> title ++ " " ++ show i
         Skill.Stupid4 i -> title ++ " " ++ show (i + 1) ++ "/4"
         _ -> title
     hover = title_ $ ms $ typeset text

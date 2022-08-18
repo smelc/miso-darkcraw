@@ -226,6 +226,7 @@ data Item
   | FlailOfTheDamned
   | SkBanner
   | SpikyMace
+  | SwordOfBlood
   | SwordOfMight
   deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
@@ -250,6 +251,7 @@ requirement = \case
   FlailOfTheDamned -> NoReq
   SkBanner -> NoReq
   SpikyMace -> NoReq
+  SwordOfBlood -> NoReq
   SwordOfMight -> NoReq
 
 allItems :: [Item]
@@ -412,7 +414,7 @@ rawTeamDeck cards t =
     -- Initial items
     items =
       case t of
-        Beastmen -> []
+        Beastmen -> 1 * SwordOfBlood
         Evil -> 1 * SpikyMace
         Human -> 1 * SwordOfMight
         Sylvan -> 1 * CloakOfGaia
