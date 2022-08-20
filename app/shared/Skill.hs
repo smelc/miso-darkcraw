@@ -75,7 +75,6 @@ data T bleed block blow drawCard fame fear green growth regen slow source stupid
     Sylvan
   | -- | Creature causes terror
     Terror terror
-  | Unique
   | -- | Immune to fear and terror
     Veteran
   | -- | Immune to fear
@@ -167,7 +166,6 @@ lift skill =
     Support -> Support
     Sylvan -> Sylvan
     Terror {} -> Terror ()
-    Unique -> Unique
     Veteran -> Veteran
     Zealot -> Zealot
 
@@ -212,6 +210,5 @@ unlift skill =
     Support -> Support
     Sylvan -> Sylvan
     Terror {} -> Terror True
-    Unique -> Unique
     Veteran -> Veteran
     Zealot -> Zealot

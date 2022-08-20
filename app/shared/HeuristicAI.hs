@@ -318,7 +318,6 @@ scoreSkill s =
     Skill.Stupid4 _ -> if Skill.isStupid s then 2 else 1
     Skill.Support -> -1
     Skill.Terror b -> if b then -2 else 0
-    Skill.Unique -> 0
     Skill.Veteran -> -1
     Skill.Zealot -> -1
     _ -> error $ "unmatched: " ++ show s ++ " but this AI should be unused now"

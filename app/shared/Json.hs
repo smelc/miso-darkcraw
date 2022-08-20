@@ -114,7 +114,6 @@ instance FromJSON Skill where
           "Stupid4" -> return $ Skill.Stupid4 ()
           "Support" -> return Skill.Support
           "Terror" -> return $ Skill.Terror ()
-          "Unique" -> return Skill.Unique
           "Veteran" -> return Skill.Veteran
           "Zealot" -> return Skill.Zealot
           s ->

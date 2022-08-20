@@ -17,7 +17,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"Support\"] },\n\
          \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
          \    { \"id\": { \"name\":\"archer\",    \"team\":\"human\" },  \"title\":\"archer\",    \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanArcher\",    \"skills\":[\"Ranged\"] },\n\
-         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"HumanGeneral\",   \"skills\":[\"Leader 2\", \"Unique\"],  \"mana\":\"3\" },\n\
+         \    { \"id\": { \"name\":\"general\",   \"team\":\"human\" },  \"title\":\"general\",   \"hp\":3, \"attack\":\"3\", \"tile\":\"HumanGeneral\",   \"skills\":[\"Leader 2\"],  \"mana\":\"3\" },\n\
          \    { \"id\": { \"name\":\"knight\",    \"team\":\"human\" },  \"title\":\"Knight\",    \"hp\":2, \"attack\":\"2\", \"tile\":\"HumanKnight\",    \"skills\":[\"Blow\"],    \"mana\":\"2\" },\n\
          \    { \"id\": { \"name\":\"ogre\",      \"team\":\"human\" },  \"title\":\"Ogre\",      \"hp\":5, \"attack\":\"3\", \"tile\":\"Ogre\",           \"skills\":[\"Stupid4\"], \"mana\":\"3\" },\n\
          \    { \"id\": { \"name\":\"skeleton\",  \"team\":\"undead\" }, \"title\":\"skeleton\",  \"hp\":1, \"attack\":\"1\", \"tile\":\"UndeadSkeleton\", \"skills\":[\"Fear\"] },\n\
@@ -215,7 +215,6 @@ jsonData = "{\n\
          \    { \"skill\":\"Support\",     \"title\":\"Support\",    \"text\":\"Hits 2 cells away when in the back line\"},\n\
          \    { \"skill\":\"Sylvan\",      \"title\":\"Sylvan\",     \"text\":\"+1 :heart: and +1 :crossed_swords: when in a forest\"},\n\
          \    { \"skill\":\"Terror\",      \"title\":\"Terror\",     \"text\":\"Nearby opponent with 2 :heart: (or less) dies at beginning of its turn. Immune to to fear and terror.\"},\n\
-         \    { \"skill\":\"Unique\",      \"title\":\"Unique\",     \"text\":\"Never goes back to the stack\"},\n\
          \    { \"skill\":\"Veteran\",     \"title\":\"Veteran\",    \"text\":\"Immune to fear and terror\"},\n\
          \    { \"skill\":\"Zealot\",      \"title\":\"Zealot\",     \"text\":\"Immune to fear\"}\n\
          \  ]\n\
