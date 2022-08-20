@@ -46,7 +46,7 @@
     { "id": { "name":"worm",      "team":"sylvan" }, "title":"Tree",   "hp":4, "attack":"4-1",     "tile":"SylvanWorm",    "skills":["Sylvan", "Powerful", "Rampage"], "mana":"remaining_turns" }
   ],
   "neutrals": [
-    { "name":"infernalhaste", "title":"Haste",  "tile":"SkullRedEyes", "text":"All creatures attack now!"},
+    { "name":"infernalhaste", "title":"Haste",  "tile":"SkullRedEyes", "text":"All creatures attack now!", "mana": 2},
     { "name":"health",        "title":"Health", "tile":"RedPotion",    "text":"Gain +1 :heart:"          },
     { "name":"huntinghorn",   "title":"Hunting Horn", "text":"Creatures in forests cause Fear until next turn", "text_sz_offset":-2, "title_sz_offset":-2},
     { "name":"life",          "title":"Life",   "tile":"GreenPotion",  "text":"Gain +3 :heart:"          },

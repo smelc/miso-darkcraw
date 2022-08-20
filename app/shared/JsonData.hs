@@ -57,7 +57,7 @@ jsonData = "{\n\
          \    { \"id\": { \"name\":\"worm\",      \"team\":\"sylvan\" }, \"title\":\"Tree\",   \"hp\":4, \"attack\":\"4-1\",     \"tile\":\"SylvanWorm\",    \"skills\":[\"Sylvan\", \"Powerful\", \"Rampage\"], \"mana\":\"remaining_turns\" }\n\
          \  ],\n\
          \  \"neutrals\": [\n\
-         \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\"},\n\
+         \    { \"name\":\"infernalhaste\", \"title\":\"Haste\",  \"tile\":\"SkullRedEyes\", \"text\":\"All creatures attack now!\", \"mana\": 2},\n\
          \    { \"name\":\"health\",        \"title\":\"Health\", \"tile\":\"RedPotion\",    \"text\":\"Gain +1 :heart:\"          },\n\
          \    { \"name\":\"huntinghorn\",   \"title\":\"Hunting Horn\", \"text\":\"Creatures in forests cause Fear until next turn\", \"text_sz_offset\":-2, \"title_sz_offset\":-2},\n\
          \    { \"name\":\"life\",          \"title\":\"Life\",   \"tile\":\"GreenPotion\",  \"text\":\"Gain +3 :heart:\"          },\n\
