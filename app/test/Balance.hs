@@ -36,6 +36,7 @@ main shared =
     it "The teams' balance is as expected" $ do
       checkList (start Human) [Undead, Beastmen, Evil] `shouldBe` True
       checkList (start Human) [Undead, Sylvan, ZKnights] `shouldBe` True
+      checkList (start Evil) [Undead, Sylvan, ZKnights] `shouldBe` True
   where
     start team =
       ( team,
