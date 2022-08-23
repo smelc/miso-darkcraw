@@ -26,7 +26,7 @@ balances =
   Map.fromList
     [ ( Human, -- journeys start
         [ [ (Undead, 34, 30, 0),
-            (Beastmen, 63, 1, 0),
+            (Beastmen, 64, 0, 0),
             (Evil, 42, 22, 0)
           ],
           [ (Undead, 34, 30, 0),

@@ -43,6 +43,7 @@ data Tile
   | Bear
   | BeastmenDefender
   | BeastmenMinotaur
+  | BeastmenSpearman
   | Beholder
   | BirdWhite
   | BlackAppears0

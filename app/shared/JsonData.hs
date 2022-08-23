@@ -11,8 +11,9 @@ import Data.Text
 jsonData :: Text
 jsonData = "{\n\
          \  \"creatures\": [\n\
-         \    { \"id\": { \"name\":\"defender\",  \"team\":\"beastmen\" },  \"title\":\"Defender\",    \"hp\":2, \"attack\":\"1-1\", \"tile\":\"BeastmenDefender\", \"mana\":\"2\", \"skills\":[\"Block\"] },\n\
+         \    { \"id\": { \"name\":\"defender\",  \"team\":\"beastmen\" },  \"title\":\"Defender\",    \"hp\":2, \"attack\":\"1-1\", \"tile\":\"BeastmenDefender\", \"mana\":\"2\", \"skills\":[\"Block\", \"LongReach\"] },\n\
          \    { \"id\": { \"name\":\"minotaur\",  \"team\":\"beastmen\" },  \"title\":\"Minotaur\",    \"hp\":4, \"attack\":\"3-1\", \"tile\":\"BeastmenMinotaur\", \"mana\":\"4\", \"skills\":[\"Frenzy\"] },\n\
+         \    { \"id\": { \"name\":\"spearman\",  \"team\":\"beastmen\" },  \"title\":\"Spearman\",    \"hp\":2, \"attack\":\"1-1\", \"tile\":\"BeastmenSpearman\", \"mana\":\"2\", \"skills\":[\"Block\"] },\n\
          \    { \"id\": { \"name\":\"church\",    \"team\":\"human\" },  \"title\":\"Church\",    \"hp\":5, \"attack\":\"0\", \"tile\":\"HumanChurch\",    \"mana\":\"3\", \"text\": \"At each turn, one of: +1 :heart: to all, +1 :crossed_swords: to all, or +1 :droplet:\", \"text_sz_offset\":-2  },\n\
          \    { \"id\": { \"name\":\"spearman\",  \"team\":\"human\" },  \"title\":\"Spearman\",  \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSpearman\",  \"skills\":[\"Discipline\", \"Support\"] },\n\
          \    { \"id\": { \"name\":\"swordsman\", \"team\":\"human\" },  \"title\":\"swordsman\", \"hp\":2, \"attack\":\"1\", \"tile\":\"HumanSwordsman\", \"skills\":[\"Discipline\"] },\n\
@@ -88,6 +89,7 @@ jsonData = "{\n\
          \    { \"tile\":\"Bear\",          \"filepath\": { \"root\": \"24x24\", \"x\":5, \"y\":12 } },\n\
          \    { \"tile\":\"BeastmenDefender\", \"filepath\": { \"root\": \"24x24\", \"x\":2, \"y\":13 } },\n\
          \    { \"tile\":\"BeastmenMinotaur\", \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":13 } },\n\
+         \    { \"tile\":\"BeastmenSpearman\", \"filepath\": { \"root\": \"24x24\", \"x\":1, \"y\":13 } },\n\
          \    { \"tile\":\"Beholder\",      \"filepath\": { \"root\": \"24x24\", \"x\":4, \"y\":10 } },\n\
          \    { \"tile\":\"BirdWhite\",     \"filepath\": { \"root\": \"24x24\", \"x\":6, \"y\":11 } },\n\
          \    { \"tile\":\"BlackAppears0\", \"filepath\": { \"root\": \"24x24\", \"x\":0, \"y\":6 } },\n\

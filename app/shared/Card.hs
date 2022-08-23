@@ -381,7 +381,7 @@ rawTeamDeck cards t =
     -- Initial creatures:
     creatures =
       case t of
-        Beastmen -> 2 * Defender ++ 1 * Minotaur
+        Beastmen -> 2 * Spearman ++ 2 * Defender ++ 1 * Minotaur
         Evil -> 2 * Knight ++ 2 * Spearman ++ 1 * Daemon ++ 1 * Beholder ++ 1 * Abomination ++ 1 * Priest ++ 1 * Assassin
         Human -> 3 * Spearman ++ 2 * Archer ++ 1 * General
         Sylvan -> 3 * Archer ++ 2 * Spearman ++ 2 * Priest ++ 1 * Tree ++ 1 * Falconer

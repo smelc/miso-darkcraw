@@ -290,6 +290,7 @@ instance ToClass Card.CreatureID where
         case kind of
           Defender -> FrontFighter
           Minotaur -> FrontFighter
+          Spearman -> FrontOrBackFighter
           _ -> error $ msg team
       Evil ->
         case kind of
