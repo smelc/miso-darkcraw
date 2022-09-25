@@ -296,12 +296,13 @@ updateWorldModel a w@Model.World {encounters, player, shared, topology} =
                   -- Default
                   return $ lift $ w {moved = True} `Contains.with` position'
         Just _ -> pure $ lift w
-    WorldToGame opponent _themek encounter ->
+    WorldToGame opponent theme encounter ->
       pure $
         Model.Game' $
           Model.mkInitialGame
             shared
             Constants.Hard
+            theme
             past
             encounter
             Nothing
@@ -473,6 +474,7 @@ unsafeInitialGameModel difficulty shared teams board =
     playingPlayer = Spots.startingPlayerSpot
     (team, pDeck) = Board.toData playingPlayer teams & Bifunctor.bimap id (map Card.toIdentifier)
     rewards = Map.lookup team Network.rewards & fromMaybe []
+    theme = Theme.Forest
     turn = Turn.initial
     anims = mempty
     anim = Game.NoAnimation

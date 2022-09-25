@@ -263,11 +263,11 @@ scoreLeaderView pSpot =
     ]
 
 turnView :: Model.Game -> Int -> Styled (View Action)
-turnView model@Model.Game {turn} z = do
+turnView model@Model.Game {theme = themek, turn} z = do
   line3 <- line3M
   return $ div_ [style_ $ turnViewStyle <> textStyle] [line1, line2, line3]
   where
-    theme :: Theme = Theme.kindToTheme Theme.DarkForest
+    theme :: Theme = Theme.kindToTheme themek
     turnViewStyle =
       zprbwh z Absolute 0 0 turnPixelWidth turnPixelHeight
         <> flexColumnStyle

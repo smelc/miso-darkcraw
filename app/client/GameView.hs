@@ -50,7 +50,7 @@ import ViewInternal
 
 -- | Constructs a virtual DOM from a game model
 viewGameModel :: Model.Game -> Styled (View Action)
-viewGameModel model@Model.Game {anim, board, shared, interaction, player} = do
+viewGameModel model@Model.Game {anim, board, theme = themek, shared, interaction, player} = do
   boardDiv <- boardDivM
   handDiv <- handDivM
   let divs = [boardDiv, handDiv] ++ if Configuration.isDev then cmdDiv shared else []
@@ -92,7 +92,7 @@ viewGameModel model@Model.Game {anim, board, shared, interaction, player} = do
         div_ [style_ boardStyle] $
           concat stacks ++ msg ++ [turn] ++ errs ++ scores ++ boardCards ++ decos ++ apps ++ [manaView_]
     loc = GameApplicationLoc (Mana.labeler model)
-    theme :: Theme = Theme.kindToTheme Theme.DarkForest
+    theme :: Theme = Theme.kindToTheme themek
     boardStyle =
       zpltwh z Relative 0 0 boardPixelWidth boardPixelHeight
         <> "background-image" =: assetsUrl (Theme.board theme)

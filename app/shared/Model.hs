@@ -141,6 +141,8 @@ data Game = Game
     player :: Player Team,
     -- | The rewards of the entire campaign
     rewards :: [Network.Rewards],
+    -- | The theme
+    theme :: Theme.Kind,
     -- | The current turn
     turn :: Turn.T,
     -- | Whether interactions are possible right now
@@ -156,6 +158,7 @@ data Game = Game
 mkInitialGame ::
   Shared.Model ->
   Constants.Difficulty ->
+  Theme.Kind ->
   -- | Encounters done already
   Map.Map Direction.Coord Network.Encounter ->
   -- | The location of the current encounter and the encounter itself
@@ -164,7 +167,7 @@ mkInitialGame ::
   -- | The teams
   Board.Teams (Team, [Card 'Core]) ->
   Model.Game
-mkInitialGame shared difficulty past (position, encounter) journey teams =
+mkInitialGame shared difficulty theme past (position, encounter) journey teams =
   Model.Game {..}
   where
     (_, board) = Board.initial shared teams
@@ -276,6 +279,7 @@ unsafeGameModel Model.Welcome {shared} =
     (team, opponent) = (Human, Undead)
     teams = Board.Teams opponent team
     teams' = teams <&> (\t -> (t, Shared.getInitialDeck shared t))
+    theme = Theme.Forest
     turn = Turn.initial
     difficulty = Constants.Easy
     interaction = NoInteraction

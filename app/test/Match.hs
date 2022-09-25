@@ -99,7 +99,7 @@ mkTestGame ::
   Board.Teams (Team, [Card.Card 'Core]) ->
   Model.Game
 mkTestGame shared difficulty teams =
-  Model.mkInitialGame shared difficulty mempty encounter Nothing teams
+  Model.mkInitialGame shared difficulty Theme.Forest mempty encounter Nothing teams
   where
     (opponent, _) = Board.toData (Spots.other Spots.startingPlayerSpot) teams
     encounter = (Direction.Coord (0, 0), Network.Fight opponent Theme.Forest)
