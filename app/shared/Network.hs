@@ -178,9 +178,9 @@ fightSpots :: Map.Map Card.Team [(Direction.Coord, Theme.Kind)]
 fightSpots =
   Map.map (map (Bifunctor.first Direction.Coord)) $
     Map.fromList $
-      [ (Beastmen, [((20, 28), Theme.DarkForest)]),
-        (Evil, [((18, 24), Theme.Forest)]),
-        (Sylvan, [((30, 38), Theme.Forest)]),
-        (Undead, [((24, 35), Theme.DarkForest)]),
+      [ (Evil, [((20, 28), Theme.DarkForest)]),
+        (Undead, [((18, 24), Theme.MossDungeon)]),
+        (Sylvan, [((30, 38), Theme.DarkForest)]),
+        (Undead, [((24, 35), Theme.Forest)]),
         (ZKnights, [((30, 25), Theme.Forest)])
       ]

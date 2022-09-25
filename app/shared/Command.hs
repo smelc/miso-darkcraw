@@ -32,6 +32,9 @@ data Command
     Assassins Spots.Player
   | -- | Command to trigger the 'create forest' event
     CreateForest Spots.Player
+  | -- | Command to end the entire game. Parameter indicates if
+    -- the playing player won (@True) or lost (@False@)
+    EndCampaign Bool
   | -- | Command to end the current game. Parameter indicates how
     -- the playing player performed.
     EndGame Campaign.Outcome
@@ -59,6 +62,7 @@ allCommands cids =
     ++ [Gimme $ Card.IDI item | item <- sortOn show allItems]
     ++ [Gimme $ Card.IDN neutral | neutral <- sortOn show allNeutrals]
     ++ [AIPlay pSpot | pSpot <- [minBound ..]]
+    ++ [EndCampaign b | b <- [True, False]]
     ++ [EndGame r | r <- [minBound ..]]
     ++ [ e pSpot
          | e <- [Assassins, CreateForest, FillTheFrontline, Growth, HailToTheKing, Killall],
@@ -80,6 +84,7 @@ instance Show Command where
       (AIPlay pSpot) -> "aiplay " ++ show pSpot
       (Assassins pSpot) -> "assassins " ++ show pSpot
       (CreateForest pSpot) -> "create forest " ++ show pSpot
+      (EndCampaign b) -> case b of True -> "win wholegame"; False -> "lose wholegame"
       (EndGame r) ->
         ( case r of
             Campaign.Win -> "win"

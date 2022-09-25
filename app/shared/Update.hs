@@ -77,6 +77,8 @@ data Action
     DeckBack
   | -- | Leave a view, go to 'DeckView'
     DeckGo DeckViewInput
+  | -- | Go to end view
+    EndGo Model.End
   | GameAction' Move
   | -- | Actions internal to 'LootView'
     LootAction' LootAction
@@ -349,10 +351,11 @@ updateModel (DeckGo deck) m@(Model.Game' Model.Game {..}) =
 -- Go to 'LootView'
 updateModel (LootGo model) _ =
   noEff $ Model.Loot' model
--- Schedule leaving 'GameView', to go to 'LootView'
+-- Schedule leaving 'GameView', go to 'LootView' or end view.
 updateModel _ _m@(Model.Game' gm@Model.Game {board, player, turn})
   | (Turn.next turn & Turn.toNat) > Constants.nbTurns =
-      delayActions m' [(toSecs 1, LootGo $ Model.gameToLoot gm outcome)]
+      let action = case Model.gameToLoot gm outcome of Left end -> EndGo end; Right loot -> LootGo loot
+       in delayActions m' [(toSecs 1, action)]
   where
     m' = Model.Game' gm {anim = Game.Fadeout}
     Model.Player {pSpot = playingPlayer} = player
@@ -383,8 +386,12 @@ updateModel (GameAction' Move.ExecuteCmd) (Model.Game' gm@Model.Game {board, sha
               playEvent Game.ApplyAssassins pSpot
             Just (Command.CreateForest pSpot) ->
               playEvent Game.ApplyCreateForest pSpot
+            Just (Command.EndCampaign win) ->
+              noEff $ Model.End' $ Model.End {win}
             Just (Command.EndGame outcome) ->
-              noEff $ Model.Loot' $ Model.gameToLoot gm outcome
+              noEff $ case Model.gameToLoot gm outcome of
+                Left end -> Model.End' end
+                Right loot -> Model.Loot' loot
             Just (Command.FillTheFrontline pSpot) ->
               playEvent Game.FillTheFrontline pSpot
             Just (Command.Gimme cid) ->

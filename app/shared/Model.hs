@@ -225,14 +225,18 @@ gameToDeck Game {..} =
     Board.PlayerPart {..} = Board.toPart board pSpot
     inPlace' = inPlace & Map.elems & map (\Creature {creatureId, items} -> IDC creatureId items)
 
-gameToLoot :: Model.Game -> Campaign.Outcome -> Model.Loot
+gameToLoot :: Model.Game -> Campaign.Outcome -> Either Model.End Model.Loot
 gameToLoot Game {encounter = gameEncounter, player, rewards, shared} _outcome =
-  Model.Loot {player = player', rewards = loot, ..}
+  case Network.lootNextToFight position of
+    Just position ->
+      Right $
+        Model.Loot
+          { player = player {past = past', position},
+            rewards = loot,
+            ..
+          }
+    Nothing -> Left $ Model.End {Model.win = True}
   where
-    lootPosition =
-      case Network.lootNextToFight position of
-        Nothing -> error $ "No loot next to fight: " ++ show position
-        Just x -> x
     fade = Constants.FadeIn
     (nbRewards, loot) =
       case rewards of
@@ -240,7 +244,6 @@ gameToLoot Game {encounter = gameEncounter, player, rewards, shared} _outcome =
         Network.Rewards x rs : _ -> (x, zip rs (repeat Model.NotPicked))
     Model.Player {past, position} = player
     past' = uncurry Map.insert (position, gameEncounter) past
-    player' = player {past = past', position = lootPosition}
 
 -- | Function for debugging only. Used to
 -- make the game start directly on the 'LootView'.
@@ -448,11 +451,19 @@ data Loot = Loot
   }
   deriving (Eq, Generic, Show)
 
+-- | Model when the game ends
+data End = End
+  { -- | Whether it's a win (@True@) or a loss (@False@)
+    win :: Bool
+  }
+  deriving (Eq, Generic, Show)
+
 -- | The top level model. TODO @smelc introduce a "View" typeclass
 -- and use "Model = forall a. View a => Model a"? But I would lose
 -- pattern matching, hum?
 data Model
   = Deck' Model.Deck
+  | End' Model.End
   | Game' Model.Game
   | Loot' Model.Loot
   | World' Model.World
