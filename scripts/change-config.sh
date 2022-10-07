@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Changes the value returned by app/client/Configuration.hs
+# Changes the value returned by app/shared/Configuration.hs
 #
 # This script expects one argument: what to put after "get = " in the
 # last line of Configuration.hs

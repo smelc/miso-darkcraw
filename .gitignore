@@ -10,6 +10,7 @@ app/dist-newstyle
 app/result*
 hls
 oryx
+screenshots
 th/dist-newstyle
 th/.stack-work
 th/.vscode

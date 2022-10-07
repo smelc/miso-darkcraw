@@ -5,7 +5,7 @@
 rm -Rf "$TMP_PATH"  # Erase previous run if any
 
 function restore_config() {
-  git checkout "app/client/Configuration.hs"
+  git checkout "app/shared/Configuration.hs"
 }
 
 # Compile
