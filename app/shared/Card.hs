@@ -415,7 +415,7 @@ rawTeamDeck cards t =
     items =
       case t of
         Beastmen -> 1 * SwordOfBlood
-        Evil -> 1 * SpikyMace
+        Evil -> 1 * SwordOfBlood
         Human -> 1 * SwordOfMight
         Sylvan -> 1 * CloakOfGaia
         Undead -> 1 * Card.FlailOfTheDamned

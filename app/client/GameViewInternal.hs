@@ -273,7 +273,7 @@ turnView model@Model.Game {theme = themek, turn} z = do
         <> flexColumnStyle
         <> "justify-content" =: "center"
         <> "background-image" =: assetsUrl (Theme.turn theme)
-    line1 :: View Action = Miso.text $ "Turn " <> ms (Turn.toNat turn)
+    line1 :: View Action = Miso.text $ "Turn " <> ms (Turn.toNat turn) <> "/" <> (ms Constants.nbTurns)
     playerImgY =
       case Turn.toPlayerSpot turn of
         PlayerTop -> "1"

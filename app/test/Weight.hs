@@ -27,7 +27,7 @@ balances =
     [ ( Human, -- journeys start
         [ [ (Undead, 34, 30, 0),
             (Beastmen, 64, 0, 0),
-            (Evil, 42, 22, 0)
+            (Evil, 41, 23, 0)
           ],
           [ (Undead, 34, 30, 0),
             (Sylvan, 3, 60, 1),
